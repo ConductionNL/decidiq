@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Service;
 
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
@@ -34,9 +35,9 @@ use Psr\Log\LoggerInterface;
  * Verifies that the Meeting lifecycle is 'opened', creates Decision objects,
  * auto-creates draft Minutes if needed, and links decisions to minutes.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  */
-class LiveDecisionService {
+class LiveDecisionService implements LiveDecisionServiceInterface {
 	/**
 	 * Constructor.
 	 *
@@ -44,7 +45,7 @@ class LiveDecisionService {
 	 * @param LoggerInterface $logger The logger
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
 	 */
 	public function __construct(
 		private ContainerInterface $container,
@@ -68,7 +69,7 @@ class LiveDecisionService {
 	 * @throws MissingObjectException If the Meeting is not found
 	 * @throws Exception If the Meeting lifecycle is not 'opened'
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
 	 */
 	public function recordDecision(string $meetingId, array $decisionData): string {
 		try {
@@ -177,67 +178,118 @@ class LiveDecisionService {
 	 * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use
 	 *                 the side effect of creating the Minutes record.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
 	 */
 	private function ensureDraftMinutes(string $meetingId): string {
 		try {
-			// Check if Minutes already exist for this Meeting.
-			$params = [
-				'_limit' => 999,
-				'_offset' => 0,
-			];
-			$this->objectService->setRegister('decidiq');
-			$this->objectService->setSchema('minutes');
-			$existingMinutes = $this->objectService->findAll(['filters' => $params]);
-
-			foreach ($existingMinutes as $minutesEntity) {
-				$minutes = $minutesEntity->jsonSerialize();
-				// Check if linked to the Meeting.
-				if (empty($minutes['relations']['Meeting']) === false) {
-					foreach ($minutes['relations']['Meeting'] as $linkedMeetingId) {
-						if ($linkedMeetingId === $meetingId || $linkedMeetingId === ['id' => $meetingId]) {
-							return $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
-						}
-					}
-				}
+			$existing = $this->existingMinutesSlug(meetingId: $meetingId);
+			if ($existing !== null) {
+				return $existing;
 			}
 
-			// No Minutes found, create one.
-			$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
-			$meeting = null;
-			if ($meetingEntity !== null) {
-				$meeting = $meetingEntity->jsonSerialize();
-			}
-
-			if ($meeting === null) {
-				throw new MissingObjectException(message: "Meeting not found: $meetingId");
-			}
-
-			$minutesToCreate = [
-				'title' => 'Concept notulen — ' . ($meeting['title'] ?? 'Untitled Meeting'),
-				'lifecycle' => 'draft',
-				'version' => 1,
-				'content' => '',
-				'relations' => [
-					'Meeting' => [$meetingId],
-				],
-			];
-
-			$minutesEntity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'Minutes',
-				object: $minutesToCreate
-			);
-			$minutes = $minutesEntity->jsonSerialize();
-
-			$minutesSlug = $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
-
-			$this->logger->info("Draft Minutes created for meeting $meetingId: $minutesSlug");
-
-			return $minutesSlug;
+			return $this->createDraftMinutes(meetingId: $meetingId);
 		} catch (Exception $e) {
 			$this->logger->error('LiveDecisionService::ensureDraftMinutes failed: ' . $e->getMessage());
 			throw $e;
 		}//end try
 	}//end ensureDraftMinutes()
+
+	/**
+	 * The slug of the Minutes already linked to the meeting, or null when there are none.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+	 */
+	private function existingMinutesSlug(string $meetingId): ?string {
+		// Check if Minutes already exist for this Meeting.
+		$params = [
+			'_limit' => 999,
+			'_offset' => 0,
+		];
+		$this->objectService->setRegister('decidiq');
+		$this->objectService->setSchema('minutes');
+		$existingMinutes = $this->objectService->findAll(['filters' => $params]);
+
+		foreach ($existingMinutes as $minutesEntity) {
+			$minutes = $minutesEntity->jsonSerialize();
+			if ($this->linksMeeting(minutes: $minutes, meetingId: $meetingId) === true) {
+				return $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
+			}
+		}
+
+		return null;
+	}//end existingMinutesSlug()
+
+	/**
+	 * Whether a Minutes object's Meeting relation names the meeting.
+	 *
+	 * @param array<string, mixed> $minutes   The Minutes.
+	 * @param string               $meetingId The meeting.
+	 *
+	 * @return bool
+	 *
+	 * @spec {tag}
+	 */
+	private function linksMeeting(array $minutes, string $meetingId): bool {
+		if (empty($minutes['relations']['Meeting']) === true) {
+			return false;
+		}
+
+		foreach ($minutes['relations']['Meeting'] as $linkedMeetingId) {
+			if ($linkedMeetingId === $meetingId || $linkedMeetingId === ['id' => $meetingId]) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end linksMeeting()
+
+	/**
+	 * Create draft Minutes for the meeting and return their slug.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return string
+	 *
+	 * @throws MissingObjectException When the meeting does not exist.
+	 *
+	 * @spec {tag}
+	 */
+	private function createDraftMinutes(string $meetingId): string {
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
+		$meeting = null;
+		if ($meetingEntity !== null) {
+			$meeting = $meetingEntity->jsonSerialize();
+		}
+
+		if ($meeting === null) {
+			throw new MissingObjectException(message: "Meeting not found: $meetingId");
+		}
+
+		$minutesToCreate = [
+			'title' => 'Concept notulen — ' . ($meeting['title'] ?? 'Untitled Meeting'),
+			'lifecycle' => 'draft',
+			'version' => 1,
+			'content' => '',
+			'relations' => [
+				'Meeting' => [$meetingId],
+			],
+		];
+
+		$minutesEntity = $this->objectService->saveObject(
+			register: 'decidiq',
+			schema: 'Minutes',
+			object: $minutesToCreate
+		);
+		$minutes = $minutesEntity->jsonSerialize();
+
+		$minutesSlug = $minutes['@self']['slug'] ?? $minutes['id'] ?? '';
+
+		$this->logger->info("Draft Minutes created for meeting $meetingId: $minutesSlug");
+
+		return $minutesSlug;
+	}//end createDraftMinutes()
 }//end class

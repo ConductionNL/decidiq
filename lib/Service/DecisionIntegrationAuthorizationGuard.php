@@ -41,6 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -51,14 +52,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
-class DecisionIntegrationAuthorizationGuard {
-
-	/**
-	 * The caller may read this Decision's outcome envelope.
-	 *
-	 * @var string
-	 */
-	public const READ_ALLOWED = 'allowed';
+class DecisionIntegrationAuthorizationGuard implements DecisionIntegrationAuthorizationGuardInterface {
 
 	/**
 	 * The caller may NOT read this Decision's outcome envelope.
@@ -66,15 +60,6 @@ class DecisionIntegrationAuthorizationGuard {
 	 * @var string
 	 */
 	public const READ_DENIED = 'denied';
-
-	/**
-	 * The question could not be answered — the Decision could not be resolved
-	 * at all. Not the same fact as a refusal; see
-	 * {@see self::resolveOutcomeReadAccess()}.
-	 *
-	 * @var string
-	 */
-	public const READ_UNRESOLVED = 'unresolved';
 
 	/**
 	 * Construct the guard.
@@ -159,7 +144,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return string One of self::READ_ALLOWED, self::READ_DENIED, self::READ_UNRESOLVED
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function resolveOutcomeReadAccess(string $decisionId, string $callerUid): string {
 		if ($decisionId === '' || $callerUid === '') {

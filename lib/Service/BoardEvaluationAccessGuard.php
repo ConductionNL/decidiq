@@ -47,6 +47,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -61,7 +62,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-006-one-mode-adaptive-entity-across-governance-domains
  */
-class BoardEvaluationAccessGuard {
+class BoardEvaluationAccessGuard implements BoardEvaluationAccessGuardInterface {
 
 	/**
 	 * Constructor for BoardEvaluationAccessGuard.

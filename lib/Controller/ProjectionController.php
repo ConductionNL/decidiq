@@ -16,15 +16,15 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\VotingService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -36,24 +36,24 @@ use OCP\IRequest;
 /**
  * Public projection controller (no authentication required).
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
  */
 class ProjectionController extends Controller {
 	/**
 	 * Constructor for ProjectionController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingService $votingService The voting service
+	 * @param VotingServiceInterface $votingService The voting service
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingService $votingService,
+		private readonly VotingServiceInterface $votingService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -72,7 +72,7 @@ class ProjectionController extends Controller {
 	 *
 	 * @return JSONResponse The public-state array or error
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

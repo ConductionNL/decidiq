@@ -28,6 +28,7 @@ const OVERFLOW = [
 	'Self-evaluation',
 	'Position holders',
 	'Positions',
+	'Step-down schedule',
 	'Other positions',
 	'Gifts',
 	'Composition',
@@ -37,6 +38,7 @@ const OVERFLOW = [
 	'Consultations',
 	'Remuneration this year',
 	'Remuneration total',
+	'Contacts',
 ]
 const SIDE = ['body-side-facts', 'body-workspace']
 const FACTS_LEAD = 'bodyType'

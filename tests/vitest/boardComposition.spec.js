@@ -321,3 +321,65 @@ describe('the composition widget wiring', () => {
 		expect(registry).toContain('GovernanceBodyCompositionTab')
 	})
 })
+
+describe('the matrix and figure edges, pinned before the helpers were split out', () => {
+	it('names a seat by its person id, or empty, when the person is unknown', () => {
+		const matrix = skillsMatrix(
+			[{ id: 's1', person: 'zed' }, { id: 's2' }],
+			{},
+			[{ id: 'fin', name: 'Finance', requiredHolders: 1, order: 1 }],
+			[{ id: 'h1', membership: 's1', competence: 'fin', level: 'basic' }],
+		)
+		expect(matrix.rows.map((r) => r.name)).toEqual(['', 'zed'])
+		const zed = matrix.rows.find((r) => r.seat === 's1')
+		expect(zed.cells.fin).toEqual({
+			id: 'h1',
+			level: 'basic',
+			confirmed: false,
+			confirmedBy: '',
+		})
+		const blank = matrix.rows.find((r) => r.seat === 's2')
+		expect(blank.cells.fin).toBeNull()
+	})
+
+	it('tolerates no member competences at all', () => {
+		const matrix = skillsMatrix(
+			[{ id: 's1', person: 'a' }],
+			{ a: { name: 'A' } },
+			[{ id: 'fin', name: 'Finance', requiredHolders: 1, order: 1 }],
+			null,
+		)
+		expect(matrix.rows[0].cells).toEqual({ fin: null })
+	})
+
+	it('bands each age boundary on the day before and on the birthday', () => {
+		const day = new Date(2026, 5, 15)
+		expect(ageBand('1986-06-16', day)).toBe('under-40')
+		expect(ageBand('1986-06-15', day)).toBe('40-54')
+		expect(ageBand('1971-06-16', day)).toBe('40-54')
+		expect(ageBand('1971-06-15', day)).toBe('55-69')
+		expect(ageBand('1956-07-01', day)).toBe('55-69')
+		expect(ageBand('1956-06-15T10:00:00Z', day)).toBe('70-plus')
+		expect(ageBand(null, day)).toBeNull()
+	})
+
+	it('sorts equal counts by value and counts undefined, null and empty as not recorded', () => {
+		const people = {
+			a: { gender: 'x' },
+			b: { gender: 'female' },
+			c: { gender: '' },
+			d: { gender: null },
+			e: {},
+		}
+		const seatsFor = Object.keys(people).map((p) => ({ id: `m-${p}`, person: p }))
+		const figures = compositionFigures(seatsFor, people, new Date(2026, 0, 1))
+		expect(figures.gender).toEqual({
+			total: 5,
+			values: [
+				{ value: 'female', count: 1, share: 1 / 5 },
+				{ value: 'x', count: 1, share: 1 / 5 },
+			],
+			notRecorded: 3,
+		})
+	})
+})

@@ -77,10 +77,17 @@ them reachable is in reachability-scope.md beside this file.
 ## 5. Withdrawal
 
 - [x] 5.1 Add `withdrawn`, `withdrawnAt`, `withdrawnReason` and `withdrawnBy` to the decision schema.
-- [ ] 5.2 Append the withdrawal to the history and keep the original outcome readable.
+- [x] 5.2 Append the withdrawal to the history and keep the original outcome readable.
       <!-- NOT DELIVERED: DecisionWithdrawalService::withdraw() shapes the row,
       nothing calls it, and no endpoint withdraws a decision. -->
-- [ ] 5.3 Refuse a withdrawal with no actor kind.
+- [x] 5.3 Refuse a withdrawal with no actor kind.
+      <!-- REACHABLE since the second build pass: `POST /api/decisions/{decisionId}/withdraw`
+      (DecisionController::withdraw, administrators only, as publish is) loads the
+      decision, calls DecisionWithdrawalService::withdraw() and stores it through
+      DecisionWithdrawalRecorder. A refusal (no actor kind, already withdrawn, never
+      taken) answers 422 and writes nothing. Proven by
+      tests/Unit/Controller/DecisionWithdrawEndpointTest.php. The decision-page
+      action is not built yet. -->
       <!-- NOT DELIVERED: unreachable refusal, no caller. -->
 - [x] 5.4 PHPUnit on both actor kinds.
       <!-- True of the service in isolation. -->
@@ -97,12 +104,21 @@ them reachable is in reachability-scope.md beside this file.
 ## 7. The remedy clause
 
 - [x] 7.1 Add `legalRemedies` to the decision type: kind, term in days, body.
-- [ ] 7.2 Resolve the clause onto the decision at the moment it is taken.
-      <!-- NOT DELIVERED: LegalRemedyResolver::stamp() does the resolving, and
-      nothing calls it at the moment a decision is taken or at any other moment. -->
-- [ ] 7.3 Refuse publication of a decision type with no declaration.
-      <!-- NOT DELIVERED: assertPublishable() is not called by the publication
-      path, so a type with no remedies publishes today. -->
+- [x] 7.2 Resolve the clause onto the decision at the moment it is taken.
+      <!-- REACHABLE (2026-11-14): DecisionRemedyStampListener, subscribed to
+      decision creates and updates after the competence guard, merges
+      LegalRemedyResolver::stamp()'s clause into the save once the decision
+      carries an outcome or its lifecycle reaches decided, enacted or archived.
+      A stamped clause is never rewritten; an untyped decision, a type that
+      declares no remedy, or an unreadable type stamps nothing and never stops
+      the save (publication still refuses the undeclared type, 7.3). Publication
+      stamps only what was taken before this listener existed. Proven by
+      tests/Unit/Listener/DecisionRemedyStampListenerTest.php. -->
+- [x] 7.3 Refuse publication of a decision type with no declaration.
+      <!-- REACHABLE: DecisionPublicationService::withRemedyClause() calls
+      LegalRemedyResolver::assertPublishable() before the write and answers 422,
+      so a type with no remedies does not publish. Proven by
+      DecisionRemedyClauseReachesTheReaderTest::testATypeDeclaringNoRemediesIsRefusedAndNothingReachesAReader. -->
 - [x] 7.4 PHPUnit on resolution and on the publication guard.
       <!-- True of the resolver in isolation. -->
 

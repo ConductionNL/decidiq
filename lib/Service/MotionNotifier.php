@@ -22,7 +22,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Best-effort delivery of motion-related Nextcloud notifications.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
  */
 class MotionNotifier {
 	/**
@@ -49,7 +49,7 @@ class MotionNotifier {
 	 * @param ContainerInterface $container The DI container for lazy-loading the notification manager
 	 * @param LoggerInterface $logger Logger interface
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -67,7 +67,7 @@ class MotionNotifier {
 	 * @param array<string, mixed> $parameters Subject parameters
 	 * @param string $failureLog Warning message prefix logged on failure
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */

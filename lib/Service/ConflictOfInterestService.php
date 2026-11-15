@@ -36,7 +36,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,6 +45,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
@@ -54,9 +55,9 @@ use RuntimeException;
  * Service for managing conflict-of-interest declarations and their effect on
  * read/vote access to specific agenda items.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
-class ConflictOfInterestService {
+class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 
 	/**
 	 * Allowed declaration-type enum values.
@@ -116,9 +117,9 @@ class ConflictOfInterestService {
 	 *                               authorization check (admin path, mirroring
 	 *                               `ProxyVoteService`'s convention)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 * @return array{success: bool, declaration: array|null, message: string}
@@ -226,7 +227,7 @@ class ConflictOfInterestService {
 			// admin); the schema's own authorization block declares only read/list
 			// (decidesk_register.json), so this consumer declares, per the
 			// ObjectServiceInterface RBAC contract, that authorization already ran
-			// (same convention as ProxyVoteService::register()).
+			// (same convention as ProxyVoteService::transition()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidiq',
@@ -289,8 +290,8 @@ class ConflictOfInterestService {
 	 *                               recording the action taken is a presiding-officer
 	 *                               act, so a non-null caller must be chair/secretary.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
@@ -321,9 +322,7 @@ class ConflictOfInterestService {
 			// method_exists() probe could never be false.
 			$current = $entity->getObject();
 
-			if ($callerUid !== null
-				&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $current, callerUid: $callerUid) === false
-			) {
+			if ($this->deniesCaller(declaration: $current, callerUid: $callerUid) === true) {
 				return [
 					'success' => false,
 					'declaration' => null,
@@ -368,6 +367,22 @@ class ConflictOfInterestService {
 	}//end recordAction()
 
 	/**
+	 * Whether a named caller may not record the action taken on the declaration.
+	 * A null caller (a system call) is never denied here.
+	 *
+	 * @param array<string, mixed> $declaration The declaration.
+	 * @param string|null          $callerUid   The caller, or null.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 */
+	private function deniesCaller(array $declaration, ?string $callerUid): bool {
+		return $callerUid !== null
+			&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $declaration, callerUid: $callerUid) === false;
+	}//end deniesCaller()
+
+	/**
 	 * Return the most-restrictive active conflict for a given member + agenda
 	 * item pair, or null when none is on file. Restrictiveness ordering is
 	 * "recused-from-vote" > "recused-from-discussion" > "disclosed-and-participated"
@@ -376,7 +391,7 @@ class ConflictOfInterestService {
 	 * @param string $membershipId UUID of the member's Membership (was Participant)
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
@@ -480,7 +495,7 @@ class ConflictOfInterestService {
 	 * @param string $agendaItemId UUID of the agenda item the declaration concerns
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @return bool
 	 */

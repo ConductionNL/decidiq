@@ -29,7 +29,6 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCP\IL10N;
-use Throwable;
 
 /**
  * Builds the invitation: the date, the place and the agenda items as text,
@@ -164,16 +163,7 @@ final class AgendaInvitation {
 	 * @return DateTimeImmutable|null
 	 */
 	private function parse(mixed $value): ?DateTimeImmutable {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Throwable) {
-			return null;
-		}
-
+		return (new DateValueParser())->parse(value: $value);
 	}//end parse()
 
 	/**

@@ -53,3 +53,14 @@ When a session is broadcast, its broadcast SHALL carry the evening's title, and 
 - GIVEN the three sessions are broadcast
 - WHEN a resident opens the portal's live and recent meetings
 - THEN the three broadcasts are listed together under "Commissieavond 3 november"
+
+### Requirement: REQ-PPS-005 Each parallel session keeps its own recording and subtitles
+
+Each session of an evening SHALL keep its own recording and its own subtitles, apart from the other sessions of that evening, and the session's page SHALL play its own recording with its own subtitles.
+
+#### Scenario: Two sessions are recorded at the same time
+- GIVEN an evening with two sessions held in two rooms at the same time
+- WHEN both sessions are recorded and subtitled
+- THEN each session's page plays the recording of that session with the subtitles of that session
+- AND neither page shows the other session's recording or subtitles
+

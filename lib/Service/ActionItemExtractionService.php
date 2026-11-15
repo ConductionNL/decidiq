@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@ use Psr\Log\LoggerInterface;
  * and phrases (wordt verzocht, zal worden, is toegezegd). Returns candidates with
  * title and optional assignee suggestions for preview and confirmation.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4
  */
 class ActionItemExtractionService {
 	/**
@@ -40,7 +40,7 @@ class ActionItemExtractionService {
 	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger The logger
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4
 	 */
 	public function __construct(
 		private ContainerInterface $container,
@@ -64,7 +64,7 @@ class ActionItemExtractionService {
 	 *   suggestedAssignee: string|null
 	 * }> Array of candidate objects
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
 	 */
 	public function extractFromContent(string $content, array $knownParticipants = []): array {
 		$candidates = [];
@@ -118,7 +118,7 @@ class ActionItemExtractionService {
 	 *
 	 * @return int The count of saved ActionItems
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
 	 */
 	public function saveExtracted(string $minutesId, array $confirmed): int {
 		try {
@@ -168,7 +168,7 @@ class ActionItemExtractionService {
 	 *
 	 * @return array|null The ActionItem payload, or null when the candidate has no title
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
 	 */
 	private function buildActionItem(string $minutesId, array $candidate): ?array {
 		$title = $candidate['title'] ?? null;
@@ -216,7 +216,7 @@ class ActionItemExtractionService {
 	 *
 	 * @return string|null The matched participant name, or null
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
 	 */
 	private function extractAssigneeFromLine(string $line, array $knownParticipants): ?string {
 		foreach ($knownParticipants as $name) {
@@ -237,7 +237,7 @@ class ActionItemExtractionService {
 	 *
 	 * @return string The extracted title
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.1
 	 */
 	private function extractTitleFromPhrase(string $line): string {
 		// Return the full line if it's a reasonable length (< 150 chars).

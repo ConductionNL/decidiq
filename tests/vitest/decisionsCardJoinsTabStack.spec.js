@@ -76,14 +76,15 @@ describe('the decisions card as DqZaakBesluiten draws it (r31 verdicts)', () => 
 	it('draws a draft decision with the neutral pill, before a proposal reads as info', () => {
 		const body = sfc.slice(
 			sfc.indexOf('lifecycleVariant(decision) {'),
-			sfc.indexOf('decisionUrl(decision) {'),
+			sfc.indexOf('drafterOf(decision) {'),
 		)
-		const draft = body.indexOf("=== 'draft'")
+		const draft = body.indexOf('isDraft(decision)')
 		expect(draft).toBeGreaterThan(-1)
 		expect(body.slice(draft, body.indexOf('}', draft))).toContain(
 			"return 'default'",
 		)
-		expect(draft).toBeLessThan(body.indexOf('isProposal(decision)'))
+		// The shared variant is where a proposal reads as info.
+		expect(draft).toBeLessThan(body.indexOf('lifecycleVariantOf(decision)'))
 	})
 })
 

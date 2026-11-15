@@ -17,8 +17,8 @@
  answer the Stage block draws its buttons from) and says so before anybody
  presses. No answer, no line: it never guesses a role.
 
- @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
- @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+ @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+ @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 -->
 <template>
 	<nav
@@ -75,9 +75,11 @@ import {
 	MEETING_STATE_LABELS,
 	nextStepIsOffered,
 } from '../../utils/meetingSteps.js'
+import { stepBarWordsMixin } from './stepBarWords.js'
 
 export default {
 	name: 'MeetingStepBar',
+	mixins: [stepBarWordsMixin],
 	props: {
 		/** The meeting's id. */
 		objectId: { type: [String, Number], default: '' },
@@ -97,7 +99,7 @@ export default {
 		 * The meeting's state.
 		 *
 		 * @return {string} The lifecycle, or '' while the meeting loads.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		lifecycle() {
 			return this.objectData?.lifecycle || ''
@@ -107,7 +109,7 @@ export default {
 		 * The four steps, each done, current or upcoming.
 		 *
 		 * @return {Array<{state: string, status: string}>} The steps.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		steps() {
 			return buildMeetingSteps(this.lifecycle)
@@ -117,7 +119,7 @@ export default {
 		 * The break a meeting in session is in, in words.
 		 *
 		 * @return {string} The sentence, or '' for a meeting that is not on a break.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		breakNote() {
 			if (this.lifecycle === 'paused') {
@@ -133,7 +135,7 @@ export default {
 		 * true on an answer: without one the bar says nothing.
 		 *
 		 * @return {boolean} True when the line about the chair and the secretary shows.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 		 */
 		refused() {
 			return (
@@ -146,13 +148,13 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
+			/** @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
 			handler() {
 				this.loadOffered()
 			},
 		},
 
-		/** @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
+		/** @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
 		lifecycle() {
 			this.loadOffered()
 		},
@@ -164,27 +166,10 @@ export default {
 		 *
 		 * @param {string} state The lifecycle state.
 		 * @return {string} Its label, or the state itself when it has none.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		stepLabel(state) {
 			return MEETING_STATE_LABELS[state] || state
-		},
-
-		/**
-		 * Whether a step is behind, current or ahead, in a word. Colour alone
-		 * must not carry it.
-		 *
-		 * @param {string} status `done`, `current` or `upcoming`.
-		 * @return {string} The translated word.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
-		 */
-		stateWord(status) {
-			if (status === 'done') {
-				return this.t('decidiq', 'Done')
-			}
-			return status === 'current'
-				? this.t('decidiq', 'Now')
-				: this.t('decidiq', 'Next')
 		},
 
 		/**
@@ -193,7 +178,7 @@ export default {
 		 * null, so no line about roles shows.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 		 */
 		async loadOffered() {
 			this.offered = null
@@ -211,89 +196,17 @@ export default {
 }
 </script>
 
+<style scoped src="./stepBar.css"></style>
+
 <style scoped>
 /*
  * Four steps on ONE row: equal columns that may shrink to nothing, with the
  * number above the label and a word for done, now or next under it. On a
  * narrow page the steps wrap two by two, and the card grows with them (the
  * layout entry sizes to its content).
- *
- * THE STEPS ARE AS TALL AS THE CARD HAS TO BE. The detail grid gives every
- * card at least two rows, and sizing to content cannot go below that floor.
- * A bar one line high would leave an empty band under it, so each step is a
- * tile that fills those two rows. The same measure as the decision page.
  */
 .meeting-steps__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: var(--default-grid-baseline);
-}
-
-.meeting-steps__step {
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 2px;
-	justify-content: center;
-	min-height: 124px;
-	box-sizing: border-box;
-	padding: calc(var(--default-grid-baseline) * 2) var(--default-grid-baseline);
-	border-radius: var(--border-radius-large);
-	background: var(--color-background-hover);
-	color: var(--color-text-maxcontrast);
-	font-size: 0.85em;
-	text-align: center;
-}
-
-.meeting-steps__label {
-	max-width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.meeting-steps__state {
-	font-size: 0.9em;
-	font-weight: normal;
-}
-
-.meeting-steps__number {
-	flex: none;
-	width: 22px;
-	height: 22px;
-	border-radius: 50%;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-	border: 2px solid var(--color-border-dark);
-}
-
-.meeting-steps__step--done {
-	color: var(--color-main-text);
-}
-
-.meeting-steps__step--done .meeting-steps__number {
-	border-color: var(--color-success);
-}
-
-.meeting-steps__step--current {
-	background: var(--color-primary-element-light);
-	color: var(--color-primary-element-light-text);
-	font-weight: bold;
-}
-
-.meeting-steps__step--current .meeting-steps__number {
-	border-color: var(--color-primary-element);
-}
-
-.meeting-steps__note {
-	margin: calc(var(--default-grid-baseline) * 2) 0 0;
-	color: var(--color-text-maxcontrast);
 }
 
 @media (max-width: 700px) {

@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MinutesDraftServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
@@ -49,7 +50,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class MinutesDraftService {
+class MinutesDraftService implements MinutesDraftServiceInterface {
 	/**
 	 * Constructor.
 	 *

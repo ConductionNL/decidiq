@@ -32,7 +32,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -40,7 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -123,8 +123,8 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -136,7 +136,7 @@ class HealthController extends CorsJsonController {
 		if ($body === null) {
 			$body = [
 				'status' => 'degraded',
-				'version' => $this->appConfig->getValueString(Application::APP_ID, 'installed_version', ''),
+				'version' => $this->appConfig->getValueString(AppIdentity::APP_ID, 'installed_version', ''),
 				'openregister' => 'unavailable',
 				'httpStatus' => Http::STATUS_OK,
 			];
@@ -210,7 +210,7 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -224,7 +224,7 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

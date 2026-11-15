@@ -92,6 +92,12 @@ class PublicationPayloadService {
 			case 'activity':
 				$payload = $this->buildActivityPayload(source: $source, version: $version);
 				break;
+			case 'theme':
+				$payload = $this->buildThemePayload(source: $source, version: $version);
+				break;
+			case 'incoming-document':
+				$payload = self::buildIncomingDocumentPayload(source: $source, version: $version);
+				break;
 			default:
 				throw new InvalidArgumentException('Unknown publication source type: ' . $sourceType);
 		}
@@ -223,6 +229,17 @@ class PublicationPayloadService {
 				continue;
 			}
 
+			if (($item['public'] ?? true) === false) {
+				// A closed item is listed by its place only: no title, no papers.
+				$published[] = [
+					'oriType' => 'AgendaPunt',
+					'order' => (int)($item['orderNumber'] ?? 0),
+					'title' => 'Besloten punt',
+					'papers' => [],
+				];
+				continue;
+			}
+
 			$papers      = $this->agendaPapers->publish(itemId: $itemId);
 			$paperRefs   = array_merge($paperRefs, $papers['refs']);
 			$published[] = [
@@ -254,6 +271,40 @@ class PublicationPayloadService {
 		];
 
 	}//end buildAgendaPayload()
+
+	/**
+	 * The public payload of a theme: its text and a timeline of only the linked
+	 * items that are published themselves, each with its publication.
+	 *
+	 * @param array<string,mixed> $source  Theme object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function buildThemePayload(array $source, int $version): array {
+		return [
+			'oriType' => 'Dossier',
+			'schemaOrgType' => 'CreativeWork',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'introduction' => (string)($source['introduction'] ?? ''),
+			'blocks' => $this->themeTimeline()->blocksOf(blocks: ($source['blocks'] ?? [])),
+			'status' => (string)($source['status'] ?? 'active'),
+			'bodyName' => $this->resolveBodyName(source: $source),
+			'timeline' => $this->themeTimeline()->publishedEntries(theme: $source),
+		];
+	}//end buildThemePayload()
+
+	/**
+	 * The theme timeline builder, resolved from the container on first use.
+	 *
+	 * @return ThemeTimelineBuilder
+	 */
+	private function themeTimeline(): ThemeTimelineBuilder {
+		return $this->container->get(ThemeTimelineBuilder::class);
+	}//end themeTimeline()
 
 	/**
 	 * Build a calendar entry for a public meeting: when, what, who organises
@@ -348,6 +399,42 @@ class PublicationPayloadService {
 		];
 
 	}//end buildMinutesPayload()
+
+	/**
+	 * The public payload of an incoming document: title, category, the day it
+	 * came in, the confirmed routing and the sender.
+	 *
+	 * A natural person is never named: the sender becomes the neutral label
+	 * "Inwoner" here, whatever the stored value holds, so no screen can leak
+	 * the name. The summary is left out, because a letter's summary is where
+	 * a resident's own details end up. Organisations and governing bodies are
+	 * named as they are. A sender type outside the known set is treated as a
+	 * natural person: an unknown kind of sender is not assumed to be public.
+	 *
+	 * @param array<string,mixed> $source  IngekomenStuk object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function buildIncomingDocumentPayload(array $source, int $version): array {
+		$sender = 'Inwoner';
+		if (in_array(($source['senderType'] ?? null), ['organisation', 'governingBody'], true) === true) {
+			$sender = (string)($source['sender'] ?? '');
+		}
+
+		return [
+			'oriType' => 'IngekomenStuk',
+			'schemaOrgType' => 'DigitalDocument',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'category' => (string)($source['category'] ?? ''),
+			'receivedAt' => (string)($source['receivedAt'] ?? ''),
+			'routing' => (string)($source['routingAdvice'] ?? ''),
+			'sender' => $sender,
+		];
+	}//end buildIncomingDocumentPayload()
 
 	/**
 	 * Extract for/against/abstain totals from a decision; never per-member votes.

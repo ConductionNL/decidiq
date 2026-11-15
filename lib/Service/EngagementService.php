@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-8
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -36,9 +37,9 @@ use Throwable;
 /**
  * Service for capturing and querying participant engagement data.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
  */
-class EngagementService {
+class EngagementService implements EngagementServiceInterface {
 
 	/**
 	 * The record list each event type is appended to.
@@ -56,7 +57,7 @@ class EngagementService {
 	 * @param LoggerInterface $logger Logger interface
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
@@ -69,7 +70,7 @@ class EngagementService {
 	 *
 	 * @return object
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function getObjectService(): object {
 		return $this->objectService;
@@ -90,7 +91,7 @@ class EngagementService {
 	 *
 	 * @throws InvalidArgumentException When event type is unknown
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	public function captureEngagement(
 		string $meetingId,
@@ -116,7 +117,7 @@ class EngagementService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function newRecord(string $meetingId, string $participant): array {
 		return [
@@ -137,7 +138,7 @@ class EngagementService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function savedRecord(mixed $saved): array {
 		if (is_array($saved) === true) {
@@ -161,7 +162,7 @@ class EngagementService {
 	 *
 	 * @throws InvalidArgumentException When event type is unknown
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function applyEvent(array $record, array $event): array {
 		$list = self::EVENT_LISTS[$event['type']] ?? null;
@@ -187,7 +188,7 @@ class EngagementService {
 	 *
 	 * @return int The duration in seconds.
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function speechDuration(array $eventData): int {
 		$duration = (int)($eventData['duration'] ?? 0);
@@ -211,7 +212,7 @@ class EngagementService {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function spanSeconds(array $eventData): int {
 		try {
@@ -232,7 +233,7 @@ class EngagementService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	public function findEngagementForMeetingAndParticipant(
 		string $meetingId,
@@ -258,7 +259,7 @@ class EngagementService {
 	 *
 	 * @return iterable<mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function queryEngagement(array $query): iterable {
 		$objectService = $this->getObjectService();
@@ -275,7 +276,7 @@ class EngagementService {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function recordsOf(iterable $results): array {
 		$out = [];
@@ -297,7 +298,7 @@ class EngagementService {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	public function findEngagementForMeeting(string $meetingId): array {
 		try {
@@ -319,7 +320,7 @@ class EngagementService {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	public function calculateScore(array $record): int {
 		$speakingMinutes = ((int)($record['speakingDuration'] ?? 0)) / 60;
@@ -339,7 +340,7 @@ class EngagementService {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
 	 */
 	private function countOf(array $record, string $key): int {
 		if (is_array(($record[$key] ?? null)) === true) {

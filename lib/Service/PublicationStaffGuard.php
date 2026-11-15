@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IGroupManager;
@@ -43,21 +44,12 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationStaffGuard {
-	/**
-	 * Outcome: the caller holds the required authority.
-	 */
-	public const ALLOWED = 'allowed';
+class PublicationStaffGuard implements PublicationStaffGuardInterface {
 
 	/**
 	 * Outcome: the caller does not hold the required authority.
 	 */
 	public const FORBIDDEN = 'forbidden';
-
-	/**
-	 * Outcome: the PublicationRecord the check was keyed by does not exist.
-	 */
-	public const RECORD_NOT_FOUND = 'record-not-found';
 
 	/**
 	 * Constructor for PublicationStaffGuard.
@@ -194,6 +186,10 @@ class PublicationStaffGuard {
 			return $sourceId;
 		}
 
+		if ($sourceType === 'incoming-document') {
+			return $this->incomingDocumentMeetingId(sourceId: $sourceId);
+		}
+
 		$schema = 'decision';
 		if ($sourceType === 'minutes') {
 			$schema = 'minutes';
@@ -216,4 +212,29 @@ class PublicationStaffGuard {
 
 		return null;
 	}//end resolveMeetingId()
+
+	/**
+	 * The meeting of the "lijst ingekomen stukken" agenda item an incoming document is placed on.
+	 *
+	 * @param string $sourceId UUID of the IngekomenStuk
+	 *
+	 * @return string|null The meeting UUID, or null when the document is not placed
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 */
+	private function incomingDocumentMeetingId(string $sourceId): ?string {
+		$stuk = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'ingekomen-stuk'));
+		$agendaItemId = (string)($stuk?->jsonSerialize()['listAgendaItem'] ?? '');
+		if ($agendaItemId === '') {
+			return null;
+		}
+
+		$agendaItem = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
+		$meetingId  = (string)($agendaItem?->jsonSerialize()['meeting'] ?? '');
+		if ($meetingId === '') {
+			return null;
+		}
+
+		return $meetingId;
+	}//end incomingDocumentMeetingId()
 }//end class

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\DecisionListServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
@@ -36,7 +37,7 @@ use OCP\IL10N;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-004-approving-the-minutes-produces-a-decision-list-document
  */
-class DecisionListService {
+class DecisionListService implements DecisionListServiceInterface {
 	/**
 	 * The file name, without extension.
 	 */

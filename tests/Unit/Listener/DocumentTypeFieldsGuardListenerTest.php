@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -33,7 +33,7 @@ use Psr\Log\NullLogger;
 
 /**
  * @covers \OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener
- * @covers \OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar
+ * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
  *
  * @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-004-a-required-field-is-enforced-on-save
  */

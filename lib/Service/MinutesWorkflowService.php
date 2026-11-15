@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MinutesWorkflowServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
@@ -41,9 +42,9 @@ use RuntimeException;
 /**
  * Action-item extraction and approval submission for Minutes records.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
  */
-class MinutesWorkflowService {
+class MinutesWorkflowService implements MinutesWorkflowServiceInterface {
 	/**
 	 * Constructor.
 	 *
@@ -51,7 +52,7 @@ class MinutesWorkflowService {
 	 * @param ActionItemExtractionService $extractionService Extracts and persists action items
 	 * @param MinutesService $minutesService Sends the approval notifications
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -69,7 +70,7 @@ class MinutesWorkflowService {
 	 *
 	 * @throws MissingObjectException When the Minutes record does not exist
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	public function extractActionItems(string $minutesId): array {
 		$minutes = $this->requireMinutes(minutesId: $minutesId);
@@ -88,7 +89,7 @@ class MinutesWorkflowService {
 	 * @throws MissingObjectException When the Minutes record does not exist
 	 * @throws RuntimeException When the Minutes have already been published (HTTP 400)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	public function saveExtractedActionItems(string $minutesId, array $confirmed): int {
 		$minutes = $this->requireMinutes(minutesId: $minutesId);
@@ -114,7 +115,7 @@ class MinutesWorkflowService {
 	 * @throws MissingObjectException When the Minutes record does not exist
 	 * @throws RuntimeException When the Minutes are not in draft (HTTP 409)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
 	 */
 	public function submitForApproval(string $minutesId): array {
 		$minutes = $this->requireMinutes(minutesId: $minutesId);
@@ -148,7 +149,7 @@ class MinutesWorkflowService {
 	 *
 	 * @throws MissingObjectException When the Minutes record does not exist
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	private function requireMinutes(string $minutesId): array {
 		$entity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
