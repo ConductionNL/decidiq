@@ -34,6 +34,9 @@ use Exception;
 use OCA\Decidiq\Exception\SpeakingRequestRefusedException;
 use OCA\Decidiq\Kernel\Contracts\SpeakingRequestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -596,7 +599,12 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}
@@ -622,9 +630,10 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 		unset($request['id'], $request['@self']);
 		$saved = $this->objectService->saveObject(
 			object: $request,
-			register: self::REGISTER,
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

@@ -28,6 +28,7 @@ use OCA\Decidiq\Exception\SpeakingRequestRefusedException;
 use OCA\Decidiq\Service\SpeakingRequestService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -99,8 +100,10 @@ final class SpeakingRequestServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
-				$this->saves[] = [(string)$schema, $uuid, $object];
+			function (array $object, ObjectSaveOptions $options): ObjectEntity {
+				$schema = (string)$options->target->schema;
+				$uuid   = $options->uuid;
+				$this->saves[] = [$schema, $uuid, $object];
 				$id = ($uuid ?? 'request-' . count($this->saves));
 				$this->put($id, (string)$schema, $object);
 				return $this->entity($id);
