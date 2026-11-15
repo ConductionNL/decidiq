@@ -104,3 +104,13 @@ Domain-entangled plumbing SHALL remain bespoke where the generics cannot express
 - @e2e exclude API-only endpoint — covered by the OR AppHost Newman contract collection
 - **WHEN** a user sets a preference via `PUT /api/preferences/{key}` and reads it back via `GET /api/preferences/{key}`
 - **THEN** the value MUST round-trip identically to pre-adoption behaviour, with previously written preference keys still resolving
+
+### Requirement: The deep-link listener is registered in decidiq's namespace
+
+decidiq SHALL register the AppHost's deep-link listener, and the factory that builds it with decidiq's app id, under a service name in its own `OCA\Decidiq\` namespace, never under OpenRegister's class name.
+
+#### Scenario: OpenRegister dispatches the deep-link registration event
+- **GIVEN** decidiq and OpenRegister enabled
+- **WHEN** OpenRegister dispatches `DeepLinkRegistrationEvent`
+- **THEN** decidiq's listener SHALL be built by decidiq's container and register the manifest's deep links, and no "Could not resolve appId!" SHALL be logged
+- @e2e exclude {bootstrap wiring; covered by DeepLinkListenerRegistrationTest}

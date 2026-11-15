@@ -67,3 +67,9 @@ The per-member roll call part of open change `motie-amendement-administratie` (i
 - A clerk could overwrite a member's own electronic vote. The endpoint refuses to touch a vote the member cast and names that member in the refusal.
 - A named record of a secret ballot defeats the secret. The endpoint refuses on secret rounds.
 - A typo in the member list. The endpoint accepts only active participants of the round's meeting and rejects the whole list, with the unknown ids, if one is wrong, so a half-saved sheet never exists.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- vot-05: Hold a roll-call vote where every member's vote is recorded by name.

@@ -23,7 +23,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+ * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -38,7 +39,7 @@ use OCP\Migration\IRepairStep;
 /**
  * Retired no-op: legacy task/delegation → VTODO migration is a per-user follow-up.
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
  */
 class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	/**
@@ -46,10 +47,10 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 *
 	 * @return string The repair step name.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
 	 */
 	public function getName(): string {
-		return 'Migrate legacy Decidiq Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
+		return 'Migrate legacy Decidiq Task/Delegation objects to Deck-leaf VTODO action items (run occ decidiq:migrate-action-items)';
 	}//end getName()
 
 	/**
@@ -61,12 +62,12 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
 	 */
 	public function run(IOutput $output): void {
 		$output->info(
 			'Decidiq action-item migration skipped: action items are a read-only VTODO '
-			. 'projection; legacy task/delegation → VTODO migration is a per-user follow-up.'
+			. 'projection; run occ decidiq:migrate-action-items to project legacy task/delegation objects per user.'
 		);
 	}//end run()
 }//end class

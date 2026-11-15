@@ -21,6 +21,7 @@ use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\DecisionStageLabelRepair;
+use OCA\Decidiq\Service\HeldRouteRequest;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\Decidiq\Service\WorkingDayDeadlineSplitter;
@@ -28,6 +29,9 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the approval-route engine.
@@ -230,11 +234,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testARouteIsHeldFromNamedPeopleInOrder(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-1',
-			actors: ['j.jansen', 'd.devries', 'b.bakker'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-1', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']));
 
 		$this->assertCount(3, $stages);
 		$this->assertSame(
@@ -259,11 +259,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testAHeldRouteIsMarkedAdhoc(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-2',
-			actors: ['j.jansen'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-2', subjectSchema: 'decision', actors: ['j.jansen']));
 
 		$this->assertSame('adhoc', (string)$stages[0]['origin']);
 	}//end testAHeldRouteIsMarkedAdhoc()
@@ -278,12 +274,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testOneDeadlineIsDividedOverTheSteps(): void {
 		$deadline = (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM);
 
-		$stages = $this->service()->holdFor(
-			subject: 'document-3',
-			actors: ['j.jansen', 'd.devries', 'b.bakker'],
-			subjectSchema: 'decision',
-			deadline: $deadline,
-		);
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']))->due(deadline: $deadline, askSubstituteAfter: null));
 
 		$dueDates = array_map(static fn (array $stage): string => (string)$stage['dueAt'], $stages);
 
@@ -299,16 +290,10 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function testAHeldRouteCanAskTheSubstitute(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-3b',
-			actors: ['j.jansen', 'd.devries'],
-			subjectSchema: 'decision',
-			deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM),
-			askSubstituteAfter: 0.5,
-		);
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3b', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']))->due(deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM), askSubstituteAfter: 0.5));
 
 		foreach ($this->stages() as $stage) {
 			$this->assertSame(0.5, $stage['askSubstituteAfter'] ?? null, 'Every held step must carry askSubstituteAfter');
@@ -325,11 +310,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
 	 */
 	public function testNoDeadlineWritesNoDueDates(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-4',
-			actors: ['j.jansen', 'd.devries'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-4', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']));
 
 		foreach ($stages as $stage) {
 			$this->assertSame('', (string)($stage['dueAt'] ?? ''));
@@ -345,11 +326,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testAPersonNamedTwiceIsAskedOnce(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-5',
-			actors: ['j.jansen', 'd.devries', 'j.jansen', ''],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-5', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'j.jansen', '']));
 
 		$this->assertCount(2, $stages);
 	}//end testAPersonNamedTwiceIsAskedOnce()
@@ -365,7 +342,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('needs at least one person');
 
-		$this->service()->holdFor(subject: 'document-6', actors: ['', '  '], subjectSchema: 'decision');
+		$this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-6', subjectSchema: 'decision', actors: ['', '  ']));
 	}//end testAHeldRouteWithNobodyOnItIsRefused()
 
 	/**
@@ -379,12 +356,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('could not be read as a date');
 
-		$this->service()->holdFor(
-			subject: 'document-7',
-			actors: ['j.jansen'],
-			subjectSchema: 'decision',
-			deadline: 'end of the month',
-		);
+		$this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-7', subjectSchema: 'decision', actors: ['j.jansen']))->due(deadline: 'end of the month', askSubstituteAfter: null));
 	}//end testAnUnreadableDeadlineIsRefused()
 
 	/**
@@ -424,13 +396,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				// saveObject returns an ENTITY, not an array. The store already
@@ -446,12 +416,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);
@@ -466,13 +435,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -898,7 +865,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnOrdinaryUserCannotDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -928,7 +895,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testTheRefusedRouteWritesNoStageAtAll(): void {
 		$route = $this->route();
@@ -954,7 +921,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnAdministratorMayDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -980,7 +947,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAStoredRouteWithoutAnApprovingSilenceStillInstantiates(): void {
 		$route = $this->route();

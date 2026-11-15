@@ -1,0 +1,847 @@
+{
+    "author-and-users": {
+        "returns": 3,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "no-session-user": {
+        "returns": 2,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "alice"
+                ]
+            }
+        ]
+    },
+    "author-only": {
+        "returns": 1,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "s",
+                    {
+                        "title": "",
+                        "status": "",
+                        "uuid": "",
+                        "segment": "meetings"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "meeting",
+                    0,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "no-audience": {
+        "returns": 0,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "debug",
+                "args": [
+                    "Decidiq: activity event has no resolvable audience, skipped",
+                    {
+                        "subject": "decision_recorded",
+                        "objectUuid": "uuid-1"
+                    }
+                ]
+            }
+        ]
+    },
+    "publish-fails-once": {
+        "returns": 2,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "bob"
+                ]
+            },
+            {
+                "call": "debug",
+                "args": [
+                    "Decidiq: failed to publish activity entry for user",
+                    {
+                        "uid": "bob",
+                        "subject": "decision_recorded",
+                        "error": "publish failed for bob"
+                    }
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    "chair"
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "generate-fails": {
+        "returns": 0,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "debug",
+                "args": [
+                    "Decidiq: failed to publish activity entry for user",
+                    {
+                        "uid": "alice",
+                        "subject": "decision_recorded",
+                        "error": "cannot generate"
+                    }
+                ]
+            }
+        ]
+    },
+    "session-unreadable": {
+        "returns": 1,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "debug",
+                "args": [
+                    "Decidiq: could not resolve session user for activity",
+                    {
+                        "error": "session gone"
+                    }
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "alice"
+                ]
+            }
+        ]
+    },
+    "manager-missing": {
+        "returns": 0,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "debug",
+                "args": [
+                    "Decidiq: activity publication skipped",
+                    {
+                        "subject": "decision_recorded",
+                        "objectUuid": "uuid-1",
+                        "error": "no activity app"
+                    }
+                ]
+            }
+        ]
+    },
+    "empty-session-uid": {
+        "returns": 1,
+        "calls": [
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\Activity\\IManager"
+                ]
+            },
+            {
+                "call": "container.get",
+                "args": [
+                    "OCP\\IUserSession"
+                ]
+            },
+            {
+                "call": "generateEvent",
+                "args": []
+            },
+            {
+                "call": "setApp",
+                "args": [
+                    "decidiq"
+                ]
+            },
+            {
+                "call": "setType",
+                "args": [
+                    "decidesk_governance"
+                ]
+            },
+            {
+                "call": "setAffectedUser",
+                "args": [
+                    "alice"
+                ]
+            },
+            {
+                "call": "setTimestamp",
+                "args": [
+                    true
+                ]
+            },
+            {
+                "call": "setSubject",
+                "args": [
+                    "decision_recorded",
+                    {
+                        "title": "Budget",
+                        "status": "adopted",
+                        "uuid": "uuid-1",
+                        "segment": "decisions"
+                    }
+                ]
+            },
+            {
+                "call": "setObject",
+                "args": [
+                    "decision",
+                    2736509902,
+                    ""
+                ]
+            },
+            {
+                "call": "setAuthor",
+                "args": [
+                    ""
+                ]
+            },
+            {
+                "call": "publish",
+                "args": [
+                    "alice"
+                ]
+            }
+        ]
+    }
+}

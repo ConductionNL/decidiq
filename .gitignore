@@ -80,12 +80,11 @@ phpqa_output.log
 # A negation cannot resurrect a file inside an ignored DIRECTORY, but every
 # glob here matches files, so each one takes effect.
 **/*Analysis*
-# Junk note files named "references ..." — anchored to the filename START so
-# legitimate sources containing "…Preferences…" (which embeds the substring
-# "references") are not silently ignored. Observed 2026-06-12: the old
-# `**/*references*` pattern swallowed src/components/userSettings/
-# userPreferences.js + *PreferencesSection.vue (user-settings-v1).
-**/references*
+# Junk note files named "references <words>". The space is required: the old
+# `**/*references*` swallowed userPreferences.js (user-settings-v1), and
+# `**/references*` still ignored any `references/` directory or
+# `openspec/changes/references-*` change, which no negation can rescue.
+**/references *
 **/*encoding*
 **/ter
 **/clearCache*
@@ -160,10 +159,7 @@ openspec/test-site-results/**/*.gif
 openspec/test-site-results/**/*.webp
 /coverage-vitest/
 
-# SBOM is generated per run and published as the sbom-<app> workflow artifact
-# and a stable-release asset — never stored in the repo (hydra sbom-generation
-# spec; ConductionNL/.github#572).
-sbom.cdx.json
+# Intermediate SBOM files. The merged sbom.cdx.json at the root is committed.
 bom-php.cdx.json
 bom-npm.cdx.json
 
@@ -177,12 +173,14 @@ test-results/
 # Build and test transcripts written at the repo ROOT by local tooling. These
 # were tracked, so every local build produced a commit-shaped diff, and every
 # such commit triggered the full Code Quality suite — 34 jobs deciding a
-# changed log file. Root-anchored on purpose: .claude/skills/*/examples/*.log
-# are gate FIXTURES, not artefacts, and must stay tracked.
+# changed log file.
 /*.log
 /changed.tsv
 
-# Claude Code's per-machine settings — permissions and local overrides, never
-# shared. It has to sit AFTER the `!**/*.json` rescue above, which otherwise
-# re-includes it and makes a machine-local file committable.
-/.claude/settings.local.json
+# Claude Code's local directory: per-machine settings and worktrees, never
+# shared. Ignoring the directory, not single files, keeps the `!**/*.json`
+# rescue above from re-including a machine-local settings file.
+/.claude/
+
+# WCAG scan output (platform-accessibility-audit-report): generated per run
+tests/axe/report.json

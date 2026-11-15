@@ -27,7 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Notification;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 use OCP\Notification\INotification;
@@ -49,6 +50,16 @@ use OCP\Notification\UnknownNotificationException;
 class Notifier implements INotifier {
 
 	/**
+	 * The export notices, rendered by prepareExportBundle(), subject key => method.
+	 *
+	 * @var array<string, string>
+	 */
+	private const OWN_SHAPE = [
+		'export_bundle_ready'  => 'prepareExportBundle',
+		'export_bundle_failed' => 'prepareExportBundle',
+	];
+
+	/**
 	 * Subject key => [English sentence with %s for the named object, object page prefix].
 	 *
 	 * The sentences are the l10n source strings; `%s` is the meeting or motion
@@ -67,6 +78,24 @@ class Notifier implements INotifier {
 		'email_vote_confirmed'      => ['Your vote by email was recorded', ''],
 		'email_vote_abandoned'      => ['Your vote by email could not be read and was not counted', ''],
 		'email_vote_reprompt'       => ['Your vote by email could not be read, please reply again', ''],
+		'meeting_scheduled'         => ['The meeting %s was scheduled', 'meetings/'],
+		'meeting_reminder'          => ['The meeting %s is coming up', 'meetings/'],
+		'submission_deadline'       => ['The submission deadline of %s is coming up', 'meetings/'],
+		'minutes_available'         => ['The minutes of %s are available', 'minutes/'],
+		'full_export_ready'         => ['Your data export is ready to download', 'api/export/full/'],
+		'full_export_failed'        => ['Your data export failed. Try again, or read the Nextcloud log for the cause.', ''],
+	];
+
+	/**
+	 * The second line of a meeting notice: the sentence and the parameter
+	 * it names (meeting-reminders-before-deadlines).
+	 *
+	 * @var array<string, array{0: string, 1: string}>
+	 */
+	private const DETAILS = [
+		'meeting_scheduled'   => ['It starts on %s.', 'startsAt'],
+		'meeting_reminder'    => ['It starts on %s.', 'startsAt'],
+		'submission_deadline' => ['Motions and amendments can be submitted until %s.', 'deadline'],
 	];
 
 	/**
@@ -89,7 +118,7 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getID(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getID()
 
 	/**
@@ -100,7 +129,7 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getName(): string {
-		return $this->l10nFactory->get(Application::APP_ID)->t('Decidiq');
+		return $this->l10nFactory->get(AppIdentity::APP_ID)->t('Decidiq');
 	}//end getName()
 
 	/**
@@ -116,24 +145,22 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
-		if ($notification->getApp() !== Application::APP_ID) {
+		if ($notification->getApp() !== AppIdentity::APP_ID) {
 			throw new UnknownNotificationException();
 		}
 
-		$l10n = $this->l10nFactory->get(Application::APP_ID, $languageCode);
+		$l10n = $this->l10nFactory->get(AppIdentity::APP_ID, $languageCode);
 		$subject = $notification->getSubject();
 		$params = $notification->getSubjectParameters();
-		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')));
+		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(AppIdentity::APP_ID, 'app-dark.svg')));
 
+		// Subjects with a shape of their own: a free message, and the export notices.
 		if ($subject === 'decidiq_message') {
-			$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
-			$message = (string)($params['message'] ?? '');
-			if ($message !== '') {
-				$notification->setParsedMessage($message);
-			}
+			return $this->prepareMessage(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
+		}
 
-			$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
-			return $notification;
+		if (isset(self::OWN_SHAPE[$subject]) === true) {
+			return $this->prepareExportBundle(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		}
 
 		if (isset(self::SUBJECTS[$subject]) === false) {
@@ -150,6 +177,7 @@ class Notifier implements INotifier {
 		}
 
 		$notification->setParsedSubject($l10n->t($sentence, [$named]));
+		$this->setDetail(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		$path = '';
 		if ($page !== '' && $notification->getObjectId() !== '') {
 			$path = $page . rawurlencode($notification->getObjectId());
@@ -158,6 +186,88 @@ class Notifier implements INotifier {
 		$notification->setLink($this->appLink(path: $path));
 		return $notification;
 	}//end prepare()
+
+	/**
+	 * A free message: its own title, sentence and link.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      decidiq_message
+	 * @param array<string, mixed> $params       `title`, `message`, `link`
+	 *
+	 * @return INotification
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) One signature for every OWN_SHAPE renderer; this one does not need the subject.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 */
+	private function prepareMessage(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
+		$message = (string)($params['message'] ?? '');
+		if ($message !== '') {
+			$notification->setParsedMessage($message);
+		}
+
+		$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
+		return $notification;
+	}//end prepareMessage()
+
+	/**
+	 * The notice for a queued export with attachments: ready links the file in
+	 * Files, failed says so.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      export_bundle_ready or export_bundle_failed
+	 * @param array<string, mixed> $params       `title` (the file name) and `fileId`
+	 *
+	 * @return INotification
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-003-a-large-export-runs-in-the-background-and-says-when-it-is-ready
+	 */
+	private function prepareExportBundle(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$name = (string)($params['title'] ?? '');
+		if ($subject === 'export_bundle_failed') {
+			$notification->setParsedSubject($l10n->t('%s could not be made. Try again, or export a ZIP.', [$name]));
+			$notification->setLink($this->appLink(path: ''));
+			return $notification;
+		}
+
+		$notification->setParsedSubject($l10n->t('%s is ready in your Decidiq exports folder', [$name]));
+		$fileId = (string)($params['fileId'] ?? '');
+		$link   = '/index.php/apps/files/?dir=' . rawurlencode('/Decidiq exports');
+		if ($fileId !== '') {
+			$link = '/index.php/f/' . rawurlencode($fileId);
+		}
+
+		$notification->setLink($this->urlGenerator->getAbsoluteURL($link));
+		return $notification;
+	}//end prepareExportBundle()
+
+	/**
+	 * Set the second line of a meeting notice when its parameter is known.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      The subject key
+	 * @param array<string, mixed> $params       The subject parameters
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 */
+	private function setDetail(INotification $notification, IL10N $l10n, string $subject, array $params): void {
+		if (isset(self::DETAILS[$subject]) === false) {
+			return;
+		}
+
+		[$sentence, $key] = self::DETAILS[$subject];
+		$value = (string)($params[$key] ?? '');
+		if ($value !== '') {
+			$notification->setParsedMessage($l10n->t($sentence, [$value]));
+		}
+
+	}//end setDetail()
 
 	/**
 	 * An absolute link into the decidiq app.
@@ -169,6 +279,6 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	private function appLink(string $path): string {
-		return rtrim($this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page'), '/') . '/' . $path;
+		return rtrim($this->urlGenerator->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page'), '/') . '/' . $path;
 	}//end appLink()
 }//end class

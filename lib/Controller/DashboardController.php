@@ -30,7 +30,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.1
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -38,12 +38,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
+use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -61,6 +63,7 @@ class DashboardController extends Controller {
 	 * @param IInitialState $initialState Initial-state writer for the SPA bootstrap.
 	 * @param IUserSession  $userSession  The current session, for the acting user.
 	 * @param IGroupManager $groupManager Group manager, used only for the admin test.
+	 * @param IAppConfig    $appConfig    App config, read for the structure setting.
 	 *
 	 * @return void
 	 */
@@ -69,8 +72,9 @@ class DashboardController extends Controller {
 		private readonly IInitialState $initialState,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
+		private readonly IAppConfig $appConfig,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -122,7 +126,27 @@ class DashboardController extends Controller {
 		$isAdmin = ($user !== null && $this->groupManager->isAdmin($user->getUID()));
 
 		$this->initialState->provideInitialState('isAdmin', $isAdmin);
+		$this->initialState->provideInitialState(MenuStructure::KEY, $this->menuStructure());
 
 		return new TemplateResponse($this->appName, 'index');
 	}//end renderIndex()
+
+	/**
+	 * Which structure this instance shows: `simple` or `full`.
+	 *
+	 * The frontend picks its layout file from this before it builds a single
+	 * route, so it travels as initial state and not over HTTP: a menu that
+	 * arrives after the first render makes the navigation rebuild in front of
+	 * the reader. The default is asked for as an empty string and decided in
+	 * one place, {@see MenuStructure::normalise()}.
+	 *
+	 * @return string `simple` or `full`.
+	 *
+	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+	 */
+	protected function menuStructure(): string {
+		return (new MenuStructure())->normalise(
+			stored: $this->appConfig->getValueString(AppIdentity::APP_ID, MenuStructure::KEY, '')
+		);
+	}//end menuStructure()
 }//end class

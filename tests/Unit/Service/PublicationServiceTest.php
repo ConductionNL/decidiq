@@ -22,12 +22,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
 use OCA\Decidiq\Service\PublicationConfigService;
 use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\Decidiq\Service\PublicationPayloadService;
 use OCA\Decidiq\Service\PublicationService;
+use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
@@ -35,6 +37,8 @@ use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests publish/withdraw/rectify flow + catalog-retraction failure branch.
@@ -58,6 +62,13 @@ class PublicationServiceTest extends TestCase {
 	private int $seq = 0;
 
 	/**
+	 * The event recorder double a test wants to see, or null for a silent one.
+	 *
+	 * @var PublicationEventRecorder|null
+	 */
+	private ?PublicationEventRecorder $recorder = null;
+
+	/**
 	 * Build a fully-wired PublicationService over an in-memory ObjectService.
 	 *
 	 * @param bool $openCatalogi Whether OpenCatalogi is "installed".
@@ -70,7 +81,11 @@ class PublicationServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?object {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?object {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (isset($this->store[(string)$id]) === false) {
 					return null;
 				}
@@ -81,7 +96,11 @@ class PublicationServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($uuid === null) {
 					$this->seq++;
 					$uuid = 'obj-' . $this->seq;
@@ -119,7 +138,7 @@ class PublicationServiceTest extends TestCase {
 		$eligibility = new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
-		$payload = new PublicationPayloadService($container, $logger, $configService);
+		$payload = new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($objectService, $container, $logger));
 
 		$catalog = $catalogOverride;
 		if ($catalog === null) {
@@ -131,7 +150,7 @@ class PublicationServiceTest extends TestCase {
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => '']);
 
-		return new PublicationService($logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit, $objectService);
+		return new PublicationService($logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit, $objectService, ($this->recorder ?? $this->createMock(PublicationEventRecorder::class)));
 	}//end makeService()
 
 	/**
@@ -144,6 +163,23 @@ class PublicationServiceTest extends TestCase {
 		$this->seq = 0;
 
 	}//end setUp()
+
+	/**
+	 * Publishing a decision records one published event for subscribers, with its body.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testPublishingADecisionRecordsOneEvent(): void {
+		$this->store['dec-1'] = ['id' => 'dec-1', 'title' => 'Begroting', 'lifecycle' => 'enacted', 'outcome' => 'adopted', 'governanceBody' => 'body-1', 'decisionType' => 'meeting-outcome'];
+
+		$this->recorder = $this->createMock(PublicationEventRecorder::class);
+		$this->recorder->expects($this->once())->method('published')->with('decision', 'dec-1', $this->callback(static fn(array $source): bool => ($source['title'] ?? '') === 'Begroting'), 'body-1');
+
+		$this->makeService(openCatalogi: false)->publish('decision', 'dec-1', 'j.bakker');
+
+	}//end testPublishingADecisionRecordsOneEvent()
 
 	/**
 	 * Publishing an enacted decision creates a record and a payload.
@@ -172,7 +208,7 @@ class PublicationServiceTest extends TestCase {
 		$payloadId = $result['record']['payloadObject'];
 		$this->assertArrayHasKey('publicationDate', $this->store[$payloadId]);
 		$this->assertTrue($this->isPubliclyReadable($this->store[$payloadId]));
-		$this->assertNull($this->store[$payloadId]['depublicationDate']);
+		$this->assertArrayNotHasKey('depublicationDate', $this->store[$payloadId]);
 
 	}//end testPublishEnactedDecisionCreatesRecord()
 

@@ -27,7 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use InvalidArgumentException;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionTypeRegistryInterface;
 use OCP\IAppConfig;
 
 /**
@@ -51,43 +53,7 @@ use OCP\IAppConfig;
  *
  * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
  */
-class DecisionTypeRegistry {
-
-	/**
-	 * App-config key holding the decisionType vocabulary as a JSON array.
-	 *
-	 * @var string
-	 */
-	public const CONFIG_KEY = 'decision_types';
-
-	/**
-	 * The shipped decision-type seed.
-	 *
-	 * This is the bootstrap vocabulary, not a validation home: it is written
-	 * into app config once by the SeedDecisionTypes repair step and consulted
-	 * at runtime only while that row is still absent. It carries every type a
-	 * fleet caller sends today: dossiq raises `contract-renewal`,
-	 * `report-adoption`, `advice`, `bezwaar-decision` and `woo-decision`;
-	 * stackiq raises `contract` and `contract-renewal`. The parity test
-	 * (DecisionIntegrationServiceTest) pins that coverage.
-	 *
-	 * @var list<string>
-	 */
-	public const DEFAULT_TYPES = [
-		'motion',
-		'amendment',
-		'resolution',
-		'contract',
-		'contract-renewal',
-		'report-adoption',
-		'appointment',
-		'management-point',
-		'policy',
-		'meeting-outcome',
-		'advice',
-		'bezwaar-decision',
-		'woo-decision',
-	];
+class DecisionTypeRegistry implements DecisionTypeRegistryInterface {
 
 	/**
 	 * Constructor.
@@ -112,7 +78,7 @@ class DecisionTypeRegistry {
 	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 */
 	public function getTypes(): array {
-		$stored = $this->appConfig->getValueArray(Application::APP_ID, self::CONFIG_KEY, []);
+		$stored = $this->appConfig->getValueArray(AppIdentity::APP_ID, self::CONFIG_KEY, []);
 
 		$types = [];
 		foreach ($stored as $type) {
@@ -128,6 +94,54 @@ class DecisionTypeRegistry {
 
 		return $types;
 	}//end getTypes()
+
+	/**
+	 * Replace the vocabulary with the list an administrator saved.
+	 *
+	 * Every entry is a lowercase slug, the form callers send. A list with no
+	 * usable entry is refused rather than stored: an empty stored list reads
+	 * back as the shipped seed, so saving it would look like success while
+	 * bringing back every type the administrator had just removed.
+	 *
+	 * @param array<int|string,mixed> $types The submitted types
+	 *
+	 * @return array<int,string> The stored vocabulary
+	 *
+	 * @throws \InvalidArgumentException When an entry is not a slug, or nothing is left
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 */
+	public function setTypes(array $types): array {
+		$clean = [];
+		foreach ($types as $type) {
+			if (is_string($type) === false) {
+				throw new InvalidArgumentException('Every decision type must be text.');
+			}
+
+			$type = trim($type);
+			if ($type === '') {
+				continue;
+			}
+
+			if (preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/', $type) !== 1) {
+				throw new InvalidArgumentException(
+					sprintf('"%s" is not a valid decision type. Use lowercase letters, digits and hyphens.', $type)
+				);
+			}
+
+			$clean[] = $type;
+		}//end foreach
+
+		$clean = array_values(array_unique($clean));
+		if ($clean === []) {
+			throw new InvalidArgumentException('Keep at least one decision type.');
+		}
+
+		$this->appConfig->setValueArray(AppIdentity::APP_ID, self::CONFIG_KEY, $clean);
+
+		return $clean;
+
+	}//end setTypes()
 
 	/**
 	 * Whether a decisionType is part of the configured vocabulary.

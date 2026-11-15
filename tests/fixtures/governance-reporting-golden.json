@@ -1,0 +1,835 @@
+{
+    "annual-no-board": {
+        "returns": {
+            "success": false,
+            "report": null,
+            "message": "boardId and a valid 4-digit year are required."
+        },
+        "calls": []
+    },
+    "annual-year-low": {
+        "returns": {
+            "success": false,
+            "report": null,
+            "message": "boardId and a valid 4-digit year are required."
+        },
+        "calls": []
+    },
+    "annual-year-high": {
+        "returns": {
+            "success": false,
+            "report": null,
+            "message": "boardId and a valid 4-digit year are required."
+        },
+        "calls": []
+    },
+    "annual-year-edges": {
+        "returns": {
+            "success": true,
+            "report": {
+                "viaJson": true,
+                "id": "saved",
+                "boardIntegration": "b1",
+                "year": 1900,
+                "meetingCount": 0,
+                "resolutionCount": 0,
+                "voteTally": {
+                    "in-favor": 0,
+                    "against": 0,
+                    "abstain": 0,
+                    "absent": 0,
+                    "recused-due-to-conflict": 0
+                },
+                "memberCount": 3,
+                "independenceRatio": 0.3333,
+                "attendanceRate": 0,
+                "conflictCount": 0,
+                "flags": {
+                    "passed": false,
+                    "flags": [
+                        "meeting-frequency-below-minimum",
+                        "independence-ratio-below-50pct",
+                        "attendance-rate-below-75pct"
+                    ]
+                },
+                "generatedAt": "<now>"
+            },
+            "message": "Annual report generated."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "limit": 50000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 1000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "limit": 5000
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "boardIntegration": "b1",
+                        "year": 1900,
+                        "meetingCount": 0,
+                        "resolutionCount": 0,
+                        "voteTally": {
+                            "in-favor": 0,
+                            "against": 0,
+                            "abstain": 0,
+                            "absent": 0,
+                            "recused-due-to-conflict": 0
+                        },
+                        "memberCount": 3,
+                        "independenceRatio": 0.3333,
+                        "attendanceRate": 0,
+                        "conflictCount": 0,
+                        "flags": {
+                            "passed": false,
+                            "flags": [
+                                "meeting-frequency-below-minimum",
+                                "independence-ratio-below-50pct",
+                                "attendance-rate-below-75pct"
+                            ]
+                        },
+                        "generatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "annual-load-throws": {
+        "returns": {
+            "success": false,
+            "report": null,
+            "message": "Failed to load governance data."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: GovernanceReportingService::generateAnnualReport failed",
+                    {
+                        "exception": "query down"
+                    }
+                ]
+            }
+        ]
+    },
+    "annual-2026": {
+        "returns": {
+            "success": true,
+            "report": {
+                "viaJson": true,
+                "id": "saved",
+                "boardIntegration": "b1",
+                "year": 2026,
+                "meetingCount": 4,
+                "resolutionCount": 3,
+                "voteTally": {
+                    "in-favor": 1,
+                    "against": 1,
+                    "abstain": 1,
+                    "absent": 1,
+                    "recused-due-to-conflict": 1
+                },
+                "memberCount": 3,
+                "independenceRatio": 0.3333,
+                "attendanceRate": 0.25,
+                "conflictCount": 1,
+                "flags": {
+                    "passed": false,
+                    "flags": [
+                        "independence-ratio-below-50pct",
+                        "attendance-rate-below-75pct"
+                    ]
+                },
+                "generatedAt": "<now>"
+            },
+            "message": "Annual report generated."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "limit": 50000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 1000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "limit": 5000
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "boardIntegration": "b1",
+                        "year": 2026,
+                        "meetingCount": 4,
+                        "resolutionCount": 3,
+                        "voteTally": {
+                            "in-favor": 1,
+                            "against": 1,
+                            "abstain": 1,
+                            "absent": 1,
+                            "recused-due-to-conflict": 1
+                        },
+                        "memberCount": 3,
+                        "independenceRatio": 0.3333,
+                        "attendanceRate": 0.25,
+                        "conflictCount": 1,
+                        "flags": {
+                            "passed": false,
+                            "flags": [
+                                "independence-ratio-below-50pct",
+                                "attendance-rate-below-75pct"
+                            ]
+                        },
+                        "generatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "annual-2025": {
+        "returns": {
+            "success": true,
+            "report": {
+                "viaJson": true,
+                "id": "saved",
+                "boardIntegration": "b1",
+                "year": 2025,
+                "meetingCount": 1,
+                "resolutionCount": 1,
+                "voteTally": {
+                    "in-favor": 1,
+                    "against": 0,
+                    "abstain": 0,
+                    "absent": 0,
+                    "recused-due-to-conflict": 0
+                },
+                "memberCount": 3,
+                "independenceRatio": 0.3333,
+                "attendanceRate": 0.3333,
+                "conflictCount": 1,
+                "flags": {
+                    "passed": false,
+                    "flags": [
+                        "meeting-frequency-below-minimum",
+                        "independence-ratio-below-50pct",
+                        "attendance-rate-below-75pct"
+                    ]
+                },
+                "generatedAt": "<now>"
+            },
+            "message": "Annual report generated."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "limit": 50000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 1000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "limit": 5000
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "boardIntegration": "b1",
+                        "year": 2025,
+                        "meetingCount": 1,
+                        "resolutionCount": 1,
+                        "voteTally": {
+                            "in-favor": 1,
+                            "against": 0,
+                            "abstain": 0,
+                            "absent": 0,
+                            "recused-due-to-conflict": 0
+                        },
+                        "memberCount": 3,
+                        "independenceRatio": 0.3333,
+                        "attendanceRate": 0.3333,
+                        "conflictCount": 1,
+                        "flags": {
+                            "passed": false,
+                            "flags": [
+                                "meeting-frequency-below-minimum",
+                                "independence-ratio-below-50pct",
+                                "attendance-rate-below-75pct"
+                            ]
+                        },
+                        "generatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "annual-save-throws": {
+        "returns": {
+            "success": true,
+            "report": {
+                "boardIntegration": "b1",
+                "year": 2026,
+                "meetingCount": 4,
+                "resolutionCount": 3,
+                "voteTally": {
+                    "in-favor": 1,
+                    "against": 1,
+                    "abstain": 1,
+                    "absent": 1,
+                    "recused-due-to-conflict": 1
+                },
+                "memberCount": 3,
+                "independenceRatio": 0.3333,
+                "attendanceRate": 0.25,
+                "conflictCount": 1,
+                "flags": {
+                    "passed": false,
+                    "flags": [
+                        "independence-ratio-below-50pct",
+                        "attendance-rate-below-75pct"
+                    ]
+                },
+                "generatedAt": "<now>"
+            },
+            "message": "Annual report generated."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "limit": 50000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 1000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "limit": 5000
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "boardIntegration": "b1",
+                        "year": 2026,
+                        "meetingCount": 4,
+                        "resolutionCount": 3,
+                        "voteTally": {
+                            "in-favor": 1,
+                            "against": 1,
+                            "abstain": 1,
+                            "absent": 1,
+                            "recused-due-to-conflict": 1
+                        },
+                        "memberCount": 3,
+                        "independenceRatio": 0.3333,
+                        "attendanceRate": 0.25,
+                        "conflictCount": 1,
+                        "flags": {
+                            "passed": false,
+                            "flags": [
+                                "independence-ratio-below-50pct",
+                                "attendance-rate-below-75pct"
+                            ]
+                        },
+                        "generatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: GovernanceReportingService failed to persist report",
+                    {
+                        "exception": "save down"
+                    }
+                ]
+            }
+        ]
+    },
+    "annual-empty": {
+        "returns": {
+            "success": true,
+            "report": {
+                "viaJson": true,
+                "id": "saved",
+                "boardIntegration": "b2",
+                "year": 2026,
+                "meetingCount": 0,
+                "resolutionCount": 0,
+                "voteTally": {
+                    "in-favor": 0,
+                    "against": 0,
+                    "abstain": 0,
+                    "absent": 0,
+                    "recused-due-to-conflict": 0
+                },
+                "memberCount": 0,
+                "independenceRatio": 0,
+                "attendanceRate": 0,
+                "conflictCount": 0,
+                "flags": {
+                    "passed": false,
+                    "flags": [
+                        "meeting-frequency-below-minimum",
+                        "independence-ratio-below-50pct",
+                        "attendance-rate-below-75pct"
+                    ]
+                },
+                "generatedAt": "<now>"
+            },
+            "message": "Annual report generated."
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "filters": {
+                        "boardIntegration": "b2"
+                    },
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "limit": 5000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "limit": 50000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "filters": {
+                        "boardIntegration": "b2"
+                    },
+                    "limit": 1000
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "limit": 5000
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "boardIntegration": "b2",
+                        "year": 2026,
+                        "meetingCount": 0,
+                        "resolutionCount": 0,
+                        "voteTally": {
+                            "in-favor": 0,
+                            "against": 0,
+                            "abstain": 0,
+                            "absent": 0,
+                            "recused-due-to-conflict": 0
+                        },
+                        "memberCount": 0,
+                        "independenceRatio": 0,
+                        "attendanceRate": 0,
+                        "conflictCount": 0,
+                        "flags": {
+                            "passed": false,
+                            "flags": [
+                                "meeting-frequency-below-minimum",
+                                "independence-ratio-below-50pct",
+                                "attendance-rate-below-75pct"
+                            ]
+                        },
+                        "generatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-bad-format": {
+        "returns": {
+            "success": false,
+            "body": "",
+            "contentType": "text/plain",
+            "message": "Unsupported export format: xml"
+        },
+        "calls": []
+    },
+    "export-upper-json": {
+        "returns": {
+            "success": true,
+            "body": "{\n    \"boardIntegration\": \"b1\",\n    \"year\": 2026,\n    \"meetingCount\": 5,\n    \"resolutionCount\": 3,\n    \"memberCount\": 7,\n    \"independenceRatio\": 0.5714,\n    \"attendanceRate\": 0.8,\n    \"conflictCount\": 2\n}",
+            "contentType": "application/json",
+            "message": "Report exported."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r1",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-csv": {
+        "returns": {
+            "success": true,
+            "body": "key,value\nboardKoppeling,b1\nyear,2026\nmeetingCount,5\nresolutionCount,3\nmemberCount,7\nindependenceRatio,0.5714\nattendanceRate,0.8\nconflictCount,2",
+            "contentType": "text/csv",
+            "message": "Report exported."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r1",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-csv-sparse": {
+        "returns": {
+            "success": true,
+            "body": "key,value\nboardKoppeling,\nyear,2025\nmeetingCount,0\nresolutionCount,0\nmemberCount,0\nindependenceRatio,0\nattendanceRate,0\nconflictCount,0",
+            "contentType": "text/csv",
+            "message": "Report exported."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r2",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-missing": {
+        "returns": {
+            "success": false,
+            "body": "",
+            "contentType": "text/plain",
+            "message": "Report not found."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "nope",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-csv-no-year": {
+        "returns": {
+            "success": true,
+            "body": "key,value\nboardKoppeling,b9\nyear,\nmeetingCount,0\nresolutionCount,0\nmemberCount,0\nindependenceRatio,0\nattendanceRate,0\nconflictCount,0",
+            "contentType": "text/csv",
+            "message": "Report exported."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r3",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-csv-hostile": {
+        "returns": {
+            "success": true,
+            "body": "key,value\nboardKoppeling,\"'=HYPERLINK(\"\"https://evil.example\"\");b,1\"\nyear,\"2026\r\"\nmeetingCount,\"x;'=1+1;\"\nresolutionCount,' =2+2\nmemberCount,\"\n'@SUM(A1)\"\nindependenceRatio,0.5\nattendanceRate,'-1\nconflictCount,\"a\nb\"",
+            "contentType": "text/csv",
+            "message": "Report exported."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r4",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            }
+        ]
+    },
+    "export-find-throws": {
+        "returns": {
+            "success": false,
+            "body": "",
+            "contentType": "text/plain",
+            "message": "Failed to load report."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "r1",
+                    "register": "decidiq",
+                    "schema": "governance-report"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: GovernanceReportingService::exportReport failed",
+                    {
+                        "exception": "find down"
+                    }
+                ]
+            }
+        ]
+    },
+    "flags-empty": {
+        "returns": {
+            "passed": false,
+            "flags": [
+                "meeting-frequency-below-minimum",
+                "independence-ratio-below-50pct",
+                "attendance-rate-below-75pct"
+            ]
+        },
+        "calls": []
+    },
+    "flags-edges": {
+        "returns": {
+            "passed": true,
+            "flags": []
+        },
+        "calls": []
+    },
+    "flags-fractions": {
+        "returns": {
+            "passed": false,
+            "flags": [
+                "meeting-frequency-below-minimum"
+            ]
+        },
+        "calls": []
+    },
+    "flags-below": {
+        "returns": {
+            "passed": false,
+            "flags": [
+                "meeting-frequency-below-minimum",
+                "independence-ratio-below-50pct",
+                "attendance-rate-below-75pct",
+                "unusual-conflict-of-interest-volume"
+            ]
+        },
+        "calls": []
+    },
+    "list": {
+        "returns": {
+            "success": true,
+            "reports": [
+                {
+                    "id": "r1",
+                    "year": 2026
+                },
+                {
+                    "viaJson": true,
+                    "id": "r2",
+                    "meetingDate": ""
+                }
+            ],
+            "count": 2
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "governance-report",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 500
+                }
+            }
+        ]
+    },
+    "list-throws": {
+        "returns": {
+            "success": false,
+            "reports": [],
+            "count": 0
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "governance-report",
+                    "filters": {
+                        "boardIntegration": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: GovernanceReportingService::listReports failed",
+                    {
+                        "exception": "query down"
+                    }
+                ]
+            }
+        ]
+    }
+}

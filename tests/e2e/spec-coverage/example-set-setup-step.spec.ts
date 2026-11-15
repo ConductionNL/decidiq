@@ -97,7 +97,7 @@ test.describe('example sets', () => {
 		})
 	})
 
-	test('setup status reports both steps, so the wizard can offer them', async ({
+	test('setup status reports the example-set step, so the wizard can offer it', async ({
 		page,
 	}) => {
 		const res = await api(page, 'GET', `${BASE}/api/setup/status`)
@@ -114,9 +114,24 @@ test.describe('example sets', () => {
 		expect(steps, 'setup/status must report the choice step').toContain(
 			'example-set',
 		)
-		expect(steps, 'setup/status must report the load step').toContain(
+		// The cards load themselves (`loadAction`), so the separate load step is
+		// gone from the manifest and from the status document.
+		expect(steps, 'the run-action load step is retired').not.toContain(
 			'load-example-set',
 		)
+	})
+
+	test('a card that names an unknown set loads nothing', async ({ page }) => {
+		// The card's Load button posts `{ dataset }` to the step's loadAction.
+		const res = await api(
+			page,
+			'POST',
+			`${BASE}/api/setup/action/load-example-set`,
+			{ dataset: 'atlantis' },
+		)
+
+		expect(res.status).toBe(400)
+		expect(res.json?.success).toBe(false)
 	})
 
 	test('setup status offers the sets the app actually ships', async ({ page }) => {
@@ -228,9 +243,8 @@ test.describe('example sets', () => {
 		})
 		const status = await api(page, 'GET', `${BASE}/api/setup/status`)
 
-		// "None" is an ANSWER: both steps close, and nothing is imported.
+		// "None" is an ANSWER: the step closes, and nothing is imported.
 		expect(status.json?.steps?.['example-set']?.done).toBe(true)
-		expect(status.json?.steps?.['load-example-set']?.done).toBe(true)
 	})
 
 	test('loading a chosen set reports HOW MUCH landed, not just success', async ({

@@ -36,6 +36,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for MeetingService lifecycle transitions.
@@ -170,7 +171,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with($uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willReturn($entity);
 
 		// applyTransition() writes through ObjectServiceInterface::saveObject()
@@ -182,19 +185,19 @@ class MeetingServiceTest extends TestCase {
 		// matched by predicate rather than by literal.
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(
-				$this->callback(
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => $this->callback(
 					static function (array $object): bool {
 						return $object['lifecycle'] === 'opened'
 							&& $object['domain'] === 'operations'
 							&& isset($object['openedAt']) === true;
 					}
 				),
-				$this->anything(),
-				'decidiq',
-				'meeting',
-				$uuid,
-			)
+					'extend' => $this->anything(),
+					'register' => 'decidiq',
+					'schema' => 'meeting',
+					'uuid' => $uuid,
+				]))
 			->willReturn($updatedEntity);
 
 		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
@@ -218,7 +221,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with($uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willReturn($entity);
 
 		// The refused transition must not reach the store. saveObject() is the
@@ -263,7 +268,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with(id: $uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willReturn(null);
 
 		$result = $this->service->transition(meetingId: $uuid, action: 'open');
@@ -288,7 +295,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with(id: $uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willThrowException(new DoesNotExistException('Meeting not found'));
 
 		$result = $this->service->transition(meetingId: $uuid, action: 'open');
@@ -363,7 +372,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with(id: $uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willReturn($entity);
 
 		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
@@ -401,7 +412,9 @@ class MeetingServiceTest extends TestCase {
 		$bodyId = 'body-uuid-1';
 		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative', body: $bodyId);
 
-		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $uuid,
+			]))->willReturn($entity);
 
 		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
 		$workflowService->method('isTransitionAllowed')->willReturn(true);
@@ -448,7 +461,9 @@ class MeetingServiceTest extends TestCase {
 		// No governanceBody relation → resolveBodyId() returns null → deny.
 		$entity = $this->buildMockEntity(lifecycle: 'opened', domain: 'legislative');
 
-		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $uuid,
+			]))->willReturn($entity);
 
 		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
 		$workflowService->method('isTransitionAllowed')->willReturn(true);
@@ -540,7 +555,9 @@ class MeetingServiceTest extends TestCase {
 
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with(id: $uuid)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => $uuid,
+				]))
 			->willReturn($entity);
 
 		$workflowService = $this->createMock(originalClassName: WorkflowService::class);
@@ -580,7 +597,9 @@ class MeetingServiceTest extends TestCase {
 		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000ee';
 		$entity = $this->buildMockEntity(lifecycle: 'scheduled');
 
-		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $uuid,
+			]))->willReturn($entity);
 		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
 		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
 		$this->workflowService->method('isQuorumRequired')->willReturn(false);
@@ -614,7 +633,9 @@ class MeetingServiceTest extends TestCase {
 		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000ef';
 		$entity = $this->buildMockEntity(lifecycle: 'opened');
 
-		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $uuid,
+			]))->willReturn($entity);
 		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
 		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
 
@@ -648,7 +669,9 @@ class MeetingServiceTest extends TestCase {
 		$uuid = 'aaaaaaaa-0000-0000-0000-0000000000f0';
 		$entity = $this->buildMockEntity(lifecycle: 'opened');
 
-		$this->objectService->method('find')->with(id: $uuid)->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $uuid,
+			]))->willReturn($entity);
 		$this->workflowService->method('isTransitionAllowed')->willReturn(true);
 		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
 

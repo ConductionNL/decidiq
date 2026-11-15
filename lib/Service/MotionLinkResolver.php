@@ -34,6 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -71,7 +72,7 @@ class MotionLinkResolver {
 	public function resolveMeetingId(string $motionId): ?string {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 			if ($motionEntity === null) {
 				return null;
 			}
@@ -212,7 +213,7 @@ class MotionLinkResolver {
 	 *
 	 * ADR-005 folded the `motion` schema into `decision`, so a relation written
 	 * against the unified schema records `decision`. The `motion` token is still
-	 * accepted: VotingRoundPreflight::buildRoundPayload() writes the subject
+	 * accepted: VotingRoundResolution::roundPayload() writes the subject
 	 * relation under the decisionType token, and pre-migration rows carry it too.
 	 *
 	 * @param array<string, mixed> $relation One entry from the amendment's relations list

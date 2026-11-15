@@ -105,10 +105,10 @@ if (defined('OC_CONSOLE') === false && $decidiqNcRoot !== null) {
 			include_once $decidiqNcRoot . '/tests/autoload.php';
 		}
 
-		if (class_exists(\OC_App::class) === true) {
-			\OC_App::loadApps();
-			\OC_App::loadApp('decidiq');
-		}
+		// Public IAppManager rather than the deprecated private OC_App statics.
+		$decidiqAppManager = \OCP\Server::get(\OCP\App\IAppManager::class);
+		$decidiqAppManager->loadApps();
+		$decidiqAppManager->loadApp('decidiq');
 
 		if (class_exists(\OC_Hook::class) === true) {
 			\OC_Hook::clear();
