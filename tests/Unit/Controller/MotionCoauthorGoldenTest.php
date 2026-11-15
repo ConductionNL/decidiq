@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 use DateTimeInterface;
 use OCA\Decidiq\Controller\MotionCoauthorController;
 use OCA\Decidiq\Service\MotionCoauthorService;
@@ -216,6 +217,7 @@ class MotionCoauthorGoldenTest extends TestCase {
 	 * @return mixed The answer.
 	 */
 	private function call(string $method, array $args): mixed {
+		$args        = LegacyObjectArgs::positional(method: $method, args: $args);
 		$named       = $this->named(method: $method, args: $args);
 		$this->log[] = [$method => $named];
 		if ($method === 'find') {
@@ -267,7 +269,7 @@ class MotionCoauthorGoldenTest extends TestCase {
 	 */
 	private function named(string $method, array $args): array {
 		$out = [];
-		foreach ((new ReflectionMethod(ObjectServiceInterface::class, $method))->getParameters() as $i => $param) {
+		foreach (LegacyObjectArgs::parameters(ObjectServiceInterface::class, $method) as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
 				continue;
 			}

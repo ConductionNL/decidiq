@@ -30,6 +30,9 @@ use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -151,7 +154,7 @@ class ParticipationLifecycleService implements ParticipationLifecycleServiceInte
 	 */
 	public function transitionConsultation(string $consultationId, string $newStatus): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -175,7 +178,10 @@ class ParticipationLifecycleService implements ParticipationLifecycleServiceInte
 		}
 
 		$consultation['status'] = $newStatus;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
+		$saved = $objectService->saveObject(
+			object: $consultation,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'public-consultation'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $consultation);
 	}//end transitionConsultation()
@@ -195,7 +201,7 @@ class ParticipationLifecycleService implements ParticipationLifecycleServiceInte
 	 */
 	public function transitionBudgetRound(string $budgetId, string $newStatus): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -211,7 +217,10 @@ class ParticipationLifecycleService implements ParticipationLifecycleServiceInte
 		);
 
 		$round['status'] = $newStatus;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'participatory-budget', object: $round);
+		$saved = $objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participatory-budget'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $round);
 	}//end transitionBudgetRound()

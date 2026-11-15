@@ -43,6 +43,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Verifies no optional answer field is ever persisted as an explicit null.
@@ -93,6 +94,7 @@ final class BoardEvaluationAnswerShapeTest extends TestCase {
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				// The response save is the first call; recordCompletion() saves the
 				// evaluation afterwards. Only capture the one carrying `answers`.
 				$object = ($args[0] ?? []);

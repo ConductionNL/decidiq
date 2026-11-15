@@ -37,6 +37,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for McpMeetingGate.
@@ -184,7 +185,13 @@ class McpMeetingGateTest extends TestCase {
 	 */
 	public function testLoadMeetingReadsTheMeetingSchema(): void {
 		$this->objectService->expects($this->exactly(2))->method('find')
-			->with(self::UUID, $this->anything(), $this->anything(), 'decidiq', 'meeting')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => self::UUID,
+				'_extend' => $this->anything(),
+				'files' => $this->anything(),
+				'register' => 'decidiq',
+				'schema' => 'meeting',
+			]))
 			->willReturnOnConsecutiveCalls(null, $this->entityWith(data: ['title' => 'Raad']));
 
 		$this->assertNull($this->gate->loadMeeting(meetingUuid: self::UUID));

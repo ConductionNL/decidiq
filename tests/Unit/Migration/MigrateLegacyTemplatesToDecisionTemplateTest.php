@@ -28,6 +28,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests the legacy-template-to-DecisionTemplate migration repair step.
@@ -977,7 +979,9 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 			 *
 			 * @return array<string,mixed>
 			 */
-			public function saveObject(array $object, ?string $register = null, ?string $schema = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$sourceUuid = ($object['migratedFrom']['sourceUuid'] ?? null);
 				if ($sourceUuid !== null && in_array($sourceUuid, $this->failSaveForSourceUuids, true) === true) {
 					throw new \RuntimeException('saveObject failed for ' . $sourceUuid);
@@ -996,7 +1000,10 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 			 *
 			 * @return bool
 			 */
-			public function deleteObject(string $uuid, ?string $register = null, ?string $schema = null): bool {
+			public function deleteObject(ObjectDeletion $deletion, bool $_rbac = true, bool $_multitenancy = true, bool $_retentionSweep = false): bool {
+				$uuid = $deletion->uuid;
+				$register = $deletion->target->register;
+				$schema = $deletion->target->schema;
 				$this->deleteCalls++;
 				return true;
 			}//end deleteObject()

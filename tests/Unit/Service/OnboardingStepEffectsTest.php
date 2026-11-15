@@ -31,6 +31,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Installation creates the membership once; an end step end-dates it.
@@ -104,20 +105,20 @@ class OnboardingStepEffectsTest extends TestCase {
 	public function testInstallationCreatesMembership(): void {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(
-				[
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => [
 					'person' => 'person-1',
 					'governanceBody' => 'body-1',
 					'role' => 'member',
 					'startDate' => '2026-03-01',
 				],
-				[],
-				'decidiq',
-				'membership',
-				null,
-				false,
-				false
-			)
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'membership',
+					'uuid' => null,
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity('membership-9'));
 
 		$result = $this->effects->apply(record: self::onboarding(), effect: 'onboarding:installation');
@@ -164,19 +165,27 @@ class OnboardingStepEffectsTest extends TestCase {
 	public function testEndMembershipSetsEndDate(): void {
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('membership-1', [], false, 'decidiq', 'membership', false, false)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'membership-1',
+					'_extend' => [],
+					'files' => false,
+					'register' => 'decidiq',
+					'schema' => 'membership',
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity('membership-1', ['id' => 'membership-1', 'role' => 'member']));
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(
-				['id' => 'membership-1', 'role' => 'member', 'endDate' => '2026-12-31'],
-				[],
-				'decidiq',
-				'membership',
-				'membership-1',
-				false,
-				false
-			)
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => ['id' => 'membership-1', 'role' => 'member', 'endDate' => '2026-12-31'],
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'membership',
+					'uuid' => 'membership-1',
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity('membership-1'));
 
 		$record = ['membership' => 'membership-1', 'endDate' => '2026-12-31'];
@@ -258,7 +267,15 @@ class OnboardingStepEffectsTest extends TestCase {
 	public function testFindDataReturnsStoredData(): void {
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('m-1', [], false, 'decidiq', 'membership', false, false)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'm-1',
+					'_extend' => [],
+					'files' => false,
+					'register' => 'decidiq',
+					'schema' => 'membership',
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity('m-1', ['id' => 'm-1', 'role' => 'chair']));
 
 		$this->assertSame(['id' => 'm-1', 'role' => 'chair'], $this->effects->findData(id: 'm-1', schema: 'membership'));

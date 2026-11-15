@@ -31,6 +31,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -215,7 +217,10 @@ class VotingRoundOpener {
 		$resolution = new VotingRoundResolution(rules: $rules, quorumWith: $quorumWith, participantIds: $presets['eligible']);
 		$votingRound = $this->withOptions(votingRound: $resolution->roundPayload(request: $request), options: $options);
 
-		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
+		$created = $this->objectService()->saveObject(
+			object: $votingRound,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		if ($request->isFreshRound() === true) {
 			$this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);

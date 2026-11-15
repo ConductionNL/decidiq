@@ -33,6 +33,7 @@ use DateTimeInterface;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\ProofPackageServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -106,7 +107,7 @@ class ProofPackageService implements ProofPackageServiceInterface {
 	public function assemble(string $meetingId, string $generatedBy): array {
 		$objectService = $this->getObjectService();
 
-		$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			throw new MissingObjectException(
 				message: sprintf('Meeting "%s" not found.', $meetingId)

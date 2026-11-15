@@ -23,6 +23,8 @@ namespace OCA\Decidiq\Tests\Unit\Support;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Rows by schema and id behind a mocked ObjectServiceInterface: find, findAll
@@ -98,8 +100,8 @@ final class WrittenRoundWorld {
 	public function objectService(): ObjectServiceInterface {
 		$service = $this->test->getMockBuilder(ObjectServiceInterface::class)->getMock();
 		$service->method('find')->willReturnCallback(
-			fn (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?ObjectEntityInterface
-				=> isset($this->rows[(string)$schema][(string)$id]) ? $this->entity(row: $this->rows[(string)$schema][(string)$id]) : null
+			fn (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface
+				=> isset($this->rows[(string)($options?->schema)][(string)$id]) ? $this->entity(row: $this->rows[(string)($options?->schema)][(string)$id]) : null
 		);
 		$service->method('findAll')->willReturnCallback(
 			function (array $config=[]): array {
@@ -122,7 +124,10 @@ final class WrittenRoundWorld {
 			}
 		);
 		$service->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				if (($object['id'] ?? null) === null) {
 					$object['id'] = (string)$schema . '-' . (++$this->next);
 				}

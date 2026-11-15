@@ -36,6 +36,7 @@ use OCP\Mail\IMessage;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The organiser of an ad hoc meeting invites a guest from outside by email.
@@ -79,7 +80,10 @@ class GuestInvitationServiceTest extends TestCase {
 		$this->objects = $this->createMock(ObjectServiceInterface::class);
 		$this->objects->method('find')->willReturnCallback(fn (): ?ObjectEntity => $this->entity(data: $this->meeting, uuid: self::MEETING));
 		$this->objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saved[] = ['schema' => (string)$schema, 'object' => $object];
 				return $this->entity(data: $object, uuid: 'saved-' . count($this->saved));
 			}
