@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -26,8 +26,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -38,9 +41,9 @@ use Throwable;
  * Stateless service handling motion lifecycle transitions, co-signatory management,
  * budget impact notes, amendment conflict detection, and amendment application.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
-class MotionService {
+class MotionService implements MotionServiceInterface {
 
 	/**
 	 * The amendment side of a motion.
@@ -67,7 +70,7 @@ class MotionService {
 	 * @param IUserManager $userManager Nextcloud user manager for UID lookup
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -91,7 +94,7 @@ class MotionService {
 	/**
 	 * Get the ObjectService from the container.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
 	 *
 	 * @return object
 	 */
@@ -102,7 +105,7 @@ class MotionService {
 	/**
 	 * Get the MotionNotifier from the container.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return MotionNotifier
 	 */
@@ -168,7 +171,7 @@ class MotionService {
 	 * @throws InvalidArgumentException When the transition, actor, co-signer count or outcome is refused
 	 * @throws RuntimeException When the object cannot be found or saved
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 *
 	 * @return void
@@ -199,7 +202,7 @@ class MotionService {
 	 * @param string $motionId UUID of the Motion
 	 * @param array<string> $participantIds Array of Participant UUIDs to notify
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */
@@ -250,9 +253,10 @@ class MotionService {
 			$objectService->setSchema('decision');
 			$objectService->saveObject(
 				object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $motionId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+					uuid: $motionId
+				)
 			);
 		}
 
@@ -269,7 +273,7 @@ class MotionService {
 	 *
 	 * @return string|null The Nextcloud UID, or null when it cannot be resolved.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 */
 	private function coSignerUid(object $objectService, string $participantId): ?string {
 		$objectService->setRegister('decidiq');
@@ -295,7 +299,7 @@ class MotionService {
 			return null;
 		}
 
-		return (string)$users[0]->getUID();
+		return $users[0]->getUID();
 	}//end coSignerUid()
 
 	/**
@@ -307,7 +311,7 @@ class MotionService {
 	 * @param string $motionId UUID of the Motion
 	 * @param string $coSignerName Display name of the confirming co-signer
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */
@@ -323,9 +327,10 @@ class MotionService {
 			$coSigners[] = $coSignerName;
 			$objectService->saveObject(
 				object: array_merge($motionData, ['coSigners' => $coSigners]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $motionId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+					uuid: $motionId
+				)
 			);
 		}
 
@@ -339,7 +344,7 @@ class MotionService {
 	 * @param string $motionId UUID of the Motion
 	 * @param string $nextcloudUid The Nextcloud user ID to verify
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return bool True when the user was invited
 	 */
@@ -373,7 +378,7 @@ class MotionService {
 	 * @param float $amountDelta Amount change in EUR (positive = increase, negative = decrease)
 	 * @param string $rationale Policy rationale for the budget change
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */
@@ -419,9 +424,10 @@ class MotionService {
 
 		$objectService->saveObject(
 			object: array_merge($motionData, ['notes' => $notes]),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $motionId
+			)
 		);
 
 	}//end saveBudgetImpact()
@@ -545,7 +551,7 @@ class MotionService {
 	 *
 	 * @throws RuntimeException When role is not authorized or motion is not found
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	public function forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): array {
 		return $this->forwarding->forward(

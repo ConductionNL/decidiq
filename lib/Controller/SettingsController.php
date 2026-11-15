@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ConnectionReportService;
-use OCA\Decidiq\Service\PublicationConfigService;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -39,28 +39,28 @@ use OCP\IUserSession;
 /**
  * Controller for managing Decidiq application settings.
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
  */
 class SettingsController extends Controller {
 	/**
 	 * Constructor for the SettingsController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param SettingsService $settingsService The settings service
+	 * @param SettingsServiceInterface $settingsService The settings service
 	 * @param IUserSession $userSession The user session
-	 * @param PublicationConfigService $publicationConfig The publication configuration service
-	 * @param ConnectionReportService|null $connectionReports Sends integriq the connection events after a save
+	 * @param PublicationConfigServiceInterface $publicationConfig The publication configuration service
+	 * @param ConnectionReportServiceInterface|null $connectionReports Sends integriq the connection events after a save
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private SettingsService $settingsService,
+		private SettingsServiceInterface $settingsService,
 		private IUserSession $userSession,
-		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
-		private ?ConnectionReportService $connectionReports = null,
+		private PublicationConfigServiceInterface $publicationConfig,
+		private ?ConnectionReportServiceInterface $connectionReports = null,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -68,8 +68,8 @@ class SettingsController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -114,7 +114,7 @@ class SettingsController extends Controller {
 	 *
 	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
 	 *
 	 * @return JSONResponse
 	 */
@@ -165,9 +165,9 @@ class SettingsController extends Controller {
 	 * Requires admin privileges — enforced via the AuthorizedAdminSetting
 	 * attribute (NC28+ settings panel).
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
 	 *
 	 * @return JSONResponse
 	 */

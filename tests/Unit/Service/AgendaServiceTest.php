@@ -22,17 +22,18 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Tests for AgendaService.
@@ -55,13 +56,6 @@ class AgendaServiceTest extends TestCase {
 	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectServiceInterface&MockObject $objectService;
-
-	/**
-	 * Mock CalendarEventService.
-	 *
-	 * @var CalendarEventService&MockObject
-	 */
-	private CalendarEventService&MockObject $calendarEventService;
 
 	/**
 	 * Mock NotificationPreferenceService: the one place a member's delivery
@@ -108,7 +102,6 @@ class AgendaServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->calendarEventService = $this->createMock(CalendarEventService::class);
 		$this->preferences = $this->createMock(NotificationPreferenceService::class);
 		$this->dispatched = [];
 		$l10n = $this->createMock(IL10N::class);
@@ -122,11 +115,10 @@ class AgendaServiceTest extends TestCase {
 
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
-			calendarEventService: $this->calendarEventService,
-			preferences: $this->preferences,
+			notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			l10nFactory: $this->l10nFactory,
+			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 
 	}//end setUp()
@@ -256,7 +248,9 @@ class AgendaServiceTest extends TestCase {
 				->expects($this->once())
 				->method('patchObject')
 				->willReturnCallback(
-					function (string $objectId, array $data) use (&$patches): ObjectEntity {
+					function (ObjectPatch $patch) use (&$patches): ObjectEntity {
+						$objectId = $patch->objectId;
+						$data = $patch->data;
 						$patches[] = ['id' => $objectId, 'data' => $data];
 						return $this->entity($data);
 					}
@@ -264,11 +258,10 @@ class AgendaServiceTest extends TestCase {
 
 			$freshService = new AgendaService(
 				objectService: $objectService,
-				calendarEventService: $this->calendarEventService,
-				preferences: $this->preferences,
+				notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
-				l10nFactory: $this->l10nFactory,
+				eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 			);
 
 			$freshService->advanceBobPhase($itemId);
@@ -354,22 +347,23 @@ class AgendaServiceTest extends TestCase {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * processHamerstukken bulk-updates only items tagged 'hamerstuk'.
-	 *
-	 * The items come back from findAll() as entities, the way OpenRegister
-	 * returns them, and each tagged one must be patched to 'completed'. The
-	 * untagged item-2 must be left alone.
+	 * The chair adopts the formalities: every item marked as a formality
+	 * (and one still carrying the older `hamerstuk` tag) records "adopted
+	 * without debate" and the time. Items that are not formalities, and a
+	 * formality already adopted, are left alone. It used to write
+	 * `status: completed`, a field AgendaItem does not declare.
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
-	public function testProcessHamerstukkenUpdatesTaggedItemsOnly(): void {
-		$meetingId = 'meeting-uuid-1';
+	public function testFormalitiesAreAdoptedWithoutDebate(): void {
 		$items = [
-			['id' => 'item-1', 'title' => 'Item 1', 'tags' => ['hamerstuk'], 'status' => 'besluitvorming'],
-			['id' => 'item-2', 'title' => 'Item 2', 'tags' => [],            'status' => 'beeldvorming'],
-			['id' => 'item-3', 'title' => 'Item 3', 'tags' => ['hamerstuk'], 'status' => 'oordeelsvorming'],
+			['id' => 'item-3', 'title' => 'Item 3', 'isFormality' => true],
+			['id' => 'item-2', 'title' => 'Item 2', 'isFormality' => false],
+			['id' => 'item-4', 'title' => 'Item 4', 'tags' => ['hamerstuk']],
+			['id' => 'item-7', 'title' => 'Item 7', 'isFormality' => true],
+			['id' => 'item-8', 'title' => 'Item 8', 'isFormality' => true, 'formalityOutcome' => 'adopted-without-debate'],
 		];
 
 		$this->objectService
@@ -379,17 +373,99 @@ class AgendaServiceTest extends TestCase {
 
 		$patches = $this->capturePatches();
 
-		$this->service->processHamerstukken($meetingId);
+		$adopted = $this->service->processHamerstukken('meeting-uuid-1');
 
-		$this->assertSame(
-			[
-				['id' => 'item-1', 'data' => ['status' => 'completed']],
-				['id' => 'item-3', 'data' => ['status' => 'completed']],
-			],
-			$patches->getArrayCopy()
+		$this->assertSame(3, $adopted);
+		$this->assertSame(['item-3', 'item-4', 'item-7'], array_column($patches->getArrayCopy(), 'id'));
+		foreach ($patches as $patch) {
+			$this->assertSame('adopted-without-debate', $patch['data']['formalityOutcome']);
+			$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $patch['data']['adoptedAt']);
+			$this->assertValidAgendaItemFields($patch['data']);
+		}
+
+	}//end testFormalitiesAreAdoptedWithoutDebate()
+
+	/**
+	 * The chair or secretary marks an item of the meeting as a formality.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnItemOfTheMeetingIsMarkedAsAFormality(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'meeting-uuid-1']));
+		$patches = $this->capturePatches();
+
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: true);
+
+		$this->assertSame([['id' => 'item-4', 'data' => ['isFormality' => true]]], $patches->getArrayCopy());
+		$this->assertValidAgendaItemFields($patches[0]['data']);
+
+	}//end testAnItemOfTheMeetingIsMarkedAsAFormality()
+
+	/**
+	 * An item of another meeting cannot be marked through this meeting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnItemOfAnotherMeetingIsRefused(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'other-meeting']));
+		$this->objectService->expects($this->never())->method('patchObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: true);
+
+	}//end testAnItemOfAnotherMeetingIsRefused()
+
+	/**
+	 * An adopted formality stays one: it cannot be taken back off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnAdoptedFormalityCannotBeUnmarked(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'item-4', 'meeting' => 'meeting-uuid-1', 'isFormality' => true, 'formalityOutcome' => 'adopted-without-debate'])
 		);
+		$this->objectService->expects($this->never())->method('patchObject');
 
-	}//end testProcessHamerstukkenUpdatesTaggedItemsOnly()
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: false);
+
+	}//end testAnAdoptedFormalityCannotBeUnmarked()
+
+	/**
+	 * Every key of a patch is declared by the merged AgendaItem schema (base
+	 * register plus every register.d fragment) and carries a value it
+	 * accepts, checked with the opis validator.
+	 *
+	 * @param array<string, mixed> $data The patch
+	 *
+	 * @return void
+	 */
+	private function assertValidAgendaItemFields(array $data): void {
+		$settings = __DIR__ . '/../../../lib/Settings/';
+		$files = array_merge([$settings . 'decidesk_register.json'], (glob($settings . 'register.d/*.json') ?: []));
+		$properties = [];
+		foreach ($files as $file) {
+			$doc = json_decode((string)file_get_contents($file), true);
+			foreach (($doc['components']['schemas'] ?? []) as $name => $schema) {
+				if (($schema['slug'] ?? $name) === 'agenda-item' || $name === 'AgendaItem') {
+					$properties = array_replace_recursive($properties, ($schema['properties'] ?? []));
+				}
+			}
+		}
+
+		$result = (new \Opis\JsonSchema\Validator())->validate(
+			json_decode((string)json_encode($data)),
+			json_decode((string)json_encode(['type' => 'object', 'properties' => $properties, 'additionalProperties' => false]))
+		);
+		$this->assertTrue($result->isValid(), 'The patch must validate against AgendaItem: ' . json_encode($result->error()?->args()));
+
+	}//end assertValidAgendaItemFields()
 
 	// -----------------------------------------------------------------------
 	// reorderItems tests
@@ -651,7 +727,9 @@ class AgendaServiceTest extends TestCase {
 		$this->objectService
 			->method('patchObject')
 			->willReturnCallback(
-				function (string $objectId, array $data) use ($patches): ObjectEntity {
+				function (ObjectPatch $patch) use ($patches): ObjectEntity {
+					$objectId = $patch->objectId;
+					$data = $patch->data;
 					$patches->append(['id' => $objectId, 'data' => $data]);
 					return $this->entity($data);
 				}

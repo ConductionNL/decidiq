@@ -1,0 +1,1258 @@
+{
+    "member-declares-own": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "member-for-another": {
+        "returns": {
+            "status": 403,
+            "data": {
+                "message": "Forbidden."
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-bert",
+                    "ai-1",
+                    "anna"
+                ]
+            }
+        ]
+    },
+    "other-member-for-anna": {
+        "returns": {
+            "status": 403,
+            "data": {
+                "message": "Forbidden."
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "bert"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "bert"
+                ]
+            }
+        ]
+    },
+    "chair-for-anna": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "chair"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "chair"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "admin-for-anna": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "admin"
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "chair-for-bert": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-bert",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "chair"
+            },
+            {
+                "authorize": [
+                    "M-bert",
+                    "ai-1",
+                    "chair"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-bert",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-bert",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-bert",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "admin-for-bert": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-bert",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "admin"
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-bert",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-bert",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-bert",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "signed-out": {
+        "returns": {
+            "status": 401,
+            "data": {
+                "message": "Authentication required."
+            }
+        },
+        "calls": []
+    },
+    "forged-caller-params": {
+        "returns": {
+            "status": 403,
+            "data": {
+                "message": "Forbidden."
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "bert"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "bert"
+                ]
+            }
+        ]
+    },
+    "non-material": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "non-material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "non-material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "non-material"
+                    }
+                ]
+            }
+        ]
+    },
+    "unknown-severity": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Unknown severity: huge"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            }
+        ]
+    },
+    "unknown-type": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Unknown declaration type: grudge"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            }
+        ]
+    },
+    "type-omitted": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "none",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "none",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "none",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "none",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "severity-omitted": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "unknown-type-forbidden": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Unknown declaration type: grudge"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "bert"
+            }
+        ]
+    },
+    "recuse-true": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "recused-from-vote",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "recused-from-vote",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "recuse-one": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "recused-from-vote",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "recused-from-vote",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "recuse-no": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "recuse-garbage": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "recuse-by-chair": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "recused-from-vote",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "chair"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "chair"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "recused-from-vote",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "from-page-member": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "membershipFor": "anna"
+            },
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "from-page-not-a-member": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "You are not a member of a governance body, so there is no declaration to record."
+            }
+        },
+        "calls": [
+            {
+                "membershipFor": "zoe"
+            }
+        ]
+    },
+    "from-page-no-agenda-item": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Missing required parameter 'membershipId' or 'agendaItemId'."
+            }
+        },
+        "calls": []
+    },
+    "no-agenda-item": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Missing required parameter 'membershipId' or 'agendaItemId'."
+            }
+        },
+        "calls": []
+    },
+    "empty-description": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-anna",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-anna",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-anna",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "write-refused": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Failed to record declaration."
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "refuse",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: failed to record conflict-of-interest declaration",
+                    {
+                        "exception": "store refused"
+                    }
+                ]
+            }
+        ]
+    },
+    "write-refused-non-material": {
+        "returns": {
+            "status": 422,
+            "data": {
+                "message": "Failed to record declaration."
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "authorize": [
+                    "M-anna",
+                    "ai-1",
+                    "anna"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-anna",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "refuse",
+                        "severity": "non-material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: failed to record conflict-of-interest declaration",
+                    {
+                        "exception": "store refused"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -23,5 +23,5 @@
 
 ## 4. Follow-up (out of this change)
 
-- [ ] 4.1 Move per-type behavioural configuration (kind grouping, lifecycle domain defaults) onto DecisionTemplate entries when the ADR-037 consumer rewrite lands.
-- [ ] 4.2 Admin settings UI for the vocabulary (occ is the path today).
+- [ ] 4.1 Move per-type behavioural configuration (kind grouping, lifecycle domain defaults) onto DecisionTemplate entries when the ADR-037 consumer rewrite lands. (not run: waits on the ADR-037 consumer rewrite, which no open change builds yet)
+- [x] 4.2 Admin settings UI for the vocabulary. `DecisionTypeSettings.vue` on the admin page, `PUT /api/settings/decision-types` (`DecisionTypesController::update`, admin only) through `DecisionTypeRegistry::setTypes()`, which refuses a non-slug entry and an empty list. Tests: DecisionTypeRegistryTest, DecisionTypesControllerTest, tests/vitest/decisionTypeSettings.spec.js.

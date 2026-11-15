@@ -23,7 +23,11 @@
  to decidiq's own controller.
 -->
 <template>
-	<CnDetailCard :title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+	<CnDetailCard
+		v-if="!summarised"
+		:title="cardTitle"
+		:icon="cardIcon"
+		:collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-approval-chain__error" role="alert">
@@ -87,6 +91,15 @@
 			</p>
 
 			<div v-if="mayAct" class="cn-approval-chain__actions">
+				<NcSelect
+					v-if="templateOptions.length"
+					v-model="reasonTemplate"
+					:options="templateOptions"
+					:inputLabel="templateLabel"
+					label="name"
+					trackBy="id"
+					data-testid="cn-approval-chain-reason-template"
+					@update:modelValue="useTemplate" />
 				<NcTextField
 					v-model="reason"
 					:label="reasonLabel"
@@ -126,6 +139,15 @@
 					:inputLabel="mandateLabel"
 					:getOptionLabel="mandateOptionLabel"
 					data-testid="cn-approval-chain-mandate" />
+				<NcSelect
+					v-if="templateOptions.length"
+					v-model="reasonTemplate"
+					:options="templateOptions"
+					:inputLabel="templateLabel"
+					label="name"
+					trackBy="id"
+					data-testid="cn-approval-chain-reason-template"
+					@update:modelValue="useTemplate" />
 				<NcTextField
 					v-model="reason"
 					:label="reasonLabel"
@@ -179,8 +201,10 @@ import {
 	liveStage,
 	mayActOnBehalf,
 	parseActors,
+	reasonTemplateOptions,
 	recordAction,
 } from './approvalChainLink.js'
+import { leafReportMixin } from './leafReport.js'
 
 /**
  * CnApprovalChainWidget — the live step of a host object's sign-off route,
@@ -200,6 +224,8 @@ export default {
 		Check,
 		Close,
 	},
+
+	mixins: [leafReportMixin],
 
 	props: {
 		/** Stable integration id (forwarded from the registry). */
@@ -221,6 +247,12 @@ export default {
 		 */
 		// eslint-disable-next-line vue/no-boolean-default
 		collapsible: { type: Boolean, default: true },
+		/**
+		 * Ready-made reasons the host offers, `[{ id, name, body }]`. Picking
+		 * one fills the reason field; the person can still edit it. Empty, the
+		 * picker is not shown. Falls back to `integrationContext.reasonTemplates`.
+		 */
+		reasonTemplates: { type: Array, default: () => [] },
 	},
 
 	data() {
@@ -230,6 +262,7 @@ export default {
 			busy: false,
 			error: '',
 			reason: '',
+			reasonTemplate: null,
 			mandates: [],
 			mandate: null,
 			startPeople: '',
@@ -239,6 +272,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * What this leaf reports to a "linked" card: the route, where it stands.
+		 *
+		 * @return {object} The report.
+		 * @spec openspec/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 */
+		leafReport() {
+			const where = this.current ? this.stepLabel : this.concludedLabel
+			return {
+				count: this.stages.length > 0 ? 1 : 0,
+				emptyLabel: this.emptyLabel,
+				noun: t('decidiq', 'sign-off route'),
+				rows: [{ label: `${this.cardTitle}: ${where}`, icon: 'Signature' }],
+			}
+		},
+
 		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010) */
 		cardTitle() {
 			return t('decidiq', 'Parafering')
@@ -295,21 +344,21 @@ export default {
 		 * (#1397). Not the authorisation: ApprovalStageGuard decides that.
 		 *
 		 * @return {boolean} True when someone else holds the step and this user has a mandate.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		mayActForAssignee() {
 			const user = getCurrentUser()
 			return mayActOnBehalf(this.current, user && user.uid, this.mandates)
 		},
 
-		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		/** @spec openspec/specs/parafering-route-runtime/spec.md */
 		onBehalfLabel() {
 			return t('decidiq', 'You may sign for {actor} under a mandate.', {
 				actor: String(this.current?.assignedPerson || ''),
 			})
 		},
 
-		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		/** @spec openspec/specs/parafering-route-runtime/spec.md */
 		mandateLabel() {
 			return t('decidiq', 'Mandate')
 		},
@@ -319,7 +368,7 @@ export default {
 			return parseActors(this.startPeople)
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteOptions() {
 			return [
 				{
@@ -340,7 +389,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteNeedsDeadline() {
 			return (
 				Boolean(this.startSubstitute && this.startSubstitute.value)
@@ -363,12 +412,12 @@ export default {
 			return t('decidiq', 'Deadline')
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteLabel() {
 			return t('decidiq', 'Also ask the substitute')
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteDeadlineHint() {
 			return t(
 				'decidiq',
@@ -438,6 +487,19 @@ export default {
 		reasonLabel() {
 			return t('decidiq', 'Reason, required to reject')
 		},
+
+		/** @spec openspec/specs/approval-routes/spec.md */
+		templateLabel() {
+			return t('decidiq', 'Start from a template')
+		},
+
+		/** @spec openspec/specs/approval-routes/spec.md */
+		templateOptions() {
+			const given = this.reasonTemplates.length
+				? this.reasonTemplates
+				: this.integrationContext.reasonTemplates
+			return reasonTemplateOptions(given)
+		},
 	},
 
 	watch: {
@@ -480,6 +542,19 @@ export default {
 		 * @return {Promise<void>} Nothing.
 		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
+		/**
+		 * Fill the reason from the picked template; the person may still edit it.
+		 *
+		 * @param {object|null} option The picked template option.
+		 * @return {void}
+		 * @spec openspec/specs/approval-routes/spec.md
+		 */
+		useTemplate(option) {
+			if (option && option.body) {
+				this.reason = option.body
+			}
+		},
+
 		async act(verb, forAssignee = false) {
 			if (!this.current || this.busy) return
 			this.busy = true
@@ -526,7 +601,7 @@ export default {
 		 * live step belongs to someone else.
 		 *
 		 * @return {Promise<void>} Nothing.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		async loadMandates() {
 			const user = getCurrentUser()
@@ -554,7 +629,7 @@ export default {
 		 *
 		 * @param {object} option The mandate row.
 		 * @return {string} Its subject, or its id.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		mandateOptionLabel(option) {
 			return String((option && (option.subject || option.id)) || '')

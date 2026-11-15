@@ -21,6 +21,12 @@
   **Acceptance:** register JSON validates; `importFromApp()` on an instance
   with existing objects succeeds; writes using each new enum value/property
   return 2xx; `composer check:strict` is clean.
+  > 2026-11-14: the deltas were already in development (`decidesk_register.json` enums, `register.d/999-ori-adoption.json`). Added there: `externalReference` on Meeting, AgendaItem, DigitalDocument, VotingRound, Person and Membership (the import tag of 2.1), with schema versions one above the highest declared; `OriAdoptionRegisterTest::testEverySchemaTheImportWritesCarriesTheImportTag`. Box left open: the live acceptance (importFromApp on an instance with objects, 2xx writes) is not run here.
+  > Built: the three enum values in `decidesk_register.json`, the new
+  > properties in `register.d/999-ori-adoption.json` (an enum list in a
+  > fragment would be appended by the merger but replaced by index by other
+  > readers). `OriAdoptionRegisterTest` validates the merged result. Left
+  > unticked until `importFromApp()` and the writes are checked on an instance.
 
 ## 2. ORI importer (data migration target)
 
@@ -35,6 +41,7 @@
   `coalitiepartij`→`coalition`, role→membership mapping incl. alderman→
   executive board) and the idempotency + dangling-ref behaviours;
   `composer check:strict` is clean.
+  > 2026-11-14 built: `OriImportService` (import, preview, rollback, previewRollback) over `OriExportMapper::read*()`, with `OriImportReport`. `OriImportServiceTest` covers every mapping row named above, idempotency (second run: zero created), dangling refs and unknown values reported, rollback of `ori:*` only, and no `Vote` objects. A member's group membership is tagged `ori:<uuid>#group` (two memberships come from one source member); derived bodies are tagged `ori:council:<name>`, `ori:executive:<name>`, `ori:committee:<name>`. Box left open: `composer check:strict` as a whole is not run here (phpcs, phpmd, phpstan clean on the new files).
 
 - [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
   with `--source-register=ori`, `--dry-run`, `--rollback`, `--strict`,
@@ -46,6 +53,7 @@
   not the command's own report); live run then re-run produce identical counts;
   rollback restores the pre-import decidiq count while the source register is
   untouched.
+  > 2026-11-14 built: `ImportOriCommand`, registered in `appinfo/info.xml`; `--strict` previews first and writes nothing when the preview finds a problem. `ImportOriCommandTest`. Box left open: the acceptance runs on a dev instance seeded with the source register.
 
 ## 3. ORI interop adapter
 
@@ -56,6 +64,7 @@
   Popolo storage → ORI wire) and assert field-level equality on the wire shape;
   a repo-wide grep confirms no Dutch identifier from the mapper leaks into any
   schema or other class.
+  > 2026-11-14 built: `OriExportMapper` holds the whole ORI vocabulary (reads for the importer, renders for the feeds). `OriExportMapperTest` round-trips meeting, document, agenda item and vote through the importer and back, and scans the change's other files for the mapper's Dutch identifiers. Box left open with 2.1 (check:strict).
 
 - [ ] 3.2 Add `lib/Controller/OriFeedController.php` + routes
   `/feed/ori/meetings.rss`, `/feed/ori/agenda-items.rss`,
@@ -65,15 +74,17 @@
   **Acceptance:** anonymous `curl` (no session cookie) returns HTTP 200 +
   `application/rss+xml` for all three feeds; a non-public object does not
   appear; hydra gates (route-auth, no-admin-idor) pass.
+  > 2026-11-14 built: `OriFeedController` (`#[PublicPage]`, `#[NoCSRFRequired]`, `#[AnonRateLimit]`, GET only) over `OriFeedService` and a generic `Feed\RssDocument`; routes in `appinfo/routes.php`. Public means a meeting with `isPublic: true`, the agenda items of such a meeting, and the documents attached to those items; each item's description is the ORI wire record. `OriFeedServiceTest`, `OriFeedControllerTest`, `RssDocumentTest`. route-auth passes; no-admin-idor reports the same 22 findings as development, none in these files (they are public pages). Box left open: the anonymous curl acceptance needs a live instance, and parity with procest's retired feed could not be compared (procest is not reachable from this session).
 
 ## 4. Demo seed
 
-- [ ] 4.1 Translate the Voorbeeldstad demo dataset from procest's
+- [x] 4.1 Translate the Voorbeeldstad demo dataset from procest's
   `ori_register.json` through the mapping into a new register fragment
   `lib/Settings/register.d/66-ori-raadsinformatie-seed.json` (bodies, persons,
   memberships, meetings, agenda items, documents, decisions, voting rounds).
   **Acceptance:** double import creates each object exactly once; seed values
   keep Dutch *content* (names, titles) but zero Dutch *identifiers*.
+  > 2026-11-15 built: the source is procest's `lib/Settings/ori_register.json` as it stood before procest removed it (the parent of `0b18be5cf`, 115 objects). It was run through `OriImportService` itself, so the seed is what `occ decidiq:import-ori` writes. Since the `seed-profiles` change, seed objects no longer go in `register.d` (a bare install has zero objects), so the result is an example set, `lib/Settings/profiles/council-information.json` (196 objects: 13 bodies, 35 persons, 70 memberships, 10 meetings, 15 documents, 41 agenda items, 6 decisions, 6 voting rounds), not a `66-` fragment (that number is taken). Every object carries a fixed uuid, so a second import finds each one and adds nothing, and a decision's `subjectId` (not a schema `$ref`) still names its agenda item. The import tag is left off, so `--rollback` leaves the demo set alone. Translating it surfaced two importer defects, fixed here: a decided decision got no `decisionDate` (now the start of the vote's meeting), and an inactive member's `endDate` was a bare day where the schema asks for a date-time. `CouncilInformationExampleSetTest` validates every object against its merged schema and checks uuids, references, the decided decisions and that no ORI identifier survives.
 
 ## 5. Verification & handover
 

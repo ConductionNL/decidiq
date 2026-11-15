@@ -1122,6 +1122,25 @@ class MinutesControllerTest extends TestCase {
 	}//end testRejectByAdminSucceeds()
 
 	/**
+	 * reject runs for the session user, whatever userId or owner the request carries.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testRejectIgnoresForgedUserIdInRequest(): void {
+		$forged = ['comment' => 'Nope', 'userId' => 'mallory', 'owner' => 'mallory'];
+		$this->groupManager->method('isAdmin')->with('testuser')->willReturn(true);
+		$this->request->method('getParam')->willReturnCallback(fn (string $key, $default = null) => $forged[$key] ?? $default);
+		$this->request->method('getParams')->willReturn($forged);
+		$this->minutesGenerationService->expects($this->once())
+			->method('reject')
+			->with(minutesId: 'minutes-uuid-001', comment: 'Nope', userId: 'testuser')
+			->willReturn(['id' => 'minutes-uuid-001', 'lifecycle' => 'draft']);
+		self::assertSame(Http::STATUS_OK, $this->controller->reject('minutes-uuid-001')->getStatus());
+	}//end testRejectIgnoresForgedUserIdInRequest()
+
+	/**
 	 * reject without a comment maps the service's InvalidArgumentException
 	 * to 422 — a rejection without a comment is refused.
 	 *

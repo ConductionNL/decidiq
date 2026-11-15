@@ -1,0 +1,257 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MeetingTranscriptionTab useAsMinutes() > creates new minutes when the meeting has none, also when the store answers null 1`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "fresh": true,
+        "meeting": "m1",
+        "title": "Minutes",
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > creates new minutes when the meeting has none, also when the store answers null 2`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "fresh": true,
+        "meeting": "m1",
+        "title": "Minutes",
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > creates new minutes when the meeting has none, also when the store answers null 3`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "fresh": true,
+        "meeting": "m1",
+        "title": "Minutes",
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > refuses minutes past the draft stage 1`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "The minutes of this meeting are past the draft stage, so the AI draft was not written into them.",
+    "usedNotice": "",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > writes into the draft minutes of this meeting, matching object and uuid refs 1`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "id": "mins",
+        "lifecycle": "draft",
+        "meeting": {
+          "id": "m1",
+        },
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > writes into the draft minutes of this meeting, matching object and uuid refs 2`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "id": "mins",
+        "lifecycle": "draft",
+        "meeting": {
+          "uuid": "m1",
+        },
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;
+
+exports[`MeetingTranscriptionTab useAsMinutes() > writes into the draft minutes of this meeting, matching object and uuid refs 3`] = `
+{
+  "calls": [
+    {
+      "fn": "ensureRelationType",
+      "type": "minutes",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+    {
+      "fn": "saveObject",
+      "object": {
+        "draft": {
+          "sections": [
+            "s1",
+          ],
+        },
+        "id": "mins",
+        "lifecycle": "draft",
+        "meeting": "m1",
+      },
+      "schema": "minutes",
+    },
+  ],
+  "state": {
+    "error": "",
+    "usedNotice": "The kept sections are in the minutes. Open the minutes to review them.",
+    "working": false,
+  },
+}
+`;

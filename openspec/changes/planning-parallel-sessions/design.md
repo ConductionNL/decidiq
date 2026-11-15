@@ -55,3 +55,12 @@ Municipality example set: "Commissieavond 3 november" (18:00 to 23:00) with thre
 - `lib/Portal/PortalContributionProvider.php` (`publicBroadcasts` fields), the `MeetingBroadcast` fragment from `live-public-livestream` (`eveningTitle`)
 - `src/components/tabs/MeetingSessionsTab.vue`, `src/registry.js`, `src/manifest.json` (`MeetingDetail` widget, layout and slot; `Meetings` facet), `src/views/meetings/MeetingCalendarView.vue`
 - `tests/Unit/Listener/ParallelSessionListenerTest.php`, `tests/vitest/meetingCalendarSessions.spec.js`, `tests/e2e/parallel-sessions.spec.ts`
+
+## Built (5 Oct 2026)
+
+- The fragment is `lib/Settings/register.d/121-parallel-sessions.json`, not `92-`: fragments merge in file-name order and the newest Meeting delta must come last so its version (1.11.0) wins. It also adds `MeetingBroadcast.eveningTitle` (0.2.0).
+- The rules run in `ParallelSessionListener`, subscribed through `SaveGuardSubscriptions` on meeting creates and updates, after `MeetingDefaultsListener` so a type's body is not overwritten by the evening's. Beyond the three refusals planned here it also refuses a meeting that already has sessions from becoming a session (the other side of no nesting), a session whose evening does not exist, and a session that runs past the end of its evening.
+- OpenRegister applies the schema default `isPublic: false` before the pre-save hook, so through the object API a session's publicity arrives filled and the listener cannot tell it was left empty. The Add session action therefore presets the evening's body, mode and publicity itself (`newSession` in `src/utils/meetingSessions.js`); the listener fills body and mode for any other caller.
+- The `Meetings` facet needs no manifest change: the index sidebar builds facets from the schema's facetable properties.
+- `eveningTitle` is in the `publicBroadcasts` fields; the default sort stays on `scheduledDate`, because an evening's sessions start at the same time and so already list together.
+

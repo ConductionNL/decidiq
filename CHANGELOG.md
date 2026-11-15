@@ -37,6 +37,16 @@ All notable changes to Decidiq are documented in this file.
 
 ### Changed
 
+- **Nextcloud 35 support**: `appinfo/info.xml` now declares
+  `max-version="35"` and `nextcloud/ocp` is `^35.0`. The OpenRegister
+  autoload prelude (`lib/AppInfo/OpenRegisterAutoloader.php`) no longer calls
+  the private `\OC_App::registerAutoloading()`, which Nextcloud 35 removed
+  (on 35 the call threw, was swallowed, and the AppHost store binding was
+  skipped in silence). It now registers a PSR-4 loader for
+  `OCA\OpenRegister\` using only the public `IAppManager`. CI derives its
+  server matrix from `info.xml` instead of a hand-kept list, so stable35 is
+  tested. The test bootstrap uses `IAppManager` instead of `OC_App`.
+
 - **Dashboard v2 layout** (`decidesk-dashboard-v2-layout`): rewired the
   `Dashboard` page in `src/manifest.json` to the five-row, 11-widget v2
   grid with English widget titles.

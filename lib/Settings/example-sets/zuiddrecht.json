@@ -1,0 +1,4040 @@
+{
+	"set": "zuiddrecht",
+	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes. Each agenda is published by a change after its items are written: an item written to a published agenda records a new agenda version, which would stamp the publication with the install time. Citizen participation has one closed round and one open consultation: the college's Wijkbudget 2027 with its ten proposals and published result, and the council's consultation on the draft parking regulation for the town centre, with reactions approved, rejected and waiting for moderation.",
+	"after": [
+		"dossiq",
+		"portaliq"
+	],
+	"objects": [
+		{
+			"key": "body-gemeenteraad",
+			"register": "decidiq",
+			"schema": "governance-body",
+			"data": {
+				"name": "Gemeenteraad Zuiddrecht",
+				"bodyType": "legislative",
+				"domain": "municipality",
+				"workflowTemplate": "legislative",
+				"quorumRule": "majority",
+				"quorum": 14,
+				"active": true,
+				"jurisdiction": "Gemeente Zuiddrecht",
+				"statutoryBasis": "Gemeentewet",
+				"votingDefault": "for-against-abstain",
+				"termStart": "{{datetime:-210 00:00}}",
+				"publishVotingRecords": true,
+				"chairHasVote": false
+			}
+		},
+		{
+			"key": "body-college",
+			"register": "decidiq",
+			"schema": "governance-body",
+			"data": {
+				"name": "College van burgemeester en wethouders Zuiddrecht",
+				"bodyType": "executive-board",
+				"domain": "municipality",
+				"active": true,
+				"jurisdiction": "Gemeente Zuiddrecht",
+				"statutoryBasis": "Gemeentewet",
+				"termStart": "{{datetime:-210 00:00}}",
+				"publishVotingRecords": false,
+				"chairHasVote": true
+			}
+		},
+		{
+			"key": "person-ingrid-tuinman",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Ingrid Tuinman",
+				"givenName": "Ingrid",
+				"familyName": "Tuinman",
+				"gender": "female",
+				"email": "ingrid.tuinman@zuiddrecht.example",
+				"biography": "Burgemeester van Zuiddrecht. Voorzitter van de gemeenteraad en van het college."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-ingrid-tuinman",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Ingrid Tuinman",
+				"role": "chair",
+				"email": "ingrid.tuinman@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 0
+			}
+		},
+		{
+			"key": "participant-college-ingrid-tuinman",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Ingrid Tuinman",
+				"role": "chair",
+				"email": "ingrid.tuinman@zuiddrecht.example",
+				"governanceBody": "{{object:body-college.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-ingrid-tuinman",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "chair",
+				"person": "{{object:person-ingrid-tuinman.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"label": "Voorzitter (burgemeester)"
+			}
+		},
+		{
+			"key": "membership-college-ingrid-tuinman",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "chair",
+				"person": "{{object:person-ingrid-tuinman.id}}",
+				"governanceBody": "{{object:body-college.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"portfolio": [
+					"Openbare orde en veiligheid",
+					"Communicatie"
+				],
+				"label": "Burgemeester"
+			}
+		},
+		{
+			"key": "person-ruud-hoogendijk",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Ruud Hoogendijk",
+				"givenName": "Ruud",
+				"familyName": "Hoogendijk",
+				"gender": "male",
+				"email": "ruud.hoogendijk@zuiddrecht.example",
+				"biography": "Wethouder financien en verkeer en vervoer namens Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-college-ruud-hoogendijk",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Ruud Hoogendijk",
+				"role": "member",
+				"email": "ruud.hoogendijk@zuiddrecht.example",
+				"governanceBody": "{{object:body-college.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "membership-college-ruud-hoogendijk",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-ruud-hoogendijk.id}}",
+				"governanceBody": "{{object:body-college.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"portfolio": [
+					"Financien",
+					"Verkeer en vervoer"
+				],
+				"label": "Wethouder"
+			}
+		},
+		{
+			"key": "person-anouk-meijering",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Anouk Meijering",
+				"givenName": "Anouk",
+				"familyName": "Meijering",
+				"gender": "female",
+				"email": "anouk.meijering@zuiddrecht.example",
+				"biography": "Wethouder openbare ruimte en duurzaamheid namens Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-college-anouk-meijering",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Anouk Meijering",
+				"role": "member",
+				"email": "anouk.meijering@zuiddrecht.example",
+				"governanceBody": "{{object:body-college.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "membership-college-anouk-meijering",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-anouk-meijering.id}}",
+				"governanceBody": "{{object:body-college.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"portfolio": [
+					"Openbare ruimte",
+					"Duurzaamheid"
+				],
+				"label": "Wethouder"
+			}
+		},
+		{
+			"key": "person-jeroen-wolters",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Jeroen Wolters",
+				"givenName": "Jeroen",
+				"familyName": "Wolters",
+				"gender": "male",
+				"email": "jeroen.wolters@zuiddrecht.example",
+				"biography": "Wethouder wonen en economie namens Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-college-jeroen-wolters",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Jeroen Wolters",
+				"role": "member",
+				"email": "jeroen.wolters@zuiddrecht.example",
+				"governanceBody": "{{object:body-college.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "membership-college-jeroen-wolters",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-jeroen-wolters.id}}",
+				"governanceBody": "{{object:body-college.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"portfolio": [
+					"Wonen",
+					"Economie"
+				],
+				"label": "Wethouder"
+			}
+		},
+		{
+			"key": "person-saida-bouzid",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Saida Bouzid",
+				"givenName": "Saida",
+				"familyName": "Bouzid",
+				"gender": "female",
+				"email": "saida.bouzid@zuiddrecht.example",
+				"biography": "Wethouder zorg en onderwijs namens Sociaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-college-saida-bouzid",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Saida Bouzid",
+				"role": "member",
+				"email": "saida.bouzid@zuiddrecht.example",
+				"governanceBody": "{{object:body-college.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "membership-college-saida-bouzid",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-saida-bouzid.id}}",
+				"governanceBody": "{{object:body-college.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht",
+				"portfolio": [
+					"Zorg",
+					"Onderwijs"
+				],
+				"label": "Wethouder"
+			}
+		},
+		{
+			"key": "person-gerard-lammers",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Gerard Lammers",
+				"givenName": "Gerard",
+				"familyName": "Lammers",
+				"gender": "male",
+				"email": "gerard.lammers@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-gerard-lammers",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Gerard Lammers",
+				"role": "member",
+				"email": "gerard.lammers@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 1
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-gerard-lammers",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-gerard-lammers.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-monique-dekker",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Monique Dekker",
+				"givenName": "Monique",
+				"familyName": "Dekker",
+				"gender": "female",
+				"email": "monique.dekker@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-monique-dekker",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Monique Dekker",
+				"role": "member",
+				"email": "monique.dekker@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 2
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-monique-dekker",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-monique-dekker.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-kees-hofman",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Kees Hofman",
+				"givenName": "Kees",
+				"familyName": "Hofman",
+				"gender": "male",
+				"email": "kees.hofman@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-kees-hofman",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Kees Hofman",
+				"role": "member",
+				"email": "kees.hofman@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 3
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-kees-hofman",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-kees-hofman.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Yvonne Bosman",
+				"givenName": "Yvonne",
+				"familyName": "Bosman",
+				"gender": "female",
+				"email": "yvonne.bosman@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Yvonne Bosman",
+				"role": "member",
+				"email": "yvonne.bosman@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 4
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-yvonne-bosman.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Erik Veldhuis",
+				"givenName": "Erik",
+				"familyName": "Veldhuis",
+				"gender": "male",
+				"email": "erik.veldhuis@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Erik Veldhuis",
+				"role": "member",
+				"email": "erik.veldhuis@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 5
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-erik-veldhuis.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-sandra-kroon",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Sandra Kroon",
+				"givenName": "Sandra",
+				"familyName": "Kroon",
+				"gender": "female",
+				"email": "sandra.kroon@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-sandra-kroon",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Sandra Kroon",
+				"role": "member",
+				"email": "sandra.kroon@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 6
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-sandra-kroon",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-sandra-kroon.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-bart-reijnders",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Bart Reijnders",
+				"givenName": "Bart",
+				"familyName": "Reijnders",
+				"gender": "male",
+				"email": "bart.reijnders@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-bart-reijnders",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Bart Reijnders",
+				"role": "member",
+				"email": "bart.reijnders@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 7
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-bart-reijnders",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-bart-reijnders.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-wilma-schouten",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Wilma Schouten",
+				"givenName": "Wilma",
+				"familyName": "Schouten",
+				"gender": "female",
+				"email": "wilma.schouten@zuiddrecht.example",
+				"biography": "Raadslid voor Zuiddrecht Lokaal."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-wilma-schouten",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Wilma Schouten",
+				"role": "member",
+				"email": "wilma.schouten@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal",
+				"seatNumber": 8
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-wilma-schouten",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-wilma-schouten.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Zuiddrecht Lokaal"
+			}
+		},
+		{
+			"key": "person-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Lieke van Rooij",
+				"givenName": "Lieke",
+				"familyName": "van Rooij",
+				"gender": "female",
+				"email": "lieke.vanrooij@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Lieke van Rooij",
+				"role": "member",
+				"email": "lieke.vanrooij@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 9
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-lieke-vanrooij.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-joost-mulder",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Joost Mulder",
+				"givenName": "Joost",
+				"familyName": "Mulder",
+				"gender": "male",
+				"email": "joost.mulder@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-joost-mulder",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Joost Mulder",
+				"role": "member",
+				"email": "joost.mulder@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 10
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-joost-mulder",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-joost-mulder.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-hatice-kaya",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Hatice Kaya",
+				"givenName": "Hatice",
+				"familyName": "Kaya",
+				"gender": "female",
+				"email": "hatice.kaya@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-hatice-kaya",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Hatice Kaya",
+				"role": "member",
+				"email": "hatice.kaya@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 11
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-hatice-kaya",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-hatice-kaya.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Tim Groenewoud",
+				"givenName": "Tim",
+				"familyName": "Groenewoud",
+				"gender": "male",
+				"email": "tim.groenewoud@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Tim Groenewoud",
+				"role": "member",
+				"email": "tim.groenewoud@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 12
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-tim-groenewoud.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-floor-vos",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Floor Vos",
+				"givenName": "Floor",
+				"familyName": "Vos",
+				"gender": "female",
+				"email": "floor.vos@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-floor-vos",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Floor Vos",
+				"role": "member",
+				"email": "floor.vos@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 13
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-floor-vos",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-floor-vos.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-roel-brands",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Roel Brands",
+				"givenName": "Roel",
+				"familyName": "Brands",
+				"gender": "male",
+				"email": "roel.brands@zuiddrecht.example",
+				"biography": "Raadslid voor Groen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-roel-brands",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Roel Brands",
+				"role": "member",
+				"email": "roel.brands@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht",
+				"seatNumber": 14
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-roel-brands",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-roel-brands.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Groen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Maarten Wijnands",
+				"givenName": "Maarten",
+				"familyName": "Wijnands",
+				"gender": "male",
+				"email": "maarten.wijnands@zuiddrecht.example",
+				"biography": "Raadslid voor Liberaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Maarten Wijnands",
+				"role": "member",
+				"email": "maarten.wijnands@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht",
+				"seatNumber": 15
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-maarten-wijnands.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Charlotte Hendriks",
+				"givenName": "Charlotte",
+				"familyName": "Hendriks",
+				"gender": "female",
+				"email": "charlotte.hendriks@zuiddrecht.example",
+				"biography": "Raadslid voor Liberaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Charlotte Hendriks",
+				"role": "member",
+				"email": "charlotte.hendriks@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht",
+				"seatNumber": 16
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-charlotte-hendriks.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-dirk-zwart",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Dirk Zwart",
+				"givenName": "Dirk",
+				"familyName": "Zwart",
+				"gender": "male",
+				"email": "dirk.zwart@zuiddrecht.example",
+				"biography": "Raadslid voor Liberaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-dirk-zwart",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Dirk Zwart",
+				"role": "member",
+				"email": "dirk.zwart@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht",
+				"seatNumber": 17
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-dirk-zwart",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-dirk-zwart.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-esther-lubbers",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Esther Lubbers",
+				"givenName": "Esther",
+				"familyName": "Lubbers",
+				"gender": "female",
+				"email": "esther.lubbers@zuiddrecht.example",
+				"biography": "Raadslid voor Liberaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-esther-lubbers",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Esther Lubbers",
+				"role": "member",
+				"email": "esther.lubbers@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht",
+				"seatNumber": 18
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-esther-lubbers",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-esther-lubbers.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-pim-kramer",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Pim Kramer",
+				"givenName": "Pim",
+				"familyName": "Kramer",
+				"gender": "male",
+				"email": "pim.kramer@zuiddrecht.example",
+				"biography": "Raadslid voor Liberaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-pim-kramer",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Pim Kramer",
+				"role": "member",
+				"email": "pim.kramer@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht",
+				"seatNumber": 19
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-pim-kramer",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-pim-kramer.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Liberaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-nadia-ouali",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Nadia Ouali",
+				"givenName": "Nadia",
+				"familyName": "Ouali",
+				"gender": "female",
+				"email": "nadia.ouali@zuiddrecht.example",
+				"biography": "Raadslid voor Sociaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-nadia-ouali",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Nadia Ouali",
+				"role": "member",
+				"email": "nadia.ouali@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht",
+				"seatNumber": 20
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-nadia-ouali",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-nadia-ouali.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-frank-jonker",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Frank Jonker",
+				"givenName": "Frank",
+				"familyName": "Jonker",
+				"gender": "male",
+				"email": "frank.jonker@zuiddrecht.example",
+				"biography": "Raadslid voor Sociaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-frank-jonker",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Frank Jonker",
+				"role": "member",
+				"email": "frank.jonker@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht",
+				"seatNumber": 21
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-frank-jonker",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-frank-jonker.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-rianne-peeters",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Rianne Peeters",
+				"givenName": "Rianne",
+				"familyName": "Peeters",
+				"gender": "female",
+				"email": "rianne.peeters@zuiddrecht.example",
+				"biography": "Raadslid voor Sociaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-rianne-peeters",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Rianne Peeters",
+				"role": "member",
+				"email": "rianne.peeters@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht",
+				"seatNumber": 22
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-rianne-peeters",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-rianne-peeters.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Mohamed Tahiri",
+				"givenName": "Mohamed",
+				"familyName": "Tahiri",
+				"gender": "male",
+				"email": "mohamed.tahiri@zuiddrecht.example",
+				"biography": "Raadslid voor Sociaal Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Mohamed Tahiri",
+				"role": "member",
+				"email": "mohamed.tahiri@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht",
+				"seatNumber": 23
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-mohamed-tahiri.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Sociaal Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Gert-Jan Bouwman",
+				"givenName": "Gert-Jan",
+				"familyName": "Bouwman",
+				"gender": "male",
+				"email": "gertjan.bouwman@zuiddrecht.example",
+				"biography": "Raadslid voor Christelijk Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Gert-Jan Bouwman",
+				"role": "member",
+				"email": "gertjan.bouwman@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Christelijk Zuiddrecht",
+				"seatNumber": 24
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-gertjan-bouwman.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Christelijk Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-hanneke-westra",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Hanneke Westra",
+				"givenName": "Hanneke",
+				"familyName": "Westra",
+				"gender": "female",
+				"email": "hanneke.westra@zuiddrecht.example",
+				"biography": "Raadslid voor Christelijk Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-hanneke-westra",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Hanneke Westra",
+				"role": "member",
+				"email": "hanneke.westra@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Christelijk Zuiddrecht",
+				"seatNumber": 25
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-hanneke-westra",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-hanneke-westra.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Christelijk Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-truus-wiersma",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Truus Wiersma",
+				"givenName": "Truus",
+				"familyName": "Wiersma",
+				"gender": "female",
+				"email": "truus.wiersma@zuiddrecht.example",
+				"biography": "Raadslid voor Ouderen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-truus-wiersma",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Truus Wiersma",
+				"role": "member",
+				"email": "truus.wiersma@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Ouderen Zuiddrecht",
+				"seatNumber": 26
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-truus-wiersma",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-truus-wiersma.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Ouderen Zuiddrecht"
+			}
+		},
+		{
+			"key": "person-jan-overdijk",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "Jan Overdijk",
+				"givenName": "Jan",
+				"familyName": "Overdijk",
+				"gender": "male",
+				"email": "jan.overdijk@zuiddrecht.example",
+				"biography": "Raadslid voor Ouderen Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-jan-overdijk",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "Jan Overdijk",
+				"role": "member",
+				"email": "jan.overdijk@zuiddrecht.example",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Ouderen Zuiddrecht",
+				"seatNumber": 27
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-jan-overdijk",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "member",
+				"person": "{{object:person-jan-overdijk.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"party": "Ouderen Zuiddrecht"
+			}
+		},
+		{
+			"key": "post-griffier",
+			"register": "decidiq",
+			"schema": "post",
+			"data": {
+				"label": "Griffier",
+				"role": "secretary",
+				"startDate": "{{datetime:-210 00:00}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}"
+			}
+		},
+		{
+			"key": "person-bram",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:bram.displayName}}",
+				"givenName": "{{cast:bram.givenName}}",
+				"familyName": "{{cast:bram.familyName}}",
+				"email": "{{cast:bram.email}}",
+				"nextcloudUserId": "{{cast:bram.uid}}",
+				"biography": "Griffier van de gemeenteraad van Zuiddrecht."
+			}
+		},
+		{
+			"key": "participant-gemeenteraad-bram",
+			"register": "decidiq",
+			"schema": "participant",
+			"data": {
+				"displayName": "{{cast:bram.displayName}}",
+				"role": "secretary",
+				"email": "{{cast:bram.email}}",
+				"nextcloudUserId": "{{cast:bram.uid}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"joinedAt": "{{datetime:-210 00:00}}",
+				"votingWeight": 0
+			}
+		},
+		{
+			"key": "membership-gemeenteraad-bram",
+			"register": "decidiq",
+			"schema": "membership",
+			"data": {
+				"role": "secretary",
+				"person": "{{object:person-bram.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"startDate": "{{datetime:-210 00:00}}",
+				"votingWeight": 1,
+				"label": "Griffier",
+				"post": "{{object:post-griffier.id}}"
+			}
+		},
+		{
+			"key": "meeting-college-1",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Collegevergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-college.id}}",
+				"scheduledDate": "{{datetime:-32@tue 10:00}}",
+				"endDate": "{{datetime:-32@tue 12:30}}",
+				"location": "Stadskantoor, collegekamer",
+				"meetingMode": "in-person",
+				"lifecycle": "closed",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
+				"isPublic": false,
+				"openedAt": "{{datetime:-32@tue 10:00}}",
+				"closedAt": "{{datetime:-32@tue 12:30}}"
+			}
+		},
+		{
+			"key": "agenda-college-1-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De burgemeester opent de vergadering.",
+				"meeting": "{{object:meeting-college-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-college-1-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Raadsvoorstel verlichting fietspad Lindelaan",
+				"itemType": "decision",
+				"orderNumber": 2,
+				"estimatedDuration": 20,
+				"description": "Het college stuurt de raad een voorstel om geld vrij te maken voor verlichting langs het fietspad aan de Lindelaan.",
+				"meeting": "{{object:meeting-college-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-college-1-3",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Raadsvoorstel afvalstoffenheffing 2027",
+				"itemType": "decision",
+				"orderNumber": 3,
+				"estimatedDuration": 15,
+				"description": "Het college stelt de raad de tarieven voor 2027 voor.",
+				"meeting": "{{object:meeting-college-1.id}}"
+			}
+		},
+		{
+			"key": "meeting-raad-1",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Raadsvergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"scheduledDate": "{{datetime:-25@thu 19:30}}",
+				"endDate": "{{datetime:-25@thu 23:00}}",
+				"location": "Stadskantoor, raadzaal",
+				"meetingMode": "hybrid",
+				"lifecycle": "closed",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
+				"isPublic": true,
+				"openedAt": "{{datetime:-25@thu 19:30}}",
+				"closedAt": "{{datetime:-25@thu 23:00}}"
+			}
+		},
+		{
+			"key": "agenda-raad-1-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De voorzitter opent de vergadering en de raad stelt de agenda vast.",
+				"meeting": "{{object:meeting-raad-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-1-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Inspreken",
+				"itemType": "informational",
+				"orderNumber": 2,
+				"estimatedDuration": 15,
+				"description": "Twee bewoners van de Lindelaan spreken in over het donkere fietspad.",
+				"meeting": "{{object:meeting-raad-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-1-3",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Krediet verlichting fietspad Lindelaan",
+				"itemType": "decision",
+				"orderNumber": 3,
+				"estimatedDuration": 45,
+				"description": "Raadsvoorstel van het college: 186.000 euro voor 42 lantaarnpalen met zuinige ledlampen langs het fietspad aan de Lindelaan.",
+				"meeting": "{{object:meeting-raad-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-1-4",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Motie lantaarnpalen op zonne-energie",
+				"itemType": "decision",
+				"orderNumber": 4,
+				"estimatedDuration": 20,
+				"description": "Motie van Groen Zuiddrecht: zet op de Lindelaan lantaarnpalen met een eigen zonnepaneel.",
+				"meeting": "{{object:meeting-raad-1.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-1-5",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Sluiting",
+				"itemType": "informational",
+				"orderNumber": 5,
+				"estimatedDuration": 5,
+				"description": "De voorzitter sluit de vergadering.",
+				"meeting": "{{object:meeting-raad-1.id}}"
+			}
+		},
+		{
+			"key": "meeting-college-2",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Collegevergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-college.id}}",
+				"scheduledDate": "{{datetime:-7@tue 10:00}}",
+				"endDate": "{{datetime:-7@tue 12:30}}",
+				"location": "Stadskantoor, collegekamer",
+				"meetingMode": "in-person",
+				"lifecycle": "closed",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
+				"isPublic": false,
+				"openedAt": "{{datetime:-7@tue 10:00}}",
+				"closedAt": "{{datetime:-7@tue 12:30}}"
+			}
+		},
+		{
+			"key": "agenda-college-2-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De burgemeester opent de vergadering.",
+				"meeting": "{{object:meeting-college-2.id}}"
+			}
+		},
+		{
+			"key": "agenda-college-2-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opdracht aanleg verlichting fietspad Lindelaan",
+				"itemType": "decision",
+				"orderNumber": 2,
+				"estimatedDuration": 20,
+				"description": "Na de aanbesteding geeft het college de opdracht voor de aanleg van de verlichting.",
+				"meeting": "{{object:meeting-college-2.id}}"
+			}
+		},
+		{
+			"key": "meeting-raad-2",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Raadsvergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"scheduledDate": "{{datetime:-11@thu 19:30}}",
+				"endDate": "{{datetime:-11@thu 22:30}}",
+				"location": "Stadskantoor, raadzaal",
+				"meetingMode": "hybrid",
+				"lifecycle": "closed",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
+				"isPublic": true,
+				"openedAt": "{{datetime:-11@thu 19:30}}",
+				"closedAt": "{{datetime:-11@thu 22:30}}"
+			}
+		},
+		{
+			"key": "agenda-raad-2-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De voorzitter opent de vergadering en de raad stelt de agenda vast.",
+				"meeting": "{{object:meeting-raad-2.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-2-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Verordening afvalstoffenheffing 2027",
+				"itemType": "decision",
+				"orderNumber": 2,
+				"estimatedDuration": 30,
+				"description": "De tarieven voor het ophalen van afval in 2027.",
+				"meeting": "{{object:meeting-raad-2.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-2-3",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Sluiting",
+				"itemType": "informational",
+				"orderNumber": 3,
+				"estimatedDuration": 5,
+				"description": "De voorzitter sluit de vergadering.",
+				"meeting": "{{object:meeting-raad-2.id}}"
+			}
+		},
+		{
+			"key": "meeting-raad-3",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Raadsvergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"scheduledDate": "{{datetime:3@thu 19:30}}",
+				"endDate": "{{datetime:3@thu 23:00}}",
+				"location": "Stadskantoor, raadzaal",
+				"meetingMode": "hybrid",
+				"lifecycle": "scheduled",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
+				"isPublic": true
+			}
+		},
+		{
+			"key": "agenda-raad-3-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De voorzitter opent de vergadering en de raad stelt de agenda vast.",
+				"meeting": "{{object:meeting-raad-3.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-3-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Inspreken",
+				"itemType": "informational",
+				"orderNumber": 2,
+				"estimatedDuration": 15,
+				"description": "Wilt u inspreken? Meld u uiterlijk een dag van tevoren bij de griffie.",
+				"meeting": "{{object:meeting-raad-3.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-3-3",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Stand van zaken verlichting fietspad Lindelaan",
+				"itemType": "informational",
+				"orderNumber": 3,
+				"estimatedDuration": 15,
+				"description": "Wethouder Meijering vertelt hoe het werk aan het fietspad wordt voorbereid. Het werk begint in maart.",
+				"meeting": "{{object:meeting-raad-3.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-3-4",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Programmabegroting 2027",
+				"itemType": "decision",
+				"orderNumber": 4,
+				"estimatedDuration": 120,
+				"description": "De raad bespreekt de begroting voor 2027 en stelt die vast.",
+				"meeting": "{{object:meeting-raad-3.id}}"
+			}
+		},
+		{
+			"key": "agenda-raad-3-5",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Sluiting",
+				"itemType": "informational",
+				"orderNumber": 5,
+				"estimatedDuration": 5,
+				"description": "De voorzitter sluit de vergadering.",
+				"meeting": "{{object:meeting-raad-3.id}}"
+			}
+		},
+		{
+			"key": "meeting-college-3",
+			"register": "decidiq",
+			"schema": "meeting",
+			"data": {
+				"title": "Collegevergadering",
+				"meetingType": "regular",
+				"governanceBody": "{{object:body-college.id}}",
+				"scheduledDate": "{{datetime:6@tue 10:00}}",
+				"endDate": "{{datetime:6@tue 12:30}}",
+				"location": "Stadskantoor, collegekamer",
+				"meetingMode": "in-person",
+				"lifecycle": "scheduled",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
+				"isPublic": false
+			}
+		},
+		{
+			"key": "agenda-college-3-1",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Opening en vaststelling agenda",
+				"itemType": "informational",
+				"orderNumber": 1,
+				"estimatedDuration": 5,
+				"description": "De burgemeester opent de vergadering.",
+				"meeting": "{{object:meeting-college-3.id}}"
+			}
+		},
+		{
+			"key": "agenda-college-3-2",
+			"register": "decidiq",
+			"schema": "agenda-item",
+			"data": {
+				"title": "Planning werkzaamheden fietspad Lindelaan",
+				"itemType": "informational",
+				"orderNumber": 2,
+				"estimatedDuration": 15,
+				"description": "Afspraken met de aannemer over de planning en de omleiding.",
+				"meeting": "{{object:meeting-college-3.id}}"
+			}
+		},
+		{
+			"key": "decision-college-voorstel-lindelaan",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-college-1.id}}",
+				"agendaItem": "{{object:agenda-college-1-2.id}}",
+				"decisionDate": "{{datetime:-32@tue 10:30}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-31@wed 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "meeting-outcome",
+				"title": "Collegebesluit: raadsvoorstel verlichting fietspad Lindelaan",
+				"text": "Het college stelt de raad voor 186.000 euro vrij te maken voor verlichting langs het fietspad aan de Lindelaan.",
+				"background": "Bewoners en de fietsersbond vroegen om verlichting, omdat het fietspad in het donker slecht te zien is.",
+				"lifecycle": "decided",
+				"outcome": "adopted",
+				"resolutionType": "policy",
+				"resolutionNumber": "CB-2026-112",
+				"themes": [
+					"verkeer",
+					"openbare ruimte"
+				],
+				"targetBody": "{{object:body-gemeenteraad.id}}"
+			}
+		},
+		{
+			"key": "decision-college-voorstel-afval",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-college-1.id}}",
+				"agendaItem": "{{object:agenda-college-1-3.id}}",
+				"decisionDate": "{{datetime:-32@tue 11:00}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-31@wed 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "meeting-outcome",
+				"title": "Collegebesluit: raadsvoorstel afvalstoffenheffing 2027",
+				"text": "Het college stelt de raad de tarieven van de afvalstoffenheffing voor 2027 voor.",
+				"lifecycle": "decided",
+				"outcome": "adopted",
+				"resolutionType": "financial",
+				"resolutionNumber": "CB-2026-113",
+				"themes": [
+					"afval",
+					"belastingen"
+				],
+				"targetBody": "{{object:body-gemeenteraad.id}}"
+			}
+		},
+		{
+			"key": "decision-lindelaan-krediet",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-raad-1.id}}",
+				"agendaItem": "{{object:agenda-raad-1-3.id}}",
+				"decisionDate": "{{datetime:-25@thu 21:10}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-24@fri 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "meeting-outcome",
+				"title": "Krediet verlichting fietspad Lindelaan",
+				"text": "De raad stelt een krediet van 186.000 euro beschikbaar voor verlichting langs het fietspad aan de Lindelaan: 42 lantaarnpalen met zuinige ledlampen. Het werk begint in maart en duurt ongeveer zes weken.",
+				"background": "Het fietspad langs de Lindelaan is in het donker slecht te zien. Bewoners en de fietsersbond vroegen om verlichting.",
+				"lifecycle": "decided",
+				"outcome": "adopted",
+				"resolutionType": "financial",
+				"resolutionNumber": "RB-2026-047",
+				"voteType": "named",
+				"voteThreshold": "simple-majority",
+				"adoptionDate": "{{datetime:-25@thu 21:10}}",
+				"themes": [
+					"verkeer",
+					"openbare ruimte"
+				],
+				"proposer": "College van burgemeester en wethouders",
+				"implements": [
+					"{{object:decision-college-voorstel-lindelaan.id}}"
+				]
+			}
+		},
+		{
+			"key": "decision-motie-zonne-energie",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-raad-1.id}}",
+				"agendaItem": "{{object:agenda-raad-1-4.id}}",
+				"decisionDate": "{{datetime:-25@thu 21:45}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-24@fri 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "motion",
+				"motionType": "motion",
+				"title": "Motie lantaarnpalen op zonne-energie",
+				"text": "De raad verzoekt het college op de Lindelaan lantaarnpalen te plaatsen die hun stroom met een eigen zonnepaneel opwekken.",
+				"proposer": "Lieke van Rooij (Groen Zuiddrecht)",
+				"coSigners": [
+					"Nadia Ouali (Sociaal Zuiddrecht)"
+				],
+				"submittedAt": "{{datetime:-26@wed 12:00}}",
+				"lifecycle": "decided",
+				"outcome": "rejected",
+				"voteType": "named",
+				"voteThreshold": "simple-majority",
+				"themes": [
+					"duurzaamheid",
+					"openbare ruimte"
+				]
+			}
+		},
+		{
+			"key": "decision-afvalstoffenheffing-2027",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-raad-2.id}}",
+				"agendaItem": "{{object:agenda-raad-2-2.id}}",
+				"decisionDate": "{{datetime:-11@thu 20:30}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-10@fri 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "resolution",
+				"title": "Verordening afvalstoffenheffing 2027",
+				"text": "De raad stelt de verordening afvalstoffenheffing 2027 vast. Het vaste bedrag per huishouden blijft gelijk; het tarief per container gaat omhoog met de inflatie.",
+				"lifecycle": "decided",
+				"outcome": "adopted",
+				"resolutionType": "financial",
+				"resolutionNumber": "RB-2026-052",
+				"voteType": "named",
+				"voteThreshold": "simple-majority",
+				"adoptionDate": "{{datetime:-11@thu 20:30}}",
+				"effectiveDate": "{{date:80}}",
+				"themes": [
+					"afval",
+					"belastingen"
+				],
+				"implements": [
+					"{{object:decision-college-voorstel-afval.id}}"
+				]
+			}
+		},
+		{
+			"key": "decision-gunning-lindelaan",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-college-2.id}}",
+				"agendaItem": "{{object:agenda-college-2-2.id}}",
+				"decisionDate": "{{datetime:-7@tue 10:45}}",
+				"isPublished": "public",
+				"publishedAt": "{{datetime:-6@wed 09:00}}",
+				"securityClassification": "openbaar",
+				"decisionType": "meeting-outcome",
+				"title": "Collegebesluit: opdracht aanleg verlichting fietspad Lindelaan",
+				"text": "Het college geeft {{cast:vandam.name}} de opdracht om 42 lantaarnpalen te plaatsen langs het fietspad aan de Lindelaan, binnen het krediet dat de raad beschikbaar stelde.",
+				"lifecycle": "decided",
+				"outcome": "adopted",
+				"resolutionType": "approval",
+				"resolutionNumber": "CB-2026-131",
+				"themes": [
+					"verkeer",
+					"openbare ruimte"
+				],
+				"implements": [
+					"{{object:decision-lindelaan-krediet.id}}"
+				]
+			}
+		},
+		{
+			"key": "decision-begroting-2027",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"meeting": "{{object:meeting-raad-3.id}}",
+				"agendaItem": "{{object:agenda-raad-3-4.id}}",
+				"decisionType": "meeting-outcome",
+				"title": "Programmabegroting 2027",
+				"text": "De raad stelt de programmabegroting 2027 vast.",
+				"lifecycle": "proposed",
+				"resolutionType": "financial",
+				"isPublished": "public",
+				"securityClassification": "openbaar",
+				"proposer": "College van burgemeester en wethouders",
+				"themes": [
+					"financien"
+				]
+			}
+		},
+		{
+			"key": "round-lindelaan-krediet",
+			"register": "decidiq",
+			"schema": "voting-round",
+			"data": {
+				"votingMethod": "for-against-abstain",
+				"isSecret": false,
+				"openedAt": "{{datetime:-25@thu 21:00}}",
+				"closedAt": "{{datetime:-25@thu 21:05}}",
+				"quorumWith": true,
+				"result": "adopted",
+				"votesFor": 22,
+				"votesAgainst": 5,
+				"votesAbstain": 0,
+				"voteThreshold": "simple-majority",
+				"abstentionHandling": "exclude",
+				"voteBase": 27
+			}
+		},
+		{
+			"key": "stage-lindelaan-krediet",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 1,
+				"stageType": "decisive",
+				"status": "decided",
+				"outcome": "adopted",
+				"decidedAt": "{{datetime:-25@thu 21:05}}",
+				"method": "vote",
+				"decisionMakerType": "body",
+				"label": "Besluit van de gemeenteraad",
+				"decision": "{{object:decision-lindelaan-krediet.id}}",
+				"assignedBody": "{{object:body-gemeenteraad.id}}",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-gerard-lammers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-monique-dekker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-kees-hofman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-sandra-kroon",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-bart-reijnders",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-wilma-schouten",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-joost-mulder",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-hatice-kaya",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-floor-vos",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-roel-brands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-dirk-zwart",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-esther-lubbers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-pim-kramer",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-nadia-ouali",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-frank-jonker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-rianne-peeters",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-hanneke-westra",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-truus-wiersma",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
+			}
+		},
+		{
+			"key": "vote-lindelaan-krediet-jan-overdijk",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:05}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-lindelaan-krediet.id}}",
+				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
+			}
+		},
+		{
+			"key": "round-motie-zonne-energie",
+			"register": "decidiq",
+			"schema": "voting-round",
+			"data": {
+				"votingMethod": "for-against-abstain",
+				"isSecret": false,
+				"openedAt": "{{datetime:-25@thu 21:35}}",
+				"closedAt": "{{datetime:-25@thu 21:40}}",
+				"quorumWith": true,
+				"result": "rejected",
+				"votesFor": 11,
+				"votesAgainst": 15,
+				"votesAbstain": 1,
+				"voteThreshold": "simple-majority",
+				"abstentionHandling": "exclude",
+				"voteBase": 27
+			}
+		},
+		{
+			"key": "stage-motie-zonne-energie",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 1,
+				"stageType": "decisive",
+				"status": "decided",
+				"outcome": "rejected",
+				"decidedAt": "{{datetime:-25@thu 21:40}}",
+				"method": "vote",
+				"decisionMakerType": "body",
+				"label": "Besluit van de gemeenteraad",
+				"decision": "{{object:decision-motie-zonne-energie.id}}",
+				"assignedBody": "{{object:body-gemeenteraad.id}}",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-gerard-lammers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-monique-dekker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-kees-hofman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-sandra-kroon",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-bart-reijnders",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-wilma-schouten",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-joost-mulder",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-hatice-kaya",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-floor-vos",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-roel-brands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-dirk-zwart",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-esther-lubbers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-pim-kramer",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-nadia-ouali",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-frank-jonker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-rianne-peeters",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-hanneke-westra",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-truus-wiersma",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "abstain",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
+			}
+		},
+		{
+			"key": "vote-motie-zonne-energie-jan-overdijk",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-25@thu 21:40}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-motie-zonne-energie.id}}",
+				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
+			}
+		},
+		{
+			"key": "round-afvalstoffenheffing-2027",
+			"register": "decidiq",
+			"schema": "voting-round",
+			"data": {
+				"votingMethod": "for-against-abstain",
+				"isSecret": false,
+				"openedAt": "{{datetime:-11@thu 20:20}}",
+				"closedAt": "{{datetime:-11@thu 20:25}}",
+				"quorumWith": true,
+				"result": "adopted",
+				"votesFor": 25,
+				"votesAgainst": 2,
+				"votesAbstain": 0,
+				"voteThreshold": "simple-majority",
+				"abstentionHandling": "exclude",
+				"voteBase": 27
+			}
+		},
+		{
+			"key": "stage-afvalstoffenheffing-2027",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 1,
+				"stageType": "decisive",
+				"status": "decided",
+				"outcome": "adopted",
+				"decidedAt": "{{datetime:-11@thu 20:25}}",
+				"method": "vote",
+				"decisionMakerType": "body",
+				"label": "Besluit van de gemeenteraad",
+				"decision": "{{object:decision-afvalstoffenheffing-2027.id}}",
+				"assignedBody": "{{object:body-gemeenteraad.id}}",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-gerard-lammers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-monique-dekker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-kees-hofman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-yvonne-bosman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-erik-veldhuis",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-sandra-kroon",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-bart-reijnders",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-wilma-schouten",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-lieke-vanrooij",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-joost-mulder",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-hatice-kaya",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-tim-groenewoud",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-floor-vos",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-roel-brands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-maarten-wijnands",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-charlotte-hendriks",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-dirk-zwart",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-esther-lubbers",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-pim-kramer",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-nadia-ouali",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-frank-jonker",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-rianne-peeters",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-mohamed-tahiri",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-gertjan-bouwman",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-hanneke-westra",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "for",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-truus-wiersma",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
+			}
+		},
+		{
+			"key": "vote-afvalstoffenheffing-2027-jan-overdijk",
+			"register": "decidiq",
+			"schema": "vote",
+			"data": {
+				"value": "against",
+				"weight": 1,
+				"isProxy": false,
+				"castAt": "{{datetime:-11@thu 20:25}}",
+				"castAs": "in-person",
+				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
+				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-1",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:-25@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Inspreken",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Krediet verlichting fietspad Lindelaan",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 4,
+						"title": "Motie lantaarnpalen op zonne-energie",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 5,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-32@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-2",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:-11@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Verordening afvalstoffenheffing 2027",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-18@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-3",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:3@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Inspreken",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Stand van zaken verlichting fietspad Lindelaan",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 4,
+						"title": "Programmabegroting 2027",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 5,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-4@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-college-voorstel-lindelaan",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: raadsvoorstel verlichting fietspad Lindelaan",
+				"text": "Het college stelt de raad voor 186.000 euro vrij te maken voor verlichting langs het fietspad aan de Lindelaan.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-32@tue 10:30}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-31@wed 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-college-voorstel-afval",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: raadsvoorstel afvalstoffenheffing 2027",
+				"text": "Het college stelt de raad de tarieven van de afvalstoffenheffing voor 2027 voor.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-32@tue 11:00}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-31@wed 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-lindelaan-krediet",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Krediet verlichting fietspad Lindelaan",
+				"text": "De raad stelt een krediet van 186.000 euro beschikbaar voor verlichting langs het fietspad aan de Lindelaan: 42 lantaarnpalen met zuinige ledlampen. Het werk begint in maart en duurt ongeveer zes weken.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-25@thu 21:10}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 22,
+					"against": 5,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-24@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-motie-zonne-energie",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Motie lantaarnpalen op zonne-energie",
+				"text": "De raad verzoekt het college op de Lindelaan lantaarnpalen te plaatsen die hun stroom met een eigen zonnepaneel opwekken.",
+				"outcome": "rejected",
+				"decisionDate": "{{datetime:-25@thu 21:45}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 11,
+					"against": 15,
+					"abstain": 1
+				},
+				"publicationDate": "{{datetime:-24@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-afvalstoffenheffing-2027",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Verordening afvalstoffenheffing 2027",
+				"text": "De raad stelt de verordening afvalstoffenheffing 2027 vast. Het vaste bedrag per huishouden blijft gelijk; het tarief per container gaat omhoog met de inflatie.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-11@thu 20:30}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 25,
+					"against": 2,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-10@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-gunning-lindelaan",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: opdracht aanleg verlichting fietspad Lindelaan",
+				"text": "Het college geeft {{cast:vandam.name}} de opdracht om 42 lantaarnpalen te plaatsen langs het fietspad aan de Lindelaan, binnen het krediet dat de raad beschikbaar stelde.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-7@tue 10:45}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-6@wed 09:00}}"
+			}
+		},
+		{
+			"key": "person-marleen-postma",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:marleen.displayName}}",
+				"givenName": "{{cast:marleen.givenName}}",
+				"familyName": "{{cast:marleen.familyName}}",
+				"email": "{{cast:marleen.email}}",
+				"nextcloudUserId": "{{cast:marleen.uid}}",
+				"biography": "Teamleider. Zet de paraaf onder een Woo-besluit voordat het wordt ondertekend."
+			}
+		},
+		{
+			"key": "person-thomas-kuiper",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:thomas.displayName}}",
+				"givenName": "{{cast:thomas.givenName}}",
+				"familyName": "{{cast:thomas.familyName}}",
+				"email": "{{cast:thomas.email}}",
+				"nextcloudUserId": "{{cast:thomas.uid}}",
+				"biography": "Woo-coordinator. Neemt Woo-besluiten onder mandaat, tot en met deels openbaar maken."
+			}
+		},
+		{
+			"key": "person-pieter-jansen",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:pieter.displayName}}",
+				"givenName": "{{cast:pieter.givenName}}",
+				"familyName": "{{cast:pieter.familyName}}",
+				"email": "{{cast:pieter.email}}",
+				"nextcloudUserId": "{{cast:pieter.uid}}",
+				"biography": "Woo-coördinator. Stelt Woo-besluiten op en neemt ze onder mandaat, tot en met deels openbaar maken."
+			}
+		},
+		{
+			"key": "person-anouk-bakker",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:anouk.displayName}}",
+				"givenName": "{{cast:anouk.givenName}}",
+				"familyName": "{{cast:anouk.familyName}}",
+				"email": "{{cast:anouk.email}}",
+				"nextcloudUserId": "{{cast:anouk.uid}}",
+				"biography": "Teamleider Woo en informatie. Zet de paraaf onder een Woo-besluit en tekent zelf als stukken niet openbaar worden."
+			}
+		},
+		{
+			"key": "decision-mandaatbesluit-woo",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"title": "Mandaatbesluit Woo-besluiten",
+				"text": "Het college mandateert de Woo-coördinator om besluiten op Woo-verzoeken te nemen, tot en met het deels openbaar maken van stukken. Een besluit om stukken niet openbaar te maken tekent de teamleider Woo en informatie.",
+				"decisionType": "mandate-decision",
+				"lifecycle": "decided",
+				"isPublished": "public",
+				"securityClassification": "openbaar",
+				"proposer": "College van burgemeester en wethouders",
+				"legalBasis": "Algemene wet bestuursrecht, artikel 10:3"
+			}
+		},
+		{
+			"key": "mandaat-woo-besluiten-pieter",
+			"register": "decidiq",
+			"schema": "bevoegdheidstoedeling",
+			"data": {
+				"type": "mandate",
+				"delegans": "{{object:body-college.id}}",
+				"delegateRole": "Woo-coördinator",
+				"delegatePerson": "{{object:person-pieter-jansen.id}}",
+				"delegateUser": "{{cast:pieter.uid}}",
+				"acts": [
+					"woo-decision"
+				],
+				"subject": "Woo-besluiten",
+				"beperkingen": "Tot en met deels openbaar maken. Bij niet openbaar tekent de teamleider.",
+				"subMandatePermitted": false,
+				"decision": "{{object:decision-mandaatbesluit-woo.id}}",
+				"validFrom": "{{date:-200}}",
+				"status": "effective"
+			}
+		},
+		{
+			"key": "decision-woo-lindelaan-concept",
+			"register": "decidiq",
+			"schema": "decision",
+			"owner": "{{cast:pieter.uid}}",
+			"lookups": {
+				"case": {
+					"register": "dossiq",
+					"schema": "case",
+					"where": {
+						"externalReference": "MZ-ZDR-2026-0412"
+					}
+				}
+			},
+			"data": {
+				"title": "Besluit op Woo-verzoek verlichting fietspad Lindelaan",
+				"text": "Concept: het college maakt de adviezen en het raadsvoorstel openbaar, de mail van de aannemer deels en de klachtenlijst van bewoners niet.",
+				"decisionType": "woo-decision",
+				"lifecycle": "draft",
+				"isPublished": "internal",
+				"securityClassification": "intern",
+				"sourceApp": "dossiq",
+				"subjectRegister": "dossiq",
+				"subjectSchema": "case",
+				"subjectId": "{{lookup:case}}",
+				"subjectLabel": "Verlichting fietspad Lindelaan",
+				"legalBasis": "Wet open overheid"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-opgesteld",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 1,
+				"stageType": "preparatory",
+				"status": "decided",
+				"outcome": "approved",
+				"decidedAt": "{{datetime:-10 15:30}}",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Opgesteld door de behandelaar",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"registeredBy": "{{object:person-pieter-jansen.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-paraaf",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 2,
+				"stageType": "endorsement",
+				"status": "active",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Paraaf teamleider",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"assignedPerson": "{{object:person-anouk-bakker.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-ondertekenen",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 3,
+				"stageType": "decisive",
+				"status": "pending",
+				"method": "signature",
+				"decisionMakerType": "person",
+				"label": "Ondertekend onder mandaat Woo-besluiten",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"assignedPerson": "{{object:person-pieter-jansen.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-bekendmaken",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 4,
+				"stageType": "ratifying",
+				"status": "pending",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Bekendgemaakt aan de verzoeker",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+			}
+		},
+		{
+			"key": "budget-round-wijkbudget-2027",
+			"register": "decidiq",
+			"schema": "participatory-budget",
+			"data": {
+				"name": "Wijkbudget Zuiddrecht 2027",
+				"description": "Inwoners dragen ideeën aan voor hun wijk en stemmen over de voorstellen. Het college neemt de uitslag mee in de begroting 2027.",
+				"totalAmount": 250000,
+				"currency": "EUR",
+				"submissionDeadline": "{{datetime:-115 23:59}}",
+				"votingDeadline": "{{datetime:-38 23:59}}",
+				"status": "closed",
+				"resultsPublished": true,
+				"resultsSummary": "€ 240.000 toegekend aan 4 voorstellen, binnen het budget van € 250.000. 1.284 inwoners deden mee. De stemmen zijn een advies, geen besluit.",
+				"publicationDate": "{{datetime:-31 09:00}}",
+				"governanceBody": "{{object:body-college.id}}"
+			}
+		},
+		{
+			"key": "budget-proposal-speeltuin-wilgenpark",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Speeltuin Wilgenpark vernieuwen",
+				"category": "Spelen",
+				"requestedAmount": 95000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 812,
+				"votesAgainst": 140
+			}
+		},
+		{
+			"key": "budget-proposal-verlichting-fietspad-vaart",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Verlichting fietspad langs de Vaart",
+				"category": "Verkeer",
+				"requestedAmount": 80000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 655,
+				"votesAgainst": 201
+			}
+		},
+		{
+			"key": "budget-proposal-keuken-buurthuis-de-schakel",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Nieuwe keuken buurthuis De Schakel",
+				"category": "Sociaal",
+				"requestedAmount": 62500,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 430,
+				"votesAgainst": 188
+			}
+		},
+		{
+			"key": "budget-proposal-groen-marktplein",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Bankjes en groen op het Marktplein",
+				"category": "Groen",
+				"requestedAmount": 45000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 701,
+				"votesAgainst": 96
+			}
+		},
+		{
+			"key": "budget-proposal-moestuin-de-esdoorn",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Moestuin bij basisschool De Esdoorn",
+				"category": "Groen",
+				"requestedAmount": 38000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 388,
+				"votesAgainst": 121
+			}
+		},
+		{
+			"key": "budget-proposal-hondenuitlaatveld-oost",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Hondenuitlaatveld Zuiddrecht-Oost",
+				"category": "Groen",
+				"requestedAmount": 32000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 214,
+				"votesAgainst": 310
+			}
+		},
+		{
+			"key": "budget-proposal-parkeren-dorpskerk",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Extra parkeerplaatsen bij de Dorpskerk",
+				"category": "Verkeer",
+				"requestedAmount": 30000,
+				"status": "rejected",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}"
+			}
+		},
+		{
+			"key": "budget-proposal-jeu-de-boules-havenkade",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Jeu de boulesbaan aan de Havenkade",
+				"category": "Sport",
+				"requestedAmount": 25000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 167,
+				"votesAgainst": 142
+			}
+		},
+		{
+			"key": "budget-proposal-kunstwerk-stationstunnel",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Kunstwerk in de stationstunnel",
+				"category": "Cultuur",
+				"requestedAmount": 20000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 302,
+				"votesAgainst": 87
+			}
+		},
+		{
+			"key": "budget-proposal-watertappunt-sportpark",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Watertappunt bij het sportpark",
+				"category": "Sport",
+				"requestedAmount": 15000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 95,
+				"votesAgainst": 33
+			}
+		},
+		{
+			"key": "decision-parkeren-binnenstad-concept",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"title": "Verordening parkeren binnenstad 2027",
+				"text": "Concept: de raad stelt de verordening parkeren binnenstad 2027 vast. Bewoners krijgen één vergunning per adres, de blauwe zone in de Molenstraat vervalt en bezoekers parkeren goedkoper in de garages aan de rand.",
+				"decisionType": "resolution",
+				"lifecycle": "draft",
+				"isPublished": "internal",
+				"securityClassification": "intern",
+				"themes": [
+					"parkeren",
+					"binnenstad"
+				]
+			}
+		},
+		{
+			"key": "consultation-parkeren-binnenstad",
+			"register": "decidiq",
+			"schema": "public-consultation",
+			"data": {
+				"title": "Inspraak op de parkeerverordening binnenstad",
+				"description": "Inwoners en ondernemers reageren op het ontwerp van de Verordening parkeren binnenstad 2027, voordat de raad besluit.",
+				"consultationType": "citizen-participation",
+				"status": "open",
+				"submissionDeadline": "{{datetime:8 23:59}}",
+				"moderationPolicy": "pre-moderation",
+				"anonymousReactionsAllowed": true,
+				"feedbackRequired": false,
+				"publicationDate": "{{datetime:-22 09:00}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"decision": "{{object:decision-parkeren-binnenstad-concept.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-kerkstraat",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Bewoners van de Kerkstraat hebben geen eigen oprit. Eén vergunning per adres is voor gezinnen met twee auto's te weinig.",
+				"moderationStatus": "pending",
+				"submittedAt": "{{datetime:-17 21:14}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-laadpalen-molenstraat",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Graag de laadpalen in de Molenstraat laten staan als de blauwe zone verdwijnt.",
+				"moderationStatus": "pending",
+				"submittedAt": "{{datetime:-17 17:02}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-garages-rand",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Goed dat de garages aan de rand goedkoper worden voor bezoekers.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-19 10:12}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"submitterId": "m.dekker",
+				"publicationDate": "{{datetime:-19 10:12}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-tarieven-markt",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "De tarieven voor ondernemers op de markt zijn niet duidelijk in de bijlage.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-20 14:40}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"publicationDate": "{{datetime:-20 14:40}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-reclame",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Dit is een reclamebericht voor een parkeerapp.",
+				"moderationStatus": "rejected",
+				"submittedAt": "{{datetime:-21 08:05}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"moderationReason": "Reclame, geen reactie op de verordening."
+			}
+		},
+		{
+			"key": "consultation-reaction-molenstraat-autoluw",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Fijn dat de Molenstraat autoluw wordt, dan kunnen kinderen er veilig fietsen.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-22 19:30}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"submitterId": "s.yilmaz",
+				"publicationDate": "{{datetime:-22 19:30}}"
+			}
+		}
+	],
+	"groups": [
+		{
+			"group": "decidiq-secretariat",
+			"displayName": "Decidiq secretariaat",
+			"members": [
+				"bram"
+			]
+		},
+		{
+			"group": "decidiq-administrators",
+			"displayName": "Decidiq beheerders",
+			"members": [
+				"bram"
+			]
+		}
+	],
+	"changes": [
+		{
+			"key": "agenda-published-college-1",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-college-1",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-39@tue 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-published-raad-1",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-raad-1",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-32@thu 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-published-college-2",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-college-2",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-14@tue 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-published-raad-2",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-raad-2",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-18@thu 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-published-raad-3",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-raad-3",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-4@thu 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-published-college-3",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-college-3",
+			"set": {
+				"agendaPublishedAt": "{{datetime:-1@tue 09:00}}"
+			}
+		}
+	]
+}

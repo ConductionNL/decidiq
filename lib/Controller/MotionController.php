@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -25,9 +25,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\MotionService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -40,32 +41,34 @@ use OCP\IUserSession;
 /**
  * Thin controller for motion lifecycle and co-signature API endpoints.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
  */
 class MotionController extends Controller {
 	/**
 	 * Constructor for MotionController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param MotionService $motionService The motion service
+	 * @param MotionServiceInterface $motionService The motion service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IAppConfig $appConfig The app config
-	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
+	 * @param ParticipantResolverInterface $participantResolver Per-meeting participant/role resolver
+	 * @param MotionStagesInterface $motionStages The stage steps a caller may take
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MotionService $motionService,
+		private readonly MotionServiceInterface $motionService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly ParticipantResolverInterface $participantResolver,
+		private readonly MotionStagesInterface $motionStages,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -86,7 +89,7 @@ class MotionController extends Controller {
 	 *
 	 * @return JSONResponse|null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	private function requireChairOrSecretary(?string $motionId = null): ?JSONResponse {
 		return $this->requireMeetingRole(
@@ -185,7 +188,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}
@@ -230,23 +233,26 @@ class MotionController extends Controller {
 	 * The vote result travels in `outcome` (`adopted`|`rejected`), which is a
 	 * separate axis and is required only when entering a terminal state.
 	 *
+	 * Access control: the chair or secretary of the motion's meeting takes
+	 * any step; the member who submitted the motion may withdraw it (mot-08).
+	 *
 	 * @param string $id The motion UUID
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
 	#[NoAdminRequired]
 	public function transition(string $id): JSONResponse {
+		$params = $this->request->getParams();
+		$newState = ($params['newState'] ?? '');
 		$guard = $this->requireChairOrSecretary(motionId: $id);
-		if ($guard !== null) {
+		if ($guard !== null && $this->isOwnWithdrawal(motionId: $id, newState: $newState) === false) {
 			return $guard;
 		}
 
-		$params = $this->request->getParams();
-		$newState = ($params['newState'] ?? '');
 		$outcome = $this->readOutcome(params: $params);
 		$actorId = ($this->userSession->getUser()?->getUID() ?? '');
 
@@ -268,6 +274,58 @@ class MotionController extends Controller {
 	}//end transition()
 
 	/**
+	 * Whether this is the submitter withdrawing her own motion, the one step
+	 * a member who does not chair the meeting may take (mot-08).
+	 *
+	 * @param string $motionId The motion UUID
+	 * @param mixed  $newState The requested stage
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+	 */
+	private function isOwnWithdrawal(string $motionId, mixed $newState): bool {
+		$uid = ($this->userSession->getUser()?->getUID() ?? '');
+		if ($newState !== 'withdrawn' || $uid === '') {
+			return false;
+		}
+
+		return $this->motionStages->mayWithdraw(motionId: $motionId, uid: $uid);
+	}//end isOwnWithdrawal()
+
+	/**
+	 * Tell the caller the motion's stage and the steps they may take.
+	 *
+	 * GET /api/motions/{id}/transitions
+	 *
+	 * Access control: the motion is read through ObjectService (OpenRegister
+	 * RBAC), so a caller who cannot read it gets 404. The chair or secretary
+	 * of its meeting is offered every step the motion lifecycle allows; the
+	 * member who submitted it is offered Withdraw; anyone else no step. The
+	 * same rule guards transition().
+	 *
+	 * @param string $id The motion UUID
+	 *
+	 * @return JSONResponse 200 with { lifecycle, outcome, actions }; 401 when anonymous; 404 when the motion cannot be read
+	 *
+	 * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+	 */
+	#[NoAdminRequired]
+	public function transitions(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$answer = $this->motionStages->forCaller(motionId: $id, uid: $user->getUID());
+		if ($answer === null) {
+			return new JSONResponse(['message' => 'Motion not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		return new JSONResponse($answer);
+	}//end transitions()
+
+	/**
 	 * Request co-signature from one or more participants for a Motion.
 	 *
 	 * POST /api/motions/{id}/co-sign-request
@@ -277,7 +335,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -314,7 +372,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -329,7 +387,7 @@ class MotionController extends Controller {
 		$uid = $user->getUID();
 		$displayName = $user->getDisplayName();
 
-		if ($displayName === '') {
+		if (trim($displayName) === '') {
 			return new JSONResponse(['message' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
 		}
 
@@ -357,7 +415,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -401,7 +459,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -444,7 +502,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 *
 	 * @return JSONResponse
 	 */

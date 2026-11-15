@@ -78,3 +78,13 @@ Two objects in the municipality example set (`lib/Settings/profiles/municipality
 - `lib/Service/PaperSummaryService.php`, `lib/Listener/PaperSummaryTaskListener.php`, `lib/AppInfo/Registrar/*` (listener registration), `lib/Controller/PaperSummaryController.php`, `appinfo/routes.php`
 - `src/components/tabs/AgendaPaperSummariesTab.vue`, `src/registry.js`, `src/manifest.json` (`AgendaItemDetail` widget and layout row)
 - `tests/Unit/Service/PaperSummaryServiceTest.php`, `tests/Unit/Listener/PaperSummaryTaskListenerTest.php` (constructs the real `TaskSuccessfulEvent`), `tests/e2e/paper-summaries.spec.ts`
+
+## Built (3 Oct 2026)
+
+Where the build differs from the plan above:
+
+- The fragment is `lib/Settings/register.d/119-paper-summaries.json` (92 was taken). The seeds sit on the existing budget item `begroting-2026-bespreking` and its two papers.
+- The request is split over three classes to stay under phpmd's coupling ceiling: `PaperSummaryAccess` (secretariat or admin, the confidentiality circle; both papers of a comparison are checked), `PaperText` (the paper is attached to the item, else 422; OpenRegister's `TextExtractionService::extractFile()` then `ChunkMapper::findBySource('file', id)`, cut into parts of at most 12,000 characters on chunk boundaries) and `PaperSummaryService`.
+- The task is scheduled first and the summary saved only after, so a refused schedule leaves no object. A long paper's parts are summarised synchronously with `runTask()` and the scheduled task summarises the joined parts; `chunked` records it.
+- The availability endpoint also answers `canRequest`, so the widget gives a member no actions. Editing a draft happens inline in the widget, not in a modal. A failed summary is not retried in place: Try again asks for a new one with the same papers.
+- The listener is registered by its own `TaskProcessingEventRegistrar`, called by `CrossAppEventRegistrar`.

@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use Psr\Log\LoggerInterface;
@@ -40,7 +41,7 @@ use Throwable;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class VotingErrorResponder {
+class VotingErrorResponder implements VotingErrorResponderInterface {
 	/**
 	 * Constructor for VotingErrorResponder.
 	 *

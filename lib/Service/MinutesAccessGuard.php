@@ -33,7 +33,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -44,7 +46,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MinutesAccessGuard {
+class MinutesAccessGuard implements MinutesAccessGuardInterface {
 	/**
 	 * Constructor for MinutesAccessGuard.
 	 *
@@ -77,7 +79,7 @@ class MinutesAccessGuard {
 	 *
 	 * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function requireChairOrAdmin(string $minutesId): ?JSONResponse {
@@ -95,7 +97,7 @@ class MinutesAccessGuard {
 
 		// A missing Minutes object is the caller's 404 to raise, not this
 		// guard's 403 — return null so the action can produce it.
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -181,7 +183,7 @@ class MinutesAccessGuard {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function resolveMeetingId(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
 			return null;
 		}
