@@ -22,7 +22,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use Throwable;
+use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
 
 /**
  * ORI 1.4 JSON-LD serialization for Decidiq register objects.
@@ -39,40 +39,9 @@ use Throwable;
  * the rule tables below: each ORI target key lists the source properties to try,
  * in order, and the first one present wins.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
-class OriSerializer {
-
-	/**
-	 * ORI JSON-LD context URL.
-	 */
-	public const ORI_CONTEXT = 'https://argu.co/ns/core';
-
-	/**
-	 * The ORI resource slug whose items are PublicationPayload objects.
-	 */
-	public const PUBLICATIONS_RESOURCE = 'publications';
-
-	/**
-	 * The ORI resource slug for commitments (followup-public-progress, fol-06).
-	 */
-	public const COMMITMENTS_RESOURCE = 'commitments';
-
-	/**
-	 * The ORI @type of a commitment.
-	 */
-	public const COMMITMENT_TYPE = 'Commitment';
-
-	/**
-	 * The resources whose public visibility is the publication window
-	 * (publicationDate <= now, not depublished) rather than a lifecycle state.
-	 *
-	 * @var list<string>
-	 */
-	public const WINDOWED_RESOURCES = [
-		self::PUBLICATIONS_RESOURCE,
-		self::COMMITMENTS_RESOURCE,
-	];
+class OriSerializer implements OriSerializerInterface {
 
 	/**
 	 * The allow-list a commitment adds to the shared fields (status, text).
@@ -172,7 +141,7 @@ class OriSerializer {
 	 *
 	 * @return list<array<string, mixed>> The serialized ORI items
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function serializeCollection(string $resource, string $type, iterable $objects): array {
@@ -233,7 +202,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The serialized ORI resource
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	public function serialize(string $type, array $object): array {
 		$self = ($object['@self'] ?? []);
@@ -361,7 +330,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The mapped subset, in rule order
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function applyRules(array $object, array $rules): array {
 		$mapped = [];
@@ -388,7 +357,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The flat property map
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function normalise(mixed $object): array {
 		if (is_object($object) === true && method_exists($object, 'jsonSerialize') === true) {
@@ -408,15 +377,6 @@ class OriSerializer {
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function parseDate(mixed $value): ?DateTimeImmutable {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Throwable) {
-			return null;
-		}
-
+		return (new DateValueParser())->parse(value: $value);
 	}//end parseDate()
 }//end class

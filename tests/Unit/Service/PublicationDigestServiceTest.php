@@ -40,6 +40,9 @@ use OCP\L10N\IFactory;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * A fixed clock throughout: Wednesday 14 October 2026 in Amsterdam.
@@ -48,6 +51,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Service\PublicationDigestComposer
  * @covers \OCA\Decidiq\Service\PublicationDigestSchedule
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  */
 final class PublicationDigestServiceTest extends TestCase {
 
@@ -158,7 +162,11 @@ final class PublicationDigestServiceTest extends TestCase {
 			}
 		);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null, bool $_rbac=true): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'governance-body') {
 					return $this->entity(data: ['name' => ($id === self::BODY ? 'Gemeenteraad' : 'Commissie Ruimte')]);
 				}
@@ -172,13 +180,18 @@ final class PublicationDigestServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null, bool $_rbac=true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved[] = [(string)$schema, $object, $uuid];
 				return $this->entity(data: $object);
 			}
 		);
 		$objects->method('deleteObject')->willReturnCallback(
-			function (string $uuid): bool {
+			function (ObjectDeletion $deletion): bool {
+				$uuid = $deletion->uuid;
 				$this->deleted[] = $uuid;
 				return true;
 			}

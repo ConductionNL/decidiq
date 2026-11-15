@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -45,7 +45,7 @@ use OCP\IUserSession;
  *
  * @NoAdminRequired absence (which is silently bypassed in some test setups).
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
  */
 class AuditLogController extends Controller {
 	use RequiresOrAdmin;
@@ -55,23 +55,23 @@ class AuditLogController extends Controller {
 	 * Constructor for AuditLogController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param AuditLogService $auditLogService The audit log service
+	 * @param AuditLogServiceInterface $auditLogService The audit log service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager NC group manager (admin check)
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AuditLogService $auditLogService,
+		private readonly AuditLogServiceInterface $auditLogService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
 	 * Query the audit log.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -117,7 +117,7 @@ class AuditLogController extends Controller {
 	 *
 	 * @param string $id UUID of the entry to stop at
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -134,7 +134,7 @@ class AuditLogController extends Controller {
 	/**
 	 * Export a date-range slice of the audit log as JSON or CSV.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return Response
 	 */

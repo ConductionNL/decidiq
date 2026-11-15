@@ -33,14 +33,18 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
+use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Start, end and read the seats of a meeting.
  *
  * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-003-a-swap-is-refused-when-it-would-change-a-vote-in-progress-or-break-the-seat-plan
  */
-class MandateSubstitutionService {
+class MandateSubstitutionService implements MandateSubstitutionServiceInterface {
 
 	/**
 	 * The roles that vote in a body. A substitute holds none of them.
@@ -211,8 +215,7 @@ class MandateSubstitutionService {
 
 		$entity = $this->objectService->find(
 			id: $substitutionId,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
+			options: new ObjectFindOptions(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -330,9 +333,10 @@ class MandateSubstitutionService {
 	private function write(array $object, ?string $id): array {
 		$saved = $this->objectService->saveObject(
 			object: $object,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
-			uuid: $id,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
+				uuid: $id
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

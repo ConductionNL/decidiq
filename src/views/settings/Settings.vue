@@ -3,7 +3,7 @@
 
 <!--
  Admin settings — includes ORI endpoint and email voting toggle.
- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+ @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
 -->
 <template>
 	<!-- One wrapper around the sections: nextcloud-vue 2.83 draws sections
@@ -17,7 +17,9 @@
 		<CnSettingsSection
 			id="section-organisation-mode"
 			:name="t('decidiq', 'Organisation')"
-			:description="t('decidiq', 'Sets the words and defaults across the whole app.')"
+			:description="
+				t('decidiq', 'Sets the words and defaults across the whole app.')
+			"
 			data-testid="organisation-mode-settings">
 			<CnRadioCardsWidget
 				:content="organisationModeContent"
@@ -130,7 +132,7 @@
 		</CnSettingsSection>
 
 		<!-- ORI publication settings -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.1 -->
 		<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
 		<CnSettingsSection
 			id="section-ori"
@@ -157,7 +159,7 @@
 		</CnSettingsSection>
 
 		<!-- Email voting toggle -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
 			id="section-email-voting"
 			:name="t('decidiq', 'Email voting')"
@@ -230,17 +232,37 @@
 			</form>
 		</CnSettingsSection>
 	</div>
-
 </template>
 
 <script>
-import { CnRadioCardsWidget, CnSettingsFormWidget, CnSettingsSection, CnSwitchRowsWidget } from '@conduction/nextcloud-vue'
+import {
+	CnRadioCardsWidget,
+	CnSettingsFormWidget,
+	CnSettingsSection,
+	CnSwitchRowsWidget,
+} from '@conduction/nextcloud-vue'
 import { NcButton, NcSelect } from '@nextcloud/vue'
 import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
 import { useSettingsStore } from '../../store/modules/settings.js'
 
+/** The form fields seeded as text from the stored settings, empty when unset. */
+const TEXT_SETTINGS = [
+	'ori_endpoint',
+	'organisation_name',
+	'organisation_logo',
+	'organisation_timezone',
+	'organisation_currency',
+	'organisation_retention_days',
+	'participation_catalog',
+	'participation_anon_rate_limit',
+]
+
 /** Where the settings widgets save: the app config endpoint, with the changed fields only. */
-const SETTINGS_SAVE = { url: '/apps/decidiq/api/settings', method: 'POST', payload: '{changes}' }
+const SETTINGS_SAVE = {
+	url: '/apps/decidiq/api/settings',
+	method: 'POST',
+	payload: '{changes}',
+}
 
 export default {
 	name: 'Settings',
@@ -327,11 +349,50 @@ export default {
 				variant: 'list',
 				save: SETTINGS_SAVE,
 				options: [
-					{ value: 'gov', label: this.t('decidiq', 'Municipality'), description: this.t('decidiq', 'Council, executive, committees, clerk') },
-					{ value: 'assoc', label: this.t('decidiq', 'Association or owners\' association'), description: this.t('decidiq', 'Board, members, general meeting') },
-					{ value: 'corp', label: this.t('decidiq', 'Company'), description: this.t('decidiq', 'Executive board, supervisory board') },
-					{ value: 'ops', label: this.t('decidiq', 'Team'), description: this.t('decidiq', 'Meetings, decisions, action items') },
-					{ value: 'citizen', label: this.t('decidiq', 'Citizen portal'), description: this.t('decidiq', 'Residents follow decisions and take part') },
+					{
+						value: 'gov',
+						label: this.t('decidiq', 'Municipality'),
+						description: this.t(
+							'decidiq',
+							'Council, executive, committees, clerk',
+						),
+					},
+					{
+						value: 'assoc',
+						label: this.t(
+							'decidiq',
+							"Association or owners' association",
+						),
+
+						description: this.t(
+							'decidiq',
+							'Board, members, general meeting',
+						),
+					},
+					{
+						value: 'corp',
+						label: this.t('decidiq', 'Company'),
+						description: this.t(
+							'decidiq',
+							'Executive board, supervisory board',
+						),
+					},
+					{
+						value: 'ops',
+						label: this.t('decidiq', 'Team'),
+						description: this.t(
+							'decidiq',
+							'Meetings, decisions, action items',
+						),
+					},
+					{
+						value: 'citizen',
+						label: this.t('decidiq', 'Citizen portal'),
+						description: this.t(
+							'decidiq',
+							'Residents follow decisions and take part',
+						),
+					},
 				],
 			}
 		},
@@ -341,13 +402,17 @@ export default {
 		 * (nextcloud-vue 2.83 switch `values`), saved on its own.
 		 *
 		 * @return {object} The switch-rows widget content.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.2
 		 */
 		emailVotingContent() {
 			return {
 				save: SETTINGS_SAVE,
 				rows: [
-					{ key: 'email_voting_enabled', label: this.t('decidiq', 'Enable voting by email reply'), values: { on: '1', off: '0' } },
+					{
+						key: 'email_voting_enabled',
+						label: this.t('decidiq', 'Enable voting by email reply'),
+						values: { on: '1', off: '0' },
+					},
 				],
 			}
 		},
@@ -356,7 +421,7 @@ export default {
 		 * The register field, saved on its own.
 		 *
 		 * @return {object} The settings-form widget content.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
 		 */
 		registerContent() {
 			return {
@@ -364,7 +429,16 @@ export default {
 				save: SETTINGS_SAVE,
 				saveLabel: this.t('decidiq', 'Save'),
 				fields: [
-					{ key: 'register', label: this.t('decidiq', 'Register'), type: 'text', placeholder: this.t('decidiq', 'OpenRegister register ID'), hint: this.t('decidiq', 'Reading it in again after an update is under Advanced.') },
+					{
+						key: 'register',
+						label: this.t('decidiq', 'Register'),
+						type: 'text',
+						placeholder: this.t('decidiq', 'OpenRegister register ID'),
+						hint: this.t(
+							'decidiq',
+							'Reading it in again after an update is under Advanced.',
+						),
+					},
 				],
 			}
 		},
@@ -390,30 +464,33 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10 */
 	created() {
 		const settingsStore = useSettingsStore()
 		const settings = settingsStore.settings || {}
-		this.form.ori_endpoint = settings.ori_endpoint || ''
-		this.form.organisation_name = settings.organisation_name || ''
-		this.form.organisation_logo = settings.organisation_logo || ''
-		this.form.organisation_timezone = settings.organisation_timezone || ''
+		this.seedTextFields(settings)
 		this.form.organisation_locale =
 			this.localeOptions.find((o) => o.id === settings.organisation_locale)
 			|| null
-		this.form.organisation_currency = settings.organisation_currency || ''
-		this.form.organisation_retention_days =
-			settings.organisation_retention_days || ''
 		this.form.participation_default_moderation_policy =
 			this.moderationPolicyOptions.find(
 				(o) => o.id === settings.participation_default_moderation_policy,
 			) || this.moderationPolicyOptions[0]
-		this.form.participation_catalog = settings.participation_catalog || ''
-		this.form.participation_anon_rate_limit =
-			settings.participation_anon_rate_limit || ''
 	},
 
 	methods: {
+		/**
+		 * Copy the text fields of the stored settings into the form.
+		 *
+		 * @param {object} settings The stored settings.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
+		seedTextFields(settings) {
+			for (const key of TEXT_SETTINGS) {
+				this.form[key] = settings[key] || ''
+			}
+		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveOrganisation() {
 			this.savingOrganisation = true
@@ -454,7 +531,7 @@ export default {
 			this.savingParticipation = false
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {
 			this.savingOri = true
 			const settingsStore = useSettingsStore()

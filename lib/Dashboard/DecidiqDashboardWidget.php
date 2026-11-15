@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Dashboard;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\DashboardWidgetService;
+use OCA\Decidiq\Kernel\Contracts\DashboardWidgetServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Dashboard\IAPIWidgetV2;
 use OCP\Dashboard\IButtonWidget;
@@ -57,13 +57,13 @@ class DecidiqDashboardWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget
 	 * @param IL10N $l10n App-scoped translation
 	 * @param IURLGenerator $urlGenerator URL generator (deep links)
 	 * @param ITimeFactory $timeFactory Clock source
-	 * @param DashboardWidgetService $widgetService Per-user summary resolver
+	 * @param DashboardWidgetServiceInterface $widgetService Per-user summary resolver
 	 */
 	public function __construct(
 		private readonly IL10N $l10n,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly ITimeFactory $timeFactory,
-		private readonly DashboardWidgetService $widgetService,
+		private readonly DashboardWidgetServiceInterface $widgetService,
 	) {
 	}//end __construct()
 

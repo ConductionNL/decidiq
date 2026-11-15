@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Listener\OfficePaperAddedListener;
 use OCA\Decidiq\Service\PublicationEventRecorder;
@@ -41,11 +41,11 @@ use Psr\Log\NullLogger;
 /**
  * @covers \OCA\Decidiq\Listener\OfficePaperAddedListener
  * @uses   \OCA\Decidiq\Service\ListenerSchemaResolver
- * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\FilesEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\FlowNodeRegistrar
  * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
- * @uses   \OCA\Decidiq\AppInfo\Registrar\TaskProcessingEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\TaskProcessingEventRegistrar
  *
  * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
  */

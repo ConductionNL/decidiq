@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -170,7 +171,7 @@ class AmendmentOrderService {
 	private function assertAmendmentIsNext(string $amendmentId): void {
 		// ADR-005: amendments are `decision` objects; `decisionType` carries the
 		// identity the retired `amendment` schema used to carry.
-		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidiq', schema: 'decision');
+		$amendmentEntity = $this->objectService()->find(id: $amendmentId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		$amendment = ($amendmentEntity?->jsonSerialize() ?? []);
 
 		// A missing object and a decision of the wrong type are the same answer:
@@ -337,7 +338,7 @@ class AmendmentOrderService {
 			return null;
 		}
 
-		$motionEntity = $this->objectService()->find(id: $motionId, register: 'decidiq', schema: 'decision');
+		$motionEntity = $this->objectService()->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -384,7 +385,7 @@ class AmendmentOrderService {
 			return null;
 		}
 
-		$amendmentEntity = $this->objectService()->find(id: $amendmentId, register: 'decidiq', schema: 'decision');
+		$amendmentEntity = $this->objectService()->find(id: $amendmentId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($amendmentEntity === null) {
 			return null;
 		}

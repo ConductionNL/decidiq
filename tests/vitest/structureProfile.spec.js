@@ -232,16 +232,18 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('keeps relocations out of the file, because any relocation step drops the captions', () => {
-		// The library's relocation step ends by filtering out every entry with
-		// no route, href, action or children. That is a caption. `{}` is enough
-		// to run it, so the key has to be absent.
+	it('keeps its captions through a relocation step (nextcloud-vue 2.84.0)', () => {
+		// The simple menu is flat and declares no relocations. Before 2.84.0 a
+		// relocation step dropped every entry with no route, href, action or
+		// children, which is what a caption is; now the captions survive it.
 		expect(Object.hasOwn(simpleFile, 'relocations')).toBe(false)
+		const captions = (manifest) =>
+			manifest.menu
+				.filter((entry) => entry.type === 'caption')
+				.map((entry) => entry.id)
 		const withRelocations = build({ ...simpleFile, relocations: {} })
-		expect(
-			withRelocations.menu.filter((entry) => entry.type === 'caption'),
-			'the library now keeps captions through relocations; the note in the profile file is stale',
-		).toEqual([])
+		expect(captions(withRelocations)).toEqual(captions(built))
+		expect(captions(built).length).toBeGreaterThan(0)
 	})
 
 	it('gives every entry a label, an icon the app registers and a page that exists', () => {
@@ -438,7 +440,10 @@ describe('the simple profile', () => {
 			'Consultations',
 			'UrgentDecisions',
 		])
+		// Board DcVergaderingen opens its Ga naar group with the meeting
+		// calendar, before the long-term agenda and the P&C cycles.
 		expect(linksOf(built.pages.find((page) => page.id === 'Meetings'))).toEqual([
+			'MeetingsCalendar',
 			'PlannedAgenda',
 			'PlanningCycles',
 		])
@@ -480,10 +485,17 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 103 pages as the full profile, so every route stays', () => {
+	it('builds the same pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(103)
+		// Every page the manifest and its fragments declare, and no other.
+		const declared = new Set([
+			...readJson('src', 'manifest.json').pages.map((page) => page.id),
+			...fragments.flatMap((fragment) =>
+				(fragment.pages ?? []).map((page) => page.id),
+			),
+		])
+		expect(new Set(ids(built))).toEqual(declared)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {

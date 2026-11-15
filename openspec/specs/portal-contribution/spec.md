@@ -172,3 +172,40 @@ issue Conduction/decidiq#113).
 - THEN `actions` is empty and `notifications` is empty
 - AND no collection targets `public-consultation` or `participatory-budget`
 - @e2e exclude backend-only manifest shape with no Decidiq UI surface — covered by PHPUnit (testCitizenManifestShape)
+
+### Requirement: REQ-PLR-001 A resident reads decidiq's portal labels in their own language
+
+Every string of decidiq's citizen contribution that a portal visitor reads (`label` and `group`, on the contribution, its collections and its actions) SHALL be translated through decidiq's own catalogue in the language Nextcloud selects for the request. Identifiers, schema slugs, field names and filter values SHALL never be translated. The section heading SHALL name what the section is about, not the product. A provider built without a translation factory SHALL answer in the English source.
+
+#### Scenario: A Dutch resident opens the menu
+- GIVEN a resident whose language is Dutch
+- WHEN portaliq builds the resident menu from decidiq's contribution
+- THEN the section reads "Raad en inspraak" with "Mijn stemmen", "Mijn meldingen" and "Vergaderkalender", and no English label
+
+#### Scenario: A new label without a translation
+- GIVEN a developer adds a collection with an English label and no Dutch entry
+- WHEN the unit tests run
+- THEN they fail and name the label
+
+### Requirement: REQ-PCR-001 A visitor finds the published meetings with their agenda
+
+decidiq's portal contribution SHALL declare a public record list `publicMeetings` that lists every meeting publication (`publication-payload` with `oriType: Vergadering`) whose `publicationDate` has passed and that is not withdrawn, the latest first, and whose record shows the meeting's date, time and location and its published agenda items in order. A meeting that was not published, or was withdrawn, SHALL NOT be listed and SHALL have no record.
+
+#### Scenario: A resident looks up the next council meeting
+- GIVEN the griffie published the agenda of the council meeting of Thursday
+- WHEN a resident opens the meetings page of the public site
+- THEN the meeting is listed with its date and place, and opening it shows the agenda items in order
+
+#### Scenario: A meeting that is not published
+- GIVEN a meeting whose agenda is not published
+- WHEN a resident opens the meetings page
+- THEN that meeting is not listed
+
+### Requirement: REQ-PCR-002 A visitor reads the published decisions with their outcome
+
+decidiq's portal contribution SHALL declare a public record list `publicDecisions` that lists every live decision publication (`oriType: Besluit`), and whose record shows the decision's date, its outcome, its text and, when it was put to a vote, the totals for, against and abstained. It SHALL never show who voted how; that is the voting record's, under the ORI vote rule.
+
+#### Scenario: A resident reads a council decision
+- GIVEN the council adopted the credit for the Lindelaan lighting with 22 for and 5 against, and it was published
+- WHEN a resident opens the decision on the public site
+- THEN she reads the decision text, "Aangenomen", and the totals 22 and 5

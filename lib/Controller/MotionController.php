@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\MotionService;
-use OCA\Decidiq\Service\MotionStages;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -41,34 +41,34 @@ use OCP\IUserSession;
 /**
  * Thin controller for motion lifecycle and co-signature API endpoints.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
  */
 class MotionController extends Controller {
 	/**
 	 * Constructor for MotionController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param MotionService $motionService The motion service
+	 * @param MotionServiceInterface $motionService The motion service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IAppConfig $appConfig The app config
-	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
-	 * @param MotionStages $motionStages The stage steps a caller may take
+	 * @param ParticipantResolverInterface $participantResolver Per-meeting participant/role resolver
+	 * @param MotionStagesInterface $motionStages The stage steps a caller may take
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MotionService $motionService,
+		private readonly MotionServiceInterface $motionService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
-		private readonly ParticipantResolver $participantResolver,
-		private readonly MotionStages $motionStages,
+		private readonly ParticipantResolverInterface $participantResolver,
+		private readonly MotionStagesInterface $motionStages,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -89,7 +89,7 @@ class MotionController extends Controller {
 	 *
 	 * @return JSONResponse|null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	private function requireChairOrSecretary(?string $motionId = null): ?JSONResponse {
 		return $this->requireMeetingRole(
@@ -188,7 +188,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}
@@ -240,7 +240,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -335,7 +335,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -372,7 +372,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -415,7 +415,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -459,7 +459,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -502,7 +502,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 *
 	 * @return JSONResponse
 	 */

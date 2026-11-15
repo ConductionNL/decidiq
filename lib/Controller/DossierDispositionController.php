@@ -26,13 +26,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
-use OCA\Decidiq\Service\Records\DossierCategory;
-use OCA\Decidiq\Service\Records\DossierDisposition;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DestructionCertificateRendererInterface;
+use OCA\Decidiq\Kernel\Contracts\DossierCategoryInterface;
+use OCA\Decidiq\Kernel\Contracts\DossierDispositionInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -54,9 +54,9 @@ class DossierDispositionController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest           $request      HTTP request
-	 * @param DossierDisposition $disposition  The routing rules
-	 * @param DestructionCertificateRenderer $certificates Renders OpenRegister's certificate
-	 * @param DossierCategory    $categories   Sets a dossier's own Selectielijst category
+	 * @param DossierDispositionInterface $disposition  The routing rules
+	 * @param DestructionCertificateRendererInterface $certificates Renders OpenRegister's certificate
+	 * @param DossierCategoryInterface    $categories   Sets a dossier's own Selectielijst category
 	 * @param IUserSession       $userSession  User session
 	 * @param LoggerInterface    $logger       Logger
 	 *
@@ -64,13 +64,13 @@ class DossierDispositionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DossierDisposition $disposition,
-		private readonly DestructionCertificateRenderer $certificates,
-		private readonly DossierCategory $categories,
+		private readonly DossierDispositionInterface $disposition,
+		private readonly DestructionCertificateRendererInterface $certificates,
+		private readonly DossierCategoryInterface $categories,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

@@ -57,13 +57,19 @@ describe('a person field on an agenda item type', () => {
 			(input) => input.key === 'assignedTo',
 		)
 		expect(
-			setTypeFieldValue({ question: 'Klopt het?' }, assignee, {
-				id: 'j.official',
-				label: 'Jan Ambtenaar',
-			}),
+			setTypeFieldValue(
+				{ question: 'Klopt het?' },
+				{
+					input: assignee,
+					raw: { id: 'j.official', label: 'Jan Ambtenaar' },
+				},
+			),
 		).toEqual({ question: 'Klopt het?', assignedTo: 'j.official' })
 		expect(
-			setTypeFieldValue({ assignedTo: 'j.official' }, assignee, null),
+			setTypeFieldValue(
+				{ assignedTo: 'j.official' },
+				{ input: assignee, raw: null },
+			),
 		).toEqual({})
 	})
 

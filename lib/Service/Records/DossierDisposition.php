@@ -36,7 +36,11 @@ namespace OCA\Decidiq\Service\Records;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DossierDispositionInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 
@@ -45,7 +49,7 @@ use OCP\IURLGenerator;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot
  */
-class DossierDisposition {
+class DossierDisposition implements DossierDispositionInterface {
 	/**
 	 * The dossier schema's key in the register, where its category lives.
 	 */
@@ -358,7 +362,12 @@ class DossierDisposition {
 		$entities = [];
 		foreach (self::MEMBER_SCHEMAS as $kind => $schema) {
 			foreach ((array)($dossier[$kind] ?? []) as $uuid) {
-				$entity = $this->objectService->find(id: (string)$uuid, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+				$entity = $this->objectService->find(
+					id: (string)$uuid,
+					options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+					_rbac: false,
+					_multitenancy: false
+				);
 				if ($entity !== null) {
 					$entities[] = $entity;
 				}
@@ -382,7 +391,12 @@ class DossierDisposition {
 	private function dossier(string $dossierId): array {
 		$entity = null;
 		if ($dossierId !== '') {
-			$entity = $this->objectService->find(id: $dossierId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $dossierId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+				_rbac: false,
+				_multitenancy: false
+			);
 		}
 
 		if ($entity === null) {
@@ -407,9 +421,10 @@ class DossierDisposition {
 	private function write(array $dossier, string $uuid): array {
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

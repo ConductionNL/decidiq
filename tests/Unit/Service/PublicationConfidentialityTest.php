@@ -38,6 +38,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Confidentiality lives in confidentiality-restriction objects (scope item,
@@ -55,6 +56,8 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\AgendaPapers
  * @covers \OCA\Decidiq\Service\PublicationRepository
  * @covers \OCA\Decidiq\Service\PublicationConfigService
+ * @uses \OCA\Decidiq\Service\PublicationRun
+ * @uses \OCA\Decidiq\Service\ItemPaperPublisher
  *
  * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-002-a-confidential-item-never-reaches-the-public
  */
@@ -159,7 +162,11 @@ class PublicationConfidentialityTest extends TestCase {
 			fn (int|string $id): ?object => isset($this->store[(string)$id]) === true ? $this->entity($this->store[(string)$id]) : null
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$uuid = ($uuid ?? ('obj-' . (count($this->store) + 1)));
 				$this->store[$uuid] = array_merge(['id' => $uuid, '_schema' => $schema], $object);
 				return $this->entity($this->store[$uuid]);

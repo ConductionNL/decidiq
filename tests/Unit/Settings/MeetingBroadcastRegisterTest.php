@@ -127,7 +127,7 @@ class MeetingBroadcastRegisterTest extends TestCase {
 	public function testABroadcastIsPublicOnceItsPublicationDatePassed(): void {
 		$auth = $this->mergedSchema('meeting-broadcast')['authorization'] ?? [];
 		self::assertSame(
-			[['group' => 'public', 'match' => ['publicationDate' => ['$lte' => '$now']]], 'authenticated'],
+			[['group' => 'public', 'match' => ['publicationDate' => ['$lte' => '$now']], 'crossOrganisation' => true], 'authenticated'],
 			($auth['read'] ?? null)
 		);
 		foreach (['create', 'update', 'delete'] as $verb) {

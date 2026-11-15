@@ -326,31 +326,9 @@ export default {
 }
 </script>
 
+<style scoped src="./userSettingsGroups.css"></style>
+
 <style scoped>
-.user-settings-section {
-	margin-bottom: 24px;
-}
-
-.user-settings-section__hint {
-	color: var(--color-text-maxcontrast);
-	margin-bottom: 8px;
-}
-
-.user-settings-section__group {
-	border: 0;
-	margin: 12px 0;
-	padding: 0;
-}
-
-.user-settings-section__group legend {
-	font-weight: bold;
-	margin-bottom: 4px;
-}
-
-.user-settings-section__actions {
-	margin-top: 12px;
-}
-
 .subscriptions-list {
 	margin: 8px 0;
 	padding: 0;

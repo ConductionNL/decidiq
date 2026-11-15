@@ -23,13 +23,14 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
@@ -37,9 +38,9 @@ use OCP\L10N\IFactory;
 /**
  * Lists the published meetings and decisions, and builds one of each as a record.
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
-class PublicMeetingRecords {
+class PublicMeetingRecords implements PublicMeetingRecordsInterface {
 
 	/**
 	 * The register every object lives in.
@@ -86,7 +87,7 @@ class PublicMeetingRecords {
 	 *
 	 * @return list<array<string, string>>
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
 	 */
 	public function meetings(): array {
 		$entries = [];
@@ -108,7 +109,7 @@ class PublicMeetingRecords {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
 	 */
 	public function meeting(string $id): ?array {
 		$meeting = ($this->published(oriType: 'Vergadering', dateField: 'meetingDate')[$id] ?? null);
@@ -157,7 +158,7 @@ class PublicMeetingRecords {
 	 *
 	 * @return list<array<string, string>>
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
 	 */
 	public function decisions(): array {
 		$entries = [];
@@ -185,7 +186,7 @@ class PublicMeetingRecords {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
 	 */
 	public function decision(string $id): ?array {
 		$decision = ($this->published(oriType: 'Besluit', dateField: 'decisionDate')[$id] ?? null);

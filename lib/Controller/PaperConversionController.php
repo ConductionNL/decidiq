@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
-use OCA\Decidiq\Service\AgendaAuthorizationGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,7 +49,7 @@ class PaperConversionController extends Controller {
 	 *
 	 * @param IRequest                 $request       The request.
 	 * @param ObjectServiceInterface   $objectService The OpenRegister object service.
-	 * @param AgendaAuthorizationGuard $guard         Chair, secretary or admin of a meeting.
+	 * @param AgendaAuthorizationGuardInterface $guard         Chair, secretary or admin of a meeting.
 	 * @param IJobList                 $jobList       The background job list.
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-002-a-failed-or-impossible-conversion-is-visible-and-the-original-stays
@@ -56,10 +57,10 @@ class PaperConversionController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly ObjectServiceInterface $objectService,
-		private readonly AgendaAuthorizationGuard $guard,
+		private readonly AgendaAuthorizationGuardInterface $guard,
 		private readonly IJobList $jobList,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -119,7 +120,12 @@ class PaperConversionController extends Controller {
 	 */
 	private function readObject(string $schema, string $objectId): array|JSONResponse {
 		try {
-			$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+			$object = $this->objectService->find(
+				id: $objectId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable) {
 			return new JSONResponse(['message' => 'The papers of this page could not be read.'], Http::STATUS_SERVICE_UNAVAILABLE);
 		}

@@ -29,14 +29,18 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Progress entries on a commitment.
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-002-the-clerk-adds-a-progress-entry
  */
-class CommitmentProgressService {
+class CommitmentProgressService implements CommitmentProgressServiceInterface {
 
 	/**
 	 * The longest note an entry may carry.
@@ -118,11 +122,12 @@ class CommitmentProgressService {
 		$progress[] = ['date' => (new DateTimeImmutable())->format('Y-m-d'), 'note' => $note];
 
 		$this->objectService->patchObject(
-			objectId: $commitmentId,
-			data: ['progress' => $progress],
-			register: 'decidiq',
-			schema: 'governance-commitment',
-			_rbac: false,
+			new ObjectPatch(
+				objectId: $commitmentId,
+				data: ['progress' => $progress],
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-commitment')
+			),
+			_rbac: false
 		);
 
 		return $progress;
@@ -136,7 +141,7 @@ class CommitmentProgressService {
 	 * @return array<string, mixed>
 	 */
 	private function load(string $commitmentId): array {
-		$entity = $this->objectService->find(id: $commitmentId, register: 'decidiq', schema: 'governance-commitment');
+		$entity = $this->objectService->find(id: $commitmentId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-commitment'));
 		if ($entity === null) {
 			return [];
 		}

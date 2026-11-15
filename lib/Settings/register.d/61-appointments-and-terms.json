@@ -92,7 +92,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -218,14 +219,6 @@
         },
         "authorization": {
           "read": [
-            {
-              "group": "public",
-              "match": {
-                "publicationDate": {
-                  "$lte": "$now"
-                }
-              }
-            },
             "authenticated"
           ]
         },

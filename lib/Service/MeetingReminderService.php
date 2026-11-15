@@ -28,7 +28,10 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -50,7 +53,7 @@ use Throwable;
  *
  * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
  */
-class MeetingReminderService {
+class MeetingReminderService implements MeetingReminderServiceInterface {
 
 	/**
 	 * How long before the submission deadline its reminder goes out.
@@ -79,6 +82,7 @@ class MeetingReminderService {
 	 * @param ParticipantResolver           $participantResolver The meeting's members
 	 * @param NotificationPreferenceService $preferences         Switches, reminder times and delivery
 	 * @param IFactory                      $l10nFactory         Translations for the email text
+	 * @param SystemWhenNobodySignedIn      $system              Runs the cron pass as the system
 	 * @param LoggerInterface               $logger              Logger
 	 *
 	 * @return void
@@ -88,6 +92,7 @@ class MeetingReminderService {
 		private readonly ParticipantResolver $participantResolver,
 		private readonly NotificationPreferenceService $preferences,
 		private readonly IFactory $l10nFactory,
+		private readonly SystemWhenNobodySignedIn $system,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -100,8 +105,22 @@ class MeetingReminderService {
 	 * @return int Deliveries made
 	 *
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function run(int $now): int {
+		return (int)$this->system->run(operation: fn (): int => $this->sendDue(now: $now));
+	}//end run()
+
+	/**
+	 * Send every notice that is due, and stamp it, as whoever runs the pass.
+	 *
+	 * @param int $now Unix time of the run
+	 *
+	 * @return int Deliveries made
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 */
+	private function sendDue(int $now): int {
 		try {
 			$this->objectService->setRegister('decidiq');
 			$this->objectService->setSchema('meeting');
@@ -122,7 +141,7 @@ class MeetingReminderService {
 
 		return $sent;
 
-	}//end run()
+	}//end sendDue()
 
 	/**
 	 * Send what is due for one meeting and stamp it.
@@ -165,9 +184,10 @@ class MeetingReminderService {
 		if ($patch !== []) {
 			$this->objectService->saveObject(
 				object: array_merge($meeting, $patch),
-				register: 'decidiq',
-				schema: 'meeting',
-				uuid: $meetingId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'),
+					uuid: $meetingId
+				)
 			);
 		}
 

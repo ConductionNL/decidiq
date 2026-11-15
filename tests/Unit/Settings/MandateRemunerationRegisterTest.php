@@ -166,7 +166,7 @@ class MandateRemunerationRegisterTest extends TestCase {
 		}
 
 		self::assertSame(self::WRITERS, $groups);
-		self::assertSame([['group' => 'public', 'match' => ['disclosed' => true, 'publicationDate' => ['$lte' => '$now']]]], $public);
+		self::assertSame([['group' => 'public', 'match' => ['disclosed' => true, 'publicationDate' => ['$lte' => '$now']], 'crossOrganisation' => true]], $public);
 		foreach (['create', 'update', 'delete'] as $verb) {
 			self::assertSame(self::WRITERS, $auth[$verb], $verb . ' is the secretariat and administrators only');
 		}

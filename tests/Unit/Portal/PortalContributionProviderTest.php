@@ -157,13 +157,13 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice', 'publicAncillaryPositions'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts and the motions open for advice, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts, the motions open for advice and the ancillary positions, in order'
 		);
 
 		// The public calendar and broadcasts are read without an account; they are tested on their own.
-		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice']);
+		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice'], $byId['publicAncillaryPositions']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
@@ -240,6 +240,9 @@ final class PortalContributionProviderTest extends TestCase {
 			actual: $calendar['fields']
 		);
 		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['defaultFilters']);
+		// Portaliq reads an anonymous collection as the public may read it; the
+		// filter keeps decisions out of the calendar.
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['filter']);
 		self::assertSame(expected: ['field' => 'meetingDate', 'direction' => 'asc'], actual: $calendar['defaultSort']);
 
 	}//end testThePublicCalendarIsAnonymousWithCalendarFieldsOnly()
@@ -297,6 +300,7 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertTrue(condition: $motions['listable']);
 		self::assertArrayNotHasKey(key: 'minTrust', array: $motions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
 		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['defaultFilters']);
+		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['filter']);
 		self::assertSame(
 			expected: ['title', 'text', 'motionType', 'citizenVotingStatus', 'citizenAdviceFor', 'citizenAdviceAgainst', 'citizenAdviceAbstain'],
 			actual: $motions['fields']
@@ -306,6 +310,39 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 	}//end testMotionsOpenForAdviceAreAnonymousWithTheirCounts()
+
+	/**
+	 * Residents read members' ancillary positions without an account, with the
+	 * six public fields only; the read rule on the schema admits an anonymous
+	 * caller to a position whose publicationDate has passed and to nothing else.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 */
+	public function testAncillaryPositionsAreAnonymousWithTheSixPublicFields(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'publicAncillaryPositions', array: $byId);
+		$positions = $byId['publicAncillaryPositions'];
+		self::assertSame(expected: 'decidiq', actual: $positions['register']);
+		self::assertSame(expected: 'ancillary-position', actual: $positions['schema']);
+		self::assertTrue(condition: $positions['anonymous']);
+		self::assertTrue(condition: $positions['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $positions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(
+			expected: ['person', 'organisation', 'role', 'remunerated', 'startDate', 'endDate'],
+			actual: $positions['fields']
+		);
+
+		$schema = $this->schemasBySlug()['ancillary-position'];
+		self::assertContains(
+			needle: ['group' => 'public', 'match' => ['publicationDate' => ['$lte' => '$now']], 'crossOrganisation' => true],
+			haystack: $schema['authorization']['read'],
+			message: 'Only a published position is readable without an account'
+		);
+
+	}//end testAncillaryPositionsAreAnonymousWithTheSixPublicFields()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.
@@ -708,7 +745,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testLabelsAreReadInTheReadersLanguage(): void {
 		$dutch    = $this->catalogue(locale: 'nl');
@@ -727,12 +764,80 @@ final class PortalContributionProviderTest extends TestCase {
 	}//end testLabelsAreReadInTheReadersLanguage()
 
 	/**
+	 * The council calendar's headings are declared, so a Dutch reader reads
+	 * them in Dutch instead of the schema's English titles.
+	 *
+	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarHeadingsReadInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$calendar = $this->collection(manifest: $manifest, id: 'publicCalendar');
+
+		$labels = array_map(static fn (array $config): string => $config['label'], $calendar['fieldConfigs']);
+		self::assertSame(
+			expected: ['title' => 'Vergadering', 'meetingDate' => 'Datum', 'bodyName' => 'Orgaan', 'meetingType' => 'Vergaderingstype', 'location' => 'Locatie', 'oriType' => 'Soort'],
+			actual: $labels
+		);
+		self::assertSame(
+			expected: ['meetingDate', 'title', 'bodyName', 'meetingType'],
+			actual: array_column($calendar['columns'], 'field')
+		);
+		self::assertSame(expected: 'datetime', actual: $calendar['columns'][0]['render']);
+		foreach (array_merge(array_column($calendar['columns'], 'field'), $calendar['detail']['fields']) as $field) {
+			self::assertContains(needle: $field, haystack: $calendar['fields'], message: 'Only whitelisted fields are shown');
+			self::assertArrayHasKey(key: $field, array: $calendar['fieldConfigs'], message: 'Every shown field has a declared label');
+		}
+
+	}//end testTheCouncilCalendarHeadingsReadInTheReadersLanguage()
+
+	/**
+	 * The meeting type and the kind of record read as words in the reader's
+	 * language; the stored values they label stay as they are.
+	 *
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$configs = $this->collection(manifest: $manifest, id: 'publicCalendar')['fieldConfigs'];
+
+		self::assertSame(
+			expected: [
+				'regular' => 'Gewone vergadering',
+				'extraordinary' => 'Extra vergadering',
+				'committee' => 'Commissievergadering',
+				'public hearing' => 'Openbare hoorzitting',
+				'general_assembly' => 'Algemene vergadering',
+			],
+			actual: $configs['meetingType']['valueLabels']
+		);
+		self::assertSame(
+			expected: ['Vergadering' => 'Vergadering', 'Besluit' => 'Besluit', 'Verslag' => 'Notulen'],
+			actual: $configs['oriType']['valueLabels']
+		);
+
+		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $english);
+		self::assertSame(
+			expected: 'Regular meeting',
+			actual: $this->collection(manifest: $english, id: 'publicCalendar')['fieldConfigs']['meetingType']['valueLabels']['regular']
+		);
+	}//end testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage()
+
+	/**
 	 * A label added to the manifest without a Dutch entry in l10n/nl.json fails
 	 * here, instead of reaching a Dutch resident in English.
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testEveryVisibleLabelHasADutchTranslation(): void {
 		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
@@ -755,7 +860,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testWithoutAFactoryTheSourceStays(): void {
 		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
@@ -792,6 +897,18 @@ final class PortalContributionProviderTest extends TestCase {
 	private function visibleLabels(array $manifest): array {
 		$labels = [];
 		foreach ($manifest as $key => $value) {
+			if ($key === 'valueLabels' && is_array($value) === true) {
+				array_walk_recursive(
+					$value,
+					static function (mixed $label) use (&$labels): void {
+						if (is_string($label) === true && $label !== '') {
+							$labels[] = $label;
+						}
+					}
+				);
+				continue;
+			}
+
 			if (is_array($value) === true && in_array($key, ['fields', 'defaults', 'defaultFilters', 'defaultSort', 'parentConstraint', 'set'], true) === false) {
 				$labels = array_merge($labels, $this->visibleLabels(manifest: $value));
 				continue;

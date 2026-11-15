@@ -29,6 +29,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -187,7 +190,10 @@ class VotingRoundResults {
 		$round['result'] = $outcome['result'];
 		$round['rankingResult'] = $outcome['rankingResult'];
 		$round['winningOption'] = $outcome['winningOption'];
-		$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		return [
 			'votesFor' => 0,
@@ -242,7 +248,10 @@ class VotingRoundResults {
 		$computed = $this->compute(for: $votesFor, against: $votesAgainst, abstain: $votesAbstain, round: $round);
 		$round = $this->withOutcome(round: $round, counts: $counts, computed: $computed);
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$saved = $this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliser->toArray(saved: $saved, fallback: $round);
@@ -326,9 +335,8 @@ class VotingRoundResults {
 		}
 
 		$this->objectService()->saveObject(
-			register: 'decidiq',
-			schema: 'voting-round',
-			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed)
+			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed),
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
 		);
 
 	}//end persistOutcome()
@@ -421,7 +429,7 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function loadRound(string $votingRoundId): ?array {
-		$entity = $this->objectService()->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$entity = $this->objectService()->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		if ($entity === null) {
 			return null;
 		}
