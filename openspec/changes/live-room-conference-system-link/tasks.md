@@ -10,7 +10,7 @@
   - GIVEN the synchronisation user WHEN it lists participants (Newman) THEN `roomSeat` is present
 - [x] Implement
 - [ ] Test
-  - Built: `Participant.roomSeat` and the `room-system` connection. The fragment is `lib/Settings/register.d/99-room-system-link.json`, not 92-: fragments merge in sorted name order, so 99- is needed for its Participant and Vote version bumps to win. The synchronisation user already reads participant, meeting and agenda-item through the register's `read: authenticated`, so no grant was added. Unit: `RoomSystemLinkRegisterTest`, `ConnectionsDeclarationTest`. Open: the Newman request as the synchronisation user, and the seats in `profiles/municipality.json`.
+  - Built: `Participant.roomSeat` and the `room-system` connection. The fragment is `lib/Settings/register.d/99-room-system-link.json`, not 92-: fragments merge in sorted name order, so 99- is needed for its Participant and Vote version bumps to win. The synchronisation user already reads participant, meeting and agenda-item through the register's `read: authenticated`, so no grant was added. Unit: `RoomSystemLinkRegisterTest`, `ConnectionsDeclarationTest`. Seats in `profiles/municipality.json`: every demo member has one, distinct within its body (`RoomSystemLinkRegisterTest::testTheDemoMembersHaveDistinctSeats`). Open: the Newman request as the synchronisation user.
 
 ### Task 2: The inbox schema and who may write it
 - **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-003-only-the-integriq-synchronisation-user-writes-room-system-messages`

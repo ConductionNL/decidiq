@@ -124,4 +124,23 @@ class RoomSystemLinkRegisterTest extends TestCase {
 		self::assertSame('room-system', $room[0]['sourceTemplate']);
 		self::assertSame('No room system is connected. Link a source to this connection to receive speaker markings and desk votes from the chamber.', $room[0]['unconfiguredMessage']);
 	}//end testTheRoomSystemIsAConnection()
+
+	/**
+	 * The municipality demo seats every member, and no two members of one body share a seat.
+	 *
+	 * @return void
+	 */
+	public function testTheDemoMembersHaveDistinctSeats(): void {
+		$profile = json_decode((string)file_get_contents(self::SETTINGS . 'profiles/municipality.json'), true);
+		$taken = [];
+		foreach ($profile['x-openregister']['seedData']['objects']['participant'] as $participant) {
+			$seat = (string)($participant['roomSeat'] ?? '');
+			self::assertNotSame('', $seat, $participant['slug'] . ' has no seat');
+			$key = ($participant['governanceBody'] ?? '') . '#' . $seat;
+			self::assertArrayNotHasKey($key, $taken, $participant['slug'] . ' shares a seat');
+			$taken[$key] = true;
+		}
+
+		self::assertCount(7, $taken);
+	}//end testTheDemoMembersHaveDistinctSeats()
 }//end class
