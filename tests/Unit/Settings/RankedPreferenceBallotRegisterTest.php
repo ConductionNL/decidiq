@@ -55,7 +55,11 @@ class RankedPreferenceBallotRegisterTest extends TestCase {
 		}
 
 		self::assertArrayHasKey('ranking', $schemas['Vote']['properties'], 'vote must declare ranking');
-		self::assertSame(['for', 'against', 'abstain', 'ranked'], $schemas['Vote']['properties']['value']['enum']);
+		// Contained, not the exact list: a later change adds its own value
+		// (voting-written-resolution adds objection).
+		foreach (['for', 'against', 'abstain', 'ranked'] as $value) {
+			self::assertContains($value, $schemas['Vote']['properties']['value']['enum']);
+		}
 		self::assertContains('ranked-choice', $schemas['VotingRound']['properties']['votingMethod']['enum']);
 		self::assertContains('tied', $schemas['VotingRound']['properties']['result']['enum']);
 	}//end testTheRegisterCarriesTheRankedFields()

@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Erakorraline koosolek",
         "Committee meeting": "Komisjoni koosolek",
         "Public hearing": "Avalik arutelu",
-        "General assembly": "Üldkoosolek"
+        "General assembly": "Üldkoosolek",
+        "Members' ancillary positions": "Liikmete kõrvaltegevused"
     },
     "nplurals=2; plural=(n != 1);"
 )
