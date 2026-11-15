@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -53,7 +53,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
  * class to a coupling of 14 against a limit of 14. Moving the pair here is the
  * fix the repository's own architecture already prescribed.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 class OpenRegisterContractRegistrar {
 
@@ -64,7 +64,7 @@ class OpenRegisterContractRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function register(IRegistrationContext $context): void {
 		$context->registerServiceAlias(

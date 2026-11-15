@@ -30,6 +30,13 @@ $autoloader = require __DIR__ . '/../vendor/autoload.php';
 // as well fatals a full-server run, because OC\DB\Connection extends it.
 require_once __DIR__ . '/stubs/DoctrineStubs.php';
 
+// OCP\Files\IRootFolder extends the server-private OC\Hooks\Emitter, which
+// nextcloud/ocp does not ship, so no test could double the root folder. Loaded
+// only when absent: a full-server run has the real one.
+if (interface_exists('OC\\Hooks\\Emitter') === false) {
+	require_once __DIR__ . '/stubs/OcHooksEmitter.php';
+}
+
 // deliberately NOT registered via composer autoload-dev: a dev-built vendor bakes
 // autoload-dev into the runtime classmap, and OCA\OpenRegister\* stubs then shadow
 // the REAL OpenRegister classes instance-wide (see openregister#2036 / hermiq#21).
@@ -239,6 +246,13 @@ foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as
 	if (class_exists('\\OCA\\Integriq\\Event\\' . $integriqStubEvent) === false) {
 		require_once __DIR__ . '/Stubs/Integriq/Event/' . $integriqStubEvent . '.php';
 	}
+}
+
+// filinq's ConversionFailedException (agenda-office-files-to-pdf). decidiq
+// recognises it by string class name through FleetAppId, so it stays
+// installable without filinq; the stub loads only when filinq is absent.
+if (class_exists('\\OCA\\Filinq\\Exception\\ConversionFailedException') === false) {
+	require_once __DIR__ . '/Stubs/Filinq/Exception/ConversionFailedException.php';
 }
 
 // ObjectService, ObjectEntity, Register and Schema need no require_once: the

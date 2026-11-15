@@ -82,7 +82,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -259,7 +260,8 @@
                   "$lte": "$now"
                 },
                 "lifecycle": "answered"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]

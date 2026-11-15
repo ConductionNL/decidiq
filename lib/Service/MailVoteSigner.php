@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,15 +31,16 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MailVoteSignerInterface;
 use OCP\IAppConfig;
 
 /**
  * Derives, applies and verifies the HMAC on VotingRound `_mail` entries.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  */
-class MailVoteSigner {
+class MailVoteSigner implements MailVoteSignerInterface {
 
 	/**
 	 * HMAC algorithm used for _mail entry signatures.
@@ -53,7 +54,7 @@ class MailVoteSigner {
 	 *
 	 * @param IAppConfig $appConfig The app config holding the base secret
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
@@ -76,7 +77,7 @@ class MailVoteSigner {
 	 *
 	 * @return string The hex HMAC
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function compute(string $participantId, string $roundId, string $timestamp): string {
 		$payload = $participantId . ':' . $roundId . ':' . $timestamp;
@@ -92,7 +93,7 @@ class MailVoteSigner {
 	 *
 	 * @return array<string,mixed> The entry with hmac appended
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function sign(array $entry, string $roundId): array {
 		$entry['hmac'] = $this->compute(
@@ -115,7 +116,7 @@ class MailVoteSigner {
 	 *
 	 * @return bool True when the entry is authentically signed
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function verify(array $entry, string $roundId): bool {
 		$providedHmac = (string)($entry['hmac'] ?? '');
@@ -147,15 +148,15 @@ class MailVoteSigner {
 	 *
 	 * @return string The derived per-round secret (hex)
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function secret(string $roundId): string {
-		$base = $this->appConfig->getValueString(Application::APP_ID, 'voter_token_secret', '');
+		$base = $this->appConfig->getValueString(AppIdentity::APP_ID, 'voter_token_secret', '');
 		if ($base === '') {
 			// Generate and persist a base secret if one does not yet exist.
 			// sensitive: true — see InitializeSettings; this is the same HMAC key.
 			$base = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, 'voter_token_secret', $base, sensitive: true);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, 'voter_token_secret', $base, sensitive: true);
 		}
 
 		// Derive a round-scoped key using HKDF-style domain separation.

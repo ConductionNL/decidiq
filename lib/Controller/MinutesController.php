@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ALVMinutesService;
-use OCA\Decidiq\Service\MinutesAccessGuard;
-use OCA\Decidiq\Service\MinutesDocumentService;
-use OCA\Decidiq\Service\MinutesGenerationService;
-use OCA\Decidiq\Service\MinutesWorkflowService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ALVMinutesServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesDocumentServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesWorkflowServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -46,7 +46,7 @@ use OCP\IUserSession;
  * exception-to-status mapping in MinutesResponder — so what is left here is
  * only the routing surface, which is exactly the part that must not drift.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesController extends Controller {
 	/**
@@ -58,27 +58,27 @@ class MinutesController extends Controller {
 	 * pre-flight context. The UID is resolved per-request via $this->userSession.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param MinutesGenerationService $generationService The generation service
-	 * @param ALVMinutesService $alvMinutesService The ALV minutes service
-	 * @param MinutesWorkflowService $workflowService Action items + approval submission
+	 * @param MinutesGenerationServiceInterface $generationService The generation service
+	 * @param ALVMinutesServiceInterface $alvMinutesService The ALV minutes service
+	 * @param MinutesWorkflowServiceInterface $workflowService Action items + approval submission
 	 * @param IUserSession $userSession The current user session
-	 * @param MinutesAccessGuard $accessGuard Per-object minutes authorisation
-	 * @param MinutesDocumentService $documentService Document generation + persistence service
+	 * @param MinutesAccessGuardInterface $accessGuard Per-object minutes authorisation
+	 * @param MinutesDocumentServiceInterface $documentService Document generation + persistence service
 	 * @param MinutesResponder $responder Maps operation failures to HTTP statuses
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
 		IRequest $request,
-		private MinutesGenerationService $generationService,
-		private ALVMinutesService $alvMinutesService,
-		private MinutesWorkflowService $workflowService,
+		private MinutesGenerationServiceInterface $generationService,
+		private ALVMinutesServiceInterface $alvMinutesService,
+		private MinutesWorkflowServiceInterface $workflowService,
 		private IUserSession $userSession,
-		private readonly MinutesAccessGuard $accessGuard,
-		private MinutesDocumentService $documentService,
+		private readonly MinutesAccessGuardInterface $accessGuard,
+		private MinutesDocumentServiceInterface $documentService,
 		private readonly MinutesResponder $responder,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -91,7 +91,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function requireChairOrAdminForMinutes(string $minutesId): ?JSONResponse {
 		return $this->accessGuard->requireChairOrAdmin(minutesId: $minutesId);
@@ -102,7 +102,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return string The display name
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function currentDisplayName(): string {
 		$user = $this->userSession->getUser();
@@ -129,7 +129,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function generateDraft(string $minutesId): JSONResponse {
@@ -169,7 +169,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function transition(string $minutesId): JSONResponse {
@@ -210,7 +210,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
 	 */
 	#[NoAdminRequired]
 	public function generateALVDraft(string $minutesId): JSONResponse {
@@ -242,7 +242,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
 	 */
 	#[NoAdminRequired]
 	public function distributeALVMinutes(string $minutesId): JSONResponse {
@@ -269,7 +269,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	#[NoAdminRequired]
 	public function extractActionItems(string $minutesId): JSONResponse {
@@ -301,7 +301,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	#[NoAdminRequired]
 	public function saveExtractedActionItems(string $minutesId): JSONResponse {
@@ -338,7 +338,7 @@ class MinutesController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-6.2
 	 */
 	#[NoAdminRequired]
 	public function submitForApproval(string $minutesId): JSONResponse {

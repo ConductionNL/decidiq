@@ -104,6 +104,38 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import { ensureRelationType } from '../../components/tabs/useRelationStore.js'
 
+/**
+ * A body's stored publication policy for one kind of record; manual-only
+ * when none is stored.
+ *
+ * @param {object|null|undefined} policy The stored policy.
+ * @param {string} kind decision, agenda or minutes.
+ * @return {string} The policy.
+ */
+function policyFor(policy, kind) {
+	return policy?.[kind] || 'manual-only'
+}
+
+/**
+ * A body's publication configuration, seeded from its stored entry with
+ * defaults for whatever is missing.
+ *
+ * @param {object} existing The stored entry, or {}.
+ * @return {object} The configuration the form edits.
+ */
+function bodyPublicationConfig(existing) {
+	return {
+		catalog: existing.catalog || '',
+		policy: {
+			decision: policyFor(existing.policy, 'decision'),
+			agenda: policyFor(existing.policy, 'agenda'),
+			minutes: policyFor(existing.policy, 'minutes'),
+		},
+
+		attendance: existing.attendance || 'counts',
+	}
+}
+
 export default {
 	name: 'PublicationSettings',
 	components: { CnNoteCard, NcButton, NcLoadingIcon, NcSelect },
@@ -163,21 +195,7 @@ export default {
 				this.bodies =
 					(await store.fetchCollection('governance-body', { _limit: 200 }))
 					|| []
-				const next = {}
-				for (const body of this.bodies) {
-					const existing = this.initialConfig[body.id] || {}
-					next[body.id] = {
-						catalog: existing.catalog || '',
-						policy: {
-							decision: existing.policy?.decision || 'manual-only',
-							agenda: existing.policy?.agenda || 'manual-only',
-							minutes: existing.policy?.minutes || 'manual-only',
-						},
-
-						attendance: existing.attendance || 'counts',
-					}
-				}
-				this.config = next
+				this.config = this.seededConfig()
 			} catch (e) {
 				this.error =
 					e?.message
@@ -185,6 +203,23 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The form configuration of every loaded body, seeded from the stored
+		 * configuration.
+		 *
+		 * @return {object} Configurations keyed by body id.
+		 * @spec openspec/specs/public-publication/spec.md
+		 */
+		seededConfig() {
+			const next = {}
+			for (const body of this.bodies) {
+				next[body.id] = bodyPublicationConfig(
+					this.initialConfig[body.id] || {},
+				)
+			}
+			return next
 		},
 
 		/** @spec openspec/specs/public-publication/spec.md */

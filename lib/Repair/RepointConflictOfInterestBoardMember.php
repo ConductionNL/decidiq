@@ -35,8 +35,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
+use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
+use OCA\Decidiq\Service\ObjectResultNormaliser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -78,12 +82,12 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
-	 * @param ParticipantToPersonMembershipResolver $resolver Shared crosswalk resolver
+	 * @param ParticipantToPersonMembershipResolverInterface $resolver Shared crosswalk resolver
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly ParticipantToPersonMembershipResolver $resolver,
+		private readonly ParticipantToPersonMembershipResolverInterface $resolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -172,9 +176,10 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			try {
 				$this->objectService->saveObject(
 					object: array_merge($row, ['boardMember' => $resolution['membership']]),
-					register: self::REGISTER,
-					schema: self::SCHEMA,
-					uuid: $id
+					options: new ObjectSaveOptions(
+						target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
+						uuid: $id
+					)
 				);
 				$resolved++;
 				$this->logger->info(
@@ -231,7 +236,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 */
 	private function isParticipant(string $id): ?bool {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA));
 		} catch (Throwable $e) {
 			// Null means UNKNOWN, not "no". A transient OpenRegister failure
 			// here used to be indistinguishable from "already migrated", so a
@@ -257,28 +262,6 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 * @return array<string, mixed>|null
 	 */
 	private function toArray(mixed $entity): ?array {
-		if ($entity === null) {
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-		}
-
-		return null;
+		return (new ObjectResultNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class

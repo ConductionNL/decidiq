@@ -34,7 +34,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -42,6 +42,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\ApprovalRouteConcludedEvent;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -49,9 +50,9 @@ use Throwable;
 /**
  * Announces a concluded route, from whichever path concluded it.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalRouteConclusionAnnouncer {
+class ApprovalRouteConclusionAnnouncer implements ApprovalRouteConclusionAnnouncerInterface {
 
 	/**
 	 * Constructor.
@@ -91,7 +92,7 @@ class ApprovalRouteConclusionAnnouncer {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function announceIfConcluded(string $subject, string $correlationId = ''): void {
 		try {
@@ -163,7 +164,7 @@ class ApprovalRouteConclusionAnnouncer {
 	 * @return array<string, mixed> The answer, or an empty array when nothing can
 	 *         work one out.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	private function clearanceOf(string $subject): array {
 		if ($this->clearanceService === null) {

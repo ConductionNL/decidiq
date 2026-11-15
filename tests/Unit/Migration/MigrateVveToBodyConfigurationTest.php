@@ -23,6 +23,8 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The copy from `vve-configuration` onto `body-governance-configuration`.
@@ -459,7 +461,9 @@ class MigrateVveToBodyConfigurationTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The payload.
 			 */
-			public function saveObject(string $register, string $schema, array $object): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saved[] = $object;
 
 				return $object;
@@ -475,7 +479,10 @@ class MigrateVveToBodyConfigurationTest extends TestCase {
 			 *
 			 * @return void
 			 */
-			public function deleteObject(string $register, string $schema, string $uuid): void {
+			public function deleteObject(ObjectDeletion $deletion, bool $_rbac = true, bool $_multitenancy = true, bool $_retentionSweep = false): void {
+				$register = $deletion->target->register;
+				$schema = $deletion->target->schema;
+				$uuid = $deletion->uuid;
 				$this->deleteCalls++;
 
 			}//end deleteObject()

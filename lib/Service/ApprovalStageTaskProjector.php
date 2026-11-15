@@ -39,13 +39,14 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -53,9 +54,9 @@ use Throwable;
 /**
  * Keeps the OR task inbox agreeing with a subject's approval stages.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalStageTaskProjector {
+class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface {
 
 	/**
 	 * OpenRegister's flow-task service, resolved by name so decidiq does not
@@ -67,16 +68,6 @@ class ApprovalStageTaskProjector {
 	 * @var string
 	 */
 	private const TASK_SERVICE = 'OCA\\OpenRegister\\Service\\Task\\TaskService';
-
-	/**
-	 * The provenance marker a projected task carries in its templateId.
-	 *
-	 * The decision listener trusts this marker to know which terminal tasks
-	 * are approval-stage asks, so it is a contract, not a label.
-	 *
-	 * @var string
-	 */
-	public const TEMPLATE_ID = 'decidiq:approval-stage';
 
 	/**
 	 * Constructor.
@@ -107,9 +98,24 @@ class ApprovalStageTaskProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sync(string $subject, array $stages): void {
+		foreach ($stages as $stage) {
+			try {
+				$this->syncWaitingOn(stage: $stage);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Decidiq: could not record who an approval stage waits on',
+					[
+						'subject' => $subject,
+						'stage' => ($stage['id'] ?? null),
+						'error' => $e->getMessage(),
+					]
+				);
+			}
+		}
+
 		$tasks = $this->taskService();
 		if ($tasks === null) {
 			return;
@@ -130,6 +136,41 @@ class ApprovalStageTaskProjector {
 			}
 		}
 	}//end sync()
+
+	/**
+	 * Keep `waitingOn` naming the person an active stage waits on, and empty otherwise.
+	 *
+	 * A list of "what waits for me" filters on this one field with plain
+	 * equality, which is the filter the register answers; it cannot read the
+	 * stage status and the assignee together through the task surface.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 *
+	 * @return void
+	 */
+	private function syncWaitingOn(array $stage): void {
+		$id = (string)($stage['id'] ?? '');
+		if ($id === '') {
+			return;
+		}
+
+		$wanted = '';
+		if ((string)($stage['status'] ?? '') === 'active') {
+			$wanted = trim((string)($stage['assignedPerson'] ?? ''));
+		}
+
+		$current = trim((string)($stage['waitingOn'] ?? ''));
+		if ($wanted === $current) {
+			return;
+		}
+
+		$value = null;
+		if ($wanted !== '') {
+			$value = $wanted;
+		}
+
+		$this->store->patch(schema: 'decision-stage', data: ['waitingOn' => $value], uuid: $id);
+	}//end syncWaitingOn()
 
 	/**
 	 * Bring one stage's task in line with its status.

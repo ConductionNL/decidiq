@@ -1,0 +1,1959 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ActionItemDeckBoard.vue > deletes a row, and reports a failing delete 1`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > deletes a row, and reports a failing delete 2`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "deleteActionItem failed",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > deletes a row, and reports a failing delete 3`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "Delete failed.",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > loads its rows, once without and once with a cached schema 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [
+      {
+        "@self": {
+          "uuid": "self-1",
+        },
+        "id": "row-1",
+        "title": "Row",
+        "uuid": "uuid-1",
+      },
+    ],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > loads its rows, once without and once with a cached schema 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > opens the form to create and to edit 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": true,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > reports a failing load, with and without a message, and skips without a parent 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "fetchCollection failed",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > reports a failing load, with and without a message, and skips without a parent 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "Failed to load action items.",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > saves a new and an edited row, and reports a failing save 1`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > saves a new and an edited row, and reports a failing save 2`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "Edited",
+      },
+      "fn": "updateActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > saves a new and an edited row, and reports a failing save 3`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "createActionItem failed",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`ActionItemDeckBoard.vue > saves a new and an edited row, and reports a failing save 4`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "Save failed.",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "notice": "",
+    "rows": [],
+    "syncing": false,
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > deletes a row, and reports a failing delete 1`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > deletes a row, and reports a failing delete 2`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "deleteObject failed",
+      },
+    },
+  ],
+  "state": {
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": null,
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > deletes a row, and reports a failing delete 3`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "Delete failed.",
+      },
+    },
+  ],
+  "state": {
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": null,
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > loads its rows, once without and once with a cached schema 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [
+      {
+        "@self": {
+          "uuid": "self-1",
+        },
+        "id": "row-1",
+        "title": "Row",
+        "uuid": "uuid-1",
+      },
+    ],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > loads its rows, once without and once with a cached schema 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > opens the form to create and to edit 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": true,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > reports a failing load, with and without a message, and skips without a parent 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "fetchCollection failed",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > reports a failing load, with and without a message, and skips without a parent 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "Failed to load motions.",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > saves a new and an edited row, and reports a failing save 1`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+        "title": "New",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > saves a new and an edited row, and reports a failing save 2`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+        "title": "Edited",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": {
+      "title": "motion schema",
+    },
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > saves a new and an edited row, and reports a failing save 3`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+        "title": "New",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "saveObject failed",
+      },
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": null,
+    "rows": [],
+  },
+}
+`;
+
+exports[`AgendaMotionsTab.vue > saves a new and an edited row, and reports a failing save 4`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "agendaItem": "parent-1",
+        "decisionType": "motion",
+        "title": "New",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "Save failed.",
+      },
+    },
+  ],
+  "state": {
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "motionSchema": null,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > deletes a row, and reports a failing delete 1`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > deletes a row, and reports a failing delete 2`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "deleteActionItem failed",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > deletes a row, and reports a failing delete 3`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "Delete failed.",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > loads its rows, once without and once with a cached schema 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [
+      {
+        "@self": {
+          "uuid": "self-1",
+        },
+        "id": "row-1",
+        "title": "Row",
+        "uuid": "uuid-1",
+      },
+    ],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > loads its rows, once without and once with a cached schema 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > opens the form to create and to edit 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": true,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > reports a failing load, with and without a message, and skips without a parent 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "fetchCollection failed",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > reports a failing load, with and without a message, and skips without a parent 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "Failed to load action items.",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > saves a new and an edited row, and reports a failing save 1`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > saves a new and an edited row, and reports a failing save 2`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "Edited",
+      },
+      "fn": "updateActionItem",
+      "uid": "uuid-1",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "action-item",
+      "type": "action-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "decision": "parent-1",
+      },
+      "schema": "action-item",
+      "type": "action-item",
+    },
+  ],
+  "state": {
+    "actionItemSchema": {
+      "title": "action-item schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > saves a new and an edited row, and reports a failing save 3`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "createActionItem failed",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`DecisionActionItemsTab.vue > saves a new and an edited row, and reports a failing save 4`] = `
+{
+  "calls": [
+    {
+      "data": {
+        "decision": "parent-1",
+        "title": "New",
+      },
+      "fn": "createActionItem",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "Save failed.",
+      },
+    },
+  ],
+  "state": {
+    "actionItemSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > deletes a row, and reports a failing delete 1`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > deletes a row, and reports a failing delete 2`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "deleteObject failed",
+      },
+    },
+  ],
+  "state": {
+    "amendmentSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > deletes a row, and reports a failing delete 3`] = `
+{
+  "calls": [
+    {
+      "fn": "deleteObject",
+      "id": "row-1",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "deleteResult",
+      "r": {
+        "error": "Delete failed.",
+      },
+    },
+  ],
+  "state": {
+    "amendmentSchema": null,
+    "deleteTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > loads its rows, once without and once with a cached schema 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [
+      {
+        "@self": {
+          "uuid": "self-1",
+        },
+        "id": "row-1",
+        "title": "Row",
+        "uuid": "uuid-1",
+      },
+    ],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > loads its rows, once without and once with a cached schema 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > opens the form to create and to edit 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": true,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > reports a failing load, with and without a message, and skips without a parent 1`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "fetchCollection failed",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > reports a failing load, with and without a message, and skips without a parent 2`] = `
+{
+  "calls": [
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "Failed to load amendments.",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > saves a new and an edited row, and reports a failing save 1`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "amends": "parent-1",
+        "decisionType": "amendment",
+        "title": "New",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > saves a new and an edited row, and reports a failing save 2`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "amends": "parent-1",
+        "decisionType": "amendment",
+        "title": "Edited",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "success": true,
+      },
+    },
+    {
+      "fn": "refresh",
+    },
+    {
+      "fn": "fetchSchema",
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "amends": "parent-1",
+        "decisionType": "amendment",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+  ],
+  "state": {
+    "amendmentSchema": {
+      "title": "amendment schema",
+    },
+    "deleteTarget": null,
+    "editTarget": {
+      "@self": {
+        "uuid": "self-1",
+      },
+      "id": "row-1",
+      "title": "Row",
+      "uuid": "uuid-1",
+    },
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > saves a new and an edited row, and reports a failing save 3`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "amends": "parent-1",
+        "decisionType": "amendment",
+        "title": "New",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "saveObject failed",
+      },
+    },
+  ],
+  "state": {
+    "amendmentSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;
+
+exports[`MotionAmendmentsTab.vue > saves a new and an edited row, and reports a failing save 4`] = `
+{
+  "calls": [
+    {
+      "fn": "saveObject",
+      "object": {
+        "amends": "parent-1",
+        "decisionType": "amendment",
+        "title": "New",
+      },
+      "schema": "amendment",
+      "type": "amendment",
+    },
+    {
+      "fn": "formResult",
+      "r": {
+        "error": "Save failed.",
+      },
+    },
+  ],
+  "state": {
+    "amendmentSchema": null,
+    "deleteTarget": null,
+    "editTarget": null,
+    "error": "",
+    "formOpen": false,
+    "loading": false,
+    "rows": [],
+  },
+}
+`;

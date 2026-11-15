@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -163,7 +164,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @param ObjectCreatingEvent  $event The creating event
 	 * @param array<string, mixed> $row   The decision payload being created
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
@@ -208,16 +209,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array<string, mixed> Serialized payload, or [] when unavailable
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 
 	/**
@@ -285,7 +277,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			return null;
 		}
 
-		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidiq', schema: 'decision');
+		$motionEntity = $this->objectService->find(id: $parentMotionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -340,7 +332,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array{opensAt: int|null, deadline: int|null} Each null when unset, unparseable or the meeting is missing
 	 */
 	private function resolveSubmissionWindow(string $meetingId): array {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			return ['opensAt' => null, 'deadline' => null];
 		}

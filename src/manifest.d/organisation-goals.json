@@ -52,6 +52,12 @@
 			"id": "GoalDetail",
 			"route": "/goals/:id",
 			"type": "detail",
+			"slots": {
+				"widget-goal-steps": "GoalStepBar",
+				"widget-goal-progress": "GoalProgressWidget",
+				"widget-goal-parent": "GoalParentWidget",
+				"widget-goal-contributions": "GoalContributionsWidget"
+			},
 			"title": "Goal",
 			"_note": "spec: openspec/changes/organisation-goals/specs/organisation-goals/spec.md#requirement-req-009-goals-index-and-detail-pages-are-declared-not-custom-built",
 			"config": {
@@ -59,12 +65,22 @@
 				"schema": "goal",
 				"_note": "GoalDetail (REQ-001/002/004/005/009). Goal data (title/description/horizon/body/owner/startDate/deadline/status/targetValue/currentValue/unit) plus the declarative rollup fields (linkedCommitmentCount/settledCommitmentCount/commitmentSettlementRate, linkedActionItemCount/completedActionItemCount/actionItemCompletionRate, childGoalCount/achievedChildGoalCount/childGoalAchievedRate) render as plain fields in the data widget, same posture as the Meeting quorum aggregation display — no custom progress-visualisation widget (design.md Non-Goals). parentGoal/owner/body render as resolved references in the Related widget.",
 				"widgets": [
-					{ "id": "goal-data", "type": "data", "title": "Goal", "icon": "Gauge", "content": { "columns": 2 } },
+					{ "id": "goal-steps", "type": "custom", "component": "GoalStepBar", "title": "Steps", "icon": "Timeline", "_note": "goals-linked-to-decisions REQ-014: Draft, Active and Achieved with their dates (created, startDate, deadline)." },
+					{ "id": "goal-progress", "type": "custom", "component": "GoalProgressWidget", "title": "Progress", "icon": "Gauge", "_note": "goals-linked-to-decisions REQ-012: target value, commitments settled, action items done and sub-goals reached as \"x of y\"; a line whose total is zero is hidden. Custom because a stats tile shows one number, not a count against a total over three schemas." },
+					{ "id": "goal-parent", "type": "custom", "component": "GoalParentWidget", "title": "Parent goal", "icon": "Sitemap", "_note": "goals-linked-to-decisions REQ-014: the parent's title as a link and how many of its sub-goals are reached." },
+					{ "id": "goal-data", "type": "data", "title": "Goal", "icon": "TargetVariant", "content": { "columns": 2 } },
+					{ "id": "goal-subgoals", "type": "object-list", "title": "Sub-goals", "icon": "FileSign", "_note": "goals-linked-to-decisions REQ-014: the goals whose parentGoal is this one. Add sub-goal opens the goal form; the list seeds parentGoal from its filter.", "content": { "register": "decidiq", "schema": "goal", "filter": { "parentGoal": "@objectId" }, "sort": { "field": "deadline", "dir": "asc" }, "columns": [ { "key": "title", "label": "Sub-goal" }, { "key": "owner", "label": "Owner" }, { "key": "deadline", "label": "Deadline" }, { "key": "status", "label": "Status", "widget": "badge" } ], "limit": 10, "rowRoute": "GoalDetail", "addLabel": "Add sub-goal" } },
+					{ "id": "goal-contributions", "type": "custom", "component": "GoalContributionsWidget", "title": "Contributions", "icon": "LinkVariant", "_note": "goals-linked-to-decisions REQ-011: every commitment, action item, planned agenda item and decision that names this goal, with the total and View all n. Custom because it joins four schemas into one list." },
 					{ "id": "goal-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "goal-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "goal-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "1", "widgetId": "goal-steps", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 2 },
+					{ "id": "2", "widgetId": "goal-progress", "gridX": 0, "gridY": 2, "gridWidth": 8, "gridHeight": 4 },
+					{ "id": "3", "widgetId": "goal-parent", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 4 },
+					{ "id": "4", "widgetId": "goal-data", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "5", "widgetId": "goal-subgoals", "gridX": 0, "gridY": 12, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "6", "widgetId": "goal-contributions", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "goal-related", "gridX": 0, "gridY": 22, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
