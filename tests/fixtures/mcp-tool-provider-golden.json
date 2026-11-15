@@ -145,15 +145,9 @@
         "class": "OCA\\Decidiq\\Mcp\\DecidiqToolProvider",
         "actionItemTools": {
             "class": "OCA\\Decidiq\\Mcp\\McpActionItemTools",
-            "formatter": {
-                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
-            },
-            "validator": {
-                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
-                "formatter": {
-                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
-                }
-            },
+            "container": "container",
+            "logger": "logger",
+            "objectService": "objectService",
             "gate": {
                 "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
                 "scopeResolver": {
@@ -176,21 +170,21 @@
                 },
                 "objectService": "objectService"
             },
-            "container": "container",
-            "logger": "logger",
-            "objectService": "objectService"
+            "formatter": {
+                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+            },
+            "validator": {
+                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                }
+            }
         },
         "meetingTools": {
             "class": "OCA\\Decidiq\\Mcp\\McpMeetingTools",
-            "formatter": {
-                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
-            },
-            "validator": {
-                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
-                "formatter": {
-                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
-                }
-            },
+            "meetingService": "meetingService",
+            "logger": "logger",
+            "objectService": "objectService",
             "gate": {
                 "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
                 "scopeResolver": {
@@ -213,9 +207,15 @@
                 },
                 "objectService": "objectService"
             },
-            "meetingService": "meetingService",
-            "logger": "logger",
-            "objectService": "objectService"
+            "formatter": {
+                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+            },
+            "validator": {
+                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                }
+            }
         }
     }
 }

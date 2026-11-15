@@ -28,12 +28,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\BoardEvaluationAccessGuard;
-use OCA\Decidiq\Service\BoardEvaluationReportService;
-use OCA\Decidiq\Service\BoardEvaluationResponseService;
-use OCA\Decidiq\Service\BoardEvaluationScoreService;
-use OCA\Decidiq\Service\ParticipationPublicationService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationAccessGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationReportServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationScoreServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -53,23 +53,23 @@ class BoardEvaluationController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param BoardEvaluationResponseService $responseService Anonymous response collection
-	 * @param BoardEvaluationScoreService $scoreService Scoring + cycle close
-	 * @param BoardEvaluationReportService $reportService Report document generation
-	 * @param ParticipationPublicationService $publicationService Publication of the aggregate summary
+	 * @param BoardEvaluationResponseServiceInterface $responseService Anonymous response collection
+	 * @param BoardEvaluationScoreServiceInterface $scoreService Scoring + cycle close
+	 * @param BoardEvaluationReportServiceInterface $reportService Report document generation
+	 * @param ParticipationPublicationServiceInterface $publicationService Publication of the aggregate summary
 	 * @param IUserSession $userSession User session
-	 * @param BoardEvaluationAccessGuard $accessGuard Per-object authorisation for the action endpoints
+	 * @param BoardEvaluationAccessGuardInterface $accessGuard Per-object authorisation for the action endpoints
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly BoardEvaluationResponseService $responseService,
-		private readonly BoardEvaluationScoreService $scoreService,
-		private readonly BoardEvaluationReportService $reportService,
-		private readonly ParticipationPublicationService $publicationService,
+		private readonly BoardEvaluationResponseServiceInterface $responseService,
+		private readonly BoardEvaluationScoreServiceInterface $scoreService,
+		private readonly BoardEvaluationReportServiceInterface $reportService,
+		private readonly ParticipationPublicationServiceInterface $publicationService,
 		private readonly IUserSession $userSession,
-		private readonly BoardEvaluationAccessGuard $accessGuard,
+		private readonly BoardEvaluationAccessGuardInterface $accessGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

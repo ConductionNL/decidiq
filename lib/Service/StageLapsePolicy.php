@@ -130,6 +130,30 @@ final class StageLapsePolicy {
 	public const EFFECT_REASSIGN = 'reassign';
 
 	/**
+	 * What a lapse does under each declared meaning of silence; holding (the
+	 * default) is not listed, and nothing happens.
+	 *
+	 * @var array<string, array{effect: string, outcome: ?string, reason: string}>
+	 */
+	private const SILENCE_EFFECTS = [
+		self::ON_SILENCE_APPROVE => [
+			'effect' => self::EFFECT_ADVANCE,
+			'outcome' => 'approved',
+			'reason' => 'The step declares that silence approves, and its due date has passed.',
+		],
+		self::ON_SILENCE_REFUSE => [
+			'effect' => self::EFFECT_CONCLUDE,
+			'outcome' => 'rejected',
+			'reason' => 'The step declares that silence refuses, and its due date has passed.',
+		],
+		self::ON_SILENCE_ESCALATE => [
+			'effect' => self::EFFECT_REASSIGN,
+			'outcome' => null,
+			'reason' => 'The step declares that silence escalates, and its due date has passed.',
+		],
+	];
+
+	/**
 	 * Refuse `approve` from anybody but an administrator.
 	 *
 	 * Silence that approves is a signature nobody gave. Whether that is
@@ -203,26 +227,9 @@ final class StageLapsePolicy {
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
 	 */
 	public function effectFor(array $stage, DateTimeImmutable $now): array {
-		if ((string)($stage['status'] ?? '') !== 'active') {
-			// A stage the actor decided before the sweep ran is not silent, it
-			// is finished.
-			return $this->nothing(reason: 'This stage is no longer active.');
-		}
-
-		if ((string)($stage['lapsedAt'] ?? '') !== '') {
-			// Already lapsed once. Applying a policy twice is how running the
-			// sweep after a failed run double-advances a route.
-			return $this->nothing(reason: 'A lapse has already been applied to this stage.');
-		}
-
-		$dueAt = trim((string)($stage['dueAt'] ?? ''));
-		if ($dueAt === '') {
-			// A missing deadline is not a deadline that has passed.
-			return $this->nothing(reason: 'This stage has no due date, so it cannot lapse.');
-		}
-
-		if ($this->hasPassed(instant: $dueAt, now: $now) === false) {
-			return $this->nothing(reason: 'This stage is not due yet.');
+		$notDue = $this->whyNotDue(stage: $stage, now: $now);
+		if ($notDue !== null) {
+			return $this->nothing(reason: $notDue);
 		}
 
 		$onSilence = (string)($stage['onSilence'] ?? self::ON_SILENCE_HOLD);
@@ -233,25 +240,62 @@ final class StageLapsePolicy {
 			return $this->nothing(reason: 'This stage has already been escalated once and now holds.');
 		}
 
-		return match ($onSilence) {
-			self::ON_SILENCE_APPROVE => [
-				'effect' => self::EFFECT_ADVANCE,
-				'outcome' => 'approved',
-				'reason' => 'The step declares that silence approves, and its due date has passed.',
-			],
-			self::ON_SILENCE_REFUSE => [
-				'effect' => self::EFFECT_CONCLUDE,
-				'outcome' => 'rejected',
-				'reason' => 'The step declares that silence refuses, and its due date has passed.',
-			],
-			self::ON_SILENCE_ESCALATE => [
-				'effect' => self::EFFECT_REASSIGN,
-				'outcome' => null,
-				'reason' => 'The step declares that silence escalates, and its due date has passed.',
-			],
-			default => $this->nothing(reason: 'The step holds on silence, which is the default.'),
-		};
+		return (self::SILENCE_EFFECTS[$onSilence] ?? $this->nothing(reason: 'The step holds on silence, which is the default.'));
 	}//end effectFor()
+
+	/**
+	 * Why a stage cannot lapse yet, or null when its due date has passed.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 * @param DateTimeImmutable    $now   The clock.
+	 *
+	 * @return string|null The reason nothing happens, or null when the stage is due.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 */
+	private function whyNotDue(array $stage, DateTimeImmutable $now): ?string {
+		$finished = $this->whyFinished(stage: $stage);
+		if ($finished !== null) {
+			return $finished;
+		}
+
+		$dueAt = trim((string)($stage['dueAt'] ?? ''));
+		if ($dueAt === '') {
+			// A missing deadline is not a deadline that has passed.
+			return 'This stage has no due date, so it cannot lapse.';
+		}
+
+		if ($this->hasPassed(instant: $dueAt, now: $now) === false) {
+			return 'This stage is not due yet.';
+		}
+
+		return null;
+	}//end whyNotDue()
+
+	/**
+	 * Why a stage is past lapsing: decided already, or lapsed once already.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 *
+	 * @return string|null The reason nothing happens, or null when the stage is still open to a lapse.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 */
+	private function whyFinished(array $stage): ?string {
+		if ((string)($stage['status'] ?? '') !== 'active') {
+			// A stage the actor decided before the sweep ran is not silent, it
+			// is finished.
+			return 'This stage is no longer active.';
+		}
+
+		if ((string)($stage['lapsedAt'] ?? '') !== '') {
+			// Already lapsed once. Applying a policy twice is how running the
+			// sweep after a failed run double-advances a route.
+			return 'A lapse has already been applied to this stage.';
+		}
+
+		return null;
+	}//end whyFinished()
 
 	/**
 	 * The action a lapse appends, so a stage that moved on its own can say who

@@ -32,7 +32,7 @@ use Throwable;
  * this, and does it exist yet" is a different job from "copy these rows", and
  * it is the half worth testing on its own.
  *
- * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ * @spec openspec/specs/questions-as-agenda-items/spec.md
  */
 class AgendaItemTypeResolver {
 	use ReadsLegacyRows;
@@ -96,7 +96,7 @@ class AgendaItemTypeResolver {
 	 *
 	 * @return string The type identifier, or '' when it could not be resolved.
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	public function resolve(object $objectService, string $name, string $bodyReference): string {
 		$body = $this->resolveBody(objectService: $objectService, reference: $bodyReference);
@@ -130,7 +130,7 @@ class AgendaItemTypeResolver {
 	 *
 	 * @return string The identifier, or ''.
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	public function find(object $objectService, string $name, string $body): string {
 		foreach ($this->readRows(objectService: $objectService, schema: self::TYPE_SCHEMA) as $object) {

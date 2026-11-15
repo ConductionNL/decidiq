@@ -122,6 +122,46 @@ class MotionCoauthorServiceHistoryAccessTest extends TestCase {
 	}//end seedMotion()
 
 	/**
+	 * A missing motion and a motion the caller may not touch get the same refusal,
+	 * on every co-author operation, so a caller cannot tell which motions exist.
+	 * An unchecked (admin) call still learns the motion is missing.
+	 *
+	 * @return void
+	 */
+	public function testAMissingMotionIsRefusedLikeAForbiddenOne(): void {
+		$this->seedMotion(owner: 'raadslid');
+		$service = $this->service;
+		$missing = $this->createMock(ObjectServiceInterface::class);
+		$missing->method('find')->willReturn(null);
+		$missingService = new MotionCoauthorService(logger: $this->createMock(LoggerInterface::class), objectService: $missing);
+
+		$calls = [
+			'history' => static fn (MotionCoauthorService $s, ?string $uid): mixed => $s->getHistory(motionId: 'motion-1', callerUid: $uid),
+			'add' => static fn (MotionCoauthorService $s, ?string $uid): mixed => $s->addCoauthor(motionId: 'motion-1', personId: 'p-1', callerUid: $uid),
+			'remove' => static fn (MotionCoauthorService $s, ?string $uid): mixed => $s->removeCoauthor(motionId: 'motion-1', personId: 'p-1', callerUid: $uid),
+		];
+		foreach ($calls as $name => $call) {
+			$answers = [];
+			foreach ([$service, $missingService] as $subject) {
+				try {
+					$call($subject, 'buitenstaander');
+					$answers[] = 'allowed';
+				} catch (\Throwable $e) {
+					$answers[] = get_class($e) . ': ' . $e->getMessage();
+				}
+			}
+
+			$this->assertSame($answers[0], $answers[1], $name);
+			$this->assertStringStartsWith(InvalidArgumentException::class, $answers[0], $name);
+		}
+
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('not found');
+		$missingService->getHistory(motionId: 'motion-1', callerUid: null);
+
+	}//end testAMissingMotionIsRefusedLikeAForbiddenOne()
+
+	/**
 	 * THE REGRESSION TEST. An authenticated user who is neither the proposer
 	 * nor a co-author must not be able to read the history.
 	 *

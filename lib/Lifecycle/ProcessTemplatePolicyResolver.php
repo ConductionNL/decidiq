@@ -28,12 +28,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplatePolicyResolverInterface;
+
 /**
  * Translates a process template into a guard policy override.
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplatePolicyResolver {
+class ProcessTemplatePolicyResolver implements ProcessTemplatePolicyResolverInterface {
 	/**
 	 * Translate a process-template object array into the guard policy shape
 	 * `{quorumEnforced, chairOnlyTransitions, allowDecideWithoutVote}`.

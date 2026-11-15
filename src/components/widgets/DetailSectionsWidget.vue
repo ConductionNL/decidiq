@@ -21,7 +21,7 @@
   id. `src/utils/structureProfile.js` writes the definition in when a profile
   names a section by `widgetId`.
 
-  @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+  @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
 -->
 <template>
 	<div class="detail-sections">
@@ -170,7 +170,7 @@ export default {
 		 * cannot resolve, so the heading would be the only thing left.
 		 *
 		 * @return {Array<{key: string, label: string, widget: object}>} the sections.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
 		 */
 		sections() {
 			const raw = Array.isArray(this.content?.sections)
@@ -203,7 +203,7 @@ export default {
 		 * @param {string} key The section key.
 		 * @param {HTMLElement|null} el The host wrapper, or null on teardown.
 		 * @return {void}
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
 		 */
 		setHostRef(key, el) {
 			this.observers = this.observers || {}
@@ -247,7 +247,7 @@ export default {
 		 *
 		 * @param {HTMLElement} el The host wrapper.
 		 * @return {boolean} true when the section has something to show.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
 		 */
 		hasContent(el) {
 			if (!el) return false
@@ -261,7 +261,7 @@ export default {
 		 * Drop every observer, so a destroyed panel leaves none running.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
 		 */
 		stopObserving() {
 			for (const observer of Object.values(this.observers || {})) {

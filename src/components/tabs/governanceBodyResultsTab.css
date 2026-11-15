@@ -1,0 +1,32 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The layout the governance-body efficiency and evaluations tabs share: the column, its header, its title and the empty line.
+ * Each component includes it as a scoped style.
+ */
+
+.decidiq-tab {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 2);
+	padding: var(--default-grid-baseline);
+}
+
+.decidiq-tab__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.decidiq-tab__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+.decidiq-tab__empty,
+.decidiq-tab__loading {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}

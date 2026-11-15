@@ -219,15 +219,6 @@
         },
         "authorization": {
           "read": [
-            {
-              "group": "public",
-              "match": {
-                "publicationDate": {
-                  "$lte": "$now"
-                }
-              },
-              "crossOrganisation": true
-            },
             "authenticated"
           ]
         },

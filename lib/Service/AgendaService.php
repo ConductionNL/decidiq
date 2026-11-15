@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -28,8 +28,8 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\CalendarEventService;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -41,10 +41,10 @@ use Psr\Log\LoggerInterface;
  * - Processing consent agenda items (hamerstukken)
  * - Atomically reordering agenda items
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  */
-class AgendaService {
+class AgendaService implements AgendaServiceInterface {
 
 	/**
 	 * Tag identifying consent agenda items.
@@ -78,7 +78,6 @@ class AgendaService {
 	 * Constructor for AgendaService.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
-	 * @param CalendarEventService $calendarEventService OpenRegister calendar event service
 	 * @param AgendaNotices $notices Sends the agenda notices to the members
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
@@ -86,11 +85,10 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly CalendarEventService $calendarEventService,
 		private readonly AgendaNotices $notices,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
@@ -106,7 +104,7 @@ class AgendaService {
 	 *
 	 * @return array The agenda items, as the object service returns them.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	private function meetingItems(string $meetingId): array {
 		return $this->objectService->findAll(
@@ -134,11 +132,10 @@ class AgendaService {
 	 *
 	 * @throws InvalidArgumentException When no agenda items exist for the meeting
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function publishAgenda(string $meetingId): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
-		$this->refreshCalendarEvent(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
@@ -166,21 +163,6 @@ class AgendaService {
 
 		return $items;
 	}//end publishableItems()
-
-	/**
-	 * Update the meeting calendar entry to reflect the published agenda
-	 * (method guard for forward-compatibility until CalendarEventService
-	 * exposes updateMeetingEvent).
-	 *
-	 * @param string $meetingId UUID of the Meeting
-	 *
-	 * @return void
-	 */
-	private function refreshCalendarEvent(string $meetingId): void {
-		if (method_exists($this->calendarEventService, 'updateMeetingEvent') === true) {
-			$this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
-		}
-	}//end refreshCalendarEvent()
 
 	/**
 	 * Save the meeting with its next agenda version and the publication fields.
@@ -232,7 +214,7 @@ class AgendaService {
 	 * @throws NotFoundException When the agenda item does not exist
 	 * @throws InvalidArgumentException When item is informational or already at final phase
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function advanceBobPhase(string $agendaItemId): void {
 		$item = $this->objectService->find($agendaItemId);
@@ -284,7 +266,7 @@ class AgendaService {
 	 *
 	 * @return integer The number of formalities adopted.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function processHamerstukken(string $meetingId): int {
@@ -386,7 +368,7 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function reviseAgenda(string $meetingId): void {
 		// #315: Read the full meeting object before saving to avoid wiping required fields.
@@ -418,7 +400,7 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function reorderItems(string $meetingId, array $orderedIds): void {
 		$this->writeOrder(meetingId: $meetingId, orderedIds: $orderedIds);
@@ -493,7 +475,7 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function notifyAgendaChanged(string $meetingId): void {
 		$meetingData = $this->liveAgendaMeeting(meetingId: $meetingId);
@@ -568,7 +550,7 @@ class AgendaService {
 	 *
 	 * @return boolean
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function isSuppressingItemNotices(): bool {
 		return $this->suppressItemNotices;

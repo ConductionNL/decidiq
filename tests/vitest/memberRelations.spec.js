@@ -233,3 +233,57 @@ describe('resolveOrCreatePerson', () => {
 		expect(saveObject).toHaveBeenCalledWith('person', { name: 'No Email' })
 	})
 })
+
+describe('member row and membership payload edges, pinned before the split', () => {
+	it('keeps the row field order and falls back to empty without person or id', () => {
+		const row = buildMemberRow({ id: 'm1', startDate: '2026-01-01' }, undefined)
+		expect(Object.keys(row)).toEqual([
+			'id',
+			'person',
+			'governanceBody',
+			'role',
+			'party',
+			'votingWeight',
+			'startDate',
+			'endDate',
+			'faction',
+			'displayName',
+			'email',
+			'nextcloudUserId',
+		])
+		expect(row.displayName).toBe('')
+		expect(row.startDate).toBe('2026-01-01')
+		expect(row.votingWeight).toBeUndefined()
+	})
+
+	it('keeps a zero voting weight, drops a null one, and orders the payload fields', () => {
+		const payload = buildMembershipPayload({
+			personId: 'p1',
+			governanceBodyId: 'gb1',
+			role: 'member',
+			votingWeight: 0,
+			id: 'm1',
+			onBehalfOf: 'b2',
+			faction: '',
+			party: 'X',
+		})
+		expect(Object.keys(payload)).toEqual([
+			'person',
+			'governanceBody',
+			'role',
+			'party',
+			'onBehalfOf',
+			'votingWeight',
+			'id',
+		])
+		expect(payload.votingWeight).toBe(0)
+		expect(
+			buildMembershipPayload({
+				personId: 'p1',
+				governanceBodyId: 'gb1',
+				role: 'member',
+				votingWeight: null,
+			}),
+		).toEqual({ person: 'p1', governanceBody: 'gb1', role: 'member' })
+	})
+})

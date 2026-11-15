@@ -83,6 +83,113 @@ class VotingOpenedNotifier {
 	}//end announce()
 
 	/**
+	 * Tell every member of a written round's electorate that a decision waits
+	 * for their answer, linking to the decision (REQ-WRS-006). Fail-soft per
+	 * member, through the same preference-aware dispatcher as a meeting round.
+	 *
+	 * OpenRegister's declarative `field` recipient takes one user id, not the
+	 * electorate's list, so this is the imperative fallback of design D6.
+	 *
+	 * @param array<string,mixed> $round         The stored written round.
+	 * @param string              $decisionId    The decision put in writing.
+	 * @param string              $decisionTitle Its title.
+	 *
+	 * @return int How many members were notified.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
+	 */
+	public function announceWritten(array $round, string $decisionId, string $decisionTitle): int {
+		$this->publishActivity(round: $round);
+
+		$deadline = null;
+		if (is_string($round['votingDeadline'] ?? null) === true) {
+			$deadline = $round['votingDeadline'];
+		}
+
+		return $this->dispatchToElectorate(
+			uids: (array)($round['electorateUserIds'] ?? []),
+			notice: [
+				'title' => 'A decision is waiting for your answer: ' . $decisionTitle,
+				'message' => sprintf('Answer before %s. Silence is not consent.', $this->deadlineLabel(closedAt: $deadline)),
+				'deepLink' => '/decisions/' . $decisionId,
+			]
+		);
+	}//end announceWritten()
+
+	/**
+	 * Send one written-round notice to each entitled member (fail-soft per member).
+	 *
+	 * @param array<mixed>          $uids   The members' Nextcloud user ids.
+	 * @param array<string, string> $notice The notice: `title`, `message`, `deepLink`.
+	 *
+	 * @return int How many members were notified.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
+	 */
+	private function dispatchToElectorate(array $uids, array $notice): int {
+		$prefService = $this->preferenceService();
+		if ($prefService === null) {
+			return 0;
+		}
+
+		$notified = 0;
+		foreach (self::validUids(uids: $uids) as $uid) {
+			try {
+				$prefService->dispatch(
+					personId: $uid,
+					eventType: 'votingOpened',
+					title: $notice['title'],
+					message: $notice['message'],
+					deepLink: $notice['deepLink']
+				);
+				$notified++;
+			} catch (\Throwable $e) {
+				$this->logger->warning('Decidiq: written round notification to a member failed', ['uid' => $uid, 'error' => $e->getMessage()]);
+			}
+		}
+
+		return $notified;
+	}//end dispatchToElectorate()
+
+	/**
+	 * The notification preference service, or null when it cannot be resolved.
+	 *
+	 * @return NotificationPreferenceService|null
+	 */
+	private function preferenceService(): ?NotificationPreferenceService {
+		try {
+			$prefService = $this->container->get(NotificationPreferenceService::class);
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: written round notification dispatch failed', ['error' => $e->getMessage()]);
+			return null;
+		}
+
+		if ($prefService instanceof NotificationPreferenceService === false) {
+			return null;
+		}
+
+		return $prefService;
+	}//end preferenceService()
+
+	/**
+	 * The distinct non-empty string user ids.
+	 *
+	 * @param array<mixed> $uids The user ids.
+	 *
+	 * @return list<string>
+	 */
+	private static function validUids(array $uids): array {
+		$valid = [];
+		foreach (array_unique($uids) as $uid) {
+			if (is_string($uid) === true && $uid !== '') {
+				$valid[] = $uid;
+			}
+		}
+
+		return $valid;
+	}//end validUids()
+
+	/**
 	 * Activity feed (fail-soft): a voting round opened.
 	 *
 	 * @param array<string,mixed> $round The persisted voting round

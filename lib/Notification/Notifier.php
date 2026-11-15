@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Notification;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
@@ -118,7 +118,7 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getID(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getID()
 
 	/**
@@ -129,7 +129,7 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function getName(): string {
-		return $this->l10nFactory->get(Application::APP_ID)->t('Decidiq');
+		return $this->l10nFactory->get(AppIdentity::APP_ID)->t('Decidiq');
 	}//end getName()
 
 	/**
@@ -145,14 +145,14 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
-		if ($notification->getApp() !== Application::APP_ID) {
+		if ($notification->getApp() !== AppIdentity::APP_ID) {
 			throw new UnknownNotificationException();
 		}
 
-		$l10n = $this->l10nFactory->get(Application::APP_ID, $languageCode);
+		$l10n = $this->l10nFactory->get(AppIdentity::APP_ID, $languageCode);
 		$subject = $notification->getSubject();
 		$params = $notification->getSubjectParameters();
-		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')));
+		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(AppIdentity::APP_ID, 'app-dark.svg')));
 
 		// Subjects with a shape of their own: a free message, and the export notices.
 		if ($subject === 'decidiq_message') {
@@ -279,6 +279,6 @@ class Notifier implements INotifier {
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
 	 */
 	private function appLink(string $path): string {
-		return rtrim($this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page'), '/') . '/' . $path;
+		return rtrim($this->urlGenerator->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page'), '/') . '/' . $path;
 	}//end appLink()
 }//end class

@@ -9,7 +9,7 @@
  that is not a shared body. Rows are computed in
  src/utils/bodyParticipations.js.
 
- @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<div class="body-participations" data-testid="body-participations-tab">
@@ -155,6 +155,8 @@ import {
 	endParticipationPayload,
 	isActiveParticipation,
 	isSharedBody,
+	PARTICIPATION_SCHEMA,
+	participationQuery,
 	participationRows,
 } from '../../utils/bodyParticipations.js'
 import { ensureRelationType } from './useRelationStore.js'
@@ -183,12 +185,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
+		/** @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
 		bodiesById() {
 			return Object.fromEntries(this.bodies.map((body) => [body.id, body]))
 		},
 
-		/** @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
+		/** @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
 		rows() {
 			return participationRows(
 				this.participations,
@@ -203,14 +205,14 @@ export default {
 		 * factions; when adding, not the organisations already taking part.
 		 *
 		 * @return {Array<{id: string, label: string}>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		dialogOptions() {
 			const self = String(this.objectId)
 			const taken = new Set(
 				this.participations
 					.filter((p) => isActiveParticipation(p))
-					.map((p) => p.participant),
+					.map((p) => p.component),
 			)
 			return this.bodies
 				.filter(
@@ -219,7 +221,7 @@ export default {
 				)
 				.filter(
 					(body) =>
-						this.editing?.participant === body.id || !taken.has(body.id),
+						this.editing?.component === body.id || !taken.has(body.id),
 				)
 				.map((body) => ({
 					id: body.id,
@@ -232,7 +234,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
+			/** @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body */
 			handler() {
 				this.refresh()
 			},
@@ -245,7 +247,7 @@ export default {
 		 * that can take part.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		async refresh() {
 			if (!this.objectId) return
@@ -258,9 +260,9 @@ export default {
 				this.shared = isSharedBody(body)
 				if (!this.shared) return
 				const [participations, memberships, bodies] = await Promise.all([
-					ensureRelationType('body-participation').fetchCollection(
-						'body-participation',
-						{ sharedBody: bodyId, _limit: 200 },
+					ensureRelationType(PARTICIPATION_SCHEMA).fetchCollection(
+						PARTICIPATION_SCHEMA,
+						participationQuery(bodyId),
 					),
 					ensureRelationType('membership').fetchCollection('membership', {
 						governanceBody: bodyId,
@@ -282,7 +284,7 @@ export default {
 		 * Open the dialog to add (null) or edit a participation.
 		 *
 		 * @param {object|null} participation The participation to edit.
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		openDialog(participation) {
 			this.editing = participation
@@ -294,14 +296,14 @@ export default {
 		 *
 		 * @param {object} participation The participation to end.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		async end(participation) {
 			this.busy = true
 			this.error = ''
 			try {
-				await ensureRelationType('body-participation').saveObject(
-					'body-participation',
+				await ensureRelationType(PARTICIPATION_SCHEMA).saveObject(
+					PARTICIPATION_SCHEMA,
 					endParticipationPayload(participation, new Date()),
 				)
 				await this.refresh()
@@ -317,7 +319,7 @@ export default {
 		 *
 		 * @param {string} value An ISO date-time.
 		 * @return {string} The formatted date, or ''.
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		formatDate(value) {
 			if (!value) return ''

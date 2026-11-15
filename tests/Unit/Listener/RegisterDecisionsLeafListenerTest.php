@@ -35,7 +35,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
+use OCA\Decidiq\Listener\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;

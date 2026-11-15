@@ -34,6 +34,7 @@ use DateTimeInterface;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\CompetenceRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MemberCompetenceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserSession;
 
@@ -42,7 +43,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
  */
-class MemberCompetenceService {
+class MemberCompetenceService implements MemberCompetenceServiceInterface {
 	/**
 	 * The levels a member competence takes (the schema's enum).
 	 */

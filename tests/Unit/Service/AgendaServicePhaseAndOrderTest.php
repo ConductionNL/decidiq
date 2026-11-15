@@ -32,7 +32,6 @@ use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -79,7 +78,6 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$this->logger  = $this->createMock(LoggerInterface::class);
 		$this->service = new AgendaService(
 			objectService: $this->objects,
-			calendarEventService: $this->createMock(CalendarEventService::class),
 			notices: new AgendaNotices(preferences: $this->createMock(NotificationPreferenceService::class), l10nFactory: $this->createMock(IFactory::class), logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->createMock(ParticipantResolver::class),

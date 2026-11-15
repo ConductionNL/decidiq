@@ -7,7 +7,7 @@
  channel so detail pages (CnDetailPage) can drive a single host-rendered
  CnObjectSidebar through the #sidebar slot.
 
- @spec openspec/changes/decidesk-manifest-v1/tasks.md#task-7.2
+ @spec openspec/changes/archive/2026-05-11-decidesk-manifest-v1/tasks.md#task-7.2
 -->
 <template>
 	<CnAppRoot

@@ -28,7 +28,6 @@ use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -56,13 +55,6 @@ class AgendaServiceTest extends TestCase {
 	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectServiceInterface&MockObject $objectService;
-
-	/**
-	 * Mock CalendarEventService.
-	 *
-	 * @var CalendarEventService&MockObject
-	 */
-	private CalendarEventService&MockObject $calendarEventService;
 
 	/**
 	 * Mock NotificationPreferenceService: the one place a member's delivery
@@ -109,7 +101,6 @@ class AgendaServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->calendarEventService = $this->createMock(CalendarEventService::class);
 		$this->preferences = $this->createMock(NotificationPreferenceService::class);
 		$this->dispatched = [];
 		$l10n = $this->createMock(IL10N::class);
@@ -123,7 +114,6 @@ class AgendaServiceTest extends TestCase {
 
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
-			calendarEventService: $this->calendarEventService,
 			notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
@@ -265,7 +255,6 @@ class AgendaServiceTest extends TestCase {
 
 			$freshService = new AgendaService(
 				objectService: $objectService,
-				calendarEventService: $this->calendarEventService,
 				notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,

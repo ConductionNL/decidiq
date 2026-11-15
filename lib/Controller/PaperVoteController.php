@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\PaperVoteRecorder;
-use OCA\Decidiq\Service\VotingRoundGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\PaperVoteRecorderInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,19 +46,19 @@ class PaperVoteController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request object
-	 * @param PaperVoteRecorder $recorder Records the ballots
+	 * @param PaperVoteRecorderInterface $recorder Records the ballots
 	 * @param IUserSession $userSession The user session
-	 * @param VotingRoundGuard $guard Per-meeting authorisation guard
+	 * @param VotingRoundGuardInterface $guard Per-meeting authorisation guard
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PaperVoteRecorder $recorder,
+		private readonly PaperVoteRecorderInterface $recorder,
 		private readonly IUserSession $userSession,
-		private readonly VotingRoundGuard $guard,
+		private readonly VotingRoundGuardInterface $guard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

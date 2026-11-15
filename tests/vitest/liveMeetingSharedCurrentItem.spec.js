@@ -160,7 +160,13 @@ describe('a decision is recorded when it is taken (REQ-LSC-003)', () => {
 describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 	it('a speech and a question carry the current item', () => {
 		expect(
-			engagementBody(MEETING, 'P-anna', 'speech', ITEM5, { duration: 90 }),
+			engagementBody({
+				meetingId: MEETING,
+				participant: 'P-anna',
+				eventType: 'speech',
+				itemId: ITEM5,
+				extra: { duration: 90 },
+			}),
 		).toEqual({
 			meeting: MEETING,
 			participant: 'P-anna',
@@ -168,7 +174,12 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 			eventData: { duration: 90, agendaItem: ITEM5 },
 		})
 		expect(
-			engagementBody(MEETING, 'P-pieter', 'question', ITEM5).eventData,
+			engagementBody({
+				meetingId: MEETING,
+				participant: 'P-pieter',
+				eventType: 'question',
+				itemId: ITEM5,
+			}).eventData,
 		).toEqual({ agendaItem: ITEM5 })
 	})
 

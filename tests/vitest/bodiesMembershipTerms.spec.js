@@ -86,7 +86,10 @@ describe('a membership records from when to when (REQ-BMT-001)', () => {
 	it('the add dialog asks for the start date and the members widget has a Past members switch', () => {
 		const dialog = read('src/modals/MemberAddDialog.vue')
 		expect(dialog).toMatch(/data-testid="member-add-start"/)
-		expect(dialog).toMatch(/startDate: startOfDay\(/)
+		// The start date is still stored as the start of the picked day, now
+		// through the term (bodies-term-of-office-and-step-down).
+		expect(dialog).toMatch(/startOfDay\(this\.startDate\)/)
+		expect(dialog).toMatch(/startDate: term\.startDate/)
 		const tab = read('src/components/tabs/GovernanceBodyMembersTab.vue')
 		expect(tab).toMatch(/data-testid="body-members-past"/)
 		expect(tab).toMatch(/memberRowsFor\(/)
@@ -179,6 +182,22 @@ describe('members belong to a faction with its own workspace (REQ-BMT-003)', () 
 		)
 		expect(read('src/components/tabs/GovernanceBodyMembersTab.vue')).toMatch(
 			/faction: this\.objectId/,
+		)
+	})
+})
+
+describe('startOfDay edges, pinned before the parse was split', () => {
+	it('answers empty for nothing picked or an incomplete date', () => {
+		expect(startOfDay('')).toBe('')
+		expect(startOfDay(null)).toBe('')
+		expect(startOfDay('2026-03')).toBe('')
+		expect(startOfDay('2026-00-04')).toBe('')
+	})
+
+	it('reads a picked day as local midnight, from a string or a Date', () => {
+		expect(startOfDay('2026-03-01')).toBe(new Date(2026, 2, 1).toISOString())
+		expect(startOfDay(new Date(2026, 2, 1, 15, 30))).toBe(
+			new Date(2026, 2, 1).toISOString(),
 		)
 	})
 })

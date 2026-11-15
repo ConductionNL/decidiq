@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Ki szavazhat",
+        "All members of the body": "A testület összes tagja",
+        "Left out because they are no longer active members: {names}": "Kimaradtak, mert már nem aktív tagok: {names}",
         "sign-off route": "jóváhagyási útvonal",
         "#": "#",
         "+ Action item": "+ Teendő",
@@ -3351,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Rendkívüli ülés",
         "Committee meeting": "Bizottsági ülés",
         "Public hearing": "Közmeghallgatás",
-        "General assembly": "Közgyűlés"
+        "General assembly": "Közgyűlés",
+        "Members' ancillary positions": "A tagok mellékfoglalkozásai"
     },
     "nplurals=2; plural=(n != 1);"
 )
