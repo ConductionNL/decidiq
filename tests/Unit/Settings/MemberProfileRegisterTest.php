@@ -140,7 +140,7 @@ class MemberProfileRegisterTest extends TestCase {
 		$memberships = $this->seeds(profile: 'municipality', schema: 'membership');
 		$college = ($memberships['m-femke-college-amsterdam'] ?? []);
 		self::assertSame('college-van-b-en-w-amsterdam', ($college['governanceBody'] ?? null));
-		self::assertSame('femke-halsema', ($college['person'] ?? null));
+		self::assertSame('wieteke-doornbos', ($college['person'] ?? null));
 		self::assertSame(['Public order and safety', 'Communication'], ($college['portfolio'] ?? null));
 		self::assertArrayNotHasKey('portfolio', $memberships['m-femke-amsterdam']);
 		self::assertArrayNotHasKey('portfolio', $memberships['m-marie-amsterdam']);

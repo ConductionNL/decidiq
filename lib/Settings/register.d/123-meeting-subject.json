@@ -1,0 +1,37 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, refactor C12 (ADR-118, decision 191). A meeting can belong to an object in a consuming app, the way a Decision already can: a dossiq case session (a hearing with parties and minutes) opens as a decidiq meeting and points back at its session record. The three fields carry the same titles and descriptions as Decision's subject fields, so a reader meets one vocabulary.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.12.0",
+        "properties": {
+          "subjectRegister": {
+            "title": "Subject register",
+            "type": "string",
+            "nullable": true,
+            "description": "OpenRegister register of the originating object in the consuming app (provenance).",
+            "x-notes": "For a dossiq case session: dossiq's register. Empty for a meeting decidiq planned itself."
+          },
+          "subjectSchema": {
+            "title": "Subject schema",
+            "type": "string",
+            "nullable": true,
+            "description": "OpenRegister schema of the originating object (provenance).",
+            "x-notes": "For a dossiq case session: the session schema (hearingSession)."
+          },
+          "subjectId": {
+            "title": "Subject",
+            "type": "string",
+            "nullable": true,
+            "description": "UUID of the originating object in the consuming app (the back-reference).",
+            "x-notes": "For a dossiq case session: the session record's uuid. The consuming app reads its own record for case, parties and minutes; decidiq stores no copy."
+          }
+        }
+      }
+    }
+  }
+}

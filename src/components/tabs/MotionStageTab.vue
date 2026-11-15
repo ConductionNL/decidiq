@@ -49,14 +49,14 @@ import {
 	transitionPath,
 	transitionsPath,
 } from '../../utils/motionStages.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'MotionStageTab',
 	components: { NcButton },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -64,16 +64,6 @@ export default {
 			busy: false,
 			error: '',
 		}
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page */
-			handler() {
-				this.load()
-			},
-		},
 	},
 
 	methods: {

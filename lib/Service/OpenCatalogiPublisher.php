@@ -27,6 +27,9 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -90,8 +93,7 @@ class OpenCatalogiPublisher {
 					'register' => 'decidiq',
 					'schema' => 'publication-payload',
 				],
-				register: 'opencatalogi',
-				schema: 'publication',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
 			);
 
 			return $this->referenceOf(publication: $publication);
@@ -162,9 +164,10 @@ class OpenCatalogiPublisher {
 
 		try {
 			$service->deleteObject(
-				uuid: $catalogPublication,
-				register: 'opencatalogi',
-				schema: 'publication',
+				new ObjectDeletion(
+					uuid: $catalogPublication,
+					target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication')
+				)
 			);
 			return true;
 		} catch (\Throwable $e) {

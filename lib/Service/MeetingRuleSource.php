@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Throwable;
 
 /**
@@ -65,7 +66,7 @@ final class MeetingRuleSource {
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function quorumMet(string $meetingId): bool {
-		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($entity === null) {
 			return false;
 		}
@@ -149,7 +150,10 @@ final class MeetingRuleSource {
 	 */
 	public function meetingTypeThreshold(string $meetingId): ?string {
 		try {
-			$meeting = (array)$this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting')?->jsonSerialize();
+			$meeting = (array)$this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting')
+			)?->jsonSerialize();
 			$typeId = ($meeting['type'] ?? null);
 			if (is_array($typeId) === true) {
 				$typeId = ($typeId['id'] ?? null);
@@ -159,7 +163,10 @@ final class MeetingRuleSource {
 				return null;
 			}
 
-			$type = (array)$this->objectService->find(id: $typeId, register: 'decidiq', schema: 'meeting-type')?->jsonSerialize();
+			$type = (array)$this->objectService->find(
+				id: $typeId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting-type')
+			)?->jsonSerialize();
 		} catch (Throwable) {
 			return null;
 		}
@@ -188,7 +195,7 @@ final class MeetingRuleSource {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+			$entity = $this->objectService->find(id: $bodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 		} catch (Throwable) {
 			return null;
 		}

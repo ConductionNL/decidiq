@@ -140,7 +140,7 @@ class PublicationPayloadServiceTest extends TestCase {
 			'title' => 'Notulen',
 			'content' => 'Inhoud',
 			'attendees' => [
-				['displayName' => 'Femke', 'role' => 'chair', 'nextcloudUserId' => 'f.halsema'],
+				['displayName' => 'Wieteke', 'role' => 'chair', 'nextcloudUserId' => 'w.doornbos'],
 				['displayName' => 'Jan', 'role' => 'member'],
 			],
 		];
@@ -153,7 +153,7 @@ class PublicationPayloadServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('roleHolders', $payload['attendance']);
 
 		$encoded = json_encode($payload);
-		$this->assertStringNotContainsString('f.halsema', $encoded);
+		$this->assertStringNotContainsString('w.doornbos', $encoded);
 
 	}//end testMinutesAttendanceCountsPolicy()
 
@@ -169,7 +169,7 @@ class PublicationPayloadServiceTest extends TestCase {
 			'title' => 'Notulen',
 			'content' => 'Inhoud',
 			'attendees' => [
-				['displayName' => 'Femke', 'role' => 'chair', 'nextcloudUserId' => 'f.halsema'],
+				['displayName' => 'Wieteke', 'role' => 'chair', 'nextcloudUserId' => 'w.doornbos'],
 				['displayName' => 'Roos', 'role' => 'secretary'],
 				['displayName' => 'Jan', 'role' => 'member'],
 			],
@@ -178,12 +178,12 @@ class PublicationPayloadServiceTest extends TestCase {
 		$payload = $service->build('minutes', $source, 'body-1', 1);
 
 		$this->assertSame('role-holders', $payload['attendance']['policy']);
-		$this->assertContains('Femke', $payload['attendance']['roleHolders']);
+		$this->assertContains('Wieteke', $payload['attendance']['roleHolders']);
 		$this->assertContains('Roos', $payload['attendance']['roleHolders']);
 		$this->assertNotContains('Jan', $payload['attendance']['roleHolders']);
 
 		$encoded = json_encode($payload);
-		$this->assertStringNotContainsString('f.halsema', $encoded);
+		$this->assertStringNotContainsString('w.doornbos', $encoded);
 
 	}//end testMinutesAttendanceRoleHoldersPolicy()
 

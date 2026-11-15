@@ -42,10 +42,12 @@ use OCA\Decidiq\Listener\FlowDecisionConcludedListener;
 use OCA\Decidiq\Service\FlowDecisionService;
 use OCA\OpenRegister\Db\FlowRun;
 use OCA\OpenRegister\Db\FlowRunMapper;
+use OCA\OpenRegister\Service\Flow\FlowNodeCall;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
 use OCA\OpenRegister\Service\Flow\FlowRunSignalService;
+use OCA\OpenRegister\Service\Flow\RunSignal;
 use OCA\OpenRegister\Service\Flow\FlowSuspension;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
@@ -125,7 +127,7 @@ class RequestDecisionHeartbeatRecoveryTest extends TestCase {
 		$items = [['json' => ['id' => 'lead-1', 'title' => 'Dakkapel', '@self' => ['id' => 'lead-1', 'register' => 'pipelinq', 'schema' => 'lead']]]];
 
 		try {
-			return $this->node->execute($items, $config, $context);
+			return $this->node->execute(new FlowNodeCall(items: $items, config: $config, context: $context));
 		} catch (FlowSuspension $e) {
 			return null;
 		} finally {
@@ -250,11 +252,11 @@ class RequestDecisionHeartbeatRecoveryTest extends TestCase {
 
 		$delivered = null;
 		$signals = $this->createMock(FlowRunSignalService::class);
-		$signals->expects(self::once())->method('signalRunAs')->willReturnCallback(
-			function (FlowRun $signalled, array $payload, ?string $actorUid, ?string $nodeId) use (&$delivered, $run): FlowRun {
+		$signals->expects(self::once())->method('answer')->willReturnCallback(
+			function (FlowRun $signalled, RunSignal $signal) use (&$delivered, $run): FlowRun {
 				self::assertSame($run, $signalled);
-				self::assertSame('decide', $nodeId, 'The wake is addressed to the node that asked.');
-				$delivered = $payload;
+				self::assertSame('decide', $signal->nodeId, 'The wake is addressed to the node that asked.');
+				$delivered = $signal->payload;
 
 				return $signalled;
 			}

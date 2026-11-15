@@ -90,11 +90,17 @@ describe('groupSessions', () => {
 
 describe('sessionLabel', () => {
 	it('names the time, the session and its room', () => {
-		expect(sessionLabel(sessions[1], 'en-GB', 'Europe/Amsterdam')).toBe(
-			'19:30 Commissie Bestuur (Commissiekamer 1)',
-		)
 		expect(
-			sessionLabel({ title: 'Commissie X' }, 'en-GB', 'Europe/Amsterdam'),
+			sessionLabel(sessions[1], {
+				locale: 'en-GB',
+				timeZone: 'Europe/Amsterdam',
+			}),
+		).toBe('19:30 Commissie Bestuur (Commissiekamer 1)')
+		expect(
+			sessionLabel(
+				{ title: 'Commissie X' },
+				{ locale: 'en-GB', timeZone: 'Europe/Amsterdam' },
+			),
 		).toBe('Commissie X')
 	})
 })

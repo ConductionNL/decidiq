@@ -83,7 +83,9 @@ class BordaCount {
 			}
 		}
 
-		return $this->result(labels: $labels, points: $points, counted: $counted);
+		$ranking = $this->rankRows(labels: $labels, points: $points);
+
+		return $this->outcomeOf(ranking: $ranking, counted: $counted);
 	}//end count()
 
 	/**
@@ -118,23 +120,16 @@ class BordaCount {
 	}//end isFullRanking()
 
 	/**
-	 * Rank the options by points and decide the result.
+	 * The options in ranking order: most points first, and equal points in the
+	 * order the options were declared in.
 	 *
-	 * @param array<string, string> $labels The label per option key.
-	 * @param array<string, int> $points The points per option key.
-	 * @param int $counted How many ballots were counted.
+	 * @param array<string, int> $points The points per option key, in declared order.
 	 *
-	 * @return array{
-	 *     rankingResult: array<int, array{key: string, label: string, points: int, rank: int}>,
-	 *     winningOption: string,
-	 *     tiedOptions: array<int, string>,
-	 *     result: string,
-	 *     counted: int
-	 * } The outcome.
+	 * @return array<int, string> The option keys in ranking order.
 	 *
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
-	private function result(array $labels, array $points, int $counted): array {
+	private function orderByPoints(array $points): array {
 		// Stable: equal points keep the order the options were declared in.
 		$declared = array_flip(array_keys($points));
 		$order = array_keys($points);
@@ -150,10 +145,24 @@ class BordaCount {
 			}
 		);
 
+		return $order;
+	}//end orderByPoints()
+
+	/**
+	 * The ranking rows; options on equal points share the rank of the first of them.
+	 *
+	 * @param array<string, string> $labels The label per option key.
+	 * @param array<string, int>    $points The points per option key.
+	 *
+	 * @return array<int, array{key: string, label: string, points: int, rank: int}> The rows, first rank first.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 */
+	private function rankRows(array $labels, array $points): array {
 		$ranking = [];
 		$rank = 0;
 		$previous = null;
-		foreach ($order as $position => $key) {
+		foreach ($this->orderByPoints(points: $points) as $position => $key) {
 			if ($points[$key] !== $previous) {
 				$rank = ($position + 1);
 				$previous = $points[$key];
@@ -162,6 +171,27 @@ class BordaCount {
 			$ranking[] = ['key' => $key, 'label' => $labels[$key], 'points' => $points[$key], 'rank' => $rank];
 		}
 
+		return $ranking;
+	}//end rankRows()
+
+	/**
+	 * Decide the result from the ranking: invalid without ballots, tied when
+	 * more than one option ranks first, adopted otherwise.
+	 *
+	 * @param array<int, array{key: string, label: string, points: int, rank: int}> $ranking The ranking rows.
+	 * @param int                                                                    $counted How many ballots were counted.
+	 *
+	 * @return array{
+	 *     rankingResult: array<int, array{key: string, label: string, points: int, rank: int}>,
+	 *     winningOption: string,
+	 *     tiedOptions: array<int, string>,
+	 *     result: string,
+	 *     counted: int
+	 * } The outcome.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 */
+	private function outcomeOf(array $ranking, int $counted): array {
 		$outcome = ['rankingResult' => $ranking, 'winningOption' => '', 'tiedOptions' => [], 'result' => 'invalid', 'counted' => $counted];
 		if ($counted === 0 || $ranking === []) {
 			return $outcome;
@@ -178,5 +208,5 @@ class BordaCount {
 		$outcome['result'] = 'adopted';
 
 		return $outcome;
-	}//end result()
+	}//end outcomeOf()
 }//end class

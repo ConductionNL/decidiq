@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -27,8 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -40,7 +40,7 @@ use OCP\IUserSession;
 /**
  * REST controller for the eIDAS QES adapter.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
  */
 class EIDASSignatureController extends Controller {
 	use GovernanceControllerTrait;
@@ -51,15 +51,15 @@ class EIDASSignatureController extends Controller {
 	 * @param IRequest $request HTTP request
 	 * @param IEIDASSignatureService $signatureService eIDAS adapter
 	 * @param IUserSession $userSession User session
-	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected signatory scope (R-4)
+	 * @param GovernanceScopeGuardInterface $scopeGuard Consumes the OR-projected signatory scope (R-4)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IEIDASSignatureService $signatureService,
 		private readonly IUserSession $userSession,
-		private readonly GovernanceScopeGuard $scopeGuard,
+		private readonly GovernanceScopeGuardInterface $scopeGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -69,7 +69,7 @@ class EIDASSignatureController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
 	 *
 	 * @return JSONResponse
 	 */
@@ -130,7 +130,7 @@ class EIDASSignatureController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
 	 *
 	 * @return JSONResponse
@@ -190,7 +190,7 @@ class EIDASSignatureController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 *
 	 * @return JSONResponse
@@ -254,7 +254,7 @@ class EIDASSignatureController extends Controller {
 	 *   certificate SHA-256 thumbprint and the response is sourced entirely from the public EU
 	 *   Trusted List, so no Decidiq object is reachable and nothing app-owned is disclosed.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
 	 *
 	 * @return JSONResponse

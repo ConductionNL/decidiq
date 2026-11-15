@@ -15,7 +15,35 @@
 // its return value, so the async gap is ours to guard: a host may unmount the
 // element, or mount it again, before the chunk has arrived.
 
-import { translate as t } from '@nextcloud/l10n'
+import { getLanguage, translate as t } from '@nextcloud/l10n'
+import { generateFilePath } from '@nextcloud/router'
+
+/**
+ * Load an app's translations the way Nextcloud ships them: the `l10n/<lang>.js`
+ * script, which registers them through `OC.L10N.register`. The JSON bundle
+ * `loadTranslations()` fetches is not served from an app folder by the
+ * standard web server rules (a 404 on :8080), so the leaf stayed English.
+ *
+ * @param {string} appId The app whose translations to load.
+ * @param {Document} [doc] The document to add the script to (tests).
+ * @return {Promise<void>} Settles once the script ran, or at once when there is nothing to load.
+ */
+export function loadTranslationScript(appId, doc = globalThis.document) {
+	const language = getLanguage()
+	const registry = globalThis._oc_l10n_registry_translations
+	if (language === 'en' || (registry && appId in registry) || !doc) {
+		return Promise.resolve()
+	}
+	return new Promise((resolve, reject) => {
+		const script = doc.createElement('script')
+		script.src = generateFilePath(appId, 'l10n', `${language}.js`)
+		script.async = true
+		script.onload = () => resolve()
+		script.onerror = () =>
+			reject(new Error(`${appId} translations did not load`))
+		doc.head.appendChild(script)
+	})
+}
 
 /**
  * Build the mount hand-off pair (renderMode 'mount', ADR-066 /
@@ -27,11 +55,15 @@ import { translate as t } from '@nextcloud/l10n'
  * @param {string} leafName Name used in console messages.
  * @param {function(): Promise<{createApp: function(object, object): object}>} [loadVue] Resolves the
  *     Vue module. Injectable for tests; defaults to a dynamic `import('vue')`.
+ * @param {function(): Promise<unknown>} [loadL10n] Loads decidiq's translations. A host page
+ *     (a dossiq case) loads only its own, so without it the leaf reads in English.
+ *     Injectable for tests; a failed load mounts the leaf in English.
  * @return {{mount: function(Element, object): (Promise<void>|undefined), unmount: function(Element): void}} The pair to put on the
  *     descriptor.
  */
-export function createLazyMountPair(loadComponent, leafName, loadVue) {
+export function createLazyMountPair(loadComponent, leafName, loadVue, loadL10n) {
 	const vueLoader = loadVue || (() => import('vue'))
+	const l10nLoader = loadL10n || (() => loadTranslationScript('decidiq'))
 
 	/**
 	 * Per-element state, keyed by the host-owned DOM element (NOT by leaf id),
@@ -60,7 +92,14 @@ export function createLazyMountPair(loadComponent, leafName, loadVue) {
 		const entry = { app: null }
 		mounted.set(el, entry)
 
-		return Promise.all([vueLoader(), loadComponent(props && props.surface)])
+		const translations = Promise.resolve()
+			.then(l10nLoader)
+			.catch(() => null)
+		return Promise.all([
+			vueLoader(),
+			loadComponent(props && props.surface),
+			translations,
+		])
 			.then(([vue, component]) => {
 				// Unmounted (or unmounted and mounted again) while loading.
 				if (mounted.get(el) !== entry) {

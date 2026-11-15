@@ -762,7 +762,7 @@
 						"meetingType": "public hearing",
 						"scheduledDate": "2025-06-18T13:00:00Z",
 						"endDate": "2025-06-18T17:00:00Z",
-						"location": "World Forum Den Haag",
+						"location": "Congrescentrum",
 						"meetingMode": "in-person",
 						"lifecycle": "scheduled",
 						"quorumRequired": 50
@@ -794,7 +794,7 @@
 						"slug": "ans-rutten",
 						"displayName": "Ans Rutten",
 						"role": "observer",
-						"email": "a.rutten@vng.nl",
+						"email": "a.rutten@vereniging.example",
 						"joinedAt": "2024-01-10T00:00:00Z",
 						"votingWeight": 0
 					},
@@ -807,7 +807,7 @@
 						"slug": "jan-de-vries",
 						"displayName": "Jan de Vries",
 						"role": "secretary",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"joinedAt": "2021-01-15T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -821,7 +821,7 @@
 						"displayName": "Marie Janssen",
 						"role": "member",
 						"party": "D66",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"joinedAt": "2022-03-16T00:00:00Z",
 						"votingWeight": 1
 					}
@@ -838,7 +838,7 @@
 						"givenName": "Jan",
 						"familyName": "de Vries",
 						"gender": "male",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"biography": "Secretaris / griffier."
 					},
 					{
@@ -852,7 +852,7 @@
 						"givenName": "Marie",
 						"familyName": "Janssen",
 						"gender": "female",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"biography": "Raadslid en lid van de VNG-ledenraad."
 					}
 				],

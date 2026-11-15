@@ -1,0 +1,771 @@
+{
+    "decision_recorded with link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was recorded",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was recorded",
+            []
+        ],
+        [
+            "url",
+            "/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was recorded"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was recorded",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-1",
+                    "name": "Begroting",
+                    "link": "https://cloud.example/apps/decidiq/#/decisions/u-1"
+                }
+            }
+        ],
+        [
+            "setLink",
+            "https://cloud.example/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "decision_recorded without link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was recorded",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was recorded",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was recorded"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was recorded",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-2",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "decision_recorded bare": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was recorded",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was recorded",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was recorded"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was recorded",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "decision_published with link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was published",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was published",
+            []
+        ],
+        [
+            "url",
+            "/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was published"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was published",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-1",
+                    "name": "Begroting",
+                    "link": "https://cloud.example/apps/decidiq/#/decisions/u-1"
+                }
+            }
+        ],
+        [
+            "setLink",
+            "https://cloud.example/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "decision_published without link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was published",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was published",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was published"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was published",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-2",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "decision_published bare": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Decision \"%1$s\" was published",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Decision {object} was published",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Decision \"Begroting\" was published"
+        ],
+        [
+            "setRichSubject",
+            "Decision {object} was published",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "meeting_transition with link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Meeting \"%1$s\" moved to \"%2$s\"",
+            [
+                "Begroting",
+                "opened"
+            ]
+        ],
+        [
+            "t",
+            "Meeting {object} moved to \"%1$s\"",
+            [
+                "opened"
+            ]
+        ],
+        [
+            "url",
+            "/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "setParsedSubject",
+            "Meeting \"Begroting\" moved to \"opened\""
+        ],
+        [
+            "setRichSubject",
+            "Meeting {object} moved to \"opened\"",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-1",
+                    "name": "Begroting",
+                    "link": "https://cloud.example/apps/decidiq/#/decisions/u-1"
+                }
+            }
+        ],
+        [
+            "setLink",
+            "https://cloud.example/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "meeting_transition without link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Meeting \"%1$s\" moved to \"%2$s\"",
+            [
+                "Begroting",
+                "opened"
+            ]
+        ],
+        [
+            "t",
+            "Meeting {object} moved to \"%1$s\"",
+            [
+                "opened"
+            ]
+        ],
+        [
+            "setParsedSubject",
+            "Meeting \"Begroting\" moved to \"opened\""
+        ],
+        [
+            "setRichSubject",
+            "Meeting {object} moved to \"opened\"",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-2",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "meeting_transition bare": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Meeting \"%1$s\" moved to \"%2$s\"",
+            [
+                "Begroting",
+                "opened"
+            ]
+        ],
+        [
+            "t",
+            "Meeting {object} moved to \"%1$s\"",
+            [
+                "opened"
+            ]
+        ],
+        [
+            "setParsedSubject",
+            "Meeting \"Begroting\" moved to \"opened\""
+        ],
+        [
+            "setRichSubject",
+            "Meeting {object} moved to \"opened\"",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "vote_initiated with link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Voting opened on \"%1$s\"",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Voting opened on {object}",
+            []
+        ],
+        [
+            "url",
+            "/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "setParsedSubject",
+            "Voting opened on \"Begroting\""
+        ],
+        [
+            "setRichSubject",
+            "Voting opened on {object}",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-1",
+                    "name": "Begroting",
+                    "link": "https://cloud.example/apps/decidiq/#/decisions/u-1"
+                }
+            }
+        ],
+        [
+            "setLink",
+            "https://cloud.example/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "vote_initiated without link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Voting opened on \"%1$s\"",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Voting opened on {object}",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Voting opened on \"Begroting\""
+        ],
+        [
+            "setRichSubject",
+            "Voting opened on {object}",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-2",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "vote_initiated bare": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Voting opened on \"%1$s\"",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Voting opened on {object}",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Voting opened on \"Begroting\""
+        ],
+        [
+            "setRichSubject",
+            "Voting opened on {object}",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "resolution_adopted with link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Resolution \"%1$s\" was adopted",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Resolution {object} was adopted",
+            []
+        ],
+        [
+            "url",
+            "/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "setParsedSubject",
+            "Resolution \"Begroting\" was adopted"
+        ],
+        [
+            "setRichSubject",
+            "Resolution {object} was adopted",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-1",
+                    "name": "Begroting",
+                    "link": "https://cloud.example/apps/decidiq/#/decisions/u-1"
+                }
+            }
+        ],
+        [
+            "setLink",
+            "https://cloud.example/apps/decidiq/#/decisions/u-1"
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "resolution_adopted without link": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Resolution \"%1$s\" was adopted",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Resolution {object} was adopted",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Resolution \"Begroting\" was adopted"
+        ],
+        [
+            "setRichSubject",
+            "Resolution {object} was adopted",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "u-2",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ],
+    "resolution_adopted bare": [
+        [
+            "factory",
+            "decidiq",
+            "nl"
+        ],
+        [
+            "t",
+            "Resolution \"%1$s\" was adopted",
+            [
+                "Begroting"
+            ]
+        ],
+        [
+            "t",
+            "Resolution {object} was adopted",
+            []
+        ],
+        [
+            "setParsedSubject",
+            "Resolution \"Begroting\" was adopted"
+        ],
+        [
+            "setRichSubject",
+            "Resolution {object} was adopted",
+            {
+                "object": {
+                    "type": "highlight",
+                    "id": "",
+                    "name": "Begroting",
+                    "link": ""
+                }
+            }
+        ],
+        [
+            "imagePath",
+            "decidiq",
+            "app-dark.svg"
+        ],
+        [
+            "url",
+            "/img/app-dark.svg"
+        ],
+        [
+            "setIcon",
+            "https://cloud.example/img/app-dark.svg"
+        ]
+    ]
+}

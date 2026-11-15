@@ -44,3 +44,13 @@
   - GIVEN the write path WHEN exercised without the scope THEN a test proves it refuses
 - [ ] Implement
 - [ ] Test
+
+### Task 5: The objection flow as configuration
+- **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route`
+- **files**: `lib/Settings/profiles/municipality.json` (the `bezwaar-decision` decision template with its approval route: intake step with admissibility verdict, hearing, advice, decision, sending; the seeded advisory committee as adviser; the term period), `lib/Settings/register.d/80-decision-as-a-walked-process.json` (a `termPeriod` on the decision template if no existing field carries it), `src/manifest.json` (`DecisionDetail` shows the route steps and the term through the existing route widget), `tests/Unit/Settings/RegisterDescriptorTest.php`, `tests/e2e/objection-route.spec.ts` (new)
+- **acceptance_criteria**:
+  - GIVEN the municipality profile WHEN imported THEN `bezwaar-decision` carries the five steps and a term period
+  - GIVEN an objection recorded against a decision WHEN its page opens THEN the steps, the current step and the term show as DcBezwaar draws them
+  - GIVEN `grep -rniE 'bezwaar|objection' lib/Service` WHEN run after this task THEN no new class or method is named after objections
+- [ ] Implement
+- [ ] Test

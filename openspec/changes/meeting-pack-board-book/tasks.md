@@ -19,8 +19,9 @@
   - GIVEN a clean register import WHEN schemas are listed THEN `MeetingPack` exists (`schema:DigitalDocument`; meeting relation, version, changeNote, generatedAt, generatedBy, fingerprint, filePath, pageCount, skipped) and `AgendaItem` has optional `confidentiality` enum public/internal/confidential defaulting to internal
   - GIVEN the `MeetingPack` schema WHEN inspected THEN it declares `x-openregister-notifications` (trigger `created`, channel `nc-notification`, recipients `object-acl` read, bilingual subject) matching the canonical dialect (gate-18) — no imperative dispatch anywhere
   - Schema refs use slugs, notification/lifecycle dialects validate (gates 28/30/51/52 pattern)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `lib/Settings/register.d/132-meeting-pack.json` (the register is split into fragments). `MeetingPack` 0.1.0 declares its own authorization: the secretariat and administrators write; `read`/`list` are for signed-in users, because the register baseline would also grant anonymous reads. Tested in `tests/Unit/Settings/MeetingPackRegisterTest.php`; `RegisterAuthorizationTest` classifies it with the other staff-written schemas.
 
 ### Task 3: Seed data for `MeetingPack` + confidential AgendaItem seed
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/design.md#seed-data`
@@ -28,8 +29,9 @@
 - **acceptance_criteria**:
   - GIVEN a clean install WHEN the register imports THEN the 4 `x-openregister-seeds` MeetingPack objects from design.md exist (vergaderbundel-raad-2025-01-15 v1+v2 with changeNote and a skipped entry, rvc-q1 v1, directieoverleg v1) linked to the existing Meeting seeds
   - GIVEN the AgendaItem seeds WHEN imported THEN `jaarrekening-2024` carries `confidentiality: confidential` and the others remain internal
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: the seeds live in the example sets, not the register: two council packs in `profiles/municipality.json` (with `jaarrekening-2024` confidential), the RvC and directie packs in `profiles/corporate.json`; both sets' `objectCount` updated.
 
 ### Task 4: `BoardBookService` — compose, delegate to Docudesk, fingerprint, versioning
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-001-one-click-compilation-of-a-complete-meeting-pack`

@@ -32,8 +32,14 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplatePolicyResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -45,7 +51,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplateService {
+class ProcessTemplateService implements ProcessTemplateServiceInterface {
 
 	/**
 	 * Recognised guard tokens a transition may declare. An unknown token is a
@@ -64,7 +70,7 @@ class ProcessTemplateService {
 	 * Constructor for ProcessTemplateService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
+	 * @param ProcessTemplatePolicyResolverInterface $resolver Pure template -> guard policy translator
 	 * @param ContainerInterface $container DI container (OpenRegister's LifecycleTransitionsValidator)
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
@@ -72,7 +78,7 @@ class ProcessTemplateService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ProcessTemplatePolicyResolver $resolver,
+		private readonly ProcessTemplatePolicyResolverInterface $resolver,
 		private readonly ContainerInterface $container,
 		private readonly ObjectServiceInterface $objectService,
 	) {
@@ -160,7 +166,7 @@ class ProcessTemplateService {
 	 * @return array<string, mixed>|null The template object, or null when not found
 	 */
 	public function get(string $templateId): ?array {
-		$entity = $this->objectService()->find(id: $templateId, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $templateId, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}
@@ -181,11 +187,15 @@ class ProcessTemplateService {
 	 */
 	public function create(array $template): array {
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end create()
 
@@ -215,12 +225,16 @@ class ProcessTemplateService {
 		}
 
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Preserve identity + the not-built-in invariant.
 		$template['id'] = $templateId;
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end update()
 
@@ -250,7 +264,10 @@ class ProcessTemplateService {
 		$copy['builtIn'] = false;
 		$copy['name'] = ($newName ?? (($source['name'] ?? 'Template') . ' (copy)'));
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $copy);
+		$saved = $this->objectService()->saveObject(
+			object: $copy,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end duplicate()
 
@@ -275,7 +292,9 @@ class ProcessTemplateService {
 			throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
 		}
 
-		$this->objectService()->deleteObject(uuid: $templateId, register: 'decidiq', schema: 'process-template');
+		$this->objectService()->deleteObject(
+			new ObjectDeletion(uuid: $templateId, target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 
 	}//end delete()
 
@@ -324,10 +343,12 @@ class ProcessTemplateService {
 
 		$errors = $this->listFromErrors(transitions: $transitions);
 		$found = $validator->validate(
-			states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
-			initial: $initialState,
-			transitions: $transitions,
-			knownGuards: self::KNOWN_GUARDS
+			graph: new LifecycleGraph(
+				states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
+				initial: $initialState,
+				transitions: $transitions,
+				knownGuards: self::KNOWN_GUARDS
+			)
 		);
 		foreach ($found as $error) {
 			$errors[] = $error['message'];
@@ -374,6 +395,90 @@ class ProcessTemplateService {
 		}
 
 	}//end assertValidStateMachine()
+
+	/**
+	 * Assert the template's urgency policy, when it has one, can be honoured.
+	 *
+	 * A template without `urgencyPolicy` is valid: it leaves the urgent
+	 * procedure unavailable to its bodies (resolveUrgencyPolicyForBody()).
+	 *
+	 * @param array<string, mixed> $template The template payload
+	 *
+	 * @throws InvalidArgumentException When the policy cannot be honoured (HTTP 400 at the controller)
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	private function assertValidUrgencyPolicy(array $template): void {
+		if (array_key_exists('urgencyPolicy', $template) === false || $template['urgencyPolicy'] === null) {
+			return;
+		}
+
+		$errors = $this->urgencyPolicyErrors(policy: $template['urgencyPolicy']);
+		if ($errors !== []) {
+			throw new InvalidArgumentException('Invalid urgency policy: ' . implode(' ', $errors));
+		}
+
+	}//end assertValidUrgencyPolicy()
+
+	/**
+	 * The faults of an urgency policy, its ratifying body looked up in the register.
+	 *
+	 * @param mixed $policy The `urgencyPolicy` value
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return string[] Human-readable errors
+	 */
+	private function urgencyPolicyErrors(mixed $policy): array {
+		return (new UrgencyPolicyValidator())->errors(
+			policy: $policy,
+			bodyExists: fn (string $ref): bool => $this->governanceBodyExists(ref: $ref)
+		);
+	}//end urgencyPolicyErrors()
+
+	/**
+	 * Whether a governance body reference resolves; a failed lookup answers no (fail closed).
+	 *
+	 * @param string $ref The governance body uuid
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return bool
+	 */
+	private function governanceBodyExists(string $ref): bool {
+		try {
+			return $this->objectService()->find(id: $ref, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body')) !== null;
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: ratifying body lookup failed; the urgency policy is refused', ['ref' => $ref, 'error' => $e->getMessage()]);
+			return false;
+		}
+
+	}//end governanceBodyExists()
+
+	/**
+	 * The urgency policy a governance body runs the urgent procedure under, or null.
+	 *
+	 * Null when the body has no template, the template has no `urgencyPolicy`
+	 * (every unmodified built-in template), or the policy no longer validates:
+	 * the absence of a policy never falls back to permissive defaults.
+	 *
+	 * @param string|null $governanceBodyId The governance body UUID, or null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return array<string, mixed>|null The policy, or null when the procedure is unavailable
+	 */
+	public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array {
+		$template = $this->loadBodyTemplate(governanceBodyId: $governanceBodyId);
+		$policy   = ($template['urgencyPolicy'] ?? null);
+		if (is_array($policy) === false || $this->urgencyPolicyErrors(policy: $policy) !== []) {
+			return null;
+		}
+
+		return $policy;
+	}//end resolveUrgencyPolicyForBody()
 
 	/**
 	 * Resolve a governance body's assigned template into the guard policy
@@ -424,7 +529,10 @@ class ProcessTemplateService {
 		}
 
 		try {
-			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
+			$bodyEntity = $this->objectService()->find(
+				id: $governanceBodyId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body')
+			);
 			if ($bodyEntity === null) {
 				return null;
 			}
@@ -472,7 +580,7 @@ class ProcessTemplateService {
 		}
 
 		// Fall back to a direct UUID lookup.
-		$entity = $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $ref, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}

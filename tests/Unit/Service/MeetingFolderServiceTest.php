@@ -26,6 +26,7 @@ use OCA\Decidiq\Service\MeetingFolderService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests folder path building, sanitisation, subfolders, and degradation.
@@ -104,7 +105,11 @@ class MeetingFolderServiceTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($this->body === null) {
 					return null;
 				}
@@ -216,6 +221,27 @@ class MeetingFolderServiceTest extends TestCase {
 		self::assertSame(expected: 'Decidesk/Quick sync', actual: $path);
 
 	}//end testDegradesWithoutBodyOrDate()
+
+	/**
+	 * Two sessions of one evening with the same title get a folder each.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
+	 *
+	 * @return void
+	 */
+	public function testSessionsOfOneEveningGetAFolderEach(): void {
+		$service = $this->makeService(body: ['name' => 'Gemeenteraad']);
+		$session = ['title' => 'Commissie', 'scheduledDate' => '2026-11-03T19:30:00Z', 'governanceBody' => 'body-1', 'parentMeeting' => 'evening-1'];
+
+		$first  = $service->ensureMeetingFolders(meeting: ['id' => 'aaaaaaaa-1111-4000-8000-000000000001'] + $session);
+		$second = $service->ensureMeetingFolders(meeting: ['id' => 'bbbbbbbb-2222-4000-8000-000000000002'] + $session);
+		$evening = $service->ensureMeetingFolders(meeting: ['id' => 'evening-1', 'title' => 'Raadsavond', 'scheduledDate' => '2026-11-03T19:30:00Z', 'governanceBody' => 'body-1']);
+
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Commissie (aaaaaaaa-1111-4000-8000-000000000001)', actual: $first);
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Commissie (bbbbbbbb-2222-4000-8000-000000000002)', actual: $second);
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Raadsavond', actual: $evening, message: 'a meeting that is no session keeps its name');
+
+	}//end testSessionsOfOneEveningGetAFolderEach()
 
 	/**
 	 * A meeting without title and id is skipped entirely.

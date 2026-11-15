@@ -25,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md
+ * @spec openspec/specs/conflict-of-interest-authorization/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,13 +35,14 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
  * Per-object authorization guard for the conflict-of-interest endpoints.
  * Fail-closed.
  *
- * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md
+ * @spec openspec/specs/conflict-of-interest-authorization/spec.md
  */
 class ConflictOfInterestAuthorizationGuard {
 
@@ -73,7 +74,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @param string $agendaItemId UUID of the agenda item the declaration concerns
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @return bool
 	 */
@@ -101,7 +102,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @param array<string, mixed> $declaration Serialised conflict-of-interest row
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return bool
 	 */
@@ -203,16 +204,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @return string|null
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidiq');
-		$this->objectService->setSchema('participant');
-		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
-
-		foreach ($entities as $participantEntity) {
-			$participant = $participantEntity->jsonSerialize();
-			return ($participant['uuid'] ?? $participant['id'] ?? null);
-		}
-
-		return null;
+		return (new ParticipantUuidLookup(objectService: $this->objectService))->forNextcloudUser(nextcloudUid: $nextcloudUid);
 	}//end resolveParticipantUuid()
 
 	/**
@@ -233,12 +225,12 @@ class ConflictOfInterestAuthorizationGuard {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+			$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 			if ($entity === null) {
 				// A declaration made on a motion's page names the motion (a
 				// Decision) as its subject; the motion carries the same
 				// `meeting` reference an agenda item does (bod-10).
-				$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'decision');
+				$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(

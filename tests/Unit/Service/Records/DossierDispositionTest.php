@@ -56,6 +56,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for routing a closed dossier to OpenRegister.
@@ -191,7 +193,11 @@ class DossierDispositionTest extends TestCase {
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
 					return null;
@@ -201,7 +207,11 @@ class DossierDispositionTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [$object, $uuid, $_rbac, $_multitenancy];
 				unset($object['@self']);
 				$this->store[(string)$schema][(string)$uuid] = $object;
@@ -777,4 +787,33 @@ class DossierDispositionTest extends TestCase {
 		$this->expectException(AccessDeniedException::class);
 		$this->category()->set(dossierId: self::DOSSIER, category: '11.1');
 	}//end testTheCategoryIsFrozenOnAListAndOnlyForArchivists()
+
+	/**
+	 * A closed dossier on no list stays closed, with no list status, and nothing is written.
+	 *
+	 * @return void
+	 */
+	public function testADossierOnNoListReflectsNoOutcome(): void {
+		self::assertSame(
+			['id' => self::DOSSIER, 'lifecycle' => 'closed', 'listStatus' => null],
+			$this->disposition()->reflectOutcome(dossierId: self::DOSSIER)
+		);
+		self::assertSame([], $this->saves);
+	}//end testADossierOnNoListReflectsNoOutcome()
+
+	/**
+	 * An empty dossier id is missing, not looked up, and its category is not written.
+	 *
+	 * @return void
+	 */
+	public function testAnEmptyDossierIdIsMissingForTheCategory(): void {
+		try {
+			$this->category()->set(dossierId: '', category: '11.1');
+			self::fail('An empty dossier id is missing.');
+		} catch (MissingObjectException $e) {
+			self::assertSame('Dossier not found.', $e->getMessage());
+		}
+
+		self::assertSame([], $this->saves);
+	}//end testAnEmptyDossierIdIsMissingForTheCategory()
 }//end class

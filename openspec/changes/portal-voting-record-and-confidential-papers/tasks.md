@@ -14,8 +14,8 @@ Build after `agenda-item-confidential-papers` (it adds `AgendaItem.public`, `aut
   - GIVEN a secret round, an open round and an unpublished decision WHEN the record is built THEN none of their votes appear
   - GIVEN a person `publicMembers()` does not name WHEN `publicVotingRecord()` runs THEN it returns null
   - GIVEN decidiq's services cannot be resolved WHEN either method runs THEN it returns an empty list or null, never throws
-- [ ] Implement
-- [ ] Test (real rule classes over seeded objects, not mocked rules)
+- [x] Implement (built in `portal-public-council-records`, `lib/Service/PublicVotingRecords.php`)
+- [x] Test (real rule classes over seeded objects, not mocked rules)
 
 ### Task 2: Fields for named readers
 - **spec_ref**: `openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item`

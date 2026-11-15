@@ -31,7 +31,11 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationEventRecorderInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -40,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */
-class PublicationEventRecorder {
+class PublicationEventRecorder implements PublicationEventRecorderInterface {
 
 	/**
 	 * The schema of an object a published source type lives in.
@@ -325,7 +329,12 @@ class PublicationEventRecorder {
 	 * @return array<string,mixed>
 	 */
 	private function read(string $schema, string $id): array {
-		$found = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$found = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($found === null) {
 			return [];
 		}
@@ -347,8 +356,7 @@ class PublicationEventRecorder {
 		try {
 			$this->objectService->saveObject(
 				object: $event,
-				register: 'decidiq',
-				schema: 'publication-event',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-event')),
 				_rbac: false,
 				_multitenancy: false
 			);

@@ -24,7 +24,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -88,14 +90,14 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was migrated.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -190,14 +192,13 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema($target);
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: $target,
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: $target),
 							alreadyResolved: array_keys(self::REFERENCES),
 							payload: $this->mapRow(objectService: $objectService, row: $row, origin: $origin),
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $target))
 					);
 					$existing[$origin] = true;
 					$copied++;
@@ -261,19 +262,19 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 					// (governanceBody) is missing" — reported through
 					// $output->warning(), which does not fail an upgrade.
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::CONFIGURATION,
-						object: ($patch + ['governanceBody' => $body]),
-						uuid: $existing,
+						object: $patch + ['governanceBody' => $body],
+						options: new ObjectSaveOptions(
+							target: new ObjectFindTarget(register: self::REGISTER, schema: self::CONFIGURATION),
+							uuid: $existing
+						)
 					);
 					$folded++;
 					continue;
 				}
 
 				$saved = $objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::CONFIGURATION,
-					object: ($patch + ['governanceBody' => $body]),
+					object: $patch + ['governanceBody' => $body],
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::CONFIGURATION))
 				);
 				$configurations[$body] = $this->identifierOf(object: $this->toArray(entity: $saved));
 				$folded++;

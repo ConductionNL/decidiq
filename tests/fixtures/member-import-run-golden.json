@@ -1,0 +1,439 @@
+{
+  "MemberCsvImportDialog.vue success": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ],
+      [
+        "saveObject",
+        "membership",
+        "membership",
+        {
+          "built": {
+            "personId": "person-a@x.nl",
+            "governanceBodyId": "body-1",
+            "role": "chair"
+          }
+        }
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Nobody",
+          "email": "n@x.nl",
+          "nextcloudUserId": ""
+        }
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Cas",
+          "email": "c@x.nl",
+          "nextcloudUserId": ""
+        }
+      ],
+      [
+        "saveObject",
+        "membership",
+        "membership",
+        {
+          "built": {
+            "personId": "person-c@x.nl",
+            "governanceBodyId": "body-1",
+            "role": "secretary"
+          }
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "",
+    "doneMessage": "{count} members imported. {\"count\":3}",
+    "emitted": [
+      "imported"
+    ],
+    "preview": [
+      {
+        "line": 2,
+        "name": "Anne",
+        "email": "a@x.nl",
+        "role": "chair",
+        "status": "duplicate",
+        "matchedUid": "anne",
+        "reason": "already-member"
+      },
+      {
+        "line": 3,
+        "name": "Bob",
+        "email": "b@x.nl",
+        "role": "member",
+        "status": "duplicate",
+        "matchedUid": ""
+      },
+      {
+        "line": 4,
+        "name": "Nobody",
+        "email": "n@x.nl",
+        "role": "member",
+        "status": "duplicate",
+        "reason": "already-member"
+      },
+      {
+        "line": 5,
+        "name": "Cas",
+        "email": "c@x.nl",
+        "role": "secretary",
+        "status": "duplicate",
+        "matchedUid": "",
+        "reason": "already-member"
+      },
+      {
+        "line": 6,
+        "name": "",
+        "email": "bad",
+        "role": "",
+        "status": "invalid"
+      }
+    ]
+  },
+  "MemberCsvImportDialog.vue person": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "Import failed.",
+    "doneMessage": "",
+    "emitted": [],
+    "preview": [
+      {
+        "line": 2,
+        "name": "Anne",
+        "email": "a@x.nl",
+        "role": "chair",
+        "status": "ok",
+        "matchedUid": "anne"
+      },
+      {
+        "line": 3,
+        "name": "Bob",
+        "email": "b@x.nl",
+        "role": "member",
+        "status": "duplicate",
+        "matchedUid": ""
+      },
+      {
+        "line": 4,
+        "name": "Nobody",
+        "email": "n@x.nl",
+        "role": "member",
+        "status": "ok"
+      },
+      {
+        "line": 5,
+        "name": "Cas",
+        "email": "c@x.nl",
+        "role": "secretary",
+        "status": "ok",
+        "matchedUid": ""
+      },
+      {
+        "line": 6,
+        "name": "",
+        "email": "bad",
+        "role": "",
+        "status": "invalid"
+      }
+    ]
+  },
+  "MemberCsvImportDialog.vue membership": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ],
+      [
+        "saveObject",
+        "membership",
+        "membership",
+        {
+          "built": {
+            "personId": "person-a@x.nl",
+            "governanceBodyId": "body-1",
+            "role": "chair"
+          }
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "membership refused",
+    "doneMessage": "",
+    "emitted": [],
+    "preview": [
+      {
+        "line": 2,
+        "name": "Anne",
+        "email": "a@x.nl",
+        "role": "chair",
+        "status": "ok",
+        "matchedUid": "anne"
+      },
+      {
+        "line": 3,
+        "name": "Bob",
+        "email": "b@x.nl",
+        "role": "member",
+        "status": "duplicate",
+        "matchedUid": ""
+      },
+      {
+        "line": 4,
+        "name": "Nobody",
+        "email": "n@x.nl",
+        "role": "member",
+        "status": "ok"
+      },
+      {
+        "line": 5,
+        "name": "Cas",
+        "email": "c@x.nl",
+        "role": "secretary",
+        "status": "ok",
+        "matchedUid": ""
+      },
+      {
+        "line": 6,
+        "name": "",
+        "email": "bad",
+        "role": "",
+        "status": "invalid"
+      }
+    ]
+  },
+  "MemberGroupImportDialog.vue success": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ],
+      [
+        "saveObject",
+        "membership",
+        "membership",
+        {
+          "built": {
+            "personId": "person-a@x.nl",
+            "governanceBodyId": "body-1",
+            "role": "member"
+          }
+        }
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Nobody",
+          "email": "n@x.nl",
+          "nextcloudUserId": "nobody"
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "",
+    "doneMessage": "{count} members imported. {\"count\":2}",
+    "emitted": [
+      "imported"
+    ],
+    "preview": [
+      {
+        "uid": "anne",
+        "displayName": "Anne",
+        "email": "a@x.nl",
+        "duplicate": true
+      },
+      {
+        "uid": "bob",
+        "displayName": "Bob",
+        "email": "b@x.nl",
+        "duplicate": true
+      },
+      {
+        "uid": "nobody",
+        "displayName": "Nobody",
+        "email": "n@x.nl",
+        "duplicate": true
+      }
+    ]
+  },
+  "MemberGroupImportDialog.vue person": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "Import failed.",
+    "doneMessage": "",
+    "emitted": [],
+    "preview": [
+      {
+        "uid": "anne",
+        "displayName": "Anne",
+        "email": "a@x.nl",
+        "duplicate": false
+      },
+      {
+        "uid": "bob",
+        "displayName": "Bob",
+        "email": "b@x.nl",
+        "duplicate": true
+      },
+      {
+        "uid": "nobody",
+        "displayName": "Nobody",
+        "email": "n@x.nl"
+      }
+    ]
+  },
+  "MemberGroupImportDialog.vue membership": {
+    "calls": [
+      [
+        "ensureRelationType",
+        "person"
+      ],
+      [
+        "ensureRelationType",
+        "membership"
+      ],
+      [
+        "resolveOrCreatePerson",
+        {
+          "name": "Anne",
+          "email": "a@x.nl",
+          "nextcloudUserId": "anne"
+        }
+      ],
+      [
+        "saveObject",
+        "membership",
+        "membership",
+        {
+          "built": {
+            "personId": "person-a@x.nl",
+            "governanceBodyId": "body-1",
+            "role": "member"
+          }
+        }
+      ]
+    ],
+    "during": [
+      true,
+      ""
+    ],
+    "importing": false,
+    "error": "membership refused",
+    "doneMessage": "",
+    "emitted": [],
+    "preview": [
+      {
+        "uid": "anne",
+        "displayName": "Anne",
+        "email": "a@x.nl",
+        "duplicate": false
+      },
+      {
+        "uid": "bob",
+        "displayName": "Bob",
+        "email": "b@x.nl",
+        "duplicate": true
+      },
+      {
+        "uid": "nobody",
+        "displayName": "Nobody",
+        "email": "n@x.nl"
+      }
+    ]
+  }
+}

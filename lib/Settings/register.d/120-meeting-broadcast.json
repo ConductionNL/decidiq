@@ -267,7 +267,8 @@
 								"publicationDate": {
 									"$lte": "$now"
 								}
-							}
+							},
+							"crossOrganisation": true
 						},
 						"authenticated"
 					],

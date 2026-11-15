@@ -34,13 +34,17 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
  * Reads and writes decidiq's OpenRegister objects.
  *
  * @spec openspec/specs/approval-routes/spec.md
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class RegisterObjectStore {
 	/**
@@ -86,9 +90,10 @@ class RegisterObjectStore {
 	public function save(string $schema, array $object, ?string $uuid = null): array {
 		$stored = $this->objectService->saveObject(
 			object: $object,
-			register: self::REGISTER,
-			schema: $schema,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: self::REGISTER, schema: $schema),
+				uuid: $uuid
+			)
 		);
 
 		return $this->normalise(row: $stored);
@@ -118,10 +123,11 @@ class RegisterObjectStore {
 	 */
 	public function patch(string $schema, array $data, string $uuid): array {
 		$stored = $this->objectService->patchObject(
-			objectId: $uuid,
-			data: $data,
-			register: self::REGISTER,
-			schema: $schema,
+			new ObjectPatch(
+				objectId: $uuid,
+				data: $data,
+				target: new ObjectFindTarget(register: self::REGISTER, schema: $schema)
+			)
 		);
 
 		return $this->normalise(row: $stored);
@@ -149,7 +155,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function find(string $schema, string $uuid): ?array {
 		if (trim($uuid) === '') {
@@ -158,8 +164,7 @@ class RegisterObjectStore {
 
 		$entity = $this->objectService->find(
 			id: $uuid,
-			register: self::REGISTER,
-			schema: $schema,
+			options: new ObjectFindOptions(register: self::REGISTER, schema: $schema)
 		);
 		if ($entity === null) {
 			return null;

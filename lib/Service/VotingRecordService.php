@@ -28,7 +28,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\VotingRecordServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -36,7 +38,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
-class VotingRecordService {
+class VotingRecordService implements VotingRecordServiceInterface {
 
 	private const REGISTER = 'decidiq';
 
@@ -66,7 +68,7 @@ class VotingRecordService {
 	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function findPerson(string $personId): ?array {
-		$entity = $this->objectService->find(id: $personId, register: self::REGISTER, schema: 'person');
+		$entity = $this->objectService->find(id: $personId, options: new ObjectFindOptions(register: self::REGISTER, schema: 'person'));
 		if ($entity === null) {
 			return null;
 		}

@@ -459,10 +459,16 @@ describe('the amendment page in the simple structure', () => {
 
 	it('keeps the five steps on one row, with a word for each, and lets the card follow its content', () => {
 		const bar = read('src', 'components', 'widgets', 'AmendmentStepBar.vue')
+		// The tiles and their words are shared by the three step bars.
+		expect(bar).toContain('<style scoped src="./stepBar.css"></style>')
+		expect(bar).toContain('mixins: [stepBarWordsMixin],')
+		const shared =
+			read('src', 'components', 'widgets', 'stepBar.css')
+			+ read('src', 'components', 'widgets', 'stepBarWords.js')
 		expect(bar).toContain('grid-template-columns: repeat(5, minmax(0, 1fr));')
-		expect(bar).toContain('min-height: 124px;')
+		expect(shared).toContain('min-height: 124px;')
 		for (const word of ['Done', 'Now', 'Next']) {
-			expect(bar).toContain(`this.t('decidiq', '${word}')`)
+			expect(shared).toContain(`this.t('decidiq', '${word}')`)
 		}
 		const entry = config.layout.find((item) => item.widgetId === 'amend-steps')
 		expect(entry.sizeToContent).toBe(true)
@@ -494,16 +500,31 @@ describe('the amendment page in the simple structure', () => {
 		expect(decision.properties.decisionType.default).toBeTruthy()
 	})
 
-	it('puts the blocks behind three tabs, the text changes first, each label short', () => {
+	it('puts the board tabs in the strip, Overview first and History last, each label short', () => {
 		const strip = widgets.get('amend-panels')
 		expect(strip.type).toBe('tabs')
 		expect(strip.content.maxVisibleTabs).toBe(5)
 		const tabs = strip.content.tabs
+		// Board DcAmendement: Overzicht, Tekstwijzigingen, Stemronde, Historie,
+		// opened on the text changes.
 		expect(tabs.map((tab) => tab.label)).toEqual([
+			'Overview',
 			'Text changes',
-			'Amendment',
 			'Voting round',
+			'History',
 		])
+		expect(tabs.map((tab) => dutch[tab.label])).toEqual([
+			'Overzicht',
+			'Tekstwijzigingen',
+			'Stemronde',
+			'Historie',
+		])
+		expect(tabs.filter((tab) => tab.default).map((tab) => tab.label)).toEqual([
+			'Text changes',
+		])
+		expect(
+			widgets.get(tabs.find((tab) => tab.label === 'History').widgetId).type,
+		).toBe('audit-trail')
 		expect(tabs.length).toBeLessThanOrEqual(strip.content.maxVisibleTabs)
 		for (const tab of tabs) {
 			expect(tab.overflow).toBeUndefined()
@@ -518,11 +539,13 @@ describe('the amendment page in the simple structure', () => {
 			(item) => item.id,
 		)
 		expect(declared).toHaveLength(4)
+		// The History tab is the one block the profile adds.
 		const shown = widgets
 			.get('amend-panels')
 			.content.tabs.flatMap((tab) =>
 				blocksOf(widgets, tab).map((block) => block.id),
 			)
+			.filter((id) => id !== 'amend-history')
 		expect([...shown].sort()).toEqual([...declared].sort())
 		expect(new Set(shown).size).toBe(shown.length)
 	})
@@ -591,11 +614,20 @@ describe('My actions in the simple structure', () => {
 		asked.length = 0
 	})
 
-	it('is what the menu entry My actions opens', () => {
+	it('is one link away from the work list the menu entry My actions opens', () => {
+		// Board DcMijnActies: My actions opens the work list (MyActions). Its
+		// Action items card reads the reader's own items by `assignee` and
+		// links to this list, which keeps the views Mine and Everyone.
 		const entry = simple.menu.find((item) => item.id === 'ActionItems')
 		expect(entry.label).toBe('My actions')
-		expect(entry.route).toBe('ActionItems')
+		expect(entry.route).toBe('MyActions')
 		expect(page.route).toBe('/action-items')
+		const work = pageOf(simple, 'MyActions')
+		const card = work.config.widgets.find(
+			(widget) => widget.id === 'my-action-items',
+		)
+		expect(card.content.filter.assignee).toBe('@me')
+		expect(card.content.headerLink.route).toBe('ActionItems')
 	})
 
 	it('opens on the reader own action items, by the field that holds a user id', () => {
@@ -707,8 +739,17 @@ describe('My actions in the simple structure', () => {
 		const commitment = schemaOf('Commitment', 'governance-commitment')
 		expect(commitment.properties.madeBy.format).toBe('uuid')
 		expect(commitment.properties.assignee).toBeUndefined()
-		for (const id of ['Commitments', 'CommitmentDetail']) {
-			expect(pageOf(simple, id), id).toEqual(pageOf(full, id))
+		// The commitments list is untouched. The commitment page gets the
+		// board's tabs, which simpleCommitmentTabs.spec.js checks; its blocks
+		// and their filters stay the manifest's.
+		expect(pageOf(simple, 'Commitments')).toEqual(pageOf(full, 'Commitments'))
+		const declared = pageOf(full, 'CommitmentDetail').config.widgets
+		const built = pageOf(simple, 'CommitmentDetail').config.widgets
+		for (const widget of declared) {
+			expect(
+				built.find((item) => item.id === widget.id).content,
+				widget.id,
+			).toEqual(widget.content)
 		}
 	})
 })

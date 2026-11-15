@@ -1,12 +1,5 @@
 <?php
 
-// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Flow/IFlowNode.php at ConductionNL/openregister@ecaba04a
-// (development), for standalone unit runs and static analysis. OpenRegister
-// is a sibling app, not a composer dependency; the real class wins whenever
-// OpenRegister is loaded. Refresh by copying, never by editing. The spec
-// tags are dropped because they name OpenRegister's own openspec, which this
-// repo does not hold (gate-46 resolves anchors in this repo only).
-
 /**
  * A node type contributed to the flow palette by an app.
  *
@@ -57,6 +50,8 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://OpenRegister.app
+ *
+ * @spec openspec/specs/flow-nodes/spec.md
  */
 
 declare(strict_types=1);
@@ -65,6 +60,12 @@ namespace OCA\OpenRegister\Service\Flow;
 
 /**
  * Contract for a contributed flow node type.
+ *
+ * This base declares no `execute()`, so a node written for either published
+ * signature loads. Implement {@see ICallFlowNode} (one `FlowNodeCall`) for new
+ * nodes; nodes that still take `(array $items, array $config, array $context)`
+ * keep working and may say so with {@see ILegacyFlowNode}. The engine calls
+ * either form through {@see FlowNodeInvoker}.
  */
 interface IFlowNode {
 	/**
@@ -75,6 +76,8 @@ interface IFlowNode {
 	 * not resolved by load order.
 	 *
 	 * @return string The type identifier.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function getId(): string;
 
@@ -82,6 +85,8 @@ interface IFlowNode {
 	 * Human-readable name for the palette. Mirrors `IOperation`.
 	 *
 	 * @return string The display name.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function getDisplayName(): string;
 
@@ -89,6 +94,8 @@ interface IFlowNode {
 	 * What this node does, in one sentence. Mirrors `IOperation`.
 	 *
 	 * @return string The description.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function getDescription(): string;
 
@@ -96,6 +103,8 @@ interface IFlowNode {
 	 * Absolute URL of the palette icon. Mirrors `IOperation`.
 	 *
 	 * @return string The icon URL.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function getIcon(): string;
 
@@ -109,6 +118,8 @@ interface IFlowNode {
 	 * @param int $scope The scope constant.
 	 *
 	 * @return bool Whether it is available.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function isAvailableForScope(int $scope): bool;
 
@@ -124,28 +135,8 @@ interface IFlowNode {
 	 * @return void
 	 *
 	 * @throws \UnexpectedValueException When the configuration is unusable.
+	 *
+	 * @spec openspec/specs/flow-nodes/spec.md
 	 */
 	public function validateConfig(array $config): void;
-
-	/**
-	 * Do the work: items in, items out.
-	 *
-	 * This is the method `IOperation` has no equivalent of, and the reason
-	 * this interface exists at all.
-	 *
-	 * A node that acts per record acts once per item and returns one item per
-	 * result. A node that filters returns fewer items than it received. An
-	 * empty returned list is meaningful — it ends that branch's data.
-	 *
-	 * Throwing is meaningful: the engine reads the step's `onError` policy to
-	 * decide whether to stop, continue, or dead-letter. Catching here defeats
-	 * that policy and produces a run that reports success while doing nothing.
-	 *
-	 * @param array $items The input items ({@see FlowItems}).
-	 * @param array $config The step's authored configuration.
-	 * @param array $context Run-level metadata — NOT the data channel.
-	 *
-	 * @return array The output items.
-	 */
-	public function execute(array $items, array $config, array $context): array;
 }//end interface

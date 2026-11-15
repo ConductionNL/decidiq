@@ -45,6 +45,7 @@ use OCP\Share\IManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The broadcast routes: only the meeting's chair or secretary acts, and a
@@ -56,6 +57,7 @@ use Psr\Log\LoggerInterface;
  * @uses \OCA\Decidiq\Service\BroadcastWindows
  * @uses \OCA\Decidiq\Service\StreamingClient
  * @uses \OCA\Decidiq\Service\SigningAnswer
+ * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Service\TranscriptionStaffGuard
  * @uses \OCA\Decidiq\Exception\BroadcastRefusedException
  * @uses \OCA\Decidiq\Support\FleetAppId
@@ -111,7 +113,7 @@ final class BroadcastControllerTest extends TestCase {
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => (isset($this->world->objects[(string)$id]) === true ? $this->entity(id: (string)$id) : null));
 		$objects->method('findAll')->willReturnCallback(fn (array $config=[]): array => array_map(fn (string $id): ObjectEntity => $this->entity(id: $id), $this->world->match(config: $config)));
 		$objects->method('saveObject')->willReturnCallback(
-			fn (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity => $this->entity(id: $this->world->save(data: $object, register: (string)$register, schema: (string)$schema, id: $uuid))
+			fn (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity => $this->entity(id: $this->world->save(data: $object, register: (string)($options->target->register), schema: (string)($options->target->schema), id: ($options->uuid)))
 		);
 
 		$session = $this->createMock(IUserSession::class);
@@ -322,6 +324,13 @@ final class BroadcastControllerTest extends TestCase {
 	 */
 	public function testEveryRouteIsRegistered(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$names  = array_column($routes['routes'], 'url', 'name');
 
 		$this->assertSame('/api/meetings/{meetingId}/broadcast', $names['broadcast#status'] ?? null);

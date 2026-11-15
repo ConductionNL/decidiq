@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\ArchivalDossierService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -53,7 +53,7 @@ class ArchivalDossierController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest               $request     HTTP request
-	 * @param ArchivalDossierService $dossiers    The dossier rules
+	 * @param ArchivalDossierServiceInterface $dossiers    The dossier rules
 	 * @param IUserSession           $userSession User session
 	 * @param LoggerInterface        $logger      Logger
 	 *
@@ -61,11 +61,11 @@ class ArchivalDossierController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ArchivalDossierService $dossiers,
+		private readonly ArchivalDossierServiceInterface $dossiers,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

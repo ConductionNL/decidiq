@@ -49,6 +49,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Open, cast and close a ranked preference round.
@@ -56,6 +58,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  */
 class VotingServiceRankedBallotTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -197,13 +201,11 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -248,13 +250,11 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($store, $saves): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($store, $saves): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saves->append(['schema' => (string)$schema, 'object' => $object]);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
 				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
@@ -388,8 +388,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	public function testARankedRoundOpensWithItsOptions(): void {
 		$service = $this->buildService(self::store());
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'ranked-choice',
 			isSecret: false,
@@ -428,8 +427,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		foreach ($cases as $reason => [$method, $options, $tieBreak]) {
 			$service = $this->buildService(self::store());
 			try {
-				$service->openVotingRound(
-					motionId: 'motion-1',
+				$this->openRoundOn($service, motionId: 'motion-1',
 					meetingId: 'meeting-1',
 					votingMethod: $method,
 					isSecret: false,
@@ -455,8 +453,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	public function testAFullRankingIsCast(): void {
 		$service = $this->buildService(self::store(['round-1' => self::rankedRound(['relations' => []])]));
 
-		$service->castVote(
-			votingRoundId: 'round-1',
+		$this->castVoteOn($service, votingRoundId: 'round-1',
 			participantId: 'part-1',
 			value: 'ranked',
 			isProxy: false,
@@ -492,8 +489,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		foreach ($cases as $case => [$round, $value, $ranking]) {
 			$service = $this->buildService(self::store(['round-1' => $round]));
 			try {
-				$service->castVote(
-					votingRoundId: 'round-1',
+				$this->castVoteOn($service, votingRoundId: 'round-1',
 					participantId: 'part-1',
 					value: $value,
 					isProxy: false,
@@ -600,8 +596,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 		$service = $this->buildService(self::store(['round-1' => $tied]));
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'ranked-choice',
 			isSecret: false,
@@ -627,7 +622,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		unset($legacy['object']['options']);
 		$service = $this->buildService(self::store(['round-1' => $legacy]));
 
-		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
 		self::assertSame('for', $this->lastSaved(schema: 'vote')['value'] ?? null);
 
 		$service->closeVotingRound(votingRoundId: 'round-1');

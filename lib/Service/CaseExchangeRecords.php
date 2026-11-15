@@ -23,7 +23,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\CaseExchangeRecordsInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -35,7 +39,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-006-every-exchange-is-recorded-and-a-failed-document-is-sent-again-on-request
  */
-class CaseExchangeRecords {
+class CaseExchangeRecords implements CaseExchangeRecordsInterface {
 	/**
 	 * The schema slug.
 	 */
@@ -100,7 +104,12 @@ class CaseExchangeRecords {
 	 * @return array<string,mixed>
 	 */
 	public function find(string $recordId): array {
-		$entity = $this->objectService->find(id: $recordId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $recordId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Exchange record not found', status: 404);
 		}
@@ -161,9 +170,10 @@ class CaseExchangeRecords {
 	private function save(array $record, ?string $uuid): array {
 		$saved = $this->objectService->saveObject(
 			object: $record,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

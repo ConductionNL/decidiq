@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -30,10 +30,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\PlanningCycleGenerator;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\PlanningCycleGeneratorInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -43,7 +46,7 @@ use Psr\Log\LoggerInterface;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 class PlanningCycleCreatedListener implements IEventListener {
 
@@ -56,14 +59,14 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService  Reads the template, writes the steps
-	 * @param PlanningCycleGenerator $generator      Builds the step payloads
-	 * @param ListenerSchemaResolver $schemaResolver Resolves the entity's schema slug
+	 * @param PlanningCycleGeneratorInterface $generator      Builds the step payloads
+	 * @param ListenerSchemaResolverInterface $schemaResolver Resolves the entity's schema slug
 	 * @param LoggerInterface        $logger         Logger
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly PlanningCycleGenerator $generator,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly PlanningCycleGeneratorInterface $generator,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -80,7 +83,7 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 *     shipped templates hold six to eight). Deferred, the controller who just
 	 *     created the cycle would open its page and see no steps until cron ran.
 	 *
-	 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+	 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false) {
@@ -102,7 +105,10 @@ class PlanningCycleCreatedListener implements IEventListener {
 			}
 
 			foreach ($this->generator->stepsFor(cycleId: $cycleId, year: $year, template: $template) as $step) {
-				$this->objectService->saveObject(object: $step, register: 'decidiq', schema: 'planning-cycle-step');
+				$this->objectService->saveObject(
+					object: $step,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'planning-cycle-step'))
+				);
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: generating the planning cycle steps failed', ['exception' => $e->getMessage()]);
@@ -124,7 +130,10 @@ class PlanningCycleCreatedListener implements IEventListener {
 			return null;
 		}
 
-		$template = $this->objectService->find(id: $templateId, register: 'decidiq', schema: 'planning-cycle-template');
+		$template = $this->objectService->find(
+			id: $templateId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'planning-cycle-template')
+		);
 		if ($template === null) {
 			return null;
 		}
@@ -155,15 +164,6 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 * @return array<string, mixed>
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 }//end class

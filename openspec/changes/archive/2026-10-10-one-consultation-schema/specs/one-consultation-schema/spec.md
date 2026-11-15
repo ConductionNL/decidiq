@@ -29,6 +29,17 @@ Both SHALL use qualified slugs, because schema slugs are global on a shared Open
 - **WHEN** a board asks an advisory committee for a formal advice
 - **THEN** it is a consultation with `binding` set, and the advice is a response
 
+### Requirement: A joint arrangement collects the views of its participating councils
+
+A joint arrangement (gemeenschappelijke regeling) SHALL be able to ask its participating councils for their view (zienswijze) on a proposal with one `Consultation`: the arrangement's body as `askingBody`, the participating councils as the audience, and a deadline. Each council's view SHALL be one `ConsultationResponse` with that council as `respondentBody`, so the arrangement sees per council whether it answered and what it said.
+
+#### Scenario: A joint arrangement asks three councils for their view on its budget
+
+- GIVEN the joint arrangement Veiligheidsregio Zuid with three participating councils
+- WHEN its secretary opens a consultation on the draft budget with a deadline of 15 June
+- THEN each of the three councils is listed as asked
+- AND when the council of Zuiddrecht submits its view, the consultation shows it against Zuiddrecht and the other two as not yet answered
+
 ### Requirement: Binding is a field, not a schema boundary
 
 `Consultation.binding` SHALL record whether the answers bind the asking body or only inform it.
@@ -100,3 +111,14 @@ An answer whose ask could not be copied SHALL be skipped rather than bound to no
 
 - **WHEN** the change is applied to an instance holding these records
 - **THEN** every source row is still readable under its original schema
+
+### Requirement: A decision shows the advice asked of an advisory body and the answer
+
+Staff SHALL be able to record a consultation of an advisory body on a decision, with the body asked, whether its answer binds and a deadline, and to record the body's answer with its position and text. The decision's page SHALL list both the consultations held on it and the answers recorded, so the deciding body sees the advice before it decides.
+
+#### Scenario: The secretary records an advisory body's opinion
+
+- **GIVEN** the decision "Parking policy 2027" before the council
+- **WHEN** the secretary records a consultation of the traffic advisory committee on it with a deadline, and later records the committee's answer as in favour with its text
+- **THEN** the decision's page lists the consultation with its deadline and status
+- **AND** it lists the committee's answer with its position and text

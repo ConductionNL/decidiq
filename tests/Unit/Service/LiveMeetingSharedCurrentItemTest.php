@@ -33,6 +33,8 @@ use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\LiveDecisionService
@@ -141,7 +143,10 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$objectService->method('find')->willReturn($this->entity(['id' => 'm-14', 'title' => 'Raad', 'lifecycle' => 'opened']));
 		$objectService->method('findAll')->willReturn([$this->entity(['id' => 'min-1', 'meeting' => 'm-14', 'relations' => ['Meeting' => ['m-14']]])]);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null) use (&$saved): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$saved[] = [$schema, $object];
 				return $this->entity(['id' => 'd-1', '@self' => ['slug' => 'd-1']]);
 			}
@@ -240,7 +245,11 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($this->entity(['id' => 'item-5', 'meeting' => 'm-14']));
 		$objectService->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data, string|int|null $register=null, string|int|null $schema=null) use (&$patches): ObjectEntity {
+			function (ObjectPatch $patch) use (&$patches): ObjectEntity {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$patches[] = [$objectId, $schema, $data];
 				return $this->entity($data);
 			}

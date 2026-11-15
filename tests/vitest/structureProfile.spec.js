@@ -138,14 +138,14 @@ describe('the full profile', () => {
 		}
 	})
 
-	it('still counts 44 entries: 24 main, 3 footer, 17 settings', () => {
+	it('still counts 43 entries: 24 main, 3 footer, 16 settings', () => {
 		const menu = build(fullFile).menu
 		const count = (name) =>
 			flat(menu.filter((entry) => (entry.section || 'main') === name)).length
-		expect(flat(menu)).toHaveLength(44)
+		expect(flat(menu)).toHaveLength(43)
 		expect(count('main')).toBe(24)
 		expect(count('footer')).toBe(3)
-		expect(count('settings')).toBe(17)
+		expect(count('settings')).toBe(16)
 	})
 
 	it('still shows six entries at the top, the ones ADR-004 names', () => {
@@ -232,16 +232,18 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('keeps relocations out of the file, because any relocation step drops the captions', () => {
-		// The library's relocation step ends by filtering out every entry with
-		// no route, href, action or children. That is a caption. `{}` is enough
-		// to run it, so the key has to be absent.
+	it('keeps its captions through a relocation step (nextcloud-vue 2.84.0)', () => {
+		// The simple menu is flat and declares no relocations. Before 2.84.0 a
+		// relocation step dropped every entry with no route, href, action or
+		// children, which is what a caption is; now the captions survive it.
 		expect(Object.hasOwn(simpleFile, 'relocations')).toBe(false)
+		const captions = (manifest) =>
+			manifest.menu
+				.filter((entry) => entry.type === 'caption')
+				.map((entry) => entry.id)
 		const withRelocations = build({ ...simpleFile, relocations: {} })
-		expect(
-			withRelocations.menu.filter((entry) => entry.type === 'caption'),
-			'the library now keeps captions through relocations; the note in the profile file is stale',
-		).toEqual([])
+		expect(captions(withRelocations)).toEqual(captions(built))
+		expect(captions(built).length).toBeGreaterThan(0)
 	})
 
 	it('gives every entry a label, an icon the app registers and a page that exists', () => {
@@ -287,10 +289,12 @@ describe('the simple profile', () => {
 				original.icon,
 			)
 		}
-		// Two entries are worded for the simple menu. Their page is the same.
+		// Two entries are worded for the simple menu. My actions opens the
+		// work list of board DcMijnActies (page MyActions); the action item
+		// list it opened before is the card's "All action items" link.
 		expect(main.find((entry) => entry.id === 'ActionItems')).toMatchObject({
 			label: 'My actions',
-			route: 'ActionItems',
+			route: 'MyActions',
 		})
 		expect(main.find((entry) => entry.id === 'GovernanceBodies')).toMatchObject({
 			label: 'Bodies and members',
@@ -436,7 +440,10 @@ describe('the simple profile', () => {
 			'Consultations',
 			'UrgentDecisions',
 		])
+		// Board DcVergaderingen opens its Ga naar group with the meeting
+		// calendar, before the long-term agenda and the P&C cycles.
 		expect(linksOf(built.pages.find((page) => page.id === 'Meetings'))).toEqual([
+			'MeetingsCalendar',
 			'PlannedAgenda',
 			'PlanningCycles',
 		])
@@ -478,10 +485,17 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 103 pages as the full profile, so every route stays', () => {
+	it('builds the same pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(103)
+		// Every page the manifest and its fragments declare, and no other.
+		const declared = new Set([
+			...readJson('src', 'manifest.json').pages.map((page) => page.id),
+			...fragments.flatMap((fragment) =>
+				(fragment.pages ?? []).map((page) => page.id),
+			),
+		])
+		expect(new Set(ids(built))).toEqual(declared)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {

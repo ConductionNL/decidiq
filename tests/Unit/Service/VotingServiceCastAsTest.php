@@ -50,6 +50,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for castAs stamping, chair casting-vote guard, and revote-once guard.
@@ -57,6 +59,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/voting-system/spec.md
  */
 class VotingServiceCastAsTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -198,13 +202,11 @@ class VotingServiceCastAsTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -249,13 +251,11 @@ class VotingServiceCastAsTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($store, $saves): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($store, $saves): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saves->append(['schema' => (string)$schema, 'object' => $object]);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
 				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
@@ -339,7 +339,7 @@ class VotingServiceCastAsTest extends TestCase {
 			]
 		);
 
-		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
 
 		$vote = $this->savedVote();
 		self::assertNotNull($vote, 'A vote must be persisted');
@@ -369,7 +369,7 @@ class VotingServiceCastAsTest extends TestCase {
 			]
 		);
 
-		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'against', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'part-1', value: 'against', isProxy: false, delegatorId: null);
 
 		self::assertSame('in-person', $this->savedVote()['castAs']);
 
@@ -394,12 +394,12 @@ class VotingServiceCastAsTest extends TestCase {
 				],
 			]
 		);
-		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'abstain', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'part-1', value: 'abstain', isProxy: false, delegatorId: null);
 		self::assertSame('unknown', $this->savedVote()['castAs'], 'Unset participantType is recorded as unknown');
 
 		// Participant cannot be resolved at all.
 		$service = $this->buildService(['round-1' => self::openRound()]);
-		$service->castVote(votingRoundId: 'round-1', participantId: 'ghost', value: 'for', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'ghost', value: 'for', isProxy: false, delegatorId: null);
 		self::assertSame('unknown', $this->savedVote()['castAs'], 'Unresolvable participant is recorded as unknown');
 
 	}//end testCastVoteStampsUnknownWhenUnresolvable()
@@ -499,8 +499,7 @@ class VotingServiceCastAsTest extends TestCase {
 		$service = $this->buildService([]);
 
 		try {
-			$service->openVotingRound(
-				motionId: 'motion-1',
+			$this->openRoundOn($service, motionId: 'motion-1',
 				meetingId: 'meeting-1',
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -513,8 +512,7 @@ class VotingServiceCastAsTest extends TestCase {
 		}
 
 		try {
-			$service->openVotingRound(
-				motionId: 'motion-1',
+			$this->openRoundOn($service, motionId: 'motion-1',
 				meetingId: 'meeting-1',
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -527,8 +525,7 @@ class VotingServiceCastAsTest extends TestCase {
 		}
 
 		try {
-			$service->openVotingRound(
-				motionId: 'motion-1',
+			$this->openRoundOn($service, motionId: 'motion-1',
 				meetingId: 'meeting-1',
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -592,8 +589,7 @@ class VotingServiceCastAsTest extends TestCase {
 
 		$this->motionService->expects(self::never())->method('transitionLifecycle');
 
-		$created = $service->openVotingRound(
-			motionId: 'motion-1',
+		$created = $this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -619,8 +615,7 @@ class VotingServiceCastAsTest extends TestCase {
 	 */
 	public function testRevoteGuardFailsClosed(): void {
 		$open = function (VotingService $service): void {
-			$service->openVotingRound(
-				motionId: 'motion-1',
+			$this->openRoundOn($service, motionId: 'motion-1',
 				meetingId: 'meeting-1',
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
