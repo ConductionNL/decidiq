@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\Files\File;
 use OCP\IRequest;
 use OCP\IUser;
@@ -94,7 +95,7 @@ class AccessibilityControllerTest extends TestCase {
 		];
 		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null, bool $_rbac=true) use ($objects): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options=null, bool $_rbac=true) use ($objects): ?ObjectEntity {
 				$this->finds[] = [(string)$id, $_rbac];
 				if ($id === 'item-secret') {
 					throw new RuntimeException('Access denied');

@@ -24,6 +24,7 @@ use OCA\Decidiq\Service\DocumentAccessibilityScanService;
 use OCA\Decidiq\Service\PdfStructureInspector;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
@@ -233,10 +234,10 @@ class DocumentAccessibilityScanServiceTest extends TestCase {
 						&& $report['governanceBody'] === 'body-1' && $report['scannerVersion'] === '1.0.0'
 						&& $report['scannedAt'] === '2026-06-02T09:15:00+00:00' && $report['heuristic'] === true;
 				}),
-				self::anything(),
-				'decidiq',
-				'accessibility-scan-report',
-				'report-1'
+				self::callback(callback: static fn (ObjectSaveOptions $options): bool => $options->target->register === 'decidiq'
+					&& $options->target->schema === 'accessibility-scan-report' && $options->uuid === 'report-1'),
+				false,
+				false
 			)
 			->willReturn($saved);
 
@@ -260,10 +261,10 @@ class DocumentAccessibilityScanServiceTest extends TestCase {
 			->method('saveObject')
 			->with(
 				self::callback(static fn (array $report): bool => $report['status'] === 'not-scanned' && $report['findings'][0]['code'] === 'parse-failure'),
-				self::anything(),
-				'decidiq',
-				'accessibility-scan-report',
-				null
+				self::callback(callback: static fn (ObjectSaveOptions $options): bool => $options->target->register === 'decidiq'
+					&& $options->target->schema === 'accessibility-scan-report' && $options->uuid === null),
+				false,
+				false
 			)
 			->willReturn($saved);
 

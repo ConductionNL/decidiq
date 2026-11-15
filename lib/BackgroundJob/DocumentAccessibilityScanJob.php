@@ -24,6 +24,7 @@ namespace OCA\Decidiq\BackgroundJob;
 
 use OCA\Decidiq\Service\DocumentAccessibilityScanService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
@@ -124,7 +125,12 @@ class DocumentAccessibilityScanJob extends QueuedJob {
 		}
 
 		try {
-			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+			$meeting = $this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable) {
 			return null;
 		}

@@ -28,6 +28,8 @@ namespace OCA\Decidiq\Service;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
@@ -529,9 +531,7 @@ class DocumentAccessibilityScanService {
 
 		$saved = $this->objectService->saveObject(
 			object: $report,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $uuid),
 			_rbac: false,
 			_multitenancy: false
 		);

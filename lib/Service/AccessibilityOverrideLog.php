@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -109,8 +111,7 @@ class AccessibilityOverrideLog {
 		try {
 			$this->objectService->saveObject(
 				object: $record,
-				register: 'decidiq',
-				schema: self::SCHEMA,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA)),
 				_rbac: false,
 				_multitenancy: false
 			);

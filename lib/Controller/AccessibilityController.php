@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\DocumentAccessibilityScanService;
 use OCA\Decidiq\Service\PaperFolderOwner;
 use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -130,7 +131,7 @@ class AccessibilityController extends Controller {
 	 */
 	private function readableSource(string $objectId): ?array {
 		try {
-			$found = $this->objectService->find(id: $objectId, register: 'decidiq', _rbac: true, _multitenancy: true);
+			$found = $this->objectService->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq'), _rbac: true, _multitenancy: true);
 		} catch (\Throwable) {
 			return null;
 		}
@@ -210,7 +211,12 @@ class AccessibilityController extends Controller {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable) {
 			return [];
 		}

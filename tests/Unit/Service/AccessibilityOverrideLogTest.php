@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AccessibilityOverrideLog;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -112,10 +113,8 @@ class AccessibilityOverrideLogTest extends TestCase {
 		$reports = [['id' => 'r-1', 'governanceBody' => 'raad', 'sourceObject' => 'meeting-1', 'sourceSchema' => 'meeting']];
 		$this->objectService->expects(self::once())->method('saveObject')->with(
 			$this->log->recordOf(override: self::override(), reports: $reports),
-			[],
-			'decidiq',
-			'accessibility-override',
-			null,
+			self::callback(callback: static fn (ObjectSaveOptions $options): bool => $options->target->register === 'decidiq'
+				&& $options->target->schema === 'accessibility-override' && $options->uuid === null),
 			false,
 			false
 		);

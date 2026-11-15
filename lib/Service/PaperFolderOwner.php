@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\Files\File;
 use Psr\Log\LoggerInterface;
 
@@ -79,7 +80,7 @@ class PaperFolderOwner {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $folderName, register: 'decidiq', _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(id: $folderName, options: new ObjectFindOptions(register: 'decidiq'), _rbac: false, _multitenancy: false);
 		} catch (\Throwable $e) {
 			$this->logger->debug('Decidiq: no decidiq object for a paper folder', ['folder' => $folderName, 'error' => $e->getMessage()]);
 			return null;

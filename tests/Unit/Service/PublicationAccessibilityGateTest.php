@@ -33,6 +33,7 @@ use OCA\Decidiq\Service\PublicationPayloadService;
 use OCA\Decidiq\Service\PublicationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -75,7 +76,9 @@ class PublicationAccessibilityGateTest extends TestCase {
 	private function service(bool $withGate=true): PublicationService {
 		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): object {
+			function (array $object, ObjectSaveOptions $options=new ObjectSaveOptions()): object {
+				$schema        = $options->target->schema;
+				$uuid          = $options->uuid;
 				$this->saved[] = [(string)$schema, $object];
 				$entity        = $this->createMock(originalClassName: ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn(['id' => ($uuid ?? 'saved-' . count($this->saved))] + $object);
