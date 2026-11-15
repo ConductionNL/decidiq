@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -230,15 +231,14 @@ class VoteContextReader {
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
 	 */
 	public function object(string $schema, string $id): ?array {
 		if (array_key_exists($id, ($this->read[$schema] ?? [])) === false) {
 			try {
 				$entity = $this->objectService->find(
 					id: $id,
-					register: self::REGISTER,
-					schema: $schema,
+					options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
 					_rbac: false,
 					_multitenancy: false
 				);

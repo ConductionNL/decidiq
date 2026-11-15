@@ -27,7 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\TaskProcessing\Events\AbstractTaskProcessingEvent;
@@ -44,12 +48,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
-class PaperSummaryTaskListener implements IEventListener {
-
-	/**
-	 * The custom id prefix PaperSummaryService gives its tasks.
-	 */
-	public const CUSTOM_ID_PREFIX = 'paper-summary:';
+class PaperSummaryTaskListener implements IEventListener, PaperSummaryTaskListenerInterface {
 
 	/**
 	 * The app id the tasks are scheduled under.
@@ -95,8 +94,7 @@ class PaperSummaryTaskListener implements IEventListener {
 		$summaryId = substr($customId, strlen(self::CUSTOM_ID_PREFIX));
 		$summary = $this->objectService->find(
 			id: $summaryId,
-			register: 'decidiq',
-			schema: 'paper-summary',
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'paper-summary'),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -113,9 +111,10 @@ class PaperSummaryTaskListener implements IEventListener {
 		$data = array_merge($data, $this->outcome(event: $event, task: $task));
 		$this->objectService->saveObject(
 			object: $data,
-			register: 'decidiq',
-			schema: 'paper-summary',
-			uuid: $summaryId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'paper-summary'),
+				uuid: $summaryId
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

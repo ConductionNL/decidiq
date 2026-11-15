@@ -27,10 +27,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MinutesDraftServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
 use Psr\Container\ContainerInterface;
@@ -50,7 +52,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class MinutesDraftService {
+class MinutesDraftService implements MinutesDraftServiceInterface {
 	/**
 	 * Constructor.
 	 *
@@ -139,33 +141,24 @@ class MinutesDraftService {
 			$decisions = $this->fetchRelated(meetingId: $meetingId, schema: 'decision');
 		}
 
-		$providerId = $this->preferredProviderId();
-		$generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-
+		$provenance = DraftProvenance::now(providerId: $this->preferredProviderId())->toArray();
 		$sections = $this->buildSections(
-			segments: $segments,
 			agendaItems: $agendaItems,
-			votingRounds: $votingRounds,
-			decisions: $decisions,
-			providerId: $providerId,
-			generatedAt: $generatedAt
+			run: new MinutesDraftRun(
+				segments: $segments,
+				outcomes: new MinutesOutcomes(votingRounds: $votingRounds, decisions: $decisions),
+				provenance: new DraftProvenance(providerId: $provenance['providerId'], generatedAt: $provenance['generatedAt']),
+				runner: fn (string $prompt): string => $this->runPrompt(prompt: $prompt)
+			)
 		);
 
 		$draft = [
 			'sections' => $sections,
-			'provenance' => [
-				'aiGenerated' => true,
-				'providerId' => $providerId,
-				'generatedAt' => $generatedAt,
-			],
+			'provenance' => $provenance,
 		];
 
 		// Record provenance on the Transcript (never on a Minutes object — no lifecycle touch).
-		$transcript['draftGeneration'] = [
-			'aiGenerated' => true,
-			'providerId' => $providerId,
-			'generatedAt' => $generatedAt,
-		];
+		$transcript['draftGeneration'] = $provenance;
 		$this->saveTranscript(transcript: $transcript);
 
 		return $draft;
@@ -175,43 +168,18 @@ class MinutesDraftService {
 	 * Build the per-section draft (or a flat whole-meeting section).
 	 *
 	 * Exposed (public) so the section-assembly + cross-check logic can be
-	 * unit-tested without OR/TaskProcessing by injecting a runner. The default
-	 * runner uses the real TaskProcessing provider.
+	 * unit-tested without OR/TaskProcessing: the run carries the prompt runner,
+	 * which generate() points at the real TaskProcessing provider.
 	 *
-	 * @param array<int,array<string,mixed>> $segments Aligned transcript segments.
 	 * @param array<int,array<string,mixed>> $agendaItems Agenda items.
-	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
-	 * @param array<int,array<string,mixed>> $decisions Recorded decisions.
-	 * @param string $providerId AI provider id (provenance).
-	 * @param string $generatedAt Generation timestamp (provenance).
-	 * @param callable|null $runner Optional prompt runner (test seam).
+	 * @param MinutesDraftRun $run Segments, recorded outcomes, provenance and prompt runner.
 	 *
 	 * @return array<int,array<string,mixed>> The draft sections.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
-	public function buildSections(
-		array $segments,
-		array $agendaItems,
-		array $votingRounds,
-		array $decisions,
-		string $providerId,
-		string $generatedAt,
-		?callable $runner = null,
-	): array {
-		$run = ($runner ?? function (string $prompt): string {
-			return $this->runPrompt(prompt: $prompt);
-		});
-
-		return $this->getComposer()->buildSections(
-			segments: $segments,
-			agendaItems: $agendaItems,
-			votingRounds: $votingRounds,
-			decisions: $decisions,
-			providerId: $providerId,
-			generatedAt: $generatedAt,
-			run: $run
-		);
+	public function buildSections(array $agendaItems, MinutesDraftRun $run): array {
+		return $this->getComposer()->buildSections(agendaItems: $agendaItems, run: $run);
 
 	}//end buildSections()
 
@@ -384,7 +352,7 @@ class MinutesDraftService {
 	private function fetchObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable) {
 			return null;
 		}
@@ -416,9 +384,10 @@ class MinutesDraftService {
 
 			$objectService->saveObject(
 				object: $transcript,
-				register: 'decidiq',
-				schema: 'transcript',
-				uuid: $uuid
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+					uuid: $uuid
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

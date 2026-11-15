@@ -28,7 +28,10 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -50,7 +53,7 @@ use Throwable;
  *
  * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
  */
-class MeetingReminderService {
+class MeetingReminderService implements MeetingReminderServiceInterface {
 
 	/**
 	 * How long before the submission deadline its reminder goes out.
@@ -102,7 +105,7 @@ class MeetingReminderService {
 	 * @return int Deliveries made
 	 *
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
-	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function run(int $now): int {
 		return (int)$this->system->run(operation: fn (): int => $this->sendDue(now: $now));
@@ -181,9 +184,10 @@ class MeetingReminderService {
 		if ($patch !== []) {
 			$this->objectService->saveObject(
 				object: array_merge($meeting, $patch),
-				register: 'decidiq',
-				schema: 'meeting',
-				uuid: $meetingId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'),
+					uuid: $meetingId
+				)
 			);
 		}
 

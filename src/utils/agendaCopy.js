@@ -69,22 +69,21 @@ function keep(source, fields) {
 }
 
 /**
- * Number copies in order from startAt, for one meeting.
+ * Number the entries with a title as agenda items of the meeting, from the
+ * placement's first order number on.
  *
- * @param {Array<object>} entries Items or template entries, in order
- * @param {string} meetingId The meeting that gets them
- * @param {number} startAt The first order number
- * @param {Array<string>} fields The fields to keep
+ * @param {Array<object>} entries The entries, already cut to the kept fields
+ * @param {AgendaPlacement} placement Where the items go
  * @return {Array<object>} Agenda item objects
  */
-function numbered(entries, meetingId, startAt, fields) {
+function numbered(entries, placement) {
 	return entries
 		.filter((e) => String(e.title || '').trim() !== '')
 		.map((entry, index) => ({
 			itemType: 'informational',
-			...keep(entry, fields),
-			meeting: meetingId,
-			orderNumber: startAt + index,
+			...entry,
+			meeting: placement.meetingId,
+			orderNumber: placement.startAt + index,
 		}))
 }
 
@@ -98,39 +97,48 @@ function numbered(entries, meetingId, startAt, fields) {
  * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
  */
 export function itemsFromTemplate(template, meetingId, startAt = 1) {
-	return numbered(
-		(template && template.items) || [],
-		meetingId,
-		startAt,
-		TEMPLATE_FIELDS,
+	const entries = ((template && template.items) || []).map((entry) =>
+		keep(entry, TEMPLATE_FIELDS),
 	)
+	return numbered(entries, { meetingId, startAt })
 }
+
+/**
+ * Where copied agenda items go: the meeting and the first order number.
+ *
+ * @typedef {object} AgendaPlacement
+ * @property {string} meetingId The meeting that gets the items
+ * @property {number} startAt The first order number
+ */
+
+/**
+ * A copy of agenda items from an earlier meeting into this one.
+ *
+ * @typedef {object} AgendaCopyRequest
+ * @property {string} fromMeetingId The earlier meeting
+ * @property {string} meetingId The meeting that gets the copies
+ * @property {number} [startAt] The first order number (1 when left out)
+ * @property {Array<string>} [pickedIds] The item ids to copy, or [] for all
+ */
 
 /**
  * The agenda items copied from an earlier meeting: the picked ones (all
  * when none are picked), in the earlier order, after the last item.
  *
  * @param {Array<object>} items The earlier meeting's items
- * @param {string} fromMeetingId The earlier meeting
- * @param {string} meetingId The meeting that gets the copies
- * @param {number} startAt The first order number
- * @param {Array<string>} pickedIds The item ids to copy, or [] for all
+ * @param {AgendaCopyRequest} request What to copy where
  * @return {Array<object>} Agenda item objects
  * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  */
-export function itemsFromMeeting(
-	items,
-	fromMeetingId,
-	meetingId,
-	startAt = 1,
-	pickedIds = [],
-) {
+export function itemsFromMeeting(items, request) {
+	const { fromMeetingId, meetingId, startAt = 1, pickedIds = [] } = request
 	const picked = new Set(pickedIds || [])
 	const own = (items || [])
 		.filter((i) => refId(i.meeting) === fromMeetingId)
 		.filter((i) => picked.size === 0 || picked.has(refId(i)))
 		.sort((a, b) => (Number(a.orderNumber) || 0) - (Number(b.orderNumber) || 0))
-	return numbered(own, meetingId, startAt, KEPT_FIELDS)
+	const entries = own.map((entry) => keep(entry, KEPT_FIELDS))
+	return numbered(entries, { meetingId, startAt })
 }
 
 /**

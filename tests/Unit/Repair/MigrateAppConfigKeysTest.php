@@ -291,4 +291,63 @@ class MigrateAppConfigKeysTest extends TestCase {
 
 	}//end testAnUnreadableKeyEnumerationIsSurvivable()
 
+	/**
+	 * An unreadable sensitivity flag copies the value AS sensitive and logs it.
+	 *
+	 * Over-redacting a value is recoverable; under-redacting a signing key is
+	 * not, so a failed read of the flag must fall back to sensitive.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadableSensitivityFlagCopiesAsSensitive(): void {
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
+		$appConfig->method('getKeys')->willReturn(['voter_token_secret']);
+		$appConfig->method('getValueString')->willReturnCallback(
+			static fn (string $app, string $key, string $default = ''): string => ($app === self::OLD ? 'abc123' : $default)
+		);
+		$appConfig->method('isSensitive')->willThrowException(new RuntimeException('flag unreadable'));
+		$appConfig->expects($this->once())
+			->method('setValueString')
+			->with(self::NEW, 'voter_token_secret', 'abc123', false, true)
+			->willReturn(true);
+
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				'Decidiq: could not read the sensitivity flag for an app config key; '
+				. 'copying it as sensitive to avoid exposing a secret',
+				['key' => 'voter_token_secret', 'exception' => 'flag unreadable']
+			);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->once())
+			->method('info')
+			->with(
+				'MigrateAppConfigKeys: 1 key(s) migrated, 0 already present, 0 had no value to migrate, '
+				. '0 skipped as Nextcloud-reserved.'
+			);
+
+		(new MigrateAppConfigKeys($appConfig, $logger))->run($output);
+
+	}//end testAnUnreadableSensitivityFlagCopiesAsSensitive()
+
+	/**
+	 * The step reports its label.
+	 *
+	 * @return void
+	 */
+	public function testGetName(): void {
+		$step = new MigrateAppConfigKeys(
+			$this->createMock(originalClassName: IAppConfig::class),
+			$this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		self::assertSame(
+			'Copy Decidiq app configuration from the decidesk namespace to decidiq',
+			$step->getName()
+		);
+
+	}//end testGetName()
+
 }//end class

@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use OCP\IL10N;
  * Identifiers, field names, schema slugs and filter values are never touched:
  * portaliq matches on them.
  *
- * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 class PortalLabelTranslator {
 
@@ -82,7 +82,7 @@ class PortalLabelTranslator {
 	 *
 	 * @return array<array-key, mixed> The same manifest, its visible strings translated.
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
 	 */
 	public function translate(array $manifest): array {
@@ -105,7 +105,7 @@ class PortalLabelTranslator {
 	 *
 	 * @return mixed The value, translated where a reader sees it.
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
 	 */
 	private function translateEntry(int|string $key, mixed $value): mixed {

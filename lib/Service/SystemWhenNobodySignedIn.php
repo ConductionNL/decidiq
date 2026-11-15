@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+ * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -29,15 +29,16 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserSession;
 
 /**
  * Elevates to the system only where there is no user to act as.
  *
- * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+ * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
  */
-class SystemWhenNobodySignedIn {
+class SystemWhenNobodySignedIn implements SystemWhenNobodySignedInInterface {
 
 	/**
 	 * Constructor.
@@ -58,7 +59,7 @@ class SystemWhenNobodySignedIn {
 	 *
 	 * @return mixed What the operation returns.
 	 *
-	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function run(callable $operation): mixed {
 		if ($this->userSession->getUser() !== null) {

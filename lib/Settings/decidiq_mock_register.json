@@ -338,7 +338,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -491,7 +492,7 @@
         "icon": "AccountArrowRightOutline",
         "version": "0.1.0",
         "title": "BoardProxy",
-        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. This is the row ProxyVoteService writes through /api/proxies and the row the per-holder proxy cap counts; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. Retired: proxy rows now live on ProxyAuthorization (fragment 67), and a proxy granted in a voting round is stored on that round, where the per-holder proxy cap counts it.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:BoardProxy",
@@ -981,7 +982,8 @@
                   "$lte": "$now"
                 },
                 "moderationStatus": "approved"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -1257,18 +1259,62 @@
               "en": "Decision repeals an earlier decision: {{title}}"
             }
           },
-          "outcomeEmitted": {
-            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
+          "outcomeDecided": {
+            "_note": "One rule per terminal lifecycle value (decided, enacted, withdrawn): OpenRegister supports only `changed` and `equals` on updated triggers, so the former single `in` rule (outcomeEmitted) never fired (decision-outcome-reaches-the-subscriber, REQ-DCDH-010).",
             "trigger": {
               "type": "updated",
               "condition": {
                 "field": "lifecycle",
-                "operator": "in",
-                "value": [
-                  "decided",
-                  "enacted",
-                  "withdrawn"
-                ]
+                "operator": "equals",
+                "value": "decided"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeEnacted": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "enacted"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeWithdrawn": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "withdrawn"
               }
             },
             "enabled": true,
@@ -1371,7 +1417,8 @@
               "group": "public",
               "match": {
                 "isPublished": "public"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4294,7 +4341,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4613,7 +4661,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4927,7 +4976,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -6117,6 +6167,52 @@
         "votesFor": 0,
         "votesAgainst": 0,
         "participatoryBudget": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-1"
+        },
+        "motion": "00000000-0000-4000-8000-000000000001",
+        "lineFrom": 4,
+        "lineTo": 5,
+        "targetPassage": "Een krediet van 640.000 euro beschikbaar stellen",
+        "proposedText": "Een krediet van 645.000 euro beschikbaar stellen",
+        "reason": "Bedrag uit de begrotingswijziging",
+        "status": "pending"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-2"
+        },
+        "motion": "00000000-0000-4000-8000-000000000002",
+        "lineFrom": 2,
+        "lineTo": 2,
+        "targetPassage": "artikel 12",
+        "proposedText": "artikel 14",
+        "reason": "Verkeerd artikelnummer",
+        "status": "accepted",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-3"
+        },
+        "motion": "00000000-0000-4000-8000-000000000003",
+        "lineFrom": 9,
+        "lineTo": 9,
+        "targetPassage": "zo spoedig mogelijk",
+        "proposedText": "voor 1 juli",
+        "reason": "Duidelijker formulering",
+        "status": "rejected",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-03T09:00:00+00:00"
       },
       {
         "@self": {
@@ -9008,6 +9104,48 @@
         "scheduledDate": "2026-05-10T19:30:00+01:00",
         "lifecycle": "planned",
         "liveCaptions": "off"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-1"
+        },
+        "name": "Stemgroep voorbeeld 1",
+        "description": "Voorbeeld van een vaste stemgroep 1",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "members": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-2"
+        },
+        "name": "Stemgroep voorbeeld 2",
+        "description": "Voorbeeld van een vaste stemgroep 2",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "members": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-3"
+        },
+        "name": "Stemgroep voorbeeld 3",
+        "description": "Voorbeeld van een vaste stemgroep 3",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "members": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "active": true
       }
     ]
   }

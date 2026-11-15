@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MemberImportServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 
@@ -38,7 +39,7 @@ use OCP\IUserManager;
  *
  * @spec openspec/specs/admin-settings/spec.md
  */
-class MemberImportService {
+class MemberImportService implements MemberImportServiceInterface {
 
 	/**
 	 * Maximum number of email rows accepted per match request (server-side

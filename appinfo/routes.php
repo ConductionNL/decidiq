@@ -32,6 +32,8 @@
 declare(strict_types=1);
 
 $extra = [
+        // The OpenAPI document of decidiq's own API, public, served under /api/v1/ too.
+    ['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
         // Publication configuration (publish-decisions-via-opencatalogi).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
         // First-time setup wizard (ADR-042) - the standard CnSetupWizard contract.
@@ -154,11 +156,16 @@ $extra = [
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
+        ['name' => 'decision#withdraw', 'url' => '/api/decisions/{decisionId}/withdraw', 'verb' => 'POST'],
 
         // Decision lifecycle state machine (guarded transition map).
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+
+        // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
+        // @spec openspec/specs/decidesk-contract-decision-hub/spec.md
+        ['name' => 'decisionAuthority#show', 'url' => '/api/decisions/{decisionId}/authority', 'verb' => 'GET'],
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
@@ -221,6 +228,10 @@ $extra = [
         ['name' => 'voting#open',        'url' => '/api/voting-rounds',             'verb' => 'POST'],
         ['name' => 'voting#cast',        'url' => '/api/voting-rounds/{id}/cast',   'verb' => 'POST'],
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
+        ['name' => 'paperVote#record',   'url' => '/api/voting-rounds/{id}/recorded-votes', 'verb' => 'POST'],
+        // motion-change-recommendations (REQ-MCR-003/004): the chair or secretary decides a recommended text change without a vote.
+        ['name' => 'changeRecommendation#accept', 'url' => '/api/change-recommendations/{id}/accept', 'verb' => 'POST'],
+        ['name' => 'changeRecommendation#reject', 'url' => '/api/change-recommendations/{id}/reject', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
@@ -281,11 +292,12 @@ $extra = [
 
         // Send minutes, a meeting's decision list or a motion for signature in order,
         // and collect the signed copy (signing-external-service-with-order, min-17).
+        // bodies-onboarding-checklist-walkthrough: mark one checklist step completed or skipped (secretariat or admin).
+        ['name' => 'onboarding#updateStep', 'url' => '/api/onboarding/{kind}/{id}/steps/{index}', 'verb' => 'PUT', 'requirements' => ['kind' => 'onboarding|offboarding', 'index' => '\\d+']],
         ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
         ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
         // Proxy voting (task-5.1).
-        ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],
         ['name' => 'proxyVote#index',    'url' => '/api/proxies',               'verb' => 'GET'],
         ['name' => 'proxyVote#suspend',  'url' => '/api/proxies/{id}/suspend',  'verb' => 'PUT'],
         ['name' => 'proxyVote#revoke',   'url' => '/api/proxies/{id}',          'verb' => 'DELETE'],
@@ -349,6 +361,12 @@ $extra = [
         ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+
+        // Public ORI RSS feeds (ori-adoption REQ-ORIA-004).
+        // @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+        ['name' => 'oriFeed#meetings',    'url' => '/feed/ori/meetings.rss',     'verb' => 'GET'],
+        ['name' => 'oriFeed#agendaItems', 'url' => '/feed/ori/agenda-items.rss', 'verb' => 'GET'],
+        ['name' => 'oriFeed#documents',   'url' => '/feed/ori/documents.rss',    'verb' => 'GET'],
 
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],
@@ -415,7 +433,8 @@ $extra = [
 // Preferred path: the OpenRegister AppHost owns the canonical route table.
 // `class_exists()` autoloads without fatalling when the class is unavailable.
 if (class_exists('OCA\OpenRegister\AppHost\Routes') === true) {
-    return \OCA\OpenRegister\AppHost\Routes::standard($extra);
+    // Every unversioned API route is also served under /api/v1/; see ApiPathAliases.
+    return \OCA\Decidiq\Middleware\Support\ApiPathAliases::withVersionedAliases(\OCA\OpenRegister\AppHost\Routes::standard($extra));
 }
 
 // Fallback: openregister is not installed. Reproduce `Routes::standard()`
@@ -460,4 +479,4 @@ foreach ($canonicalRoutes as $canonicalRoute) {
 $mergedRoutes   = array_merge($mergedRoutes, $extra);
 $mergedRoutes[] = $catchAllRoute;
 
-return ['routes' => $mergedRoutes];
+return \OCA\Decidiq\Middleware\Support\ApiPathAliases::withVersionedAliases(['routes' => $mergedRoutes]);

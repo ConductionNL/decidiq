@@ -11,7 +11,7 @@ not maintained by it.
 **`decidiq-security-flow-e2e.postman_collection.json`** (security-flow-e2e-coverage,
 also run via `run-newman.sh`) covers real-HTTP e2e for the four security-relevant
 endpoint groups that were previously exercised only by PHPUnit tests instantiating
-the controller directly: proxy-vote delegation (register/revoke, including the
+the controller directly: proxy-vote revocation (including the
 board-proxy-vote-authorization-guard IDOR check — unrelated caller → 403), eIDAS
 signing-endpoint reachability + auth posture, and governance-report /
 regulator-export reachability. Full external QES signing-provider round-trip is

@@ -95,15 +95,13 @@ import {
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import {
 	createActionItem,
 	deleteActionItem,
 	updateActionItem,
 } from '../../services/actionItemApi.js'
-import { ensureRelationType } from './useRelationStore.js'
+import { relationCrudTab, relationRowActions } from './relationRows.js'
 
 export default {
 	name: 'DecisionActionItemsTab',
@@ -117,6 +115,8 @@ export default {
 		NcButton,
 		Plus,
 	},
+
+	mixins: [relationCrudTab, relationRowActions],
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
@@ -156,82 +156,26 @@ export default {
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		rowActions() {
-			return [
-				{
-					label: this.t('decidiq', 'Edit'),
-					icon: Pencil,
-					handler: (row) => this.openEdit(row),
-				},
-				{
-					label: this.t('decidiq', 'Delete'),
-					icon: TrashCanOutline,
-					destructive: true,
-					handler: (row) => {
-						this.deleteTarget = { ...row }
-					},
-				},
-			]
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'created', 'updated']
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async refresh() {
-			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			try {
-				const store = ensureRelationType('action-item')
-				if (!this.actionItemSchema)
-					this.actionItemSchema = await store.fetchSchema('action-item')
-				const items = await store.fetchCollection('action-item', {
-					decision: this.objectId,
-					_limit: 100,
-				})
-				this.rows = items || []
-			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load action items.')
-			} finally {
-				this.loading = false
-			}
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async openCreate() {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = null
-			this.formOpen = true
-		},
-
 		/**
-		 * @param row
+		 * The relation this tab lists: its type, where it keeps the schema,
+		 * the fields that tie a row to the parent and the load failure text.
+		 *
+		 * @return {object} The listing.
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
-		async openEdit(row) {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = { ...row }
-			this.formOpen = true
+		relationListing() {
+			return {
+				type: 'action-item',
+				schemaKey: 'actionItemSchema',
+				filter: { decision: this.objectId },
+				failedText: this.t('decidiq', 'Failed to load action items.'),
+			}
 		},
 
 		/**
@@ -285,30 +229,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-</style>
+<style scoped src="./relationTab.css"></style>

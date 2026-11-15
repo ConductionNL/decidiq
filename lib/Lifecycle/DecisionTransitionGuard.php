@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
+
 /**
  * Guard for decision lifecycle transitions.
  *
@@ -38,22 +40,7 @@ namespace OCA\Decidiq\Lifecycle;
  *
  * @spec openspec/specs/decision-management/spec.md
  */
-class DecisionTransitionGuard {
-
-	/**
-	 * Ordered lifecycle states of the decision state machine.
-	 *
-	 * @var string[]
-	 */
-	public const STATES = [
-		'draft',
-		'proposed',
-		'deliberating',
-		'voting',
-		'decided',
-		'enacted',
-		'archived',
-	];
+class DecisionTransitionGuard implements DecisionTransitionGuardInterface {
 
 	/**
 	 * Lifecycle states in which a decision has actually been DECIDED.

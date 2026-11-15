@@ -53,6 +53,13 @@ class StreamingClient {
 	public const NOT_CONNECTED = 'No streaming service is connected';
 
 	/**
+	 * Finds the linked source and reads call statuses.
+	 *
+	 * @var IntegriqConnection
+	 */
+	private readonly IntegriqConnection $connection;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service (integriq's connection rows and sources).
@@ -62,10 +69,11 @@ class StreamingClient {
 	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		ObjectServiceInterface $objectService,
 		private readonly ContainerInterface $container,
 		private readonly SigningAnswer $answers,
 	) {
+		$this->connection = new IntegriqConnection(objectService: $objectService);
 	}//end __construct()
 
 	/**
@@ -76,11 +84,7 @@ class StreamingClient {
 	 * @return bool
 	 */
 	public function isConnected(): bool {
-		try {
-			return $this->source() !== null;
-		} catch (Throwable $e) {
-			return false;
-		}
+		return $this->connection->isLinked(connectionKey: self::CONNECTION_KEY);
 	}//end isConnected()
 
 	/**
@@ -111,7 +115,7 @@ class StreamingClient {
 	 * @return array<string,mixed> The decoded answer.
 	 */
 	public function call(string $operation, array $body): array {
-		$source = $this->source();
+		$source = $this->connection->source(connectionKey: self::CONNECTION_KEY);
 		$caller = FleetAppId::getService($this->container, 'integriq', 'Service\CallService');
 		if ($source === null || $caller === null) {
 			throw new BroadcastRefusedException(message: self::NOT_CONNECTED, status: 409);
@@ -133,68 +137,11 @@ class StreamingClient {
 			$decoded = [];
 		}
 
-		$status = $this->statusOf(response: $response);
+		$status = $this->connection->statusOf(response: $response);
 		if ($status >= 400) {
 			throw new BroadcastRefusedException(message: (string)($decoded['message'] ?? ('The streaming service answered ' . $status)), status: 502);
 		}
 
 		return $decoded;
 	}//end call()
-
-	/**
-	 * The HTTP status of an integriq call answer, 200 when it names none.
-	 *
-	 * @param mixed $response The call answer.
-	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service
-	 *
-	 * @return int
-	 */
-	private function statusOf(mixed $response): int {
-		$raw = [];
-		if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-			$raw = (array)$response->getResponse();
-		}
-
-		if ($raw === [] && is_object($response) === true && method_exists($response, 'getObject') === true) {
-			$raw = (array)(((array)$response->getObject())['response'] ?? []);
-		}
-
-		return (int)($raw['statusCode'] ?? 200);
-	}//end statusOf()
-
-	/**
-	 * The integriq source linked to decidiq's streaming connection.
-	 *
-	 * Connection rows and sources are admin configuration: read in system
-	 * context, as integriq itself does, so a clerk without rights on the
-	 * integriq register still reaches the streaming service.
-	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service
-	 *
-	 * @return object|null
-	 */
-	private function source(): ?object {
-		$rows = $this->objectService->findAll(
-			config: ['filters' => ['register' => 'integriq', 'schema' => 'app_connection', 'app' => 'decidiq', 'key' => self::CONNECTION_KEY]],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		foreach (($rows['results'] ?? $rows) as $row) {
-			$data = $row;
-			if (is_object($row) === true && method_exists($row, 'getObject') === true) {
-				$data = $row->getObject();
-			}
-
-			$sourceId = (string)(((array)$data)['source'] ?? '');
-			if ($sourceId === '') {
-				continue;
-			}
-
-			return $this->objectService->find(id: $sourceId, register: 'integriq', schema: 'source', _rbac: false, _multitenancy: false);
-		}
-
-		return null;
-	}//end source()
 }//end class

@@ -43,6 +43,7 @@ use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * A vote is public when its round is closed and not secret, its decision is
@@ -50,6 +51,7 @@ use Psr\Log\LoggerInterface;
  * collection and the item endpoint apply the same rule.
  *
  * @covers \OCA\Decidiq\Controller\OriController
+ * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
  * @covers \OCA\Decidiq\Service\OriPersonPublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
@@ -58,7 +60,9 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\PersonParticipantLookup
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
+ * @uses   \OCA\Decidiq\Service\OriObjectsById
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
@@ -131,7 +135,11 @@ class OriVotePublicationTest extends TestCase {
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null, bool $_rbac = true): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null || $_rbac === true) {
 					return null;

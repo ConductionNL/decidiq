@@ -40,6 +40,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The audit committee of 4 March: Mr Bos (seat 3) leaves, Mrs De Wit takes his seat.
@@ -49,6 +50,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\Decidiq\Exception\SubstitutionRefusedException
  * @uses   \OCA\Decidiq\Service\SubstitutionResolver
  * @uses   \OCA\Decidiq\Service\MeetingRoleGate
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class MandateSubstitutionServiceTest extends TestCase {
 
@@ -140,7 +143,11 @@ class MandateSubstitutionServiceTest extends TestCase {
 			fn (int|string $id, mixed ...$rest): ?ObjectEntity => isset($this->substitutions[$id]) === true ? $this->entity($this->substitutions[$id]) : null
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->assertFalse($_rbac, 'A substitution is written in system context');
 				$this->assertSame('mandate-substitution', $schema);
 				$id = ($uuid ?? 'sub-' . (count($this->substitutions) + 1));

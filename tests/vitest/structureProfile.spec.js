@@ -237,7 +237,10 @@ describe('the simple profile', () => {
 		// relocation step dropped every entry with no route, href, action or
 		// children, which is what a caption is; now the captions survive it.
 		expect(Object.hasOwn(simpleFile, 'relocations')).toBe(false)
-		const captions = (manifest) => manifest.menu.filter((entry) => entry.type === 'caption').map((entry) => entry.id)
+		const captions = (manifest) =>
+			manifest.menu
+				.filter((entry) => entry.type === 'caption')
+				.map((entry) => entry.id)
 		const withRelocations = build({ ...simpleFile, relocations: {} })
 		expect(captions(withRelocations)).toEqual(captions(built))
 		expect(captions(built).length).toBeGreaterThan(0)
@@ -482,10 +485,17 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 103 pages as the full profile, so every route stays', () => {
+	it('builds the same pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(103)
+		// Every page the manifest and its fragments declare, and no other.
+		const declared = new Set([
+			...readJson('src', 'manifest.json').pages.map((page) => page.id),
+			...fragments.flatMap((fragment) =>
+				(fragment.pages ?? []).map((page) => page.id),
+			),
+		])
+		expect(new Set(ids(built))).toEqual(declared)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {

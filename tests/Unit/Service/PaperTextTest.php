@@ -26,10 +26,10 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Service\PaperText;
-use OCA\OpenRegister\Db\Chunk;
-use OCA\OpenRegister\Db\ChunkMapper;
+use OCA\OpenRegister\Files\Db\Chunk;
+use OCA\OpenRegister\Files\Db\ChunkMapper;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\TextExtractionService;
+use OCA\OpenRegister\Files\Service\TextExtractionService;
 use OCP\Files\File;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -111,8 +111,8 @@ class PaperTextTest extends TestCase {
 		);
 		$services = [
 			'OCA\OpenRegister\Service\FileService' => $fileService,
-			'OCA\OpenRegister\Service\TextExtractionService' => $extraction,
-			'OCA\OpenRegister\Db\ChunkMapper' => $chunkMapper,
+			'OCA\OpenRegister\Files\Service\TextExtractionService' => $extraction,
+			'OCA\OpenRegister\Files\Db\ChunkMapper' => $chunkMapper,
 		];
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(static fn (string $id): object => $services[$id]);

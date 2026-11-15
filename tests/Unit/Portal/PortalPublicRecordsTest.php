@@ -20,9 +20,9 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
- * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md
+ * @spec openspec/specs/voting-system/spec.md
  */
 
 declare(strict_types=1);
@@ -46,11 +46,12 @@ use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * The meetings, decisions and voting records a visitor reads without signing in.
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 final class PortalPublicRecordsTest extends TestCase {
 
@@ -171,7 +172,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testACouncilChairWithoutAVoteAndTheGriffierAreNotListed(): void {
 		$this->store['governance-body']['raad']['chairHasVote'] = false;
@@ -192,7 +193,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testACommitteeChairVotesUnlessTheBodySaysOtherwise(): void {
 		$this->put('governance-body', 'commissie', ['name' => 'Commissie ruimte', 'publishVotingRecords' => true]);
@@ -213,7 +214,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
 	 */
 	public function testADanglingDecisionReferenceSkipsOnlyThatRound(): void {
 		$this->put('decision-stage', 'stage-dangling', ['sequence' => 1, 'stageType' => 'decisive', 'decision' => 'besluit-by-slug', 'votingRound' => 'r-dangling', 'assignedBody' => 'raad']);
@@ -227,13 +228,56 @@ final class PortalPublicRecordsTest extends TestCase {
 	}//end testADanglingDecisionReferenceSkipsOnlyThatRound()
 
 	/**
+	 * Golden: every published member's whole voting record in the example set
+	 * (title, subtitle, summary, columns, rows in order, note), byte for byte.
+	 * Pinned before PublicVotingRecords::record() was split into named steps.
+	 *
+	 * @return void
+	 */
+	public function testEveryMembersVotingRecordIsUnchanged(): void {
+		$this->store = [];
+		$path = dirname(__DIR__, 3).'/lib/Settings/example-sets/zuiddrecht.json';
+		$set = json_decode((string)file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($set['objects'] as $row) {
+			if ($row['register'] === 'decidiq') {
+				$this->put($row['schema'], $row['key'], self::resolve(value: $row['data']));
+			}
+		}
+
+		$provider = $this->provider();
+		$records = [];
+		foreach (array_column($provider->publicMembers(), 'id') as $id) {
+			$records[$id] = $provider->publicVotingRecord($id);
+		}
+
+		ksort($records);
+		$records['nobody'] = $provider->publicVotingRecord('nobody');
+		$golden = dirname(__DIR__, 2).'/fixtures/public-voting-records-golden.json';
+		$json = json_encode($records, (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))."\n";
+		// The example set's dates are relative to today, so they are recorded as day offsets.
+		$today = strtotime(gmdate('Y-m-d'));
+		$json = (string)preg_replace_callback(
+			'/\b\d{4}-\d{2}-\d{2}\b/',
+			static fn (array $date): string => 'today'.sprintf('%+d', (int)round((strtotime($date[0]) - $today) / 86400)),
+			$json
+		);
+		if (getenv('DECIDIQ_WRITE_GOLDEN') === '1') {
+			file_put_contents($golden, $json);
+		}
+
+		self::assertGreaterThan(20, count($records));
+		self::assertSame(file_get_contents($golden), $json);
+
+	}//end testEveryMembersVotingRecordIsUnchanged()
+
+	/**
 	 * The shipped example set, loaded as-is: every voting councillor has a
 	 * record with one named vote per public round, the votes add up to each
 	 * round's totals, and the mayor and the griffier are not listed.
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testTheExampleSetShowsEveryCouncillorsNamedVotes(): void {
 		$this->store = [];
@@ -269,7 +313,10 @@ final class PortalPublicRecordsTest extends TestCase {
 			}
 		}
 
-		foreach ($this->store['decision-stage'] as $stage) {
+		$tallied = 0;
+		// A stage decided without a vote (drafting, initials, signature) has no round to tally.
+		$votedStages = array_filter(array: $this->store['decision-stage'], callback: static fn (array $stage): bool => isset($stage['votingRound']));
+		foreach ($votedStages as $stage) {
 			$round = $this->store['voting-round'][$stage['votingRound']];
 			$subject = $this->store['decision'][$stage['decision']]['title'];
 			$expected = array_filter(['For' => $round['votesFor'], 'Against' => $round['votesAgainst'], 'Abstained' => $round['votesAbstain']]);
@@ -277,7 +324,10 @@ final class PortalPublicRecordsTest extends TestCase {
 			ksort($expected);
 			ksort($actual);
 			self::assertSame(expected: $expected, actual: $actual, message: $subject.': the named votes add up to the totals');
+			$tallied++;
 		}
+
+		self::assertSame(expected: 3, actual: $tallied, message: 'Each of the three public rounds is checked against its totals');
 	}//end testTheExampleSetShowsEveryCouncillorsNamedVotes()
 
 	/**
@@ -436,7 +486,11 @@ final class PortalPublicRecordsTest extends TestCase {
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null, bool $_rbac = true): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($_rbac === true) {
 					return null;

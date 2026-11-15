@@ -27,9 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 
@@ -38,7 +40,7 @@ use OCP\IGroupManager;
  *
  * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
  */
-class MotionStages {
+class MotionStages implements MotionStagesInterface {
 
 	/**
 	 * Constructor for MotionStages.
@@ -155,7 +157,7 @@ class MotionStages {
 	 * @return array{object: array<string, mixed>, owner: string}|null
 	 */
 	private function load(string $motionId): ?array {
-		$entity = $this->objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+		$entity = $this->objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($entity === null) {
 			return null;
 		}
@@ -187,7 +189,7 @@ class MotionStages {
 			return $this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $uid, roles: ['chair', 'secretary']);
 		}
 
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}

@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -29,9 +29,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\AgendaService;
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\SystemWhenNobodySignedIn;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -44,7 +44,7 @@ use Psr\Log\LoggerInterface;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  */
 class AgendaItemChangeListener implements IEventListener {
 
@@ -64,15 +64,15 @@ class AgendaItemChangeListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param AgendaService            $agendaService  Records the version and notifies
-	 * @param ListenerSchemaResolver   $schemaResolver Resolves the entity's schema slug
-	 * @param SystemWhenNobodySignedIn $system         Runs the notice as the system from cron or occ
+	 * @param AgendaServiceInterface            $agendaService  Records the version and notifies
+	 * @param ListenerSchemaResolverInterface   $schemaResolver Resolves the entity's schema slug
+	 * @param SystemWhenNobodySignedInInterface $system         Runs the notice as the system from cron or occ
 	 * @param LoggerInterface          $logger         Logger
 	 */
 	public function __construct(
-		private readonly AgendaService $agendaService,
-		private readonly ListenerSchemaResolver $schemaResolver,
-		private readonly SystemWhenNobodySignedIn $system,
+		private readonly AgendaServiceInterface $agendaService,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
+		private readonly SystemWhenNobodySignedInInterface $system,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -84,8 +84,8 @@ class AgendaItemChangeListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false
@@ -169,15 +169,6 @@ class AgendaItemChangeListener implements IEventListener {
 	 * @return array<string, mixed>
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 }//end class

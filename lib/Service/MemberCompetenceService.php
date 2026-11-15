@@ -34,7 +34,11 @@ use DateTimeInterface;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\CompetenceRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MemberCompetenceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IUserSession;
 
 /**
@@ -42,7 +46,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
  */
-class MemberCompetenceService {
+class MemberCompetenceService implements MemberCompetenceServiceInterface {
 	/**
 	 * The levels a member competence takes (the schema's enum).
 	 */
@@ -283,7 +287,12 @@ class MemberCompetenceService {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}
@@ -307,9 +316,10 @@ class MemberCompetenceService {
 	private function write(string $schema, array $object, ?string $id): array {
 		$saved = $this->objectService->saveObject(
 			object: $object,
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $id,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: $schema),
+				uuid: $id
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

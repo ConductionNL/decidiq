@@ -33,6 +33,8 @@ use PHPUnit\Framework\TestCase;
  * rectifying answer 503 with the reason, not a bare server error.
  *
  * @covers \OCA\Decidiq\Controller\PublicationController
+ * @uses \OCA\Decidiq\Controller\PublicationRecordChange
+ * @uses \OCA\Decidiq\Controller\PublicationSource
  *
  * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-002-a-confidential-item-never-reaches-the-public
  */

@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
@@ -44,7 +45,7 @@ use OCP\L10N\IFactory;
  *
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
  */
-class PublicVotingRecords {
+class PublicVotingRecords implements PublicVotingRecordsInterface {
 
 	/**
 	 * The register every object lives in.
@@ -124,7 +125,7 @@ class PublicVotingRecords {
 	 * @return list<array<string, string>>
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function members(): array {
 		$offices = $this->offices();
@@ -157,7 +158,7 @@ class PublicVotingRecords {
 	 * @return array<string, mixed>|null `{title, subtitle?, summary, columns, rows, note}`
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function record(string $personId): ?array {
 		$person = $this->personRule->person(personId: $personId);
@@ -167,40 +168,12 @@ class PublicVotingRecords {
 		}
 
 		$events = $this->publicEvents();
-		$counts = ['yes' => 0, 'no' => 0, 'abstain' => 0];
-		$rows = [];
-		foreach ($this->voteRule->votes(voter: $personId) as $vote) {
-			$event = ($events[$vote['vote_event']] ?? null);
-			if ($event === null) {
-				continue;
-			}
-
-			$counts[$vote['option']] = ($counts[$vote['option']] + 1);
-			$rows[] = [
-				'sortKey' => (string)$event['end_date'],
-				'date' => $this->date(value: (string)$event['end_date']),
-				'subject' => $event['subject'],
-				'choice' => $this->l10n->t(self::CHOICES[$vote['option']]),
-				'result' => $this->l10n->t((self::RESULTS[(string)$event['result']] ?? 'Unknown')),
-			];
-		}
-
-		usort($rows, static fn (array $a, array $b): int => strcmp($b['sortKey'], $a['sortKey']));
-		$rows = array_map(static function (array $row): array {
-			unset($row['sortKey']);
-			return $row;
-		}, $rows);
-
+		$votes = $this->publicVotesOf(personId: $personId, events: $events);
 		$record = [
 			'title' => $person['name'],
-			'summary' => $this->summary(counts: $counts, eligible: $this->eligibleRounds(events: $events, memberships: $memberships)),
-			'columns' => [
-				['key' => 'date', 'label' => $this->l10n->t('Date')],
-				['key' => 'subject', 'label' => $this->l10n->t('Subject')],
-				['key' => 'choice', 'label' => $this->l10n->t('Vote')],
-				['key' => 'result', 'label' => $this->l10n->t('Result')],
-			],
-			'rows' => $rows,
+			'summary' => $this->summary(counts: $votes['counts'], eligible: $this->eligibleRounds(events: $events, memberships: $memberships)),
+			'columns' => $this->recordColumns(),
+			'rows' => $votes['rows'],
 			'note' => $this->l10n->t('Only open votes on published decisions. Secret votes are not shown here.'),
 		];
 		$subtitle = $this->subtitle(memberships: $memberships);
@@ -210,6 +183,78 @@ class PublicVotingRecords {
 
 		return $record;
 	}//end record()
+
+	/**
+	 * A member's open votes on published decisions: the count per choice and
+	 * one row per vote, newest first.
+	 *
+	 * @param string                              $personId The person id
+	 * @param array<string, array<string, mixed>> $events   The public vote events by id
+	 *
+	 * @return array{counts: array<string, int>, rows: list<array<string, string>>} The counts and the rows.
+	 */
+	private function publicVotesOf(string $personId, array $events): array {
+		$counts = ['yes' => 0, 'no' => 0, 'abstain' => 0];
+		$rows = [];
+		foreach ($this->voteRule->votes(voter: $personId) as $vote) {
+			$event = ($events[$vote['vote_event']] ?? null);
+			if ($event === null) {
+				continue;
+			}
+
+			$counts[$vote['option']] = ($counts[$vote['option']] + 1);
+			$rows[] = $this->voteRow(vote: $vote, event: $event);
+		}
+
+		return ['counts' => $counts, 'rows' => self::newestFirst(rows: $rows)];
+	}//end publicVotesOf()
+
+	/**
+	 * One row of the record: when, what, how the member voted and the result.
+	 *
+	 * @param array<string, mixed> $vote  The vote
+	 * @param array<string, mixed> $event The vote event it was cast in
+	 *
+	 * @return array<string, string> The row, with its sort key.
+	 */
+	private function voteRow(array $vote, array $event): array {
+		return [
+			'sortKey' => (string)$event['end_date'],
+			'date' => $this->date(value: (string)$event['end_date']),
+			'subject' => $event['subject'],
+			'choice' => $this->l10n->t(self::CHOICES[$vote['option']]),
+			'result' => $this->l10n->t((self::RESULTS[(string)$event['result']] ?? 'Unknown')),
+		];
+	}//end voteRow()
+
+	/**
+	 * The rows newest first, without their sort key.
+	 *
+	 * @param list<array<string, string>> $rows The rows
+	 *
+	 * @return list<array<string, string>> The sorted rows.
+	 */
+	private static function newestFirst(array $rows): array {
+		usort($rows, static fn (array $a, array $b): int => strcmp($b['sortKey'], $a['sortKey']));
+		return array_map(static function (array $row): array {
+			unset($row['sortKey']);
+			return $row;
+		}, $rows);
+	}//end newestFirst()
+
+	/**
+	 * The record's table columns.
+	 *
+	 * @return list<array<string, string>> The columns.
+	 */
+	private function recordColumns(): array {
+		return [
+			['key' => 'date', 'label' => $this->l10n->t('Date')],
+			['key' => 'subject', 'label' => $this->l10n->t('Subject')],
+			['key' => 'choice', 'label' => $this->l10n->t('Vote')],
+			['key' => 'result', 'label' => $this->l10n->t('Result')],
+		];
+	}//end recordColumns()
 
 	/**
 	 * The summary cards: participation, then the counts for, against and abstained.

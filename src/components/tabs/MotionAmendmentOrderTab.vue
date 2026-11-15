@@ -142,6 +142,7 @@ import { NcButton } from '@nextcloud/vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
 import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
+import { compareByVotingOrder } from '../../utils/amendmentVotingOrder.js'
 import { suggestVotingOrder } from '../../utils/textDiff.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -200,27 +201,7 @@ export default {
 		 * @spec openspec/specs/motion-amendment/spec.md
 		 */
 		sortByVotingOrder(amendments) {
-			return [...amendments].sort((a, b) => {
-				const rankA =
-					Number.isFinite(Number(a?.votingOrder))
-					&& a?.votingOrder !== null
-					&& a?.votingOrder !== undefined
-					&& a?.votingOrder !== ''
-						? Number(a.votingOrder)
-						: Number.MAX_SAFE_INTEGER
-				const rankB =
-					Number.isFinite(Number(b?.votingOrder))
-					&& b?.votingOrder !== null
-					&& b?.votingOrder !== undefined
-					&& b?.votingOrder !== ''
-						? Number(b.votingOrder)
-						: Number.MAX_SAFE_INTEGER
-				if (rankA !== rankB) return rankA - rankB
-				const subA = String(a?.submittedAt || '')
-				const subB = String(b?.submittedAt || '')
-				if (subA !== subB) return subA < subB ? -1 : 1
-				return String(a?.id || '') < String(b?.id || '') ? -1 : 1
-			})
+			return [...amendments].sort(compareByVotingOrder)
 		},
 
 		/** @spec openspec/specs/motion-amendment/spec.md */
@@ -328,33 +309,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-
 .decidiq-tab__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);

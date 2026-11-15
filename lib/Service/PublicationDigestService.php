@@ -33,7 +33,12 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use OCA\Decidiq\Kernel\Contracts\PublicationDigestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -47,7 +52,7 @@ use Throwable;
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
  */
-class PublicationDigestService {
+class PublicationDigestService implements PublicationDigestServiceInterface {
 
 	/**
 	 * The event type the member's delivery goes out under.
@@ -196,8 +201,7 @@ class PublicationDigestService {
 				try {
 					$found = $this->objectService->find(
 						id: (string)$event['objectId'],
-						register: 'decidiq',
-						schema: (string)$event['objectType'],
+						options: new ObjectFindOptions(register: 'decidiq', schema: (string)$event['objectType']),
 						_rbac: true
 					);
 				} catch (Throwable) {
@@ -259,8 +263,7 @@ class PublicationDigestService {
 				'status'      => 'sent',
 				'sentAt'      => (new DateTimeImmutable('@' . $now))->format(DateTimeInterface::ATOM),
 			],
-			register: 'decidiq',
-			schema: 'notification',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'notification')),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -309,9 +312,10 @@ class PublicationDigestService {
 			$moment    = $this->schedule->time(value: ($event['occurredAt'] ?? null));
 			if ($moment !== null && $moment < $cutoff && ($event['id'] ?? '') !== '') {
 				$this->objectService->deleteObject(
-					uuid: (string)$event['id'],
-					register: 'decidiq',
-					schema: 'publication-event',
+					new ObjectDeletion(
+						uuid: (string)$event['id'],
+						target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-event')
+					),
 					_rbac: false,
 					_multitenancy: false
 				);
@@ -340,9 +344,10 @@ class PublicationDigestService {
 
 		$this->objectService->saveObject(
 			object: $data,
-			register: 'decidiq',
-			schema: 'publication-subscription',
-			uuid: $id,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-subscription'),
+				uuid: $id
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

@@ -37,7 +37,11 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
+use OCA\Decidiq\Kernel\Contracts\GuestInvitationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use OCP\IGroupManager;
 use OCP\IL10N;
@@ -49,7 +53,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
-class GuestInvitationService {
+class GuestInvitationService implements GuestInvitationServiceInterface {
 
 	/**
 	 * Groups that may invite to a meeting they did not organise.
@@ -146,15 +150,13 @@ class GuestInvitationService {
 
 		$participant = $this->objectService->saveObject(
 			object: ['displayName' => $name, 'role' => 'guest', 'email' => $email],
-			register: 'decidiq',
-			schema: 'participant'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 		);
 		$participantId = $this->idOf(entity: $participant);
 
 		$attendance = $this->objectService->saveObject(
 			object: ['meeting' => $meetingId, 'participant' => $participantId],
-			register: 'decidiq',
-			schema: 'meeting-attendance'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting-attendance'))
 		);
 
 		$mailed = $this->sendInvitation(meeting: $meeting, meetingId: $meetingId, email: $email, name: $name, link: $link);
@@ -221,7 +223,7 @@ class GuestInvitationService {
 	 */
 	private function loadMeeting(string $meetingId): array {
 		try {
-			$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$entity = null;
 		}

@@ -29,6 +29,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for the meeting document package assembly (vergaderstukken).
@@ -63,7 +64,11 @@ class MeetingPackageServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meetings): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($meetings): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (isset($meetings[(string)$id]) === false) {
 					return null;
 				}
@@ -324,5 +329,56 @@ class MeetingPackageServiceTest extends TestCase {
 		$this->assertStringNotContainsString('Foreign', $written[$tocPath]);
 
 	}//end testAssembleFiltersForeignAgendaItems()
+
+	/**
+	 * A non-public item is in the pack by its place only: listed as
+	 * "Besloten punt", with no title, no folder of papers and no file copied.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 *
+	 * @return void
+	 */
+	public function testAssembleListsANonPublicItemAsBeslotenPuntWithoutPapers(): void {
+		$paper = new class {
+
+			/**
+			 * @return string File name
+			 */
+			public function getName(): string {
+				return 'koopprijs.pdf';
+			}
+
+			/**
+			 * @return string File content
+			 */
+			public function getContent(): string {
+				return '%PDF koopprijs';
+			}
+		};
+
+		$written = new \ArrayObject();
+		$service = $this->makeService(
+			meetings: ['m-1' => ['id' => 'm-1', 'title' => 'Board meeting']],
+			items: [
+				['id' => 'ai-1', 'title' => 'Opening', 'orderNumber' => 1, 'meeting' => 'm-1'],
+				['id' => 'ai-7', 'title' => 'Grondaankoop Noordkade', 'orderNumber' => 7, 'meeting' => 'm-1', 'public' => false],
+			],
+			itemFiles: ['ai-7' => [$paper]],
+			written: $written
+		);
+
+		$result = $service->assemble('m-1', 'alice');
+
+		$this->assertTrue($result['success']);
+		$this->assertSame(2, $result['items']);
+		$this->assertSame(0, $result['files']);
+
+		$tocPath = 'Decidiq/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
+		$this->assertStringContainsString('02. Besloten punt', $written[$tocPath]);
+		$everything = implode("\n", array_keys($written->getArrayCopy())) . "\n" . implode("\n", $written->getArrayCopy());
+		$this->assertStringNotContainsString('Noordkade', $everything);
+		$this->assertStringNotContainsString('koopprijs', $everything);
+
+	}//end testAssembleListsANonPublicItemAsBeslotenPuntWithoutPapers()
 
 }//end class

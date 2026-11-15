@@ -1,0 +1,14 @@
+{
+    "quorum reached": {
+        "content": "ALV 2025\n\nDatum: 2025-04-15\nLocatie: Amsterdam\n\nAanwezigen:\n2 van de 3 leden\nStatus quorum: Quorum bereikt (2/3 leden)\n\nAgendapunten:\n- 1: Opening\n- : Begroting\n- 3: Untitled\n\nResoluties en Stemming:\n[Resoluties met stemming in aparte tabel]\n\nRondvraag en Afsluiting:\n[Rondvraag: geen bijzonderheden / gesloten om ...]\n\nNotulen opgesteld door: [Secretaris naam]\nNotulen goedgekeurd door: [Voorzitter naam]",
+        "recipientCount": 3
+    },
+    "quorum not reached": {
+        "content": "ALV voorjaar\n\nDatum: 2025-05-01\nLocatie: Utrecht\n\nAanwezigen:\n2 van de 2 leden\nStatus quorum: Quorum niet bereikt (2/2 leden)\n\nAgendapunten:\n\n\nResoluties en Stemming:\n[Resoluties met stemming in aparte tabel]\n\nRondvraag en Afsluiting:\n[Rondvraag: geen bijzonderheden / gesloten om ...]\n\nNotulen opgesteld door: [Secretaris naam]\nNotulen goedgekeurd door: [Voorzitter naam]",
+        "recipientCount": 2
+    },
+    "defaults": {
+        "content": "Algemene Ledenvergadering\n\nDatum: <today>\nLocatie: \n\nAanwezigen:\n0 van de 0 leden\nStatus quorum: Quorum bereikt (0/0 leden)\n\nAgendapunten:\n- 1: Opening\n\nResoluties en Stemming:\n[Resoluties met stemming in aparte tabel]\n\nRondvraag en Afsluiting:\n[Rondvraag: geen bijzonderheden / gesloten om ...]\n\nNotulen opgesteld door: [Secretaris naam]\nNotulen goedgekeurd door: [Voorzitter naam]",
+        "recipientCount": 0
+    }
+}
