@@ -1,0 +1,40 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Settings created() > falls back to empty fields, no locale and the first moderation policy 1`] = `
+{
+  "organisation_currency": "",
+  "organisation_locale": null,
+  "organisation_logo": "",
+  "organisation_name": "",
+  "organisation_retention_days": "",
+  "organisation_timezone": "",
+  "ori_endpoint": "",
+  "participation_anon_rate_limit": "",
+  "participation_catalog": "",
+  "participation_default_moderation_policy": {
+    "id": "pre-moderation",
+    "label": "Pre-moderation (approve before counting)",
+  },
+}
+`;
+
+exports[`Settings created() > seeds every field from the stored settings 1`] = `
+{
+  "organisation_currency": "EUR",
+  "organisation_locale": {
+    "id": "en",
+    "label": "English",
+  },
+  "organisation_logo": "logo.png",
+  "organisation_name": "Gemeente",
+  "organisation_retention_days": 30,
+  "organisation_timezone": "Europe/Amsterdam",
+  "ori_endpoint": "https://ori.example",
+  "participation_anon_rate_limit": 5,
+  "participation_catalog": "cat",
+  "participation_default_moderation_policy": {
+    "id": "post-moderation",
+    "label": "Post-moderation (auto-approve authenticated)",
+  },
+}
+`;

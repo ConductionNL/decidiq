@@ -1,0 +1,968 @@
+{
+    "unsupported-format": {
+        "throws": "InvalidArgumentException",
+        "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+        "code": 422,
+        "calls": []
+    },
+    "no-meeting": {
+        "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+        "message": "No linked Meeting found for Minutes \"min-1\". A meeting link is required to store the document.",
+        "code": 0,
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            }
+        ]
+    },
+    "markdown-content": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "Inhoud"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "  Inhoud\n  ",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "draft-fallback": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "generateDraft": "min-1"
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "# Concept\nAgenda"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "   ",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "no-title-version": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Minutes v1 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Minutes v1 <date>.md",
+                    "x"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "content": "x",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Minutes v1 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "item-notes": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "ai-title",
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "find": {
+                    "id": "ai-name",
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "find": {
+                    "id": "ai-none",
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "find": {
+                    "id": "ai-missing",
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "find": {
+                    "id": "ai-throws",
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "debug": "Decidiq: agenda item title lookup failed for document generation",
+                "context": {
+                    "agendaItemId": "ai-throws",
+                    "error": "item down"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "Inhoud\n\n---\n\n## Aantekeningen per agendapunt\n\n### Agendapunt\n\nZonder punt\n\n### Begroting\n\nMet titel\n\n**Besluiten:** Aangenomen\n\n### Naam\n\n**Besluiten:** Alleen besluit\n\n### ai-none\n\nGeen naam\n\n### ai-missing\n\nWeg\n\n### ai-throws\n\nFout\n"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "Inhoud",
+                        "itemNotes": [
+                            "geen lijst",
+                            {
+                                "notes": "  ",
+                                "decisions": ""
+                            },
+                            {
+                                "agendaItem": "",
+                                "notes": "Zonder punt"
+                            },
+                            {
+                                "agendaItem": "ai-title",
+                                "notes": "Met titel",
+                                "decisions": "Aangenomen"
+                            },
+                            {
+                                "agendaItem": "ai-name",
+                                "decisions": "Alleen besluit"
+                            },
+                            {
+                                "agendaItem": "ai-none",
+                                "notes": "Geen naam"
+                            },
+                            {
+                                "agendaItem": "ai-missing",
+                                "notes": "Weg"
+                            },
+                            {
+                                "agendaItem": "ai-throws",
+                                "notes": "Fout"
+                            }
+                        ],
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "item-notes-junk": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "Inhoud"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "Inhoud",
+                        "itemNotes": "tekst",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "item-notes-empty": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "Inhoud"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "Inhoud",
+                        "itemNotes": [],
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "pdf-rendered": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.pdf",
+            "format": "pdf",
+            "docudesk": true
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "fromHtml": [
+                    "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><h1>Titel</h1>\n<h2>Sub</h2>\n<h3>Klein</h3>\n<p class=\"list-item\">Eerste <strong>vet</strong> en <em>schuin</em></p>\n<hr/>\n\n<p>Gewone regel &lt;script&gt;</p>\n<hr/></body></html>",
+                    "Raad <b>&</b>",
+                    "the minutes document"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.pdf",
+                    "%PDF-bytes"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "# Titel\n## Sub\n### Klein\n1. Eerste **vet** en _schuin_\n---\n\nGewone regel <script>\n  ---  ",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.pdf",
+                                "format": "pdf",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": true
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "pdf-unavailable": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false,
+            "note": "Docudesk is not available on this instance — a markdown document was produced instead of a PDF."
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "fromHtml": [
+                    "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><h1>Titel</h1>\n<h2>Sub</h2>\n<h3>Klein</h3>\n<p class=\"list-item\">Eerste <strong>vet</strong> en <em>schuin</em></p>\n<hr/>\n\n<p>Gewone regel &lt;script&gt;</p>\n<hr/></body></html>",
+                    "Raad <b>&</b>",
+                    "the minutes document"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "# Titel\n## Sub\n### Klein\n1. Eerste **vet** en _schuin_\n---\n\nGewone regel <script>\n  ---"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "# Titel\n## Sub\n### Klein\n1. Eerste **vet** en _schuin_\n---\n\nGewone regel <script>\n  ---  ",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "pdf-write-fails": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": true
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "fromHtml": [
+                    "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><p>x</p></body></html>",
+                    "Raad <b>&</b>",
+                    "the minutes document"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.pdf",
+                    "%PDF-bytes"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "x",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": true
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "all-writes-fail": {
+        "throws": "RuntimeException",
+        "message": "The minutes document could not be stored: the Files backend is unavailable.",
+        "code": 503,
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "fromHtml": [
+                    "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><p>x</p></body></html>",
+                    "Raad <b>&</b>",
+                    "the minutes document"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.pdf",
+                    "%PDF-bytes"
+                ]
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            }
+        ]
+    },
+    "markdown-write-fails": {
+        "throws": "RuntimeException",
+        "message": "The minutes document could not be stored: the Files backend is unavailable.",
+        "code": 503,
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            }
+        ]
+    },
+    "earlier-documents": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "x",
+                        "generatedDocuments": [
+                            {
+                                "path": "/old.md"
+                            },
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "documents-junk": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "x",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            }
+        ]
+    },
+    "save-throws": {
+        "returns": {
+            "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+            "format": "markdown",
+            "docudesk": false
+        },
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "writeMeetingFile": [
+                    "m-1",
+                    "Minutes",
+                    "Raad <b>&</b> v3 <date>.md",
+                    "x"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "Raad <b>&</b>",
+                        "version": 3,
+                        "meeting": "m-1",
+                        "content": "x",
+                        "generatedDocuments": [
+                            {
+                                "path": "/Meetings/m-1/Minutes/Raad <b>&</b> v3 <date>.md",
+                                "format": "markdown",
+                                "generatedAt": "<date>",
+                                "generatedBy": "Jan",
+                                "docudesk": false
+                            }
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes",
+                    "uuid": "min-1"
+                }
+            },
+            {
+                "warning": "Decidiq: failed to record generated document on minutes object",
+                "context": {
+                    "minutesId": "min-1",
+                    "error": "save down"
+                }
+            }
+        ]
+    }
+}

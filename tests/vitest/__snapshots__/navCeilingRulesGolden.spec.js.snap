@@ -1,0 +1,325 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`check-nav-ceiling relocation and placement golden output > keeps its output over seeded menus and layouts 1`] = `
+{
+  "digest": "852b746e123112a47d5d729e5233fe48f7f403fdafdc8bf28d1e6e567669b59a",
+  "sample": [
+    {
+      "before": "[{"id":"b","href":"/b","children":[{"id":"e","action":"/e","section":"footer","children":[{"id":"c","section":"footer"},{"id":"c","action":"/c"},{"id":"a","section":"main"}]}]},{"id":"f","action":"/f","children":[{"id":"c"}]}]",
+      "frags": [
+        {
+          "menu": [],
+        },
+        {
+          "menu": [
+            {
+              "id": "e",
+            },
+            {
+              "action": "/b",
+              "id": "b",
+            },
+            {
+              "href": "/f",
+              "id": "f",
+            },
+            {
+              "id": "c",
+              "route": "/c",
+            },
+          ],
+        },
+      ],
+      "lay": {
+        "relocations": {
+          "b": "b",
+          "c": "a",
+          "f": "",
+        },
+        "removals": [
+          "e",
+        ],
+      },
+      "map": {
+        "a": "a",
+        "c": "missing",
+        "e": "d",
+        "f": "f",
+      },
+      "mutated": [
+        {
+          "children": [],
+          "href": "/b",
+          "id": "b",
+        },
+        {
+          "action": "/f",
+          "children": [],
+          "id": "f",
+        },
+        {
+          "id": "c",
+        },
+        {
+          "action": "/e",
+          "children": [
+            {
+              "id": "c",
+              "section": "footer",
+            },
+            {
+              "action": "/c",
+              "id": "c",
+            },
+            {
+              "id": "a",
+              "section": "main",
+            },
+          ],
+          "id": "e",
+          "section": "footer",
+        },
+      ],
+      "out": [
+        {
+          "children": [],
+          "href": "/b",
+          "id": "b",
+        },
+        {
+          "action": "/f",
+          "children": [],
+          "id": "f",
+        },
+        {
+          "action": "/e",
+          "children": [
+            {
+              "id": "c",
+              "section": "footer",
+            },
+            {
+              "action": "/c",
+              "id": "c",
+            },
+            {
+              "id": "a",
+              "section": "main",
+            },
+          ],
+          "id": "e",
+          "section": "footer",
+        },
+      ],
+      "placement": {
+        "checked": 4,
+        "failures": [],
+      },
+    },
+    {
+      "before": "[{"id":"d","route":"/d","section":"main"}]",
+      "frags": [],
+      "lay": {},
+      "map": {
+        "a": "",
+        "c": "a",
+        "f": "d",
+      },
+      "mutated": [
+        {
+          "id": "d",
+          "route": "/d",
+          "section": "main",
+        },
+      ],
+      "out": [
+        {
+          "id": "d",
+          "route": "/d",
+          "section": "main",
+        },
+      ],
+      "placement": {
+        "checked": 0,
+        "failures": [],
+      },
+    },
+    {
+      "before": "[]",
+      "frags": [],
+      "lay": {
+        "relocations": {
+          "a": "",
+          "b": "c",
+          "d": "b",
+        },
+        "removals": [
+          "a",
+        ],
+      },
+      "map": {
+        "b": "f",
+        "d": "",
+        "f": "b",
+      },
+      "mutated": [],
+      "out": [],
+      "placement": {
+        "checked": 0,
+        "failures": [],
+      },
+    },
+    {
+      "before": "[{"id":"c","section":"footer"}]",
+      "frags": [],
+      "lay": {
+        "relocations": {
+          "c": "f",
+          "d": "f",
+          "f": "e",
+        },
+        "settingsSection": [
+          "d",
+          "e",
+        ],
+      },
+      "map": {
+        "a": "c",
+        "b": "",
+        "f": "a",
+      },
+      "mutated": [
+        {
+          "id": "c",
+          "section": "footer",
+        },
+      ],
+      "out": [],
+      "placement": {
+        "checked": 0,
+        "failures": [],
+      },
+    },
+    {
+      "before": "[{"id":"c","section":"footer"},{"id":"e","section":"footer"}]",
+      "frags": [
+        {
+          "file": "src/manifest.d/f0.json",
+          "menu": [
+            {
+              "href": "/e",
+              "id": "e",
+              "section": "main",
+            },
+            {
+              "id": "a",
+            },
+          ],
+        },
+      ],
+      "lay": {
+        "relocations": {},
+        "removals": [
+          "c",
+          "e",
+        ],
+        "settingsSection": [],
+      },
+      "map": {
+        "b": "",
+        "e": "b",
+        "f": "e",
+      },
+      "mutated": [
+        {
+          "id": "c",
+          "section": "footer",
+        },
+        {
+          "id": "e",
+          "section": "footer",
+        },
+      ],
+      "out": [],
+      "placement": {
+        "checked": 2,
+        "failures": [
+          "✗ [R2 fragment-placement] src/manifest.d/f0.json declares top-level menu entry "a" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+        ],
+      },
+    },
+    {
+      "before": "[{"id":"a","href":"/a"},{"id":"d"}]",
+      "frags": [
+        {
+          "menu": [
+            {
+              "id": "f",
+            },
+            {
+              "action": "/e",
+              "id": "e",
+              "section": "main",
+            },
+            {
+              "id": "d",
+            },
+          ],
+        },
+        {
+          "file": "src/manifest.d/f1.json",
+          "menu": [
+            {
+              "action": "/f",
+              "id": "f",
+            },
+            {
+              "id": "b",
+            },
+            {
+              "id": "a",
+            },
+            {
+              "action": "/c",
+              "id": "c",
+            },
+          ],
+        },
+      ],
+      "lay": {},
+      "map": {
+        "a": "",
+        "d": "e",
+        "e": "e",
+      },
+      "mutated": [
+        {
+          "href": "/a",
+          "id": "a",
+        },
+        {
+          "id": "d",
+        },
+      ],
+      "out": [
+        {
+          "href": "/a",
+          "id": "a",
+        },
+      ],
+      "placement": {
+        "checked": 7,
+        "failures": [
+          "✗ [R2 fragment-placement] (fragment) declares top-level menu entry "f" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] (fragment) declares top-level menu entry "e" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] (fragment) declares top-level menu entry "d" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] src/manifest.d/f1.json declares top-level menu entry "f" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] src/manifest.d/f1.json declares top-level menu entry "b" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] src/manifest.d/f1.json declares top-level menu entry "a" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+          "✗ [R2 fragment-placement] src/manifest.d/f1.json declares top-level menu entry "c" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.",
+        ],
+      },
+    },
+  ],
+}
+`;

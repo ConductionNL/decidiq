@@ -16,13 +16,14 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -39,9 +40,9 @@ use OCP\AppFramework\Db\DoesNotExistException;
  * to a governance-body), and votes are linked to a round and a participant via
  * their relations array — there are no scalar foreign-key fields.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
-class VotingBehaviourService {
+class VotingBehaviourService implements VotingBehaviourServiceInterface {
 
 	/**
 	 * The canonical slug of the register this service reads.
@@ -67,7 +68,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -152,39 +153,12 @@ class VotingBehaviourService {
 	 * @return array<string,mixed> Statistics array with totalRounds, participated, participationRate,
 	 *                             votesFor, votesAgainst, votesAbstain, proxiesGiven, proxiesReceived
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function getStats(string $participantId, string $governanceBodyId): array {
 		$closedRounds = $this->closedRoundsForBody(governanceBodyId: $governanceBodyId);
 		$totalRounds = count($closedRounds);
-
-		$tally = [
-			'participated' => 0,
-			'votesFor' => 0,
-			'votesAgainst' => 0,
-			'votesAbstain' => 0,
-			'proxiesGiven' => 0,
-			'proxiesReceived' => 0,
-		];
-
-		foreach ($closedRounds as $round) {
-			$roundId = ($round['id'] ?? ($round['uuid'] ?? null));
-			if ($roundId === null) {
-				continue;
-			}
-
-			$this->accumulateRound(
-				tally: $tally,
-				roundId: (string)$roundId,
-				participantId: $participantId
-			);
-		}
-
-		// Participation rate as percentage.
-		$participationRate = 0.0;
-		if ($totalRounds > 0) {
-			$participationRate = round((($tally['participated'] / $totalRounds) * 100), 1);
-		}
+		$tally = $this->tallyRounds(rounds: $closedRounds, participantId: $participantId);
 
 		return array_merge(
 			[
@@ -192,7 +166,7 @@ class VotingBehaviourService {
 				'governanceBodyId' => $governanceBodyId,
 				'totalRounds' => $totalRounds,
 				'participated' => $tally['participated'],
-				'participationRate' => $participationRate,
+				'participationRate' => self::participationRate(participated: $tally['participated'], totalRounds: $totalRounds),
 			],
 			[
 				'votesFor' => $tally['votesFor'],
@@ -206,6 +180,57 @@ class VotingBehaviourService {
 	}//end getStats()
 
 	/**
+	 * The participant's tally over the closed rounds; a round without an id
+	 * is skipped.
+	 *
+	 * @param array<int, array<string, mixed>> $rounds        The closed rounds.
+	 * @param string                           $participantId The participant.
+	 *
+	 * @return array<string, int> The tally.
+	 */
+	private function tallyRounds(array $rounds, string $participantId): array {
+		$tally = [
+			'participated' => 0,
+			'votesFor' => 0,
+			'votesAgainst' => 0,
+			'votesAbstain' => 0,
+			'proxiesGiven' => 0,
+			'proxiesReceived' => 0,
+		];
+
+		foreach ($rounds as $round) {
+			$roundId = ($round['id'] ?? ($round['uuid'] ?? null));
+			if ($roundId === null) {
+				continue;
+			}
+
+			$this->accumulateRound(
+				tally: $tally,
+				roundId: (string)$roundId,
+				participantId: $participantId
+			);
+		}
+
+		return $tally;
+	}//end tallyRounds()
+
+	/**
+	 * Participation as a percentage of the closed rounds, to one decimal.
+	 *
+	 * @param int $participated The rounds the participant took part in.
+	 * @param int $totalRounds  The closed rounds.
+	 *
+	 * @return float The rate, 0 without closed rounds.
+	 */
+	private static function participationRate(int $participated, int $totalRounds): float {
+		if ($totalRounds === 0) {
+			return 0.0;
+		}
+
+		return round((($participated / $totalRounds) * 100), 1);
+	}//end participationRate()
+
+	/**
 	 * Collect every closed voting round of a governance body.
 	 *
 	 * Walks governance-body -> motion -> voting-round, keeping only rounds that
@@ -215,7 +240,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The closed rounds.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function closedRoundsForBody(string $governanceBodyId): array {
 		$objectService = $this->objectService();
@@ -258,7 +283,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The closed rounds.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function closedRoundsForMotion(string $motionId): array {
 		$objectService = $this->objectService();
@@ -290,7 +315,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function accumulateRound(array &$tally, string $roundId, string $participantId): void {
 		$votes = $this->participantVotes(roundId: $roundId, participantId: $participantId);
@@ -318,7 +343,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function accumulateVote(array &$tally, array $vote): void {
 		$countKey = match (($vote['value'] ?? null)) {
@@ -348,7 +373,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The ballots.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function participantVotes(string $roundId, string $participantId): array {
 		$objectService = $this->objectService();
@@ -374,7 +399,7 @@ class VotingBehaviourService {
 	 *
 	 * @return int The number of proxies received.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function proxiesReceived(string $roundId, string $participantId): int {
 		$objectService = $this->objectService();
@@ -408,7 +433,7 @@ class VotingBehaviourService {
 	 *
 	 * @return bool True when the participant is the delegator.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function namesDelegator(mixed $relations, string $participantId): bool {
 		foreach (($relations ?? []) as $rel) {

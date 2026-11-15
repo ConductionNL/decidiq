@@ -33,6 +33,10 @@ use RuntimeException;
  * is the state the HTTP outcome endpoint would report.
  *
  * @covers \OCA\Decidiq\Service\FlowDecisionService
+ * @uses   \OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard
+ * @uses   \OCA\Decidiq\Service\DecisionIntegrationService
+ * @uses   \OCA\Decidiq\Service\DecisionTypeRegistry
+ * @uses   \OCA\Decidiq\Service\DelegatedDecisionDefaults
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
  */

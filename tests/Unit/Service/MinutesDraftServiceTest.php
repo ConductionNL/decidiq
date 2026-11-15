@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\MinutesDraftRun;
+use OCA\Decidiq\Service\MinutesOutcomes;
+use OCA\Decidiq\Service\DraftProvenance;
 use OCA\Decidiq\Service\MinutesDraftService;
 use OCP\TaskProcessing\IManager;
 use PHPUnit\Framework\TestCase;
@@ -128,13 +131,13 @@ class MinutesDraftServiceTest extends TestCase {
 		$runner = static fn (string $prompt): string => 'Samenvatting voor het agendapunt.';
 
 		$sections = $this->service()->buildSections(
-			segments: $segments,
 			agendaItems: $agendaItems,
-			votingRounds: [],
-			decisions: [],
-			providerId: 'whisper:llm',
-			generatedAt: '2026-06-15T00:00:00Z',
-			runner: $runner
+			run: new MinutesDraftRun(
+				segments: $segments,
+				outcomes: new MinutesOutcomes(votingRounds: [], decisions: []),
+				provenance: new DraftProvenance(providerId: 'whisper:llm', generatedAt: '2026-06-15T00:00:00Z'),
+				runner: $runner
+			)
 		);
 
 		self::assertCount(2, $sections);
@@ -166,13 +169,13 @@ class MinutesDraftServiceTest extends TestCase {
 		$runner = static fn (string $prompt): string => 'Samenvatting hele vergadering.';
 
 		$sections = $this->service()->buildSections(
-			segments: $segments,
 			agendaItems: [['id' => 'A', 'title' => 'Budget']],
-			votingRounds: [],
-			decisions: [],
-			providerId: 'p',
-			generatedAt: 'now',
-			runner: $runner
+			run: new MinutesDraftRun(
+				segments: $segments,
+				outcomes: new MinutesOutcomes(votingRounds: [], decisions: []),
+				provenance: new DraftProvenance(providerId: 'p', generatedAt: 'now'),
+				runner: $runner
+			)
 		);
 
 		self::assertCount(1, $sections);

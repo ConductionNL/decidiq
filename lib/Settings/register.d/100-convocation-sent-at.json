@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-publish-and-invite-members (REQ-APIM-002, matrix rows age-05 and pla-05). Publishing the agenda sends the convocation. PublicationEligibilityService and the Publication widget read convocationSentAt before a public meeting's agenda may go public, but no schema declared it, so OpenRegister stored nothing and the check could never pass.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.7.0",
+        "properties": {
+          "convocationSentAt": {
+            "title": "Convocation sent at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the members were first invited, by publishing the agenda.",
+            "x-notes": "Set by AgendaService::publishAgenda() on the first publication and kept on a republish."
+          }
+        }
+      }
+    }
+  }
+}
