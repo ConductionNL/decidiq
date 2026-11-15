@@ -1,0 +1,1817 @@
+{
+    "publish with a catalog": {
+        "trace": [
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 1,
+                    "title": "Begroting",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "catalogPublish": "cat-1",
+                "payload": "obj-1",
+                "oriType": "Besluit"
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "cat-ref-1",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "publish",
+                    "sourceType": "decision",
+                    "payloadVersion": 1
+                }
+            },
+            {
+                "event": "decision",
+                "source": "dec-1",
+                "body": "body-1"
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "cat-ref-1",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "warnings": []
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 1,
+                "title": "Begroting",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting",
+                "governanceBody": "body-1",
+                "payloadObject": "obj-1",
+                "payloadVersion": 1,
+                "oriType": "Besluit",
+                "catalogPublication": "cat-ref-1",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "publish without opencatalogi": {
+        "trace": [
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 1,
+                    "title": "Begroting",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "publish",
+                    "sourceType": "decision",
+                    "payloadVersion": 1
+                }
+            },
+            {
+                "event": "decision",
+                "source": "dec-1",
+                "body": "body-1"
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "warnings": [
+                    "opencatalogi-absent"
+                ]
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 1,
+                "title": "Begroting",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting",
+                "governanceBody": "body-1",
+                "payloadObject": "obj-1",
+                "payloadVersion": 1,
+                "oriType": "Besluit",
+                "catalogPublication": "",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "publish with a failing catalog": {
+        "trace": [
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 1,
+                    "title": "Begroting",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "catalogPublish": "cat-1",
+                "payload": "obj-1",
+                "oriType": "Besluit"
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "publish",
+                    "sourceType": "decision",
+                    "payloadVersion": 1
+                }
+            },
+            {
+                "event": "decision",
+                "source": "dec-1",
+                "body": "body-1"
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "warnings": [
+                    "catalog-publish-failed"
+                ]
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 1,
+                "title": "Begroting",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting",
+                "governanceBody": "body-1",
+                "payloadObject": "obj-1",
+                "payloadVersion": 1,
+                "oriType": "Besluit",
+                "catalogPublication": "",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "publish a body without a catalog": {
+        "trace": [
+            {
+                "find": "dec-3"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 1,
+                    "title": "Zonder catalogus",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-3",
+                    "sourceTitle": "Zonder catalogus",
+                    "governanceBody": "body-9",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "id": "dec-3",
+                    "title": "Zonder catalogus",
+                    "lifecycle": "decided",
+                    "outcome": "adopted",
+                    "governanceBody": [
+                        "body-9"
+                    ],
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-3"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-3",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "publish",
+                    "sourceType": "decision",
+                    "payloadVersion": 1
+                }
+            },
+            {
+                "event": "decision",
+                "source": "dec-3",
+                "body": "body-9"
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-3",
+                    "sourceTitle": "Zonder catalogus",
+                    "governanceBody": "body-9",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 1,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "warnings": [
+                    "opencatalogi-absent"
+                ]
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 1,
+                "title": "Zonder catalogus",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-3",
+                "sourceTitle": "Zonder catalogus",
+                "governanceBody": "body-9",
+                "payloadObject": "obj-1",
+                "payloadVersion": 1,
+                "oriType": "Besluit",
+                "catalogPublication": "",
+                "targetCatalog": "",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "publish a refused source": {
+        "trace": [
+            {
+                "find": "dec-draft"
+            }
+        ],
+        "outcome": {
+            "threw": "OCA\\Decidiq\\Exception\\AccessDeniedException",
+            "message": "Only decisions in status \"decided\" or \"enacted\" are publishable."
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            }
+        }
+    },
+    "withdraw with a catalog": {
+        "trace": [
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "pay-1"
+            },
+            {
+                "save": {
+                    "id": "pay-1",
+                    "oriType": "Besluit",
+                    "publicationDate": "<now>",
+                    "depublicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": "pay-1"
+            },
+            {
+                "catalogRetract": "cat-ref-0"
+            },
+            {
+                "save": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Ingetrokken",
+                    "catalogRetractionStatus": "done"
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "internal",
+                    "publishedAt": null
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "pay-1"
+                ],
+                "payload": {
+                    "publicationAction": "withdraw",
+                    "reason": "Ingetrokken"
+                }
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Ingetrokken",
+                    "catalogRetractionStatus": "done"
+                },
+                "warnings": []
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "internal",
+                "publishedAt": null
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>",
+                "depublicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "withdrawn",
+                "publishedPapers": [],
+                "withdrawnBy": "j.bakker",
+                "withdrawnAt": "<now>",
+                "withdrawReason": "Ingetrokken",
+                "catalogRetractionStatus": "done"
+            }
+        }
+    },
+    "withdraw with a failing retraction": {
+        "trace": [
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "pay-1"
+            },
+            {
+                "save": {
+                    "id": "pay-1",
+                    "oriType": "Besluit",
+                    "publicationDate": "<now>",
+                    "depublicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": "pay-1"
+            },
+            {
+                "catalogRetract": "cat-ref-0"
+            },
+            {
+                "save": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Ingetrokken",
+                    "catalogRetractionStatus": "pending"
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "internal",
+                    "publishedAt": null
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "pay-1"
+                ],
+                "payload": {
+                    "publicationAction": "withdraw",
+                    "reason": "Ingetrokken"
+                }
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Ingetrokken",
+                    "catalogRetractionStatus": "pending"
+                },
+                "warnings": [
+                    "catalog-retraction-failed"
+                ]
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "internal",
+                "publishedAt": null
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>",
+                "depublicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "withdrawn",
+                "publishedPapers": [],
+                "withdrawnBy": "j.bakker",
+                "withdrawnAt": "<now>",
+                "withdrawReason": "Ingetrokken",
+                "catalogRetractionStatus": "pending"
+            }
+        }
+    },
+    "withdraw without a reason": {
+        "trace": [],
+        "outcome": {
+            "threw": "InvalidArgumentException",
+            "message": "A withdraw reason is required."
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            }
+        }
+    },
+    "rectify with a reason": {
+        "trace": [
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 3,
+                    "title": "Begroting",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "catalogPublish": "cat-1",
+                "payload": "obj-1",
+                "oriType": "Besluit"
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 3,
+                    "oriType": "Besluit",
+                    "catalogPublication": "cat-ref-2",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "rectifiesVersion": 2,
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "pay-1"
+            },
+            {
+                "save": {
+                    "id": "pay-1",
+                    "oriType": "Besluit",
+                    "publicationDate": "<now>",
+                    "depublicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": "pay-1"
+            },
+            {
+                "catalogRetract": "cat-ref-0"
+            },
+            {
+                "save": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Typfout",
+                    "catalogRetractionStatus": "done"
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "internal",
+                    "publishedAt": null
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "pay-1"
+                ],
+                "payload": {
+                    "publicationAction": "withdraw",
+                    "reason": "Typfout"
+                }
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "rectify",
+                    "rectifiesVersion": 2,
+                    "newVersion": 3
+                }
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 3,
+                    "oriType": "Besluit",
+                    "catalogPublication": "cat-ref-2",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "rectifiesVersion": 2,
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "previous": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Typfout",
+                    "catalogRetractionStatus": "done"
+                },
+                "warnings": []
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>",
+                "depublicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "withdrawn",
+                "publishedPapers": [],
+                "withdrawnBy": "j.bakker",
+                "withdrawnAt": "<now>",
+                "withdrawReason": "Typfout",
+                "catalogRetractionStatus": "done"
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 3,
+                "title": "Begroting",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting",
+                "governanceBody": "body-1",
+                "payloadObject": "obj-1",
+                "payloadVersion": 3,
+                "oriType": "Besluit",
+                "catalogPublication": "cat-ref-2",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "rectifiesVersion": 2,
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "rectify without a reason": {
+        "trace": [
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "oriType": "Besluit",
+                    "schemaOrgType": "ChooseAction",
+                    "payloadVersion": 3,
+                    "title": "Begroting",
+                    "text": "",
+                    "outcome": "adopted",
+                    "decisionDate": null,
+                    "legalBasis": "",
+                    "bodyName": "",
+                    "voteTotals": {
+                        "for": 0,
+                        "against": 0,
+                        "abstain": 0
+                    },
+                    "documentType": "decision",
+                    "publicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": null
+            },
+            {
+                "save": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 3,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "rectifiesVersion": 2,
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": []
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": null
+            },
+            {
+                "find": "rec-1"
+            },
+            {
+                "find": "pay-1"
+            },
+            {
+                "save": {
+                    "id": "pay-1",
+                    "oriType": "Besluit",
+                    "publicationDate": "<now>",
+                    "depublicationDate": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "publication-payload",
+                "uuid": "pay-1"
+            },
+            {
+                "catalogRetract": "cat-ref-0"
+            },
+            {
+                "save": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Superseded by rectified version 3",
+                    "catalogRetractionStatus": "done"
+                },
+                "register": "decidiq",
+                "schema": "publication-record",
+                "uuid": "rec-1"
+            },
+            {
+                "find": "dec-1"
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "internal",
+                    "publishedAt": null
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "pay-1"
+                ],
+                "payload": {
+                    "publicationAction": "withdraw",
+                    "reason": "Superseded by rectified version 3"
+                }
+            },
+            {
+                "save": {
+                    "id": "dec-1",
+                    "title": "Begroting",
+                    "lifecycle": "enacted",
+                    "outcome": "adopted",
+                    "governanceBody": "body-1",
+                    "decisionType": "meeting-outcome",
+                    "isPublished": "public",
+                    "publishedAt": "<now>"
+                },
+                "register": "decidiq",
+                "schema": "decision",
+                "uuid": "dec-1"
+            },
+            {
+                "audit": "decision-transition",
+                "actor": "j.bakker",
+                "objects": [
+                    "dec-1",
+                    "obj-1"
+                ],
+                "payload": {
+                    "publicationAction": "rectify",
+                    "rectifiesVersion": 2,
+                    "newVersion": 3
+                }
+            }
+        ],
+        "outcome": {
+            "result": {
+                "record": {
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting",
+                    "governanceBody": "body-1",
+                    "payloadObject": "obj-1",
+                    "payloadVersion": 3,
+                    "oriType": "Besluit",
+                    "catalogPublication": "",
+                    "targetCatalog": "cat-1",
+                    "status": "published",
+                    "catalogRetractionStatus": "none",
+                    "rectifiesVersion": 2,
+                    "publishedBy": "j.bakker",
+                    "publishedAt": "<now>",
+                    "publishedPapers": [],
+                    "id": "obj-2"
+                },
+                "previous": {
+                    "id": "rec-1",
+                    "sourceType": "decision",
+                    "sourceObject": "dec-1",
+                    "sourceTitle": "Begroting (oud)",
+                    "governanceBody": "body-1",
+                    "payloadObject": "pay-1",
+                    "payloadVersion": 2,
+                    "catalogPublication": "cat-ref-0",
+                    "targetCatalog": "cat-1",
+                    "status": "withdrawn",
+                    "publishedPapers": [],
+                    "withdrawnBy": "j.bakker",
+                    "withdrawnAt": "<now>",
+                    "withdrawReason": "Superseded by rectified version 3",
+                    "catalogRetractionStatus": "done"
+                },
+                "warnings": [
+                    "opencatalogi-absent"
+                ]
+            }
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome",
+                "isPublished": "public",
+                "publishedAt": "<now>"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>",
+                "depublicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "withdrawn",
+                "publishedPapers": [],
+                "withdrawnBy": "j.bakker",
+                "withdrawnAt": "<now>",
+                "withdrawReason": "Superseded by rectified version 3",
+                "catalogRetractionStatus": "done"
+            },
+            "obj-1": {
+                "id": "obj-1",
+                "oriType": "Besluit",
+                "schemaOrgType": "ChooseAction",
+                "payloadVersion": 3,
+                "title": "Begroting",
+                "text": "",
+                "outcome": "adopted",
+                "decisionDate": null,
+                "legalBasis": "",
+                "bodyName": "",
+                "voteTotals": {
+                    "for": 0,
+                    "against": 0,
+                    "abstain": 0
+                },
+                "documentType": "decision",
+                "publicationDate": "<now>"
+            },
+            "obj-2": {
+                "id": "obj-2",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting",
+                "governanceBody": "body-1",
+                "payloadObject": "obj-1",
+                "payloadVersion": 3,
+                "oriType": "Besluit",
+                "catalogPublication": "",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "catalogRetractionStatus": "none",
+                "rectifiesVersion": 2,
+                "publishedBy": "j.bakker",
+                "publishedAt": "<now>",
+                "publishedPapers": []
+            }
+        }
+    },
+    "rectify a missing record": {
+        "trace": [
+            {
+                "find": "rec-missing"
+            }
+        ],
+        "outcome": {
+            "threw": "OCA\\Decidiq\\Exception\\MissingObjectException",
+            "message": "Publication record not found: rec-missing"
+        },
+        "store": {
+            "dec-1": {
+                "id": "dec-1",
+                "title": "Begroting",
+                "lifecycle": "enacted",
+                "outcome": "adopted",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "dec-3": {
+                "id": "dec-3",
+                "title": "Zonder catalogus",
+                "lifecycle": "decided",
+                "outcome": "adopted",
+                "governanceBody": [
+                    "body-9"
+                ],
+                "decisionType": "meeting-outcome"
+            },
+            "dec-draft": {
+                "id": "dec-draft",
+                "title": "Concept",
+                "lifecycle": "draft",
+                "governanceBody": "body-1",
+                "decisionType": "meeting-outcome"
+            },
+            "pay-1": {
+                "id": "pay-1",
+                "oriType": "Besluit",
+                "publicationDate": "<now>"
+            },
+            "rec-1": {
+                "id": "rec-1",
+                "sourceType": "decision",
+                "sourceObject": "dec-1",
+                "sourceTitle": "Begroting (oud)",
+                "governanceBody": "body-1",
+                "payloadObject": "pay-1",
+                "payloadVersion": 2,
+                "catalogPublication": "cat-ref-0",
+                "targetCatalog": "cat-1",
+                "status": "published",
+                "publishedPapers": []
+            }
+        }
+    }
+}

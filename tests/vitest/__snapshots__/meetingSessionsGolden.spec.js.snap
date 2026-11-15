@@ -1,0 +1,793 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`meetingSessions golden output > keeps its arrangement over seeded evenings and sessions 1`] = `
+{
+  "digest": "24898c3ab0d6a64ab3c9d546c6ca9a37725d231be8be0eea7ae4c7e2e33a3000",
+  "sample": [
+    {
+      "columns": {
+        "error": "TypeError",
+      },
+      "entered": {
+        "room": " Kamer 1 ",
+        "time": "19:30:00",
+        "title": 0,
+      },
+      "grouped": [
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "governanceBody": "ev",
+          "id": "ev2",
+          "lifecycle": "closed",
+          "parentMeeting": {
+            "uuid": "ev2",
+          },
+          "room": null,
+          "scheduledDate": null,
+          "sessions": [],
+          "title": "Commissie Ruimte",
+        },
+        {
+          "chair": "p1",
+          "governanceBody": {
+            "id": "ev",
+          },
+          "id": "s2",
+          "isPublic": null,
+          "lifecycle": "closed",
+          "parentMeeting": null,
+          "room": null,
+          "scheduledDate": null,
+          "sessions": [],
+          "title": "",
+        },
+      ],
+      "input": "list",
+      "labels": [
+        "Commissie Ruimte",
+        "",
+      ],
+      "meetings": [
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "governanceBody": "ev",
+          "id": "ev2",
+          "lifecycle": "closed",
+          "parentMeeting": {
+            "uuid": "ev2",
+          },
+          "room": null,
+          "scheduledDate": null,
+          "title": "Commissie Ruimte",
+        },
+        {
+          "chair": "p1",
+          "governanceBody": {
+            "id": "ev",
+          },
+          "id": "s2",
+          "isPublic": null,
+          "lifecycle": "closed",
+          "parentMeeting": null,
+          "room": null,
+          "scheduledDate": null,
+          "title": "",
+        },
+      ],
+      "order": [
+        "s2",
+        "ev2",
+      ],
+      "pair": 1,
+      "refs": [
+        [
+          "ev2",
+          "ev",
+          "ev2",
+        ],
+        [
+          null,
+          "ev",
+          null,
+        ],
+      ],
+      "rel": {
+        "agendaItems": null,
+        "broadcasts": {
+          "s1": {
+            "lifecycle": "live",
+          },
+          "s2": {},
+          "s3": {
+            "lifecycle": null,
+          },
+        },
+      },
+      "session": {
+        "governanceBody": "ev",
+        "parentMeeting": "ev2",
+        "room": "Kamer 1",
+        "title": "0",
+      },
+      "siblings": [],
+    },
+    {
+      "columns": [
+        {
+          "chair": "",
+          "firstItems": [],
+          "id": "s4",
+          "lifecycle": "open",
+          "live": null,
+          "room": "",
+          "time": "19:00",
+          "title": "  Raad  ",
+        },
+        {
+          "chair": "",
+          "firstItems": [],
+          "id": "s3",
+          "lifecycle": "",
+          "live": null,
+          "room": "Raadzaal",
+          "time": "",
+          "title": "  Raad  ",
+        },
+      ],
+      "entered": {
+        "room": "Raadzaal",
+        "time": "7:30",
+        "title": "  Raad  ",
+      },
+      "grouped": [
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "id": "s3",
+          "isPublic": null,
+          "lifecycle": null,
+          "meetingMode": 0,
+          "parentMeeting": "s1",
+          "room": "Raadzaal",
+          "scheduledDate": "not a date",
+          "sessions": [],
+          "title": "  Raad  ",
+        },
+        {
+          "chair": "p9",
+          "governanceBody": {},
+          "id": "s4",
+          "isPublic": true,
+          "lifecycle": "open",
+          "meetingMode": false,
+          "parentMeeting": "ev",
+          "scheduledDate": "2026-11-03T19:00:00+01:00",
+          "sessions": [],
+          "title": "  Raad  ",
+        },
+      ],
+      "input": "list",
+      "labels": [
+        "  Raad   (Raadzaal)",
+        "19:00   Raad  ",
+      ],
+      "meetings": [
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "id": "s3",
+          "isPublic": null,
+          "lifecycle": null,
+          "meetingMode": 0,
+          "parentMeeting": "s1",
+          "room": "Raadzaal",
+          "scheduledDate": "not a date",
+          "title": "  Raad  ",
+        },
+        {
+          "chair": "p9",
+          "governanceBody": {},
+          "id": "s4",
+          "isPublic": true,
+          "lifecycle": "open",
+          "meetingMode": false,
+          "parentMeeting": "ev",
+          "scheduledDate": "2026-11-03T19:00:00+01:00",
+          "title": "  Raad  ",
+        },
+      ],
+      "order": [
+        "s4",
+        "s3",
+      ],
+      "pair": 1,
+      "refs": [
+        [
+          "s1",
+          null,
+          "s1",
+        ],
+        [
+          "ev",
+          null,
+          "ev",
+        ],
+      ],
+      "rel": {
+        "agendaItems": {
+          "ev": [],
+          "s1": [
+            {
+              "id": "a1",
+              "orderNumber": 2,
+            },
+            {
+              "id": "a2",
+              "orderNumber": null,
+            },
+            {
+              "id": "a3",
+              "orderNumber": 3,
+            },
+            {
+              "id": "a4",
+              "orderNumber": "4",
+            },
+          ],
+          "s2": [
+            {
+              "id": "a5",
+              "orderNumber": 5,
+            },
+          ],
+        },
+        "broadcasts": {
+          "s1": {
+            "lifecycle": "live",
+          },
+          "s2": {},
+          "s3": {
+            "lifecycle": null,
+          },
+        },
+      },
+      "session": {
+        "meetingMode": 0,
+        "parentMeeting": "s3",
+        "room": "Raadzaal",
+        "title": "Raad",
+      },
+      "siblings": [],
+    },
+    {
+      "columns": [
+        {
+          "chair": "",
+          "firstItems": [
+            {
+              "id": "a5",
+              "orderNumber": null,
+            },
+          ],
+          "id": "s2",
+          "lifecycle": "open",
+          "live": null,
+          "room": "",
+          "time": "01:00",
+          "title": "",
+        },
+        {
+          "chair": "",
+          "firstItems": [
+            {
+              "id": "a2",
+              "orderNumber": "x",
+            },
+            {
+              "id": "a1",
+              "orderNumber": 2,
+            },
+            {
+              "id": "a3",
+              "orderNumber": "3",
+            },
+          ],
+          "id": "s1",
+          "lifecycle": "",
+          "live": "live",
+          "room": " Kamer 1 ",
+          "time": "01:00",
+          "title": "",
+        },
+      ],
+      "entered": null,
+      "grouped": [
+        {
+          "chair": "p9",
+          "governanceBody": {},
+          "id": "s2",
+          "isPublic": true,
+          "lifecycle": "open",
+          "meetingMode": null,
+          "parentMeeting": 7,
+          "scheduledDate": "2026-11-03",
+          "sessions": [],
+          "title": "",
+        },
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "governanceBody": 7,
+          "id": "s1",
+          "isPublic": "hybrid",
+          "meetingMode": 0,
+          "parentMeeting": {},
+          "room": " Kamer 1 ",
+          "scheduledDate": "2026-11-03",
+          "sessions": [],
+        },
+      ],
+      "input": "list",
+      "labels": [
+        "01:00 ",
+        "01:00  ( Kamer 1 )",
+      ],
+      "meetings": [
+        {
+          "chair": "p9",
+          "governanceBody": {},
+          "id": "s2",
+          "isPublic": true,
+          "lifecycle": "open",
+          "meetingMode": null,
+          "parentMeeting": 7,
+          "scheduledDate": "2026-11-03",
+          "title": "",
+        },
+        {
+          "chair": {
+            "id": "p2",
+          },
+          "governanceBody": 7,
+          "id": "s1",
+          "isPublic": "hybrid",
+          "meetingMode": 0,
+          "parentMeeting": {},
+          "room": " Kamer 1 ",
+          "scheduledDate": "2026-11-03",
+        },
+      ],
+      "order": [
+        "s2",
+        "s1",
+      ],
+      "pair": 0,
+      "refs": [
+        [
+          null,
+          null,
+          null,
+        ],
+        [
+          null,
+          null,
+          null,
+        ],
+      ],
+      "rel": {
+        "agendaItems": {
+          "ev": [],
+          "s1": [
+            {
+              "id": "a1",
+              "orderNumber": 2,
+            },
+            {
+              "id": "a2",
+              "orderNumber": "x",
+            },
+            {
+              "id": "a3",
+              "orderNumber": "3",
+            },
+            {
+              "id": "a4",
+              "orderNumber": 4,
+            },
+          ],
+          "s2": [
+            {
+              "id": "a5",
+              "orderNumber": null,
+            },
+          ],
+        },
+        "broadcasts": {
+          "s1": {
+            "lifecycle": "live",
+          },
+          "s2": {},
+          "s3": {
+            "lifecycle": null,
+          },
+        },
+      },
+      "session": {
+        "isPublic": true,
+        "parentMeeting": "s2",
+        "title": "",
+      },
+      "siblings": [],
+    },
+    {
+      "columns": {
+        "error": "TypeError",
+      },
+      "entered": {
+        "room": null,
+        "time": "19:30",
+        "title": 0,
+      },
+      "grouped": [
+        {
+          "governanceBody": "ev2",
+          "id": "ev",
+          "isPublic": false,
+          "lifecycle": null,
+          "meetingMode": 0,
+          "parentMeeting": "",
+          "room": null,
+          "scheduledDate": "not a date",
+          "sessions": [
+            {
+              "chair": "p1",
+              "governanceBody": {
+                "uuid": "ev2",
+              },
+              "id": "s3",
+              "isPublic": null,
+              "meetingMode": true,
+              "parentMeeting": {
+                "id": "ev",
+              },
+              "scheduledDate": "not a date",
+              "title": null,
+            },
+          ],
+          "title": "",
+        },
+        {
+          "chair": null,
+          "governanceBody": null,
+          "id": "s2",
+          "meetingMode": 0,
+          "parentMeeting": "ev2",
+          "room": "",
+          "scheduledDate": "",
+          "sessions": [],
+          "title": "  Raad  ",
+        },
+        {
+          "chair": null,
+          "governanceBody": null,
+          "id": "s3",
+          "lifecycle": "closed",
+          "meetingMode": null,
+          "parentMeeting": null,
+          "scheduledDate": null,
+          "sessions": [],
+          "title": 0,
+        },
+      ],
+      "input": "list",
+      "labels": [
+        "",
+        "",
+        "  Raad  ",
+        "0",
+      ],
+      "meetings": [
+        {
+          "chair": "p1",
+          "governanceBody": {
+            "uuid": "ev2",
+          },
+          "id": "s3",
+          "isPublic": null,
+          "meetingMode": true,
+          "parentMeeting": {
+            "id": "ev",
+          },
+          "scheduledDate": "not a date",
+          "title": null,
+        },
+        {
+          "governanceBody": "ev2",
+          "id": "ev",
+          "isPublic": false,
+          "lifecycle": null,
+          "meetingMode": 0,
+          "parentMeeting": "",
+          "room": null,
+          "scheduledDate": "not a date",
+          "title": "",
+        },
+        {
+          "chair": null,
+          "governanceBody": null,
+          "id": "s2",
+          "meetingMode": 0,
+          "parentMeeting": "ev2",
+          "room": "",
+          "scheduledDate": "",
+          "title": "  Raad  ",
+        },
+        {
+          "chair": null,
+          "governanceBody": null,
+          "id": "s3",
+          "lifecycle": "closed",
+          "meetingMode": null,
+          "parentMeeting": null,
+          "scheduledDate": null,
+          "title": 0,
+        },
+      ],
+      "order": [
+        "s3",
+        "ev",
+        "s2",
+        "s3",
+      ],
+      "pair": 0,
+      "refs": [
+        [
+          "ev",
+          "ev2",
+          "ev",
+        ],
+        [
+          null,
+          "ev2",
+          null,
+        ],
+        [
+          "ev2",
+          null,
+          "ev2",
+        ],
+        [
+          null,
+          null,
+          null,
+        ],
+      ],
+      "rel": {
+        "agendaItems": {},
+        "chairs": null,
+      },
+      "session": {
+        "governanceBody": "ev2",
+        "meetingMode": true,
+        "parentMeeting": "s3",
+        "scheduledDate": "2026-11-03T19:30:00Z",
+        "title": "0",
+      },
+      "siblings": [],
+    },
+    {
+      "columns": [
+        {
+          "chair": "",
+          "firstItems": [],
+          "id": "undefined",
+          "lifecycle": "",
+          "live": null,
+          "room": "",
+          "time": "",
+          "title": "",
+        },
+        {
+          "chair": "",
+          "firstItems": [
+            {
+              "id": "a5",
+              "orderNumber": "5",
+            },
+          ],
+          "id": "s2",
+          "lifecycle": "closed",
+          "live": null,
+          "room": " Kamer 1 ",
+          "time": "",
+          "title": "",
+        },
+      ],
+      "entered": {
+        "room": null,
+        "time": "00:00",
+        "title": "Commissie Bestuur",
+      },
+      "grouped": [
+        {
+          "chair": "p1",
+          "governanceBody": "",
+          "isPublic": true,
+          "meetingMode": null,
+          "parentMeeting": "ev2",
+          "room": "",
+          "sessions": [],
+          "title": null,
+        },
+        {
+          "chair": "p9",
+          "governanceBody": {
+            "id": "",
+            "uuid": "ev",
+          },
+          "id": "s2",
+          "isPublic": "",
+          "lifecycle": "closed",
+          "meetingMode": null,
+          "parentMeeting": null,
+          "room": " Kamer 1 ",
+          "scheduledDate": "",
+          "sessions": [],
+          "title": "",
+        },
+      ],
+      "input": "list",
+      "labels": [
+        "",
+        " ( Kamer 1 )",
+      ],
+      "meetings": [
+        {
+          "chair": "p1",
+          "governanceBody": "",
+          "isPublic": true,
+          "meetingMode": null,
+          "parentMeeting": "ev2",
+          "room": "",
+          "title": null,
+        },
+        {
+          "chair": "p9",
+          "governanceBody": {
+            "id": "",
+            "uuid": "ev",
+          },
+          "id": "s2",
+          "isPublic": "",
+          "lifecycle": "closed",
+          "meetingMode": null,
+          "parentMeeting": null,
+          "room": " Kamer 1 ",
+          "scheduledDate": "",
+          "title": "",
+        },
+      ],
+      "order": [
+        "undefined",
+        "s2",
+      ],
+      "pair": 0,
+      "refs": [
+        [
+          "ev2",
+          null,
+          "ev2",
+        ],
+        [
+          null,
+          null,
+          null,
+        ],
+      ],
+      "rel": {
+        "agendaItems": {
+          "ev": [],
+          "s1": [
+            {
+              "id": "a1",
+              "orderNumber": null,
+            },
+            {
+              "id": "a2",
+              "orderNumber": "x",
+            },
+            {
+              "id": "a3",
+              "orderNumber": -1,
+            },
+            {
+              "id": "a4",
+              "orderNumber": -1,
+            },
+          ],
+          "s2": [
+            {
+              "id": "a5",
+              "orderNumber": "5",
+            },
+          ],
+        },
+      },
+      "session": {
+        "isPublic": true,
+        "parentMeeting": "undefined",
+        "scheduledDate": "2026-11-03T00:00:00+01:00",
+        "title": "Commissie Bestuur",
+      },
+      "siblings": [],
+    },
+    {
+      "columns": [],
+      "entered": {
+        "room": "",
+        "time": "19:30",
+        "title": "",
+      },
+      "grouped": [],
+      "input": "list",
+      "labels": [],
+      "meetings": [],
+      "order": [],
+      "pair": null,
+      "refs": [],
+      "rel": {
+        "agendaItems": {
+          "ev": [],
+          "s1": [
+            {
+              "id": "a1",
+              "orderNumber": 2,
+            },
+            {
+              "id": "a2",
+              "orderNumber": null,
+            },
+            {
+              "id": "a3",
+              "orderNumber": null,
+            },
+            {
+              "id": "a4",
+              "orderNumber": 4,
+            },
+          ],
+          "s2": [
+            {
+              "id": "a5",
+              "orderNumber": -1,
+            },
+          ],
+        },
+        "broadcasts": {
+          "s1": {
+            "lifecycle": "live",
+          },
+          "s2": {},
+          "s3": {
+            "lifecycle": null,
+          },
+        },
+        "chairs": {},
+      },
+      "session": {
+        "parentMeeting": "undefined",
+        "scheduledDate": "2026-11-03T19:30:00+01:00",
+        "title": "",
+      },
+      "siblings": [],
+    },
+  ],
+}
+`;

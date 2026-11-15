@@ -39,6 +39,8 @@
 namespace OCA\OpenRegister\Service;
 
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\Files\Node;
 
 /**
@@ -67,4 +69,93 @@ class FileService {
 	public function getFiles(ObjectEntity|string $object, ?bool $sharedFilesOnly = false): array {
 		throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
 	}//end getFiles()
+
+	/**
+	 * Add a file to an object's folder. Same signature as OpenRegister's
+	 * FileService::addFile() on development.
+	 *
+	 * @param ObjectEntity|string $objectEntity The object to add the file to.
+	 * @param string $fileName The name of the file to create.
+	 * @param mixed $content The file content.
+	 * @param boolean $share Whether to create a share link.
+	 * @param array<int, string> $tags Tags to attach.
+	 * @param mixed $_schema The schema of the object.
+	 * @param mixed $_register The register of the object.
+	 * @param integer|string|null $registerId The register id.
+	 *
+	 * @return File The created file.
+	 */
+	public function addFile(
+		ObjectEntity|string $objectEntity,
+		string $fileName,
+		mixed $content,
+		bool $share = false,
+		array $tags = [],
+		mixed $_schema = null,
+		mixed $_register = null,
+		int|string|null $registerId = null,
+	): File {
+		throw new \RuntimeException('FileService stub: addFile() must be mocked in tests.');
+	}//end addFile()
+	/**
+	 * Format a file node for the API. Same signature as OpenRegister's
+	 * FileService::formatFile() on development (line 1083 at 4abd8343).
+	 *
+	 * @param Node $file The file node.
+	 *
+	 * @return array The formatted file (id, title, downloadUrl, type, labels, ...).
+	 */
+	public function formatFile(Node $file): array {
+		throw new \RuntimeException('FileService stub: formatFile() must be mocked in tests.');
+	}//end formatFile()
+
+	/**
+	 * Make a file of an object public. Same signature as OpenRegister's
+	 * FileService::publishFile() on development (line 1785 at 4abd8343).
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param string|int $file The file id or path.
+	 *
+	 * @return File The published file.
+	 */
+	public function publishFile(ObjectEntity|string $object, string|int $file): File {
+		throw new \RuntimeException('FileService stub: publishFile() must be mocked in tests.');
+	}//end publishFile()
+
+	/**
+	 * Take a file of an object offline. Same signature as OpenRegister's
+	 * FileService::unpublishFile() on development (line 1810 at 4abd8343).
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param string|int $filePath The file id or path.
+	 *
+	 * @return File The unpublished file.
+	 */
+	public function unpublishFile(ObjectEntity|string $object, string|int $filePath): File {
+		throw new \RuntimeException('FileService stub: unpublishFile() must be mocked in tests.');
+	}//end unpublishFile()
+	/**
+	 * Get an object's folder.
+	 *
+	 * @param ObjectEntity|string $objectEntity The object or its identifier.
+	 * @param int|string|null     $registerId   The register of the object.
+	 *
+	 * @return Folder|null The folder, or null when the object has none.
+	 */
+	public function getObjectFolder(ObjectEntity|string $objectEntity, int|string|null $registerId = null): ?Folder {
+		throw new \RuntimeException('FileService stub: getObjectFolder() must be mocked in tests.');
+	}//end getObjectFolder()
+
+	/**
+	 * Create a share link for a file or folder.
+	 *
+	 * @param string   $path        Path from root.
+	 * @param int|null $shareType   The share type (3 = public link).
+	 * @param int|null $permissions The permissions (1 = read).
+	 *
+	 * @return string The share link.
+	 */
+	public function createShareLink(string $path, ?int $shareType = 3, ?int $permissions = null): string {
+		throw new \RuntimeException('FileService stub: createShareLink() must be mocked in tests.');
+	}//end createShareLink()
 }//end class

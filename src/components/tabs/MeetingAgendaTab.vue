@@ -36,6 +36,13 @@
 					{{ t('decidiq', 'Open live meeting') }}
 				</NcButton>
 				<NcButton
+					v-if="canManage"
+					data-testid="agenda-publish"
+					:disabled="publishing"
+					@click="publishAgenda">
+					{{ t('decidiq', 'Publish agenda') }}
+				</NcButton>
+				<NcButton
 					data-testid="agenda-assemble-package"
 					:disabled="assembling"
 					:aria-label="t('decidiq', 'Assemble meeting package')"
@@ -45,6 +52,22 @@
 							? t('decidiq', 'Assembling…')
 							: t('decidiq', 'Assemble meeting package')
 					}}
+				</NcButton>
+				<NcButton
+					v-if="canManage"
+					data-testid="agenda-copy-items"
+					@click="openCopy">
+					<template #icon>
+						<ContentCopy :size="20" />
+					</template>
+					{{ t('decidiq', 'Add from template or meeting') }}
+				</NcButton>
+				<NcButton
+					v-if="canManage && rawRows.length > 0"
+					data-testid="agenda-save-template"
+					:disabled="savingTemplate"
+					@click="saveAsTemplate">
+					{{ t('decidiq', 'Save as template') }}
 				</NcButton>
 				<NcButton
 					variant="primary"
@@ -84,6 +107,25 @@
 					{{ t('decidiq', required.label) }}
 				</li>
 			</ul>
+		</CnNoteCard>
+
+		<p
+			v-if="agendaPublishedOn"
+			class="decidiq-tab__muted"
+			data-testid="agenda-published-on">
+			{{
+				t('decidiq', 'Agenda published on {date}', {
+					date: agendaPublishedOn,
+				})
+			}}
+		</p>
+
+		<CnNoteCard
+			v-if="publishError"
+			type="error"
+			data-testid="agenda-publish-error"
+			:title="t('decidiq', 'Could not publish the agenda')">
+			{{ publishError }}
 		</CnNoteCard>
 
 		<CnNoteCard
@@ -174,6 +216,24 @@
 			</template>
 		</CnFormDialog>
 
+		<CnNoteCard
+			v-if="copyNotice"
+			type="success"
+			data-testid="agenda-copy-notice"
+			:title="copyNotice" />
+
+		<AgendaCopyDialog
+			v-if="copyOpen"
+			:templates="agendaTemplates"
+			:defaultTemplateId="defaultTemplateId"
+			:meetings="earlierMeetings"
+			:meetingItems="copySourceItems"
+			:busy="copying"
+			:error="copyError"
+			@pickMeeting="loadCopySource"
+			@submit="addCopies"
+			@close="copyOpen = false" />
+
 		<CnDeleteDialog
 			v-if="deleteTarget"
 			ref="deleteDialog"
@@ -197,12 +257,15 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
 import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
+import Gavel from 'vue-material-design-icons/Gavel.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Presentation from 'vue-material-design-icons/Presentation.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import AgendaCopyDialog from '../../dialogs/AgendaCopyDialog.vue'
 import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
 	buildAgendaTree,
@@ -213,16 +276,129 @@ import {
 	moveAgendaItem,
 } from '../../services/agendaRules.js'
 import {
+	itemsFromMeeting,
+	itemsFromTemplate,
+	nextOrderNumber,
+	refId,
+	templateFromItems,
+} from '../../utils/agendaCopy.js'
+import {
 	findItemType,
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
+import { formalityUrl } from '../../utils/formalities.js'
+import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
 import { ensureRelationType } from './useRelationStore.js'
+
+/**
+ * Agenda items in tree order, sub-items marked under their parent.
+ *
+ * @param {Array<object>|null} items The meeting's agenda items.
+ * @return {Array<object>} The rows.
+ */
+function agendaRows(items) {
+	// Tree order: sub-items (`parentItem`) nest under their parent;
+	// flattened parent→children order with a nesting indicator.
+	return flattenTree(buildAgendaTree(items || [])).map((item) => ({
+		...item,
+		titleDisplay: item.parentItem ? `↳ ${item.title}` : item.title,
+	}))
+}
+
+/**
+ * Index one agenda-item type's name by its id and by its slug.
+ *
+ * @param {Object<string, string>} names The index (mutated in place).
+ * @param {object} type The type.
+ * @return {void}
+ */
+function indexTypeName(names, type) {
+	// 🔴 INDEXED BY BOTH, BECAUSE A SEED WRITES THE SLUG.
+	// A row created through the UI holds the type's uuid, but
+	// seedData stores a reference exactly as the file wrote it:
+	// measured on a live instance, seeded agenda items carry
+	// `meeting: "raadsvergadering-2025-01-15"`, the slug, not a
+	// uuid. Keying on `id` alone would leave every example-set
+	// item falling back to the coarse enum, so the set that
+	// exists to demonstrate configurable kinds would show none.
+	if (type.id) names[type.id] = type.name
+	const slug = type['@self']?.slug
+	if (slug) names[slug] = type.name
+}
+
+/**
+ * The names of the named agenda-item types, by id and by slug.
+ *
+ * @param {Array<object>|null} types The configured types.
+ * @return {Object<string, string>} The names.
+ */
+function itemTypeNameIndex(types) {
+	const names = {}
+	for (const itemType of types || []) {
+		if (itemType?.name) indexTypeName(names, itemType)
+	}
+	return names
+}
+
+/**
+ * The templates and the most recent meetings the copy dialog offers.
+ *
+ * @return {Promise<Array>} The templates and the meetings.
+ */
+function fetchCopySources() {
+	return Promise.all([
+		ensureRelationType('agenda-template').fetchCollection('agenda-template', {
+			_limit: 200,
+		}),
+		ensureRelationType('meeting').fetchCollection('meeting', {
+			_order: JSON.stringify({ scheduledDate: 'desc' }),
+			_limit: 100,
+		}),
+	])
+}
+
+/**
+ * The agenda items of an earlier meeting, in order.
+ *
+ * @param {string} meetingId The earlier meeting.
+ * @return {Promise<Array<object>>} Its items.
+ */
+async function fetchMeetingAgenda(meetingId) {
+	const items = await ensureRelationType('agenda-item').fetchCollection(
+		'agenda-item',
+		{
+			meeting: meetingId,
+			_order: JSON.stringify({ orderNumber: 'asc' }),
+			_limit: 200,
+		},
+	)
+	return (items || []).filter((i) => refId(i.meeting) === meetingId)
+}
+
+/**
+ * Ask the server to assemble a meeting's document package.
+ *
+ * @param {string} meetingId The meeting.
+ * @return {Promise<object>} The package answer.
+ * @throws {Error} With the server's message when it refused.
+ */
+async function assembledPackage(meetingId) {
+	const response = await postJson(`/apps/decidiq/api/meetings/${meetingId}/package`)
+	const payload = await response.json()
+	if (!response.ok || payload?.success === false) {
+		throw new Error(payload?.message || '')
+	}
+	return payload
+}
 
 export default {
 	name: 'MeetingAgendaTab',
 	components: {
+		AgendaCopyDialog,
 		AgendaItemTypeFields,
+		ContentCopy,
 		CnDataTable,
 		CnDeleteDialog,
 		CnFormDialog,
@@ -266,10 +442,33 @@ export default {
 			myRoles: null,
 			dragId: null,
 			reorderError: '',
+			publishing: false,
+			publishError: '',
+			// Add from template or meeting (agenda-templates-and-copy).
+			copyOpen: false,
+			copying: false,
+			copyError: '',
+			copyNotice: '',
+			agendaTemplates: [],
+			defaultTemplateId: '',
+			earlierMeetings: [],
+			copySourceId: '',
+			copySourceItems: [],
+			savingTemplate: false,
 		}
 	},
 
 	computed: {
+		/**
+		 * When the current agenda was published, or ''.
+		 *
+		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
+		 * @return {string}
+		 */
+		agendaPublishedOn() {
+			return publishedOn(this.meeting)
+		},
+
 		/**
 		 * Agenda rows, with the Type column resolved against the configured
 		 * kinds.
@@ -279,12 +478,13 @@ export default {
 		 *
 		 * @return {Array<object>} The rows to render.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		rows() {
 			return this.rawRows.map((item) => ({
 				...item,
 				kindDisplay: this.itemTypeNames[item.type] || item.itemType,
+				formalityDisplay: this.formalityLabel(item),
 			}))
 		},
 
@@ -310,6 +510,7 @@ export default {
 					key: 'estimatedDuration',
 					label: this.t('decidiq', 'Duration (min)'),
 				},
+				{ key: 'formalityDisplay', label: this.t('decidiq', 'Formality') },
 			]
 		},
 
@@ -359,6 +560,24 @@ export default {
 					handler: (row) => this.moveItem(row, 1),
 				},
 				{
+					label: this.t('decidiq', 'Mark as formality'),
+					icon: Gavel,
+					visible: (row) =>
+						this.canManage && !row.isFormality && !row.formalityOutcome,
+
+					handler: (row) => this.setFormality(row, true),
+				},
+				{
+					label: this.t('decidiq', 'Discuss this item'),
+					icon: Gavel,
+					visible: (row) =>
+						this.canManage
+						&& row.isFormality === true
+						&& !row.formalityOutcome,
+
+					handler: (row) => this.setFormality(row, false),
+				},
+				{
 					label: this.t('decidiq', 'Edit'),
 					icon: Pencil,
 					handler: (row) => this.openEdit(row),
@@ -378,7 +597,7 @@ export default {
 		 * The type picked in the open form, whose `fields` the form renders.
 		 *
 		 * @return {?object} The AgendaItemType, or null.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		formItemType() {
 			return findItemType(this.itemTypes, this.formType)
@@ -409,27 +628,7 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const store = ensureRelationType('agenda-item')
-				if (!this.agendaSchema)
-					this.agendaSchema = await store.fetchSchema('agenda-item')
-				const items = await store.fetchCollection('agenda-item', {
-					meeting: this.objectId,
-					_order: JSON.stringify({ orderNumber: 'asc' }),
-					_limit: 100,
-				})
-				// 🔴 NOT AWAITED. The Type column is a label; the agenda is the
-				// page. Awaiting this put one more object-list query in front of
-				// every render, and on a loaded instance those cost about a
-				// second each. `rows` is computed, so the names appear as soon as
-				// they arrive and the agenda never waits for them.
-				this.loadItemTypes()
-				// Tree order: sub-items (`parentItem`) nest under their parent;
-				// flattened parent→children order with a nesting indicator.
-				const flat = flattenTree(buildAgendaTree(items || []))
-				this.rawRows = flat.map((item) => ({
-					...item,
-					titleDisplay: item.parentItem ? `↳ ${item.title}` : item.title,
-				}))
+				this.rawRows = agendaRows(await this.fetchAgendaItems())
 				await this.loadMeeting()
 			} catch (e) {
 				this.error =
@@ -437,6 +636,31 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The meeting's agenda items, reading the agenda-item schema first
+		 * when it is not known yet, and starting the item-type names once the
+		 * items are in.
+		 *
+		 * @return {Promise<Array<object>>} The items.
+		 */
+		async fetchAgendaItems() {
+			const store = ensureRelationType('agenda-item')
+			if (!this.agendaSchema)
+				this.agendaSchema = await store.fetchSchema('agenda-item')
+			const items = await store.fetchCollection('agenda-item', {
+				meeting: this.objectId,
+				_order: JSON.stringify({ orderNumber: 'asc' }),
+				_limit: 100,
+			})
+			// 🔴 NOT AWAITED. The Type column is a label; the agenda is the
+			// page. Awaiting this put one more object-list query in front of
+			// every render, and on a loaded instance those cost about a
+			// second each. `rows` is computed, so the names appear as soon as
+			// they arrive and the agenda never waits for them.
+			this.loadItemTypes()
+			return items
 		},
 
 		/**
@@ -448,7 +672,7 @@ export default {
 		 * agenda-item-type collection is the normal state of an instance that
 		 * has seeded no example set, so it must not read as an error.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		async loadItemTypes() {
 			try {
@@ -456,26 +680,177 @@ export default {
 				const types = await typeStore.fetchCollection('agenda-item-type', {
 					_limit: 200,
 				})
-				const names = {}
-				for (const type of types || []) {
-					if (!type?.name) continue
-					// 🔴 INDEXED BY BOTH, BECAUSE A SEED WRITES THE SLUG.
-					// A row created through the UI holds the type's uuid, but
-					// seedData stores a reference exactly as the file wrote it:
-					// measured on a live instance, seeded agenda items carry
-					// `meeting: "raadsvergadering-2025-01-15"`, the slug, not a
-					// uuid. Keying on `id` alone would leave every example-set
-					// item falling back to the coarse enum, so the set that
-					// exists to demonstrate configurable kinds would show none.
-					if (type.id) names[type.id] = type.name
-					const slug = type['@self']?.slug
-					if (slug) names[slug] = type.name
-				}
-				this.itemTypeNames = names
+				this.itemTypeNames = itemTypeNameIndex(types)
 				this.itemTypes = types || []
 			} catch {
 				this.itemTypeNames = {}
 				this.itemTypes = []
+			}
+		},
+
+		/**
+		 * Open the copy dialog with the templates, the template the meeting's
+		 * type names, and the other meetings of the same body.
+		 *
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 */
+		async openCopy() {
+			this.openCopyDialog()
+			try {
+				await this.loadCopyChoices()
+			} catch (e) {
+				this.copyError =
+					e?.message
+					|| this.t(
+						'decidiq',
+						'Could not load the templates and meetings.',
+					)
+			}
+		},
+
+		/**
+		 * Open the copy dialog with nothing picked and no message.
+		 *
+		 * @return {void}
+		 */
+		openCopyDialog() {
+			this.copyError = ''
+			this.copyNotice = ''
+			this.copySourceId = ''
+			this.copySourceItems = []
+			this.copyOpen = true
+		},
+
+		/**
+		 * Read what the copy dialog offers: the templates, the earlier meetings
+		 * of this body and the template the meeting's type names.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async loadCopyChoices() {
+			const [templates, meetings] = await fetchCopySources()
+			this.agendaTemplates = templates || []
+			this.earlierMeetings = this.sameBodyMeetings(meetings)
+			await this.loadDefaultTemplate()
+		},
+
+		/**
+		 * The other meetings of this meeting's body, or every other meeting
+		 * when it names no body.
+		 *
+		 * @param {Array<object>|null} meetings The meetings read.
+		 * @return {Array<object>} The meetings to offer.
+		 */
+		sameBodyMeetings(meetings) {
+			const body = refId(this.meeting?.governanceBody)
+			return (meetings || []).filter(
+				(m) =>
+					refId(m) !== String(this.objectId)
+					&& (!body || refId(m.governanceBody) === body),
+			)
+		},
+
+		/**
+		 * Preselect the template the meeting's type names, when it has a type.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async loadDefaultTemplate() {
+			const typeId = refId(this.meeting?.type)
+			if (!typeId) return
+			const type = await ensureRelationType('meeting-type').fetchObject(
+				'meeting-type',
+				typeId,
+			)
+			this.defaultTemplateId = refId(type?.defaultAgendaTemplate)
+		},
+
+		/**
+		 * Load the agenda of the meeting picked in the copy dialog.
+		 *
+		 * @param {string} meetingId The earlier meeting
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+		 */
+		async loadCopySource(meetingId) {
+			this.copySourceId = meetingId || ''
+			this.copySourceItems = []
+			if (!meetingId) return
+			try {
+				this.copySourceItems = await fetchMeetingAgenda(meetingId)
+			} catch (e) {
+				this.copyError =
+					e?.message || this.t('decidiq', 'Could not load that agenda.')
+			}
+		},
+
+		/**
+		 * Write the template's items, or the picked items of the earlier
+		 * meeting, after the last item of this agenda.
+		 *
+		 * @param {object} choice What the dialog submitted
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+		 */
+		async addCopies(choice) {
+			const meetingId = String(this.objectId)
+			const startAt = nextOrderNumber(this.rawRows)
+			const items =
+				choice.source === 'template'
+					? itemsFromTemplate(choice.template, meetingId, startAt)
+					: itemsFromMeeting(this.copySourceItems, {
+							fromMeetingId: choice.meetingId,
+							meetingId,
+							startAt,
+							pickedIds: choice.itemIds,
+						})
+			this.copying = true
+			this.copyError = ''
+			try {
+				const store = ensureRelationType('agenda-item')
+				for (const item of items) {
+					await store.saveObject('agenda-item', item)
+				}
+				this.copyOpen = false
+				this.copyNotice = this.t('decidiq', 'Agenda items added: {count}.', {
+					count: items.length,
+				})
+				await this.refresh()
+			} catch (e) {
+				this.copyError =
+					e?.message
+					|| this.t('decidiq', 'The agenda items could not be added.')
+			} finally {
+				this.copying = false
+			}
+		},
+
+		/**
+		 * Save this agenda as a template named after the meeting.
+		 *
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 */
+		async saveAsTemplate() {
+			this.savingTemplate = true
+			this.copyError = ''
+			this.copyNotice = ''
+			try {
+				const name =
+					this.meeting?.title || this.t('decidiq', 'Agenda template')
+				await ensureRelationType('agenda-template').saveObject(
+					'agenda-template',
+					templateFromItems(name, this.rawRows),
+				)
+				this.copyNotice = this.t(
+					'decidiq',
+					'The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.',
+					{ name },
+				)
+			} catch (e) {
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The template could not be saved.')
+			} finally {
+				this.savingTemplate = false
 			}
 		},
 
@@ -508,27 +883,7 @@ export default {
 			this.packageError = ''
 			this.packageResult = null
 			try {
-				const response = await fetch(
-					generateUrl(
-						`/apps/decidiq/api/meetings/${this.objectId}/package`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							Accept: 'application/json',
-							requesttoken: OC.requestToken,
-						},
-					},
-				)
-				const payload = await response.json()
-				if (!response.ok || payload?.success === false) {
-					this.packageError =
-						payload?.message
-						|| this.t('decidiq', 'Package assembly failed.')
-					return
-				}
-				this.packageResult = payload
+				this.packageResult = await assembledPackage(this.objectId)
 			} catch (e) {
 				this.packageError =
 					e?.message || this.t('decidiq', 'Package assembly failed.')
@@ -568,6 +923,27 @@ export default {
 		 */
 		openItem(row) {
 			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
+		},
+
+		/**
+		 * Publish the agenda: the server records the version and the
+		 * convocation and invites every member. Then reload the meeting so
+		 * the published date shows.
+		 *
+		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
+		 */
+		async publishAgenda() {
+			this.publishError = ''
+			this.publishing = true
+			try {
+				await acceptedOrThrow(await postJson(publishAgendaPath(this.objectId)))
+				await this.loadMeeting()
+			} catch (e) {
+				this.publishError =
+					e?.message || this.t('decidiq', 'The agenda was not published.')
+			} finally {
+				this.publishing = false
+			}
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
@@ -612,6 +988,43 @@ export default {
 		},
 
 		/**
+		 * The formality label of a row: a formality, adopted without debate,
+		 * or nothing.
+		 *
+		 * @param {object} item The agenda item
+		 * @return {string}
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 */
+		formalityLabel(item) {
+			if (item.formalityOutcome === 'adopted-without-debate') {
+				return this.t('decidiq', 'Adopted without debate')
+			}
+			return item.isFormality ? this.t('decidiq', 'Formality') : ''
+		},
+
+		/**
+		 * Mark an item as a formality, or take the mark off, through the
+		 * chair-only endpoint, then reload the rows.
+		 *
+		 * @param {object} row The agenda item row
+		 * @param {boolean} isFormality Whether it is a formality
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 */
+		async setFormality(row, isFormality) {
+			this.reorderError = ''
+			try {
+				await acceptedOrThrow(
+					await putJson(formalityUrl(this.objectId, row.id), { isFormality }),
+				)
+				await this.refresh()
+			} catch (e) {
+				this.reorderError =
+					e?.message
+					|| this.t('decidiq', 'The formality mark was not saved.')
+			}
+		},
+
+		/**
 		 * Save the new order in one call to the existing reorder endpoint,
 		 * which renumbers every item, then reload the rows.
 		 *
@@ -621,27 +1034,11 @@ export default {
 		async persistOrder(ids) {
 			this.reorderError = ''
 			try {
-				const response = await fetch(
-					generateUrl(
-						`/apps/decidiq/api/agendas/${this.objectId}/reorder`,
-					),
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Accept: 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ ids }),
-					},
+				await acceptedOrThrow(
+					await putJson(`/apps/decidiq/api/agendas/${this.objectId}/reorder`, {
+						ids,
+					}),
 				)
-				if (!response.ok) {
-					const payload = await response.json().catch(() => ({}))
-					this.reorderError =
-						payload?.message
-						|| this.t('decidiq', 'The new order was not saved.')
-					return
-				}
 				await this.refresh()
 			} catch (e) {
 				this.reorderError =
@@ -680,7 +1077,7 @@ export default {
 		 * The dialog keeps its values internally and emits no change event, so
 		 * its reactive `formData.type` is watched once it has mounted.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		openForm() {
 			this.formType = this.editTarget?.type || null
@@ -697,7 +1094,7 @@ export default {
 			})
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		closeForm() {
 			this.unwatchFormType?.()
 			this.unwatchFormType = null
@@ -754,33 +1151,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-
 .decidiq-tab__header-actions {
 	display: flex;
 	gap: var(--default-grid-baseline);

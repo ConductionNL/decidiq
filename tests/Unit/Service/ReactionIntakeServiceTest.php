@@ -28,6 +28,7 @@ use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests the intake matrix (auth/anon x policy), payload cap, anon gate,
@@ -123,6 +124,7 @@ class ReactionIntakeServiceTest extends TestCase {
 		$captured = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$captured) {
+				$args = LegacyObjectArgs::flatten(args: $args);
 				$captured = $args[0] ?? ($args['object'] ?? null);
 				return $this->entity($captured);
 			}
@@ -247,6 +249,7 @@ class ReactionIntakeServiceTest extends TestCase {
 		$savedCounts = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$savedCounts) {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				$obj = $args[0] ?? [];
 				if (isset($obj['submissionCount']) === true) {
 					$savedCounts[] = $obj['submissionCount'];

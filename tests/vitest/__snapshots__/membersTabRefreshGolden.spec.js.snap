@@ -1,0 +1,333 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GovernanceBodyMembersTab refresh() > loads, joins and decorates the members, current only and with the past 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "faction": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "bodyType": "faction",
+        "parentBody": "body-1",
+      },
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-anna",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-broken",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-old",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-bert",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-anna",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-broken",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-old",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-bert",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rows": [
+      {
+        "displayName": "Anna",
+        "email": "anna@contact.example",
+        "endDate": null,
+        "faction": "body-1",
+        "factionName": "",
+        "fromLabel": "label(2024-01-01)",
+        "governanceBody": "council",
+        "id": "m1",
+        "nextcloudUserId": "",
+        "party": "",
+        "person": "p-anna",
+        "phone": "0612345678",
+        "role": "",
+        "startDate": "2024-01-01",
+        "toLabel": "",
+        "votingWeight": undefined,
+      },
+      {
+        "displayName": "Broken",
+        "email": "",
+        "endDate": null,
+        "faction": "",
+        "factionName": "",
+        "fromLabel": "label(2024-02-01)",
+        "governanceBody": "body-1",
+        "id": "m2",
+        "nextcloudUserId": "",
+        "party": "",
+        "person": "p-broken",
+        "phone": "",
+        "role": "chair",
+        "startDate": "2024-02-01",
+        "toLabel": "",
+        "votingWeight": undefined,
+      },
+      {
+        "displayName": "",
+        "email": "",
+        "endDate": null,
+        "faction": "",
+        "factionName": "",
+        "fromLabel": "label(2024-01-01)",
+        "governanceBody": "body-1",
+        "id": "m4",
+        "nextcloudUserId": "",
+        "party": "",
+        "person": undefined,
+        "phone": "",
+        "role": "member",
+        "startDate": "2024-01-01",
+        "toLabel": "",
+        "votingWeight": undefined,
+      },
+      {
+        "displayName": "Bert",
+        "email": "bert@person.example",
+        "endDate": null,
+        "faction": "body-1",
+        "factionName": "",
+        "fromLabel": "label(2023-06-01)",
+        "governanceBody": "council",
+        "id": "m5",
+        "nextcloudUserId": "",
+        "party": "",
+        "person": "p-bert",
+        "phone": "",
+        "role": "",
+        "startDate": "2023-06-01",
+        "toLabel": "",
+        "votingWeight": undefined,
+      },
+    ],
+  },
+}
+`;
+
+exports[`GovernanceBodyMembersTab refresh() > loads, joins and decorates the members, current only and with the past 2`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "faction": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "bodyType": "faction",
+        "parentBody": "body-1",
+      },
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-anna",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-broken",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-old",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p-bert",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-anna",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-broken",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-old",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 20,
+        "person": "p-bert",
+      },
+      "schema": "contact-detail",
+      "type": "contact-detail",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rows": [
+      {
+        "displayName": "Old",
+        "email": "",
+        "endDate": "2021-01-01",
+        "faction": "",
+        "factionName": "",
+        "fromLabel": "label(2020-01-01)",
+        "governanceBody": "body-1",
+        "id": "m3",
+        "nextcloudUserId": "",
+        "party": "",
+        "person": "p-old",
+        "phone": "",
+        "role": "member",
+        "startDate": "2020-01-01",
+        "toLabel": "label(2021-01-01)",
+        "votingWeight": undefined,
+      },
+    ],
+  },
+}
+`;
+
+exports[`GovernanceBodyMembersTab refresh() > treats missing answers as empty and reports a failing store 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "faction": "body-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "bodyType": "faction",
+        "parentBody": "body-1",
+      },
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rows": [],
+  },
+}
+`;

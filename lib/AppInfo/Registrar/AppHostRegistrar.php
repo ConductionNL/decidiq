@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -36,6 +36,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\AppInfo\OpenRegisterAutoloader;
 use OCA\OpenRegister\AppHost\Bootstrap;
+use OCA\OpenRegister\AppHost\LeafAdoption;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -50,8 +51,7 @@ use Psr\Log\LoggerInterface;
  *     (`decidesk` register import — the register SLUG is frozen across the
  *     app-id rename, see appinfo/info.xml — plus publication-config CRUD).
  *   - `Settings\AdminSettings` (domain initial state: publication config,
- *     transcript-retention defaults) and `Sections\SettingsSection`,
- *     `Settings\PersonalSettings`, `Sections\PersonalSection`.
+ *     transcript-retention defaults) and `Sections\SettingsSection`.
  *   - `Repair\InitializeSettings` (voter_token_secret seeding + OR
  *     configuration import).
  *   - `Controller\PreferencesController` — the AppHost has no
@@ -71,6 +71,19 @@ class AppHostRegistrar {
 	 * @var string
 	 */
 	private const DEEP_LINK_LISTENER = 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener';
+
+	/**
+	 * The name decidiq registers that listener under, in its own namespace.
+	 *
+	 * Nextcloud resolves a listener class through the container of the app
+	 * that owns its namespace. Registered under the OpenRegister class name,
+	 * the listener was built by OpenRegister's container, which cannot supply
+	 * the `appId` argument ("Could not resolve appId!", on every request that
+	 * dispatched the event), so decidiq's deep links were never registered.
+	 *
+	 * @var string
+	 */
+	public const DEEP_LINK_LISTENER_SERVICE = 'OCA\\Decidiq\\Listener\\DeepLinkRegistrationListener';
 
 	/**
 	 * Register the adopted AppHost boilerplate.
@@ -100,15 +113,16 @@ class AppHostRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2
 	 * @spec openspec/specs/apphost-adoption/spec.md
+	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-the-deep-link-listener-is-registered-in-decidiqs-namespace
 	 */
 	public function register(IRegistrationContext $context): void {
 		// Generic, manifest-driven deep-link listener replaces the former
 		// hand-written listener. Patterns now live in the manifest `deepLinks`
 		// block. Fires only when OpenRegister dispatches the event.
 		$context->registerService(
-			self::DEEP_LINK_LISTENER,
+			self::DEEP_LINK_LISTENER_SERVICE,
 			static function ($c): object {
 				$class = self::DEEP_LINK_LISTENER;
 				return new $class(
@@ -123,7 +137,7 @@ class AppHostRegistrar {
 		// openregister is installed, so PHPStan cannot verify it is a
 		// class-string<IEventListener>. It is registered as a service just above
 		// and is only instantiated when OpenRegister dispatches the event.
-		$listenerClass = self::DEEP_LINK_LISTENER;
+		$listenerClass = self::DEEP_LINK_LISTENER_SERVICE;
 		// @phpstan-ignore-next-line
 		$context->registerEventListener(event: DeepLinkRegistrationEvent::class, listener: $listenerClass);
 
@@ -149,9 +163,8 @@ class AppHostRegistrar {
 	 * @return void
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) OCA\OpenRegister\AppHost\Bootstrap
-	 * is a cross-app static entry point in a SIBLING app that may be absent or
-	 * unloadable here — the call is guarded by class_exists() and wrapped in a
-	 * catch(\Throwable) for exactly that reason. It cannot be injected: this
+	 * is a cross-app static entry point in a SIBLING app that may be absent
+	 * here — the call is guarded by class_exists() for exactly that reason. It cannot be injected: this
 	 * runs at the composition root, so there is no container to resolve an
 	 * adapter from. OpenRegisterAutoloader::register() is static for the same
 	 * reason.
@@ -161,7 +174,7 @@ class AppHostRegistrar {
 	 * 🔴 `$context` IS USED. psalm used to say otherwise, and the error it
 	 * printed named the wrong thing.
 	 *
-	 * It is passed to `Bootstrap::aliasStoreController(context: $context, …)`
+	 * It is passed to `Bootstrap::aliasStoreController(context: $context, adoption: …)`
 	 * below. `OCA\OpenRegister\AppHost\Bootstrap` lives in a SIBLING app that
 	 * may be absent, so psalm could not resolve it, pruned the guarded block as
 	 * dead code, and then reported
@@ -190,18 +203,18 @@ class AppHostRegistrar {
 		// The class_exists() guard MUST stay in this method: it is also the
 		// assertion psalm relies on to accept the Bootstrap call below, and
 		// psalm does not carry that narrowing across a call.
+		// No catch-all around the call: a catch(\Throwable) here once turned a
+		// changed Bootstrap signature into a silent HTTP 500 on
+		// /api/store/items. An absent OpenRegister is handled by the guard;
+		// a present one with a different shape must fail loudly.
 		if (class_exists(Bootstrap::class) === true) {
-			try {
-				Bootstrap::aliasStoreController(
-					context: $context,
+			Bootstrap::aliasStoreController(
+				context: $context,
+				adoption: new LeafAdoption(
 					appId: Application::APP_ID,
-					controllerNs: 'OCA\\Decidiq\\Controller'
-				);
-			} catch (\Throwable) {
-				// An OpenRegister older than the helper, or present but
-				// unloadable. The store route is then no worse off than it is
-				// today, and every registration around this one still runs.
-			}
+					options: ['controllerNamespace' => 'OCA\\Decidiq\\Controller']
+				)
+			);
 		}
 
 	}//end bindStoreController()

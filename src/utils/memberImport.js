@@ -40,61 +40,122 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  * @spec openspec/specs/admin-settings/spec.md
  */
 export function parseCsv(text) {
-	// Strip a UTF-8 BOM (U+FEFF) if present.
-	let input = String(text ?? '')
-	if (input.charCodeAt(0) === 0xfeff) {
-		input = input.slice(1)
+	const csv = {
+		input: withoutBom(text),
+		records: [],
+		field: '',
+		record: [],
+		inQuotes: false,
 	}
-	const records = []
-	let field = ''
-	let record = []
-	let inQuotes = false
+	for (let i = 0; i < csv.input.length; i++) {
+		i = csv.inQuotes ? readQuoted(csv, i) : readPlain(csv, i)
+	}
+	if (csv.field !== '' || csv.record.length > 0) {
+		endRecord(csv)
+	}
+	return csv.records
+}
 
-	const endField = () => {
-		record.push(field)
-		field = ''
-	}
-	const endRecord = () => {
-		endField()
-		// Skip records that are entirely empty (blank lines).
-		if (record.length > 1 || record[0].trim() !== '') {
-			records.push(record)
-		}
-		record = []
-	}
+/**
+ * The text as a string, without a leading UTF-8 BOM (U+FEFF).
+ *
+ * @param {string} text Raw CSV file contents.
+ * @return {string} The text to parse.
+ * @spec openspec/specs/admin-settings/spec.md
+ */
+function withoutBom(text) {
+	const input = String(text ?? '')
+	return input.charCodeAt(0) === 0xfeff ? input.slice(1) : input
+}
 
-	for (let i = 0; i < input.length; i++) {
-		const ch = input[i]
-		if (inQuotes) {
-			if (ch === '"') {
-				if (input[i + 1] === '"') {
-					field += '"'
-					i++
-				} else {
-					inQuotes = false
-				}
-			} else {
-				field += ch
-			}
-		} else if (ch === '"') {
-			inQuotes = true
-		} else if (ch === ',') {
-			endField()
-		} else if (ch === '\n') {
-			endRecord()
-		} else if (ch === '\r') {
-			// Swallow; \r\n is handled by the \n branch, bare \r ends a record.
-			if (input[i + 1] !== '\n') {
-				endRecord()
-			}
-		} else {
-			field += ch
-		}
+/**
+ * Close the current field of the parse.
+ *
+ * @param {object} csv The parse state.
+ * @return {void}
+ * @spec openspec/specs/admin-settings/spec.md
+ */
+function endField(csv) {
+	csv.record.push(csv.field)
+	csv.field = ''
+}
+
+/**
+ * Close the current record; a record that is entirely empty (a blank line)
+ * is skipped.
+ *
+ * @param {object} csv The parse state.
+ * @return {void}
+ * @spec openspec/specs/admin-settings/spec.md
+ */
+function endRecord(csv) {
+	endField(csv)
+	if (csv.record.length > 1 || csv.record[0].trim() !== '') {
+		csv.records.push(csv.record)
 	}
-	if (field !== '' || record.length > 0) {
-		endRecord()
+	csv.record = []
+}
+
+/**
+ * Read one character inside a quoted field; a doubled quote is an escaped
+ * quote, a single one ends the quoting.
+ *
+ * @param {object} csv The parse state.
+ * @param {number} i The position of the character.
+ * @return {number} The position of the last character read.
+ * @spec openspec/specs/admin-settings/spec.md
+ */
+function readQuoted(csv, i) {
+	const ch = csv.input[i]
+	if (ch !== '"') {
+		csv.field += ch
+		return i
 	}
-	return records
+	if (csv.input[i + 1] === '"') {
+		csv.field += '"'
+		return i + 1
+	}
+	csv.inQuotes = false
+	return i
+}
+
+// What an unquoted character does to the parse, per character that is not
+// plain field text. \r\n is ended by the \n; a bare \r ends a record.
+const PLAIN_ACTIONS = new Map([
+	[
+		'"',
+		(csv) => {
+			csv.inQuotes = true
+		},
+	],
+	[',', endField],
+	['\n', endRecord],
+	[
+		'\r',
+		(csv, i) => {
+			if (csv.input[i + 1] !== '\n') {
+				endRecord(csv)
+			}
+		},
+	],
+])
+
+/**
+ * Read one character outside quotes.
+ *
+ * @param {object} csv The parse state.
+ * @param {number} i The position of the character.
+ * @return {number} The position of the last character read.
+ * @spec openspec/specs/admin-settings/spec.md
+ */
+function readPlain(csv, i) {
+	const action = PLAIN_ACTIONS.get(csv.input[i])
+	if (action) {
+		action(csv, i)
+	} else {
+		csv.field += csv.input[i]
+	}
+	return i
 }
 
 /**

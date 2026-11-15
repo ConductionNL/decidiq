@@ -1,0 +1,1989 @@
+{
+    "settings:get-defaults-no-user": {
+        "returns": {
+            "register": "",
+            "ori_endpoint": "",
+            "email_voting_enabled": "",
+            "case_system_send_on_approval": "",
+            "minutesSchema": "minutes",
+            "decisionSchema": "decision",
+            "actionItemSchema": "action-item",
+            "motion_min_cosigners": "",
+            "organisation_name": "",
+            "organisation_logo": "",
+            "organisation_timezone": "",
+            "organisation_locale": "",
+            "organisation_currency": "",
+            "organisation_retention_days": "",
+            "organisatie_modus": "gov",
+            "participation_default_moderation_policy": "",
+            "participation_catalog": "",
+            "participation_anon_rate_limit": "",
+            "convert_office_papers": "true",
+            "motion_forwarding_requires_approval": "false",
+            "menu_structure": "",
+            "openregisters": false,
+            "filinq": false,
+            "isAdmin": false
+        },
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "register",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "ori_endpoint",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "case_system_send_on_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "minutesSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "decisionSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "actionItemSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_name",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_logo",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_timezone",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_currency",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_retention_days",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisatie_modus",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_default_moderation_policy",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_catalog",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_anon_rate_limit",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "convert_office_papers",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "menu_structure",
+                    ""
+                ]
+            },
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "isEnabledForAnyone": "filinq"
+            },
+            {
+                "isEnabledForAnyone": "docudesk"
+            }
+        ]
+    },
+    "settings:get-stored-admin": {
+        "returns": {
+            "register": "decidiq",
+            "ori_endpoint": "",
+            "email_voting_enabled": "",
+            "case_system_send_on_approval": "",
+            "minutesSchema": "my-minutes",
+            "decisionSchema": "decision",
+            "actionItemSchema": "action-item",
+            "motion_min_cosigners": "",
+            "organisation_name": "Zuiddrecht",
+            "organisation_logo": "",
+            "organisation_timezone": "",
+            "organisation_locale": "",
+            "organisation_currency": "",
+            "organisation_retention_days": "",
+            "organisatie_modus": "corp",
+            "participation_default_moderation_policy": "",
+            "participation_catalog": "",
+            "participation_anon_rate_limit": "",
+            "convert_office_papers": "false",
+            "motion_forwarding_requires_approval": "false",
+            "menu_structure": "",
+            "openregisters": true,
+            "filinq": true,
+            "isAdmin": true
+        },
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "register",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "ori_endpoint",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "case_system_send_on_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "minutesSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "decisionSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "actionItemSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_name",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_logo",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_timezone",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_currency",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_retention_days",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisatie_modus",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_default_moderation_policy",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_catalog",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_anon_rate_limit",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "convert_office_papers",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "menu_structure",
+                    ""
+                ]
+            },
+            {
+                "isAdmin": "admin"
+            },
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "isEnabledForAnyone": "filinq"
+            }
+        ]
+    },
+    "settings:get-stored-member": {
+        "returns": {
+            "register": "decidiq",
+            "ori_endpoint": "",
+            "email_voting_enabled": "",
+            "case_system_send_on_approval": "",
+            "minutesSchema": "my-minutes",
+            "decisionSchema": "decision",
+            "actionItemSchema": "action-item",
+            "motion_min_cosigners": "",
+            "organisation_name": "Zuiddrecht",
+            "organisation_logo": "",
+            "organisation_timezone": "",
+            "organisation_locale": "",
+            "organisation_currency": "",
+            "organisation_retention_days": "",
+            "organisatie_modus": "corp",
+            "participation_default_moderation_policy": "",
+            "participation_catalog": "",
+            "participation_anon_rate_limit": "",
+            "convert_office_papers": "false",
+            "motion_forwarding_requires_approval": "false",
+            "menu_structure": "",
+            "openregisters": false,
+            "filinq": true,
+            "isAdmin": false
+        },
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "register",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "ori_endpoint",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "case_system_send_on_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "minutesSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "decisionSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "actionItemSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_name",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_logo",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_timezone",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_currency",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_retention_days",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisatie_modus",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_default_moderation_policy",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_catalog",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_anon_rate_limit",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "convert_office_papers",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "menu_structure",
+                    ""
+                ]
+            },
+            {
+                "isAdmin": "anna"
+            },
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "isEnabledForAnyone": "filinq"
+            },
+            {
+                "isEnabledForAnyone": "docudesk"
+            }
+        ]
+    },
+    "settings:update-mixed": {
+        "returns": {
+            "register": "",
+            "ori_endpoint": "",
+            "email_voting_enabled": "",
+            "case_system_send_on_approval": "",
+            "minutesSchema": "minutes",
+            "decisionSchema": "decision",
+            "actionItemSchema": "action-item",
+            "motion_min_cosigners": "",
+            "organisation_name": "",
+            "organisation_logo": "",
+            "organisation_timezone": "",
+            "organisation_locale": "",
+            "organisation_currency": "",
+            "organisation_retention_days": "",
+            "organisatie_modus": "gov",
+            "participation_default_moderation_policy": "",
+            "participation_catalog": "",
+            "participation_anon_rate_limit": "",
+            "convert_office_papers": "true",
+            "motion_forwarding_requires_approval": "false",
+            "menu_structure": "",
+            "openregisters": false,
+            "filinq": false,
+            "isAdmin": false
+        },
+        "calls": [
+            {
+                "setValueString": [
+                    "decidiq",
+                    "register",
+                    "r2"
+                ]
+            },
+            {
+                "setValueString": [
+                    "decidiq",
+                    "ori_bearer_secret",
+                    "s2"
+                ]
+            },
+            {
+                "setValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    "1"
+                ]
+            },
+            {
+                "setValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    "3"
+                ]
+            },
+            {
+                "setValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "register",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "ori_endpoint",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "case_system_send_on_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "minutesSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "decisionSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "actionItemSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_name",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_logo",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_timezone",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_currency",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_retention_days",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisatie_modus",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_default_moderation_policy",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_catalog",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_anon_rate_limit",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "convert_office_papers",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "menu_structure",
+                    ""
+                ]
+            },
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "isEnabledForAnyone": "filinq"
+            },
+            {
+                "isEnabledForAnyone": "docudesk"
+            }
+        ]
+    },
+    "settings:update-empty": {
+        "returns": {
+            "register": "",
+            "ori_endpoint": "",
+            "email_voting_enabled": "",
+            "case_system_send_on_approval": "",
+            "minutesSchema": "minutes",
+            "decisionSchema": "decision",
+            "actionItemSchema": "action-item",
+            "motion_min_cosigners": "",
+            "organisation_name": "",
+            "organisation_logo": "",
+            "organisation_timezone": "",
+            "organisation_locale": "",
+            "organisation_currency": "",
+            "organisation_retention_days": "",
+            "organisatie_modus": "gov",
+            "participation_default_moderation_policy": "",
+            "participation_catalog": "",
+            "participation_anon_rate_limit": "",
+            "convert_office_papers": "true",
+            "motion_forwarding_requires_approval": "false",
+            "menu_structure": "",
+            "openregisters": false,
+            "filinq": false,
+            "isAdmin": false
+        },
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "register",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "ori_endpoint",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "email_voting_enabled",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "case_system_send_on_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "minutesSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "decisionSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "actionItemSchema",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_min_cosigners",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_name",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_logo",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_timezone",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_locale",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_currency",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisation_retention_days",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "organisatie_modus",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_default_moderation_policy",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_catalog",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "participation_anon_rate_limit",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "convert_office_papers",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "menu_structure",
+                    ""
+                ]
+            },
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "isEnabledForAnyone": "filinq"
+            },
+            {
+                "isEnabledForAnyone": "docudesk"
+            }
+        ]
+    },
+    "settings:load-no-openregister": {
+        "returns": {
+            "success": false,
+            "message": "OpenRegister is not installed or enabled."
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: OpenRegister not available, skipping register initialization",
+                    []
+                ]
+            }
+        ]
+    },
+    "settings:load-imported": {
+        "returns": {
+            "success": true,
+            "message": "Configuration imported successfully.",
+            "version": "9.9.9"
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped",
+                    "<version>+frag.<sig>",
+                    false
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: register configuration imported successfully",
+                    []
+                ]
+            }
+        ]
+    },
+    "settings:reload-imported-roles": {
+        "returns": {
+            "success": true,
+            "message": "Configuration imported successfully.",
+            "version": "9.9.9"
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped with roles",
+                    "<version>+frag.<sig>+roles.a5b5c057",
+                    true
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: register configuration imported successfully",
+                    []
+                ]
+            }
+        ]
+    },
+    "settings:load-no-version": {
+        "returns": {
+            "success": true,
+            "message": "Configuration imported successfully.",
+            "version": "unknown"
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped",
+                    "<version>+frag.<sig>",
+                    false
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: register configuration imported successfully",
+                    []
+                ]
+            }
+        ]
+    },
+    "settings:load-empty-result": {
+        "returns": {
+            "success": false,
+            "message": "Import returned an empty result."
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped",
+                    "<version>+frag.<sig>",
+                    false
+                ]
+            }
+        ]
+    },
+    "settings:load-importer-throws": {
+        "returns": {
+            "success": false,
+            "message": "Configuration import failed. See server log for details."
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped",
+                    "<version>+frag.<sig>",
+                    false
+                ]
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: configuration import failed",
+                    {
+                        "exception": "import down"
+                    }
+                ]
+            }
+        ]
+    },
+    "settings:load-container-throws": {
+        "returns": {
+            "success": false,
+            "message": "Configuration import failed. See server log for details."
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: configuration import failed",
+                    {
+                        "exception": "no service"
+                    }
+                ]
+            }
+        ]
+    },
+    "settings:load-bad-role-mapping": {
+        "returns": {
+            "success": true,
+            "message": "Configuration imported successfully.",
+            "version": "1"
+        },
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\ConfigurationService"
+            },
+            {
+                "importFromApp": [
+                    "decidiq",
+                    "shipped",
+                    "<version>+frag.<sig>",
+                    false
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: register configuration imported successfully",
+                    []
+                ]
+            }
+        ]
+    },
+    "settings:merged": {
+        "returns": "shipped",
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            }
+        ]
+    },
+    "settings:merged-roles": {
+        "returns": "shipped with roles",
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            }
+        ]
+    },
+    "settings:role-group-mapping": {
+        "returns": {
+            "administrators": [],
+            "secretariat": [
+                "g1",
+                "g2"
+            ],
+            "publication-flow": []
+        },
+        "calls": [
+            {
+                "getValueString": [
+                    "decidiq",
+                    "role_group_mapping",
+                    ""
+                ]
+            }
+        ]
+    },
+    "settings:openregister-available": {
+        "returns": true,
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            }
+        ]
+    },
+    "settings:openregister-not-available": {
+        "returns": false,
+        "calls": [
+            {
+                "isEnabledForAnyone": "openregister"
+            }
+        ]
+    },
+    "fragments:empty-directory": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": ""
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": ""
+            },
+            "malformed": []
+        }
+    },
+    "fragments:one-fragment": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            },
+                            "Thing": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-a.json:2840bf7c4af0eb8afae96230f967ac19;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            },
+                            "Thing": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-a.json:2840bf7c4af0eb8afae96230f967ac19;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:deep-merge": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0",
+                        "b1",
+                        "b2",
+                        "o1"
+                    ],
+                    "0": "zero",
+                    "mapMap": {
+                        "k1": "b",
+                        "k2": {
+                            "x": 1,
+                            "y": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "z": "new"
+                        },
+                        "k3": "add"
+                    },
+                    "mapList": {
+                        "a": 1,
+                        "b": 2,
+                        "0": "o0",
+                        "1": "o1"
+                    },
+                    "listMap": {
+                        "0": "l0",
+                        "1": "replaced",
+                        "k": "v"
+                    },
+                    "emptyBase": {
+                        "m": 1
+                    },
+                    "mapEmpty": {
+                        "keep": "me"
+                    },
+                    "scalarBase": {
+                        "now": "array"
+                    },
+                    "nullBase": {
+                        "now": "array"
+                    },
+                    "arrayToScalar": 7,
+                    "sparse": {
+                        "1": "uno",
+                        "2": "two",
+                        "3": "tres"
+                    },
+                    "listSparse": {
+                        "0": "z0",
+                        "1": "z1",
+                        "5": "five"
+                    },
+                    "nested": {
+                        "a": {
+                            "b": {
+                                "c": [
+                                    1,
+                                    2
+                                ],
+                                "d": "base",
+                                "e": "new"
+                            }
+                        }
+                    },
+                    "missing": {
+                        "fresh": [
+                            "deep"
+                        ]
+                    },
+                    "missingScalar": false
+                },
+                "signature": "01-base.json:9675325bce90d20412e3da690c57ae42;02-overlay.json:722305b4906c3b74e94b44a48f92cb79;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0",
+                        "b1",
+                        "b2",
+                        "o1"
+                    ],
+                    "0": "zero",
+                    "mapMap": {
+                        "k1": "b",
+                        "k2": {
+                            "x": 1,
+                            "y": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "z": "new"
+                        },
+                        "k3": "add"
+                    },
+                    "mapList": {
+                        "a": 1,
+                        "b": 2,
+                        "0": "o0",
+                        "1": "o1"
+                    },
+                    "listMap": {
+                        "0": "l0",
+                        "1": "replaced",
+                        "k": "v"
+                    },
+                    "emptyBase": {
+                        "m": 1
+                    },
+                    "mapEmpty": {
+                        "keep": "me"
+                    },
+                    "scalarBase": {
+                        "now": "array"
+                    },
+                    "nullBase": {
+                        "now": "array"
+                    },
+                    "arrayToScalar": 7,
+                    "sparse": {
+                        "1": "uno",
+                        "2": "two",
+                        "3": "tres"
+                    },
+                    "listSparse": {
+                        "0": "z0",
+                        "1": "z1",
+                        "5": "five"
+                    },
+                    "nested": {
+                        "a": {
+                            "b": {
+                                "c": [
+                                    1,
+                                    2
+                                ],
+                                "d": "base",
+                                "e": "new"
+                            }
+                        }
+                    },
+                    "missing": {
+                        "fresh": [
+                            "deep"
+                        ]
+                    },
+                    "missingScalar": false
+                },
+                "signature": "01-base.json:9675325bce90d20412e3da690c57ae42;02-overlay.json:722305b4906c3b74e94b44a48f92cb79;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:sorted-order": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base",
+                        "a",
+                        "m",
+                        "z"
+                    ],
+                    "order": "z",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-a.json:b5af2588da60bbfd69ed42d7a127bc5d;20-m.json:da8ef537197f3d0230d081f1c94f914b;30-z.json:a45eed78429cb4695026b00df2c5eb0a;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base",
+                        "a",
+                        "m",
+                        "z"
+                    ],
+                    "order": "z",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-a.json:b5af2588da60bbfd69ed42d7a127bc5d;20-m.json:da8ef537197f3d0230d081f1c94f914b;30-z.json:a45eed78429cb4695026b00df2c5eb0a;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:malformed-middle": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero",
+                    "a": 1,
+                    "c": 3
+                },
+                "signature": "10-a.json:bb6cb5c68df4652941caf652a366f2d8;30-c.json:758266c9518410542797741b5ac44ab9;"
+            },
+            "malformed": [
+                [
+                    "20-bad.json",
+                    "Syntax error"
+                ]
+            ]
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero",
+                    "a": 1,
+                    "c": 3
+                },
+                "signature": "10-a.json:bb6cb5c68df4652941caf652a366f2d8;30-c.json:758266c9518410542797741b5ac44ab9;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:not-json-suffix": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero",
+                    "a": 1
+                },
+                "signature": "10-a.json:bb6cb5c68df4652941caf652a366f2d8;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero",
+                    "a": 1
+                },
+                "signature": "10-a.json:bb6cb5c68df4652941caf652a366f2d8;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:top-level-list": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "x",
+                    "1": "y"
+                },
+                "signature": "10-list.json:595eafc6b491c4e033e9b70fe2d68c64;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "x",
+                    "1": "y"
+                },
+                "signature": "10-list.json:595eafc6b491c4e033e9b70fe2d68c64;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:empty-fragment": {
+        "reported": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-empty.json:d751713988987e9331980363e24189ce;20-obj.json:99914b932bd37a50b983c5e7c90ae93b;"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "merged": {
+                    "info": {
+                        "version": "1.0.0"
+                    },
+                    "components": {
+                        "schemas": {
+                            "Base": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "list": [
+                        "base"
+                    ],
+                    "order": "base",
+                    "listList": [
+                        "a0"
+                    ],
+                    "0": "zero"
+                },
+                "signature": "10-empty.json:d751713988987e9331980363e24189ce;20-obj.json:99914b932bd37a50b983c5e7c90ae93b;"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:null-fragment": {
+        "reported": {
+            "returns": {
+                "throws": "TypeError"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "throws": "TypeError"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:scalar-fragment": {
+        "reported": {
+            "returns": {
+                "throws": "TypeError"
+            },
+            "malformed": []
+        },
+        "silent": {
+            "returns": {
+                "throws": "TypeError"
+            },
+            "malformed": []
+        }
+    },
+    "fragments:missing-directory": {
+        "returns": {
+            "merged": {
+                "info": {
+                    "version": "1.0.0"
+                },
+                "components": {
+                    "schemas": {
+                        "Base": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "list": [
+                    "base"
+                ],
+                "order": "base",
+                "listList": [
+                    "a0"
+                ],
+                "0": "zero"
+            },
+            "signature": ""
+        },
+        "malformed": []
+    },
+    "shipped": "shipped"
+}

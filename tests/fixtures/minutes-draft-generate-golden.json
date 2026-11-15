@@ -1,0 +1,1048 @@
+{
+    "meeting-with-timeline": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "ai-1",
+                        "title": "Opening",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    {
+                        "agendaItem": "ai-2",
+                        "title": "Begroting",
+                        "summary": "De begroting 2027 is aangenomen, en de losse motie.",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "d-1",
+                                "unverified": false
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Opening\n\nTranscript:\nVoorzitter: Welkom."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Begroting\n\nTranscript:\nLid: Over de begroting.\nZonder label.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "Voorzitter",
+                                "text": "Welkom.",
+                                "agendaItem": "ai-1"
+                            },
+                            {
+                                "speakerLabel": "Lid",
+                                "text": "Over de begroting.",
+                                "agendaItem": "ai-2"
+                            },
+                            {
+                                "text": "Zonder label.",
+                                "agendaItem": "ai-2"
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "no-meeting": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "",
+                        "title": "Volledige vergadering",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\nA: Alles."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "t-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "A",
+                                "text": "Alles."
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "meeting-as-relation": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "ai-1",
+                        "title": "Opening",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    {
+                        "agendaItem": "ai-2",
+                        "title": "Begroting",
+                        "summary": "De begroting 2027 is aangenomen, en de losse motie.",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "d-1",
+                                "unverified": false
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Opening\n\nTranscript:\nVoorzitter: Welkom."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Begroting\n\nTranscript:\nLid: Over de begroting.\nZonder label.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "relations": {
+                            "meeting": "m-1"
+                        },
+                        "id": "t-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "Voorzitter",
+                                "text": "Welkom.",
+                                "agendaItem": "ai-1"
+                            },
+                            {
+                                "speakerLabel": "Lid",
+                                "text": "Over de begroting.",
+                                "agendaItem": "ai-2"
+                            },
+                            {
+                                "text": "Zonder label.",
+                                "agendaItem": "ai-2"
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "segments-not-a-list": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "",
+                        "title": "Volledige vergadering",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "",
+                                "unverified": true
+                            },
+                            {
+                                "title": "Losse motie",
+                                "recordType": "decision",
+                                "linkedId": "",
+                                "unverified": true
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Besluit: Losse motie\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "segments": "kapot",
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "no-timeline": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "",
+                        "title": "Volledige vergadering",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "",
+                                "unverified": true
+                            },
+                            {
+                                "title": "Losse motie",
+                                "recordType": "decision",
+                                "linkedId": "",
+                                "unverified": true
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\nA: Een.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Besluit: Losse motie\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "segments": [
+                            {
+                                "speakerLabel": "A",
+                                "text": "Een."
+                            }
+                        ],
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "transcript-missing": {
+        "returns": {
+            "throws": [
+                "OCA\\Decidiq\\Exception\\MissingObjectException",
+                "Transcript \"t-9\" not found.",
+                0
+            ]
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-9",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            }
+        ]
+    },
+    "no-provider": {
+        "returns": {
+            "throws": [
+                "DomainException",
+                "No TaskProcessing/AI provider is available on this instance.",
+                503
+            ]
+        },
+        "calls": []
+    },
+    "no-provider-id": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "ai-1",
+                        "title": "Opening",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    {
+                        "agendaItem": "ai-2",
+                        "title": "Begroting",
+                        "summary": "De begroting 2027 is aangenomen, en de losse motie.",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "d-1",
+                                "unverified": false
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Opening\n\nTranscript:\nVoorzitter: Welkom."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Begroting\n\nTranscript:\nLid: Over de begroting.\nZonder label.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "Voorzitter",
+                                "text": "Welkom.",
+                                "agendaItem": "ai-1"
+                            },
+                            {
+                                "speakerLabel": "Lid",
+                                "text": "Over de begroting.",
+                                "agendaItem": "ai-2"
+                            },
+                            {
+                                "text": "Zonder label.",
+                                "agendaItem": "ai-2"
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "prompt-fails": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "ai-1",
+                        "title": "Opening",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    {
+                        "agendaItem": "ai-2",
+                        "title": "Begroting",
+                        "summary": "",
+                        "suggestions": [
+                            {
+                                "title": "Begroting 2027",
+                                "recordType": "decision",
+                                "linkedId": "",
+                                "unverified": true
+                            },
+                            {
+                                "title": "Stemming begroting",
+                                "recordType": "voting-round",
+                                "linkedId": "",
+                                "unverified": true
+                            }
+                        ],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Opening\n\nTranscript:\nVoorzitter: Welkom."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Begroting\n\nTranscript:\nLid: Over de begroting.\nZonder label.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Stemming: Stemming begroting (aangenomen)"
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq MinutesDraftService: prompt run failed",
+                    {
+                        "error": "provider down"
+                    }
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "Voorzitter",
+                                "text": "Welkom.",
+                                "agendaItem": "ai-1"
+                            },
+                            {
+                                "speakerLabel": "Lid",
+                                "text": "Over de begroting.",
+                                "agendaItem": "ai-2"
+                            },
+                            {
+                                "text": "Zonder label.",
+                                "agendaItem": "ai-2"
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    },
+    "related-reads-fail": {
+        "returns": {
+            "draft": {
+                "sections": [
+                    {
+                        "agendaItem": "",
+                        "title": "Volledige vergadering",
+                        "summary": "Opening gedaan.",
+                        "suggestions": [],
+                        "provenance": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "llm-local",
+                    "generatedAt": "<time>"
+                }
+            },
+            "oneGenerationTime": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "t-1",
+                    "register": "decidiq",
+                    "schema": "transcript"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq MinutesDraftService: related fetch failed",
+                    {
+                        "schema": "agenda-item",
+                        "error": "read failed"
+                    }
+                ]
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "voting-round",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq MinutesDraftService: related fetch failed",
+                    {
+                        "schema": "voting-round",
+                        "error": "read failed"
+                    }
+                ]
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision",
+                        "_relations.meeting": "m-1"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq MinutesDraftService: related fetch failed",
+                    {
+                        "schema": "decision",
+                        "error": "read failed"
+                    }
+                ]
+            },
+            {
+                "prompt": [
+                    "core:text2text",
+                    {
+                        "input": "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\nVoorzitter: Welkom.\nLid: Over de begroting.\nZonder label."
+                    },
+                    "decidesk",
+                    null
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "t-1",
+                        "meeting": "m-1",
+                        "segments": [
+                            {
+                                "speakerLabel": "Voorzitter",
+                                "text": "Welkom.",
+                                "agendaItem": "ai-1"
+                            },
+                            {
+                                "speakerLabel": "Lid",
+                                "text": "Over de begroting.",
+                                "agendaItem": "ai-2"
+                            },
+                            {
+                                "text": "Zonder label.",
+                                "agendaItem": "ai-2"
+                            }
+                        ],
+                        "draftGeneration": {
+                            "aiGenerated": true,
+                            "providerId": "llm-local",
+                            "generatedAt": "<time>"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "transcript",
+                    "uuid": "t-1"
+                }
+            }
+        ]
+    }
+}

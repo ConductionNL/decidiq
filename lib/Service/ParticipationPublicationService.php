@@ -29,7 +29,11 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -52,7 +56,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationPublicationService {
+class ParticipationPublicationService implements ParticipationPublicationServiceInterface {
 	/**
 	 * This app's id, used below as the `oc_appconfig` namespace.
 	 *
@@ -113,15 +117,7 @@ class ParticipationPublicationService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**
@@ -142,7 +138,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishConsultationResults(string $consultationId, string $staffResponse = ''): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -188,7 +184,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishBudgetResults(string $budgetId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -244,7 +240,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishEvaluationResults(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity === null) {
 			throw new RuntimeException("BoardEvaluation {$evaluationId} not found");
 		}
@@ -408,11 +404,7 @@ class ParticipationPublicationService {
 		$objectService = $this->objectService();
 
 		if ($sourceObject === null) {
-			$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: $sourceSchema);
-			$sourceObject = [];
-			if ($entity !== null) {
-				$sourceObject = $entity->jsonSerialize();
-			}
+			$sourceObject = $this->loadSource(sourceSchema: $sourceSchema, sourceId: $sourceId);
 		}
 
 		// Attach the PII-free summary and set publicationDate so the public-group
@@ -435,7 +427,10 @@ class ParticipationPublicationService {
 		$predicateSet = false;
 		$persistError = null;
 		try {
-			$saved = $objectService->saveObject(register: 'decidiq', schema: $sourceSchema, object: $sourceObject);
+			$saved = $objectService->saveObject(
+				object: $sourceObject,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $sourceSchema))
+			);
 			$summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
 			$predicateSet = true;
 		} catch (\Throwable $e) {
@@ -453,21 +448,7 @@ class ParticipationPublicationService {
 			);
 		}
 
-		$catalogiInstalled = $this->isOpenCatalogiInstalled();
-		$openCatalogiRouted = false;
-
-		// Default to the "not installed" warning; the branch below refines it.
-		$warning = 'OpenCatalogi is not installed; the catalog routing step was skipped. '
-			. 'The summary carries the published predicate only.';
-
-		if ($catalogiInstalled === true) {
-			$warning = null;
-			$openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
-			if ($openCatalogiRouted === false) {
-				$warning = 'OpenCatalogi is installed but no target catalog is configured for this governance body; '
-					. 'the summary was not routed to a catalog.';
-			}
-		}
+		[$catalogiInstalled, $openCatalogiRouted, $warning] = $this->routeToCatalog(summary: $summary, governanceBodyId: $governanceBodyId);
 
 		if ($persistError !== null) {
 			$failure = 'The published predicate could not be persisted, so the object is NOT publicly readable: '
@@ -490,6 +471,59 @@ class ParticipationPublicationService {
 	}//end publishSummary()
 
 	/**
+	 * The source object as stored, or [] when it does not exist.
+	 *
+	 * @param string $sourceSchema The source schema.
+	 * @param string $sourceId     The source object.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function loadSource(string $sourceSchema, string $sourceId): array {
+		$entity = $this->objectService()->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: $sourceSchema));
+		if ($entity !== null) {
+			return $entity->jsonSerialize();
+		}
+
+		return [];
+	}//end loadSource()
+
+	/**
+	 * Route the summary to OpenCatalogi when it is installed.
+	 *
+	 * @param array<string, mixed> $summary          The published summary.
+	 * @param string|null          $governanceBodyId The body whose catalog receives it.
+	 *
+	 * @return array{0: bool, 1: bool, 2: string|null} installed, routed, and the warning to report.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function routeToCatalog(array $summary, ?string $governanceBodyId): array {
+		$catalogiInstalled = $this->isOpenCatalogiInstalled();
+		if ($catalogiInstalled === false) {
+			return [
+				false,
+				false,
+				'OpenCatalogi is not installed; the catalog routing step was skipped. '
+					. 'The summary carries the published predicate only.',
+			];
+		}
+
+		$openCatalogiRouted = $this->routeToOpenCatalogi(summary: $summary, governanceBodyId: $governanceBodyId);
+		if ($openCatalogiRouted === false) {
+			return [
+				true,
+				false,
+				'OpenCatalogi is installed but no target catalog is configured for this governance body; '
+					. 'the summary was not routed to a catalog.',
+			];
+		}
+
+		return [true, true, null];
+	}//end routeToCatalog()
+
+	/**
 	 * Publish (set publicationDate on) a single approved reaction (moderator opt-in).
 	 *
 	 * Never blanket: the moderator publishes one reaction at a time. The
@@ -506,7 +540,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishReaction(string $reactionId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -518,7 +552,10 @@ class ParticipationPublicationService {
 
 		$reaction['publicationDate'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$reaction['depublicationDate'] = null;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end publishReaction()
@@ -580,7 +617,10 @@ class ParticipationPublicationService {
 				'publishedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 				'publicationDate' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			];
-			$objectService->saveObject(register: 'opencatalogi', schema: 'publication', object: $publication);
+			$objectService->saveObject(
+				object: $publication,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
+			);
 			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning(

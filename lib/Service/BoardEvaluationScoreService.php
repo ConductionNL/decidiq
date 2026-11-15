@@ -33,7 +33,11 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationScoreServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -42,7 +46,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
  */
-class BoardEvaluationScoreService {
+class BoardEvaluationScoreService implements BoardEvaluationScoreServiceInterface {
 
 	/**
 	 * Default minimum-respondent threshold when a BoardEvaluation does not
@@ -179,7 +183,7 @@ class BoardEvaluationScoreService {
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -242,7 +246,10 @@ class BoardEvaluationScoreService {
 			$evaluation['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$evaluation['respondedCount'] = $summary['respondentCount'];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+			$saved = $objectService->saveObject(
+				object: $evaluation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+			);
 
 			return [
 				'success' => true,
@@ -416,15 +423,7 @@ class BoardEvaluationScoreService {
 	 * @return array<string, mixed>
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**

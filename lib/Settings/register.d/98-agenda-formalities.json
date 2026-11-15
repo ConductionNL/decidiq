@@ -1,0 +1,36 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-formalities-hamerstukken (REQ-AFH-001, matrix row age-07). An agenda item can be marked as a formality (hamerstuk) and, once the chair adopts the formalities together on the live screen, records that it was adopted without debate and when. The live screen used to look for a 'hamerstuk' tag nothing could set and wrote status: completed, which AgendaItem does not declare.",
+  "components": {
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.2.0",
+        "properties": {
+          "isFormality": {
+            "title": "Formality",
+            "type": "boolean",
+            "default": false,
+            "description": "A formality (hamerstuk) is adopted together with the other formalities, without debate. The chair or secretary marks it on the meeting's agenda."
+          },
+          "formalityOutcome": {
+            "title": "Formality outcome",
+            "type": "string",
+            "enum": [
+              "adopted-without-debate"
+            ],
+            "description": "Set when the chair adopts the formalities together on the live screen."
+          },
+          "adoptedAt": {
+            "title": "Adopted at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the formality was adopted."
+          }
+        }
+      }
+    }
+  }
+}

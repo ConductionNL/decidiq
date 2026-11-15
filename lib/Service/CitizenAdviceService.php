@@ -35,7 +35,11 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
+use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * The griffie's side of a residents' advisory vote on a motion.
@@ -48,7 +52,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md
  */
-class CitizenAdviceService {
+class CitizenAdviceService implements CitizenAdviceServiceInterface {
 
 	/**
 	 * The register every object here lives in.
@@ -221,8 +225,7 @@ class CitizenAdviceService {
 	private function motion(string $motionId): array {
 		$entity = $this->objectService->find(
 			id: $motionId,
-			register: self::REGISTER,
-			schema: 'decision',
+			options: new ObjectFindOptions(register: self::REGISTER, schema: 'decision'),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -268,10 +271,11 @@ class CitizenAdviceService {
 	 */
 	private function patch(string $motionId, array $data): array {
 		$stored = $this->objectService->patchObject(
-			objectId: $motionId,
-			data: $data,
-			register: self::REGISTER,
-			schema: 'decision',
+			new ObjectPatch(
+				objectId: $motionId,
+				data: $data,
+				target: new ObjectFindTarget(register: self::REGISTER, schema: 'decision')
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

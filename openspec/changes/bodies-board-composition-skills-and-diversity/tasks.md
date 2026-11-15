@@ -9,8 +9,8 @@
   - GIVEN the authorization blocks WHEN validated THEN they use only create, read, update and delete, so the importer does not skip the schema
   - GIVEN the corporate example set WHEN imported THEN four competences, three member competences and the target exist on the seeded board
   - Verification: `RegisterJsonTest` and `RegisterAuthorizationTest` red first, then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Confirm a member competence
 
@@ -21,8 +21,8 @@
   - GIVEN the member themselves or a signatory of another body WHEN they confirm THEN 403 and nothing changes
   - GIVEN a confirmed competence WHEN its level changes THEN both confirmation fields are cleared
   - Verification: PHPUnit red-then-green; the guard is called from the controller, asserted by a controller test (no orphan guard)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: The skills matrix
 
@@ -32,8 +32,8 @@
   - GIVEN the seeded board WHEN the gap function runs THEN IT and cybersecurity and Water management are gaps, and they stop being gaps when a confirmed experienced holder is added
   - GIVEN the widget WHEN rendered THEN members are rows, competences columns, and unconfirmed levels are marked
   - Verification: vitest on the pure functions, red first; Playwright on the seeded board page
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (vitest green; the Playwright half runs against the live instance and stays open)
 
 ### Task 4: Composition figures and targets
 
@@ -45,5 +45,5 @@
   - GIVEN a birth date exactly 40 years ago today WHEN banded THEN the member is in 40 to 54
   - GIVEN the widget WHEN rendered THEN no list of names per value appears
   - Verification: vitest red-then-green, with a fixed clock; Playwright asserts the gender row on the seeded board
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (vitest green; the Playwright half runs against the live instance and stays open)

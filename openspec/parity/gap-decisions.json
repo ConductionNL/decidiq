@@ -340,7 +340,7 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister; its lane recorded audit-log-page (one log across records) with 2026-09-22-audit-trail-readable-scope limiting it to the caller's scope.",
-    "change": "audit-log-page",
+    "change": "openregister/audit-log-page",
     "decidedOn": "2026-09-27"
   },
   {
@@ -348,15 +348,15 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister; its lane recorded object-dates-as-a-calendar-feed. decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is in platform-microsoft-365-calendar-and-teams.",
-    "change": "object-dates-as-a-calendar-feed",
+    "change": "openregister/object-dates-as-a-calendar-feed",
     "decidedOn": "2026-09-27"
   },
   {
     "row": "plt-02",
     "matrix": "decidiq",
     "decision": "existing",
-    "reason": "Owned by portaliq; the portaliq lane specified it in ConductionNL/portaliq openspec/changes/signin-integriq-broker-login (portaliq#761).",
-    "change": "signin-integriq-broker-login",
+    "reason": "Owned by portaliq for the sign-in: the portaliq lane specified and archived it as ConductionNL/portaliq openspec/changes/archive/2026-09-29-signin-integriq-broker-login (portaliq#761), now in portaliq's main spec portal-broker-envelope-login. decidiq's half, offering a confidential paper to a portal session at a raised trust level, is the open change portal-voting-record-and-confidential-papers.",
+    "change": "portal-voting-record-and-confidential-papers",
     "decidedOn": "2026-09-27"
   },
   {
@@ -396,7 +396,7 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister. Boolean operators are its search-quality-operators-and-facets and highlighting its zoeken-filteren; the openregister lane found the zoeken-filteren claim that ILIKE ignores diacritics is false (no unaccent in lib) and specified accent folding in search-accent-insensitive.",
-    "change": "search-accent-insensitive",
+    "change": "openregister/search-accent-insensitive",
     "decidedOn": "2026-09-27"
   },
   {
@@ -1494,5 +1494,245 @@
     "reason": "Building, missing half decided no: Single competitor (Diligent Boards), no demand row, outside the core area (bodies, planning). Reversible.",
     "change": null,
     "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "bod-08",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (bodies).",
+    "change": "bodies-onboarding-checklist-walkthrough",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "bod-13",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (bodies).",
+    "change": "bodies-shared-body-participations",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pla-12",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (planning).",
+    "change": "planning-cycle-generate-from-template",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-13",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: 2 competitors rated yes (Notubiz, iBabs).",
+    "change": "agenda-incoming-documents-list",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-01",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: 2 competitors rated yes (iBabs, GO. Raadsinformatie).",
+    "change": "routes-send-proposal-along-route",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-05",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Building row; the open change voting-named-paper-vote-entry covers it (its proposal now names the row).",
+    "change": "voting-named-paper-vote-entry",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-18",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Building row; the open change bodies-member-profile-and-voting-record covers it (its proposal now names the row).",
+    "change": "bodies-member-profile-and-voting-record",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-11",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change document-annotations covers it (its proposal now names the row).",
+    "change": "document-annotations",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-12",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change meeting-pack-board-book covers it (its proposal now names the row).",
+    "change": "meeting-pack-board-book",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-15",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change document-accessibility-check covers it (its proposal now names the row).",
+    "change": "document-accessibility-check",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-11",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change records-management-archiving covers it (its proposal now names the row).",
+    "change": "records-management-archiving",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "par-09",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change inspreekrecht-plenair covers it (its proposal now names the row).",
+    "change": "inspreekrecht-plenair",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-18",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change records-management-archiving covers it (its proposal now names the row).",
+    "change": "records-management-archiving",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-09",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change works-council-consultation covers it (its proposal now names the row).",
+    "change": "works-council-consultation",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-12",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change objection-advisory-committee covers it (its proposal now names the row).",
+    "change": "objection-advisory-committee",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-07",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: A recorded non-goal: openspec/changes/embargo-geheimhouding/tasks.md states a passed deadline flags the restriction overdue and never lifts it automatically, because the body lifts secrecy by decision.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "mot-10",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-09",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-10",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "fol-07",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-06",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-06",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "par-12",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-15",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "plt-08",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "fol-09",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcDoel draws it. Specified in goals-linked-to-decisions.",
+    "change": "goals-linked-to-decisions",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "rou-06",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcSpoedbesluiten draws it. Specified in urgent-decisions-register.",
+    "change": "urgent-decisions-register",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "pub-06",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
+    "change": "confidentiality-term-and-lapse",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "pub-07",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
+    "change": "confidentiality-term-and-lapse",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "liv-13",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Supersedes the 2026-09-27 decided-no, which predates #1517 (29 Sep). A digital or hybrid meeting links its Talk room from the meeting page (MeetingVideoCallTab, REQ-MVC-001), and participants chat in that room (REQ-DISC-TALK-003). decidiq keeps no chat of its own; an in-person meeting has none, so the row stays partial.",
+    "change": "2026-10-30-meeting-chat-in-the-talk-room",
+    "decidedOn": "2026-10-30"
   }
 ]

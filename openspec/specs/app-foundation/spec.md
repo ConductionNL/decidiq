@@ -11,7 +11,9 @@ status: done
 
 ## Purpose
 Establishes the foundational app scaffolding: importing the Decidiq OpenRegister register and its entity schemas on install and upgrade, loading Dutch-language seed data so the app is usable immediately, an admin settings page with register mapping and re-import, an OpenRegister dependency check with an empty state, and the six-item navigation menu and KPI dashboard.
+
 ## Requirements
+
 ### Requirement: Register import on install
 The app SHALL import the Decidiq OpenRegister register and all entity schemas from `lib/Settings/decidesk_register.json` during installation and upgrades via an `IRepairStep`.
 
@@ -113,3 +115,18 @@ the `<description>` licence sentence. The `<licence>` element SHALL NOT declare 
 - **WHEN** the `<licence>` element is compared to that statement
 - **THEN** the two agree (both EUPL-1.2).
 
+### Requirement: Pages follow the member's Nextcloud language
+
+Every decidiq page SHALL show its labels, messages and dates in the language the member set in their Nextcloud personal settings. decidiq SHALL ship complete Dutch and English catalogues, SHALL take every UI string through the Nextcloud translation function, and SHALL fall back to English for a string a catalogue lacks.
+
+#### Scenario: A member who reads English
+
+- GIVEN member Priya set English as her Nextcloud language
+- WHEN she opens the meetings page
+- THEN its labels and buttons read in English
+
+#### Scenario: A string missing from a partial catalogue
+
+- GIVEN a member whose language is German, and a label the German catalogue lacks
+- WHEN the page renders
+- THEN that label reads in English and the rest in German

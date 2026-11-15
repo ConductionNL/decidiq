@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 
@@ -66,19 +66,19 @@ class VoterTokenSecret {
 	 */
 	public function value(): string {
 		$appConfig = $this->container->get(IAppConfig::class);
-		// Application::APP_ID, never the bare literal. This key is the HMAC secret
+		// AppIdentity::APP_ID, never the bare literal. This key is the HMAC secret
 		// signing every voter token and mail-reply link, and MigrateAppConfigKeys
 		// copies it from the old `decidesk` namespace into this one on upgrade. Read
 		// under the old id and this lazy path would find nothing, mint a REPLACEMENT
 		// secret over the migrated one, and silently invalidate every outstanding
 		// ballot — the exact failure InitializeSettings documents.
-		$secret = $appConfig->getValueString(Application::APP_ID, 'voter_token_secret', '');
+		$secret = $appConfig->getValueString(AppIdentity::APP_ID, 'voter_token_secret', '');
 		if ($secret === '') {
 			// The `sensitive: true` flag below is required — see InitializeSettings. This
 			// lazy path exists for the first call before the repair step has run; it must
 			// flag the key too, or a fresh instance writes it in cleartext.
 			$secret = bin2hex(random_bytes(32));
-			$appConfig->setValueString(Application::APP_ID, 'voter_token_secret', $secret, sensitive: true);
+			$appConfig->setValueString(AppIdentity::APP_ID, 'voter_token_secret', $secret, sensitive: true);
 		}
 
 		return $secret;
