@@ -14,7 +14,10 @@
             "format": "uuid",
             "$ref": "Goal",
             "nullable": true,
-            "description": "The organisation goal this decision serves. Empty when the decision serves no goal."
+            "x-relation-filter": {
+              "status": ["draft", "active", "at-risk"]
+            },
+            "description": "The organisation goal this decision serves. Empty when the decision serves no goal. The picker offers only goals in state draft, active or at-risk; an achieved or abandoned goal is not offered."
           }
         }
       }
