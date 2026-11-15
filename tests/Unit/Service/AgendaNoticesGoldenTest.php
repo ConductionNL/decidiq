@@ -40,7 +40,6 @@ use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +57,7 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\AgendaInvitation
  * @uses   \OCA\Decidiq\Service\AgendaNotices
  * @uses   \OCA\Decidiq\Exception\NotFoundException
+ * @uses   \OCA\Decidiq\Service\DateValueParser
  */
 class AgendaNoticesGoldenTest extends TestCase {
 
@@ -252,7 +252,6 @@ class AgendaNoticesGoldenTest extends TestCase {
 		$logger = $this->logger();
 		return new AgendaService(
 			objectService: $objects,
-			calendarEventService: $this->createMock(CalendarEventService::class),
 			notices: new AgendaNotices(preferences: $preferences, l10nFactory: $factory, logger: $logger),
 			logger: $logger,
 			participantResolver: $resolver,

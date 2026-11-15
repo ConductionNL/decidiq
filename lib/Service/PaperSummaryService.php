@@ -33,7 +33,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
-use OCA\Decidiq\Listener\PaperSummaryTaskListener;
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\TaskProcessing\IManager;
 use OCP\TaskProcessing\Task;
@@ -46,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
-class PaperSummaryService {
+class PaperSummaryService implements PaperSummaryServiceInterface {
 
 	/**
 	 * The app id the tasks are scheduled under.
@@ -157,7 +158,7 @@ class PaperSummaryService {
 
 		[$input, $chunked] = $this->taskInput(files: $files, titles: $titles, uid: $uid);
 		$uuid = $this->uuid();
-		$task = new Task(self::TASK_TYPES[$kind], ['input' => $input], self::APP_ID, $uid, PaperSummaryTaskListener::CUSTOM_ID_PREFIX . $uuid);
+		$task = new Task(self::TASK_TYPES[$kind], ['input' => $input], self::APP_ID, $uid, PaperSummaryTaskListenerInterface::CUSTOM_ID_PREFIX . $uuid);
 		try {
 			$this->taskManager->scheduleTask($task);
 		} catch (\Throwable $e) {

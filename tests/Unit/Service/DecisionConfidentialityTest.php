@@ -62,6 +62,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
+ * @uses \OCA\Decidiq\Service\PublicationRun
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
  */

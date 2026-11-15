@@ -37,6 +37,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
+use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -50,7 +51,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md
  */
-class CitizenAdviceService {
+class CitizenAdviceService implements CitizenAdviceServiceInterface {
 
 	/**
 	 * The register every object here lives in.

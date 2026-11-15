@@ -96,9 +96,9 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			foreach ($this->createdIds as $id) {
 				try {
 					$this->objectService->deleteObject(
+						uuid: $id,
 						register: 'decidiq',
-						schema: 'action-item',
-						id: $id
+						schema: 'action-item'
 					);
 				} catch (\Throwable) {
 					// Best-effort cleanup — ignore failures.

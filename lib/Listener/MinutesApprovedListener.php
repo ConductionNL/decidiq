@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\CaseSystemExchangeService;
-use OCA\Decidiq\Service\DecisionListService;
-use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionListServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -58,18 +58,18 @@ class MinutesApprovedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param DecisionListService       $decisionList   The decision list.
-	 * @param CaseSystemExchangeService $exchange       The meeting file send.
-	 * @param ListenerSchemaResolver    $schemaResolver Schema matching.
+	 * @param DecisionListServiceInterface       $decisionList   The decision list.
+	 * @param CaseSystemExchangeServiceInterface $exchange       The meeting file send.
+	 * @param ListenerSchemaResolverInterface    $schemaResolver Schema matching.
 	 * @param IAppConfig                $appConfig      App config.
 	 * @param LoggerInterface           $logger         Logger.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-004-approving-the-minutes-produces-a-decision-list-document
 	 */
 	public function __construct(
-		private readonly DecisionListService $decisionList,
-		private readonly CaseSystemExchangeService $exchange,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly DecisionListServiceInterface $decisionList,
+		private readonly CaseSystemExchangeServiceInterface $exchange,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
 	) {
@@ -97,7 +97,7 @@ class MinutesApprovedListener implements IEventListener {
 			$this->logger->warning('Decidiq: the decision list could not be rendered', ['meeting' => $meetingId, 'exception' => $e->getMessage()]);
 		}
 
-		if ($minutes['lifecycle'] === 'approved' && $this->appConfig->getValueString(Application::APP_ID, self::SEND_ON_APPROVAL, '') === 'true') {
+		if ($minutes['lifecycle'] === 'approved' && $this->appConfig->getValueString(AppIdentity::APP_ID, self::SEND_ON_APPROVAL, '') === 'true') {
 			$this->sendOnApproval(meetingId: $meetingId);
 		}
 	}//end handle()

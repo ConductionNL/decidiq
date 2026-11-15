@@ -55,6 +55,8 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\AgendaPapers
  * @covers \OCA\Decidiq\Service\PublicationRepository
  * @covers \OCA\Decidiq\Service\PublicationConfigService
+ * @uses \OCA\Decidiq\Service\PublicationRun
+ * @uses \OCA\Decidiq\Service\ItemPaperPublisher
  *
  * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-002-a-confidential-item-never-reaches-the-public
  */

@@ -67,9 +67,9 @@
         },
         "alice": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -92,9 +92,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -110,9 +110,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -128,9 +128,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -153,9 +153,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -171,9 +171,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -189,9 +189,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -209,9 +209,9 @@
         },
         "bob": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -234,9 +234,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -252,9 +252,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -270,9 +270,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -295,9 +295,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -313,9 +313,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -331,9 +331,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -351,9 +351,9 @@
         },
         "eve": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -376,9 +376,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -394,9 +394,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -412,9 +412,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -437,9 +437,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -455,9 +455,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -473,9 +473,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion gone not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -717,9 +717,9 @@
         },
         "alice": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -742,9 +742,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -760,9 +760,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -778,9 +778,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -803,9 +803,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -821,9 +821,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -839,9 +839,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -859,9 +859,9 @@
         },
         "bob": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -884,9 +884,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -902,9 +902,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -920,9 +920,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -945,9 +945,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -963,9 +963,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -981,9 +981,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1001,9 +1001,9 @@
         },
         "eve": {
             "add new": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1026,9 +1026,9 @@
                 "calls": []
             },
             "add existing": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1044,9 +1044,9 @@
                 ]
             },
             "remove": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1062,9 +1062,9 @@
                 ]
             },
             "text": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1087,9 +1087,9 @@
                 "calls": []
             },
             "history": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1105,9 +1105,9 @@
                 ]
             },
             "add forged": {
-                "status": 404,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {
@@ -1123,9 +1123,9 @@
                 ]
             },
             "text forged": {
-                "status": 409,
+                "status": 403,
                 "data": {
-                    "message": "Motion not-motion not found"
+                    "message": "Only the motion proposer or an existing co-author may modify this motion"
                 },
                 "calls": [
                     {

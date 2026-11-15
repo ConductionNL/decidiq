@@ -91,39 +91,36 @@ class SubstitutionResolver {
 			return $this->cache[$meetingId];
 		}
 
-		try {
-			$rows = $this->objectService->findAll(
-				[
-					'filters' => [
-						'register' => 'decidiq',
-						'schema'   => self::SCHEMA,
-						'meeting'  => $meetingId,
-					],
-					'limit'   => 1000,
-				]
-			);
-		} catch (Throwable $e) {
-			$this->logger?->warning(
-				'Decidiq: substitutions of a meeting could not be read; every member keeps their seat',
-				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
-			);
-			$rows = [];
-		}
-
-		$records = [];
-		foreach ($rows as $row) {
-			$record = $this->data(row: $row);
-			if ($this->refId(ref: ($record['meeting'] ?? null)) === $meetingId) {
-				$records[] = $record;
-			}
-		}
-
+		$records = array_map(
+			fn (array $record): array => $this->withId(record: $record),
+			$this->records()->ofMeeting(rows: $this->rowsFor(meetingId: $meetingId), meetingId: $meetingId)
+		);
 		usort($records, static fn (array $a, array $b): int => strcmp((string)($a['startedAt'] ?? ''), (string)($b['startedAt'] ?? '')));
 
 		$this->cache[$meetingId] = $records;
 		return $records;
 
 	}//end allFor()
+
+	/**
+	 * The substitution rows the register answers for a meeting; none when the
+	 * read fails, so every member keeps their seat.
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return array<int|string, mixed> The rows
+	 */
+	private function rowsFor(string $meetingId): array {
+		try {
+			return $this->records()->rowsFor(meetingId: $meetingId);
+		} catch (Throwable $e) {
+			$this->logger?->warning(
+				'Decidiq: substitutions of a meeting could not be read; every member keeps their seat',
+				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
+			);
+			return [];
+		}
+	}//end rowsFor()
 
 	/**
 	 * The substitutions of a meeting that have not ended.
@@ -155,7 +152,7 @@ class SubstitutionResolver {
 	 */
 	public function substitutionOf(string $meetingId, string $participantId): ?array {
 		foreach ($this->activeFor(meetingId: $meetingId) as $record) {
-			if ($this->refId(ref: ($record['outgoingParticipant'] ?? null)) === $participantId) {
+			if ($this->records()->refId(ref: ($record['outgoingParticipant'] ?? null)) === $participantId) {
 				return $record;
 			}
 		}
@@ -193,7 +190,7 @@ class SubstitutionResolver {
 			return $participantId;
 		}
 
-		return $this->refId(ref: ($record['incomingParticipant'] ?? null));
+		return $this->records()->refId(ref: ($record['incomingParticipant'] ?? null));
 	}//end seatHolderFor()
 
 	/**
@@ -207,7 +204,7 @@ class SubstitutionResolver {
 	 */
 	public function activeSubstitutes(string $meetingId): array {
 		return array_map(
-			fn (array $record): string => $this->refId(ref: ($record['incomingParticipant'] ?? null)),
+			fn (array $record): string => $this->records()->refId(ref: ($record['incomingParticipant'] ?? null)),
 			$this->activeFor(meetingId: $meetingId)
 		);
 	}//end activeSubstitutes()
@@ -233,31 +230,62 @@ class SubstitutionResolver {
 			return $participants;
 		}
 
-		$attendanceTaken = array_filter($participants, static fn (array $row): bool => (string)($row['attendanceStatus'] ?? '') !== '') !== [];
-		$outgoing = [];
-		$incoming = [];
-		foreach ($active as $record) {
-			$outgoing[$this->refId(ref: ($record['outgoingParticipant'] ?? null))] = true;
-			$incoming[$this->refId(ref: ($record['incomingParticipant'] ?? null))] = true;
-		}
-
+		$sides = $this->seatSides(active: $active, participants: $participants);
 		$seats = [];
 		foreach ($participants as $row) {
-			$id = $this->idOf(row: $row);
-			if (isset($incoming[$id]) === true) {
-				continue;
+			$seat = $this->seatOf(row: $row, sides: $sides);
+			if ($seat !== null) {
+				$seats[] = $seat;
 			}
-
-			if (isset($outgoing[$id]) === true && $attendanceTaken === true) {
-				$row['attendanceStatus'] = 'present';
-			}
-
-			$seats[] = $row;
 		}
 
 		return $seats;
 
 	}//end seatsForQuorum()
+
+	/**
+	 * Who left a seat and who took one, and whether attendance was taken.
+	 *
+	 * @param list<array<string, mixed>>       $active       The active substitutions
+	 * @param array<int, array<string, mixed>> $participants The participants
+	 *
+	 * @return array{outgoing: array<string, true>, incoming: array<string, true>, attendanceTaken: bool}
+	 */
+	private function seatSides(array $active, array $participants): array {
+		$sides = [
+			'outgoing' => [],
+			'incoming' => [],
+			'attendanceTaken' => array_filter($participants, static fn (array $row): bool => (string)($row['attendanceStatus'] ?? '') !== '') !== [],
+		];
+		foreach ($active as $record) {
+			$sides['outgoing'][$this->records()->refId(ref: ($record['outgoingParticipant'] ?? null))] = true;
+			$sides['incoming'][$this->records()->refId(ref: ($record['incomingParticipant'] ?? null))] = true;
+		}
+
+		return $sides;
+	}//end seatSides()
+
+	/**
+	 * The seat a participant takes in the quorum: none for a substitute, and
+	 * present for the member they replaced once attendance was taken.
+	 *
+	 * @param array<string, mixed>                                                                         $row   The participant
+	 * @param array{outgoing: array<string, true>, incoming: array<string, true>, attendanceTaken: bool} $sides From seatSides()
+	 *
+	 * @return array<string, mixed>|null The seat, or null when the participant fills another's
+	 */
+	private function seatOf(array $row, array $sides): ?array {
+		$id = $this->idOf(row: $row);
+		if (isset($sides['incoming'][$id]) === true) {
+			return null;
+		}
+
+		if (isset($sides['outgoing'][$id]) === true && $sides['attendanceTaken'] === true) {
+			$row['attendanceStatus'] = 'present';
+		}
+
+		return $row;
+	}//end seatOf()
 
 	/**
 	 * The id of a participant row.
@@ -269,53 +297,30 @@ class SubstitutionResolver {
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function idOf(array $row): string {
-		$self = ($row['@self'] ?? []);
-		if (is_array($self) === false) {
-			$self = [];
-		}
-
-		return (string)($row['id'] ?? $row['uuid'] ?? $self['id'] ?? '');
+		return $this->records()->idOf(row: $row);
 	}//end idOf()
 
 	/**
-	 * An object as an array.
+	 * The substitution records of a meeting, as the register holds them.
 	 *
-	 * @param mixed $row An ObjectEntity or an array
+	 * @return MeetingScopedRecords
+	 */
+	private function records(): MeetingScopedRecords {
+		return new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA);
+	}//end records()
+
+	/**
+	 * A substitution record that always carries its id.
+	 *
+	 * @param array<string, mixed> $record The record
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function data(mixed $row): array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			$row = $row->jsonSerialize();
+	private function withId(array $record): array {
+		if (isset($record['id']) === false) {
+			$record['id'] = $this->records()->idOf(row: $record);
 		}
 
-		if (is_array($row) === false) {
-			return [];
-		}
-
-		if (isset($row['id']) === false) {
-			$row['id'] = $this->idOf(row: $row);
-		}
-
-		return $row;
-	}//end data()
-
-	/**
-	 * The id a relation value points at.
-	 *
-	 * @param mixed $ref A uuid string or a resolved object
-	 *
-	 * @return string
-	 */
-	private function refId(mixed $ref): string {
-		if (is_string($ref) === true) {
-			return $ref;
-		}
-
-		if (is_array($ref) === true) {
-			return (string)($ref['id'] ?? $ref['uuid'] ?? '');
-		}
-
-		return '';
-	}//end refId()
+		return $record;
+	}//end withId()
 }//end class

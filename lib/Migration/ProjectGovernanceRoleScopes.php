@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\GovernanceRoleScopeProjector;
+use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -43,11 +43,11 @@ class ProjectGovernanceRoleScopes implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param GovernanceRoleScopeProjector $projector Scope projector
+	 * @param GovernanceRoleScopeProjectorInterface $projector Scope projector
 	 * @param LoggerInterface $logger Diagnostic logger
 	 */
 	public function __construct(
-		private readonly GovernanceRoleScopeProjector $projector,
+		private readonly GovernanceRoleScopeProjectorInterface $projector,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
+use OCA\Decidiq\Kernel\Contracts\BudgetVotingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -42,7 +43,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class BudgetVotingService {
+class BudgetVotingService implements BudgetVotingServiceInterface {
 	/**
 	 * Constructor for BudgetVotingService.
 	 *
@@ -83,15 +84,7 @@ class BudgetVotingService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**
@@ -238,7 +231,7 @@ class BudgetVotingService {
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();
@@ -307,22 +300,7 @@ class BudgetVotingService {
 
 		$proposals = $this->fetchValidatedProposals(budgetId: $budgetId);
 
-		usort(
-			$proposals,
-			static function (array $a, array $b): int {
-				$forCmp = ((int)($b['votesFor'] ?? 0) <=> (int)($a['votesFor'] ?? 0));
-				if ($forCmp !== 0) {
-					return $forCmp;
-				}
-
-				$againstCmp = ((int)($a['votesAgainst'] ?? 0) <=> (int)($b['votesAgainst'] ?? 0));
-				if ($againstCmp !== 0) {
-					return $againstCmp;
-				}
-
-				return ((float)($a['requestedAmount'] ?? 0) <=> (float)($b['requestedAmount'] ?? 0));
-			}
-		);
+		usort($proposals, [self::class, 'compareProposals']);
 
 		$allocated = 0.0;
 		$ranked = [];
@@ -336,10 +314,8 @@ class BudgetVotingService {
 
 			$proposalId = (string)($proposal['id'] ?? $proposal['uuid'] ?? '');
 
-			// Persist the award decision on the proposal.
-			if ($funded === true && $proposalId !== '') {
-				$proposal['status'] = 'awarded';
-				$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+			if ($funded === true) {
+				$this->persistAward(objectService: $objectService, proposal: $proposal);
 			}
 
 			$ranked[] = [
@@ -362,6 +338,49 @@ class BudgetVotingService {
 		];
 
 	}//end calculateAllocation()
+
+	/**
+	 * Ranking order: most votes for first, then fewest votes against, then the smallest request.
+	 *
+	 * @param array<string, mixed> $a A proposal.
+	 * @param array<string, mixed> $b Another proposal.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private static function compareProposals(array $a, array $b): int {
+		$forCmp = ((int)($b['votesFor'] ?? 0) <=> (int)($a['votesFor'] ?? 0));
+		if ($forCmp !== 0) {
+			return $forCmp;
+		}
+
+		$againstCmp = ((int)($a['votesAgainst'] ?? 0) <=> (int)($b['votesAgainst'] ?? 0));
+		if ($againstCmp !== 0) {
+			return $againstCmp;
+		}
+
+		return ((float)($a['requestedAmount'] ?? 0) <=> (float)($b['requestedAmount'] ?? 0));
+	}//end compareProposals()
+
+	/**
+	 * Persist the award decision on a funded proposal that has an id.
+	 *
+	 * @param object               $objectService OpenRegister's object service.
+	 * @param array<string, mixed> $proposal      The funded proposal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function persistAward(object $objectService, array $proposal): void {
+		if ((string)($proposal['id'] ?? $proposal['uuid'] ?? '') === '') {
+			return;
+		}
+
+		$proposal['status'] = 'awarded';
+		$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+	}//end persistAward()
 
 	/**
 	 * Fetch all validated/awarded proposals for a round.

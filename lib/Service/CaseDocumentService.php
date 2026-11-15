@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\CaseDocumentServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Throwable;
@@ -33,7 +34,7 @@ use Throwable;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-003-the-griffier-fetches-case-documents-onto-the-item-once-each
  */
-class CaseDocumentService {
+class CaseDocumentService implements CaseDocumentServiceInterface {
 	/**
 	 * Constructor.
 	 *

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
  * @spec openspec/specs/meeting-management/spec.md
  */
 
@@ -28,7 +28,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
@@ -42,9 +43,9 @@ use Throwable;
  * frontend via OpenRegister's object API. This service is responsible only
  * for the guarded lifecycle state machine.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.3
  */
-class MeetingService {
+class MeetingService implements MeetingServiceInterface {
 
 	/**
 	 * Valid lifecycle transitions keyed by action name.
@@ -70,12 +71,12 @@ class MeetingService {
 	 * @param ContainerInterface $container The DI container (used to retrieve ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param WorkflowService $workflowService Domain-specific transition rules and chair-only gates
-	 * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
+	 * @param MeetingTransitionGuardInterface $transitionGuard Reads quorumMet field for the open transition
 	 * @param MeetingCostService $meetingCostService Computes the final meetingCost stamped on close (meeting-efficiency)
 	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected chair scope for chair-only transitions
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
 	 * @spec openspec/specs/meeting-management/spec.md
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
@@ -83,7 +84,7 @@ class MeetingService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly WorkflowService $workflowService,
-		private readonly MeetingTransitionGuard $transitionGuard,
+		private readonly MeetingTransitionGuardInterface $transitionGuard,
 		private readonly MeetingCostService $meetingCostService,
 		private readonly GovernanceScopeGuard $scopeGuard,
 		private readonly ObjectServiceInterface $objectService,
@@ -95,7 +96,7 @@ class MeetingService {
 	 *
 	 * @param string $currentLifecycle The current lifecycle value of the meeting
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.3
 	 *
 	 * @return string[] List of action names the caller may invoke
 	 */
@@ -182,9 +183,9 @@ class MeetingService {
 	 * @param string $action Transition action: schedule|open|pause|resume|adjourn|close
 	 * @param string|null $currentUserId Nextcloud UID of the requesting user (used for chair-only gates)
 	 *
-	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-3.3
 	 * @spec openspec/specs/meeting-management/spec.md
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}
@@ -213,7 +214,7 @@ class MeetingService {
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}
 	 *
-	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
 	 */
 	private function applyTransition(string $meetingId, array $request): array {
 		// Object-level read ACL: OpenRegister's ObjectService::find() resolves the
@@ -246,7 +247,7 @@ class MeetingService {
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}
 	 *
-	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
 	 */
 	private function saveTransition(string $meetingId, array $change): array {
 		$toState = self::TRANSITIONS[$change['action']]['to'];
@@ -281,8 +282,8 @@ class MeetingService {
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}|null The refusal, or null when permitted.
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-3.3
 	 */
 	private function transitionRefusal(string $action, array $context): ?array {
 		$from = self::TRANSITIONS[$action]['from'];
@@ -310,7 +311,7 @@ class MeetingService {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-3.3
 	 */
 	private function ruleGateRefusal(string $action, array $context): ?string {
 		$toState = self::TRANSITIONS[$action]['to'];
@@ -329,7 +330,7 @@ class MeetingService {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-3.3
 	 */
 	private function chairRefusal(string $toState, array $context): ?string {
 		if ($this->chairGateDenies(
@@ -355,7 +356,7 @@ class MeetingService {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.2
 	 */
 	private function quorumRefusal(string $action, array $context): ?string {
 		if ($action === 'open'
@@ -387,7 +388,7 @@ class MeetingService {
 	 *
 	 * @return bool True when the transition must be refused.
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-3.3
 	 */
 	private function chairGateDenies(
 		string $domain,
@@ -448,7 +449,7 @@ class MeetingService {
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}
 	 *
-	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-1.1
 	 */
 	private function refusal(string $message): array {
 		return [

@@ -77,6 +77,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\WorkingDayDeadlineSplitter
  * @uses   \OCA\Decidiq\Service\HeldRouteRequest
  * @uses   \OCA\Decidiq\Event\ApprovalRouteRequestedEvent
+ * @uses \OCA\Decidiq\Service\RouteStagesRun
  */
 class ApprovalHoldGoldenTest extends TestCase {
 

@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service\Records;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DossierCategoryInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 
@@ -38,7 +39,7 @@ use OCP\IL10N;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
  */
-class DossierCategory {
+class DossierCategory implements DossierCategoryInterface {
 	/**
 	 * The dossier schema's key in the register, where its category lives.
 	 */

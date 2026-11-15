@@ -53,6 +53,7 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\MinutesRecordReader
  * @uses   \OCA\Decidiq\Exception\MissingObjectException
  * @uses   \OCA\Decidiq\Exception\MissingRelationException
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
  */
 class MinutesLookupGoldenTest extends TestCase {
 

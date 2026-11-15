@@ -128,6 +128,12 @@ class VoteCastGuard {
 			throw new RuntimeException('Stemronde is nog niet geopend');
 		}
 
+		// A written round is answered by its electorate snapshot only and never
+		// reaches the meeting-participant path (voting-written-resolution, D3).
+		if (($round['procedure'] ?? 'in-meeting') === 'written') {
+			throw new RuntimeException('A written round is answered by the members it was put to, not as a meeting participant');
+		}
+
 		return $round;
 	}//end loadOpenRound()
 

@@ -39,13 +39,14 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -53,9 +54,9 @@ use Throwable;
 /**
  * Keeps the OR task inbox agreeing with a subject's approval stages.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalStageTaskProjector {
+class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface {
 
 	/**
 	 * OpenRegister's flow-task service, resolved by name so decidiq does not
@@ -67,16 +68,6 @@ class ApprovalStageTaskProjector {
 	 * @var string
 	 */
 	private const TASK_SERVICE = 'OCA\\OpenRegister\\Service\\Task\\TaskService';
-
-	/**
-	 * The provenance marker a projected task carries in its templateId.
-	 *
-	 * The decision listener trusts this marker to know which terminal tasks
-	 * are approval-stage asks, so it is a contract, not a label.
-	 *
-	 * @var string
-	 */
-	public const TEMPLATE_ID = 'decidiq:approval-stage';
 
 	/**
 	 * Constructor.
@@ -107,7 +98,7 @@ class ApprovalStageTaskProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sync(string $subject, array $stages): void {
 		foreach ($stages as $stage) {

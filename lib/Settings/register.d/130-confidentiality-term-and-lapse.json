@@ -1,0 +1,171 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change confidentiality-term-and-lapse (pub-06, pub-07, board DcGeheimhouding). A confidentiality restriction records the decision that imposed it, when and with which agenda item its papers went to the ratifying body, and the latest date it should be lifted. Its lifecycle gains the terminal state lapsed, reachable from imposed only: the ratifying body met and did not ratify. Lists merge by concatenation, so the enum, states, terminal and transitions below are added to those of fragment 83. An agenda item records what the body did with a confidentiality put to it for ratification (ratificationOutcome), and a lapsed restriction records when and at which meeting it lapsed. A liftBy before imposedAt is refused at save time by ConfidentialityTermGuardListener, since OpenRegister does not evaluate a cross-field allOf.",
+  "components": {
+    "schemas": {
+      "ConfidentialityRestriction": {
+        "slug": "confidentiality-restriction",
+        "properties": {
+          "imposingDecision": {
+            "title": "Imposing decision",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "nullable": true,
+            "description": "The decision that imposed the confidentiality.",
+            "x-notes": "REQ-EMB-020. Optional: a chair may impose during a meeting without a separate decision record. The detail page shows it as a link."
+          },
+          "liftBy": {
+            "title": "Lift by",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "facetable": true,
+            "description": "The latest date by which the confidentiality should be lifted.",
+            "example": "2027-07-01",
+            "x-notes": "REQ-EMB-020 / REQ-EMB-022. Planning only: the date puts a lifting proposal on the agenda and shows the restriction overdue once passed; it never lifts on its own. Must not be before imposedAt (ConfidentialityTermGuardListener). liftingConditions keeps the condition in words."
+          },
+          "sentToBodyAt": {
+            "title": "Sent to the body on",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the restricted papers went to the ratifying body.",
+            "x-notes": "REQ-EMB-020, design D4. Recorded, not inferred."
+          },
+          "sentWithAgendaItem": {
+            "title": "Sent with agenda item",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "agenda-item",
+            "nullable": true,
+            "description": "The agenda item the restricted papers went to the ratifying body with.",
+            "x-notes": "REQ-EMB-020, design D4."
+          },
+          "lapsedAt": {
+            "title": "Lapsed on",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the confidentiality lapsed because the ratifying body did not ratify it.",
+            "x-notes": "REQ-EMB-021. Set with the transition to lapsed, by ConfidentialityLapseListener or by a clerk."
+          },
+          "lapsedAtMeeting": {
+            "title": "Lapsed at meeting",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "nullable": true,
+            "description": "The meeting that closed without ratifying the confidentiality.",
+            "x-notes": "REQ-EMB-021. Together with ratificationAgendaItem this names the meeting and the item the lapse came from; the object's audit trail records the write."
+          },
+          "liftingAgendaItem": {
+            "title": "Lifting agenda item",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "agenda-item",
+            "nullable": true,
+            "description": "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.",
+            "x-notes": "REQ-EMB-022. Written by ConfidentialityLiftByJob; a restriction with one gets no second."
+          },
+          "liftStatus": {
+            "title": "Lifting",
+            "type": "string",
+            "enum": [
+              "preparing",
+              "overdue"
+            ],
+            "x-enum-labels": {
+              "preparing": "Prepare lifting",
+              "overdue": "Overdue for lifting"
+            },
+            "nullable": true,
+            "facetable": true,
+            "description": "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.",
+            "x-notes": "REQ-EMB-022. Written by ConfidentialityLiftByJob."
+          },
+          "lifecycle": {
+            "enum": [
+              "lapsed"
+            ],
+            "x-enum-labels": {
+              "lapsed": "Lapsed"
+            },
+            "x-notes": "lapsed (REQ-EMB-021): the ratifying body met and did not ratify. Terminal. ConfidentialityRestrictions::ACTIVE_STATES stays imposed and ratified, so a lapsed restriction no longer blocks publication and its target goes through the normal publication check."
+          }
+        },
+        "x-openregister-lifecycle": {
+          "states": [
+            "lapsed"
+          ],
+          "terminal": [
+            "lapsed"
+          ],
+          "transitions": [
+            {
+              "from": "imposed",
+              "to": "lapsed"
+            }
+          ]
+        },
+        "x-openregister-notifications": {
+          "confidentialityLapsed": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "lapsed"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              },
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidiq-secretariat"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Geheimhouding vervallen: niet bekrachtigd — {{scope}}",
+              "en": "Confidentiality lapsed: not ratified — {{scope}}"
+            },
+            "_note": "REQ-EMB-021. Fires on the transition to lapsed, whether the system lapsed it at meeting close or a clerk recorded that the body did not ratify it."
+          }
+        }
+      },
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "properties": {
+          "ratificationOutcome": {
+            "title": "Ratification outcome",
+            "type": "string",
+            "enum": [
+              "ratified",
+              "not-ratified",
+              "postponed"
+            ],
+            "nullable": true,
+            "x-enum-labels": {
+              "ratified": "Ratified",
+              "not-ratified": "Not ratified",
+              "postponed": "Postponed"
+            },
+            "description": "What the body did with a confidentiality put to it for ratification.",
+            "x-notes": "REQ-EMB-021. Only meaningful on an item that is some restriction's ratificationAgendaItem. not-ratified lapses the restriction at once; postponed keeps it imposed when the meeting closes; an empty outcome at meeting close lapses it unless the restriction already records its ratification decision."
+          }
+        }
+      }
+    }
+  }
+}

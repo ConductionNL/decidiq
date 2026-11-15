@@ -40,7 +40,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -54,7 +54,7 @@ use RuntimeException;
  * Moves a route's stage rows when an action completes or returns one.
  *
  * @spec openspec/specs/approval-routes/spec.md
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 final class ApprovalRouteAdvancer {
 	/**
@@ -101,7 +101,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return array<int, array<string, mixed>> The active stages.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function activeStages(array $stages): array {
 		$actives = [];
@@ -153,7 +153,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function applyReturnVerb(array $action, array $stages, array $active): void {
 		$target = (int)($action['returnToStep'] ?? 0);
@@ -181,7 +181,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function completeAndAdvance(array $stages, array $active, string $verb): void {
 		$status = 'decided';
@@ -242,7 +242,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function applyTerminalReturn(array $stages, array $active): void {
 		$this->store->patch(
@@ -291,7 +291,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @throws RuntimeException When the target step is not before the active one.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function applyReturn(array $action, array $stages, array $active): void {
 		$target = (int)($action['returnToStep'] ?? 0);
@@ -327,7 +327,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return boolean True when a sibling at the same sequence is still active.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function groupStillSigning(array $stages, array $active): bool {
 		$sequence = (int)$active['sequence'];
@@ -349,7 +349,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return int|null The next sequence, or null when none remains.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function nextPendingSequence(array $stages, int $after): ?int {
 		foreach ($stages as $stage) {

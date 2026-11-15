@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\BackgroundJob\SendMeetingFileJob;
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
 use OCP\BackgroundJob\IJobList;
 use Throwable;
 
@@ -35,7 +36,7 @@ use Throwable;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
  */
-class CaseSystemExchangeService {
+class CaseSystemExchangeService implements CaseSystemExchangeServiceInterface {
 	/**
 	 * Constructor.
 	 *
