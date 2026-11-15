@@ -1,1 +1,0 @@
-- No screen: in-process cross-app events between dossiq and decidiq; they have no page of their own.

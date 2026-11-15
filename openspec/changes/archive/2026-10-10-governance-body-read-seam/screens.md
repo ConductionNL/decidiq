@@ -1,1 +1,0 @@
-- No screen: an in-process cross-app read event; it has no page of its own.
