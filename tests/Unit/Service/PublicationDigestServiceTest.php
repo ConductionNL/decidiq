@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\Decidiq\Service\NotificationPreferenceService;

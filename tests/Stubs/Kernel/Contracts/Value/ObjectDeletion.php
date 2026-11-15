@@ -1,7 +1,7 @@
 <?php
 
-// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Object/ObjectDeletion.php at ConductionNL/openregister@5b0839f6
-// (openregister #9099), for standalone unit runs. OpenRegister is a sibling app,
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Kernel/Contracts/Value/ObjectDeletion.php on openregister main
+// for standalone unit runs. OpenRegister is a sibling app,
 // not a composer dependency; the real class wins whenever OpenRegister is
 // loaded. Refresh by copying, never by editing.
 
@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\OpenRegister\Service\Object;
+namespace OCA\OpenRegister\Kernel\Contracts\Value;
 
 use OCP\IUser;
 
@@ -46,6 +46,8 @@ final class ObjectDeletion {
 	 * @param bool             $permanent   Destroy the row rather than tombstone it, so its identifier
 	 *                                      becomes reusable. Reserve it for rows that are a claim rather
 	 *                                      than a record (openregister#2459).
+	 * @param \Closure|null    $reach       Whether the delete may change an object it reaches through a
+	 *                                      reference, asked with that object's uuid. Null lets the rules decide alone.
 	 *
 	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) Soft delete is the default every caller gets.
 	 */
@@ -54,6 +56,7 @@ final class ObjectDeletion {
 		public readonly ObjectFindTarget $target=new ObjectFindTarget(),
 		public readonly ?IUser $currentUser=null,
 		public readonly bool $permanent=false,
+		public readonly ?\Closure $reach=null,
 	) {
 	}//end __construct()
 

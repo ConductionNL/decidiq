@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\OpenRegister\Service\Object\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use OCA\Decidiq\Migration\MigrateVveToBodyConfiguration;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;

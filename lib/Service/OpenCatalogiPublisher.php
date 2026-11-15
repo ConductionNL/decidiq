@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCP\App\IAppManager;

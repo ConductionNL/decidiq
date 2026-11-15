@@ -31,8 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;

@@ -1,7 +1,7 @@
 <?php
 
-// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Service/Object/ObjectFindTarget.php at ConductionNL/openregister@5b0839f6
-// (openregister #9099), for standalone unit runs. OpenRegister is a sibling app,
+// VERBATIM COPY (minus its spec-traceability tags) of openregister lib/Kernel/Contracts/Value/ObjectFindTarget.php on openregister main
+// for standalone unit runs. OpenRegister is a sibling app,
 // not a composer dependency; the real class wins whenever OpenRegister is
 // loaded. Refresh by copying, never by editing.
 
@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\OpenRegister\Service\Object;
+namespace OCA\OpenRegister\Kernel\Contracts\Value;
 
 use OCA\OpenRegister\Db\Register;
 use OCA\OpenRegister\Db\Schema;

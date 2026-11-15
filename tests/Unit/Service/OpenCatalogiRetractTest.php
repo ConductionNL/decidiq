@@ -26,7 +26,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\Object\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
