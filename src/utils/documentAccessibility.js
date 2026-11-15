@@ -49,28 +49,18 @@ export function statusBadge(status) {
  * @return {string} The guidance, or '' for an unknown code.
  */
 export function guidanceFor(code) {
-	switch (code) {
-	case 'not-tagged':
-		return t('decidiq', 'The PDF has no structure tags, so screen readers cannot follow headings, lists and tables. Export it again from the source document with "tagged PDF" or "accessibility" switched on.')
-	case 'no-language':
-		return t('decidiq', 'The PDF does not state its language. Set the document language in the source document, or in the PDF properties, before exporting.')
-	case 'no-title':
-		return t('decidiq', 'The PDF has no document title. Fill in the title in the document properties of the source document and export again.')
-	case 'no-bookmarks':
-		return t('decidiq', 'This long document has no bookmarks. Use headings in the source document and export with bookmarks switched on.')
-	case 'no-text-layer':
-		return t('decidiq', 'This looks like a scanned document without a text layer. Export it again from the source document, or run text recognition (OCR) before uploading.')
-	case 'missing-alt-text':
-		return t('decidiq', 'Some images have no alternative text. Add a description to each meaningful image in the source document and export again.')
-	case 'too-large':
-		return t('decidiq', 'The file is too large to scan. Split it into smaller documents or reduce the image resolution.')
-	case 'parse-failure':
-		return t('decidiq', 'The file could not be read as a PDF. Export it again from the source document.')
-	case 'unsupported-format':
-		return t('decidiq', 'Only PDF documents are checked. Publish a tagged PDF version of this document where possible.')
-	default:
-		return ''
+	const guidance = {
+		'not-tagged': t('decidiq', 'The PDF has no structure tags, so screen readers cannot follow headings, lists and tables. Export it again from the source document with "tagged PDF" or "accessibility" switched on.'),
+		'no-language': t('decidiq', 'The PDF does not state its language. Set the document language in the source document, or in the PDF properties, before exporting.'),
+		'no-title': t('decidiq', 'The PDF has no document title. Fill in the title in the document properties of the source document and export again.'),
+		'no-bookmarks': t('decidiq', 'This long document has no bookmarks. Use headings in the source document and export with bookmarks switched on.'),
+		'no-text-layer': t('decidiq', 'This looks like a scanned document without a text layer. Export it again from the source document, or run text recognition (OCR) before uploading.'),
+		'missing-alt-text': t('decidiq', 'Some images have no alternative text. Add a description to each meaningful image in the source document and export again.'),
+		'too-large': t('decidiq', 'The file is too large to scan. Split it into smaller documents or reduce the image resolution.'),
+		'parse-failure': t('decidiq', 'The file could not be read as a PDF. Export it again from the source document.'),
+		'unsupported-format': t('decidiq', 'Only PDF documents are checked. Publish a tagged PDF version of this document where possible.'),
 	}
+	return Object.hasOwn(guidance, code) ? guidance[code] : ''
 }
 
 /**
@@ -100,14 +90,35 @@ export function findingRows(report) {
 export function currentReports(reports) {
 	const current = new Map()
 	for (const report of Array.isArray(reports) ? reports : []) {
-		const fileId = Number(report?.fileId)
-		if (!Number.isFinite(fileId) || fileId <= 0) continue
-		const held = current.get(fileId)
-		if (!held || String(report.scannedAt || '') > String(held.scannedAt || '')) {
+		const fileId = reportFileId(report)
+		if (fileId === null) continue
+		if (isNewer(report, current.get(fileId))) {
 			current.set(fileId, report)
 		}
 	}
 	return current
+}
+
+/**
+ * The file a report is about, or null when it names no valid file.
+ *
+ * @param {object} report The report.
+ * @return {number|null} The file id.
+ */
+function reportFileId(report) {
+	const fileId = Number(report?.fileId)
+	return Number.isFinite(fileId) && fileId > 0 ? fileId : null
+}
+
+/**
+ * Whether a report was scanned after the one held so far (or none is held).
+ *
+ * @param {object} report The candidate.
+ * @param {object|undefined} held The report held so far.
+ * @return {boolean} True when the candidate replaces it.
+ */
+function isNewer(report, held) {
+	return !held || String(report.scannedAt || '') > String(held.scannedAt || '')
 }
 
 /**

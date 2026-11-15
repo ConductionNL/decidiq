@@ -53,25 +53,40 @@ function resolveValue(value, workspace) {
 export function resolveWorkspaceFilter(filter, workspace) {
 	const out = {}
 	for (const [field, value] of Object.entries(filter || {})) {
-		if (value && typeof value === 'object' && !Array.isArray(value)) {
-			const inner = {}
-			for (const [op, operand] of Object.entries(value)) {
-				const r = resolveValue(operand, workspace)
-				if (r.keep) {
-					inner[op] = r.value
-				}
-			}
-			if (Object.keys(inner).length > 0) {
-				out[field] = inner
-			}
-			continue
-		}
-		const r = resolveValue(value, workspace)
+		const r = isOperatorMap(value) ? resolveOperators(value, workspace) : resolveValue(value, workspace)
 		if (r.keep) {
 			out[field] = r.value
 		}
 	}
 	return out
+}
+
+/**
+ * Whether a filter value is an operator map (`{ op: value }`) rather than a value.
+ *
+ * @param {unknown} value The filter value.
+ * @return {boolean}
+ */
+function isOperatorMap(value) {
+	return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * An operator map with its workspace tokens read; it stays only while an operator does.
+ *
+ * @param {object} value `{ op: value }`.
+ * @param {object} workspace The page's workspace context.
+ * @return {{keep: boolean, value: object}} Whether the clause stays, and its operators.
+ */
+function resolveOperators(value, workspace) {
+	const inner = {}
+	for (const [op, operand] of Object.entries(value)) {
+		const r = resolveValue(operand, workspace)
+		if (r.keep) {
+			inner[op] = r.value
+		}
+	}
+	return { keep: Object.keys(inner).length > 0, value: inner }
 }
 
 /**
@@ -83,7 +98,7 @@ export function resolveWorkspaceFilter(filter, workspace) {
 export function listParams(filter) {
 	const params = { _limit: 1 }
 	for (const [field, value] of Object.entries(filter || {})) {
-		if (value && typeof value === 'object' && !Array.isArray(value)) {
+		if (isOperatorMap(value)) {
 			for (const [op, operand] of Object.entries(value)) {
 				params[`${field}[${op}]`] = operand
 			}

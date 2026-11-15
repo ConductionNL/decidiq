@@ -85,6 +85,17 @@ import {
 import { filesUrl } from '../../utils/documentMetadata.js'
 import { objectIdLoader } from './objectIdLoader.js'
 
+/**
+ * The rows of a list response, whether paged ({ results }) or a bare array.
+ *
+ * @param {object} response The axios response.
+ * @return {Array} The rows, or an empty list.
+ */
+function resultList(response) {
+	const list = response?.data?.results ?? response?.data ?? []
+	return Array.isArray(list) ? list : []
+}
+
 export default {
 	name: 'DocumentAccessibilityTab',
 
@@ -144,10 +155,8 @@ export default {
 					axios.get(filesUrl(this.target, this.objectId)),
 					axios.get(reportsUrl(this.objectId)).catch(() => ({ data: [] })),
 				])
-				const list = files?.data?.results ?? files?.data ?? []
-				this.files = Array.isArray(list) ? list : []
-				const found = reports?.data?.results ?? reports?.data ?? []
-				this.reports = Array.isArray(found) ? found : []
+				this.files = resultList(files)
+				this.reports = resultList(reports)
 			} catch {
 				this.error = this.t('decidiq', 'The files of this page could not be read.')
 			} finally {

@@ -31,6 +31,7 @@ use OCP\EventDispatcher\IEventListener;
 use OCP\Files\Events\Node\NodeCreatedEvent;
 use OCP\Files\Events\Node\NodeWrittenEvent;
 use OCP\Files\File;
+use OCP\Files\Node;
 use OCP\IAppConfig;
 
 /**
@@ -76,12 +77,8 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof NodeCreatedEvent === false && $event instanceof NodeWrittenEvent === false) {
-			return;
-		}
-
-		$node = $event->getNode();
-		if ($node instanceof File === false || self::isPdf(node: $node) === false || $this->switchedOn() === false) {
+		$node = $this->scannablePdf(event: $event);
+		if ($node === null) {
 			return;
 		}
 
@@ -90,7 +87,54 @@ class DocumentScanOnUploadListener implements IEventListener {
 			return;
 		}
 
-		$argument = ['fileId' => (int)$node->getId(), 'objectId' => $owner['objectId'], 'schema' => $owner['schema']];
+		$this->jobList->add(DocumentAccessibilityScanJob::class, self::jobArgument(fileId: (int)$node->getId(), owner: $owner));
+	}//end handle()
+
+	/**
+	 * The PDF a created or written event is about, while scan-on-upload is on.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return File|null The PDF, or null when there is nothing to scan.
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 */
+	private function scannablePdf(Event $event): ?File {
+		$node = self::changedNode(event: $event);
+		if ($node instanceof File === false || self::isPdf(node: $node) === false || $this->switchedOn() === false) {
+			return null;
+		}
+
+		return $node;
+	}//end scannablePdf()
+
+	/**
+	 * The node an event creates or writes, or null for any other event.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return Node|null
+	 */
+	private static function changedNode(Event $event): ?Node {
+		if ($event instanceof NodeCreatedEvent || $event instanceof NodeWrittenEvent) {
+			return $event->getNode();
+		}
+
+		return null;
+	}//end changedNode()
+
+	/**
+	 * The scan job's argument for a file in a meeting or agenda item folder.
+	 *
+	 * @param int                  $fileId The file.
+	 * @param array<string, mixed> $owner  The folder's owner (objectId, schema, object).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 */
+	private static function jobArgument(int $fileId, array $owner): array {
+		$argument = ['fileId' => $fileId, 'objectId' => $owner['objectId'], 'schema' => $owner['schema']];
 		if ($owner['schema'] === 'meeting') {
 			$argument['governanceBody'] = (string)($owner['object']['governanceBody'] ?? '');
 		}
@@ -99,8 +143,8 @@ class DocumentScanOnUploadListener implements IEventListener {
 			$argument['meeting'] = (string)($owner['object']['meeting'] ?? '');
 		}
 
-		$this->jobList->add(DocumentAccessibilityScanJob::class, $argument);
-	}//end handle()
+		return $argument;
+	}//end jobArgument()
 
 	/**
 	 * Whether scan-on-upload is on; anything but an explicit off is on.

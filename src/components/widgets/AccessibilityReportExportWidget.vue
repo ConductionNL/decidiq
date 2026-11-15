@@ -99,15 +99,25 @@ export default {
 				return this.t('decidiq', 'All bodies')
 			}
 			try {
-				const { data } = await axios.get(generateUrl('/apps/openregister/api/objects/{register}/{schema}/{id}', {
-					register: this.content.register || 'decidiq',
-					schema: this.content.bodySchema || 'governance-body',
-					id,
-				}))
+				const { data } = await axios.get(this.bodyUrl(id))
 				return String(data?.name || data?.title || id)
 			} catch {
 				return String(id)
 			}
+		},
+
+		/**
+		 * The OpenRegister address of a governance body.
+		 *
+		 * @param {string} id The body.
+		 * @return {string} The URL.
+		 */
+		bodyUrl(id) {
+			return generateUrl('/apps/openregister/api/objects/{register}/{schema}/{id}', {
+				register: this.content.register || 'decidiq',
+				schema: this.content.bodySchema || 'governance-body',
+				id,
+			})
 		},
 
 		/** @return {string} The period the page is set to. */
