@@ -33,6 +33,7 @@ use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
+use OCA\Decidiq\Service\AccessibilityConsent;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -135,28 +136,14 @@ class AgendaController extends Controller {
 	}//end publish()
 
 	/**
-	 * What the publisher said to the accessibility gate: an acknowledgement, and an override reason.
-	 *
-	 * `accessibilityOverride` may be the reason itself or `{reason}`.
+	 * What the publisher said to the accessibility gate.
 	 *
 	 * @return array{acknowledged: bool, overrideReason: string|null}
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function accessibilityConsent(): array {
-		$override = $this->request->getParam('accessibilityOverride');
-		if (is_array($override) === true) {
-			$override = ($override['reason'] ?? null);
-		}
-
-		if (is_string($override) === false) {
-			$override = null;
-		}
-
-		return [
-			'acknowledged' => filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
-			'overrideReason' => $override,
-		];
+		return AccessibilityConsent::fromRequest(request: $this->request);
 	}//end accessibilityConsent()
 
 	/**
