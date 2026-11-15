@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\TestCase;
@@ -89,16 +91,14 @@ class OpenCatalogiPublisherTest extends TestCase {
 			}//end saveObject()
 
 			/**
-			 * Record a delete.
+			 * Record a delete, as OpenRegister main takes it: one ObjectDeletion.
 			 *
-			 * @param string $uuid     The uuid.
-			 * @param string $register The register.
-			 * @param string $schema   The schema.
+			 * @param ObjectDeletion $deletion The uuid and its register and schema.
 			 *
 			 * @return bool True.
 			 */
-			public function deleteObject(string $uuid, string $register, string $schema): bool {
-				$this->deleted[] = compact('uuid', 'register', 'schema');
+			public function deleteObject(ObjectDeletion $deletion): bool {
+				$this->deleted[] = ['uuid' => $deletion->uuid, 'register' => $deletion->target->register, 'schema' => $deletion->target->schema];
 				if ($this->answer instanceof \Throwable) {
 					throw $this->answer;
 				}
@@ -120,7 +120,7 @@ class OpenCatalogiPublisherTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($store): object {
-				if ($id !== 'OCA\OpenRegister\Service\ObjectService' || $store === null) {
+				if ($id !== ObjectServiceInterface::class || $store === null) {
 					throw new RuntimeException('not registered');
 				}
 

@@ -180,9 +180,9 @@ class OpenCatalogiPublisher {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
-	 * @return ObjectServiceInterface|null
+	 * @return object|null
 	 */
-	private function resolvePublicationService(): ?ObjectServiceInterface {
+	private function resolvePublicationService(): ?object {
 		try {
 			return $this->container->get(ObjectServiceInterface::class);
 		} catch (\Throwable $e) {
