@@ -26,7 +26,9 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use RuntimeException;
+
 
 /**
  * Mapping, markers, archive-after-success and delegation folding.
@@ -113,7 +115,16 @@ class ActionItemMigrationServiceTest extends TestCase {
 			});
 		$this->objectService->expects(self::once())
 			->method('deleteObject')
-			->with('t-1', 'decidiq', 'task', false, false, false, null, false)
+			->with(
+				self::callback(
+					static fn (ObjectDeletion $deletion): bool => $deletion->uuid === 't-1'
+						&& $deletion->target->register === 'decidiq'
+						&& $deletion->target->schema === 'task'
+						&& $deletion->permanent === false
+				),
+				false,
+				false
+			)
 			->willReturnCallback(function () use (&$calls): bool {
 				$calls[] = 'archive';
 				return true;

@@ -15,6 +15,7 @@ namespace OCA\Decidiq\Tests\Unit\Service\Ori;
 
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -119,7 +120,10 @@ final class InMemoryObjects {
 			}
 		);
 		$service->method('deleteObject')->willReturnCallback(
-			function (string $uuid, $register=null, $schema=null): bool {
+			function (ObjectDeletion $deletion): bool {
+				$uuid     = $deletion->uuid;
+				$register = $deletion->target->register;
+				$schema   = $deletion->target->schema;
 				unset($this->objects[(string)$register][(string)$schema][$uuid]);
 				$this->writes[] = ['delete', (string)$register, (string)$schema, $uuid];
 				return true;
