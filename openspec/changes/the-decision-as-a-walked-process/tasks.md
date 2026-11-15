@@ -153,5 +153,10 @@ them reachable is in reachability-scope.md beside this file.
 ## 11. Handover
 
 - [ ] 11.1 Give the dossiq lane the consumer half: the approval outcome on the case, the admissibility verdict, the remedy clause.
-- [ ] 11.2 Confirm `ZgwZrcRulesService`'s refusal in dossiq stays where it is, so C-decisions-22 is not built twice.
+- [x] 11.2 Confirm `ZgwZrcRulesService`'s refusal in dossiq stays where it is, so C-decisions-22 is not built twice.
+      <!-- Confirmed 2026-11-15 on dossiq development: the zrc-020 refusal of a resultaat whose
+      resultaattype the zaak's zaaktype does not carry now lives in
+      lib/Service/Zgw/ZrcSubResourceRules.php (rulesResultatenCreate), the delegate ZgwZrcRulesService
+      constructs and calls; the proposal's line reference (ZgwZrcRulesService.php:362) predates that
+      split. decidiq's lib/ holds no resultaattype check, so the rule is built once, in dossiq. -->
 - [ ] 11.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
