@@ -126,4 +126,54 @@ class BordaCountTest extends TestCase {
 		self::assertFalse((new BordaCount())->isFullRanking(ranking: ['a', 'b'], keys: ['a', 'b', 'c']));
 		self::assertTrue((new BordaCount())->isFullRanking(ranking: ['c', 'a', 'b'], keys: ['a', 'b', 'c']));
 	}//end testIncompleteBallotsAreNotCounted()
+	/**
+	 * Equal points keep the order the options were declared in, a missing label
+	 * falls back to the key, and the tie names the tied keys in that order.
+	 *
+	 * @return void
+	 */
+	public function testEqualPointsKeepTheDeclaredOrder(): void {
+		$options = [['key' => 'c'], ['key' => 'a', 'label' => 'A'], ['key' => 'b', 'label' => 'B']];
+		$outcome = (new BordaCount())->count(options: $options, ballots: [['a', 'c', 'b'], ['c', 'a', 'b']]);
+
+		self::assertSame(
+			[
+				'rankingResult' => [
+					['key' => 'c', 'label' => 'c', 'points' => 3, 'rank' => 1],
+					['key' => 'a', 'label' => 'A', 'points' => 3, 'rank' => 1],
+					['key' => 'b', 'label' => 'B', 'points' => 0, 'rank' => 3],
+				],
+				'winningOption' => '',
+				'tiedOptions' => ['c', 'a'],
+				'result' => 'tied',
+				'counted' => 2,
+			],
+			$outcome
+		);
+	}//end testEqualPointsKeepTheDeclaredOrder()
+
+	/**
+	 * With no ballots every option still ranks first on zero points, and the
+	 * outcome is invalid rather than tied.
+	 *
+	 * @return void
+	 */
+	public function testNoBallotsKeepsTheRankingAndIsInvalid(): void {
+		$outcome = (new BordaCount())->count(options: [['key' => 'x'], ['key' => 'y']], ballots: []);
+
+		self::assertSame(
+			[
+				'rankingResult' => [
+					['key' => 'x', 'label' => 'x', 'points' => 0, 'rank' => 1],
+					['key' => 'y', 'label' => 'y', 'points' => 0, 'rank' => 1],
+				],
+				'winningOption' => '',
+				'tiedOptions' => [],
+				'result' => 'invalid',
+				'counted' => 0,
+			],
+			$outcome
+		);
+		self::assertSame('invalid', (new BordaCount())->count(options: [], ballots: [[]])['result']);
+	}//end testNoBallotsKeepsTheRankingAndIsInvalid()
 }//end class

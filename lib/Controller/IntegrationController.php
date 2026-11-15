@@ -19,16 +19,16 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
-use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -36,6 +36,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
@@ -63,28 +64,46 @@ use Psr\Log\LoggerInterface;
  * (`isPublished === 'public'`), the WRITE does not. Public readability is not a
  * write grant — see subscribe()'s docblock.
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 class IntegrationController extends Controller {
+
+	/**
+	 * The fields a decision cannot be created without.
+	 *
+	 * @var array<int, string>
+	 */
+	private const REQUIRED_DECISION_FIELDS = ['decisionType', 'title', 'text', 'decisionDate'];
+
+	/**
+	 * Subscription refusal codes with a status of their own; any other refusal is 422.
+	 *
+	 * @var array<string, int>
+	 */
+	private const SUBSCRIPTION_REFUSAL_STATUS = [
+		'not_found' => Http::STATUS_NOT_FOUND,
+		'ssrf_rejected' => Http::STATUS_FORBIDDEN,
+	];
 	/**
 	 * Construct the Integration controller.
 	 *
 	 * @param IRequest $request HTTP request
 	 * @param IUserSession $userSession Nextcloud user session
-	 * @param DecisionIntegrationService $integrationService Outcome assembler + callback dispatcher
+	 * @param DecisionIntegrationServiceInterface $integrationService Outcome assembler + callback dispatcher
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param IGroupManager $groupManager Group manager (admin bypass on the outcome-read and subscribe guards)
-	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard Per-object outcome-read / subscribe authorization (REQ-DCDH-101 / REQ-DCDH-102)
+	 * @param DecisionIntegrationAuthorizationGuardInterface $authorizationGuard Per-object outcome-read / subscribe
+	 *                                                       authorization (REQ-DCDH-101 / REQ-DCDH-102)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly DecisionIntegrationService $integrationService,
+		private readonly DecisionIntegrationServiceInterface $integrationService,
 		private readonly LoggerInterface $logger,
 		private readonly IGroupManager $groupManager,
-		private readonly DecisionIntegrationAuthorizationGuard $authorizationGuard,
+		private readonly DecisionIntegrationAuthorizationGuardInterface $authorizationGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -99,22 +118,44 @@ class IntegrationController extends Controller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function resolveCallerUid(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		$uid = $user->getUID();
-		if ($this->groupManager->isAdmin($uid) === true) {
-			return null;
-		}
-
-		return $uid;
+		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
 	}//end resolveCallerUid()
+
+	/**
+	 * Whether the guard refuses the caller; an administrator (null UID) is never refused.
+	 *
+	 * @param string $id Decision UUID.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 */
+	private function isSubscribeForbidden(string $id): bool {
+		$callerUid = $this->resolveCallerUid();
+
+		return $callerUid !== null
+			&& $this->authorizationGuard->isAuthorizedToSubscribe(decisionId: $id, callerUid: $callerUid) === false;
+	}//end isSubscribeForbidden()
+
+	/**
+	 * Whether the guard refuses the caller; an administrator (null UID) is never refused.
+	 *
+	 * @param string $id Decision UUID.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 */
+	private function isOutcomeReadForbidden(string $id): bool {
+		$callerUid = $this->resolveCallerUid();
+
+		return $callerUid !== null
+			&& $this->authorizationGuard->isAuthorizedToReadOutcome(decisionId: $id, callerUid: $callerUid) === false;
+	}//end isOutcomeReadForbidden()
 
 	/**
 	 * Create a Decision raised by an external fleet app.
@@ -148,27 +189,18 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function createDecision(): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+			return $this->authenticationRequired();
 		}
 
-		$body = $this->request->getParams();
-
-		// Validate required fields.
-		$requiredFields = ['decisionType', 'title', 'text', 'decisionDate'];
-		$missing = [];
-		foreach ($requiredFields as $field) {
-			if (empty($body[$field]) === true) {
-				$missing[] = $field;
-			}
-		}
-
+		$body    = $this->request->getParams();
+		$missing = $this->missingDecisionFields(body: $body);
 		if ($missing !== []) {
 			return new JSONResponse(
 				['message' => 'Missing required fields: ' . implode(', ', $missing)],
@@ -176,17 +208,43 @@ class IntegrationController extends Controller {
 			);
 		}
 
-		try {
-			$result = $this->integrationService->createDecision(
-				decisionData: $body,
-				actorId: $user->getUID()
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'IntegrationController: createDecision failed',
-				['exception' => $e->getMessage(), 'actor' => $user->getUID()]
-			);
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		return $this->createDecisionAs(body: $body, user: $user);
+	}//end createDecision()
+
+	/**
+	 * The required creation fields the body leaves empty, in order.
+	 *
+	 * @param array<string, mixed> $body The request body.
+	 *
+	 * @return array<int, string>
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function missingDecisionFields(array $body): array {
+		$missing = [];
+		foreach (self::REQUIRED_DECISION_FIELDS as $field) {
+			if (empty($body[$field]) === true) {
+				$missing[] = $field;
+			}
+		}
+
+		return $missing;
+	}//end missingDecisionFields()
+
+	/**
+	 * Create the decision as the session user and answer 201, 422 or 500.
+	 *
+	 * @param array<string, mixed> $body The validated request body.
+	 * @param IUser                $user The session user.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function createDecisionAs(array $body, IUser $user): JSONResponse {
+		$result = $this->createdDecision(body: $body, user: $user);
+		if ($result === null) {
+			return $this->internalError();
 		}
 
 		if ($result['success'] === false) {
@@ -197,7 +255,32 @@ class IntegrationController extends Controller {
 		}
 
 		return new JSONResponse($result, Http::STATUS_CREATED);
-	}//end createDecision()
+	}//end createDecisionAs()
+
+	/**
+	 * The service's creation result, or null when it failed (logged).
+	 *
+	 * @param array<string, mixed> $body The validated request body.
+	 * @param IUser                $user The session user.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function createdDecision(array $body, IUser $user): ?array {
+		try {
+			return $this->integrationService->createDecision(
+				decisionData: $body,
+				actorId: $user->getUID()
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'IntegrationController: createDecision failed',
+				['exception' => $e->getMessage(), 'actor' => $user->getUID()]
+			);
+			return null;
+		}
+	}//end createdDecision()
 
 	/**
 	 * Return the outcome envelope for a delegated Decision.
@@ -228,24 +311,33 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function getOutcome(string $id): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+		if ($this->userSession->getUser() === null) {
+			return $this->authenticationRequired();
 		}
 
-		$callerUid = $this->resolveCallerUid();
-		if ($callerUid !== null
-			&& $this->authorizationGuard->isAuthorizedToReadOutcome(decisionId: $id, callerUid: $callerUid) === false
-		) {
-			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		if ($this->isOutcomeReadForbidden(id: $id) === true) {
+			return $this->forbidden();
 		}
 
+		return $this->outcomeResponse(id: $id);
+	}//end getOutcome()
+
+	/**
+	 * The outcome envelope response: 200, 404 or 500.
+	 *
+	 * @param string $id Decision UUID.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function outcomeResponse(string $id): JSONResponse {
 		try {
 			$result = $this->integrationService->getOutcomeEnvelope(decisionId: $id);
 		} catch (\Throwable $e) {
@@ -253,7 +345,7 @@ class IntegrationController extends Controller {
 				'IntegrationController: getOutcome failed',
 				['id' => $id, 'exception' => $e->getMessage()]
 			);
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->internalError();
 		}
 
 		if ($result === null) {
@@ -261,7 +353,7 @@ class IntegrationController extends Controller {
 		}
 
 		return new JSONResponse($result);
-	}//end getOutcome()
+	}//end outcomeResponse()
 
 	/**
 	 * Register an outcome callback for a Decision.
@@ -313,54 +405,144 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function subscribe(string $id): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+			return $this->authenticationRequired();
 		}
 
-		$callerUid = $this->resolveCallerUid();
-		if ($callerUid !== null
-			&& $this->authorizationGuard->isAuthorizedToSubscribe(decisionId: $id, callerUid: $callerUid) === false
-		) {
-			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		if ($this->isSubscribeForbidden(id: $id) === true) {
+			return $this->forbidden();
 		}
 
-		$callbackUrl = (string)($this->request->getParam('callbackUrl', ''));
-		if ($callbackUrl === '') {
+		$request = $this->subscriptionRequest(id: $id, user: $user);
+		if ($request === null) {
 			return new JSONResponse(['message' => "Missing required parameter 'callbackUrl'."], Http::STATUS_BAD_REQUEST);
 		}
 
-		try {
-			$result = $this->integrationService->registerOutcomeCallback(
-				decisionId: $id,
-				callbackUrl: $callbackUrl,
-				actorId: $user->getUID()
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'IntegrationController: subscribe failed',
-				['id' => $id, 'exception' => $e->getMessage()]
-			);
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		return $this->subscriptionResponse(request: $request);
+	}//end subscribe()
+
+	/**
+	 * The subscription the request asks for, or null without a callbackUrl.
+	 *
+	 * @param string $id   Decision UUID.
+	 * @param IUser  $user The session user.
+	 *
+	 * @return OutcomeSubscriptionRequest|null
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function subscriptionRequest(string $id, IUser $user): ?OutcomeSubscriptionRequest {
+		$callbackUrl = (string)($this->request->getParam('callbackUrl', ''));
+		if ($callbackUrl === '') {
+			return null;
+		}
+
+		return new OutcomeSubscriptionRequest(decisionId: $id, callbackUrl: $callbackUrl, actorId: $user->getUID());
+	}//end subscriptionRequest()
+
+	/**
+	 * Register the callback and answer 201, or the refusal's status, or 500.
+	 *
+	 * @param OutcomeSubscriptionRequest $request The validated subscription.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function subscriptionResponse(OutcomeSubscriptionRequest $request): JSONResponse {
+		$result = $this->registeredCallback(request: $request);
+		if ($result === null) {
+			return $this->internalError();
 		}
 
 		if ($result['success'] === false) {
-			$status = Http::STATUS_UNPROCESSABLE_ENTITY;
-			if (($result['code'] ?? '') === 'not_found') {
-				$status = Http::STATUS_NOT_FOUND;
-			} elseif (($result['code'] ?? '') === 'ssrf_rejected') {
-				$status = Http::STATUS_FORBIDDEN;
-			}
+			$status = $this->subscriptionRefusalStatus(code: ($result['code'] ?? ''));
 
 			return new JSONResponse(['message' => $result['message'] ?? 'Subscription failed.'], $status);
 		}
 
 		return new JSONResponse($result, Http::STATUS_CREATED);
-	}//end subscribe()
+	}//end subscriptionResponse()
+
+	/**
+	 * The service's subscription result, or null when it failed (logged).
+	 *
+	 * @param OutcomeSubscriptionRequest $request The validated subscription.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function registeredCallback(OutcomeSubscriptionRequest $request): ?array {
+		try {
+			return $this->integrationService->registerOutcomeCallback(
+				decisionId: $request->decisionId,
+				callbackUrl: $request->callbackUrl,
+				actorId: $request->actorId
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'IntegrationController: subscribe failed',
+				['id' => $request->decisionId, 'exception' => $e->getMessage()]
+			);
+			return null;
+		}
+	}//end registeredCallback()
+
+	/**
+	 * The status a refused subscription answers with, by its refusal code.
+	 *
+	 * @param mixed $code The service's refusal code.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function subscriptionRefusalStatus(mixed $code): int {
+		if (is_string($code) === false || isset(self::SUBSCRIPTION_REFUSAL_STATUS[$code]) === false) {
+			return Http::STATUS_UNPROCESSABLE_ENTITY;
+		}
+
+		return self::SUBSCRIPTION_REFUSAL_STATUS[$code];
+	}//end subscriptionRefusalStatus()
+
+	/**
+	 * The 401 answer for a request without a session.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function authenticationRequired(): JSONResponse {
+		return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+	}//end authenticationRequired()
+
+	/**
+	 * The 403 answer for a caller the guard refuses.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function forbidden(): JSONResponse {
+		return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+	}//end forbidden()
+
+	/**
+	 * The 500 answer that never leaks the failure's detail.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 */
+	private function internalError(): JSONResponse {
+		return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end internalError()
 }//end class

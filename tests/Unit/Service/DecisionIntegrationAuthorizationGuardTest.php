@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
  * divergence is asserted explicitly below, because collapsing it would let an
  * admin's act of widening READ silently widen WRITE.
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
 class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 
@@ -114,7 +114,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * raised it through POST /api/v1/decisions. This is the consumer
 	 * REQ-DCDH-003 exists to serve, so the guard must let it through.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -137,7 +137,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * ALLOW: a published Decision (isPublished=public) is a public governance
 	 * record, readable by any authenticated caller regardless of who raised it.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -162,7 +162,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * the envelope discloses the cross-app subject coordinates, the consumer's
 	 * externalReference and the signers.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -186,7 +186,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * getOutcomeEnvelope() still answers 404. A 403 here would turn the guard
 	 * into an existence oracle for UUIDs the app never issued.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -204,7 +204,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * the app unavailable), the guard DENIES. A resolver that answers "allow" on
 	 * its own failure is the gate-8 unsafe-auth-resolver defect.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -222,7 +222,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * An empty caller uid never authorizes — an unowned object ('' owner) must
 	 * not match an unidentified caller.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 *
 	 * @return void
 	 */
@@ -241,7 +241,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * delivery target. The guard must not close the endpoint's only real use
 	 * case (ADR-044).
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */
@@ -267,7 +267,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * the outcome envelope to a consumer of its choosing and denies the
 	 * legitimate consumer its callback.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */
@@ -299,7 +299,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * opens its delivery target to every authenticated user: widening READ
 	 * would silently widen WRITE.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */
@@ -323,7 +323,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * registerOutcomeCallback() still answers not_found (404). A 403 here would
 	 * turn the guard into an existence oracle for UUIDs the app never issued.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */
@@ -341,7 +341,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * A resolver that answers "allow" on its own failure is the gate-8
 	 * unsafe-auth-resolver defect.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */
@@ -359,7 +359,7 @@ class DecisionIntegrationAuthorizationGuardTest extends TestCase {
 	 * An empty caller uid never authorizes a write — an unowned object ('' owner)
 	 * must not match an unidentified caller.
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 *
 	 * @return void
 	 */

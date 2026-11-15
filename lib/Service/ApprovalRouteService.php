@@ -37,8 +37,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -46,19 +46,20 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
 use RuntimeException;
 
 /**
  * Instantiates approval routes and advances them.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The engine owns every route
  *   rule (REQ-ARE-004 forbids a second engine), so the mandate directory and
  *   the task projector attach here rather than growing a sibling.
  */
-class ApprovalRouteService {
+class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	/**
 	 * Where the stage rows move when an action lands.
 	 *
@@ -111,6 +112,27 @@ class ApprovalRouteService {
 	}//end __construct()
 
 	/**
+	 * The held-route request for an ad-hoc route as a caller sent it: the
+	 * people its steps name, in step order, under the route's name.
+	 *
+	 * @param array<string, mixed> $route         The route as the caller sent it.
+	 * @param string               $subject       The subject's uuid.
+	 * @param string               $subjectSchema The subject's schema slug.
+	 *
+	 * @return HeldRouteRequest The request, without deadline or substitute terms.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function heldRouteFrom(array $route, string $subject, string $subjectSchema): HeldRouteRequest {
+		return new HeldRouteRequest(
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+			actors: $this->mapper->actorsOf(route: $route),
+			name: (string)($route['name'] ?? 'Review')
+		);
+	}//end heldRouteFrom()
+
+	/**
 	 * Hold a route on a subject from a list of named people, with no stored
 	 * template.
 	 *
@@ -123,78 +145,91 @@ class ApprovalRouteService {
 	 * works on a route works on this one: the guard, the return verbs, the
 	 * parallel groups, the conclusion announcement.
 	 *
-	 * @param string $subject The subject's uuid.
-	 * @param array<int, string> $actors The people to ask, in order.
-	 * @param string $subjectSchema The subject's schema slug.
-	 * @param string $deadline The deadline for the whole route, as an ISO-8601
-	 *        instant. Empty means no due dates at all.
-	 * @param string $kind The stage type every step carries.
-	 * @param string $name What to call the route on a surface.
-	 * @param float|null $askSubstituteAfter When to ask each approver's
-	 *        substitute too, as a fraction of the step's term (0 to 1). Null
-	 *        asks no substitute (REQ-AR-016, #1397).
+	 * Every step is an endorsement by one person.
+	 *
+	 * @param HeldRouteRequest $request The subject, the people in order, the
+	 *        route's name, and its deadline and substitute fraction (REQ-AR-016, #1397).
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
 	 *
 	 * @throws RuntimeException When no actor is named.
 	 *
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
-	public function holdFor(
-		string $subject,
-		array $actors,
-		string $subjectSchema,
-		string $deadline = '',
-		string $kind = 'endorsement',
-		string $name = 'Review',
-		?float $askSubstituteAfter = null,
-	): array {
-		$named = [];
-		foreach ($actors as $actor) {
-			$actor = trim((string)$actor);
-			if ($actor !== '' && in_array($actor, $named, true) === false) {
-				// A person named twice would be asked twice on the same
-				// document, and the second ask would refuse: the first sign-off
-				// already advanced past their step.
-				$named[] = $actor;
-			}
-		}
-
+	public function holdFor(HeldRouteRequest $request): array {
+		$named = self::distinctActors(actors: $request->actors);
 		if ($named === []) {
 			throw new RuntimeException('A route held from named people needs at least one person.');
 		}
 
-		$steps = [];
-		foreach ($named as $index => $actor) {
-			$steps[] = [
-				'order' => ($index + 1),
-				'stageType' => $kind,
-				'actorType' => 'person',
-				'actor' => $actor,
-				'mandatory' => true,
-			];
-			if ($askSubstituteAfter !== null) {
-				$steps[$index]['askSubstituteAfter'] = $askSubstituteAfter;
-			}
-		}
-
+		$steps = self::heldSteps(request: $request, named: $named);
 		$stages = $this->instantiate(
 			route: [
 				'id' => '',
-				'name' => $name,
+				'name' => $request->name,
 				// `adhoc` and not a route id: this route has no template, and a
 				// surface that went looking for one would find nothing and have
 				// no way to tell that from a template that was deleted.
 				'origin' => 'adhoc',
 				'steps' => $steps,
 			],
-			subject: $subject,
-			subjectSchema: $subjectSchema,
+			subject: $request->subject,
+			subjectSchema: $request->subjectSchema,
 		);
 
-		return $this->stampHeldRoute(stages: $stages, deadline: $deadline);
+		return $this->stampHeldRoute(stages: $stages, deadline: $request->deadline());
 	}//end holdFor()
+
+	/**
+	 * The named people, trimmed, each once, in the order first named.
+	 *
+	 * A person named twice would be asked twice on the same document, and the
+	 * second ask would refuse: the first sign-off already advanced past their
+	 * step.
+	 *
+	 * @param array<int, mixed> $actors The people the request names.
+	 *
+	 * @return list<string> The people.
+	 */
+	private static function distinctActors(array $actors): array {
+		$named = [];
+		foreach ($actors as $actor) {
+			$actor = trim((string)$actor);
+			if ($actor !== '' && in_array($actor, $named, true) === false) {
+				$named[] = $actor;
+			}
+		}
+
+		return $named;
+	}//end distinctActors()
+
+	/**
+	 * One endorsement step per named person, in order, each carrying the
+	 * request's substitute fraction when it has one.
+	 *
+	 * @param HeldRouteRequest $request The request.
+	 * @param list<string>     $named   The people, each once.
+	 *
+	 * @return list<array<string, mixed>> The steps.
+	 */
+	private static function heldSteps(HeldRouteRequest $request, array $named): array {
+		$steps = [];
+		foreach ($named as $index => $actor) {
+			$steps[] = [
+				'order' => ($index + 1),
+				'stageType' => 'endorsement',
+				'actorType' => 'person',
+				'actor' => $actor,
+				'mandatory' => true,
+			];
+			if ($request->askSubstituteAfter() !== null) {
+				$steps[$index]['askSubstituteAfter'] = $request->askSubstituteAfter();
+			}
+		}
+
+		return $steps;
+	}//end heldSteps()
 
 	/**
 	 * Mark the stages as ad-hoc and divide one deadline over them.
@@ -316,7 +351,7 @@ class ApprovalRouteService {
 	 *
 	 * @throws RuntimeException When the subject cannot be reached.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	public function assertSubjectAccessible(string $subject, string $subjectSchema): void {
 		if ($subject === '' || $subjectSchema === '') {
@@ -355,9 +390,9 @@ class ApprovalRouteService {
 	 * @throws RuntimeException When the route declares no usable steps, or
 	 *         declares a silence this principal may not set.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function instantiate(
 		array $route,
@@ -370,57 +405,17 @@ class ApprovalRouteService {
 			return $existing;
 		}
 
-		$steps = $this->mapper->orderedSteps(route: $route);
-		if ($steps === []) {
-			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
-		}
+		$steps = $this->travellableSteps(route: $route, principal: $principal);
 
-		// BEFORE any write, for every step at once. A route refused half way
-		// through would leave the stages it had already written behind, and a
-		// subject carrying half a route is worse than one carrying none.
-		$this->policy->assertEverySilenceIsSettable(
-			steps: $steps,
-			isAdministrator: $principal->isAdministrator(),
-		);
-
-		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
-		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
+		$run = new RouteStagesRun(subject: $subject, subjectSchema: $subjectSchema);
+		$run->routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
+		$run->firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
 		$owner = $this->advancer->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
-			$sequence = $this->mapper->sequenceOf(step: $step, index: $index);
-			// A step that names a RULE cannot be resolved here: it is resolved
-			// when its stage becomes live, which for anything past the first
-			// group is weeks away. So the rule travels onto the stage, copied
-			// like every other step field, and editing the route afterwards
-			// leaves a route already in flight alone.
-			$declared = $this->mapper->declaredStepFields(step: $step);
-			$created[] = $this->store->save(
-				schema: 'decision-stage',
-				object: $declared + [
-					'sequence' => $sequence,
-					'stageType' => (string)$step['stageType'],
-					// Every stage in the FIRST parallel group is active
-					// immediately. A route whose every stage is pending is
-					// indistinguishable from one nobody has started, and
-					// nothing would ever start it.
-					'status' => $this->mapper->initialStatus(sequence: $sequence, firstSequence: $firstSequence),
-					'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
-					// Derived when the step carries none: the schema REQUIRES a
-					// label, an empty string stores as NULL, and a NULL label
-					// 400s the patch that records the FIRST sign-off — after
-					// the action row was already appended. Cross-app routes
-					// (dossiq) never carry step labels, so they always hit it.
-					'label' => $this->mapper->labelOf(step: $step, sequence: $sequence),
-					'mandatory' => (bool)($step['mandatory'] ?? true),
-					'decision' => $subject,
-					'assignedPerson' => $this->mapper->assignedPerson(step: $step),
-					'assignedBody' => $this->mapper->assignedBody(step: $step),
-					'note' => $subjectSchema,
-					'route' => $routeId,
-				],
-			);
+			$run->sequence = $this->mapper->sequenceOf(step: $step, index: $index);
+			$created[] = $this->store->save(schema: 'decision-stage', object: $this->stageObject(run: $run, step: $step));
 		}
 
 		$created = $this->resolveLiveStages(stages: $created, owner: $owner);
@@ -430,6 +425,75 @@ class ApprovalRouteService {
 		return $created;
 	}//end instantiate()
 
+	/**
+	 * The route's steps in order, once every declared silence is one this
+	 * principal may set.
+	 *
+	 * Checked BEFORE any write, for every step at once. A route refused half
+	 * way through would leave the stages it had already written behind, and a
+	 * subject carrying half a route is worse than one carrying none.
+	 *
+	 * @param array<string, mixed> $route     The route.
+	 * @param ApprovalPrincipal    $principal Who is asking.
+	 *
+	 * @return list<array<string, mixed>> The steps.
+	 *
+	 * @throws RuntimeException When the route declares no usable steps, or a silence this principal may not set.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	private function travellableSteps(array $route, ApprovalPrincipal $principal): array {
+		$steps = $this->mapper->orderedSteps(route: $route);
+		if ($steps === []) {
+			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
+		}
+
+		$this->policy->assertEverySilenceIsSettable(
+			steps: $steps,
+			isAdministrator: $principal->isAdministrator(),
+		);
+		return $steps;
+	}//end travellableSteps()
+
+	/**
+	 * The stage a route step becomes on the subject.
+	 *
+	 * A step that names a RULE cannot be resolved here: it is resolved when
+	 * its stage becomes live, which for anything past the first group is weeks
+	 * away. So the rule travels onto the stage, copied like every other step
+	 * field, and editing the route afterwards leaves a route already in flight
+	 * alone.
+	 *
+	 * @param RouteStagesRun       $run  The route being laid onto the subject.
+	 * @param array<string, mixed> $step The route step.
+	 *
+	 * @return array<string, mixed> The stage to save.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md
+	 */
+	private function stageObject(RouteStagesRun $run, array $step): array {
+		return $this->mapper->declaredStepFields(step: $step) + [
+			'sequence' => $run->sequence,
+			'stageType' => (string)$step['stageType'],
+			// Every stage in the FIRST parallel group is active immediately. A
+			// route whose every stage is pending is indistinguishable from one
+			// nobody has started, and nothing would ever start it.
+			'status' => $this->mapper->initialStatus(sequence: $run->sequence, firstSequence: $run->firstSequence),
+			'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
+			// Derived when the step carries none: the schema REQUIRES a label,
+			// an empty string stores as NULL, and a NULL label 400s the patch
+			// that records the FIRST sign-off — after the action row was
+			// already appended. Cross-app routes (dossiq) never carry step
+			// labels, so they always hit it.
+			'label' => $this->mapper->labelOf(step: $step, sequence: $run->sequence),
+			'mandatory' => (bool)($step['mandatory'] ?? true),
+			'decision' => $run->subject,
+			'assignedPerson' => $this->mapper->assignedPerson(step: $step),
+			'assignedBody' => $this->mapper->assignedBody(step: $step),
+			'note' => $run->subjectSchema,
+			'route' => $run->routeId,
+		];
+	}//end stageObject()
 
 	/**
 	 * Resolve the actor rule of every stage that is already live.
@@ -442,7 +506,7 @@ class ApprovalRouteService {
 	 *
 	 * @return array<int, array<string, mixed>> The stages, with resolved actors.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012)
 	 */
 	private function resolveLiveStages(array $stages, string $owner): array {
 		if ($this->activator === null) {
@@ -485,8 +549,8 @@ class ApprovalRouteService {
 	 *
 	 * @throws RuntimeException When the action is refused.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function record(array $action): array {
 		$subject = (string)($action['subject'] ?? '');
@@ -574,7 +638,7 @@ class ApprovalRouteService {
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function stagesFor(string $subject): array {
 		$rows = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => $subject]);
@@ -596,7 +660,7 @@ class ApprovalRouteService {
 	 *
 	 * @return array<int, array<string, mixed>> The routes with their stages.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function routesWithStagesFor(string $subject): array {
 		$grouped = [];

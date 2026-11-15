@@ -4,7 +4,7 @@
  * Declaration stub of OpenRegister's Service\Flow\FlowRunSignalService.
  *
  * Mirrors ONLY the members decidiq calls, with the real signatures taken from
- * ConductionNL/openregister@ecaba04a (development). OpenRegister is a sibling
+ * ConductionNL/openregister@2933261c (main). OpenRegister is a sibling
  * app, not a composer dependency; the real class wins whenever it is loaded.
  * Behaviour lives in OpenRegister and is tested there; tests here double it.
  *
@@ -34,16 +34,14 @@ use OCA\OpenRegister\Exception\FlowSignalRefused;
 class FlowRunSignalService {
 
 	/**
-	 * @param string      $runUuid  The run to answer.
-	 * @param array       $payload  What the signaller wants the run to know.
-	 * @param string|null $actorUid Who is answering.
-	 * @param string|null $nodeId   The node the answer addresses.
+	 * @param string    $runUuid The run to answer.
+	 * @param RunSignal $signal  What is said, by whom, to which node.
 	 *
 	 * @return FlowRun The parked run.
 	 *
 	 * @throws FlowSignalRefused When refused.
 	 */
-	public function signalAs(string $runUuid, array $payload, ?string $actorUid, ?string $nodeId = null): FlowRun {
+	public function answerByUuid(string $runUuid, RunSignal $signal): FlowRun {
 		$run = new FlowRun();
 		$run->setUuid($runUuid);
 
@@ -51,16 +49,14 @@ class FlowRunSignalService {
 	}
 
 	/**
-	 * @param FlowRun     $run      The run to answer.
-	 * @param array       $payload  What the signaller wants the run to know.
-	 * @param string|null $actorUid Who is answering.
-	 * @param string|null $nodeId   The node the answer addresses.
+	 * @param FlowRun   $run    The run to answer.
+	 * @param RunSignal $signal What is said, by whom, to which node.
 	 *
 	 * @return FlowRun The parked run.
 	 *
 	 * @throws FlowSignalRefused When refused.
 	 */
-	public function signalRunAs(FlowRun $run, array $payload, ?string $actorUid, ?string $nodeId = null): FlowRun {
+	public function answer(FlowRun $run, RunSignal $signal): FlowRun {
 		return $run;
 	}
 }//end class

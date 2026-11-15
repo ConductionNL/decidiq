@@ -84,3 +84,9 @@ Thin-client, declarative-first (details in design.md): one new OR schema (`Annot
 
 - Should `pdfjs-dist` live in decidiq or be promoted to a shared nc-vue dependency once `meeting-pack-board-book`/docudesk also need PDF canvas rendering? (Provisional: decidiq-local now, promote when a second consumer appears.)
 - Should the per-body **member** scope (`decidesk:body:{bodyId}:member`) projection introduced here be back-adopted by other read-gated features? (Provisional: introduce it scoped to annotations; generalisation is a follow-up.)
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- age-11: Make notes on meeting papers and share them with others.

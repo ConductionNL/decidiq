@@ -1,0 +1,872 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`resolveTarget golden output > keeps its target over seeded leaf answers 1`] = `
+{
+  "digest": "680cb5ead0b2510f946f48c24aff94cdb9fdcee1e84abaf52659c5c126306716",
+  "sample": [
+    {
+      "leaf": {
+        "boards": {
+          "reject": true,
+        },
+        "default": {
+          "data": {
+            "boardId": 0,
+            "stackId": 4,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Open",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "boards failed",
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [],
+          },
+        },
+        "default": {
+          "data": null,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Open",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "No Deck board available to project action items onto. Create a Deck board first.",
+      },
+      "schema": "meeting",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/meeting",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {},
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Review",
+              },
+              {
+                "id": 101,
+                "title": null,
+              },
+              {
+                "id": 102,
+                "title": "Doing",
+              },
+              {
+                "id": 103,
+                "title": "mee bezig",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 5,
+        "fallbackStackId": 100,
+        "laneStacks": {
+          "in-progress": 102,
+        },
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {},
+        },
+        "stacks": {
+          "data": null,
+        },
+      },
+      "result": {
+        "error": "The target Deck board has no stacks. Add columns to the board first.",
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {
+            "stackId": 22,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "TODO bezig",
+              },
+              {
+                "id": 101,
+                "title": "later",
+              },
+              {
+                "id": 102,
+                "title": "Open",
+              },
+              {
+                "id": 103,
+                "title": "later",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 5,
+        "fallbackStackId": 22,
+        "laneStacks": {
+          "in-progress": 100,
+          "open": 102,
+        },
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {
+            "boardId": "9",
+            "stackId": "31",
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "te doen",
+              },
+              {
+                "id": 101,
+                "title": "Ideas complete",
+              },
+              {
+                "id": 102,
+                "title": "later to do",
+              },
+              {
+                "id": 103,
+                "title": "Open",
+              },
+              {
+                "id": 104,
+                "title": "mee bezig",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 9,
+        "fallbackStackId": 31,
+        "laneStacks": {
+          "done": 101,
+          "in-progress": 104,
+          "open": 100,
+        },
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards/9/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {
+            "stackId": 22,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": null,
+              },
+              {
+                "id": 101,
+                "title": "COMPLETED",
+              },
+              {
+                "id": 102,
+                "title": "backlog",
+              },
+              {
+                "id": 103,
+                "title": " ",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 5,
+        "fallbackStackId": 22,
+        "laneStacks": {
+          "done": 101,
+          "open": 102,
+        },
+      },
+      "schema": "meeting",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/meeting",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": "12",
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": {
+            "stackId": 22,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "mee bezig",
+              },
+              {
+                "id": 101,
+                "title": "backlog",
+              },
+              {
+                "id": 102,
+                "title": "later later",
+              },
+              {
+                "id": 103,
+                "title": null,
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 12,
+        "fallbackStackId": 22,
+        "laneStacks": {
+          "in-progress": 100,
+          "open": 101,
+        },
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/12/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "reject": true,
+        },
+        "default": {
+          "data": {
+            "stackId": 22,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": " ",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "boards failed",
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "reject": true,
+        },
+        "default": {
+          "reject": true,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "te doen",
+              },
+              {
+                "id": 101,
+                "title": "Klaar TODO",
+              },
+              {
+                "id": 102,
+                "title": "TODO",
+              },
+              {
+                "id": 103,
+                "title": "   ",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "boards failed",
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [],
+          },
+        },
+        "default": {
+          "data": {},
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "te doen Open",
+              },
+              {
+                "id": 101,
+                "title": "bezig",
+              },
+              {
+                "id": 102,
+                "title": "  complete",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "No Deck board available to project action items onto. Create a Deck board first.",
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": "12",
+              },
+            ],
+          },
+        },
+        "default": {
+          "reject": true,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "complete progress",
+              },
+              {
+                "id": 101,
+                "title": "COMPLETED",
+              },
+              {
+                "id": 102,
+                "title": "Done",
+              },
+              {
+                "id": 103,
+                "title": "bezig",
+              },
+              {
+                "id": 104,
+                "title": " Doing",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 12,
+        "fallbackStackId": 100,
+        "laneStacks": {
+          "done": 100,
+          "in-progress": 103,
+        },
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/12/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": null,
+        },
+        "stacks": {
+          "data": null,
+        },
+      },
+      "result": {
+        "error": "The target Deck board has no stacks. Add columns to the board first.",
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": null,
+        },
+        "default": {
+          "data": {
+            "stackId": 22,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Review  ",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "No Deck board available to project action items onto. Create a Deck board first.",
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "reject": true,
+        },
+        "default": {
+          "reject": true,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "to do",
+              },
+              {
+                "id": 101,
+                "title": "backlog",
+              },
+              {
+                "id": 102,
+                "title": "TODO TODO",
+              },
+              {
+                "id": 103,
+                "title": "to do COMPLETED",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "boards failed",
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": null,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "backlog progress",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 5,
+        "fallbackStackId": 100,
+        "laneStacks": {
+          "in-progress": 100,
+        },
+      },
+      "schema": "meeting",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/meeting",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [],
+          },
+        },
+        "default": {
+          "data": {
+            "boardId": 0,
+            "stackId": 4,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Open Ideas",
+              },
+              {
+                "id": 101,
+                "title": "te doen Ideas",
+              },
+              {
+                "id": 102,
+                "title": "te doen",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "No Deck board available to project action items onto. Create a Deck board first.",
+      },
+      "schema": "meeting",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/meeting",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": null,
+        },
+        "default": {
+          "data": {
+            "boardId": 0,
+            "stackId": 4,
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "te doen",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "error": "No Deck board available to project action items onto. Create a Deck board first.",
+      },
+      "schema": "meeting",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/meeting",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [
+              {
+                "id": 5,
+              },
+              {
+                "id": 6,
+              },
+            ],
+          },
+        },
+        "default": {
+          "data": null,
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": "Open",
+              },
+              {
+                "id": 101,
+                "title": "Review later",
+              },
+              {
+                "id": 102,
+                "title": "",
+              },
+              {
+                "id": 103,
+                "title": "Ideas",
+              },
+              {
+                "id": 104,
+                "title": null,
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 5,
+        "fallbackStackId": 100,
+        "laneStacks": {
+          "open": 100,
+        },
+      },
+      "schema": "decision",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/decision",
+        "/index.php/apps/openregister/api/integrations/deck/boards",
+        "/index.php/apps/openregister/api/integrations/deck/boards/5/stacks",
+      ],
+    },
+    {
+      "leaf": {
+        "boards": {
+          "data": {
+            "results": [],
+          },
+        },
+        "default": {
+          "data": {
+            "boardId": "9",
+            "stackId": "31",
+          },
+        },
+        "stacks": {
+          "data": {
+            "results": [
+              {
+                "id": 100,
+                "title": null,
+              },
+              {
+                "id": 101,
+                "title": "te doen",
+              },
+              {
+                "id": 102,
+                "title": "",
+              },
+              {
+                "id": 103,
+                "title": "later mee bezig",
+              },
+            ],
+          },
+        },
+      },
+      "result": {
+        "boardId": 9,
+        "fallbackStackId": 31,
+        "laneStacks": {
+          "in-progress": 103,
+          "open": 101,
+        },
+      },
+      "schema": "a b/c",
+      "urls": [
+        "/index.php/apps/openregister/api/integrations/deck/default/a%20b%2Fc",
+        "/index.php/apps/openregister/api/integrations/deck/boards/9/stacks",
+      ],
+    },
+  ],
+}
+`;

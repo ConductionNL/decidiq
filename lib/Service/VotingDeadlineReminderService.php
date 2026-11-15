@@ -27,6 +27,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\VotingDeadlineReminderServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -41,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class VotingDeadlineReminderService {
+class VotingDeadlineReminderService implements VotingDeadlineReminderServiceInterface {
 
 	/**
 	 * Reminder window before the deadline, in seconds (24 hours).
@@ -258,9 +262,10 @@ class VotingDeadlineReminderService {
 			$round['deadlineReminderSentAt'] = gmdate('Y-m-d\TH:i:s\Z', $now);
 			$objectService->saveObject(
 				object: $round,
-				register: 'decidiq',
-				schema: 'voting-round',
-				uuid: $roundId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'),
+					uuid: $roundId
+				)
 			);
 
 			$this->logger->info(
@@ -404,7 +409,7 @@ class VotingDeadlineReminderService {
 
 		try {
 			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable) {
 			return null;
 		}
@@ -430,7 +435,7 @@ class VotingDeadlineReminderService {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
+			$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		} catch (\Throwable) {
 			return null;
 		}

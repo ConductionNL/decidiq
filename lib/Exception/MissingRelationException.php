@@ -10,7 +10,7 @@
  * @category Exception
  * @package  OCA\Decidiq\Exception
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -29,7 +29,7 @@ namespace OCA\Decidiq\Exception;
  * Distinct from \RuntimeException (service unavailable). Controllers map this to
  * HTTP 422 (Unprocessable Entity) because the object exists but its data is incomplete.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
 class MissingRelationException extends \RuntimeException {
 }//end class

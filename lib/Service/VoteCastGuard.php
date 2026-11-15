@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -110,7 +111,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function loadOpenRound(string $votingRoundId): array {
-		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -126,6 +127,12 @@ class VoteCastGuard {
 
 		if (($round['openedAt'] ?? null) === null) {
 			throw new RuntimeException('Stemronde is nog niet geopend');
+		}
+
+		// A written round is answered by its electorate snapshot only and never
+		// reaches the meeting-participant path (voting-written-resolution, D3).
+		if (($round['procedure'] ?? 'in-meeting') === 'written') {
+			throw new RuntimeException('A written round is answered by the members it was put to, not as a meeting participant');
 		}
 
 		return $round;

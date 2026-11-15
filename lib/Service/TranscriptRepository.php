@@ -28,7 +28,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\TranscriptRepositoryInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use RuntimeException;
 
@@ -41,7 +45,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptRepository {
+class TranscriptRepository implements TranscriptRepositoryInterface {
 	/**
 	 * Constructor.
 	 *
@@ -133,7 +137,7 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\OCP\AppFramework\Db\DoesNotExistException) {
 			throw new MissingObjectException(message: $absentMessage);
 		}
@@ -202,9 +206,10 @@ class TranscriptRepository {
 
 		$saved = $objectService->saveObject(
 			object: $transcript,
-			register: 'decidiq',
-			schema: 'transcript',
-			uuid: $this->transcriptId(transcript: $transcript)
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+				uuid: $this->transcriptId(transcript: $transcript)
+			)
 		);
 
 		if (is_array($saved) === true) {
@@ -257,9 +262,10 @@ class TranscriptRepository {
 
 		$this->getObjectService()->saveObject(
 			object: $body,
-			register: 'decidiq',
-			schema: 'governance-body',
-			uuid: $bodyId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body'),
+				uuid: $bodyId
+			)
 		);
 
 	}//end saveRetentionPolicy()

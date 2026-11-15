@@ -6,7 +6,7 @@
  * @category Exception
  * @package  OCA\Decidiq\Exception
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@ namespace OCA\Decidiq\Exception;
  *
  * Controllers map this to HTTP 403 Forbidden.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
 class AccessDeniedException extends \RuntimeException {
 }//end class

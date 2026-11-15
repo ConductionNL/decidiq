@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -35,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * proxies to compute whether quorum is met. Threshold defaults to the body's
  * `quorumRule` (e.g. "simple-majority" = ceil(n/2)).
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
  */
 class QuorumVerificationService {
 
@@ -64,7 +65,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{total: int, present: int, threshold: int, met: bool}
 	 */
@@ -110,7 +111,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{}|array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
 	 */
@@ -144,7 +145,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{meeting: array<string, mixed>, boardId: string, members: mixed}|null
 	 */
@@ -152,7 +153,7 @@ class QuorumVerificationService {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-			$meeting = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meeting = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			if ($meeting === null) {
 				return null;
 			}
@@ -187,7 +188,7 @@ class QuorumVerificationService {
 	 *
 	 * @param array<string, mixed> $meetingData Meeting object data
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array<string, string> Board-member uuid => attendance mode
 	 */
@@ -214,7 +215,7 @@ class QuorumVerificationService {
 	 * @param string $boardId Board uuid the meeting belongs to
 	 * @param array<string, string> $attendanceMap Board-member uuid => attendance mode
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array<int, array{boardMemberKoppeling: string, status: string}>
 	 */
@@ -303,14 +304,6 @@ class QuorumVerificationService {
 	 * @return array<string, mixed>
 	 */
 	private function toArray(mixed $row): array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			return (array)$row->jsonSerialize();
-		}
-
-		if (is_array($row) === true) {
-			return $row;
-		}
-
-		return [];
+		return (new RowArrayNormaliser())->toArray(row: $row);
 	}//end toArray()
 }//end class

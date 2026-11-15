@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -26,6 +26,7 @@ use DateTime;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -44,8 +45,10 @@ use Psr\Log\LoggerInterface;
  * surface fails LOUDLY (error log + success=false), never silently.
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
+ * @uses   \OCA\Decidiq\Service\AuditRowFormat
+ * @uses   \OCA\Decidiq\Service\CsvCell
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 class AuditLogServiceTest extends TestCase {
 
@@ -117,16 +120,16 @@ class AuditLogServiceTest extends TestCase {
 			}
 
 			/**
-			 * In-memory createAuditTrailEntry (production signature).
+			 * In-memory recordObjectEvent (production signature).
 			 *
-			 * @param ObjectEntity $object The object the entry relates to
-			 * @param string $action The namespaced action string
-			 * @param array $context Context payload
+			 * @param ObjectAuditEvent $event The object, action and context
 			 *
 			 * @return AuditTrail
 			 */
-			public function createAuditTrailEntry(ObjectEntity $object, string $action, array $context = [],): AuditTrail {
-				$entry = new AuditTrail();
+			public function recordObjectEvent(ObjectAuditEvent $event): AuditTrail {
+				$action  = $event->action;
+				$context = $event->context;
+				$entry   = new AuditTrail();
 				$entry->setId(count($this->trail) + 1);
 				$entry->setUuid('trail-' . (count($this->trail) + 1));
 				$entry->setAction($action);
@@ -276,7 +279,7 @@ class AuditLogServiceTest extends TestCase {
 		$objectService->method('find')->willReturn($this->createMock(ObjectEntity::class));
 
 		$mapper = $this->createMock(AuditTrailMapper::class);
-		$mapper->method('createAuditTrailEntry')->willThrowException(
+		$mapper->method('recordObjectEvent')->willThrowException(
 			new \RuntimeException('audit surface unavailable')
 		);
 
@@ -378,6 +381,25 @@ class AuditLogServiceTest extends TestCase {
 		self::assertStringContainsString('decision-transition', $lines[1]);
 
 	}//end testExportCsvIncludesHeader()
+
+	/**
+	 * export() quotes a cell with a semicolon, so a semicolon-separated
+	 * spreadsheet keeps it in one inert cell, and keeps a formula behind
+	 * leading spaces inert.
+	 *
+	 * @return void
+	 */
+	public function testExportCsvQuotesSemicolonCells(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		$service->append(actor: 'x;=1+1;', action: 'decision-transition', objectUids: ['dec-1']);
+		$service->append(actor: '  =2+2', action: 'decision-transition', objectUids: ['dec-1']);
+
+		$lines = explode("\n", $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', 'csv')['body']);
+
+		self::assertStringContainsString(",\"x;'=1+1;\",", $lines[1]);
+		self::assertStringContainsString(",'  =2+2,", $lines[2]);
+
+	}//end testExportCsvQuotesSemicolonCells()
 
 	/**
 	 * verify() delegates to the platform chain verification and maps its

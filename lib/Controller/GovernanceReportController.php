@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\GovernanceReportingService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -41,7 +41,7 @@ use OCP\IUserSession;
 /**
  * REST controller for governance reports.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
  */
 class GovernanceReportController extends Controller {
 	use RequiresOrAdmin;
@@ -51,23 +51,23 @@ class GovernanceReportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param GovernanceReportingService $reportingService Reporting service
+	 * @param GovernanceReportingServiceInterface $reportingService Reporting service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly GovernanceReportingService $reportingService,
+		private readonly GovernanceReportingServiceInterface $reportingService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
 	 * Generate an annual report.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -98,7 +98,7 @@ class GovernanceReportController extends Controller {
 	/**
 	 * List reports for a board.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -132,7 +132,7 @@ class GovernanceReportController extends Controller {
 	 *
 	 * @param string $id UUID of the report
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -168,7 +168,7 @@ class GovernanceReportController extends Controller {
 	 * @param string $id UUID of the report
 	 * @param string $format One of json|csv
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.4
 	 *
 	 * @return Response
 	 */

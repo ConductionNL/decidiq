@@ -43,7 +43,8 @@
               "group": "public",
               "match": {
                 "isPublic": true
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
