@@ -33,11 +33,21 @@ export const CONTRIBUTION_KINDS = [
  * @return {string} Its UUID, or ''.
  */
 export function objectIdOf(object) {
-	if (!object || typeof object !== 'object') {
+	if (!isObject(object)) {
 		return ''
 	}
-	const id = object.id ?? object.uuid ?? (object['@self'] && object['@self'].id)
-	return id === undefined || id === null ? '' : String(id)
+	const id = object.id ?? object.uuid ?? selfIdOf(object)
+	return String(id ?? '')
+}
+
+/**
+ * The id in an object's `@self` block, if it has one.
+ *
+ * @param {object} object The object.
+ * @return {*} The id, or undefined.
+ */
+function selfIdOf(object) {
+	return object['@self'] ? object['@self'].id : undefined
 }
 
 /**
@@ -83,7 +93,7 @@ export function progressLines(goal, lists = {}) {
 			label: 'Target value',
 			current: toNumber(g.currentValue) ?? 0,
 			total: target ?? 0,
-			unit: typeof g.unit === 'string' ? g.unit.trim() : '',
+			unit: unitOf(g),
 		},
 		{
 			key: 'commitments',
@@ -108,6 +118,16 @@ export function progressLines(goal, lists = {}) {
 		},
 	]
 	return lines.filter((line) => line.total > 0)
+}
+
+/**
+ * A goal's unit, trimmed, '' when it has none.
+ *
+ * @param {object} goal The goal.
+ * @return {string} The unit.
+ */
+function unitOf(goal) {
+	return typeof goal.unit === 'string' ? goal.unit.trim() : ''
 }
 
 /**
@@ -137,23 +157,52 @@ export function contributionRows(byKind = {}) {
 	const rows = []
 	for (const kind of CONTRIBUTION_KINDS) {
 		const list = Array.isArray(byKind[kind.kind]) ? byKind[kind.kind] : []
-		for (const object of list) {
-			if (!object || typeof object !== 'object') {
-				continue
-			}
-			const id = objectIdOf(object)
-			rows.push({
-				id: kind.kind + ':' + id,
-				kind: kind.kind,
-				kindLabel: kind.label,
-				what: String(object[kind.what] ?? '').trim(),
-				term: String(object[kind.term] ?? '').trim(),
-				status: String(object[kind.status] ?? '').trim(),
-				location: id ? { name: kind.route, params: { id } } : null,
-			})
+		for (const object of list.filter(isObject)) {
+			rows.push(contributionRow(kind, object))
 		}
 	}
 	return rows
+}
+
+/**
+ * Whether a value is a non-null object.
+ *
+ * @param {*} value The candidate.
+ * @return {boolean} True for an object.
+ */
+function isObject(value) {
+	return Boolean(value) && typeof value === 'object'
+}
+
+/**
+ * A trimmed text field of an object, '' when absent.
+ *
+ * @param {object} object The object.
+ * @param {string} field The field.
+ * @return {string} The text.
+ */
+function textOf(object, field) {
+	return String(object[field] ?? '').trim()
+}
+
+/**
+ * One row of "What contributes to this goal".
+ *
+ * @param {object} kind The contribution kind.
+ * @param {object} object The contributing object.
+ * @return {{id: string, kind: string, kindLabel: string, what: string, term: string, status: string, location: ?object}} The row.
+ */
+function contributionRow(kind, object) {
+	const id = objectIdOf(object)
+	return {
+		id: kind.kind + ':' + id,
+		kind: kind.kind,
+		kindLabel: kind.label,
+		what: textOf(object, kind.what),
+		term: textOf(object, kind.term),
+		status: textOf(object, kind.status),
+		location: id ? { name: kind.route, params: { id } } : null,
+	}
 }
 
 /**
@@ -203,19 +252,39 @@ export function goalSteps(goal) {
 	const self = g['@self'] || {}
 	const reached = Object.hasOwn(STATUS_STEP, g.status) ? STATUS_STEP[g.status] : -1
 	const steps = [
-		{ key: 'draft', label: 'Draft', date: String(self.created || g.created || '') },
-		{ key: 'active', label: 'Active', date: String(g.startDate || '') },
-		{ key: 'achieved', label: 'Reached', date: String(g.deadline || '') },
+		{ key: 'draft', label: 'Draft', date: firstText(self.created, g.created) },
+		{ key: 'active', label: 'Active', date: firstText(g.startDate) },
+		{ key: 'achieved', label: 'Reached', date: firstText(g.deadline) },
 	]
-	return steps.map((step, index) => {
-		let status = 'upcoming'
-		if (reached >= 0 && index < reached) {
-			status = 'done'
-		} else if (index === reached) {
-			status = g.status === 'achieved' ? 'done' : 'current'
-		}
-		return { ...step, status }
-	})
+	return steps.map((step, index) => ({ ...step, status: stepStatus(index, reached, g.status) }))
+}
+
+/**
+ * The first value that is set, as text; '' when none is.
+ *
+ * @param {...*} values The candidates, in order.
+ * @return {string} The text.
+ */
+function firstText(...values) {
+	return String(values.find((value) => value) || '')
+}
+
+/**
+ * Whether one step is done, current or still to come.
+ *
+ * @param {number} index The step's position.
+ * @param {number} reached The position the goal stands on, -1 for none.
+ * @param {string} goalStatus The goal's status.
+ * @return {string} 'done', 'current' or 'upcoming'.
+ */
+function stepStatus(index, reached, goalStatus) {
+	if (reached >= 0 && index < reached) {
+		return 'done'
+	}
+	if (index === reached) {
+		return goalStatus === 'achieved' ? 'done' : 'current'
+	}
+	return 'upcoming'
 }
 
 /**

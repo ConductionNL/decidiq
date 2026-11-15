@@ -119,14 +119,45 @@ class GoalProgressRefreshListener implements IEventListener {
 	 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-013-progress-stays-current-when-a-contribution-changes
 	 */
 	public function affectedGoals(?array $new, ?array $old, string $link, string $counted): array {
-		$after  = $this->goalIdOf(row: $new, link: $link);
-		$before = $this->goalIdOf(row: $old, link: $link);
-		if ($new !== null && $old !== null && $after === $before && ($new[$counted] ?? null) === ($old[$counted] ?? null)) {
+		if ($this->isUnchanged(new: $new, old: $old, link: $link, counted: $counted) === true) {
 			return [];
 		}
 
-		return array_values(array_unique(array_filter([$before, $after], static fn (string $id): bool => $id !== '')));
+		$ids = [$this->goalIdOf(row: $old, link: $link), $this->goalIdOf(row: $new, link: $link)];
+
+		return array_values(array_unique(array_filter($ids, static fn (string $id): bool => $id !== '')));
 	}//end affectedGoals()
+
+	/**
+	 * Whether an update left both the goal link and the counted field as they were.
+	 *
+	 * @param array<string, mixed>|null $new     The object after the change; null when deleted.
+	 * @param array<string, mixed>|null $old     The object before the change; null when created.
+	 * @param string                    $link    The property naming the goal.
+	 * @param string                    $counted The field a rate counts on.
+	 *
+	 * @return bool True for an update that moves no rate.
+	 */
+	private function isUnchanged(array|null $new, array|null $old, string $link, string $counted): bool {
+		if ($new === null || $old === null) {
+			return false;
+		}
+
+		return $this->goalIdOf(row: $new, link: $link) === $this->goalIdOf(row: $old, link: $link)
+			&& $this->fieldOf(row: $new, field: $counted) === $this->fieldOf(row: $old, field: $counted);
+	}//end isUnchanged()
+
+	/**
+	 * One field of a row, or null when it is absent.
+	 *
+	 * @param array<string, mixed> $row   The row.
+	 * @param string               $field The field.
+	 *
+	 * @return mixed The value.
+	 */
+	private function fieldOf(array $row, string $field): mixed {
+		return ($row[$field] ?? null);
+	}//end fieldOf()
 
 	/**
 	 * Re-save one goal as stored, so OpenRegister materialises its rates again.
@@ -189,24 +220,35 @@ class GoalProgressRefreshListener implements IEventListener {
 	private function rowsOf(Event $event): array {
 		$reader = new EntityPayloadReader();
 		if ($event instanceof ObjectUpdatedEvent === true) {
-			$old = $event->getOldObject();
-			if ($old === null) {
-				return [$reader->payloadOf(entity: $event->getNewObject()), null];
-			}
-
-			return [$reader->payloadOf(entity: $event->getNewObject()), $reader->payloadOf(entity: $old)];
+			return [
+				$reader->payloadOf(entity: $event->getNewObject()),
+				$this->payloadOrNull(reader: $reader, entity: $event->getOldObject()),
+			];
 		}
 
-		if ($event instanceof ObjectCreatedEvent === true && $event->getObject() !== null) {
-			return [$reader->payloadOf(entity: $event->getObject()), null];
+		$row = $this->payloadOrNull(reader: $reader, entity: $this->entityOf(event: $event));
+		if ($event instanceof ObjectDeletedEvent === true) {
+			return [null, $row];
 		}
 
-		if ($event instanceof ObjectDeletedEvent === true && $event->getObject() !== null) {
-			return [null, $reader->payloadOf(entity: $event->getObject())];
-		}
-
-		return [null, null];
+		return [$row, null];
 	}//end rowsOf()
+
+	/**
+	 * The payload of an entity, or null when there is none.
+	 *
+	 * @param EntityPayloadReader $reader The payload reader.
+	 * @param object|null         $entity The entity.
+	 *
+	 * @return array<string, mixed>|null The payload.
+	 */
+	private function payloadOrNull(EntityPayloadReader $reader, ?object $entity): ?array {
+		if ($entity === null) {
+			return null;
+		}
+
+		return $reader->payloadOf(entity: $entity);
+	}//end payloadOrNull()
 
 	/**
 	 * The entity an event is about, for the schema check.

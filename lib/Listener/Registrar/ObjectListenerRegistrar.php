@@ -174,17 +174,7 @@ class ObjectListenerRegistrar {
 			);
 		}
 
-		// Goal progress (goals-linked-to-decisions REQ-013): a contribution
-		// that changes re-saves the goals it points at, so their rates follow.
-		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $goalEvent) {
-			$this->subscribe(
-				dispatcher: $dispatcher,
-				event: $goalEvent,
-				listener: GoalProgressRefreshListener::class,
-				registers: null,
-				schemas: array_keys(GoalProgressRefreshListener::CONTRIBUTORS)
-			);
-		}
+		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
 		// Platform-case-system-document-exchange (plt-24): minutes reaching
 		// approved or signed render the decision list, and may send the
@@ -221,6 +211,26 @@ class ObjectListenerRegistrar {
 		}
 
 	}//end register()
+
+	/**
+	 * Goal progress (goals-linked-to-decisions REQ-013): a contribution that
+	 * changes re-saves the goals it points at, so their rates follow.
+	 *
+	 * @param IEventDispatcher $dispatcher The event dispatcher.
+	 *
+	 * @return void
+	 */
+	private function subscribeGoalProgress(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $goalEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $goalEvent,
+				listener: GoalProgressRefreshListener::class,
+				registers: null,
+				schemas: array_keys(GoalProgressRefreshListener::CONTRIBUTORS)
+			);
+		}
+	}//end subscribeGoalProgress()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.
