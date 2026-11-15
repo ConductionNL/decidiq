@@ -29,14 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\MeetingService;
-use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
-use OCP\IGroupManager;
-use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Decidiq MCP Tool Provider.
@@ -63,6 +56,75 @@ use Psr\Log\LoggerInterface;
 class DecidiqToolProvider implements IMcpToolProvider {
 
 	/**
+	 * The meetingUuid argument shared by every tool that acts on one meeting.
+	 *
+	 * @var array<string, string>
+	 */
+	private const MEETING_UUID_PROPERTY = [
+		'type' => 'string',
+		'format' => 'uuid',
+	];
+
+	/**
+	 * Input schema of decidesk.listOpenActionItems.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const LIST_ACTION_ITEMS_INPUT = [
+		'type' => 'object',
+		'properties' => [
+			'scope' => [
+				'type' => 'string',
+				'enum' => ['mine', 'all'],
+				'default' => 'mine',
+			],
+			'limit' => [
+				'type' => 'integer',
+				'minimum' => 1,
+				'maximum' => 50,
+				'default' => 20,
+			],
+		],
+		'required' => [],
+	];
+
+	/**
+	 * Input schema of decidesk.listRecentMeetings.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const RECENT_MEETINGS_INPUT = [
+		'type' => 'object',
+		'properties' => [
+			'limit' => [
+				'type' => 'integer',
+				'minimum' => 1,
+				'maximum' => 20,
+				'default' => 10,
+			],
+			'statusFilter' => [
+				'type' => 'string',
+				'enum' => ['any', 'scheduled', 'in-progress', 'closed'],
+				'default' => 'any',
+			],
+		],
+		'required' => [],
+	];
+
+	/**
+	 * Input schema of the tools that take only a meeting.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const MEETING_ONLY_INPUT = [
+		'type' => 'object',
+		'properties' => [
+			'meetingUuid' => self::MEETING_UUID_PROPERTY,
+		],
+		'required' => ['meetingUuid'],
+	];
+
+	/**
 	 * Tool catalogue (REQ-DMCP-002).
 	 *
 	 * Hard-coded as a constant so unit tests can assert it as a fixture.
@@ -76,23 +138,7 @@ class DecidiqToolProvider implements IMcpToolProvider {
 			'action' => 'list',
 			'name' => 'List open action items',
 			'description' => 'List incomplete action items assigned to you (scope=mine) or all visible (scope=all).',
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'scope' => [
-						'type' => 'string',
-						'enum' => ['mine', 'all'],
-						'default' => 'mine',
-					],
-					'limit' => [
-						'type' => 'integer',
-						'minimum' => 1,
-						'maximum' => 50,
-						'default' => 20,
-					],
-				],
-				'required' => [],
-			],
+			'inputSchema' => self::LIST_ACTION_ITEMS_INPUT,
 		],
 		[
 			'id' => 'decidesk.listRecentMeetings',
@@ -100,23 +146,7 @@ class DecidiqToolProvider implements IMcpToolProvider {
 			'action' => 'list',
 			'name' => 'List recent meetings',
 			'description' => 'List the caller\'s recent meetings, ordered by date descending.',
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'limit' => [
-						'type' => 'integer',
-						'minimum' => 1,
-						'maximum' => 20,
-						'default' => 10,
-					],
-					'statusFilter' => [
-						'type' => 'string',
-						'enum' => ['any', 'scheduled', 'in-progress', 'closed'],
-						'default' => 'any',
-					],
-				],
-				'required' => [],
-			],
+			'inputSchema' => self::RECENT_MEETINGS_INPUT,
 		],
 		[
 			'id' => 'decidesk.getMeetingDetails',
@@ -124,16 +154,7 @@ class DecidiqToolProvider implements IMcpToolProvider {
 			'action' => 'get',
 			'name' => 'Get meeting details',
 			'description' => 'Fetch a meeting with agenda items, decisions, and action items inlined.',
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'meetingUuid' => [
-						'type' => 'string',
-						'format' => 'uuid',
-					],
-				],
-				'required' => ['meetingUuid'],
-			],
+			'inputSchema' => self::MEETING_ONLY_INPUT,
 		],
 		[
 			'id' => 'decidesk.startMeeting',
@@ -144,16 +165,7 @@ class DecidiqToolProvider implements IMcpToolProvider {
 			'action' => 'start',
 			'name' => 'Start meeting',
 			'description' => 'Transition a scheduled meeting to in-progress. Chair or admin only.',
-			'inputSchema' => [
-				'type' => 'object',
-				'properties' => [
-					'meetingUuid' => [
-						'type' => 'string',
-						'format' => 'uuid',
-					],
-				],
-				'required' => ['meetingUuid'],
-			],
+			'inputSchema' => self::MEETING_ONLY_INPUT,
 		],
 		[
 			'id' => 'decidesk.addActionItem',
@@ -164,10 +176,7 @@ class DecidiqToolProvider implements IMcpToolProvider {
 			'inputSchema' => [
 				'type' => 'object',
 				'properties' => [
-					'meetingUuid' => [
-						'type' => 'string',
-						'format' => 'uuid',
-					],
+					'meetingUuid' => self::MEETING_UUID_PROPERTY,
 					'title' => [
 						'type' => 'string',
 						'minLength' => 3,
@@ -189,63 +198,17 @@ class DecidiqToolProvider implements IMcpToolProvider {
 	];
 
 	/**
-	 * Implements the two action-item tools.
-	 *
-	 * @var McpActionItemTools
-	 */
-	private readonly McpActionItemTools $actionItemTools;
-
-	/**
-	 * Implements the three meeting tools.
-	 *
-	 * @var McpMeetingTools
-	 */
-	private readonly McpMeetingTools $meetingTools;
-
-	/**
 	 * Constructor for DecidiqToolProvider.
 	 *
-	 * The two tool collaborators are built in the constructor body rather than
-	 * injected, so the DI signature other apps copy stays the six framework
-	 * services below.
-	 *
-	 * @param MeetingService $meetingService The meeting service
-	 * @param IUserSession $userSession The current user session
-	 * @param IGroupManager $groupManager The group manager (for admin checks)
-	 * @param ContainerInterface $container The DI container (McpActionItemTools resolves ActionItemWriter through it)
-	 * @param LoggerInterface $logger The PSR-3 logger
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
+	 * @param McpActionItemTools $actionItemTools Implements the two action-item tools
+	 * @param McpMeetingTools    $meetingTools    Implements the three meeting tools
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function __construct(
-		MeetingService $meetingService,
-		IUserSession $userSession,
-		IGroupManager $groupManager,
-		ContainerInterface $container,
-		LoggerInterface $logger,
-		ParticipantResolver $participantResolver,
-		ObjectServiceInterface $objectService,
+		private readonly McpActionItemTools $actionItemTools,
+		private readonly McpMeetingTools $meetingTools,
 	) {
-		$this->actionItemTools = new McpActionItemTools(
-			container: $container,
-			userSession: $userSession,
-			groupManager: $groupManager,
-			logger: $logger,
-			participantResolver: $participantResolver,
-			objectService: $objectService,
-		);
-
-		$this->meetingTools = new McpMeetingTools(
-			meetingService: $meetingService,
-			userSession: $userSession,
-			groupManager: $groupManager,
-			logger: $logger,
-			participantResolver: $participantResolver,
-			objectService: $objectService,
-		);
-
 	}//end __construct()
 
 	/**

@@ -27,5 +27,5 @@
 
 ## 5. Prove it
 
-- [ ] 5.1 Unit tests for the migration.
-- [ ] 5.2 E2E: the renamed surfaces resolve and read their schema.
+- [x] 5.1 Unit tests for the migration. (tests/Unit/Migration/MigrateIntegrityDisclosuresTest.php; payloads checked against the shipped schemas; fixed `alreadyResolved`, which read no keys from the flat reference map)
+- [ ] 5.2 E2E: the renamed surfaces resolve and read their schema. (not run: needs the live instance)

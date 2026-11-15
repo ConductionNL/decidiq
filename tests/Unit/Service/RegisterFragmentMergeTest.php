@@ -19,9 +19,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 
 /**
  * Verifies that disjoint register fragments union cleanly so concurrent
@@ -29,7 +28,7 @@ use ReflectionMethod;
  */
 final class RegisterFragmentMergeTest extends TestCase {
 	/**
-	 * Invoke the private static SettingsService::deepMergeConfig().
+	 * Merge one fragment over a base with RegisterFragmentMerger::deepMerge().
 	 *
 	 * @param array<mixed> $base Base config.
 	 * @param array<mixed> $overlay Fragment.
@@ -37,9 +36,7 @@ final class RegisterFragmentMergeTest extends TestCase {
 	 * @return array<mixed> Merged config.
 	 */
 	private function merge(array $base, array $overlay): array {
-		$m = new ReflectionMethod(SettingsService::class, 'deepMergeConfig');
-		$m->setAccessible(true);
-		return $m->invoke(null, $base, $overlay);
+		return RegisterFragmentMerger::deepMerge(base: $base, overlay: $overlay);
 	}//end merge()
 
 	/**

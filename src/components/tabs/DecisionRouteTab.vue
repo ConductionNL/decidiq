@@ -186,6 +186,94 @@ import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import { ensureRelationType } from './useRelationStore.js'
 
+/**
+ * The reference to whoever decides a stage: the person or the body.
+ *
+ * @param {object} stage The stage.
+ * @return {object|string|undefined} The reference.
+ */
+function stageMaker(stage) {
+	return stage?.decisionMakerType === 'person'
+		? stage.assignedPerson
+		: stage.assignedBody
+}
+
+/**
+ * The name an expanded reference carries, if any.
+ *
+ * @param {object} ref The expanded person or body.
+ * @return {string|undefined} The name.
+ */
+function refName(ref) {
+	return ref.name || ref.title || ref.displayName
+}
+
+/**
+ * The stages of a decision's route.
+ *
+ * @param {string} decisionId The decision.
+ * @return {Promise<Array<object>|null>} The stages.
+ */
+function fetchDecisionStages(decisionId) {
+	return ensureRelationType('decision-stage').fetchCollection('decision-stage', {
+		decision: decisionId,
+		_limit: 100,
+	})
+}
+
+/**
+ * Stages in step order, a stage without a sequence first.
+ *
+ * @param {Array<object>|null} stages The stages.
+ * @return {Array<object>} A sorted copy.
+ */
+function sortedStages(stages) {
+	return (stages || [])
+		.slice()
+		.sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
+}
+
+/**
+ * The decisions that can repeal or supersede another: decided or enacted.
+ *
+ * @return {Promise<Array<object>|null>} The candidates.
+ */
+function fetchEffectBearingDecisions() {
+	return ensureRelationType('decision').fetchCollection('decision', {
+		lifecycle: ['decided', 'enacted'],
+		_limit: 200,
+	})
+}
+
+/**
+ * Whether a supersedes/repeals list names a decision, by id or reference.
+ *
+ * @param {Array|string|undefined} rel The list.
+ * @param {string} selfId The decision's id.
+ * @return {boolean} True when it names it.
+ */
+function referencesId(rel, selfId) {
+	return (
+		Array.isArray(rel)
+		&& rel.some((r) => (typeof r === 'object' ? r.id || r.uuid : r) === selfId)
+	)
+}
+
+/**
+ * The effect other decisions have on one: repealed takes precedence over
+ * superseded.
+ *
+ * @param {Array<object>} candidates The effect-bearing decisions.
+ * @param {string} selfId The decision's id.
+ * @return {{status: string, decision: object}|null} The effect, or null.
+ */
+function effectOn(candidates, selfId) {
+	const repealer = candidates.find((d) => referencesId(d.repeals, selfId))
+	if (repealer) return { status: 'repealed', decision: repealer }
+	const superseder = candidates.find((d) => referencesId(d.supersedes, selfId))
+	return superseder ? { status: 'superseded', decision: superseder } : null
+}
+
 export default {
 	name: 'DecisionRouteTab',
 	components: { CnNoteCard, CnStatusBadge, NcButton },
@@ -257,21 +345,10 @@ export default {
 		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
 		 */
 		effectiveStatusMessage() {
-			const date =
-				this.effectingDecision?.enactedAt
-				|| this.effectingDecision?.decisionDate
-			const when = date ? this.formatDate(date) : ''
+			const by = this.effectedOnPhrase()
 			return this.effectiveStatus === 'repealed'
-				? this.t('decidiq', 'This decision was repealed{by}.', {
-						by: when
-							? ' ' + this.t('decidiq', 'on {date}', { date: when })
-							: '',
-					})
-				: this.t('decidiq', 'This decision was superseded{by}.', {
-						by: when
-							? ' ' + this.t('decidiq', 'on {date}', { date: when })
-							: '',
-					})
+				? this.t('decidiq', 'This decision was repealed{by}.', { by })
+				: this.t('decidiq', 'This decision was superseded{by}.', { by })
 		},
 	},
 
@@ -374,18 +451,10 @@ export default {
 		 * @spec openspec/specs/decision-route/spec.md
 		 */
 		makerName(stage) {
-			const ref =
-				stage?.decisionMakerType === 'person'
-					? stage.assignedPerson
-					: stage.assignedBody
+			const ref = stageMaker(stage)
 			if (!ref) return this.t('decidiq', 'Unassigned')
 			if (typeof ref === 'object')
-				return (
-					ref.name
-					|| ref.title
-					|| ref.displayName
-					|| this.t('decidiq', 'Unassigned')
-				)
+				return refName(ref) || this.t('decidiq', 'Unassigned')
 			// Reference is an id we did not expand; show a stable fallback.
 			return this.t('decidiq', 'Decision maker')
 		},
@@ -400,31 +469,27 @@ export default {
 			return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString()
 		},
 
+		/**
+		 * The " on {date}" part of the repealed / superseded notice, or ''
+		 * when the effecting decision carries no date.
+		 *
+		 * @return {string} The phrase.
+		 * @spec openspec/specs/decision-route/spec.md#requirement-declarative-route-progress-and-currentstage
+		 */
+		effectedOnPhrase() {
+			const date =
+				this.effectingDecision?.enactedAt
+				|| this.effectingDecision?.decisionDate
+			const when = date ? this.formatDate(date) : ''
+			return when ? ' ' + this.t('decidiq', 'on {date}', { date: when }) : ''
+		},
+
 		/** @spec openspec/specs/decision-route/spec.md */
 		async refresh() {
 			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			this.effectingDecision = null
-			this.effectiveStatus = ''
+			this.startLoading()
 			try {
-				const decisionStore = ensureRelationType('decision')
-				const decision = await decisionStore.fetchObject(
-					'decision',
-					this.objectId,
-				)
-				this.lifecycle = decision?.lifecycle || ''
-				this.currentStage = decision?.currentStage || ''
-
-				const stageStore = ensureRelationType('decision-stage')
-				const stages = await stageStore.fetchCollection('decision-stage', {
-					decision: this.objectId,
-					_limit: 100,
-				})
-				this.stages = (stages || [])
-					.slice()
-					.sort((a, b) => (a.sequence || 0) - (b.sequence || 0))
-
+				const decision = await this.loadRoute()
 				await this.deriveEffectiveStatus(decision)
 				await this.countOpenActionItems()
 			} catch (e) {
@@ -432,6 +497,36 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * Clear the route state and show the loader.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
+		startLoading() {
+			this.loading = true
+			this.error = ''
+			this.effectingDecision = null
+			this.effectiveStatus = ''
+		},
+
+		/**
+		 * Read the decision and its route stages into the tab.
+		 *
+		 * @return {Promise<object|null>} The decision.
+		 * @spec openspec/specs/decision-route/spec.md
+		 */
+		async loadRoute() {
+			const decision = await ensureRelationType('decision').fetchObject(
+				'decision',
+				this.objectId,
+			)
+			this.lifecycle = decision?.lifecycle || ''
+			this.currentStage = decision?.currentStage || ''
+			this.stages = sortedStages(await fetchDecisionStages(this.objectId))
+			return decision
 		},
 
 		/**
@@ -445,31 +540,12 @@ export default {
 		 */
 		async deriveEffectiveStatus(decision) {
 			const selfId = decision?.id || decision?.uuid || String(this.objectId)
-			const store = ensureRelationType('decision')
 			// Effect-bearing sources must be decided or enacted.
-			const candidates = await store.fetchCollection('decision', {
-				lifecycle: ['decided', 'enacted'],
-				_limit: 200,
-			})
-			const containsSelf = (rel) =>
-				Array.isArray(rel)
-				&& rel.some(
-					(r) => (typeof r === 'object' ? r.id || r.uuid : r) === selfId,
-				)
-
-			const repealer = (candidates || []).find((d) => containsSelf(d.repeals))
-			if (repealer) {
-				this.effectiveStatus = 'repealed'
-				this.effectingDecision = repealer
-				return
-			}
-			const superseder = (candidates || []).find((d) =>
-				containsSelf(d.supersedes),
-			)
-			if (superseder) {
-				this.effectiveStatus = 'superseded'
-				this.effectingDecision = superseder
-			}
+			const candidates = (await fetchEffectBearingDecisions()) || []
+			const effect = effectOn(candidates, selfId)
+			if (!effect) return
+			this.effectiveStatus = effect.status
+			this.effectingDecision = effect.decision
 		},
 
 		/** @spec openspec/specs/decision-route/spec.md */
@@ -503,32 +579,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTabLoading.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-
 .decidiq-route__banner-link {
 	margin-top: 4px;
 }

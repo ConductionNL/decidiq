@@ -1,0 +1,163 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getNoticeDeadlineInfo golden output > keeps its deadline info over seeded meetings 1`] = `
+{
+  "digest": "b67400f45de06f535a33fb5392a48e4ea144ca2442dce6d4785aab98f7e93000",
+  "sample": [
+    {
+      "m": {
+        "meetingDate": "2026-06-20",
+        "meetingStart": "2026-07-30",
+        "noticePeriodDays": "string:abc",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": 4,
+        "deadline": "2026-06-05",
+        "level": "ok",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-02-30",
+        "meetingStart": "not a date",
+        "noticePeriodDays": "number:0",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": -91,
+        "deadline": "2026-03-02",
+        "level": "overdue",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-07-30",
+        "meetingStart": "2026-06-16T09:30:00+02:00",
+        "noticePeriodDays": "undefined:undefined",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": 44,
+        "deadline": "2026-07-15",
+        "level": "ok",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-06-16T09:30:00+02:00",
+        "meetingStart": 20260620,
+        "noticePeriodDays": "number:-1",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": 0,
+        "deadline": "2026-06-01",
+        "level": "warning",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-06-20",
+        "meetingStart": "not a date",
+        "noticePeriodDays": "number:1000000000",
+      },
+      "now": "2026-06-08T12:00:00Z",
+      "out": {
+        "error": "RangeError: Invalid time value",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-06-20",
+        "meetingStart": "2026-06-20",
+        "noticePeriodDays": "number:15",
+      },
+      "now": "2026-06-01T23:59:59Z",
+      "out": {
+        "daysUntilDeadline": 4,
+        "deadline": "2026-06-05",
+        "level": "ok",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-6-1",
+        "meetingStart": "2026-06-20",
+        "noticePeriodDays": "string:",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": null,
+        "deadline": null,
+        "level": "unknown",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-06-16T09:30:00+02:00",
+        "meetingStart": "not a date",
+        "noticePeriodDays": "number:Infinity",
+      },
+      "now": "2026-06-01T23:59:59Z",
+      "out": {
+        "daysUntilDeadline": 0,
+        "deadline": "2026-06-01",
+        "level": "warning",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-02-30",
+        "meetingStart": "2026-07-30",
+        "noticePeriodDays": "number:3",
+      },
+      "now": "2026-06-01T00:00:00Z",
+      "out": {
+        "daysUntilDeadline": -94,
+        "deadline": "2026-02-27",
+        "level": "overdue",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "",
+        "meetingStart": 20260620,
+        "noticePeriodDays": "number:2.5",
+      },
+      "now": "2026-06-01T23:59:59Z",
+      "out": {
+        "daysUntilDeadline": null,
+        "deadline": null,
+        "level": "unknown",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "",
+        "meetingStart": 20260620,
+        "noticePeriodDays": "number:-1",
+      },
+      "now": "2026-06-08T12:00:00Z",
+      "out": {
+        "daysUntilDeadline": null,
+        "deadline": null,
+        "level": "unknown",
+      },
+    },
+    {
+      "m": {
+        "meetingDate": "2026-07-30",
+        "meetingStart": "2026-06-19",
+        "noticePeriodDays": "string:7",
+      },
+      "now": "2026-06-05T12:00:00Z",
+      "out": {
+        "daysUntilDeadline": 48,
+        "deadline": "2026-07-23",
+        "level": "ok",
+      },
+    },
+  ],
+}
+`;

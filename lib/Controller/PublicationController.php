@@ -25,11 +25,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\PublicationService;
-use OCA\Decidiq\Service\PublicationStaffGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,30 +47,61 @@ use OCP\IRequest;
  * @spec openspec/specs/public-publication/spec.md
  */
 class PublicationController extends Controller {
+
+	/**
+	 * The source types a publish request may name.
+	 *
+	 * @var array<int, string>
+	 */
+	private const SOURCE_TYPES = ['decision', 'agenda', 'minutes', 'activity', 'incoming-document'];
+
+	/**
+	 * Publish and rectify failures with a status of their own, checked in order.
+	 *
+	 * @var array<class-string<\Throwable>, int>
+	 */
+	private const PUBLISH_FAILURE_STATUS = [
+		AccessDeniedException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+		MissingObjectException::class => Http::STATUS_NOT_FOUND,
+		ConfidentialityUnreadableException::class => Http::STATUS_SERVICE_UNAVAILABLE,
+	];
+
+	/**
+	 * Withdraw failures with a status of their own, checked in order.
+	 *
+	 * @var array<class-string<\Throwable>, int>
+	 */
+	private const WITHDRAW_FAILURE_STATUS = [
+		MissingObjectException::class => Http::STATUS_NOT_FOUND,
+		\InvalidArgumentException::class => Http::STATUS_UNPROCESSABLE_ENTITY,
+	];
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param PublicationService $publicationService The publication orchestrator.
-	 * @param PublicationStaffGuard $staffGuard Per-object staff authority.
+	 * @param PublicationServiceInterface $publicationService The publication orchestrator.
+	 * @param PublicationStaffGuardInterface $staffGuard Per-object staff authority.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PublicationService $publicationService,
-		private readonly PublicationStaffGuard $staffGuard,
+		private readonly PublicationServiceInterface $publicationService,
+		private readonly PublicationStaffGuardInterface $staffGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
 	 * Publish an eligible decision / agenda / minutes object.
 	 *
 	 * POST /api/publications
-	 * Body: { sourceType: decision|agenda|minutes, sourceId: <uuid> }
+	 * Body: { sourceType: decision|agenda|minutes|activity|incoming-document, sourceId: <uuid> }
+	 *
+	 * An activity is a public meeting on the residents' calendar.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
 	 *
 	 * @return JSONResponse
 	 */
@@ -77,32 +109,60 @@ class PublicationController extends Controller {
 	public function publish(): JSONResponse {
 		$userId = $this->staffGuard->currentUid();
 		if ($userId === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+			return $this->authenticationRequired();
 		}
 
-		$sourceType = (string)$this->request->getParam('sourceType', '');
-		$sourceId = (string)$this->request->getParam('sourceId', '');
-		if (in_array($sourceType, ['decision', 'agenda', 'minutes'], true) === false || $sourceId === '') {
-			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
+		$source = $this->requestedSource();
+		if ($source === null) {
+			return new JSONResponse(
+				['message' => 'sourceType (decision|agenda|minutes|activity|incoming-document) and sourceId are required.'],
+				Http::STATUS_BAD_REQUEST
+			);
 		}
 
-		$denied = $this->requireStaffForSource(sourceType: $sourceType, sourceId: $sourceId);
+		$denied = $this->requireStaffForSource(sourceType: $source->type, sourceId: $source->id);
 		if ($denied !== null) {
 			return $denied;
 		}
 
-		try {
-			$result = $this->publicationService->publish($sourceType, $sourceId, $userId);
-			return new JSONResponse($result, Http::STATUS_CREATED);
-		} catch (AccessDeniedException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
-		} catch (MissingObjectException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-		} catch (\Throwable $e) {
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		return $this->publishResponse(source: $source, userId: $userId);
+	}//end publish()
+
+	/**
+	 * The source the request names, or null when its type or id is not acceptable.
+	 *
+	 * @return PublicationSource|null
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function requestedSource(): ?PublicationSource {
+		$sourceType = (string)$this->request->getParam('sourceType', '');
+		$sourceId = (string)$this->request->getParam('sourceId', '');
+		if (in_array($sourceType, self::SOURCE_TYPES, true) === false || $sourceId === '') {
+			return null;
 		}
 
-	}//end publish()
+		return new PublicationSource(type: $sourceType, id: $sourceId);
+	}//end requestedSource()
+
+	/**
+	 * Publish the source and answer 201, or the failure's status.
+	 *
+	 * @param PublicationSource $source The validated source.
+	 * @param string            $userId The publishing staff member.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function publishResponse(PublicationSource $source, string $userId): JSONResponse {
+		try {
+			$result = $this->publicationService->publish($source->type, $source->id, $userId);
+			return new JSONResponse($result, Http::STATUS_CREATED);
+		} catch (\Throwable $e) {
+			return $this->failureResponse(failure: $e, statuses: self::PUBLISH_FAILURE_STATUS);
+		}
+	}//end publishResponse()
 
 	/**
 	 * Withdraw a publication with a mandatory reason.
@@ -120,7 +180,7 @@ class PublicationController extends Controller {
 	public function withdraw(string $recordId): JSONResponse {
 		$userId = $this->staffGuard->currentUid();
 		if ($userId === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+			return $this->authenticationRequired();
 		}
 
 		$denied = $this->requireStaffForRecord(recordId: $recordId);
@@ -133,18 +193,26 @@ class PublicationController extends Controller {
 			return new JSONResponse(['message' => 'A withdraw reason is required.'], Http::STATUS_UNPROCESSABLE_ENTITY);
 		}
 
-		try {
-			$result = $this->publicationService->withdraw($recordId, $userId, $reason);
-			return new JSONResponse($result, Http::STATUS_OK);
-		} catch (MissingObjectException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
-		} catch (\Throwable $e) {
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-
+		return $this->withdrawResponse(change: new PublicationRecordChange(recordId: $recordId, userId: $userId, reason: $reason));
 	}//end withdraw()
+
+	/**
+	 * Withdraw the record and answer 200, or the failure's status.
+	 *
+	 * @param PublicationRecordChange $change The validated withdraw request.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function withdrawResponse(PublicationRecordChange $change): JSONResponse {
+		try {
+			$result = $this->publicationService->withdraw($change->recordId, $change->userId, $change->reason);
+			return new JSONResponse($result, Http::STATUS_OK);
+		} catch (\Throwable $e) {
+			return $this->failureResponse(failure: $e, statuses: self::WITHDRAW_FAILURE_STATUS);
+		}
+	}//end withdrawResponse()
 
 	/**
 	 * Rectify a publication: publish a corrected version, withdraw the old one.
@@ -162,7 +230,7 @@ class PublicationController extends Controller {
 	public function rectify(string $recordId): JSONResponse {
 		$userId = $this->staffGuard->currentUid();
 		if ($userId === null) {
-			return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+			return $this->authenticationRequired();
 		}
 
 		$denied = $this->requireStaffForRecord(recordId: $recordId);
@@ -172,18 +240,58 @@ class PublicationController extends Controller {
 
 		$reason = (string)$this->request->getParam('reason', '');
 
+		return $this->rectifyResponse(change: new PublicationRecordChange(recordId: $recordId, userId: $userId, reason: $reason));
+	}//end rectify()
+
+	/**
+	 * Rectify the record and answer 201, or the failure's status.
+	 *
+	 * @param PublicationRecordChange $change The rectify request.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function rectifyResponse(PublicationRecordChange $change): JSONResponse {
 		try {
-			$result = $this->publicationService->rectify($recordId, $userId, $reason);
+			$result = $this->publicationService->rectify($change->recordId, $change->userId, $change->reason);
 			return new JSONResponse($result, Http::STATUS_CREATED);
-		} catch (AccessDeniedException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
-		} catch (MissingObjectException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
 		} catch (\Throwable $e) {
-			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failureResponse(failure: $e, statuses: self::PUBLISH_FAILURE_STATUS);
+		}
+	}//end rectifyResponse()
+
+	/**
+	 * The answer for a failed service call: the first matching failure class's
+	 * status with the failure's message, else a 500 that leaks no detail.
+	 *
+	 * @param \Throwable                         $failure  The failure.
+	 * @param array<class-string<\Throwable>, int> $statuses Statuses by failure class, checked in order.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function failureResponse(\Throwable $failure, array $statuses): JSONResponse {
+		foreach ($statuses as $class => $status) {
+			if ($failure instanceof $class) {
+				return new JSONResponse(['message' => $failure->getMessage()], $status);
+			}
 		}
 
-	}//end rectify()
+		return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end failureResponse()
+
+	/**
+	 * The 401 answer for a request without a session.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function authenticationRequired(): JSONResponse {
+		return new JSONResponse(['message' => 'Authentication required.'], Http::STATUS_UNAUTHORIZED);
+	}//end authenticationRequired()
 
 	/**
 	 * Per-object staff guard keyed by a publication source object.
@@ -200,7 +308,7 @@ class PublicationController extends Controller {
 	 */
 	private function requireStaffForSource(string $sourceType, string $sourceId): ?JSONResponse {
 		$outcome = $this->staffGuard->checkSource(sourceType: $sourceType, sourceId: $sourceId);
-		if ($outcome === PublicationStaffGuard::ALLOWED) {
+		if ($outcome === PublicationStaffGuardInterface::ALLOWED) {
 			return null;
 		}
 
@@ -222,11 +330,11 @@ class PublicationController extends Controller {
 	 */
 	private function requireStaffForRecord(string $recordId): ?JSONResponse {
 		$outcome = $this->staffGuard->checkRecord(recordId: $recordId);
-		if ($outcome === PublicationStaffGuard::ALLOWED) {
+		if ($outcome === PublicationStaffGuardInterface::ALLOWED) {
 			return null;
 		}
 
-		if ($outcome === PublicationStaffGuard::RECORD_NOT_FOUND) {
+		if ($outcome === PublicationStaffGuardInterface::RECORD_NOT_FOUND) {
 			return new JSONResponse(['message' => 'Publication record not found.'], Http::STATUS_NOT_FOUND);
 		}
 

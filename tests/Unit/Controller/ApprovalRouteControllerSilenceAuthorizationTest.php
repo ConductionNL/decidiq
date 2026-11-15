@@ -56,6 +56,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * The silence-approves rule, enforced through the controller.
@@ -148,7 +149,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnOrdinaryUserIsRefusedAndNoStageIsWritten(): void {
 		$controller = $this->controller(
@@ -183,7 +184,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnAdministratorIsNotRefusedByThisRule(): void {
 		$controller = $this->controller(
@@ -211,7 +212,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function testAHeldRouteFromTheLeafCarriesAskSubstituteAfter(): void {
 		$controller = $this->controller(
@@ -242,7 +243,9 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 			}
 		);
 		$this->facade->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data): ObjectEntityInterface {
+			function (ObjectPatch $patch): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($data + ['id' => $objectId]);
 				return $entity;

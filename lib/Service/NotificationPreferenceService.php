@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -29,7 +29,10 @@ namespace OCA\Decidiq\Service;
 
 use DateTime;
 use DateTimeImmutable;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IURLGenerator;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
@@ -38,9 +41,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Service for reading, updating, and consulting NotificationPreference objects.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
  */
-class NotificationPreferenceService {
+class NotificationPreferenceService implements NotificationPreferenceServiceInterface {
 
 	/**
 	 * Default preferences when no record exists for a person.
@@ -80,6 +83,9 @@ class NotificationPreferenceService {
 	 */
 	public const ALWAYS_ON_EVENTS = [
 		ApprovalStageLapseService::EVENT_TYPE,
+		// A publication digest reaches only a member who subscribed: the
+		// subscription is the opt-in (publication-subscriptions-and-daily-digest).
+		PublicationDigestService::EVENT_TYPE,
 	];
 
 	/**
@@ -88,7 +94,7 @@ class NotificationPreferenceService {
 	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -101,7 +107,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return object
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	private function getObjectService(): object {
 		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -114,25 +120,11 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function findPreference(string $personId): ?array {
 		try {
-			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidiq');
-			$objectService->setSchema('notification-preference');
-
-			// ObjectService::findAll() takes a single $config array — the
-			// named-argument form (limit:/offset:/filters:) threw
-			// "Unknown named parameter" and was swallowed by the catch below,
-			// leaving this lookup permanently returning null.
-			$results = $objectService->findAll(
-				[
-					'filters' => ['person' => $personId],
-					'limit' => 1,
-					'offset' => 0,
-				]
-			);
+			$results = $this->queryPreferenceRows(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: findPreference failed',
@@ -141,8 +133,48 @@ class NotificationPreferenceService {
 			return null;
 		}//end try
 
+		return $this->firstPreferenceRow(results: $results);
+	}//end findPreference()
+
+	/**
+	 * Query OpenRegister for the person's NotificationPreference rows (at most one).
+	 *
+	 * @param string $personId Person UUID or user ID
+	 *
+	 * @return mixed The findAll() result
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function queryPreferenceRows(string $personId): mixed {
+		$objectService = $this->getObjectService();
+		$objectService->setRegister('decidiq');
+		$objectService->setSchema('notification-preference');
+
+		// ObjectService::findAll() takes a single $config array — the
+		// named-argument form (limit:/offset:/filters:) threw
+		// "Unknown named parameter" and was swallowed by the catch in
+		// findPreference(), leaving this lookup permanently returning null.
+		return $objectService->findAll(
+			[
+				'filters' => ['person' => $personId],
+				'limit' => 1,
+				'offset' => 0,
+			]
+		);
+	}//end queryPreferenceRows()
+
+	/**
+	 * The first entity's object or array row of a findAll() result.
+	 *
+	 * @param mixed $results The findAll() result
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function firstPreferenceRow(mixed $results): ?array {
 		foreach ($results as $entity) {
-			if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
+			if ($this->isObjectEntity(entity: $entity) === true) {
 				return $entity->getObject();
 			}
 
@@ -152,7 +184,20 @@ class NotificationPreferenceService {
 		}
 
 		return null;
-	}//end findPreference()
+	}//end firstPreferenceRow()
+
+	/**
+	 * Whether a findAll() item is an entity carrying its object.
+	 *
+	 * @param mixed $entity A findAll() item
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function isObjectEntity(mixed $entity): bool {
+		return is_object($entity) === true && method_exists($entity, 'getObject') === true;
+	}//end isObjectEntity()
 
 	/**
 	 * Create or update a NotificationPreference object for a person.
@@ -162,7 +207,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function updatePreference(string $personId, array $preferences): array {
 		$existing = $this->findPreference(personId: $personId);
@@ -172,8 +217,7 @@ class NotificationPreferenceService {
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $merged,
-			register: 'decidiq',
-			schema: 'notification-preference',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'notification-preference'))
 		);
 
 		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);
@@ -206,7 +250,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function shouldNotify(string $personId, string $eventType): bool {
 		if (in_array($eventType, self::ALWAYS_ON_EVENTS, true) === true) {
@@ -257,31 +301,72 @@ class NotificationPreferenceService {
 	public function getActiveDelegate(string $personId, ?DateTimeImmutable $today = null): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$delegate = ($pref['delegate'] ?? null);
-		if (is_string($delegate) === false || $delegate === '') {
+		if ($this->isFilledString(value: $delegate) === false) {
 			return null;
 		}
 
-		$until = ($pref['delegationUntil'] ?? null);
-		if (is_string($until) === false || $until === '') {
-			// No expiry configured — treat as not active (the spec requires
-			// delegation to expire automatically, so an unbounded delegation
-			// is never honoured).
-			return null;
-		}
-
-		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
-
-		$from = ($pref['delegationFrom'] ?? null);
-		if (is_string($from) === true && $from !== '' && substr($from, 0, 10) > $todayStr) {
-			return null;
-		}
-
-		if (substr($until, 0, 10) < $todayStr) {
+		if ($this->delegationWindowCovers(pref: ($pref ?? []), today: $today) === false) {
 			return null;
 		}
 
 		return $delegate;
 	}//end getActiveDelegate()
+
+	/**
+	 * Whether the stored delegation window covers today (dates inclusive).
+	 *
+	 * @param array<string, mixed>   $pref  The stored preference
+	 * @param DateTimeImmutable|null $today Clock override for tests (defaults to today)
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationWindowCovers(array $pref, ?DateTimeImmutable $today): bool {
+		$until = ($pref['delegationUntil'] ?? null);
+		if ($this->isFilledString(value: $until) === false) {
+			// No expiry configured — treat as not active (the spec requires
+			// delegation to expire automatically, so an unbounded delegation
+			// is never honoured).
+			return false;
+		}
+
+		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
+		if ($this->delegationStartsAfter(from: ($pref['delegationFrom'] ?? null), todayStr: $todayStr) === true) {
+			return false;
+		}
+
+		return (substr($until, 0, 10) < $todayStr) === false;
+	}//end delegationWindowCovers()
+
+	/**
+	 * Whether a stored delegation start date lies after today; a blank start means "already started".
+	 *
+	 * @param mixed  $from     The stored delegationFrom value
+	 * @param string $todayStr Today as Y-m-d
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationStartsAfter(mixed $from, string $todayStr): bool {
+		return $this->isFilledString(value: $from) === true && substr($from, 0, 10) > $todayStr;
+	}//end delegationStartsAfter()
+
+	/**
+	 * Whether a stored value is a non-empty string.
+	 *
+	 * @param mixed $value The stored value
+	 *
+	 * @return bool
+	 *
+	 * @phpstan-assert-if-true non-empty-string $value
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function isFilledString(mixed $value): bool {
+		return is_string($value) === true && $value !== '';
+	}//end isFilledString()
 
 	/**
 	 * Check whether $delegatorId currently has an active absence delegation to $delegateId.
@@ -349,26 +434,54 @@ class NotificationPreferenceService {
 	public function getGovernanceEmail(string $personId): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$override = ($pref['governanceEmail'] ?? null);
-		if (is_string($override) === true && $override !== '') {
+		if ($this->isFilledString(value: $override) === true) {
 			return $override;
 		}
 
+		return $this->accountEmail(personId: $personId);
+	}//end getGovernanceEmail()
+
+	/**
+	 * The Nextcloud account e-mail of a user, or null when none is set (fail-soft).
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function accountEmail(string $personId): ?string {
 		try {
-			$userManager = $this->container->get(\OCP\IUserManager::class);
-			$user = $userManager->get($personId);
-			$email = $user?->getEMailAddress();
-			if (is_string($email) === true && $email !== '') {
-				return $email;
-			}
+			$email = $this->lookupAccountEmail(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: account email lookup failed',
 				['personId' => $personId, 'error' => $e->getMessage()]
 			);
+			return null;
 		}
 
-		return null;
-	}//end getGovernanceEmail()
+		if ($this->isFilledString(value: $email) === false) {
+			return null;
+		}
+
+		return $email;
+	}//end accountEmail()
+
+	/**
+	 * Read the account e-mail through Nextcloud's user manager.
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return mixed The stored address, or null for an unknown user
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function lookupAccountEmail(string $personId): mixed {
+		$userManager = $this->container->get(\OCP\IUserManager::class);
+		$user = $userManager->get($personId);
+		return $user?->getEMailAddress();
+	}//end lookupAccountEmail()
 
 	/**
 	 * Preference-aware, delegation-aware notification dispatch.
@@ -393,13 +506,22 @@ class NotificationPreferenceService {
 	 * @param string $message Notification body
 	 * @param string $deepLink In-app deep link (app-relative, e.g. /decisions/{id})
 	 * @param array<string, mixed>|null $inApp The bell notice (subject, parameters, objectType, objectId), or null for decidiq_message
+	 * @param array<int, array<string, string>> $attachments Files for the email, each { data, filename, contentType }
 	 *
 	 * @return int Number of channel deliveries performed
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = '', ?array $inApp = null): int {
+	public function dispatch(
+		string $personId,
+		string $eventType,
+		string $title,
+		string $message,
+		string $deepLink = '',
+		?array $inApp = null,
+		array $attachments = [],
+	): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
 			$this->logger->info(
 				'Decidiq: notification not sent, the event type is switched off or unknown',
@@ -420,7 +542,7 @@ class NotificationPreferenceService {
 			}
 
 			if ($method === 'email' || $method === 'both') {
-				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink);
+				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink, attachments: $attachments);
 			}
 		}
 
@@ -462,7 +584,7 @@ class NotificationPreferenceService {
 		try {
 			$manager = $this->container->get(INotificationManager::class);
 			$notification = $manager->createNotification();
-			$notification->setApp(Application::APP_ID)
+			$notification->setApp(AppIdentity::APP_ID)
 				->setUser($recipientId)
 				->setDateTime(new DateTime())
 				->setObject((string)($inApp['objectType'] ?? 'decidiq'), (string)($inApp['objectId'] ?? $recipientId))
@@ -486,12 +608,13 @@ class NotificationPreferenceService {
 	 * @param string $title E-mail subject
 	 * @param string $message E-mail plain-text body
 	 * @param string $deepLink App-relative link, appended as an absolute URL when set
+	 * @param array<int, array<string, string>> $attachments Files to attach, each { data, filename, contentType }
 	 *
 	 * @return int 1 on success, 0 on failure (or no address available)
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
-	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = ''): int {
+	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = '', array $attachments = []): int {
 		try {
 			$address = $this->getGovernanceEmail(personId: $recipientId);
 			if ($address === null) {
@@ -504,6 +627,15 @@ class NotificationPreferenceService {
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);
 			$emailMessage->setPlainBody($this->withLink(message: $message, deepLink: $deepLink));
+			foreach ($attachments as $attachment) {
+				$emailMessage->attach(
+					$mailer->createAttachment(
+						($attachment['data'] ?? ''),
+						($attachment['filename'] ?? 'attachment'),
+						($attachment['contentType'] ?? 'application/octet-stream')
+					)
+				);
+			}
 			$mailer->send($emailMessage);
 			return 1;
 		} catch (\Throwable $e) {
@@ -532,7 +664,7 @@ class NotificationPreferenceService {
 			return $message;
 		}
 
-		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
+		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page');
 		return $message . "\n\n" . rtrim($base, '/') . '/' . ltrim($deepLink, '/');
 	}//end withLink()
 }//end class

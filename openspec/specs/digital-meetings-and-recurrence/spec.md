@@ -246,3 +246,14 @@ All data retrieval for Meeting and AgendaItem uses `ObjectService` and `CalDavSe
 
 ### REQ-NFR-007 — Speaking time panel visible only during active meeting (ADR-004)
 The `SpeakingTimePanel.vue` MUST only be rendered when `Meeting.lifecycle === 'opened'`. If the lifecycle changes while the panel is visible (e.g., meeting is adjourned), the component MUST disable all controls and show a "Vergadering is niet meer actief" message. The component MUST NOT be visible in the public live view.
+
+## Requirements
+
+### Requirement: REQ-MVC-001 A digital or hybrid meeting has its video call
+
+A digital or hybrid meeting page SHALL let the secretary create or link a Talk room and SHALL show participants a Join video call button.
+
+#### Scenario: A member joins the call
+- GIVEN a hybrid committee meeting with a linked Talk room
+- WHEN member Pieter opens the meeting page
+- THEN he sees Join video call and it opens the Talk room

@@ -210,4 +210,60 @@ class NotifierTest extends TestCase {
 		(new PlatformIntegrationRegistrar())->register($context);
 
 	}//end testTheRegistrarRegistersTheNotifier()
+
+	/**
+	 * The meeting notices name the meeting, link to it and say when.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 *
+	 * @return void
+	 */
+	public function testMeetingNoticesNameTheMeetingAndWhen(): void {
+		$cases = [
+			['meeting_scheduled', ['meetingTitle' => 'Raad', 'startsAt' => '2026-10-08 19:30'], 'The meeting Raad was scheduled', 'It starts on 2026-10-08 19:30.'],
+			['meeting_reminder', ['meetingTitle' => 'Raad', 'startsAt' => '2026-10-08 19:30'], 'The meeting Raad is coming up', 'It starts on 2026-10-08 19:30.'],
+			['submission_deadline', ['meetingTitle' => 'Raad', 'deadline' => '2026-10-02 12:00'], 'The submission deadline of Raad is coming up', 'Motions and amendments can be submitted until 2026-10-02 12:00.'],
+		];
+		foreach ($cases as [$subject, $params, $sentence, $message]) {
+			$this->notifier()->prepare($this->notification(app: 'decidiq', subject: $subject, parameters: $params), 'en');
+			self::assertSame($sentence, $this->parsed['setParsedSubject'], $subject);
+			self::assertSame($message, ($this->parsed['setParsedMessage'] ?? ''), $subject);
+			self::assertSame('https://cloud.example/apps/decidiq/meetings/m-1', $this->parsed['setLink'], $subject);
+		}
+
+	}//end testMeetingNoticesNameTheMeetingAndWhen()
+
+	/**
+	 * The export notice links to the download; a failed export says so.
+	 *
+	 * @spec openspec/specs/openregister-integration/spec.md#requirement-req-pfe-001-an-administrator-exports-all-data
+	 *
+	 * @return void
+	 */
+	public function testTheExportNoticeLinksToTheDownload(): void {
+		$name = 'decidiq-export-20261014-201500.zip';
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'full_export_ready', parameters: ['title' => $name], objectType: 'export', objectId: $name), 'en');
+		self::assertSame('Your data export is ready to download', $this->parsed['setParsedSubject']);
+		self::assertSame('https://cloud.example/apps/decidiq/api/export/full/' . $name, $this->parsed['setLink']);
+
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'full_export_failed', objectType: 'export', objectId: 'failed'), 'en');
+		self::assertSame('Your data export failed. Try again, or read the Nextcloud log for the cause.', $this->parsed['setParsedSubject']);
+	}//end testTheExportNoticeLinksToTheDownload()
+
+	/**
+	 * A queued PDF export's notice names the file and links it in Files; a
+	 * failed one says so.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-003-a-large-export-runs-in-the-background-and-says-when-it-is-ready
+	 *
+	 * @return void
+	 */
+	public function testTheExportBundleNoticeLinksTheFileInFiles(): void {
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'export_bundle_ready', parameters: ['title' => 'Motions 2026-10-20.pdf', 'fileId' => '777'], objectType: 'export-bundle', objectId: '777'), 'en');
+		self::assertSame('Motions 2026-10-20.pdf is ready in your Decidiq exports folder', $this->parsed['setParsedSubject']);
+		self::assertSame('https://cloud.example/index.php/f/777', $this->parsed['setLink']);
+
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'export_bundle_failed', parameters: ['title' => 'Motions 2026-10-20.pdf'], objectType: 'export-bundle', objectId: 'Motions 2026-10-20.pdf'), 'en');
+		self::assertSame('Motions 2026-10-20.pdf could not be made. Try again, or export a ZIP.', $this->parsed['setParsedSubject']);
+	}//end testTheExportBundleNoticeLinksTheFileInFiles()
 }//end class

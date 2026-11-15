@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use Psr\Log\LoggerInterface;
@@ -48,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationService {
+class PublicationService implements PublicationServiceInterface {
 
 	/**
 	 * OpenRegister persistence gateway for the publication flow.
@@ -68,6 +69,7 @@ class PublicationService {
 	 * @param OpenCatalogiPublisher $catalogPublisher OpenCatalogi catalog routing.
 	 * @param AuditLogService $auditLogService Immutable audit trail.
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
+	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -80,6 +82,7 @@ class PublicationService {
 		private readonly OpenCatalogiPublisher $catalogPublisher,
 		private readonly AuditLogService $auditLogService,
 		ObjectServiceInterface $objectService,
+		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
 
@@ -103,80 +106,192 @@ class PublicationService {
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
 	public function publish(string $sourceType, string $sourceId, string $actorId): array {
-		$source = $this->eligibility->assertEligible($sourceType, $sourceId);
-		$bodyId = $this->resolveBodyId(source: $source);
+		$run = new PublicationRun(sourceType: $sourceType, sourceId: $sourceId);
+		$run->actorId = $actorId;
+		$this->loadEligibleSource(run: $run);
+		$this->persistPublicPayload(run: $run);
+		$run->targetCatalog = $this->targetCatalogOf(bodyId: $run->bodyId);
+		$this->routeToCatalog(run: $run);
+		$record = $this->persistPublicationRecord(run: $run, prior: []);
+		$this->markPublished(run: $run);
+		$this->audit(
+			actorId: $actorId,
+			action: 'publish',
+			objectUids: [$sourceId, $run->payloadId],
+			payload: ['sourceType' => $sourceType, 'payloadVersion' => $run->version]
+		);
+		$this->eventRecorder->published(sourceType: $sourceType, sourceId: $sourceId, source: $run->source, bodyId: $run->bodyId);
 
-		$version = 1;
-		$payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
+		return [
+			'record' => $record,
+			'warnings' => $run->warnings,
+		];
+
+	}//end publish()
+
+	/**
+	 * Check the source is eligible and read its governance body.
+	 *
+	 * @param PublicationRun $run The publication.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function loadEligibleSource(PublicationRun $run): void {
+		$run->source = $this->eligibility->assertEligible($run->sourceType, $run->sourceId);
+		$run->bodyId = $this->resolveBodyId(source: $run->source);
+	}//end loadEligibleSource()
+
+	/**
+	 * Build the allow-list payload and persist it as public from now.
+	 *
+	 * @param PublicationRun $run The publication.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function persistPublicPayload(PublicationRun $run): void {
+		$payload = $this->payloadService->build($run->sourceType, $run->source, $run->bodyId, $run->version);
+		$run->papers = ($payload['_publishedPapers'] ?? []);
+		unset($payload['_publishedPapers']);
 
 		// Set publicationDate on the payload so OR's public-group RBAC rule
 		// (publicationDate <= $now) makes it anonymously readable through the
 		// published-predicate surface. This is a normal field on a register-owned
 		// object — written on the standard saveObject path, not a magic predicate.
-		$publishedAt = $this->now();
+		$run->publishedAt = $this->now();
+		$payload['publicationDate'] = $run->publishedAt;
+		// No depublicationDate key: the schema types it as a date-time string that
+		// is not nullable, so an explicit null fails the register's validation.
+		// Absent means not withdrawn; withdraw() sets it.
+		unset($payload['depublicationDate']);
+		$run->payload = $payload;
+		$run->payloadId = $this->repository->persistPayload(payload: $payload);
+	}//end persistPublicPayload()
 
-		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
-		$payloadId = $this->repository->persistPayload(payload: $payload);
-
-		$warnings = [];
-
-		// OpenCatalogi routing (create publication in the per-body target catalog).
-		$catalogRef = '';
-		$targetCatalog = '';
-		if ($bodyId !== null) {
-			$targetCatalog = $this->configService->getForBody($bodyId)['catalog'];
+	/**
+	 * The OpenCatalogi catalog configured for a body, or '' without a body.
+	 *
+	 * @param string|null $bodyId The governance body.
+	 *
+	 * @return string The catalog.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function targetCatalogOf(?string $bodyId): string {
+		if ($bodyId === null) {
+			return '';
 		}
 
-		$catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
+		return $this->configService->getForBody($bodyId)['catalog'];
+	}//end targetCatalogOf()
+
+	/**
+	 * Create the publication in the target catalog, or warn why it was not.
+	 *
+	 * @param PublicationRun $run The publication.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function routeToCatalog(PublicationRun $run): void {
+		$catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $run->targetCatalog !== '');
 		if ($catalogAvailable === false) {
-			$warnings[] = 'opencatalogi-absent';
+			$run->warnings[] = 'opencatalogi-absent';
+			return;
 		}
 
-		if ($catalogAvailable === true) {
-			$catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
-			if ($catalogRef === '') {
-				$warnings[] = 'catalog-publish-failed';
-			}
+		$run->catalogRef = $this->catalogPublisher->publish($run->targetCatalog, $run->payloadId, $run->payload);
+		if ($run->catalogRef === '') {
+			$run->warnings[] = 'catalog-publish-failed';
 		}
+	}//end routeToCatalog()
 
-		$record = [
-			'sourceType' => $sourceType,
-			'sourceObject' => $sourceId,
-			'sourceTitle' => (string)($source['title'] ?? ''),
-			'governanceBody' => ($bodyId ?? ''),
-			'payloadObject' => $payloadId,
-			'payloadVersion' => $version,
-			'oriType' => (string)$payload['oriType'],
-			'catalogPublication' => $catalogRef,
-			'targetCatalog' => $targetCatalog,
-			'status' => 'published',
-			'catalogRetractionStatus' => 'none',
-			'publishedBy' => $actorId,
-			'publishedAt' => $publishedAt,
-		];
+	/**
+	 * Write the PublicationRecord of a run.
+	 *
+	 * @param PublicationRun       $run   The publication.
+	 * @param array<string, mixed> $prior The record a rectification replaces, or [].
+	 *
+	 * @return array<string, mixed> The record, with its id.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function persistPublicationRecord(PublicationRun $run, array $prior): array {
+		$record = $this->publicationRecord(run: $run, prior: $prior);
 		$recordId = $this->repository->persistRecord(record: $record);
 		$record['id'] = $recordId;
+		return $record;
+	}//end persistPublicationRecord()
 
-		$this->repository->markSourcePublished(
-			sourceType: $sourceType,
-			sourceId: $sourceId,
-			source: $source,
-			publishedAt: $publishedAt
-		);
-		$this->audit(
-			actorId: $actorId,
-			action: 'publish',
-			objectUids: [$sourceId, $payloadId],
-			payload: ['sourceType' => $sourceType, 'payloadVersion' => $version]
-		);
-
+	/**
+	 * The PublicationRecord of a run; a rectification falls back to the prior
+	 * record's title and body and names the version it rectifies.
+	 *
+	 * @param PublicationRun       $run   The publication.
+	 * @param array<string, mixed> $prior The record a rectification replaces, or [].
+	 *
+	 * @return array<string, mixed> The record.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function publicationRecord(PublicationRun $run, array $prior): array {
 		return [
-			'record' => $record,
-			'warnings' => $warnings,
+			'sourceType' => $run->sourceType,
+			'sourceObject' => $run->sourceId,
+			'sourceTitle' => (string)($run->source['title'] ?? ($prior['sourceTitle'] ?? '')),
+			'governanceBody' => ($run->bodyId ?? (string)($prior['governanceBody'] ?? '')),
+			'payloadObject' => $run->payloadId,
+			'payloadVersion' => $run->version,
+			'oriType' => (string)$run->payload['oriType'],
+			'catalogPublication' => $run->catalogRef,
+			'targetCatalog' => $run->targetCatalog,
+			'status' => 'published',
+			'catalogRetractionStatus' => 'none',
+		] + $this->rectifiedVersion(prior: $prior) + [
+			'publishedBy' => $run->actorId,
+			'publishedAt' => $run->publishedAt,
+			'publishedPapers' => $run->papers,
 		];
+	}//end publicationRecord()
 
-	}//end publish()
+	/**
+	 * The `rectifiesVersion` field of a rectification, none for a first publication.
+	 *
+	 * @param array<string, mixed> $prior The record a rectification replaces, or [].
+	 *
+	 * @return array<string, int> The field, or [].
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function rectifiedVersion(array $prior): array {
+		if ($prior === []) {
+			return [];
+		}
+
+		return ['rectifiesVersion' => (int)($prior['payloadVersion'] ?? 1)];
+	}//end rectifiedVersion()
+
+	/**
+	 * Mark the run's source object as published at the run's moment.
+	 *
+	 * @param PublicationRun $run The publication.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function markPublished(PublicationRun $run): void {
+		$this->repository->markSourcePublished(
+			sourceType: $run->sourceType,
+			sourceId: $run->sourceId,
+			source: $run->source,
+			publishedAt: $run->publishedAt
+		);
+	}//end markPublished()
 
 	/**
 	 * Withdraw a publication with a mandatory reason.
@@ -190,43 +305,31 @@ class PublicationService {
 	 * @param string $recordId UUID of the PublicationRecord.
 	 * @param string $actorId Nextcloud UID of the withdrawing staff member.
 	 * @param string $reason Mandatory withdraw reason.
+	 * @param array<int,mixed> $keepPapers Papers a rectified version still publishes.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
 	 *
 	 * @throws InvalidArgumentException When the reason is empty.
 	 * @throws MissingObjectException When the record does not exist.
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
-	public function withdraw(string $recordId, string $actorId, string $reason): array {
+	public function withdraw(string $recordId, string $actorId, string $reason, array $keepPapers=[]): array {
 		if (trim($reason) === '') {
 			throw new InvalidArgumentException('A withdraw reason is required.');
 		}
 
 		$record = $this->repository->loadRecord(recordId: $recordId);
 
-		$warnings = [];
-
-		// Set depublicationDate on the payload first so the public-group RBAC
-		// rule stops returning it (publicationDate <= $now is no longer the only
-		// gate once depublicationDate is in the past) — the data stops being
-		// anonymously readable even if the remote retraction fails.
-		$this->repository->setDepublicationDate(
-			payloadId: (string)$record['payloadObject'],
-			timestamp: $this->now()
+		$this->depublishPayload(record: $record);
+		$retractionStatus = $this->retractFromCatalog(catalogRef: (string)($record['catalogPublication'] ?? ''));
+		// The papers this publication made public go offline with it.
+		$papersLeftOnline = $this->payloadService->withdrawPapers(
+			refs: (array)($record['publishedPapers'] ?? []),
+			keep: $keepPapers
 		);
-
-		$retractionStatus = 'none';
-		$catalogRef = (string)($record['catalogPublication'] ?? '');
-		if ($catalogRef !== '') {
-			$retracted = $this->catalogPublisher->retract($catalogRef);
-			$retractionStatus = 'done';
-			if ($retracted !== true) {
-				// Surface the failure and mark pending — never report success.
-				$retractionStatus = 'pending';
-				$warnings[] = 'catalog-retraction-failed';
-			}
-		}
+		$warnings = $this->withdrawalWarnings(retractionStatus: $retractionStatus, papersLeftOnline: $papersLeftOnline);
 
 		$record['status'] = 'withdrawn';
 		$record['withdrawnBy'] = $actorId;
@@ -235,12 +338,7 @@ class PublicationService {
 		$record['catalogRetractionStatus'] = $retractionStatus;
 		$this->repository->persistRecord(record: $record, uuid: $recordId);
 
-		$this->repository->markSourcePublished(
-			sourceType: (string)$record['sourceType'],
-			sourceId: (string)$record['sourceObject'],
-			source: null,
-			publishedAt: null
-		);
+		$this->markUnpublished(record: $record);
 		$this->audit(
 			actorId: $actorId,
 			action: 'withdraw',
@@ -254,6 +352,91 @@ class PublicationService {
 		];
 
 	}//end withdraw()
+
+	/**
+	 * Take a record's payload off the public surface from now.
+	 *
+	 * Set depublicationDate on the payload first so the public-group RBAC
+	 * rule stops returning it (publicationDate <= $now is no longer the only
+	 * gate once depublicationDate is in the past) — the data stops being
+	 * anonymously readable even if the remote retraction fails.
+	 *
+	 * @param array<string, mixed> $record The PublicationRecord.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function depublishPayload(array $record): void {
+		$this->repository->setDepublicationDate(
+			payloadId: (string)$record['payloadObject'],
+			timestamp: $this->now()
+		);
+	}//end depublishPayload()
+
+	/**
+	 * What a withdrawal reports: a retraction the catalog did not confirm
+	 * (never reported as success), then papers still online.
+	 *
+	 * @param string $retractionStatus none|done|pending.
+	 * @param int    $papersLeftOnline Papers that could not be taken offline.
+	 *
+	 * @return list<string> The warnings.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function withdrawalWarnings(string $retractionStatus, int $papersLeftOnline): array {
+		$warnings = [];
+		if ($retractionStatus === 'pending') {
+			$warnings[] = 'catalog-retraction-failed';
+		}
+
+		if ($papersLeftOnline > 0) {
+			$warnings[] = 'papers-still-public';
+		}
+
+		return $warnings;
+	}//end withdrawalWarnings()
+
+	/**
+	 * Retract a catalog publication: none without one, done when the catalog
+	 * confirms, pending when it does not.
+	 *
+	 * @param string $catalogRef The catalog publication, or ''.
+	 *
+	 * @return string none|done|pending.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function retractFromCatalog(string $catalogRef): string {
+		if ($catalogRef === '') {
+			return 'none';
+		}
+
+		if ($this->catalogPublisher->retract($catalogRef) !== true) {
+			return 'pending';
+		}
+
+		return 'done';
+	}//end retractFromCatalog()
+
+	/**
+	 * Reset the published state of a withdrawn record's source object.
+	 *
+	 * @param array<string, mixed> $record The withdrawn PublicationRecord.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function markUnpublished(array $record): void {
+		$this->repository->markSourcePublished(
+			sourceType: (string)$record['sourceType'],
+			sourceId: (string)$record['sourceObject'],
+			source: null,
+			publishedAt: null
+		);
+	}//end markUnpublished()
 
 	/**
 	 * Rectify a publication: publish a corrected new version and withdraw the
@@ -271,76 +454,32 @@ class PublicationService {
 	 */
 	public function rectify(string $recordId, string $actorId, string $reason): array {
 		$prior = $this->repository->loadRecord(recordId: $recordId);
-		$sourceType = (string)$prior['sourceType'];
-		$sourceId = (string)$prior['sourceObject'];
-		$newVersion = ((int)($prior['payloadVersion'] ?? 1) + 1);
+		$run = new PublicationRun(sourceType: (string)$prior['sourceType'], sourceId: (string)$prior['sourceObject']);
+		$run->actorId = $actorId;
+		$run->version = ((int)($prior['payloadVersion'] ?? 1) + 1);
 
 		// Re-validate eligibility for the corrected source state.
-		$source = $this->eligibility->assertEligible($sourceType, $sourceId);
-		$bodyId = $this->resolveBodyId(source: $source);
-
-		$publishedAt = $this->now();
-
-		$payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
-		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
-		$payloadId = $this->repository->persistPayload(payload: $payload);
-
-		$warnings = [];
-
-		$catalogRef = '';
-		$targetCatalog = (string)($prior['targetCatalog'] ?? '');
-		$catalogAvailable = ($this->isOpenCatalogiAvailable() === true && $targetCatalog !== '');
-		if ($catalogAvailable === false) {
-			$warnings[] = 'opencatalogi-absent';
-		}
-
-		if ($catalogAvailable === true) {
-			$catalogRef = $this->catalogPublisher->publish($targetCatalog, $payloadId, $payload);
-			if ($catalogRef === '') {
-				$warnings[] = 'catalog-publish-failed';
-			}
-		}
-
-		$newRecord = [
-			'sourceType' => $sourceType,
-			'sourceObject' => $sourceId,
-			'sourceTitle' => (string)($source['title'] ?? ($prior['sourceTitle'] ?? '')),
-			'governanceBody' => ($bodyId ?? (string)($prior['governanceBody'] ?? '')),
-			'payloadObject' => $payloadId,
-			'payloadVersion' => $newVersion,
-			'oriType' => (string)$payload['oriType'],
-			'catalogPublication' => $catalogRef,
-			'targetCatalog' => $targetCatalog,
-			'status' => 'published',
-			'catalogRetractionStatus' => 'none',
-			'rectifiesVersion' => (int)($prior['payloadVersion'] ?? 1),
-			'publishedBy' => $actorId,
-			'publishedAt' => $publishedAt,
-		];
-		$newRecordId = $this->repository->persistRecord(record: $newRecord);
-		$newRecord['id'] = $newRecordId;
+		$this->loadEligibleSource(run: $run);
+		$this->persistPublicPayload(run: $run);
+		$run->targetCatalog = (string)($prior['targetCatalog'] ?? '');
+		$this->routeToCatalog(run: $run);
+		$newRecord = $this->persistPublicationRecord(run: $run, prior: $prior);
 
 		// Withdraw the prior version in the same operation.
-		$withdrawReason = $reason;
-		if (trim($withdrawReason) === '') {
-			$withdrawReason = 'Superseded by rectified version ' . $newVersion;
-		}
-
-		$withdrawResult = $this->withdraw(recordId: $recordId, actorId: $actorId, reason: $withdrawReason);
-		$warnings = array_values(array_unique(array_merge($warnings, $withdrawResult['warnings'])));
-
-		$this->repository->markSourcePublished(
-			sourceType: $sourceType,
-			sourceId: $sourceId,
-			source: $source,
-			publishedAt: $publishedAt
+		$withdrawResult = $this->withdraw(
+			recordId: $recordId,
+			actorId: $actorId,
+			reason: $this->supersededReason(reason: $reason, run: $run),
+			keepPapers: $run->papers
 		);
+		$warnings = array_values(array_unique(array_merge($run->warnings, $withdrawResult['warnings'])));
+
+		$this->markPublished(run: $run);
 		$rectifyDetail = [
 			'rectifiesVersion' => (int)($prior['payloadVersion'] ?? 1),
-			'newVersion' => $newVersion,
+			'newVersion' => $run->version,
 		];
-		$this->audit(actorId: $actorId, action: 'rectify', objectUids: [$sourceId, $payloadId], payload: $rectifyDetail);
+		$this->audit(actorId: $actorId, action: 'rectify', objectUids: [$run->sourceId, $run->payloadId], payload: $rectifyDetail);
 
 		return [
 			'record' => $newRecord,
@@ -349,6 +488,24 @@ class PublicationService {
 		];
 
 	}//end rectify()
+
+	/**
+	 * The reason recorded against the version a rectification withdraws.
+	 *
+	 * @param string         $reason The reason the staff member gave, maybe blank.
+	 * @param PublicationRun $run    The rectifying publication.
+	 *
+	 * @return string The reason, or the superseded note when it was blank.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	private function supersededReason(string $reason, PublicationRun $run): string {
+		if (trim($reason) === '') {
+			return 'Superseded by rectified version ' . $run->version;
+		}
+
+		return $reason;
+	}//end supersededReason()
 
 	/**
 	 * Append an entry to the immutable decision audit trail.
