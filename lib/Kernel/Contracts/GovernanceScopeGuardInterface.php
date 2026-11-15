@@ -91,4 +91,17 @@ interface GovernanceScopeGuardInterface {
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 */
 	public function isSignatoryForSubject(string $userId, string $schema, string $subjectId): bool;
+
+	/**
+	 * True when the user is in a body's scope group; fails closed on an empty user or body.
+	 *
+	 * @param string $userId Nextcloud UID of the actor
+	 * @param string $bodyId GovernanceBody UUID
+	 * @param string $scope  GovernanceScopeGuard::SCOPE_CHAIR or ::SCOPE_SIGNATORY
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-005-fail-closed-authorization-is-preserved-end-to-end
+	 */
+	public function isInBodyScope(string $userId, string $bodyId, string $scope): bool;
 }//end interface
