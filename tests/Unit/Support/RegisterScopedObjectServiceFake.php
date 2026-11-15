@@ -44,6 +44,7 @@ namespace OCA\Decidiq\Tests\Unit\Support;
 
 use OCA\Decidiq\Service\SettingsService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * A register whose schema boundary is the one the app ships.
@@ -164,7 +165,10 @@ final class RegisterScopedObjectServiceFake {
 	 *
 	 * @return object The stored entity.
 	 */
-	public function saveObject(array $object, string $register, string $schema, ?string $uuid = null): object {
+	public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): object {
+		$register = $options->target->register;
+		$schema = $options->target->schema;
+		$uuid = $options->uuid;
 		$key = ($uuid ?? (string)($object['id'] ?? ('generated-' . (count($this->writes) + 1))));
 		$stored = ($object + ['id' => $key]);
 

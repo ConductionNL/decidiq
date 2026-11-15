@@ -43,6 +43,9 @@ use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\IUserSession;
@@ -325,7 +328,12 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}
@@ -346,9 +354,10 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	private function write(array $dossier, ?string $uuid): array {
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

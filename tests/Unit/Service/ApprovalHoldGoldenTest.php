@@ -59,6 +59,9 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Golden test for holding an approval route from named people.
@@ -242,7 +245,11 @@ class ApprovalHoldGoldenTest extends TestCase {
 	private function service(): ApprovalRouteService {
 		$facade = $this->createMock(ObjectServiceInterface::class);
 		$facade->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]];
 				$uuid = ($uuid ?? ($schema . '-' . count($this->log)));
 				$this->rows[(string)$schema][$uuid] = ($object + ['id' => $uuid]);
@@ -250,7 +257,11 @@ class ApprovalHoldGoldenTest extends TestCase {
 			}
 		);
 		$facade->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data, string|int|null $register = null, string|int|null $schema = null): ObjectEntityInterface {
+			function (ObjectPatch $patch): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$this->log[] = ['patch' => ['objectId' => $objectId, 'data' => $data, 'register' => $register, 'schema' => $schema]];
 				$this->rows[(string)$schema][$objectId] = (array_merge(($this->rows[(string)$schema][$objectId] ?? []), $data) + ['id' => $objectId]);
 				return $this->entity(row: $this->rows[(string)$schema][$objectId]);
@@ -280,7 +291,11 @@ class ApprovalHoldGoldenTest extends TestCase {
 			}
 		);
 		$facade->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				$row = ($this->rows[(string)$schema][(string)$id] ?? null);
 				return $row === null ? null : $this->entity(row: $row);

@@ -32,6 +32,8 @@ use OCA\Decidiq\Service\CitizenAdviceService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Opening, closing and counting a residents' advisory vote on a motion.
@@ -87,7 +89,11 @@ class CitizenAdviceServiceTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($motion): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true) use ($motion): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->rbacFlags[] = $_rbac;
 				if ($motion === null || $id !== $motion['id'] || $schema !== 'decision') {
 					return null;
@@ -108,7 +114,11 @@ class CitizenAdviceServiceTest extends TestCase {
 		);
 
 		$objectService->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($motion): ObjectEntityInterface {
+			function (ObjectPatch $patch, bool $_rbac = true) use ($motion): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$this->rbacFlags[] = $_rbac;
 				$this->patches[] = ['id' => $objectId, 'schema' => $schema, 'data' => $data];
 

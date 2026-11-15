@@ -36,6 +36,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationReportServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -76,7 +77,7 @@ class BoardEvaluationReportService implements BoardEvaluationReportServiceInterf
 	 */
 	public function generate(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: "BoardEvaluation {$evaluationId} not found.");
 		}
@@ -371,7 +372,7 @@ class BoardEvaluationReportService implements BoardEvaluationReportServiceInterf
 		}
 
 		try {
-			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+			$entity = $objectService->find(id: $bodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 		} catch (\Throwable) {
 			return '';
 		}

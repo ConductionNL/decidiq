@@ -28,6 +28,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests proposal submission/validation guards and greedy allocation.
@@ -141,6 +142,7 @@ class BudgetVotingServiceTest extends TestCase {
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$saved) {
+				$args = LegacyObjectArgs::flatten(args: $args);
 				$saved = ($args[0] ?? $args['object'] ?? null);
 				return $this->entity(is_array($saved) === true ? $saved : []);
 			}

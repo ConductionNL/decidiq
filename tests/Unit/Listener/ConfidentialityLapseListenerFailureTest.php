@@ -30,6 +30,7 @@ use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * The paths the happy-path test leaves out: events that are not a save of an
@@ -140,13 +141,13 @@ class ConfidentialityLapseListenerFailureTest extends TestCase {
 	public function testTheEntityUuidNamesTheMeeting(): void {
 		$item    = ['id' => 'item-9', 'meeting' => 'meeting-15-oct'];
 		$objects = $this->objects([$item], [self::restriction()]);
-		$objects->expects(self::once())->method('saveObject')->with(
-			self::callback(static fn (array $o): bool => $o['lifecycle'] === 'lapsed' && $o['lapsedAtMeeting'] === 'meeting-15-oct'),
-			self::anything(),
-			'decidiq',
-			'confidentiality-restriction',
-			'r-tarieven'
-		);
+		$objects->expects(self::once())->method('saveObject')->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+				'object' => self::callback(static fn (array $o): bool => $o['lifecycle'] === 'lapsed' && $o['lapsedAtMeeting'] === 'meeting-15-oct'),
+				'extend' => self::anything(),
+				'register' => 'decidiq',
+				'schema' => 'confidentiality-restriction',
+				'uuid' => 'r-tarieven',
+			]));
 		$listener = new ConfidentialityLapseListener($objects, $this->createMock(LoggerInterface::class));
 
 		$listener->handle(
@@ -187,6 +188,7 @@ class ConfidentialityLapseListenerFailureTest extends TestCase {
 		$saved = null;
 		$objects->expects(self::once())->method('saveObject')->willReturnCallback(
 			function (mixed ...$args) use (&$saved): ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				$saved = array_values($args);
 				return $this->entity([]);
 			}
@@ -215,13 +217,13 @@ class ConfidentialityLapseListenerFailureTest extends TestCase {
 		$restriction = self::restriction(['@self' => ['id' => 'r-self']]);
 		unset($restriction['id']);
 		$objects = $this->objects([], [$restriction]);
-		$objects->expects(self::once())->method('saveObject')->with(
-			self::anything(),
-			self::anything(),
-			'decidiq',
-			'confidentiality-restriction',
-			'r-self'
-		);
+		$objects->expects(self::once())->method('saveObject')->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+				'object' => self::anything(),
+				'extend' => self::anything(),
+				'register' => 'decidiq',
+				'schema' => 'confidentiality-restriction',
+				'uuid' => 'r-self',
+			]));
 		$listener = new ConfidentialityLapseListener($objects, $this->createMock(LoggerInterface::class));
 
 		$listener->handle(new ObjectUpdatedEvent($this->entity($item), $this->entity(['id' => 'item-9'])));

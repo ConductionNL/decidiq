@@ -31,6 +31,10 @@ use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -337,10 +341,11 @@ class AgendaService implements AgendaServiceInterface {
 	 */
 	private function patchItem(string $itemId, array $data): void {
 		$this->objectService->patchObject(
-			objectId: $itemId,
-			data: $data,
-			register: 'decidiq',
-			schema: 'agenda-item',
+			new ObjectPatch(
+				objectId: $itemId,
+				data: $data,
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'agenda-item')
+			)
 		);
 	}//end patchItem()
 
@@ -411,7 +416,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function setFormality(string $meetingId, string $itemId, bool $isFormality): void {
-		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $itemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		$item = [];
 		if ($entity !== null) {
 			$item = $this->rules->toArray(item: $entity);
@@ -600,7 +605,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @return array<string, mixed>|null The meeting, or null when it is missing or its agenda is not live
 	 */
 	private function liveAgendaMeeting(string $meetingId): ?array {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			return null;
 		}
@@ -657,7 +662,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @throws NotFoundException When the meeting does not exist
 	 */
 	private function readMeeting(string $meetingId): array {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			throw new NotFoundException(message: "Meeting {$meetingId} not found");
 		}
@@ -676,9 +681,10 @@ class AgendaService implements AgendaServiceInterface {
 	private function saveMeeting(string $meetingId, array $meeting): void {
 		$this->objectService->saveObject(
 			object: $meeting,
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'),
+				uuid: $meetingId
+			)
 		);
 	}//end saveMeeting()
 

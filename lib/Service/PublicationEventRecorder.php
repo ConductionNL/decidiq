@@ -33,6 +33,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\PublicationEventRecorderInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -326,7 +329,12 @@ class PublicationEventRecorder implements PublicationEventRecorderInterface {
 	 * @return array<string,mixed>
 	 */
 	private function read(string $schema, string $id): array {
-		$found = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$found = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($found === null) {
 			return [];
 		}
@@ -348,8 +356,7 @@ class PublicationEventRecorder implements PublicationEventRecorderInterface {
 		try {
 			$this->objectService->saveObject(
 				object: $event,
-				register: 'decidiq',
-				schema: 'publication-event',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-event')),
 				_rbac: false,
 				_multitenancy: false
 			);

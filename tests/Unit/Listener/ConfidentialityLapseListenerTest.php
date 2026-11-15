@@ -27,6 +27,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * @covers \OCA\Decidiq\Listener\ConfidentialityLapseListener
@@ -110,12 +111,14 @@ class ConfidentialityLapseListenerTest extends TestCase {
 		);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$args) use ($grounds): ?ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				$id = (string)array_values($args)[0];
 				return isset($grounds[$id]) === true ? $this->entity($grounds[$id]) : null;
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed ...$args): ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				// The double receives every parameter of the stub's signature,
 				// defaults filled in: object, extend, register, schema, uuid, ...
 				[$object, , $register, $schema, $uuid] = array_values($args);

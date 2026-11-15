@@ -29,6 +29,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for MigrateBoardProxyToProxyAuthorization.
@@ -112,13 +114,11 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($knownMeetings) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($knownMeetings) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'meeting' && in_array($id, $knownMeetings, true) === true) {
 					return $this->entity(data: ['id' => $id]);
 				}
@@ -129,13 +129,11 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef, $saveObjectThrowsForGrantor) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef, $saveObjectThrowsForGrantor) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if (in_array(($object['grantor'] ?? null), $saveObjectThrowsForGrantor, true) === true) {
 					throw new \RuntimeException('save failed for grantor ' . (string)($object['grantor'] ?? ''));
 				}
