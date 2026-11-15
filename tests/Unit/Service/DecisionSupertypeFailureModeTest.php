@@ -65,6 +65,8 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The two HTTP failure modes the half-done ADR-005 migration turned into 500s.
@@ -353,13 +355,11 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($double): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($double): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = $double->find($id, $register, $schema);
 				if ($row === null) {
 					return null;
@@ -379,12 +379,10 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($double): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($double): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				return $this->wrapObject($double->saveObject($object, (string)$register, (string)$schema));
 			}
 		);

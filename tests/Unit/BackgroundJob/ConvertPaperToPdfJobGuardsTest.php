@@ -32,6 +32,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob
@@ -160,7 +161,10 @@ class ConvertPaperToPdfJobGuardsTest extends TestCase {
 		}
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], mixed $register=null, mixed $schema=null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saved[] = [(string)$schema, $object];
 				return $this->createMock(ObjectEntity::class);
 			}

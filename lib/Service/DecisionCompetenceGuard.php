@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\DecisionCompetenceRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Throwable;
 
@@ -108,7 +109,11 @@ class DecisionCompetenceGuard {
 	 */
 	private function competentBodyOf(string $typeId): string {
 		try {
-			$type = $this->objectService->find(id: $typeId, register: 'decidiq', schema: 'decision-template', _rbac: false);
+			$type = $this->objectService->find(
+				id: $typeId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'decision-template'),
+				_rbac: false
+			);
 		} catch (DoesNotExistException) {
 			$type = null;
 		} catch (Throwable $e) {

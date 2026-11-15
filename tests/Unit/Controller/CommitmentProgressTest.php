@@ -34,6 +34,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * The chair or secretary of the commitment's meeting adds a dated progress
@@ -136,7 +137,13 @@ class CommitmentProgressTest extends TestCase {
 			['date' => $today, 'note' => 'Draft report sent to the committee'],
 		];
 		$this->objectService->expects(self::once())->method('patchObject')
-			->with('c-1', ['progress' => $expected], 'decidiq', 'governance-commitment', false);
+			->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'c-1',
+				'data' => ['progress' => $expected],
+				'register' => 'decidiq',
+				'schema' => 'governance-commitment',
+				'_rbac' => false,
+			]));
 
 		$response = $this->controller->addProgress(id: 'c-1');
 

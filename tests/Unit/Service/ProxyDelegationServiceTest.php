@@ -28,6 +28,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests the delegation rules: no self-delegation, non-voting roles may not
@@ -192,7 +193,11 @@ class ProxyDelegationServiceTest extends TestCase {
 	private function stubFind(ObjectEntity&MockObject $round): void {
 		$delegate = $this->entity(data: ['role' => 'member']);
 		$this->objectService->method('find')->willReturnCallback(
-			static function (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema) use ($round, $delegate): ObjectEntity {
+			static function (mixed $id, ?ObjectFindOptions $options = null) use ($round, $delegate): ObjectEntity {
+				$extend = $options?->extend;
+				$files = $options?->files;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'voting-round') {
 					return $round;
 				}
@@ -324,7 +329,11 @@ class ProxyDelegationServiceTest extends TestCase {
 	public function testGrantProxyRefusedWhenRoundMissing(): void {
 		$delegate = $this->entity(data: ['role' => 'member']);
 		$this->objectService->method('find')->willReturnCallback(
-			static function (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema) use ($delegate): ?ObjectEntity {
+			static function (mixed $id, ?ObjectFindOptions $options = null) use ($delegate): ?ObjectEntity {
+				$extend = $options?->extend;
+				$files = $options?->files;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'voting-round') {
 					return null;
 				}

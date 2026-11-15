@@ -40,6 +40,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Behaviour of the close-a-round path.
@@ -135,7 +136,10 @@ class VotingRoundCloserTest extends TestCase {
 			fn (int|string $id): ?ObjectEntity => isset($objects[(string)$id]) ? $this->entity($objects[(string)$id]) : null
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saved[] = ['schema' => (string)$schema, 'object' => $object];
 
 				return $this->entity($object);

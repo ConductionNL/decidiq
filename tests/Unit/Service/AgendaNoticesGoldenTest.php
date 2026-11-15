@@ -47,6 +47,7 @@ use ReflectionMethod;
 use RuntimeException;
 use Stringable;
 use Throwable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the agenda notices of AgendaService.
@@ -169,6 +170,7 @@ class AgendaNoticesGoldenTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$arguments) use ($meetings): mixed {
+				$arguments = LegacyObjectArgs::positional(method: 'find', args: $arguments);
 				$arguments = $this->named(ObjectServiceInterface::class, 'find', $arguments);
 				$this->log[] = ['find' => $arguments];
 				$row = ($meetings[$arguments['id']] ?? null);
@@ -183,6 +185,7 @@ class AgendaNoticesGoldenTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed ...$arguments): ObjectEntity {
+				$arguments = LegacyObjectArgs::positional(method: 'saveObject', args: $arguments);
 				$arguments = $this->named(ObjectServiceInterface::class, 'saveObject', $arguments);
 				$this->log[] = ['saveObject' => $arguments];
 				return $this->entity($arguments['object']);
@@ -190,6 +193,7 @@ class AgendaNoticesGoldenTest extends TestCase {
 		);
 		$objects->method('patchObject')->willReturnCallback(
 			function (mixed ...$arguments): ObjectEntity {
+				$arguments = LegacyObjectArgs::positional(method: 'patchObject', args: $arguments);
 				$arguments = $this->named(ObjectServiceInterface::class, 'patchObject', $arguments);
 				$this->log[] = ['patchObject' => $arguments];
 				return $this->entity($arguments['data']);
@@ -270,7 +274,7 @@ class AgendaNoticesGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $arguments): array {
 		$named = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $parameter) {
 			if (array_key_exists($i, $arguments) === false) {
 				break;
 			}

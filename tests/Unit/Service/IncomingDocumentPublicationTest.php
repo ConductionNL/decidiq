@@ -35,6 +35,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Eligibility, payload and staff check of the `incoming-document` source type.
@@ -57,7 +58,11 @@ class IncomingDocumentPublicationTest extends TestCase {
 	private function store(array $objects): ObjectServiceInterface {
 		$store = $this->createMock(ObjectServiceInterface::class);
 		$store->method('find')->willReturnCallback(
-			function (string|int $id, ?array $extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use ($objects): ?ObjectEntity {
+			function (string|int $id, ?ObjectFindOptions $options = null) use ($objects): ?ObjectEntity {
+				$extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (isset($objects[$schema . '/' . $id]) === false) {
 					return null;
 				}

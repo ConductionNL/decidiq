@@ -38,6 +38,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for VoteBreakdownService.
@@ -119,7 +120,11 @@ class VoteBreakdownServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			static function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null) use ($roundEntity, $people): ?ObjectEntity {
+			static function (int|string $id, ?ObjectFindOptions $options = null) use ($roundEntity, $people): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($id === 'round-1' && $schema === 'voting-round') {
 					return $roundEntity;
 				}

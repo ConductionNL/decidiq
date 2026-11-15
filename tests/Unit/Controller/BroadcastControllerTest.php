@@ -45,6 +45,7 @@ use OCP\Share\IManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The broadcast routes: only the meeting's chair or secretary acts, and a
@@ -112,7 +113,7 @@ final class BroadcastControllerTest extends TestCase {
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => (isset($this->world->objects[(string)$id]) === true ? $this->entity(id: (string)$id) : null));
 		$objects->method('findAll')->willReturnCallback(fn (array $config=[]): array => array_map(fn (string $id): ObjectEntity => $this->entity(id: $id), $this->world->match(config: $config)));
 		$objects->method('saveObject')->willReturnCallback(
-			fn (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity => $this->entity(id: $this->world->save(data: $object, register: (string)$register, schema: (string)$schema, id: $uuid))
+			fn (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity => $this->entity(id: $this->world->save(data: $object, register: (string)($options->target->register), schema: (string)($options->target->schema), id: ($options->uuid)))
 		);
 
 		$session = $this->createMock(IUserSession::class);

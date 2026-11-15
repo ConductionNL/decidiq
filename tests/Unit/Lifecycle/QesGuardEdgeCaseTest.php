@@ -32,6 +32,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for QesGuard's fail-closed and skip paths.
@@ -194,7 +195,13 @@ class QesGuardEdgeCaseTest extends TestCase {
 	public function testAnUnknownResolutionHasNoSignatures(): void {
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('res-404', $this->anything(), $this->anything(), 'decidiq', 'decision')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'res-404',
+					'_extend' => $this->anything(),
+					'files' => $this->anything(),
+					'register' => 'decidiq',
+					'schema' => 'decision',
+				]))
 			->willReturn(null);
 		$this->objectService->expects($this->never())->method('findAll');
 		$this->signatures->expects($this->never())->method('validateCertificateChain');

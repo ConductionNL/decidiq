@@ -27,6 +27,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use OCP\Files\File;
@@ -212,7 +215,12 @@ class ConvertPaperToPdfJob extends QueuedJob {
 	 */
 	private function record(string $objectId, string $schema, array $entry): void {
 		try {
-			$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+			$object = $this->objectService->find(
+				id: $objectId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 			if ($object === null) {
 				return;
 			}
@@ -227,7 +235,12 @@ class ConvertPaperToPdfJob extends QueuedJob {
 
 			$renditions[]            = $entry;
 			$data['paperRenditions'] = $renditions;
-			$this->objectService->saveObject(object: $data, register: 'decidiq', schema: $schema, uuid: $objectId, _rbac: false, _multitenancy: false);
+			$this->objectService->saveObject(
+				object: $data,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $objectId),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: the PDF of an Office paper could not be recorded', ['objectId' => $objectId, 'error' => $e->getMessage()]);
 		}//end try

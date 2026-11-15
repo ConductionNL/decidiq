@@ -36,6 +36,7 @@ use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Through the listener and the real resolver: a taken decision of a type
@@ -83,7 +84,11 @@ class DecisionRemedyStampListenerTest extends TestCase {
 			$objects->method('find')->willThrowException(new \RuntimeException('database gone'));
 		} else {
 			$objects->method('find')->willReturnCallback(
-				function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, ?string $schema = null) use ($type) {
+				function (int|string $id, ?ObjectFindOptions $options = null) use ($type) {
+					$_extend = $options?->extend ?? [];
+					$files = $options?->files ?? false;
+					$register = $options?->register;
+					$schema = $options?->schema;
 					if ($type === null || $id !== 'type-1' || $register !== 'decidiq' || $schema !== 'decision-template') {
 						return null;
 					}

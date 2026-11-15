@@ -31,6 +31,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Integration\Meeting;
 
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Integration tests for quorum declarative schema on Meeting.
@@ -243,8 +247,7 @@ class QuorumDeclarativeTest extends TestCase {
 					'bodyType' => 'legislative',
 					'domain' => 'test',
 				],
-				register: 'decidiq',
-				schema: 'governance-body',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body'))
 			)
 		);
 
@@ -280,8 +283,7 @@ class QuorumDeclarativeTest extends TestCase {
 		$meeting = $this->objectService->runAsSystem(
 			fn () => $this->objectService->saveObject(
 				object: $data,
-				register: 'decidiq',
-				schema: 'meeting',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'))
 			)
 		);
 
@@ -320,8 +322,7 @@ class QuorumDeclarativeTest extends TestCase {
 						'governanceBody' => $governanceBodyId,
 						'attendanceStatus' => $status,
 					],
-					register: 'decidiq',
-					schema: 'participant',
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 				)
 			);
 		}
@@ -338,7 +339,7 @@ class QuorumDeclarativeTest extends TestCase {
 	private function fetchMeeting(string $meetingId): array {
 		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('meeting');
-		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 
 		if ($entity === null) {
 			return [];
@@ -380,9 +381,10 @@ class QuorumDeclarativeTest extends TestCase {
 					// never once removed a row (#399).
 					$this->objectService->runAsSystem(
 						fn () => $this->objectService->deleteObject(
-							uuid: $pid,
-							register: 'decidiq',
-							schema: 'participant',
+							new ObjectDeletion(
+								uuid: $pid,
+								target: new ObjectFindTarget(register: 'decidiq', schema: 'participant')
+							)
 						)
 					);
 				}
@@ -390,16 +392,18 @@ class QuorumDeclarativeTest extends TestCase {
 
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
-					uuid: $meetingId,
-					register: 'decidiq',
-					schema: 'meeting',
+					new ObjectDeletion(
+						uuid: $meetingId,
+						target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting')
+					)
 				)
 			);
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
-					uuid: $governanceBodyId,
-					register: 'decidiq',
-					schema: 'governance-body',
+					new ObjectDeletion(
+						uuid: $governanceBodyId,
+						target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body')
+					)
 				)
 			);
 		} catch (\Throwable) {

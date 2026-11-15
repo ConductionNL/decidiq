@@ -21,6 +21,8 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 #[CoversClass(OriImportService::class)]
 #[UsesClass(OriExportMapper::class)]
@@ -197,7 +199,7 @@ final class OriImportServiceProblemsTest extends TestCase {
 			}
 		);
 		$service->method('saveObject')->willReturnCallback(
-			static fn (array $object, ?array $extend=[], $register=null, $schema=null, ?string $uuid=null): ObjectEntityInterface => $inner->saveObject(object: $object, extend: $extend, register: $register, schema: $schema, uuid: $uuid)
+			static fn (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface => $inner->saveObject(object: $object, options: new ObjectSaveOptions(target: new ObjectFindTarget(register: $options->target->register, schema: $options->target->schema), uuid: $options->uuid, extend: $options->extend ?? []))
 		);
 
 		$report = (new OriImportService($service, new OriExportMapper()))->import();

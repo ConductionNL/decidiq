@@ -52,6 +52,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the audit log.
@@ -183,6 +184,7 @@ class AuditLogGoldenTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$args): ?ObjectEntityInterface {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				$this->log[] = ['find' => $this->named(class: ObjectServiceInterface::class, method: 'find', args: $args)];
 				if ($args[0] === 'o-0') {
 					throw new RuntimeException('register down');
@@ -306,7 +308,7 @@ class AuditLogGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $args): array {
 		$out = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $param) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
 				continue;
 			}

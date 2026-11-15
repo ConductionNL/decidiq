@@ -27,6 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -213,7 +216,7 @@ final class TranslationQueueEntryProcessor {
 	 */
 	private function loadMinutes(string $minutesId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+			$entity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 			if ($entity === null) {
 				return null;
 			}
@@ -259,8 +262,7 @@ final class TranslationQueueEntryProcessor {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $this->translatedMinutes(job: $job, translatedText: $translatedText),
-				register: 'decidiq',
-				schema: 'minutes'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'))
 			);
 			if (is_object($saved) === true) {
 				return $this->text(row: (array)$saved->jsonSerialize(), key: 'id');
@@ -316,7 +318,13 @@ final class TranslationQueueEntryProcessor {
 		}
 
 		try {
-			$this->objectService->saveObject(object: $payload, register: 'decidiq', schema: MultilingualReconciliationService::SCHEMA, uuid: $entryId);
+			$this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: MultilingualReconciliationService::SCHEMA),
+					uuid: $entryId
+				)
+			);
 		} catch (\Throwable $e) {
 			$context = ['exception' => $e->getMessage(), 'entryId' => $entryId];
 			$this->logger->warning('Decidiq: MultilingualReconciliationService failed to update queue entry', $context);
