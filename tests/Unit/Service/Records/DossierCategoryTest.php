@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
 use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\Records\ArchivistGuard;
@@ -139,11 +140,10 @@ class DossierCategoryTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saves[] = [$object, $register, $schema, $uuid, $_rbac, $_multitenancy];
 				return self::entity(id: (string)$uuid, data: $object);
-			}
-		);
+			}));
 
 		return new DossierCategory(
 			objectService: $objectService,

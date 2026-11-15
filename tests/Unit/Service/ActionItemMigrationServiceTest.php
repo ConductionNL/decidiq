@@ -106,7 +106,7 @@ class ActionItemMigrationServiceTest extends TestCase {
 		$calls = [];
 		$this->objectService->expects(self::once())
 			->method('saveObject')
-			->with(self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-1'), self::anything(), 'decidiq', 'task', 't-1')
+			->with(self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-1'), self::callback(static fn (?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $o): bool => $o?->target->register === 'decidiq' && $o->target->schema === 'task' && $o->uuid === 't-1'))
 			->willReturnCallback(function () use (&$calls): ObjectEntityInterface {
 				$calls[] = 'mark';
 				return $this->createMock(ObjectEntityInterface::class);

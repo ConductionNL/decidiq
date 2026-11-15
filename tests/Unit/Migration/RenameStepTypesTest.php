@@ -78,7 +78,10 @@ final class RenameStepTypesTest extends TestCase {
 				return ($this->rows[$this->schema] ?? []);
 			}
 
-			public function saveObject(array $object, string $register, string $schema, string $uuid): array {
+			public function saveObject(array $object, ?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $options = null): array {
+				$register = (string)$options?->target->register;
+				$schema = (string)$options?->target->schema;
+				$uuid = (string)$options?->uuid;
 				if (in_array($uuid, $this->failingUuids, true) === true) {
 					throw new RuntimeException("cannot save $uuid");
 				}

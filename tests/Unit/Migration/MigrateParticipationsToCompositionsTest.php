@@ -368,7 +368,8 @@ class MigrateParticipationsToCompositionsTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(string $register, string $schema, array $object): array {
+			public function saveObject(array $object, ?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $options = null): array {
+				$schema = (string)$options?->target->schema;
 				$this->saves[] = [$schema, $object];
 
 				return ($object + ['id' => $schema . '-' . count($this->saves)]);

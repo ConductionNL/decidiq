@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service\Ori;
 
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -104,7 +105,7 @@ final class InMemoryObjects {
 			}
 		);
 		$service->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], $register=null, $schema=null, ?string $uuid=null) use ($test): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend=[], $register=null, $schema=null, ?string $uuid=null) use ($test): ObjectEntityInterface {
 				$action = 'update';
 				if ($uuid === null) {
 					$action = 'create';
@@ -116,8 +117,7 @@ final class InMemoryObjects {
 				$entity = (new \PHPUnit\Framework\MockObject\MockBuilder($test, ObjectEntityInterface::class))->getMock();
 				$entity->method('getUuid')->willReturn($uuid);
 				return $entity;
-			}
-		);
+			}));
 		$service->method('deleteObject')->willReturnCallback(
 			function (string $uuid, $register=null, $schema=null): bool {
 				unset($this->objects[(string)$register][(string)$schema][$uuid]);

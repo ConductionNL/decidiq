@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Service\TranscriptionService;
@@ -129,7 +130,7 @@ class TranscriptionServiceLifecycleTest extends TestCase {
 			}
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], $register = null, $schema = null, $uuid = null): object {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], $register = null, $schema = null, $uuid = null): object {
 				$this->saves[] = [(string)$schema, $object, $uuid];
 				if ($uuid !== null) {
 					$this->objects[$schema . '/' . $uuid] = $object;
@@ -138,8 +139,7 @@ class TranscriptionServiceLifecycleTest extends TestCase {
 				}
 
 				return $this->entity($object);
-			}
-		);
+			}));
 
 	}//end setUp()
 

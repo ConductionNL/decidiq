@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MotionAmendmentService;
 use OCA\Decidiq\Service\MotionLinkResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -100,7 +101,7 @@ class MotionAmendmentServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
+			SaveCallShape::legacy(function (
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
@@ -109,8 +110,7 @@ class MotionAmendmentServiceTest extends TestCase {
 			) use ($saves): ObjectEntity {
 				$saves->append(['uuid' => $uuid, 'object' => $object, 'register' => $register, 'schema' => $schema]);
 				return $this->entity($object);
-			}
-		);
+			}));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(

@@ -118,7 +118,10 @@ class ConfidentialityLapseListenerTest extends TestCase {
 			function (mixed ...$args): ObjectEntity {
 				// The double receives every parameter of the stub's signature,
 				// defaults filled in: object, extend, register, schema, uuid, ...
-				[$object, , $register, $schema, $uuid] = array_values($args);
+				[$object, $options] = array_values($args) + [1 => null];
+				$register = $options?->target->register;
+				$schema = $options?->target->schema;
+				$uuid = $options?->uuid;
 				self::assertSame(['decidiq', 'confidentiality-restriction'], [$register, $schema]);
 				$this->saved[(string)$uuid] = $object;
 				return $this->entity($object);

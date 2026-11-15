@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Controller\OnboardingController;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\OnboardingStepRefusedException;
 use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
 use OCA\Decidiq\Service\OnboardingChecklistService;
@@ -244,7 +245,7 @@ final class OnboardingChecklistServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$this->saves[] = [(string)$schema, $uuid, $object];
 				$id = ($uuid ?? 'new-' . $schema);
 				$this->store[$schema][$id] = $object;
@@ -252,8 +253,7 @@ final class OnboardingChecklistServiceTest extends TestCase {
 				$entity->method('getUuid')->willReturn($id);
 				$entity->method('getObject')->willReturn($object);
 				return $entity;
-			}
-		);
+			}));
 
 		return new OnboardingChecklistService($objects);
 	}

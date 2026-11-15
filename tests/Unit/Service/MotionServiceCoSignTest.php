@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MotionLinkResolver;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MotionNotifier;
 use OCA\Decidiq\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -111,7 +112,7 @@ class MotionServiceCoSignTest extends TestCase {
 		);
 		$objectService->method('findAll')->willReturn([]);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
+			SaveCallShape::legacy(function (
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
@@ -120,8 +121,7 @@ class MotionServiceCoSignTest extends TestCase {
 			) use ($saves): ObjectEntity {
 				$saves->append(['uuid' => $uuid, 'object' => $object, 'register' => $register, 'schema' => $schema]);
 				return $this->entity($object);
-			}
-		);
+			}));
 
 		$this->notifier = $this->createMock(MotionNotifier::class);
 		$this->linkResolver = $this->createMock(MotionLinkResolver::class);

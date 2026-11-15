@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -160,11 +161,10 @@ class ConvertPaperToPdfJobGuardsTest extends TestCase {
 		}
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], mixed $register=null, mixed $schema=null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend=[], mixed $register=null, mixed $schema=null): ObjectEntity {
 				$this->saved[] = [(string)$schema, $object];
 				return $this->createMock(ObjectEntity::class);
-			}
-		);
+			}));
 
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->method('warning')->willReturnCallback(function (string|\Stringable $message): void {

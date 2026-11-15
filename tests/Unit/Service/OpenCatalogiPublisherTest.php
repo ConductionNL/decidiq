@@ -79,7 +79,9 @@ class OpenCatalogiPublisherTest extends TestCase {
 			 *
 			 * @return mixed The answer.
 			 */
-			public function saveObject(array $object, string $register, string $schema): mixed {
+			public function saveObject(array $object, ?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $options = null): mixed {
+				$register = (string)$options?->target->register;
+				$schema = (string)$options?->target->schema;
 				$this->saved[] = compact('object', 'register', 'schema');
 				if ($this->answer instanceof \Throwable) {
 					throw $this->answer;

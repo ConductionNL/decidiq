@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AgendaPapers;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
 use OCA\Decidiq\Service\PublicationConfigService;
@@ -199,7 +200,7 @@ final class PublicationServiceGoldenTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
 				$this->trace[] = ['save' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid];
 				if ($uuid === null) {
 					$this->seq++;
@@ -211,8 +212,7 @@ final class PublicationServiceGoldenTest extends TestCase {
 				$entity = $this->createMock(ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($row);
 				return $entity;
-			}
-		);
+			}));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);

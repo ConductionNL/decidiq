@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use DateTime;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\ChangeRecommendationRefusedException;
 use OCA\Decidiq\Service\AmendmentTextMerger;
 use OCA\Decidiq\Service\ChangeRecommendationService;
@@ -260,13 +261,12 @@ class ChangeRecommendationServiceTest extends TestCase {
 				: null
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$this->assertSame('decidiq', $register);
 				$this->objects[(string) $schema][(string) $uuid] = $object;
 				$this->saves[] = [(string) $schema, (string) $uuid];
 				return $this->entity(data: $object);
-			}
-		);
+			}));
 
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-11-14T09:00:00+00:00'));

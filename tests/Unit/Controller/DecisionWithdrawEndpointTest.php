@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\DecisionController;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -114,13 +115,12 @@ class DecisionWithdrawEndpointTest extends TestCase {
 		$entity->method('getObject')->willReturn($decision);
 		$this->objects->method('find')->willReturn($entity);
 		$this->objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->saves[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid];
 				$saved = $this->createMock(ObjectEntity::class);
 				$saved->method('getObject')->willReturn($object);
 				return $saved;
-			}
-		);
+			}));
 	}
 
 	public function testAnInterestedPartyWithdrawsAndTheOutcomeStaysReadable(): void {

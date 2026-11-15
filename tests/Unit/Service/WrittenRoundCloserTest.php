@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\VotingResultCalculator;
 use OCA\Decidiq\Service\WrittenRoundCloser;
 use OCA\Decidiq\Service\WrittenRoundStore;
@@ -233,7 +234,7 @@ class WrittenRoundCloserTest extends TestCase {
 			}
 		);
 		$failing->method('findAll')->willReturnCallback(static fn (array $config=[]): array => $objects->findAll(config: $config));
-		$failing->method('saveObject')->willReturnCallback(static fn (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null) => $objects->saveObject(object: $object, register: $register, schema: $schema));
+		$failing->method('saveObject')->willReturnCallback(static fn (mixed ...$args) => $objects->saveObject(...$args));
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())->method('error')->with('Decidiq: written round closed but the decision could not be marked decided');
 

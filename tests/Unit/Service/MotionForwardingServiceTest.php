@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MotionForwardingService;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MotionNotifier;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -91,7 +92,7 @@ class MotionForwardingServiceTest extends TestCase {
 
 		$this->saves = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (
+			SaveCallShape::legacy(function (
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
@@ -104,8 +105,7 @@ class MotionForwardingServiceTest extends TestCase {
 				}
 
 				return $this->entity($object);
-			}
-		);
+			}));
 
 	}//end setUp()
 

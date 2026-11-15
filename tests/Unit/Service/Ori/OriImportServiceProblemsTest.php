@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service\Ori;
 
 use OCA\Decidiq\Service\Ori\OriExportMapper;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\Ori\OriImportReport;
 use OCA\Decidiq\Service\Ori\OriImportService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
@@ -197,8 +198,7 @@ final class OriImportServiceProblemsTest extends TestCase {
 			}
 		);
 		$service->method('saveObject')->willReturnCallback(
-			static fn (array $object, ?array $extend=[], $register=null, $schema=null, ?string $uuid=null): ObjectEntityInterface => $inner->saveObject(object: $object, extend: $extend, register: $register, schema: $schema, uuid: $uuid)
-		);
+			static fn (mixed ...$args) => $inner->saveObject(...$args));
 
 		$report = (new OriImportService($service, new OriExportMapper()))->import();
 

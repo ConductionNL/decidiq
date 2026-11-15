@@ -142,10 +142,7 @@ class ConfidentialityLapseListenerFailureTest extends TestCase {
 		$objects = $this->objects([$item], [self::restriction()]);
 		$objects->expects(self::once())->method('saveObject')->with(
 			self::callback(static fn (array $o): bool => $o['lifecycle'] === 'lapsed' && $o['lapsedAtMeeting'] === 'meeting-15-oct'),
-			self::anything(),
-			'decidiq',
-			'confidentiality-restriction',
-			'r-tarieven'
+			self::callback(static fn (?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $o): bool => $o?->target->register === 'decidiq' && $o->target->schema === 'confidentiality-restriction' && $o->uuid === 'r-tarieven')
 		);
 		$listener = new ConfidentialityLapseListener($objects, $this->createMock(LoggerInterface::class));
 
@@ -217,10 +214,7 @@ class ConfidentialityLapseListenerFailureTest extends TestCase {
 		$objects = $this->objects([], [$restriction]);
 		$objects->expects(self::once())->method('saveObject')->with(
 			self::anything(),
-			self::anything(),
-			'decidiq',
-			'confidentiality-restriction',
-			'r-self'
+			self::callback(static fn (?\OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions $o): bool => $o?->target->register === 'decidiq' && $o->target->schema === 'confidentiality-restriction' && $o->uuid === 'r-self')
 		);
 		$listener = new ConfidentialityLapseListener($objects, $this->createMock(LoggerInterface::class));
 

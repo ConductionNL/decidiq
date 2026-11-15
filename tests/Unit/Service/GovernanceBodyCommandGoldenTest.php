@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\GovernanceBodyCommandService;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -72,15 +73,14 @@ final class GovernanceBodyCommandGoldenTest extends TestCase {
 			}
 		);
 		$facade->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$this->calls[] = ['save', $schema, $object, $uuid];
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$queue = ($this->saves[$schema] ?? []);
 				$this->saves[$schema] = array_slice($queue, 1);
 				$entity->method('jsonSerialize')->willReturn(($queue[0] ?? []));
 				return $entity;
-			}
-		);
+			}));
 
 		return new GovernanceBodyCommandService(new RegisterObjectStore($facade));
 	}//end service()

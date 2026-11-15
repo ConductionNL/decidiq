@@ -122,7 +122,7 @@ final class WrittenRoundWorld {
 			}
 		);
 		$service->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null): ObjectEntityInterface {
 				if (($object['id'] ?? null) === null) {
 					$object['id'] = (string)$schema . '-' . (++$this->next);
 				}
@@ -131,8 +131,7 @@ final class WrittenRoundWorld {
 				$this->rows[(string)$schema][(string)$object['id']] = $object;
 
 				return $this->entity(row: $object);
-			}
-		);
+			}));
 
 		return $service;
 	}//end objectService()

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\BudgetVotingService;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCA\Decidiq\Service\SavedObjectNormaliser;
@@ -157,15 +158,14 @@ class ParticipationPublicationServiceEdgesTest extends TestCase {
 	 */
 	private function recordSaves(bool $catalogFails = false): void {
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use ($catalogFails): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use ($catalogFails): ObjectEntity {
 				if ($catalogFails === true && $register === 'opencatalogi') {
 					throw new RuntimeException('catalog schema missing');
 				}
 
 				$this->saves[] = [(string)$register, (string)$schema, $object];
 				return $this->entity(array_merge($object, ['@self' => ['saved' => true]]));
-			}
-		);
+			}));
 
 	}//end recordSaves()
 

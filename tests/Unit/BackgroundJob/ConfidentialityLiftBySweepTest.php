@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\BackgroundJob\ConfidentialityLiftBySweep;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -119,15 +120,14 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 			fn (string|int $id, $extend = [], bool $files = false, $register = null, $schema = null): ?ObjectEntity => isset($this->store[$schema][$id]) ? $this->entity(row: $this->store[$schema][$id]) : null
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, $extend = [], $register = null, $schema = null, $uuid = null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, $extend = [], $register = null, $schema = null, $uuid = null): ObjectEntity {
 				$object = (array)$object;
 				$id     = (string)($uuid ?? ($object['id'] ?? ($schema . '-new-' . (count($this->saves) + 1))));
 				$object['id'] = $id;
 				$this->store[$schema][$id] = $object;
 				$this->saves[] = [$schema, $object];
 				return $this->entity(row: $object);
-			}
-		);
+			}));
 		$config = $this->createMock(IAppConfig::class);
 		$config->method('getValueInt')->with('decidiq', ConfidentialityLiftBySweep::LEAD_DAYS_KEY, 30)->willReturn($leadDays);
 

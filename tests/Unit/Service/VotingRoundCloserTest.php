@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
@@ -135,12 +136,11 @@ class VotingRoundCloserTest extends TestCase {
 			fn (int|string $id): ?ObjectEntity => isset($objects[(string)$id]) ? $this->entity($objects[(string)$id]) : null
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null): ObjectEntity {
 				$this->saved[] = ['schema' => (string)$schema, 'object' => $object];
 
 				return $this->entity($object);
-			}
-		);
+			}));
 
 		return new VotingRoundCloser(
 			logger: $this->logger,

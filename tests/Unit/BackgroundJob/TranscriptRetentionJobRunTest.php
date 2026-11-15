@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\BackgroundJob\TranscriptRetentionJob;
 use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -156,11 +157,10 @@ class TranscriptRetentionJobRunTest extends TestCase {
 			}
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], $register = null, $schema = null, ?string $uuid = null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], $register = null, $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->saved[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity($object);
-			}
-		);
+			}));
 
 		$this->wireContainer();
 	}//end setUp()

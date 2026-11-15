@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Lifecycle;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
@@ -95,11 +96,10 @@ class MotionLifecycleTransitionerTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->saved = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$this->saved[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid];
 				return $this->createMock(ObjectEntityInterface::class);
-			}
-		);
+			}));
 
 		$this->transitioner = new MotionLifecycleTransitioner(
 			container: $this->container,

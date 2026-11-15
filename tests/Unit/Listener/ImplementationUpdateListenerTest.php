@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
@@ -83,11 +84,10 @@ final class ImplementationUpdateListenerTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, mixed $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, mixed $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saved[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid, '_rbac' => $_rbac, '_multitenancy' => $_multitenancy];
 				return new ObjectEntity();
-			}
-		);
+			}));
 
 		$mapper = new class {
 			/**

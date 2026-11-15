@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MailVoteReplyProcessor;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MailVoteSigner;
 use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VotingService;
@@ -204,13 +205,12 @@ class MailVoteReplyProcessorTest extends TestCase {
 	private function processEntry(array $entry, bool $isSecret = false): ?array {
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use (&$saved) {
+			SaveCallShape::legacy(function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use (&$saved) {
 				self::assertSame(['decidiq', 'voting-round'], [$register, $schema]);
 				$saved = $object['_mail'];
 
 				return $this->createMock(ObjectEntity::class);
-			}
-		);
+			}));
 
 		$this->processor->processRound(
 			objectService: $this->objectService,

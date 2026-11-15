@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\Decidiq\Service\ReactionIntakeService;
 use OCA\Decidiq\Service\SavedObjectNormaliser;
@@ -85,11 +86,10 @@ final class ReactionIntakeImportTest extends TestCase {
 			}
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
+			SaveCallShape::legacy(function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
 				$this->saved[$uuid] = $object + ['id' => $uuid];
 				return $this->entity($this->saved[$uuid]);
-			}
-		);
+			}));
 
 		$appConfig = $this->createMock(IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn('test-secret');

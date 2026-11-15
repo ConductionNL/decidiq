@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use DomainException;
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -124,11 +125,10 @@ class OriPublicationServiceTest extends TestCase {
 			return $entity;
 		});
 		$store->method('saveObject')->willReturnCallback(
-			function (mixed $object, mixed $extend=[], mixed $register=null, mixed $schema=null, mixed $uuid=null): ObjectEntity {
+			SaveCallShape::legacy(function (mixed $object, mixed $extend=[], mixed $register=null, mixed $schema=null, mixed $uuid=null): ObjectEntity {
 				$this->saved[] = compact('object', 'register', 'schema', 'uuid');
 				return new ObjectEntity();
-			}
-		);
+			}));
 
 		return new OriPublicationService($container, $appConfig, $clients, $logger, $store);
 	}//end service()
