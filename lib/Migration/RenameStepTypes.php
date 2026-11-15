@@ -19,9 +19,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -39,7 +39,7 @@ use Throwable;
  * `VALUE_MAP` would have planned nothing, rewritten nothing, and reported
  * success — the silent no-op this app keeps meeting.
  *
- * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md
+ * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md
  */
 class RenameStepTypes implements IRepairStep {
 	use ReadsLegacyRows;
@@ -94,14 +94,14 @@ class RenameStepTypes implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was rewritten.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -140,7 +140,7 @@ class RenameStepTypes implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
+	 * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -174,7 +174,7 @@ class RenameStepTypes implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
+	 * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
 	 */
 	private function rewriteAll(object $objectService, IOutput $output): void {
 		$rewritten = 0;

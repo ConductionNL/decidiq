@@ -43,6 +43,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Controller\OriController
  * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Service\OriSerializer
+ * @uses \OCA\Decidiq\Service\DateValueParser
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-001-the-public-sees-commitment-and-motion-progress
  */

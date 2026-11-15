@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationReportServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
@@ -44,7 +45,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
  */
-class BoardEvaluationReportService {
+class BoardEvaluationReportService implements BoardEvaluationReportServiceInterface {
 	/**
 	 * Constructor.
 	 *

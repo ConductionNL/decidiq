@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
+use OCA\OpenRegister\Service\Integration\LeafRendering;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IL10N;
@@ -73,7 +74,7 @@ abstract class AbstractRenderLeafListener implements IEventListener {
 	 * argument, and gate-24 correlates the two halves of a leaf by reading those
 	 * `name: value` arguments as source.
 	 *
-	 * @param array<string, string> $optional Arguments only some OpenRegister versions accept.
+	 * @param array<string, string> $optional LeafRendering arguments only some OpenRegister versions accept.
 	 *
 	 * @return LeafDescriptor The descriptor.
 	 *
@@ -130,7 +131,8 @@ abstract class AbstractRenderLeafListener implements IEventListener {
 	 * absent, and a warning in nextcloud.log is the only trace.
 	 *
 	 * Both halves are checked rather than one standing in for the other: the
-	 * constant is what this listener reads, the parameter is what it passes, and
+	 * constant is what this listener reads, the `LeafRendering` parameter is
+	 * what it passes, and
 	 * a stub or a partial backport can carry one without the other.
 	 *
 	 * `protected` so a test can drive the negative branch. Two versions of one
@@ -146,7 +148,7 @@ abstract class AbstractRenderLeafListener implements IEventListener {
 			return false;
 		}
 
-		$constructor = (new ReflectionClass(LeafDescriptor::class))->getConstructor();
+		$constructor = (new ReflectionClass(LeafRendering::class))->getConstructor();
 		if ($constructor === null) {
 			return false;
 		}

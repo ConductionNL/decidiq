@@ -7,13 +7,13 @@
  * an overdue marker on a step whose delivery deadline has passed while it is
  * not adopted or completed (the same rule as the cycle's overdueStepCount).
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 
 /**
  * Statuses after which a step is never overdue.
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 export const TERMINAL_STATUSES = ['adopted', 'completed']
 
@@ -35,7 +35,7 @@ function dayOf(date) {
  * @param {Date} [today] Today.
  * @return {boolean} True when its delivery deadline has passed and it is not done.
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 export function isOverdue(step, today = new Date()) {
 	const deadline = String(step?.deliveryDeadline || '').slice(0, 10)
@@ -50,7 +50,7 @@ export function isOverdue(step, today = new Date()) {
  * @param {Date} [today] Today.
  * @return {Array<object>} Rows with id, sequence, label, deadline, committee date, status and overdue.
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 export function stepRows(steps, today = new Date()) {
 	return (steps || [])

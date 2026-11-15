@@ -31,10 +31,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationScoreServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-004-per-dimension-and-overall-board-effectiveness-scores
  */
-class BoardEvaluationScoreService {
+class BoardEvaluationScoreService implements BoardEvaluationScoreServiceInterface {
 
 	/**
 	 * Default minimum-respondent threshold when a BoardEvaluation does not
@@ -421,15 +422,7 @@ class BoardEvaluationScoreService {
 	 * @return array<string, mixed>
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**

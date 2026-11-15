@@ -31,12 +31,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Records;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DestructionCertificateRendererInterface;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -47,7 +48,7 @@ use OCP\IL10N;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
  */
-class DestructionCertificateRenderer {
+class DestructionCertificateRenderer implements DestructionCertificateRendererInterface {
 	/**
 	 * The meeting subfolder the certificate is filed in.
 	 */

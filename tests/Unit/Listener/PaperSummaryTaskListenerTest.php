@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -45,10 +45,10 @@ use Psr\Log\LoggerInterface;
 
 /**
  * @covers \OCA\Decidiq\Listener\PaperSummaryTaskListener
- * @covers \OCA\Decidiq\AppInfo\Registrar\TaskProcessingEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
+ * @covers \OCA\Decidiq\Listener\Registrar\TaskProcessingEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\FlowNodeRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\FilesEventRegistrar
  * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
  */
 class PaperSummaryTaskListenerTest extends TestCase {

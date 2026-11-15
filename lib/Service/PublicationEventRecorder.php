@@ -29,10 +29,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationEventRecorderInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -42,7 +43,7 @@ use Throwable;
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */
-class PublicationEventRecorder {
+class PublicationEventRecorder implements PublicationEventRecorderInterface {
 
 	/**
 	 * The schema of an object a published source type lives in.

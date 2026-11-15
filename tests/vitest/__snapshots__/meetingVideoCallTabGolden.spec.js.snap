@@ -1,0 +1,395 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MeetingVideoCallTab golden runs > createRoom and inviteMembers 1`] = `
+[
+  {
+    "label": "creates and invites",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"Raad","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "fetchCollection",
+        "participant",
+        "participant",
+        {
+          "_limit": 500,
+        },
+      ],
+      [
+        "fetch",
+        "/ocs/v2.php/apps/spreed/api/v4/room/tk1/participants",
+        {
+          "body": "{"newParticipant":"ann","source":"users"}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "fetch",
+        "/ocs/v2.php/apps/spreed/api/v4/room/tk1/participants",
+        {
+          "body": "{"newParticipant":"bob","source":"users"}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "loadRoom",
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "",
+    },
+  },
+  {
+    "label": "untitled, body by id, one invite fails",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"Meeting","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "fetchCollection",
+        "participant",
+        "participant",
+        {
+          "_limit": 500,
+        },
+      ],
+      [
+        "fetch",
+        "/ocs/v2.php/apps/spreed/api/v4/room/tk2/participants",
+        {
+          "body": "{"newParticipant":"ann","source":"users"}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "fetch",
+        "/ocs/v2.php/apps/spreed/api/v4/room/tk2/participants",
+        {
+          "body": "{"newParticipant":"bob","source":"users"}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "loadRoom",
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "",
+    },
+  },
+  {
+    "label": "no body",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"T","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "loadRoom",
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "",
+    },
+  },
+  {
+    "label": "no token",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"Meeting","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+      [
+        "loadRoom",
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "",
+    },
+  },
+  {
+    "label": "refused",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"T","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "No Talk",
+    },
+  },
+  {
+    "label": "refused bare",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"T","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "The video call could not be created.",
+    },
+  },
+  {
+    "label": "throws",
+    "log": [
+      [
+        "fetch",
+        "/index.php/apps/openregister/api/objects/decidiq/meeting/mt-1/talk/new",
+        {
+          "body": "{"roomName":"T","roomType":2}",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+      ],
+    ],
+    "state": {
+      "busy": false,
+      "error": "offline",
+    },
+  },
+]
+`;
+
+exports[`MeetingVideoCallTab golden runs > request 1`] = `
+[
+  {
+    "label": "ok",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": {
+      "a": 1,
+    },
+  },
+  {
+    "label": "ok unreadable",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": {},
+  },
+  {
+    "label": "refused with message",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": "threw: m",
+  },
+  {
+    "label": "refused with error",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": "threw: e",
+  },
+  {
+    "label": "refused bare",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": "threw: Forbidden",
+  },
+  {
+    "label": "refused unreadable",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "body": "1",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+          "method": "PUT",
+        },
+      ],
+    ],
+    "result": "threw: ",
+  },
+  {
+    "label": "no options",
+    "log": [
+      [
+        "fetch",
+        "/x",
+        {
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "OCS-APIRequest": "true",
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+  },
+]
+`;

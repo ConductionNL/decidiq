@@ -30,13 +30,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\MinutesAccessGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -56,7 +56,7 @@ class MinutesCorrectionController extends Controller {
 	 * Constructor for MinutesCorrectionController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param MinutesAccessGuard $accessGuard Per-object minutes authorisation
+	 * @param MinutesAccessGuardInterface $accessGuard Per-object minutes authorisation
 	 * @param ObjectServiceInterface $objectService OR object service
 	 * @param IUserSession $userSession The current user session
 	 *
@@ -66,11 +66,11 @@ class MinutesCorrectionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MinutesAccessGuard $accessGuard,
+		private readonly MinutesAccessGuardInterface $accessGuard,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -106,66 +106,13 @@ class MinutesCorrectionController extends Controller {
 		}
 
 		$text = $this->request->getParam('text');
-		if (is_string($text) === false || trim($text) === '') {
-			return new JSONResponse(
-				['message' => 'A non-empty correction text is required.'],
-				Http::STATUS_BAD_REQUEST
-			);
+		$invalid = $this->invalidText(text: $text);
+		if ($invalid !== null) {
+			return $invalid;
 		}
 
 		try {
-			// OpenRegister's find() THROWS DoesNotExistException for an unknown
-			// id; it does not return null. DoesNotExistException extends
-			// \Exception, so it was swallowed by the `catch (Exception)` at the
-			// bottom of this method and answered 500 "Internal server error" —
-			// while the `=== null` branch below, written to answer 404, could
-			// never run. An ordinary "no such minutes" request produced a
-			// server error.
-			//
-			// The null check is KEPT rather than replaced: find() is typed
-			// `?ObjectEntity`, so null remains reachable in principle, and a
-			// guard that costs nothing should not be removed on the strength of
-			// current behaviour alone.
-			$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
-			if ($minutesEntity === null) {
-				return new JSONResponse(
-					['message' => 'Minutes not found.'],
-					Http::STATUS_NOT_FOUND
-				);
-			}
-
-			$minutes = $minutesEntity->jsonSerialize();
-			$lifecycle = ($minutes['lifecycle'] ?? 'draft');
-			if (in_array($lifecycle, ['draft', 'review'], true) === false) {
-				return new JSONResponse(
-					['message' => 'Corrections can only be suggested while the minutes are in draft or review.'],
-					Http::STATUS_CONFLICT
-				);
-			}
-
-			$user = $this->userSession->getUser();
-
-			$corrections = [];
-			if (is_array($minutes['corrections'] ?? null) === true) {
-				$corrections = $minutes['corrections'];
-			}
-
-			$corrections[] = [
-				'id' => bin2hex(random_bytes(8)),
-				'author' => $user->getUID(),
-				'authorName' => $user->getDisplayName(),
-				'text' => trim($text),
-				'status' => 'proposed',
-				'createdAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-			];
-
-			$minutes['corrections'] = $corrections;
-			$this->objectService->saveObject(
-				object: $minutes,
-				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
-			);
-
-			return new JSONResponse(['corrections' => $corrections]);
+			return $this->recordCorrection(minutesId: $minutesId, text: $text);
 		} catch (DoesNotExistException) {
 			// Must precede the Exception arm: DoesNotExistException extends
 			// \Exception, so an unknown id would otherwise be reported as a
@@ -182,6 +129,93 @@ class MinutesCorrectionController extends Controller {
 		}//end try
 
 	}//end addCorrection()
+
+	/**
+	 * The 400 answer when the correction text is missing or blank, else null.
+	 *
+	 * @param mixed $text The posted text.
+	 *
+	 * @return JSONResponse|null
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 */
+	private function invalidText(mixed $text): ?JSONResponse {
+		if (is_string($text) === false || trim($text) === '') {
+			return new JSONResponse(
+				['message' => 'A non-empty correction text is required.'],
+				Http::STATUS_BAD_REQUEST
+			);
+		}
+
+		return null;
+	}//end invalidText()
+
+	/**
+	 * Append a proposed correction to minutes in draft or review.
+	 *
+	 * Exceptions propagate to addCorrection(), which answers them.
+	 *
+	 * @param string $minutesId The minutes.
+	 * @param string $text      The correction text.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 */
+	private function recordCorrection(string $minutesId, string $text): JSONResponse {
+		// OpenRegister's find() THROWS DoesNotExistException for an unknown
+		// id; it does not return null. DoesNotExistException extends
+		// \Exception, so it was swallowed by the `catch (Exception)` at the
+		// bottom of this method and answered 500 "Internal server error" —
+		// while the `=== null` branch below, written to answer 404, could
+		// never run. An ordinary "no such minutes" request produced a
+		// server error.
+		//
+		// The null check is KEPT rather than replaced: find() is typed
+		// `?ObjectEntity`, so null remains reachable in principle, and a
+		// guard that costs nothing should not be removed on the strength of
+		// current behaviour alone.
+		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		if ($minutesEntity === null) {
+			return new JSONResponse(
+				['message' => 'Minutes not found.'],
+				Http::STATUS_NOT_FOUND
+			);
+		}
+
+		$minutes = $minutesEntity->jsonSerialize();
+		$lifecycle = ($minutes['lifecycle'] ?? 'draft');
+		if (in_array($lifecycle, ['draft', 'review'], true) === false) {
+			return new JSONResponse(
+				['message' => 'Corrections can only be suggested while the minutes are in draft or review.'],
+				Http::STATUS_CONFLICT
+			);
+		}
+
+		$user = $this->userSession->getUser();
+
+		$corrections = [];
+		if (is_array($minutes['corrections'] ?? null) === true) {
+			$corrections = $minutes['corrections'];
+		}
+
+		$corrections[] = [
+			'id' => bin2hex(random_bytes(8)),
+			'author' => $user->getUID(),
+			'authorName' => $user->getDisplayName(),
+			'text' => trim($text),
+			'status' => 'proposed',
+			'createdAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+		];
+
+		$minutes['corrections'] = $corrections;
+		$this->objectService->saveObject(
+			object: $minutes,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+		);
+
+		return new JSONResponse(['corrections' => $corrections]);
+	}//end recordCorrection()
 
 	/**
 	 * Accept or reject a correction suggestion (chair/secretary only).

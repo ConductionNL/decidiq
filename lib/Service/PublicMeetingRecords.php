@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
@@ -39,7 +40,7 @@ use OCP\L10N\IFactory;
  *
  * @spec openspec/specs/portal-contribution/spec.md
  */
-class PublicMeetingRecords {
+class PublicMeetingRecords implements PublicMeetingRecordsInterface {
 
 	/**
 	 * The register every object lives in.

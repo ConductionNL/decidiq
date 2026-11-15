@@ -30,7 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Controller\ApiController;
 use OCA\Decidiq\Controller\HealthController;
 use OCA\Decidiq\Controller\OriController;
@@ -59,6 +59,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Controller\HealthController
  * @uses   \OCA\Decidiq\Service\OriSerializer
+ * @uses   \OCA\Decidiq\Service\DateValueParser
  */
 class CorsControllersGoldenTest extends TestCase {
 

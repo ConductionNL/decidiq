@@ -12,7 +12,12 @@
  The record id comes from the route: a manifest custom widget does not receive
  objectId (see MotionVotingRoundTab).
 
+ A declaring member who registered other positions carries a link to them on
+ her profile, and the declare dialog lists the logged-in member's own positions
+ for reference (interests-and-integrity, REQ-INT-007, display only).
+
  @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+ @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 -->
 <template>
 	<div class="decidiq-tab" data-testid="conflicts-tab">
@@ -44,21 +49,33 @@
 					data-testid="conflict-recused">
 					{{ t('decidiq', 'Does not vote') }}
 				</span>
+				<router-link
+					v-if="positionLinks[refId(row.boardMember)]"
+					:to="{
+						path: profilePath(positionLinks[refId(row.boardMember)]),
+					}"
+					data-testid="conflict-member-positions">
+					{{ t('decidiq', 'Registered other positions') }}
+				</router-link>
 			</li>
 		</ul>
 		<ConflictDeclareDialog
 			v-if="dialogOpen"
 			:busy="posting"
 			:error="postError"
+			:positions="ownPositions"
+			:subjectTitle="subjectTitle"
 			@submit="declare"
 			@close="closeDialog" />
 	</div>
 </template>
 
 <script>
+import { getCurrentUser } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
 import ConflictDeclareDialog from '../../dialogs/ConflictDeclareDialog.vue'
+import { hasActivePositions } from '../../utils/ancillaryContext.js'
 import {
 	declarationPayload,
 	declarationsFor,
@@ -66,6 +83,7 @@ import {
 	isRecusal,
 	refId,
 } from '../../utils/conflicts.js'
+import { profilePath } from '../../utils/memberProfile.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -88,6 +106,10 @@ export default {
 			dialogOpen: false,
 			posting: false,
 			postError: '',
+			// interests-and-integrity (REQ-INT-007): assistive context only.
+			subjectTitle: '',
+			ownPositions: [],
+			positionLinks: {},
 		}
 	},
 
@@ -107,6 +129,14 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * @param {boolean} open Whether the declare dialog just opened
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		dialogOpen(open) {
+			if (open) this.loadOwnPositions()
+		},
+
 		subjectId: {
 			immediate: true,
 			/** @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page */
@@ -135,8 +165,11 @@ export default {
 						'motion',
 						this.subjectId,
 					)
+					this.subjectTitle = motion?.title || ''
 					const item = refId(motion?.agendaItem)
 					if (item) ids.push(item)
+				} else {
+					this.loadSubjectTitle()
 				}
 				const store = ensureRelationType('conflict-of-interest')
 				const lists = await Promise.all(
@@ -182,12 +215,110 @@ export default {
 					if (personId) {
 						const person = await persons.fetchObject('person', personId)
 						name = person?.name || name
+						this.linkPositions(id, personId)
 					}
 					if (name) this.names = { ...this.names, [id]: name }
 				} catch {
 					// The row still shows; only the name is missing.
 				}
 			}
+		},
+
+		refId,
+
+		/**
+		 * The profile route of a person (REQ-MPR-003), where her other
+		 * positions are listed.
+		 *
+		 * @param {string} personId The person id
+		 * @return {string}
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		profilePath(personId) {
+			return profilePath(personId)
+		},
+
+		/**
+		 * The title of the agenda item declared on; empty when unreadable.
+		 *
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		async loadSubjectTitle() {
+			try {
+				const item = await ensureRelationType('agenda-item').fetchObject(
+					'agenda-item',
+					this.subjectId,
+				)
+				this.subjectTitle = item?.title || ''
+			} catch {
+				this.subjectTitle = ''
+			}
+		},
+
+		/**
+		 * The logged-in member's own ancillary positions, found through her
+		 * person record. None when she has no person record or they cannot
+		 * be read: the dialog then shows no reference block.
+		 *
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		async loadOwnPositions() {
+			const uid = getCurrentUser()?.uid || ''
+			if (!uid) return
+			try {
+				const people = await ensureRelationType('person').fetchCollection(
+					'person',
+					{ nextcloudUserId: uid, _limit: 2 },
+				)
+				const own = (people || []).filter((p) => p?.nextcloudUserId === uid)
+				if (own.length !== 1) {
+					this.ownPositions = []
+					return
+				}
+				this.ownPositions = await this.positionsOf(own[0].id)
+			} catch {
+				this.ownPositions = []
+			}
+		},
+
+		/**
+		 * Link a declaring member to her registered other positions when she
+		 * has any that have not ended.
+		 *
+		 * @param {string} memberId The membership that declared
+		 * @param {string} personId Its person
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		async linkPositions(memberId, personId) {
+			try {
+				if (hasActivePositions(await this.positionsOf(personId))) {
+					this.positionLinks = {
+						...this.positionLinks,
+						[memberId]: personId,
+					}
+				}
+			} catch {
+				// No link; the declaration still shows.
+			}
+		},
+
+		/**
+		 * A person's ancillary positions.
+		 *
+		 * @param {string} personId The person
+		 * @return {Promise<Array<object>>}
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 */
+		async positionsOf(personId) {
+			const positions = await ensureRelationType(
+				'ancillary-position',
+			).fetchCollection('ancillary-position', {
+				person: personId,
+				_limit: 50,
+			})
+			return (positions || []).filter(
+				(position) => refId(position?.person) === String(personId),
+			)
 		},
 
 		/**

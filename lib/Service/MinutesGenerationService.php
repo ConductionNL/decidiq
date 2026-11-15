@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,11 +21,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -37,9 +38,9 @@ use Throwable;
  * Fetches the linked Meeting's AgendaItems, Motions, VotingRounds, and Decisions via
  * OpenRegister ObjectService and renders them into a structured Dutch text template.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
-class MinutesGenerationService {
+class MinutesGenerationService implements MinutesGenerationServiceInterface {
 
 	/**
 	 * Allowed lifecycle transitions: current state → next state.
@@ -91,7 +92,7 @@ class MinutesGenerationService {
 	 * @param MinutesDraftRenderer $renderer Renders the gathered data into the Dutch template
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
@@ -115,7 +116,7 @@ class MinutesGenerationService {
 	 *
 	 * @return string The generated Dutch minutes text
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function generateDraft(string $minutesId): string {
 		// The reader applies OpenRegister's ACL: a caller without read access gets null.
@@ -148,7 +149,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,mixed> The meeting data
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function requireLinkedMeeting(string $minutesId, array $minutes): array {
 		$meeting = $this->reader->linkedMeeting(
@@ -174,7 +175,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,array<int,array<string,mixed>>>
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function meetingParts(string $meetingId): array {
 		$parts = [];
@@ -294,7 +295,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,mixed> The updated Minutes object data
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function transition(string $minutesId, string $newLifecycle, string $displayName): array {
 		$objectService = $this->getObjectService();
@@ -345,7 +346,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<int,string> The signedBy list including the signer
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function withSigner(array $minutes, string $displayName): array {
 		$signers = [];
@@ -368,7 +369,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,mixed> The persisted object data
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
 		if ($saved instanceof \stdClass === true || is_array($saved) === true) {
@@ -458,7 +459,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<int,array<string,mixed>> Array of object data arrays
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function fetchRelatedObjects(string $meetingId, array $query): array {
 		if ($meetingId === '') {
@@ -501,7 +502,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<int,array<string,mixed>>|null The page, or null when it cannot be read
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function fetchPage(array $filters, int $offset): ?array {
 		try {
@@ -542,7 +543,7 @@ class MinutesGenerationService {
 	 *
 	 * @return object The OpenRegister ObjectService instance
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function getObjectService(): object {
 		// Injected (ADR-083): a property read throws nothing, so the old

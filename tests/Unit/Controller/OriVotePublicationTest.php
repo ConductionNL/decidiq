@@ -61,6 +61,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
+ * @uses   \OCA\Decidiq\Service\OriObjectsById
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -28,9 +28,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
-use OCA\Decidiq\Activity\DecidiqProvider;
+use OCA\Decidiq\Kernel\Contracts\DecidiqProviderInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use Psr\Container\ContainerInterface;
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
  * render it as a JSONResponse without the service knowing about the HTTP
  * layer beyond the status constant.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  */
 class DecisionPublicationService {
 	/**
@@ -81,7 +81,7 @@ class DecisionPublicationService {
 	 * @param string $decisionId UUID of the Decision object
 	 * @param string $actorUid Nextcloud UID of the publishing administrator
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>} Response status + payload
 	 */
@@ -103,39 +103,14 @@ class DecisionPublicationService {
 			);
 		}
 
-		// Server-side guard: only adopted, unpublished decisions may be published.
-		$rejection = $this->resolvePublicationRejection(decision: $decision);
-		if ($rejection !== null) {
-			return $this->envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: $rejection);
+		$refusal = $this->publicationRefusal(decision: $decision, decisionId: $decisionId);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		// A decision under an imposed or ratified confidentiality restriction
-		// never reaches the public. Restrictions that cannot be read refuse the
-		// publish rather than let it through.
-		$restricted = $this->restrictionRejection(decisionId: $decisionId);
-		if ($restricted !== null) {
-			return $restricted;
-		}
-
-		// REQ-DWP-007. A published besluit that does not carry its remedy clause
-		// tells nobody how to contest it, and the clause is the part a person
-		// needs in order to disagree. Refused BEFORE the write, so a decision
-		// whose type declares nothing is never published half-informed.
-		$type = $this->typeOf(objectService: $objectService, decision: $decision);
-		if ($type !== null) {
-			try {
-				$this->remedies->assertPublishable(type: $type);
-			} catch (\Throwable $e) {
-				return $this->envelope(
-					status: Http::STATUS_UNPROCESSABLE_ENTITY,
-					message: $e->getMessage()
-				);
-			}
-
-			// Stamped onto what is persisted, so the reader receives it rather
-			// than the clause living only in the type. stamp() leaves an
-			// already-stamped decision alone.
-			$decision = $this->remedies->stamp(decision: $decision, type: $type);
+		[$decision, $refusal] = $this->withRemedyClause(objectService: $objectService, decision: $decision);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->persistPublication(
@@ -146,6 +121,69 @@ class DecisionPublicationService {
 		);
 
 	}//end publish()
+
+	/**
+	 * The refusal when the decision is not adopted-and-unpublished or is under a
+	 * confidentiality restriction (or its restrictions cannot be read), else null.
+	 *
+	 * @param array<string, mixed> $decision   The decision.
+	 * @param string               $decisionId Its id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
+	 */
+	private function publicationRefusal(array $decision, string $decisionId): ?array {
+		// Server-side guard: only adopted, unpublished decisions may be published.
+		$rejection = $this->resolvePublicationRejection(decision: $decision);
+		if ($rejection !== null) {
+			return $this->envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: $rejection);
+		}
+
+		// A decision under an imposed or ratified confidentiality restriction
+		// never reaches the public. Restrictions that cannot be read refuse the
+		// publish rather than let it through.
+		return $this->restrictionRejection(decisionId: $decisionId);
+	}//end publicationRefusal()
+
+	/**
+	 * The decision stamped with its type's remedy clause, or the refusal when the
+	 * type declares none.
+	 *
+	 * @param object               $objectService OpenRegister's object service.
+	 * @param array<string, mixed> $decision      The decision.
+	 *
+	 * @return array{0: array<string, mixed>, 1: array<string, mixed>|null}
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
+	 */
+	private function withRemedyClause(object $objectService, array $decision): array {
+		// REQ-DWP-007. A published besluit that does not carry its remedy clause
+		// tells nobody how to contest it, and the clause is the part a person
+		// needs in order to disagree. Refused BEFORE the write, so a decision
+		// whose type declares nothing is never published half-informed.
+		$type = $this->typeOf(objectService: $objectService, decision: $decision);
+		if ($type !== null) {
+			try {
+				$this->remedies->assertPublishable(type: $type);
+			} catch (\Throwable $e) {
+				return [
+					$decision,
+					$this->envelope(
+						status: Http::STATUS_UNPROCESSABLE_ENTITY,
+						message: $e->getMessage()
+					),
+				];
+			}
+
+			// Stamped onto what is persisted, so the reader receives it rather
+			// than the clause living only in the type. stamp() leaves an
+			// already-stamped decision alone.
+			$decision = $this->remedies->stamp(decision: $decision, type: $type);
+		}
+
+		return [$decision, null];
+	}//end withRemedyClause()
 
 	/**
 	 * The decision type this decision is an instance of, or null.
@@ -242,7 +280,7 @@ class DecisionPublicationService {
 	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param string $decisionId UUID of the Decision object
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -270,7 +308,7 @@ class DecisionPublicationService {
 	 *
 	 * @param array<string, mixed> $decision The Decision object array
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return string|null Rejection message, or null when publication may proceed
 	 */
@@ -295,7 +333,7 @@ class DecisionPublicationService {
 	 * @param string $decisionId UUID of the Decision object
 	 * @param string $actorUid Nextcloud UID of the publishing administrator
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>} Response status + payload
 	 */
@@ -361,7 +399,7 @@ class DecisionPublicationService {
 		try {
 			$this->container->get(ActivityPublisherService::class)->publishGovernanceEvent(
 				activity: [
-					'subject' => DecidiqProvider::SUBJECT_DECISION_PUBLISHED,
+					'subject' => DecidiqProviderInterface::SUBJECT_DECISION_PUBLISHED,
 					'title' => $title,
 					'status' => 'public',
 					'objectType' => 'decision',
@@ -384,7 +422,7 @@ class DecisionPublicationService {
 	 * @param int $status HTTP status code
 	 * @param string $message Human-readable message
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>}
 	 */

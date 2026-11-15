@@ -27,9 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\TranscriptRepositoryInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use RuntimeException;
@@ -43,7 +44,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptRepository {
+class TranscriptRepository implements TranscriptRepositoryInterface {
 	/**
 	 * Constructor.
 	 *

@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\Decidiq\Controller\PublicationController
+ * @uses \OCA\Decidiq\Controller\PublicationSource
  *
  * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
  */

@@ -42,7 +42,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Support;
 
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\AppFramework\Db\DoesNotExistException;
 

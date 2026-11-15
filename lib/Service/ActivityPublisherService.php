@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Activity\GovernanceSetting;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\Activity\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -159,7 +159,7 @@ class ActivityPublisherService {
 	private function publishTo(IManager $manager, array $entry): int {
 		try {
 			$event = $manager->generateEvent();
-			$event->setApp(Application::APP_ID)
+			$event->setApp(AppIdentity::APP_ID)
 				->setType(GovernanceSetting::TYPE_GOVERNANCE)
 				->setAffectedUser($entry['uid'])
 				->setTimestamp(time())

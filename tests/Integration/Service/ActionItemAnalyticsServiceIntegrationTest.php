@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Integration\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -98,9 +98,9 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			foreach ($this->createdIds as $id) {
 				try {
 					$this->objectService->deleteObject(
+						uuid: $id,
 						register: 'decidiq',
-						schema: 'action-item',
-						id: $id
+						schema: 'action-item'
 					);
 				} catch (\Throwable) {
 					// Best-effort cleanup — ignore failures.

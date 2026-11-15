@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Service\PlanningCycleGenerator;

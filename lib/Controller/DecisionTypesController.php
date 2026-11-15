@@ -29,8 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\DecisionTypeRegistry;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionTypeRegistryInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -59,14 +59,14 @@ class DecisionTypesController extends Controller {
 	 *
 	 * @param IRequest $request HTTP request
 	 * @param IUserSession $userSession Nextcloud user session
-	 * @param DecisionTypeRegistry $registry The decisionType vocabulary authority
+	 * @param DecisionTypeRegistryInterface $registry The decisionType vocabulary authority
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly DecisionTypeRegistry $registry,
+		private readonly DecisionTypeRegistryInterface $registry,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

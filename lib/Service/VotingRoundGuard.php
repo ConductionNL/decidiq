@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -26,7 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
@@ -41,9 +43,9 @@ use Psr\Container\ContainerInterface;
  * chair_group / system-admin check, and any failure yields a 401/403 response
  * instead of an exception.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
-class VotingRoundGuard {
+class VotingRoundGuard implements VotingRoundGuardInterface {
 	/**
 	 * Constructor for VotingRoundGuard.
 	 *
@@ -53,7 +55,7 @@ class VotingRoundGuard {
 	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
 	 * @param ContainerInterface $container DI container (lazy-loads ObjectService)
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function __construct(
 		private readonly IUserSession $userSession,
@@ -78,7 +80,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function requireChairOrSecretary(?string $meetingId = null): ?JSONResponse {
 		return $this->requireRoles(
@@ -125,7 +127,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function requireRoles(
 		?string $meetingId,
@@ -168,10 +170,10 @@ class VotingRoundGuard {
 	 *
 	 * @return bool True when the user holds global chair authority
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function isGloballyAuthorized(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 
 		if ($chairGroup !== '') {
 			return $this->groupManager->isInGroup($uid, $chairGroup);
@@ -291,7 +293,7 @@ class VotingRoundGuard {
 
 		// ADR-005: the motion is a `decision` discriminated by decisionType.
 		$motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'decision');
-		if ($motion === null) {
+		if ($motion === null || ($motion['decisionType'] ?? null) !== 'motion') {
 			return null;
 		}
 
@@ -330,7 +332,13 @@ class VotingRoundGuard {
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 */
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
-		$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		// OpenRegister reports a missing object by returning null or by throwing; both are a miss.
+		try {
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
 		if ($entity === null) {
 			return null;
 		}

@@ -31,8 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
@@ -242,14 +242,6 @@ class AdvisoryVoteService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 }//end class

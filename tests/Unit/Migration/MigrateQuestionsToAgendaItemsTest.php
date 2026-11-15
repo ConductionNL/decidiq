@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Migration\AgendaItemTypeResolver;
 use OCA\Decidiq\Migration\MigrateQuestionsToAgendaItems;
 use OCA\Decidiq\Service\SettingsService;

@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;

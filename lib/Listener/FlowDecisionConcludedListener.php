@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
+ * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -25,11 +25,12 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
-use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\OpenRegister\Db\FlowRun;
 use OCA\OpenRegister\Db\FlowRunMapper;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunSignalService;
+use OCA\OpenRegister\Service\Flow\RunSignal;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -52,22 +53,22 @@ use Throwable;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
+ * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
  */
 class FlowDecisionConcludedListener implements IEventListener {
 
 	/**
 	 * Constructor.
 	 *
-	 * @param FlowDecisionService $decisions Reads the run reference back
+	 * @param FlowDecisionServiceInterface $decisions Reads the run reference back
 	 * @param FlowRunMapper $runs Finds the run
 	 * @param FlowRunSignalService $signals OpenRegister's guarded signal seam
 	 * @param LoggerInterface $logger Logger
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
 	 */
 	public function __construct(
-		private readonly FlowDecisionService $decisions,
+		private readonly FlowDecisionServiceInterface $decisions,
 		private readonly FlowRunMapper $runs,
 		private readonly FlowRunSignalService $signals,
 		private readonly LoggerInterface $logger,
@@ -81,14 +82,14 @@ class FlowDecisionConcludedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof DecisionConcludedEvent) === false) {
 			return;
 		}
 
-		if ($event->getSourceApp() !== FlowDecisionService::SOURCE_APP) {
+		if ($event->getSourceApp() !== FlowDecisionServiceInterface::SOURCE_APP) {
 			return;
 		}
 
@@ -183,15 +184,17 @@ class FlowDecisionConcludedListener implements IEventListener {
 	 */
 	private function wake(FlowRun $run, string $nodeId, DecisionConcludedEvent $event): void {
 		try {
-			$this->signals->signalRunAs(
+			$this->signals->answer(
 				run: $run,
-				payload: [
-					'decision' => $event->getStatus(),
-					'decisionRef' => $event->getDecisionId(),
-					'subjectId' => (string)$event->getSubjectId(),
-				],
-				actorUid: null,
-				nodeId: $nodeId
+				signal: new RunSignal(
+					payload: [
+						'decision' => $event->getStatus(),
+						'decisionRef' => $event->getDecisionId(),
+						'subjectId' => (string)$event->getSubjectId(),
+					],
+					actorUid: null,
+					nodeId: $nodeId
+				)
 			);
 
 			$this->logger->info(

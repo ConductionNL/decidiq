@@ -27,7 +27,7 @@
 // and the three widget components (see its own docblock for why) so that
 // importing THIS module for its pure exports never touches those imports.
 //
-// @spec openspec/changes/register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
+// @spec openspec/changes/archive/2026-08-19-register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
 
 /**
  * Parse a value that's meant to be a date, tolerant of null/invalid input.
@@ -118,22 +118,80 @@ export function findChildren(all, parentField, currentId) {
 }
 
 /**
- * Build a `geheimhouding` record's fixed three-stage timeline (design D3):
- * imposed → ratification (bekrachtiging) → dissolution. Each stage:
+ * Build a `geheimhouding` record's fixed four-step timeline (board
+ * DcGeheimhouding, confidentiality-term-and-lapse REQ-EMB-023): imposed →
+ * sent to the body → ratification (bekrachtiging, or lapsed) → dissolution.
+ * Each stage:
  * `{ key, populated, pending, overdue, date, ... }`. A stage with no
  * relevant fields set renders `pending: true` (never omitted, REQ-EMB-010)
  * so the reader sees the full expected sequence. The ratification stage is
  * `overdue` only while `lifecycle === 'imposed'` (an already-ratified or
  * dissolved record is never "overdue" regardless of its stored deadline)
- * and the deadline has passed with no ratification recorded yet.
+ * and the deadline has passed with no ratification recorded yet. A lapsed
+ * record shows the ratification step concluded with `lapsed: true` and the
+ * meeting it lapsed at; the dissolution step carries `liftBy` and is
+ * overdue once that day passed while the restriction still holds.
  *
  * @param {object} record The geheimhouding object.
  * @param {number} [now] Epoch ms "now" (injectable for deterministic tests).
- * @return {Array<object>} The three ordered stage descriptors.
+ * @return {Array<object>} The four ordered stage descriptors.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 export function buildConfidentialityStages(record, now = Date.now()) {
 	const r = record || {}
-	return [imposedStage(r), ratificationStage(r, now), dissolutionStage(r)]
+	return [
+		imposedStage(r),
+		sentStage(r),
+		ratificationStage(r, now),
+		dissolutionStage(r, now),
+	]
+}
+
+/**
+ * The stepper of a confidentiality restriction (board DcGeheimhouding,
+ * REQ-EMB-023): Opgelegd, Bekrachtigd (Vervallen in its place once lapsed),
+ * Opgeheven. Each step is `done`, `current`, `planned` or `skipped`: a
+ * restriction lifted without ratification skipped that step, and a lapsed
+ * one is never lifted.
+ *
+ * @param {object} record The confidentiality restriction.
+ * @return {Array<{key: string, state: string}>} The three steps in order.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+export function buildConfidentialityStepper(record) {
+	const r = record || {}
+	const lapsed = r.lifecycle === 'lapsed'
+	const reached = { imposed: 0, ratified: 1, lapsed: 1, dissolved: 2 }[r.lifecycle] ?? 0
+	const stateOf = (index) => {
+		if (index < reached) return 'done'
+		return index === reached ? 'current' : 'planned'
+	}
+	const steps = [
+		{ key: 'imposed', state: stateOf(0) },
+		{ key: lapsed ? 'lapsed' : 'ratified', state: stateOf(1) },
+		{ key: 'dissolved', state: lapsed ? 'skipped' : stateOf(2) },
+	]
+	if (r.lifecycle === 'dissolved' && !isRatified(r)) {
+		steps[1].state = 'skipped'
+	}
+	return steps
+}
+
+/**
+ * The header line "Bekrachtiging door <body> uiterlijk <date>" while
+ * ratification is open: the restriction is imposed, nothing is ratified and a
+ * deadline is set. Null otherwise.
+ *
+ * @param {object} record The confidentiality restriction.
+ * @return {{deadline: string, bodyId: string|null}|null} The deadline and the ratifying body.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+export function ratificationHeaderLine(record) {
+	const r = record || {}
+	if (r.lifecycle !== 'imposed' || isRatified(r) || !r.ratificationDeadline) {
+		return null
+	}
+	return { deadline: r.ratificationDeadline, bodyId: r.imposedByBody || null }
 }
 
 /**
@@ -149,6 +207,28 @@ function imposedStage(r) {
 		pending: !r.imposedAt,
 		overdue: false,
 		date: r.imposedAt || null,
+		decisionId: r.imposingDecision || null,
+	}
+}
+
+/**
+ * The confidentiality timeline's "sent to the body" stage: when and with
+ * which agenda item the restricted papers went to the ratifying body
+ * (confidentiality-term-and-lapse, REQ-EMB-020). Planned until recorded.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+function sentStage(r) {
+	const populated = Boolean(r.sentToBodyAt)
+	return {
+		key: 'sent',
+		populated,
+		pending: !populated,
+		overdue: false,
+		date: r.sentToBodyAt || null,
+		agendaItemId: r.sentWithAgendaItem || null,
 	}
 }
 
@@ -188,16 +268,19 @@ function isRatificationOverdue(r, now) {
  * @return {object} The stage descriptor.
  */
 function ratificationStage(r, now) {
-	const populated = isRatified(r)
+	const lapsed = r.lifecycle === 'lapsed'
+	const populated = lapsed || isRatified(r)
 	return {
 		key: 'ratification',
 		populated,
 		pending: !populated,
-		overdue: isRatificationOverdue(r, now),
-		date: r.ratificationDate || null,
+		overdue: !lapsed && isRatificationOverdue(r, now),
+		lapsed,
+		date: lapsed ? r.lapsedAt || null : r.ratificationDate || null,
 		deadline: r.ratificationDeadline || null,
 		decisionId: r.ratificationDecision || null,
 		agendaItemId: r.ratificationAgendaItem || null,
+		meetingId: lapsed ? r.lapsedAtMeeting || null : null,
 	}
 }
 
@@ -205,19 +288,40 @@ function ratificationStage(r, now) {
  * The confidentiality timeline's dissolution stage.
  *
  * @param {object} r The geheimhouding object.
+ * @param now
  * @return {object} The stage descriptor.
  */
-function dissolutionStage(r) {
+function dissolutionStage(r, now) {
 	const populated = Boolean(r.liftingDate || r.dissolutionDecision)
 	return {
 		key: 'dissolution',
 		populated,
 		pending: !populated,
-		overdue: false,
+		overdue: isLiftingOverdue(r, now, populated),
 		date: r.liftingDate || null,
 		decisionId: r.dissolutionDecision || null,
 		conditions: r.liftingConditions || null,
+		liftBy: r.liftBy || null,
 	}
+}
+
+/**
+ * Whether the planned lifting is overdue: the restriction still holds
+ * (imposed or ratified), nothing lifted it, and its liftBy day has passed.
+ * Shown only; the state never changes on the date (REQ-EMB-022).
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @param {boolean} lifted Whether a lifting is recorded.
+ * @return {boolean} True when overdue.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
+ */
+export function isLiftingOverdue(r, now, lifted = false) {
+	if (lifted || !['imposed', 'ratified'].includes(r?.lifecycle)) return false
+	const liftBy = toTime(r.liftBy)
+	if (Number.isNaN(liftBy)) return false
+	// liftBy is a whole day: overdue from the day after it.
+	return liftBy + 24 * 60 * 60 * 1000 <= now
 }
 
 /**
@@ -230,42 +334,99 @@ function dissolutionStage(r) {
  *
  * @param {object|null} store Object store instance (`fetchObject`,
  *   `registerObjectType`, `objectTypeRegistry`).
- * @param {string} typeSlug The store-registered type slug for this
+ * @param {object} ref The reference to resolve.
+ * @param {string} ref.typeSlug The store-registered type slug for this
  *   reference (a local slug; conventionally the schema slug itself).
- * @param {string} schemaSlug OpenRegister schema slug (used only if the
+ * @param {string} ref.schemaSlug OpenRegister schema slug (used only if the
  *   type still needs registering).
- * @param {string} registerSlug OpenRegister register slug (used only if the
- *   type still needs registering).
- * @param {string} id The reference id.
- * @param {string} [labelField] Property to prefer as the label.
+ * @param {string} ref.registerSlug OpenRegister register slug (used only if
+ *   the type still needs registering).
+ * @param {string} ref.id The reference id.
+ * @param {string} [ref.labelField] Property to prefer as the label.
  * @return {Promise<string>} The resolved label, or the raw id when
  *   unresolvable.
  */
-export async function resolveObjectLabel(
-	store,
-	typeSlug,
-	schemaSlug,
-	registerSlug,
-	id,
-	labelField = 'name',
-) {
-	if (!id) return ''
-	if (!store) return String(id)
+export async function resolveObjectLabel(store, ref) {
+	if (!ref.id) return ''
+	if (!store) return String(ref.id)
 	try {
-		if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
-			store.registerObjectType(typeSlug, schemaSlug, registerSlug)
-		}
-		const obj = await store.fetchObject(typeSlug, id)
-		if (!obj) return String(id)
-		const self = obj['@self'] || {}
-		const candidates = [obj[labelField], obj.title, obj.name, self.name]
-		for (const raw of candidates) {
-			if (typeof raw === 'string' && raw !== '') return raw
-		}
-		return String(id)
+		return (await fetchObjectLabel(store, ref)) || String(ref.id)
 	} catch {
-		return String(id)
+		return String(ref.id)
 	}
+}
+
+/**
+ * Fetch the referenced object, registering its type first when the store
+ * does not know it yet, and read its label.
+ *
+ * @param {object} store Object store instance.
+ * @param {object} ref The reference (see resolveObjectLabel).
+ * @return {Promise<string>} The label, or '' when the object has none.
+ */
+async function fetchObjectLabel(store, ref) {
+	const { typeSlug, schemaSlug, registerSlug, id, labelField = 'name' } = ref
+	if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
+		store.registerObjectType(typeSlug, schemaSlug, registerSlug)
+	}
+	const obj = await store.fetchObject(typeSlug, id)
+	return obj ? firstLabel(obj, labelField) : ''
+}
+
+/**
+ * The first non-empty string among the label field, title, name and
+ * `@self.name` of an object.
+ *
+ * @param {object} obj The fetched object.
+ * @param {string} labelField Property to prefer as the label.
+ * @return {string|undefined} The label, undefined when there is none.
+ */
+function firstLabel(obj, labelField) {
+	const self = obj['@self'] || {}
+	return [obj[labelField], obj.title, obj.name, self.name].find(
+		(raw) => typeof raw === 'string' && raw !== '',
+	)
+}
+
+/**
+ * A widget's content config merged over its defaults: each key takes the
+ * content's value when it is set, else the default.
+ *
+ * @param {object|null|undefined} content The widget's content config.
+ * @param {object} defaults The default per key, in config order.
+ * @return {object} The merged config.
+ */
+export function contentWithDefaults(content, defaults) {
+	const set = content || {}
+	const merged = {}
+	for (const [key, fallback] of Object.entries(defaults)) {
+		merged[key] = set[key] || fallback
+	}
+	return merged
+}
+
+/**
+ * The value when it is an object, else an empty object.
+ *
+ * @param {object|string|null|undefined} value The objectData prop.
+ * @return {object} The object.
+ */
+export function plainObject(value) {
+	return value && typeof value === 'object' ? value : {}
+}
+
+/**
+ * The id of the detail page's object: the explicit prop wins, else the id
+ * in objectData or its `@self`.
+ *
+ * @param {string} objectId The objectId prop.
+ * @param {object} objectData The objectData prop.
+ * @return {string} The id, or ''.
+ */
+export function detailObjectId(objectId, objectData) {
+	const data = plainObject(objectData)
+	const self = data['@self'] || {}
+	return objectId || data.id || self.id || ''
 }
 
 /**
@@ -296,12 +457,14 @@ export async function registerDetailWidgets() {
 		{ default: DelegationChainWidget },
 		{ default: RegisterVersionTimelineWidget },
 		{ default: DetailSectionsWidget },
+		{ default: ConfidentialityHeaderWidget },
 	] = await Promise.all([
 		import('@conduction/nextcloud-vue'),
 		import('./ConfidentialityStatusTimelineWidget.vue'),
 		import('./DelegationChainWidget.vue'),
 		import('./RegisterVersionTimelineWidget.vue'),
 		import('./DetailSectionsWidget.vue'),
+		import('./ConfidentialityHeaderWidget.vue'),
 	])
 
 	// `detail-sections` lets ONE tab hold more than one panel
@@ -343,6 +506,19 @@ export async function registerDetailWidgets() {
 		form: null,
 		defaultContent: {},
 		displayName: 'Confidentiality status timeline',
+		icon: 'ShieldLockOutline',
+		surfaces: ['detail-page'],
+		ownsTitle: true,
+	})
+
+	// The confidentiality page's header row (confidentiality-term-and-lapse
+	// REQ-EMB-023): the ratification line and the stepper, placed through
+	// the page's `headerWidget`.
+	registerDashboardWidget('confidentiality-header', {
+		renderer: ConfidentialityHeaderWidget,
+		form: null,
+		defaultContent: {},
+		displayName: 'Confidentiality steps',
 		icon: 'ShieldLockOutline',
 		surfaces: ['detail-page'],
 		ownsTitle: true,

@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -28,17 +28,18 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Governance reporting aggregation service.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  */
-class GovernanceReportingService {
+class GovernanceReportingService implements GovernanceReportingServiceInterface {
 
 	/**
 	 * Slug of the OpenRegister schema storing report rows.
@@ -108,7 +109,7 @@ class GovernanceReportingService {
 	 * @param string $boardId UUID of the board
 	 * @param int $year Calendar year to report on (YYYY)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array{success: bool, report: array|null, message: string}
 	 */
@@ -136,7 +137,7 @@ class GovernanceReportingService {
 	 * @param array<string, array<int, array<string, mixed>>> $data The loaded rowsets
 	 * @param int $year The report year
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, array<int, array<string, mixed>>>
 	 */
@@ -160,7 +161,7 @@ class GovernanceReportingService {
 	 * @param array<int, array<string, mixed>> $rows The rows
 	 * @param array{field: string, ids: array<int, mixed>} $link The link field and the ids
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -178,7 +179,7 @@ class GovernanceReportingService {
 	 * @param array{boardIntegration: string, year: int} $scope The board and year
 	 * @param array<string, array<int, array<string, mixed>>> $rows The year's rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -193,7 +194,7 @@ class GovernanceReportingService {
 	 *
 	 * @param array<string, array<int, array<string, mixed>>> $rows The year's rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -217,7 +218,7 @@ class GovernanceReportingService {
 	 *
 	 * @param string $boardId UUID of the board
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, array<int, array<string, mixed>>>|null Rowsets keyed
 	 *                                                              by meetings/resolutions/votes/members/conflicts, or null on failure
@@ -243,7 +244,7 @@ class GovernanceReportingService {
 	 * @param array{schema: string, limit: int, byBoard: bool} $rowset The rowset
 	 * @param string $boardId UUID of the board
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -266,7 +267,7 @@ class GovernanceReportingService {
 	 *
 	 * @param array<string, mixed> $report The generated report payload
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, mixed> The persisted payload or the input report
 	 */
@@ -295,7 +296,7 @@ class GovernanceReportingService {
 	 * @param string $reportId UUID of the report row
 	 * @param string $format One of json|csv
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array{success: bool, body: string, contentType: string, message: string}
 	 */
@@ -324,7 +325,7 @@ class GovernanceReportingService {
 	 *
 	 * @param string $reportId UUID of the report row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array<string, mixed>|string The report, or the failure message
 	 */
@@ -348,7 +349,7 @@ class GovernanceReportingService {
 	 *
 	 * @param string $message The failure message
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array{success: bool, body: string, contentType: string, message: string}
 	 */
@@ -362,7 +363,7 @@ class GovernanceReportingService {
 	 *
 	 * @param array<string, mixed> $report The report
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return string
 	 */
@@ -382,7 +383,7 @@ class GovernanceReportingService {
 	 *
 	 * @param array<string, mixed> $data Aggregated counters
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array{passed: bool, flags: array<int, string>}
 	 */
@@ -404,7 +405,7 @@ class GovernanceReportingService {
 	 * @param array{key: string, cast: string, limit: int|float, above: bool, flag: string} $rule The rule
 	 * @param mixed $value The counter's raw value
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return bool
 	 */
@@ -427,7 +428,7 @@ class GovernanceReportingService {
 	 *
 	 * @param string $boardId UUID of the board
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
 	 *
 	 * @return array{success: bool, reports: array, count: int}
 	 */
@@ -453,18 +454,7 @@ class GovernanceReportingService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function normalize(mixed $rows): array {
-		$out = [];
-		foreach ((array)$rows as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = (array)$row->jsonSerialize();
-			}
-
-			if (is_array($row) === true) {
-				$out[] = $row;
-			}
-		}
-
-		return $out;
+		return (new RowListNormaliser())->rows(rows: $rows);
 	}//end normalize()
 
 	/**

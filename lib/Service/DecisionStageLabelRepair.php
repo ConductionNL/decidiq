@@ -37,19 +37,21 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionStageLabelRepairInterface;
+
 /**
  * Backfills derived labels onto stages stored with a NULL label. Idempotent.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class DecisionStageLabelRepair {
+class DecisionStageLabelRepair implements DecisionStageLabelRepairInterface {
 
 	/**
 	 * Constructor.
@@ -71,7 +73,7 @@ class DecisionStageLabelRepair {
 	 *
 	 * @return int How many stages were repaired.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function repair(): int {
 		$repaired = 0;

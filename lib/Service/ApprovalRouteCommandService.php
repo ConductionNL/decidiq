@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
 use RuntimeException;
 
 /**
@@ -43,7 +44,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/approval-route-events/spec.md
  */
-class ApprovalRouteCommandService {
+class ApprovalRouteCommandService implements ApprovalRouteCommandServiceInterface {
 
 	/**
 	 * Schema slug of the route template.

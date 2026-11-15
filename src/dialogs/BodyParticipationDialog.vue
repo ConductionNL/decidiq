@@ -3,11 +3,12 @@
 
 <!--
  Add or edit the participation of an organisation in a shared body
- (bodies-shared-body-participations, bod-13). Saves the BodyParticipation
+ (bodies-shared-body-participations, bod-13). Saves the participation, a
+ representation GovernanceBodyComposition (configurable-types-domain-model),
  through the object store; the payload is built and schema-checked in
  src/utils/bodyParticipations.js.
 
- @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<NcDialog
@@ -89,7 +90,10 @@ import {
 	NcTextField,
 } from '@nextcloud/vue'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
-import { buildParticipationPayload } from '../utils/bodyParticipations.js'
+import {
+	buildParticipationPayload,
+	PARTICIPATION_SCHEMA,
+} from '../utils/bodyParticipations.js'
 
 export default {
 	name: 'BodyParticipationDialog',
@@ -117,7 +121,7 @@ export default {
 		const current = this.participation || {}
 		return {
 			selectedParticipant:
-				this.organisationOptions.find((o) => o.id === current.participant)
+				this.organisationOptions.find((o) => o.id === current.component)
 				|| null,
 
 			seats: current.seats ?? '',
@@ -137,7 +141,7 @@ export default {
 		 * Save the participation and tell the widget to reload.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		async save() {
 			if (!this.selectedParticipant) {
@@ -147,12 +151,12 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await ensureRelationType('body-participation').saveObject(
-					'body-participation',
+				await ensureRelationType(PARTICIPATION_SCHEMA).saveObject(
+					PARTICIPATION_SCHEMA,
 					buildParticipationPayload({
 						id: this.participation?.id || '',
-						sharedBody: String(this.sharedBodyId),
-						participant: this.selectedParticipant.id,
+						composite: String(this.sharedBodyId),
+						component: this.selectedParticipant.id,
 						seats: this.seats,
 						votingWeight: this.votingWeight,
 						accessionDate: this.accessionDate,

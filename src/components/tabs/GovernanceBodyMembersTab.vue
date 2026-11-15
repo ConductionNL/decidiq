@@ -18,7 +18,7 @@
 
  All dialogs live in src/modals/ (ADR-004 modal isolation).
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--members" data-testid="body-members-tab">
@@ -118,6 +118,12 @@
 			@saved="refresh"
 			@close="roleTarget = null" />
 
+		<MemberTermDialog
+			v-if="termTarget"
+			:member="termTarget"
+			@saved="refresh"
+			@close="termTarget = null" />
+
 		<MemberGroupImportDialog
 			v-if="groupImportOpen"
 			:bodyId="objectId"
@@ -171,6 +177,7 @@ import {
 import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import CalendarRange from 'vue-material-design-icons/CalendarRange.vue'
 import CardAccountDetailsOutline from 'vue-material-design-icons/CardAccountDetailsOutline.vue'
 import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
@@ -180,6 +187,7 @@ import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
 import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
+import MemberTermDialog from '../../modals/MemberTermDialog.vue'
 import {
 	contactSummary,
 	factionsOf,
@@ -203,6 +211,7 @@ export default {
 		MemberCsvImportDialog,
 		MemberGroupImportDialog,
 		MemberRoleDialog,
+		MemberTermDialog,
 		NcActionButton,
 		NcActions,
 		NcButton,
@@ -226,6 +235,8 @@ export default {
 			groupImportOpen: false,
 			csvImportOpen: false,
 			roleTarget: null,
+			// bodies-term-of-office-and-step-down: the member whose term is edited.
+			termTarget: null,
 			removeTarget: null,
 			// bodies-membership-terms-contacts-and-factions
 			showPast: false,
@@ -235,7 +246,10 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-005-ended-memberships-show-as-former-members-without-a-write
+		 */
 		columns() {
 			const columns = [
 				{ key: 'displayName', label: this.t('decidiq', 'Name') },
@@ -245,10 +259,10 @@ export default {
 				{ key: 'email', label: this.t('decidiq', 'Email') },
 				{ key: 'phone', label: this.t('decidiq', 'Phone') },
 				{ key: 'fromLabel', label: this.t('decidiq', 'From') },
+				// A current member's term may end on a set day
+				// (bodies-term-of-office-and-step-down), so To shows for both lists.
+				{ key: 'toLabel', label: this.t('decidiq', 'To') },
 			]
-			if (this.showPast) {
-				columns.push({ key: 'toLabel', label: this.t('decidiq', 'To') })
-			}
 			return columns
 		},
 
@@ -260,6 +274,13 @@ export default {
 					icon: AccountEdit,
 					handler: (row) => {
 						this.roleTarget = { ...row }
+					},
+				},
+				{
+					label: this.t('decidiq', 'Change term'),
+					icon: CalendarRange,
+					handler: (row) => {
+						this.termTarget = { ...row }
 					},
 				},
 				{
@@ -314,7 +335,7 @@ export default {
 		 * memberships, not Participant rows").
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async refresh() {
@@ -322,75 +343,118 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const membershipStore = ensureRelationType('membership')
-				const personStore = ensureRelationType('person')
-				// The body's own memberships, and on a faction page the
-				// council memberships that name this faction.
-				const [own, byFaction, factions] = await Promise.all([
-					membershipStore.fetchCollection('membership', {
-						governanceBody: this.objectId,
-						_limit: 100,
-					}),
-					membershipStore.fetchCollection('membership', {
-						faction: this.objectId,
-						_limit: 100,
-					}),
-					ensureRelationType('governance-body').fetchCollection(
-						'governance-body',
-						{
-							parentBody: this.objectId,
-							bodyType: 'faction',
-							_limit: 100,
-						},
-					),
-				])
-				const memberships = [
-					...new Map(
-						[...(own || []), ...(byFaction || [])].map((m) => [m.id, m]),
-					).values(),
-				]
-				const personIds = [
-					...new Set(memberships.map((m) => m.person).filter(Boolean)),
-				]
-				const [persons, contacts] = await Promise.all([
-					Promise.all(
-						personIds.map((id) => personStore.fetchObject('person', id)),
-					),
-					Promise.all(
-						personIds.map((id) =>
-							ensureRelationType('contact-detail')
-								.fetchCollection('contact-detail', {
-									person: id,
-									_limit: 20,
-								})
-								.catch(() => []),
-						),
-					),
-				])
-				const personsById = {}
-				const contactsById = {}
-				personIds.forEach((id, i) => {
-					personsById[id] = persons[i]
-					contactsById[id] = contactSummary(contacts[i])
-				})
-				const factionNames = Object.fromEntries(
+				const { memberships, factions } = await this.fetchMemberships()
+				const people = await this.fetchPeople(memberships)
+				people.factionNames = Object.fromEntries(
 					factionsOf(factions, this.objectId).map((f) => [f.id, f.label]),
 				)
-				this.rows = memberRowsFor(memberships, personsById, {
+				this.rows = memberRowsFor(memberships, people.personsById, {
 					past: this.showPast,
-				}).map((row) => ({
-					...row,
-					email: contactsById[row.person]?.email || row.email,
-					phone: contactsById[row.person]?.phone || '',
-					factionName: factionNames[row.faction] || '',
-					fromLabel: this.dateLabel(row.startDate),
-					toLabel: this.dateLabel(row.endDate),
-				}))
+				}).map((row) => this.memberRow(row, people))
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidiq', 'Failed to load members.')
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * The body's own memberships merged with, on a faction page, the
+		 * council memberships that name this faction (each once), and the
+		 * body's factions.
+		 *
+		 * @return {Promise<{memberships: Array<object>, factions: Array<object>}>}
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 */
+		async fetchMemberships() {
+			const membershipStore = ensureRelationType('membership')
+			const [own, byFaction, factions] = await Promise.all([
+				membershipStore.fetchCollection('membership', {
+					governanceBody: this.objectId,
+					_limit: 100,
+				}),
+				membershipStore.fetchCollection('membership', {
+					faction: this.objectId,
+					_limit: 100,
+				}),
+				ensureRelationType('governance-body').fetchCollection(
+					'governance-body',
+					{
+						parentBody: this.objectId,
+						bodyType: 'faction',
+						_limit: 100,
+					},
+				),
+			])
+			const memberships = [
+				...new Map(
+					[...(own || []), ...(byFaction || [])].map((m) => [m.id, m]),
+				).values(),
+			]
+			return { memberships, factions }
+		},
+
+		/**
+		 * The person and the contact details of every member, by person id; a
+		 * failing contact lookup counts as no contact details.
+		 *
+		 * @param {Array<object>} memberships The memberships.
+		 * @return {Promise<{personsById: object, contactsById: object}>}
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 */
+		async fetchPeople(memberships) {
+			const personStore = ensureRelationType('person')
+			const personIds = [
+				...new Set(memberships.map((m) => m.person).filter(Boolean)),
+			]
+			const [persons, contacts] = await Promise.all([
+				Promise.all(
+					personIds.map((id) => personStore.fetchObject('person', id)),
+				),
+				Promise.all(personIds.map((id) => this.fetchContacts(id))),
+			])
+			const personsById = {}
+			const contactsById = {}
+			personIds.forEach((id, i) => {
+				personsById[id] = persons[i]
+				contactsById[id] = contactSummary(contacts[i])
+			})
+			return { personsById, contactsById }
+		},
+
+		/**
+		 * A person's contact details; none when they cannot be read.
+		 *
+		 * @param {string} personId The person.
+		 * @return {Promise<Array<object>>}
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 */
+		fetchContacts(personId) {
+			return ensureRelationType('contact-detail')
+				.fetchCollection('contact-detail', {
+					person: personId,
+					_limit: 20,
+				})
+				.catch(() => [])
+		},
+
+		/**
+		 * A member row with its contact details, faction name and date labels.
+		 *
+		 * @param {object} row The membership row.
+		 * @param {object} people The contacts by person and the faction names.
+		 * @return {object} The row the table shows.
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 */
+		memberRow(row, people) {
+			return {
+				...row,
+				email: people.contactsById[row.person]?.email || row.email,
+				phone: people.contactsById[row.person]?.phone || '',
+				factionName: people.factionNames[row.faction] || '',
+				fromLabel: this.dateLabel(row.startDate),
+				toLabel: this.dateLabel(row.endDate),
 			}
 		},
 
@@ -414,7 +478,7 @@ export default {
 		 * nulling a governanceBody pointer.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async confirmRemove() {

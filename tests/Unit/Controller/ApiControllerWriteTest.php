@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Controller\ApiController;
 use OCP\AppFramework\Http;
 use OCP\IConfig;

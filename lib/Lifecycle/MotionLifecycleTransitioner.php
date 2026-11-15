@@ -28,12 +28,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -315,7 +315,7 @@ class MotionLifecycleTransitioner {
 		}
 
 		$appConfig = $this->container->get(IAppConfig::class);
-		$minCoSigners = (int)$appConfig->getValueString(Application::APP_ID, 'motion_min_cosigners', '0');
+		$minCoSigners = (int)$appConfig->getValueString(AppIdentity::APP_ID, 'motion_min_cosigners', '0');
 		$coSignerCount = count($objectArray['coSigners'] ?? []);
 
 		if ($minCoSigners > 0 && $coSignerCount < $minCoSigners) {

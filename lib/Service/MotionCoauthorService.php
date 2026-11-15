@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -29,11 +29,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MotionCoauthorServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -43,16 +44,21 @@ use Throwable;
  * Service for motion co-authoring: members, text updates, version history,
  * and conflict detection on overlapping paragraph edits.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
  */
-class MotionCoauthorService {
+class MotionCoauthorService implements MotionCoauthorServiceInterface {
+	/**
+	 * The refusal a caller gets for a motion they may not modify, or that does not exist.
+	 */
+	private const ACCESS_REFUSED = 'Only the motion proposer or an existing co-author may modify this motion';
+
 	/**
 	 * Construct the MotionCoauthorService.
 	 *
 	 * @param LoggerInterface $logger Logger interface
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
@@ -65,7 +71,7 @@ class MotionCoauthorService {
 	 *
 	 * @return object
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function getObjectService(): object {
 		return $this->objectService;
@@ -84,9 +90,22 @@ class MotionCoauthorService {
 	 *
 	 * @throws RuntimeException When the motion cannot be found
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function findMotion(string $motionId): array {
+		return ($this->motionOrNull(motionId: $motionId) ?? throw new RuntimeException("Motion $motionId not found"));
+	}//end findMotion()
+
+	/**
+	 * The motion with this UUID, or null when there is no motion by that id.
+	 *
+	 * @param string $motionId Motion UUID
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
+	 */
+	private function motionOrNull(string $motionId): ?array {
 		$objectService = $this->getObjectService();
 		// M4: use named-arg find() instead of setRegister/setSchema pattern.
 		// ADR-005: motions live in the unified `decision` schema, so the id
@@ -100,11 +119,11 @@ class MotionCoauthorService {
 		if ($entity === null
 			|| ($motion['decisionType'] ?? null) !== 'motion'
 		) {
-			throw new RuntimeException("Motion $motionId not found");
+			return null;
 		}
 
 		return $motion;
-	}//end findMotion()
+	}//end motionOrNull()
 
 	/**
 	 * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
@@ -115,7 +134,7 @@ class MotionCoauthorService {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		$objectService = $this->getObjectService();
@@ -150,7 +169,7 @@ class MotionCoauthorService {
 	 *
 	 * @throws \InvalidArgumentException When the caller is not authorised
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function checkMotionAccess(array $motion, ?string $callerUid, bool $callerIsAdmin): void {
 		if ($callerUid === null || $callerIsAdmin === true) {
@@ -170,9 +189,7 @@ class MotionCoauthorService {
 			return;
 		}
 
-		throw new InvalidArgumentException(
-			'Only the motion proposer or an existing co-author may modify this motion'
-		);
+		throw new InvalidArgumentException(self::ACCESS_REFUSED);
 
 	}//end checkMotionAccess()
 
@@ -187,10 +204,17 @@ class MotionCoauthorService {
 	 * @throws RuntimeException When the motion cannot be found
 	 * @throws \InvalidArgumentException When the caller is not authorised
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function accessibleMotion(string $motionId, ?string $callerUid): array {
-		$motion = $this->findMotion(motionId: $motionId);
+		// A checked caller gets the same refusal for a missing motion as for
+		// one they may not touch, so the answer does not reveal which exist.
+		if ($callerUid !== null) {
+			$motion = ($this->motionOrNull(motionId: $motionId) ?? throw new InvalidArgumentException(self::ACCESS_REFUSED));
+		} else {
+			$motion = $this->findMotion(motionId: $motionId);
+		}
+
 		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
 
 		return $motion;
@@ -204,7 +228,7 @@ class MotionCoauthorService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	private function saveMotion(array $motion, string $motionId): void {
 		$this->getObjectService()->saveObject(
@@ -228,7 +252,7 @@ class MotionCoauthorService {
 	 *
 	 * @throws \InvalidArgumentException When caller is not authorised
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function addCoauthor(
 		string $motionId,
@@ -269,7 +293,7 @@ class MotionCoauthorService {
 	 *
 	 * @throws \InvalidArgumentException When caller is not authorised
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function removeCoauthor(
 		string $motionId,
@@ -312,7 +336,7 @@ class MotionCoauthorService {
 	 * @throws \InvalidArgumentException When the caller is not authorised
 	 * @throws RuntimeException When an overlapping edit conflict is detected
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function updateMotionText(
 		string $motionId,
@@ -376,7 +400,7 @@ class MotionCoauthorService {
 	 *
 	 * @return string|null Paragraph conflict marker, or null when none
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.6
 	 */
 	private function detectParagraphConflict(
 		string $previousText,
@@ -408,7 +432,7 @@ class MotionCoauthorService {
 	 *
 	 * @return bool True when the new change collides with a recent foreign edit.
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.6
 	 */
 	private function isConcurrentForeignEdit(array $history, string $currentAuthor): bool {
 		if (count($history) === 0) {
@@ -442,7 +466,7 @@ class MotionCoauthorService {
 	 *
 	 * @return string|null The "<index>:<snippet>" marker, or null when identical.
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.6
 	 */
 	private function firstChangedParagraph(string $previousText, string $newText): ?string {
 		$prevPars = $this->paragraphs(text: $previousText);
@@ -466,7 +490,7 @@ class MotionCoauthorService {
 	 *
 	 * @return array<int, string> The paragraphs.
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.6
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.6
 	 */
 	private function paragraphs(string $text): array {
 		$paragraphs = preg_split('/\n\s*\n/', $text);
@@ -486,7 +510,7 @@ class MotionCoauthorService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function captureVersion(string $motionId, string $author, string $changeSummary): array {
 		$motion = $this->findMotion(motionId: $motionId);
@@ -524,7 +548,7 @@ class MotionCoauthorService {
 	 *
 	 * @throws \InvalidArgumentException When caller is not authorised
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
 	 */
 	public function getHistory(string $motionId, ?string $callerUid = null): array {
 		$motion = $this->accessibleMotion(motionId: $motionId, callerUid: $callerUid);

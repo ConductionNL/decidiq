@@ -27,10 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MinutesDraftServiceInterface;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
 use Psr\Container\ContainerInterface;
@@ -50,7 +51,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class MinutesDraftService {
+class MinutesDraftService implements MinutesDraftServiceInterface {
 	/**
 	 * Constructor.
 	 *

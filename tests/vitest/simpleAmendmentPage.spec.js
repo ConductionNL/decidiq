@@ -459,10 +459,16 @@ describe('the amendment page in the simple structure', () => {
 
 	it('keeps the five steps on one row, with a word for each, and lets the card follow its content', () => {
 		const bar = read('src', 'components', 'widgets', 'AmendmentStepBar.vue')
+		// The tiles and their words are shared by the three step bars.
+		expect(bar).toContain('<style scoped src="./stepBar.css"></style>')
+		expect(bar).toContain('mixins: [stepBarWordsMixin],')
+		const shared =
+			read('src', 'components', 'widgets', 'stepBar.css')
+			+ read('src', 'components', 'widgets', 'stepBarWords.js')
 		expect(bar).toContain('grid-template-columns: repeat(5, minmax(0, 1fr));')
-		expect(bar).toContain('min-height: 124px;')
+		expect(shared).toContain('min-height: 124px;')
 		for (const word of ['Done', 'Now', 'Next']) {
-			expect(bar).toContain(`this.t('decidiq', '${word}')`)
+			expect(shared).toContain(`this.t('decidiq', '${word}')`)
 		}
 		const entry = config.layout.find((item) => item.widgetId === 'amend-steps')
 		expect(entry.sizeToContent).toBe(true)

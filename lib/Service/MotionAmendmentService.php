@@ -27,8 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Service\Object\ObjectFindTarget;
-use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -270,7 +270,7 @@ class MotionAmendmentService {
 	 * @param string $motionId UUID of the parent Motion
 	 * @param string $newAmendmentId UUID of the newly submitted Amendment
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 *
 	 * @return void
@@ -406,7 +406,7 @@ class MotionAmendmentService {
 	 * @param string $motionId UUID of the parent Motion
 	 * @param string $amendmentId UUID of the Amendment to apply
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */
