@@ -184,6 +184,23 @@ class DecisionRemedyStampListenerTest extends TestCase {
 		self::assertSame([], $event->getModifiedData());
 	}//end testAnotherSchemaIsLeftAlone()
 
+	/**
+	 * A create without an entity, and a taken decision whose type no longer exists, get no clause.
+	 *
+	 * @return void
+	 */
+	public function testNoEntityAndAVanishedTypeAreLeftAlone(): void {
+		$empty = new ObjectCreatingEvent(null);
+		$this->listener()->handle($empty);
+
+		$gone = new ObjectCreatingEvent($this->entity(['type' => 'type-deleted', 'lifecycle' => 'decided']));
+		$this->listener()->handle($gone);
+
+		self::assertSame([], $empty->getModifiedData());
+		self::assertSame([], $gone->getModifiedData());
+		self::assertFalse($gone->isPropagationStopped());
+	}//end testNoEntityAndAVanishedTypeAreLeftAlone()
+
 	public function testTheRegistrarSubscribesItToDecisionSavesAfterTheCompetenceGuard(): void {
 		$subscribed = [];
 		$dispatcher = $this->createMock(IEventDispatcher::class);
