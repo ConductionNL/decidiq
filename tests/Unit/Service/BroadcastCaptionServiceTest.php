@@ -273,9 +273,69 @@ final class BroadcastCaptionServiceTest extends TestCase {
 		self::assertSame('https://cloud.example.org/s/tok-1', $tracks[0]['shareUrl']);
 		self::assertSame('Griffier De Vries', $tracks[0]['reviewedBy']);
 		self::assertSame('2026-03-20T10:00:00+00:00', $tracks[0]['releasedAt']);
-		self::assertSame([['language' => 'nl', 'url' => 'https://cloud.example.org/s/tok-1']], $this->world->callsOf(operation: 'attach-captions'));
+		self::assertSame([['language' => 'nl', 'url' => 'https://cloud.example.org/s/tok-1', 'meeting' => $this->meeting]], $this->world->callsOf(operation: 'attach-captions'));
 
 	}//end testReleaseSharesTheTrackAndRecordsWhoReleasedIt()
+
+	/**
+	 * Two sessions of one evening, recorded at once, each keep their own subtitles and recording.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
+	 *
+	 * @return void
+	 */
+	public function testTwoSessionsOfOneEveningKeepTheirOwnSubtitlesAndRecording(): void {
+		$evening  = $this->world->put(schema: 'meeting', data: ['title' => 'Raadsavond 3 november', 'scheduledDate' => '2026-11-03T19:30:00+01:00', 'isPublic' => true]);
+		$sessions = [];
+		foreach (['Commissie Ruimte' => 'Dit gaat over ruimte.', 'Commissie Bestuur' => 'Dit gaat over bestuur.'] as $title => $line) {
+			$meeting = $this->world->put(
+				schema: 'meeting',
+				data: ['title' => 'Commissie', 'parentMeeting' => $evening, 'scheduledDate' => '2026-11-03T19:30:00+01:00', 'openedAt' => '2026-11-03T19:30:00+01:00', 'isPublic' => true]
+			);
+			$broadcast = $this->world->put(
+				schema: 'meeting-broadcast',
+				data: [
+					'meeting' => $meeting,
+					'title' => $title,
+					'lifecycle' => 'ended',
+					'recordingUrl' => 'https://stream.example.org/rec/' . $meeting,
+					'publicWindows' => [['start' => 0, 'end' => 7200, 'recordingStart' => 0]],
+				]
+			);
+			$this->world->put(
+				schema: 'transcript',
+				data: ['meeting' => $meeting, 'status' => 'done', 'language' => 'nl', 'alignedAt' => '2026-11-04T09:00:00+01:00', 'segments' => [['startTime' => 10.0, 'endTime' => 14.0, 'text' => $line]]]
+			);
+			$sessions[] = ['meeting' => $meeting, 'broadcast' => $broadcast, 'line' => $line];
+		}
+
+		$made = [];
+		foreach ($sessions as $session) {
+			$made[] = $this->service()->derive(broadcastId: $session['broadcast'], language: 'nl');
+			$this->service()->release(broadcastId: $session['broadcast'], language: 'nl');
+		}
+
+		self::assertNotSame($made[0]['filePath'], $made[1]['filePath'], 'one subtitle file per session');
+		foreach ($sessions as $i => $session) {
+			$other = $sessions[1 - $i];
+			$vtt   = $this->files[$made[$i]['filePath']];
+			self::assertStringContainsString($session['line'], $vtt);
+			self::assertStringNotContainsString($other['line'], $vtt);
+			$tracks = $this->world->objects[$session['broadcast']]['data']['captionTracks'];
+			self::assertSame($made[$i]['filePath'], $tracks[0]['filePath']);
+			self::assertSame('https://stream.example.org/rec/' . $session['meeting'], $this->world->objects[$session['broadcast']]['data']['recordingUrl']);
+		}
+
+		$attached = $this->world->callsOf(operation: 'attach-captions');
+		self::assertSame(
+			[
+				[$sessions[0]['meeting'], 'https://stream.example.org/rec/' . $sessions[0]['meeting']],
+				[$sessions[1]['meeting'], 'https://stream.example.org/rec/' . $sessions[1]['meeting']],
+			],
+			array_map(static fn (array $call): array => [$call['meeting'] ?? null, $call['recordingUrl'] ?? null], $attached)
+		);
+
+	}//end testTwoSessionsOfOneEveningKeepTheirOwnSubtitlesAndRecording()
 
 	/**
 	 * Releasing the same language again replaces its track instead of adding a second one.

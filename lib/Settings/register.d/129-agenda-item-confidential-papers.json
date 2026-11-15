@@ -1,0 +1,43 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers (REQ-ACP-001). An agenda item and each paper say whether they are public; a non-public item names the readers outside its body who may read it. The meeting pack and the publication leave a non-public item's papers out (REQ-ACP-005). The read rules that keep a non-public item and its papers from everyone else (REQ-ACP-002) are not in this fragment yet: they need the item's governance body on the item for a $memberOf rule, and a test through OpenRegister's own evaluator.",
+  "components": {
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.4.0",
+        "properties": {
+          "public": {
+            "title": "Public",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the item and its papers are public. A non-public item (besloten punt) is left out of the meeting pack and the publication, and its papers are not public either."
+          },
+          "authorisedReaders": {
+            "title": "Authorised readers",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Nextcloud user ids outside the meeting's body who may read this item and its papers while it is not public (Lezers toevoegen), for example an external accountant."
+          }
+        }
+      },
+      "DigitalDocument": {
+        "slug": "digital-document",
+        "version": "0.3.0",
+        "properties": {
+          "public": {
+            "title": "Public",
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the paper is public (Openbaar) or not (Besloten). A paper of a non-public agenda item is not public."
+          }
+        }
+      }
+    }
+  }
+}

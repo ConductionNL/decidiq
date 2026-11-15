@@ -1,0 +1,22 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The list the person-picking dialogs share: the list and its empty line.
+ * Each component includes it as a scoped style.
+ */
+
+.decidiq-tab__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.decidiq-tab__empty,
+.decidiq-tab__loading {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}

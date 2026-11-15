@@ -777,4 +777,33 @@ class DossierDispositionTest extends TestCase {
 		$this->expectException(AccessDeniedException::class);
 		$this->category()->set(dossierId: self::DOSSIER, category: '11.1');
 	}//end testTheCategoryIsFrozenOnAListAndOnlyForArchivists()
+
+	/**
+	 * A closed dossier on no list stays closed, with no list status, and nothing is written.
+	 *
+	 * @return void
+	 */
+	public function testADossierOnNoListReflectsNoOutcome(): void {
+		self::assertSame(
+			['id' => self::DOSSIER, 'lifecycle' => 'closed', 'listStatus' => null],
+			$this->disposition()->reflectOutcome(dossierId: self::DOSSIER)
+		);
+		self::assertSame([], $this->saves);
+	}//end testADossierOnNoListReflectsNoOutcome()
+
+	/**
+	 * An empty dossier id is missing, not looked up, and its category is not written.
+	 *
+	 * @return void
+	 */
+	public function testAnEmptyDossierIdIsMissingForTheCategory(): void {
+		try {
+			$this->category()->set(dossierId: '', category: '11.1');
+			self::fail('An empty dossier id is missing.');
+		} catch (MissingObjectException $e) {
+			self::assertSame('Dossier not found.', $e->getMessage());
+		}
+
+		self::assertSame([], $this->saves);
+	}//end testAnEmptyDossierIdIsMissingForTheCategory()
 }//end class

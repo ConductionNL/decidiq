@@ -67,7 +67,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -162,61 +162,80 @@ class MigrateAppConfigKeys implements IRepairStep {
 			return;
 		}
 
-		$migrated = 0;
-		$alreadyPresent = 0;
-		$emptySource = 0;
-		$skippedReserved = 0;
-
+		$counts = ['migrated' => 0, 'present' => 0, 'empty' => 0, 'reserved' => 0];
 		foreach ($keys as $key) {
-			if (in_array($key, self::RESERVED_KEYS, strict: true) === true) {
-				$skippedReserved++;
-				continue;
+			$outcome = $this->migrateKey(key: $key);
+			if (isset($counts[$outcome]) === true) {
+				$counts[$outcome]++;
 			}
-
-			/*
-			 * The READS belong inside the try as much as the write does. Two
-			 * earlier apps in this rename programme shipped a step whose
-			 * getValueString() calls sat OUTSIDE it, so an unreadable value
-			 * propagated out of run(). Because this step is also registered
-			 * under <install>, a repair step that throws does not merely fail
-			 * an upgrade — the app never enables, and every route goes with
-			 * it. One unreadable key is not worth an install.
-			 */
-			try {
-				$old = $this->appConfig->getValueString(self::OLD_APP_ID, $key, '');
-				if ($old === '') {
-					$emptySource++;
-					continue;
-				}
-
-				$existing = $this->appConfig->getValueString(Application::APP_ID, $key, '');
-				if ($existing !== '') {
-					$alreadyPresent++;
-					continue;
-				}
-
-				$this->appConfig->setValueString(
-					Application::APP_ID,
-					$key,
-					$old,
-					sensitive: $this->isSensitiveKey(key: $key)
-				);
-				$migrated++;
-			} catch (Throwable $e) {
-				$this->logger->warning(
-					'Decidiq: could not migrate one app config key; leaving it under the old namespace',
-					['key' => $key, 'exception' => $e->getMessage()]
-				);
-			}//end try
-		}//end foreach
+		}
 
 		$output->info(
-			'MigrateAppConfigKeys: ' . $migrated . ' key(s) migrated, ' . $alreadyPresent
-			. ' already present, ' . $emptySource . ' had no value to migrate, '
-			. $skippedReserved . ' skipped as Nextcloud-reserved.'
+			'MigrateAppConfigKeys: ' . $counts['migrated'] . ' key(s) migrated, ' . $counts['present']
+			. ' already present, ' . $counts['empty'] . ' had no value to migrate, '
+			. $counts['reserved'] . ' skipped as Nextcloud-reserved.'
 		);
 
 	}//end run()
+
+	/**
+	 * Copy one key to the new namespace unless it is reserved, empty or set
+	 * there already.
+	 *
+	 * The READS belong inside the try as much as the write does. Two earlier
+	 * apps in this rename programme shipped a step whose getValueString()
+	 * calls sat OUTSIDE it, so an unreadable value propagated out of run().
+	 * Because this step is also registered under <install>, a repair step that
+	 * throws does not merely fail an upgrade — the app never enables, and
+	 * every route goes with it. One unreadable key is not worth an install.
+	 *
+	 * @param string $key The key.
+	 *
+	 * @return string migrated, present, empty, reserved, or failed.
+	 */
+	private function migrateKey(string $key): string {
+		if (in_array($key, self::RESERVED_KEYS, strict: true) === true) {
+			return 'reserved';
+		}
+
+		try {
+			return $this->copyKey(key: $key);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not migrate one app config key; leaving it under the old namespace',
+				['key' => $key, 'exception' => $e->getMessage()]
+			);
+			return 'failed';
+		}//end try
+	}//end migrateKey()
+
+	/**
+	 * Copy one key's value, with its sensitive flag, when the old namespace
+	 * has a value and the new one has none.
+	 *
+	 * @param string $key The key.
+	 *
+	 * @return string migrated, present or empty.
+	 */
+	private function copyKey(string $key): string {
+		$old = $this->appConfig->getValueString(self::OLD_APP_ID, $key, '');
+		if ($old === '') {
+			return 'empty';
+		}
+
+		$existing = $this->appConfig->getValueString(AppIdentity::APP_ID, $key, '');
+		if ($existing !== '') {
+			return 'present';
+		}
+
+		$this->appConfig->setValueString(
+			AppIdentity::APP_ID,
+			$key,
+			$old,
+			sensitive: $this->isSensitiveKey(key: $key)
+		);
+		return 'migrated';
+	}//end copyKey()
 
 	/**
 	 * Every key currently stored under the old app-config namespace.

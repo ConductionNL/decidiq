@@ -119,3 +119,53 @@ describe('the live meeting page', () => {
 		)
 	})
 })
+
+describe('seatRows edges, pinned before the row builder was split', () => {
+	it('builds the full row of a substitute nobody lists, and sorts unnumbered seats last by name', () => {
+		const rows = seatRows({
+			participants: [
+				{ id: 'z', displayName: 'Zed', role: 'member' },
+				{ id: 'a', displayName: 'Ann', role: 'secretary' },
+				{ id: 'o', displayName: 'Out', role: 'member', seatNumber: 9 },
+			],
+			substitutions: [{ id: 's', outgoingParticipant: 'o', incomingParticipant: 'ghost' }],
+		})
+		expect(rows).toEqual([
+			{
+				seat: 9,
+				id: 'ghost',
+				name: '',
+				party: '',
+				role: 'member',
+				substitution: { id: 's', outgoingParticipant: 'o', incomingParticipant: 'ghost' },
+				substituteFor: 'Out',
+				canSwap: false,
+			},
+			{
+				seat: null,
+				id: 'a',
+				name: 'Ann',
+				party: '',
+				role: 'secretary',
+				substitution: null,
+				substituteFor: '',
+				canSwap: false,
+			},
+			{
+				seat: null,
+				id: 'z',
+				name: 'Zed',
+				party: '',
+				role: 'member',
+				substitution: null,
+				substituteFor: '',
+				canSwap: true,
+			},
+		])
+	})
+
+	it('answers no rows to no seats read', () => {
+		expect(seatRows(undefined)).toEqual([])
+		expect(seatRows({})).toEqual([])
+	})
+})

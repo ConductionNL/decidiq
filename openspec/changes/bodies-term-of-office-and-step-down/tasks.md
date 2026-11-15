@@ -7,32 +7,32 @@
 - **files**: the Leden widget's create dialog on GovernanceBodyDetail (`src/manifest.json`, the dialog under `src/modals/`), `l10n/` ("Termijn begint", "Termijn eindigt")
 - **acceptance_criteria**:
   - start date defaults to the body's term start; both dates are saved on Membership
-- [ ] Implement
-- [ ] Test (red first): vitest on the dialog
+- [x] Implement
+- [x] Test (red first): vitest on the dialog (`tests/vitest/stepDownSchedule.spec.js`: default term start, both dates on the payload, end before start refused; vitest runs without an SFC transform, so the dialog's logic is tested through its helpers)
 
 ### Task 2: Rooster van aftreden widget
 - **spec_ref**: `openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first`, `#requirement-req-tos-003-herbenoembaar-follows-the-positions-rules`
 - **files**: `src/components/widgets/StepDownScheduleWidget.vue` (new), `src/components/widgets/registerDetailWidgets.js`, `src/manifest.json` (GovernanceBodyDetail: widget under Meer > Functies en integriteit, with `@custom-widget-ratchet exclude` and the reason "unions two schemas")
 - **acceptance_criteria**:
   - union of memberships and position holds, sorted by end date, window filter, Herbenoembaar rules; no write
-- [ ] Implement
-- [ ] Test (red first): `tests/unit/components/StepDownScheduleWidget.spec.js`
+- [x] Implement
+- [x] Test (red first): `tests/vitest/stepDownSchedule.spec.js` (the repo's vitest location; the widget's union, sort, window and Herbenoembaar live in `src/utils/stepDownSchedule.js`)
 
 ### Task 3: Reminder before a term ends
 - **spec_ref**: `openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-004-the-secretary-is-reminded-before-a-term-ends`
 - **files**: `lib/Settings/register.d/123-term-of-office-reminders.json` (new: GovernanceBody `termReminderDays`; `x-openregister-notifications` on Membership and PositionHold), register version move and lock-file test (decision 70)
 - **acceptance_criteria**:
   - the fragment loads through the real register loader; the rule names existing properties
-- [ ] Implement
-- [ ] Test (red first): register fragment test
+- [x] Implement (`lib/Settings/register.d/129-term-of-office-reminders.json`; 123 was taken. The register's config version moves with the fragment signature, so no manual version move)
+- [x] Test (red first): register fragment test (`tests/Unit/Settings/TermOfOfficeRemindersRegisterTest.php`)
 
 ### Task 4: Oud-leden from the end date
 - **spec_ref**: `openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-005-ended-memberships-show-as-former-members-without-a-write`
 - **files**: `src/manifest.json` (Leden and Oud-leden filters on `endDate`)
 - **acceptance_criteria**:
   - a passed end date moves the member to Oud-leden without a write
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement (the Leden list is the custom `GovernanceBodyMembersTab`, so the split is in `isActiveMembership`, not in a manifest filter)
+- [x] Test (red first)
 
 ## Verification
 

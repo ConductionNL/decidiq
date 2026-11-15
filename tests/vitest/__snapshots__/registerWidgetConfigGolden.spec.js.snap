@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`register widget cfg > DelegationChainWidget takes the content, then its props, then its defaults 1`] = `
+{
+  "decisionRefField": "decision",
+  "decisionRoute": "DecisionDetail",
+  "detailRoute": "BevoegdheidstoedelingDetail",
+  "labelField": "subject",
+  "parentRefField": "parentAllocation",
+  "register": "pr",
+  "schema": "ps",
+  "subjectField": "subject",
+}
+`;
+
+exports[`register widget cfg > DelegationChainWidget takes the content, then its props, then its defaults 2`] = `
+{
+  "decisionRefField": "decision",
+  "decisionRoute": "DecisionDetail",
+  "detailRoute": "BevoegdheidstoedelingDetail",
+  "labelField": "subject",
+  "parentRefField": "parentAllocation",
+  "register": "decidiq",
+  "schema": "bevoegdheidstoedeling",
+  "subjectField": "subject",
+}
+`;
+
+exports[`register widget cfg > RegisterVersionTimelineWidget takes the content, then its defaults 1`] = `
+{
+  "decisionRefField": "",
+  "decisionRoute": "DecisionDetail",
+  "effectiveDateField": "effectiveDate",
+  "extraFields": [],
+  "lapseDateField": "",
+  "parentRefField": "",
+  "statusField": "status",
+  "versionNumberField": "versionNumber",
+  "versionRegister": "own",
+  "versionSchema": "",
+}
+`;
+
+exports[`register widget cfg > RegisterVersionTimelineWidget takes the content, then its defaults 2`] = `
+{
+  "decisionRefField": "",
+  "decisionRoute": "DecisionDetail",
+  "effectiveDateField": "effectiveDate",
+  "extraFields": [],
+  "lapseDateField": "",
+  "parentRefField": "",
+  "statusField": "status",
+  "versionNumberField": "versionNumber",
+  "versionRegister": "decidiq",
+  "versionSchema": "",
+}
+`;

@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
@@ -50,7 +51,7 @@ use Throwable;
  *
  * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
  */
-class MeetingReminderService {
+class MeetingReminderService implements MeetingReminderServiceInterface {
 
 	/**
 	 * How long before the submission deadline its reminder goes out.

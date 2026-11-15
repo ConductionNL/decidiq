@@ -19,6 +19,7 @@
 
 import { translate as t } from '@nextcloud/l10n'
 import { createLazyMountPair } from './createLazyMountPair.js'
+import { registerLeaf } from './leafRegistration.js'
 
 /**
  * The integration id consuming apps (e.g. procest) must reference to
@@ -125,39 +126,8 @@ export const decisionsLeafDescriptor = {
  * @return {void}
  */
 export function registerDecisionsLeaf(globalRef) {
-	const target = globalRef || (typeof window !== 'undefined' ? window : null)
-	if (target === null) {
-		return
-	}
-
-	target.OCA = target.OCA || {}
-	target.OCA.OpenRegister = target.OCA.OpenRegister || {}
-	const current = target.OCA.OpenRegister.integrations
-
-	// Real registry installed (has register(), no _queue) → register live.
-	if (
-		current
-		&& typeof current.register === 'function'
-		&& current._queue === undefined
-	) {
-		try {
-			current.register(decisionsLeafDescriptor)
-		} catch (e) {
-			// AD-13: duplicate id throws in dev — non-fatal for boot.
-			// eslint-disable-next-line no-console
-			console.warn('[decidiq] decisions leaf already registered', e)
-		}
-		return
-	}
-
-	// Not installed yet — ensure a queue stub exists, then enqueue.
-	if (current === undefined || current === null) {
-		target.OCA.OpenRegister.integrations = {
-			_queue: [],
-			register(entry) {
-				this._queue.push(entry)
-			},
-		}
-	}
-	target.OCA.OpenRegister.integrations.register(decisionsLeafDescriptor)
+	registerLeaf(globalRef, {
+		descriptor: decisionsLeafDescriptor,
+		name: 'decisions',
+	})
 }

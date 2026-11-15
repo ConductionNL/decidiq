@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTime;
+use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -40,9 +41,9 @@ use Throwable;
 /**
  * Processes email vote replies held in VotingRound `_mail` metadata.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  */
-class MailVoteReplyProcessor {
+class MailVoteReplyProcessor implements MailVoteReplyProcessorInterface {
 
 	/**
 	 * Recognised vote keywords mapped to canonical values.
@@ -74,7 +75,7 @@ class MailVoteReplyProcessor {
 	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister services)
 	 * @param LoggerInterface $logger The logger
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function __construct(
 		private readonly VotingService $votingService,
@@ -95,7 +96,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function processRound(object $objectService, array $round, string $roundId): void {
 		$entries = ($round['_mail'] ?? []);
@@ -139,7 +140,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return string|null The canonical vote value or null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function parseVoteKeyword(string $body): ?string {
 		$lines = explode("\n", $body);
@@ -171,7 +172,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return array<string,mixed>|null The mutated entry, or null when it is unchanged
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function processEntry(object $objectService, array $entry, array $round, string $roundId): ?array {
 		$participantId = ($entry['participantId'] ?? null);
@@ -227,7 +228,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return bool True when the entry carries a valid signature
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function isAuthentic(array $entry, string $roundId, string $participantId): bool {
 		if ($this->signer->verify(entry: $entry, roundId: $roundId) === true) {
@@ -257,7 +258,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return array<string,mixed>|null The participant record, or null when unknown
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function findParticipant(object $objectService, string $participantId, string $roundId): ?array {
 		$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
@@ -289,7 +290,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return array<string,mixed> The entry marked as rejected
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function rejectSecretBallot(array $entry, string $participantId, string $roundId): array {
 		$this->logger->warning(
@@ -318,7 +319,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return array<string,mixed>|null The entry marked processed, or null when the cast failed
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function castVote(
 		array $entry,
@@ -362,7 +363,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return array<string,mixed> The entry with its retry state advanced
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function handleUnrecognised(array $entry, ?string $notifyUid, string $roundId): array {
 		$retries = ((int)($entry['retries'] ?? 0) + 1);
@@ -409,7 +410,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return string|null The Nextcloud UID, or null when unresolvable
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function resolveNotifyUid(array $participant, string $participantId): ?string {
 		$notifyUid = ($participant['nextcloudUserId'] ?? null);
@@ -449,7 +450,7 @@ class MailVoteReplyProcessor {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function notify(
 		?string $notifyUid,

@@ -132,7 +132,9 @@
 					{ "id": "consult-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "consult-reactions", "type": "object-list", "title": "Reactions", "icon": "MessageTextOutline", "content": { "register": "decidiq", "schema": "consultation-reaction", "filter": { "_relations.public-consultation": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "body", "label": "Reaction" }, { "key": "moderationStatus", "label": "Status", "widget": "badge" }, { "key": "submitterId", "label": "Submitter" }, { "key": "submittedAt", "label": "Submitted" } ], "limit": 25, "allowCreate": false, "emptyText": "No reactions submitted yet. Citizens submit these through the public Participation page." } },
 					{ "id": "consult-moderation", "type": "custom", "component": "ConsultationReactionsTab", "title": "Moderation queue", "icon": "TrayFull" },
-					{ "id": "consult-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{ "id": "consult-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{ "id": "consult-polls", "type": "integration", "integrationId": "polls", "title": "Straw poll", "icon": "Poll", "_note": "leaf-integrations REQ-LEAF-003: an advisory straw poll, never a formal citizen vote; the leaf writes no voting round, vote or citizen vote." },
+					{ "id": "consult-forms", "type": "integration", "integrationId": "forms", "title": "Intake form", "icon": "ClipboardText", "_note": "leaf-integrations REQ-LEAF-004: the Forms form that is this consultation's structured intake channel. The registry hides it when Forms is absent." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "consult-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -140,7 +142,9 @@
 					{ "id": "3", "widgetId": "consult-files", "gridX": 8, "gridY": 3, "gridWidth": 4, "gridHeight": 3 },
 					{ "id": "4", "widgetId": "consult-reactions", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "6", "widgetId": "consult-moderation", "gridX": 0, "gridY": 12, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "5", "widgetId": "consult-related", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "5", "widgetId": "consult-related", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "7", "widgetId": "consult-polls", "gridX": 0, "gridY": 20, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "8", "widgetId": "consult-forms", "gridX": 6, "gridY": 20, "gridWidth": 6, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

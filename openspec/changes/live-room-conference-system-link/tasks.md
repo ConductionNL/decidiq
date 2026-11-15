@@ -53,3 +53,10 @@
 - `docs/features/room-system-link.md`: linking the delegate system in integriq, setting seats, reading rejected messages.
 - [ ] Implement
 - [ ] Test
+
+### Task 7: Send the agenda, speakers and vote results to the room
+- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results`
+- **files**: `lib/Service/RoomSystemMessageService.php` (outgoing messages through the `room-system` connection), `lib/Listener/RoomSystemMessageListener.php`, `tests/Unit/Service/RoomSystemMessageServiceTest.php`
+- [ ] Implement
+- [ ] Test
+

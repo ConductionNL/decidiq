@@ -27,12 +27,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PaperVoteRecorderInterface;
+
 /**
  * Records paper ballots through VoteCastingService.
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class PaperVoteRecorder {
+class PaperVoteRecorder implements PaperVoteRecorderInterface {
 	/**
 	 * Constructor.
 	 *

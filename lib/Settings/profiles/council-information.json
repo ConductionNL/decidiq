@@ -1,0 +1,2934 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Decidiq example set: Council information (ORI)",
+		"version": "1.0.0",
+		"description": "The Voorbeeldstad council information set: a council with political groups, its members, ten meetings with agendas, council documents and votes with party results."
+	},
+	"x-openregister": {
+		"type": "profile",
+		"app": "decidiq",
+		"profile": {
+			"id": "council-information",
+			"label": "Council information (ORI)",
+			"description": "The Voorbeeldstad council information set: a council with political groups, its members, ten meetings with agendas, council documents and votes with party results.",
+			"order": 5,
+			"objectCount": 196,
+			"icon": "Gavel"
+		},
+		"description": "An example set an operator picks in the first-time setup wizard (ADR-042); never imported on install. The Voorbeeldstad demo dataset of the retired ORI register, translated through OriImportService (ori-adoption task 4.1): the same objects `occ decidiq:import-ori` writes from that register, so property names and values are decidiq's English vocabulary and only the content (names, titles) is Dutch. Each object carries a fixed uuid, so a reference that is not a schema `$ref` (a decision's subjectId) still names its target, and a second import finds every object by uuid and adds nothing. The import tag (`externalReference`) is left off: these are seed objects, not imported ones, and `occ decidiq:import-ori --rollback` leaves them alone.",
+		"seedData": {
+			"description": "Voorbeeldstad council information, translated from the retired ORI register.",
+			"objects": {
+				"governance-body": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"slug": "council-gemeente-voorbeeldstad",
+						"name": "Gemeente Voorbeeldstad",
+						"bodyType": "legislative",
+						"domain": "municipality"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "90d2002f-73ba-58db-9c3f-2592e22a91a2",
+						"slug": "voorbeeldstad-vooruit",
+						"name": "Voorbeeldstad Vooruit",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 8,
+						"coalitionRole": "coalition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "1ab8ec9a-576b-5236-9229-215005f00984",
+						"slug": "groen-links-voorbeeldstad",
+						"name": "Groen Links Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 6,
+						"coalitionRole": "coalition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "e1165949-2b78-5b18-aeee-d4193cffef78",
+						"slug": "democraten-voorbeeldstad",
+						"name": "Democraten Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 5,
+						"coalitionRole": "coalition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "a277a5ca-dc92-5ccc-8884-72067e5abb0f",
+						"slug": "lokaal-belang",
+						"name": "Lokaal Belang",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 5,
+						"coalitionRole": "opposition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "4d863cc5-bc19-5630-bb21-ff8164d7bd32",
+						"slug": "pvda-voorbeeldstad",
+						"name": "PvdA Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 4,
+						"coalitionRole": "opposition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "6663066b-2969-5cde-94b3-5ada899e726b",
+						"slug": "vvd-voorbeeldstad",
+						"name": "VVD Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 3,
+						"coalitionRole": "opposition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "6ed3b7bd-d2ae-5cfb-8157-760f6c4564d3",
+						"slug": "sp-voorbeeldstad",
+						"name": "SP Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 2,
+						"coalitionRole": "opposition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "1b5670cb-e776-5c62-bbe9-d2d5f79d9617",
+						"slug": "forum-voorbeeldstad",
+						"name": "Forum Voorbeeldstad",
+						"bodyType": "political-group",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"seatCount": 2,
+						"coalitionRole": "opposition"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "9a767868-9fff-515b-8afc-15ea6e48692a",
+						"slug": "executive-gemeente-voorbeeldstad-executive-board",
+						"name": "Gemeente Voorbeeldstad executive board",
+						"bodyType": "executive-board",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "8a5606a4-408b-518a-ba47-01dbd92e4ea2",
+						"slug": "committee-commissie-mens-samenleving",
+						"name": "Commissie Mens & Samenleving",
+						"bodyType": "advisory-body",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "f88ddc3c-bda4-56cd-a7ff-1e79e42d6b51",
+						"slug": "committee-commissie-ruimte-economie",
+						"name": "Commissie Ruimte & Economie",
+						"bodyType": "advisory-body",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"uuid": "b813b63e-832c-5f40-97a1-8f99c6f72daa",
+						"slug": "committee-commissie-bestuur-financien",
+						"name": "Commissie Bestuur & Financien",
+						"bodyType": "advisory-body",
+						"domain": "municipality",
+						"parentBody": "fb34563c-2b59-590c-b053-6a8386ea0607"
+					}
+				],
+				"person": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "222ecfb6-a667-5e6f-92ae-048b31fd51b3",
+						"slug": "jan-willem-van-doesburg",
+						"name": "Jan-Willem van Doesburg"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "961c8c39-fa7e-5fb9-8331-6e56d7de6af0",
+						"slug": "maria-bakker-de-wit",
+						"name": "Maria Bakker-de Wit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "94862d82-d1af-50b3-bbc7-eda67e8e1019",
+						"slug": "ahmed-el-mansouri",
+						"name": "Ahmed El-Mansouri"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "27003e4d-80d0-5040-a13e-0b50832a5dce",
+						"slug": "petra-koopmans",
+						"name": "Petra Koopmans"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "b69f7b6d-d129-5caa-9054-26360465b0b3",
+						"slug": "henk-van-der-berg",
+						"name": "Henk van der Berg"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "441c31c7-b04f-5303-93f7-edaeacd2670d",
+						"slug": "klaas-de-vries",
+						"name": "Klaas de Vries"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "2ae36c8e-88e4-5e6a-9a52-668affef8f03",
+						"slug": "sandra-jansen",
+						"name": "Sandra Jansen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "ace595b0-4b40-5142-b18c-f7069c789440",
+						"slug": "tom-willems",
+						"name": "Tom Willems"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "fe04b3ef-f46a-5f7a-87dd-547c3d8d0a4c",
+						"slug": "annemiek-van-rijn",
+						"name": "Annemiek van Rijn"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "f53e56c6-0ab3-5583-95ae-fd8f7e39842c",
+						"slug": "bas-vermeulen",
+						"name": "Bas Vermeulen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "18c8ff03-364e-5756-9458-eb68326fc7f3",
+						"slug": "lisa-de-groot",
+						"name": "Lisa de Groot"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "bd6d7497-e546-51d7-bb47-a425e72f3610",
+						"slug": "robin-smit",
+						"name": "Robin Smit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "85fe171b-9f36-5f3b-94e9-ae071f1bb4cf",
+						"slug": "fatima-bouazza",
+						"name": "Fatima Bouazza"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "2432238d-a0f5-5f41-b972-c27d506f1dad",
+						"slug": "jeroen-bos",
+						"name": "Jeroen Bos"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "900d64c0-4774-5c54-8d6e-e500c7b064cb",
+						"slug": "marieke-scholten",
+						"name": "Marieke Scholten"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "c657a690-9454-5499-8892-699e8a5fc065",
+						"slug": "pieter-van-dijk",
+						"name": "Pieter van Dijk"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "6d2fa3af-2c93-564f-a48c-524d303a2c0e",
+						"slug": "eva-mulder",
+						"name": "Eva Mulder"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "d060fa97-b3b8-5361-917e-25627b739f92",
+						"slug": "dirk-van-leeuwen",
+						"name": "Dirk van Leeuwen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "594eacc5-ff9a-58ee-b7d4-0fea11e805eb",
+						"slug": "ria-ter-horst",
+						"name": "Ria ter Horst"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "b849aaa9-4d83-5189-a9e3-f7101c4f6531",
+						"slug": "jan-kramer",
+						"name": "Jan Kramer"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "a81f53c4-c6b6-5e8d-acb7-781a18f28bf1",
+						"slug": "nienke-brouwer",
+						"name": "Nienke Brouwer"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "c23691c3-3c76-5238-9cd4-1b7208e1d273",
+						"slug": "gerard-visser",
+						"name": "Gerard Visser"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "4abf7e13-056b-5e07-a976-3c39238d595c",
+						"slug": "monique-peters",
+						"name": "Monique Peters"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "6043f946-f191-5971-a546-c6ab08d09099",
+						"slug": "willem-hendriks",
+						"name": "Willem Hendriks"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "a7bb735c-6bf7-524c-b84c-b1980dfcb3f9",
+						"slug": "denise-van-dam",
+						"name": "Denise van Dam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "9517ed77-b4a9-5a7e-bcc8-eb360c2f6390",
+						"slug": "frank-de-boer",
+						"name": "Frank de Boer"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "ea09b531-8086-585f-8c77-ad86424dc384",
+						"slug": "caroline-van-den-heuvel",
+						"name": "Caroline van den Heuvel"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "995bd10c-48f1-5b23-b0ce-67b579cf4baa",
+						"slug": "robert-dekker",
+						"name": "Robert Dekker"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "9146710d-e89b-5a64-a792-4ffe53d6dd6e",
+						"slug": "els-van-der-linden",
+						"name": "Els van der Linden"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "4b3ba7ac-becd-543d-b2fb-83bbc93328cc",
+						"slug": "marco-kuijpers",
+						"name": "Marco Kuijpers"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "bcfcd5ff-484e-5fdf-8447-e1a1ecde2ebd",
+						"slug": "ingrid-wolf",
+						"name": "Ingrid Wolf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "19cce2ed-5a59-5c8e-a08b-5b95daa40ee1",
+						"slug": "hans-van-beek",
+						"name": "Hans van Beek"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "361fb920-3df5-530c-aca2-dae2e80bce17",
+						"slug": "tineke-groen",
+						"name": "Tineke Groen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "28face67-1452-5629-9065-08f3e6d28fce",
+						"slug": "wim-van-houten",
+						"name": "Wim van Houten"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"uuid": "678aee8e-20f4-5f1d-97c3-83a593d68f0f",
+						"slug": "joke-meijer",
+						"name": "Joke Meijer"
+					}
+				],
+				"membership": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "15efffea-0eea-5562-a2d0-e630e9a5eb6d",
+						"slug": "membership-jan-willem-van-doesburg",
+						"role": "chair",
+						"person": "222ecfb6-a667-5e6f-92ae-048b31fd51b3",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "4f7aefb5-8489-5306-a18c-b202c0293856",
+						"slug": "group-membership-jan-willem-van-doesburg",
+						"role": "member",
+						"person": "222ecfb6-a667-5e6f-92ae-048b31fd51b3",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "38e1ce56-cc03-52d1-bf56-3d201733f645",
+						"slug": "membership-maria-bakker-de-wit",
+						"role": "member",
+						"person": "961c8c39-fa7e-5fb9-8331-6e56d7de6af0",
+						"governanceBody": "9a767868-9fff-515b-8afc-15ea6e48692a",
+						"party": "Groen Links Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a92ed0f7-ea75-578e-8873-148daaf5da18",
+						"slug": "group-membership-maria-bakker-de-wit",
+						"role": "member",
+						"person": "961c8c39-fa7e-5fb9-8331-6e56d7de6af0",
+						"governanceBody": "1ab8ec9a-576b-5236-9229-215005f00984"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "5392d1f7-c813-5e71-a926-03c56887544a",
+						"slug": "membership-ahmed-el-mansouri",
+						"role": "member",
+						"person": "94862d82-d1af-50b3-bbc7-eda67e8e1019",
+						"governanceBody": "9a767868-9fff-515b-8afc-15ea6e48692a",
+						"party": "Democraten Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "f83e1e00-4921-5f3b-9b6e-11e4377332ec",
+						"slug": "group-membership-ahmed-el-mansouri",
+						"role": "member",
+						"person": "94862d82-d1af-50b3-bbc7-eda67e8e1019",
+						"governanceBody": "e1165949-2b78-5b18-aeee-d4193cffef78"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "8d8efdc8-5a15-5219-a225-74a9ef26a5c7",
+						"slug": "membership-petra-koopmans",
+						"role": "member",
+						"person": "27003e4d-80d0-5040-a13e-0b50832a5dce",
+						"governanceBody": "9a767868-9fff-515b-8afc-15ea6e48692a",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "bfd1c379-038f-56d2-960b-344b626b69c4",
+						"slug": "group-membership-petra-koopmans",
+						"role": "member",
+						"person": "27003e4d-80d0-5040-a13e-0b50832a5dce",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "258f7e5a-0150-5141-a657-87eb54062fec",
+						"slug": "membership-henk-van-der-berg",
+						"role": "secretary",
+						"person": "b69f7b6d-d129-5caa-9054-26360465b0b3",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "720e6996-1631-5a20-922a-c4a5826c213e",
+						"slug": "group-membership-henk-van-der-berg",
+						"role": "member",
+						"person": "b69f7b6d-d129-5caa-9054-26360465b0b3",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "25c8a0cb-a7bb-5ff5-b64f-f18aa6b150dc",
+						"slug": "membership-klaas-de-vries",
+						"role": "member",
+						"person": "441c31c7-b04f-5303-93f7-edaeacd2670d",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "bd0c1113-8a19-57d0-8aff-96dd9d00a1c0",
+						"slug": "group-membership-klaas-de-vries",
+						"role": "member",
+						"person": "441c31c7-b04f-5303-93f7-edaeacd2670d",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "499a64f2-a005-5d42-b908-b4992f1f4ef8",
+						"slug": "membership-sandra-jansen",
+						"role": "member",
+						"person": "2ae36c8e-88e4-5e6a-9a52-668affef8f03",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "6647301d-b33e-5227-a2ea-81b856feee06",
+						"slug": "group-membership-sandra-jansen",
+						"role": "member",
+						"person": "2ae36c8e-88e4-5e6a-9a52-668affef8f03",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "28776151-6876-5b6b-9a0b-004d4a7ddc2a",
+						"slug": "membership-tom-willems",
+						"role": "member",
+						"person": "ace595b0-4b40-5142-b18c-f7069c789440",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "723429fa-7081-576b-b499-9cb40f275561",
+						"slug": "group-membership-tom-willems",
+						"role": "member",
+						"person": "ace595b0-4b40-5142-b18c-f7069c789440",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a5f98d6c-86c4-5f25-9855-167130985818",
+						"slug": "membership-annemiek-van-rijn",
+						"role": "member",
+						"person": "fe04b3ef-f46a-5f7a-87dd-547c3d8d0a4c",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "9ba1eb41-57cf-55b8-94f2-d5786dae77fa",
+						"slug": "group-membership-annemiek-van-rijn",
+						"role": "member",
+						"person": "fe04b3ef-f46a-5f7a-87dd-547c3d8d0a4c",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "dce51925-6042-54b2-967a-9a3b864ed36d",
+						"slug": "membership-bas-vermeulen",
+						"role": "member",
+						"person": "f53e56c6-0ab3-5583-95ae-fd8f7e39842c",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "1112442d-f94a-56f1-b39f-14d5ac84f588",
+						"slug": "group-membership-bas-vermeulen",
+						"role": "member",
+						"person": "f53e56c6-0ab3-5583-95ae-fd8f7e39842c",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "d7811746-cd36-59c8-ab8f-4034e6ee9d3a",
+						"slug": "membership-lisa-de-groot",
+						"role": "member",
+						"person": "18c8ff03-364e-5756-9458-eb68326fc7f3",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Groen Links Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "b5ae447a-c058-5df6-bc14-f74d9f6261b4",
+						"slug": "group-membership-lisa-de-groot",
+						"role": "member",
+						"person": "18c8ff03-364e-5756-9458-eb68326fc7f3",
+						"governanceBody": "1ab8ec9a-576b-5236-9229-215005f00984"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a8f903e1-ee97-5090-879e-6ead5d889a5b",
+						"slug": "membership-robin-smit",
+						"role": "member",
+						"person": "bd6d7497-e546-51d7-bb47-a425e72f3610",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Groen Links Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "1d2fd876-b614-50f8-aae1-94e8bb864c5d",
+						"slug": "group-membership-robin-smit",
+						"role": "member",
+						"person": "bd6d7497-e546-51d7-bb47-a425e72f3610",
+						"governanceBody": "1ab8ec9a-576b-5236-9229-215005f00984"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "d6d97658-d855-57f9-a6cc-dfc8d4571df1",
+						"slug": "membership-fatima-bouazza",
+						"role": "member",
+						"person": "85fe171b-9f36-5f3b-94e9-ae071f1bb4cf",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Groen Links Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "2edfe6bd-96ff-5139-9039-b19cc3d0ce2f",
+						"slug": "group-membership-fatima-bouazza",
+						"role": "member",
+						"person": "85fe171b-9f36-5f3b-94e9-ae071f1bb4cf",
+						"governanceBody": "1ab8ec9a-576b-5236-9229-215005f00984"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "29c3d07a-73b7-542e-b475-8796af52edb2",
+						"slug": "membership-jeroen-bos",
+						"role": "member",
+						"person": "2432238d-a0f5-5f41-b972-c27d506f1dad",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Groen Links Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "668370d5-c2c3-5032-926c-fcbcdc68c8d5",
+						"slug": "group-membership-jeroen-bos",
+						"role": "member",
+						"person": "2432238d-a0f5-5f41-b972-c27d506f1dad",
+						"governanceBody": "1ab8ec9a-576b-5236-9229-215005f00984"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "001cfa62-c355-5c69-8c86-e3b2719bcf15",
+						"slug": "membership-marieke-scholten",
+						"role": "member",
+						"person": "900d64c0-4774-5c54-8d6e-e500c7b064cb",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Democraten Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "f5848177-e7a8-53a9-92db-ef231a4023ca",
+						"slug": "group-membership-marieke-scholten",
+						"role": "member",
+						"person": "900d64c0-4774-5c54-8d6e-e500c7b064cb",
+						"governanceBody": "e1165949-2b78-5b18-aeee-d4193cffef78"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "f827c2b0-d09e-5972-ae91-0f4035d22060",
+						"slug": "membership-pieter-van-dijk",
+						"role": "member",
+						"person": "c657a690-9454-5499-8892-699e8a5fc065",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Democraten Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "5d8412b3-9260-5007-b0f8-7dfbba07e634",
+						"slug": "group-membership-pieter-van-dijk",
+						"role": "member",
+						"person": "c657a690-9454-5499-8892-699e8a5fc065",
+						"governanceBody": "e1165949-2b78-5b18-aeee-d4193cffef78"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "8c17003d-e757-53a5-b2f6-503fad7b45ae",
+						"slug": "membership-eva-mulder",
+						"role": "member",
+						"person": "6d2fa3af-2c93-564f-a48c-524d303a2c0e",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Democraten Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "32b130db-1bdb-573d-ae01-f03a5e95a719",
+						"slug": "group-membership-eva-mulder",
+						"role": "member",
+						"person": "6d2fa3af-2c93-564f-a48c-524d303a2c0e",
+						"governanceBody": "e1165949-2b78-5b18-aeee-d4193cffef78"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "4a44ef12-ef62-59a0-aa07-4fd868b1be31",
+						"slug": "membership-dirk-van-leeuwen",
+						"role": "member",
+						"person": "d060fa97-b3b8-5361-917e-25627b739f92",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "6ea65b02-2127-5cb0-9e28-263e8ce2784c",
+						"slug": "group-membership-dirk-van-leeuwen",
+						"role": "member",
+						"person": "d060fa97-b3b8-5361-917e-25627b739f92",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a063a528-fa33-584e-93fa-f3d9a6e0dad2",
+						"slug": "membership-ria-ter-horst",
+						"role": "member",
+						"person": "594eacc5-ff9a-58ee-b7d4-0fea11e805eb",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "738f4a8e-bd91-5156-8714-9ad1d978ca0f",
+						"slug": "group-membership-ria-ter-horst",
+						"role": "member",
+						"person": "594eacc5-ff9a-58ee-b7d4-0fea11e805eb",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a970a440-4ee1-57a8-8363-c930b6c3904d",
+						"slug": "membership-jan-kramer",
+						"role": "member",
+						"person": "b849aaa9-4d83-5189-a9e3-f7101c4f6531",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "116c1218-7f59-5838-baec-bbc7ae9233aa",
+						"slug": "group-membership-jan-kramer",
+						"role": "member",
+						"person": "b849aaa9-4d83-5189-a9e3-f7101c4f6531",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "adce004a-ce2b-5dc4-8de7-c72e8040e060",
+						"slug": "membership-nienke-brouwer",
+						"role": "member",
+						"person": "a81f53c4-c6b6-5e8d-acb7-781a18f28bf1",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "fd3fb1e6-5565-56e6-abd1-6d6ebcf90323",
+						"slug": "group-membership-nienke-brouwer",
+						"role": "member",
+						"person": "a81f53c4-c6b6-5e8d-acb7-781a18f28bf1",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "a9e1fe32-ca86-5d9f-bf5d-7a92422e71a2",
+						"slug": "membership-gerard-visser",
+						"role": "member",
+						"person": "c23691c3-3c76-5238-9cd4-1b7208e1d273",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "f911c7ec-08f4-5484-8f6d-341c4584b198",
+						"slug": "group-membership-gerard-visser",
+						"role": "member",
+						"person": "c23691c3-3c76-5238-9cd4-1b7208e1d273",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "109f575c-7431-5316-811b-482e882816fc",
+						"slug": "membership-monique-peters",
+						"role": "member",
+						"person": "4abf7e13-056b-5e07-a976-3c39238d595c",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "PvdA Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "50bf8926-5176-5240-8a66-6fc546e32b4d",
+						"slug": "group-membership-monique-peters",
+						"role": "member",
+						"person": "4abf7e13-056b-5e07-a976-3c39238d595c",
+						"governanceBody": "4d863cc5-bc19-5630-bb21-ff8164d7bd32"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "b1779742-71d7-51e4-b4d0-0eca63f85fdf",
+						"slug": "membership-willem-hendriks",
+						"role": "member",
+						"person": "6043f946-f191-5971-a546-c6ab08d09099",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "PvdA Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "49ba8965-0044-5b64-bdc5-5d099814e8d6",
+						"slug": "group-membership-willem-hendriks",
+						"role": "member",
+						"person": "6043f946-f191-5971-a546-c6ab08d09099",
+						"governanceBody": "4d863cc5-bc19-5630-bb21-ff8164d7bd32"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "5daf8295-6f10-5ce3-a914-7950b7bea156",
+						"slug": "membership-denise-van-dam",
+						"role": "member",
+						"person": "a7bb735c-6bf7-524c-b84c-b1980dfcb3f9",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "PvdA Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "113a623a-608a-5cc7-978e-aea1cfa79dba",
+						"slug": "group-membership-denise-van-dam",
+						"role": "member",
+						"person": "a7bb735c-6bf7-524c-b84c-b1980dfcb3f9",
+						"governanceBody": "4d863cc5-bc19-5630-bb21-ff8164d7bd32"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "811be3bf-faca-522c-af6f-abc839c7ff49",
+						"slug": "membership-frank-de-boer",
+						"role": "member",
+						"person": "9517ed77-b4a9-5a7e-bcc8-eb360c2f6390",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "PvdA Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "debccdf9-48ef-542a-9e27-ca1ab1f377a0",
+						"slug": "group-membership-frank-de-boer",
+						"role": "member",
+						"person": "9517ed77-b4a9-5a7e-bcc8-eb360c2f6390",
+						"governanceBody": "4d863cc5-bc19-5630-bb21-ff8164d7bd32"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "ca5aedfb-a62e-50f9-8729-525d0fcc5d2f",
+						"slug": "membership-caroline-van-den-heuvel",
+						"role": "member",
+						"person": "ea09b531-8086-585f-8c77-ad86424dc384",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "VVD Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "cca9efd3-7cac-573e-9e07-fbde5fa1f9ea",
+						"slug": "group-membership-caroline-van-den-heuvel",
+						"role": "member",
+						"person": "ea09b531-8086-585f-8c77-ad86424dc384",
+						"governanceBody": "6663066b-2969-5cde-94b3-5ada899e726b"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "59207a7a-cf94-56eb-8041-ea0e3f052cc4",
+						"slug": "membership-robert-dekker",
+						"role": "member",
+						"person": "995bd10c-48f1-5b23-b0ce-67b579cf4baa",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "VVD Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "2fa18a4b-4dae-5f83-9543-983875a2b845",
+						"slug": "group-membership-robert-dekker",
+						"role": "member",
+						"person": "995bd10c-48f1-5b23-b0ce-67b579cf4baa",
+						"governanceBody": "6663066b-2969-5cde-94b3-5ada899e726b"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "9f15c12b-33d8-586a-ac02-8b4a9ead66b8",
+						"slug": "membership-els-van-der-linden",
+						"role": "member",
+						"person": "9146710d-e89b-5a64-a792-4ffe53d6dd6e",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "VVD Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "b559d6b1-f11f-5f5d-a0e3-02e0f384a79b",
+						"slug": "group-membership-els-van-der-linden",
+						"role": "member",
+						"person": "9146710d-e89b-5a64-a792-4ffe53d6dd6e",
+						"governanceBody": "6663066b-2969-5cde-94b3-5ada899e726b"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "690d875f-276a-5677-af7b-50aca91fa74e",
+						"slug": "membership-marco-kuijpers",
+						"role": "member",
+						"person": "4b3ba7ac-becd-543d-b2fb-83bbc93328cc",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "SP Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "91db9d45-615a-51d5-90b0-f9b2b81a096d",
+						"slug": "group-membership-marco-kuijpers",
+						"role": "member",
+						"person": "4b3ba7ac-becd-543d-b2fb-83bbc93328cc",
+						"governanceBody": "6ed3b7bd-d2ae-5cfb-8157-760f6c4564d3"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "c091828c-356f-588b-b3d8-04b39d0955a8",
+						"slug": "membership-ingrid-wolf",
+						"role": "member",
+						"person": "bcfcd5ff-484e-5fdf-8447-e1a1ecde2ebd",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "SP Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "dd091877-007c-537e-af22-b87693344643",
+						"slug": "group-membership-ingrid-wolf",
+						"role": "member",
+						"person": "bcfcd5ff-484e-5fdf-8447-e1a1ecde2ebd",
+						"governanceBody": "6ed3b7bd-d2ae-5cfb-8157-760f6c4564d3"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "7e461e1c-6488-5434-8ef1-86d3105f881d",
+						"slug": "membership-hans-van-beek",
+						"role": "member",
+						"person": "19cce2ed-5a59-5c8e-a08b-5b95daa40ee1",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Forum Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "135141d3-7a80-5ad7-b3ae-428080930df8",
+						"slug": "group-membership-hans-van-beek",
+						"role": "member",
+						"person": "19cce2ed-5a59-5c8e-a08b-5b95daa40ee1",
+						"governanceBody": "1b5670cb-e776-5c62-bbe9-d2d5f79d9617"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "724ac1f3-684d-5eb2-a773-c30448973662",
+						"slug": "membership-tineke-groen",
+						"role": "member",
+						"person": "361fb920-3df5-530c-aca2-dae2e80bce17",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"party": "Forum Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "101b4473-4b5c-56bc-b59a-c39a87f8d2bd",
+						"slug": "group-membership-tineke-groen",
+						"role": "member",
+						"person": "361fb920-3df5-530c-aca2-dae2e80bce17",
+						"governanceBody": "1b5670cb-e776-5c62-bbe9-d2d5f79d9617"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "2f06e0fc-a631-55d2-a9e4-e6ff410ba64f",
+						"slug": "membership-wim-van-houten",
+						"role": "member",
+						"person": "28face67-1452-5629-9065-08f3e6d28fce",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"endDate": "2026-01-01T00:00:00+00:00",
+						"party": "Voorbeeldstad Vooruit"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "6b673c8c-61a1-5c8f-9cf6-e13e10e856f6",
+						"slug": "group-membership-wim-van-houten",
+						"role": "member",
+						"person": "28face67-1452-5629-9065-08f3e6d28fce",
+						"governanceBody": "90d2002f-73ba-58db-9c3f-2592e22a91a2",
+						"endDate": "2026-01-01T00:00:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "e364cefb-44b4-578e-9a43-2ddc2c214ef6",
+						"slug": "membership-joke-meijer",
+						"role": "member",
+						"person": "678aee8e-20f4-5f1d-97c3-83a593d68f0f",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"endDate": "2026-01-01T00:00:00+00:00",
+						"party": "Lokaal Belang"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"uuid": "24e3c869-79bc-5463-9964-cd050aa06e28",
+						"slug": "group-membership-joke-meijer",
+						"role": "member",
+						"person": "678aee8e-20f4-5f1d-97c3-83a593d68f0f",
+						"governanceBody": "a277a5ca-dc92-5ccc-8884-72067e5abb0f",
+						"endDate": "2026-01-01T00:00:00+00:00"
+					}
+				],
+				"meeting": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"slug": "raadsvergadering-2025-09-02",
+						"title": "Raadsvergadering 2 september 2025",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-09-02T19:00:00+02:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-09-02T22:30:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "8c4c8441-b2d3-5d7b-a70e-cac8506ab944",
+						"slug": "commissie-mens-samenleving-2025-09-11",
+						"title": "Commissie Mens & Samenleving 11 september 2025",
+						"meetingType": "committee",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-09-11T20:00:00+02:00",
+						"governanceBody": "8a5606a4-408b-518a-ba47-01dbd92e4ea2",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-09-11T22:00:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "987cd67f-9792-5cd3-8a1f-fe832b76dac9",
+						"slug": "raadsvergadering-2025-09-16",
+						"title": "Raadsvergadering 16 september 2025",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-09-16T19:00:00+02:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-09-16T22:00:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "26d7b61a-c7c9-513b-b737-5f6f360481b0",
+						"slug": "raadsvergadering-2025-10-07",
+						"title": "Raadsvergadering 7 oktober 2025",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-10-07T19:00:00+02:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-10-07T22:00:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "8e1dde72-f138-511b-bf91-2835bc7bcd54",
+						"slug": "commissie-ruimte-economie-2025-10-09",
+						"title": "Commissie Ruimte & Economie 9 oktober 2025",
+						"meetingType": "committee",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-10-09T20:00:00+02:00",
+						"governanceBody": "f88ddc3c-bda4-56cd-a7ff-1e79e42d6b51",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-10-09T22:00:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"slug": "raadsvergadering-2025-10-21",
+						"title": "Raadsvergadering 21 oktober 2025 (Begrotingsbehandeling)",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-10-21T19:00:00+02:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-10-21T23:00:00+02:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "7b2c01a8-bf4d-55a6-83bc-e81ef47d0231",
+						"slug": "raadsvergadering-2025-11-04",
+						"title": "Raadsvergadering 4 november 2025",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-11-04T19:00:00+01:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-11-04T22:00:00+01:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "02a26750-fbec-55d1-ac19-675aa6090aae",
+						"slug": "commissie-bestuur-financien-2025-11-13",
+						"title": "Commissie Bestuur & Financien 13 november 2025",
+						"meetingType": "committee",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-11-13T20:00:00+01:00",
+						"governanceBody": "b813b63e-832c-5f40-97a1-8f99c6f72daa",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-11-13T22:00:00+01:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "25119fbe-6162-5bbd-8ddb-dd1304d6214c",
+						"slug": "raadsvergadering-2025-12-02",
+						"title": "Raadsvergadering 2 december 2025",
+						"meetingType": "regular",
+						"lifecycle": "scheduled",
+						"scheduledDate": "2025-12-02T19:00:00+01:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2025-12-02T22:00:00+01:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"uuid": "afa664c1-7545-54bc-8e97-e3118eff7b5c",
+						"slug": "raadsvergadering-2026-01-14",
+						"title": "Raadsvergadering 14 januari 2026 (Nieuwjaar)",
+						"meetingType": "regular",
+						"lifecycle": "draft",
+						"scheduledDate": "2026-01-14T19:00:00+01:00",
+						"governanceBody": "fb34563c-2b59-590c-b053-6a8386ea0607",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"endDate": "2026-01-14T22:00:00+01:00",
+						"location": "Raadzaal, Gemeentehuis Voorbeeldstad"
+					}
+				],
+				"digital-document": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "b12f44d8-97e6-55c8-8ded-26b29fe3e28f",
+						"slug": "motie-extra-budget-jeugdzorg",
+						"name": "Motie: Extra budget jeugdzorg",
+						"documentType": "motion",
+						"classification": "jeugdzorg",
+						"url": "https://voorbeeldstad.nl/raad/documenten/motie-extra-budget-jeugdzorg.pdf",
+						"fileName": "motie-extra-budget-jeugdzorg.pdf",
+						"contentSize": "124500",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "4324a93e-9d8f-58ce-927b-4ea031562619",
+						"slug": "motie-onderzoek-woningbouw",
+						"name": "Motie: Onderzoek versnelling woningbouw",
+						"documentType": "motion",
+						"classification": "woningbouw",
+						"url": "https://voorbeeldstad.nl/raad/documenten/motie-onderzoek-woningbouw.pdf",
+						"fileName": "motie-onderzoek-woningbouw.pdf",
+						"contentSize": "98200",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "21f81304-093f-5627-b1dd-f3f0c803811a",
+						"slug": "motie-vuurwerkverbod",
+						"name": "Motie: Gemeentelijk vuurwerkverbod jaarwisseling 2025-2026",
+						"documentType": "motion",
+						"classification": "openbare orde",
+						"url": "https://voorbeeldstad.nl/raad/documenten/motie-vuurwerkverbod.pdf",
+						"fileName": "motie-vuurwerkverbod.pdf",
+						"contentSize": "87300",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "13e859c8-2d37-5222-99c5-5edb4a837c2f",
+						"slug": "amendement-verlaging-ozb",
+						"name": "Amendement: Verlaging OZB-verhoging van 5% naar 2%",
+						"documentType": "amendment",
+						"classification": "financien",
+						"url": "https://voorbeeldstad.nl/raad/documenten/amendement-verlaging-ozb.pdf",
+						"fileName": "amendement-verlaging-ozb.pdf",
+						"contentSize": "76800",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "2c5afbc5-89ff-5d2e-bfe7-4cdba10b9a83",
+						"slug": "amendement-herinrichting-marktplein",
+						"name": "Amendement: Aanpassing ontwerp herinrichting marktplein",
+						"documentType": "amendment",
+						"classification": "ruimtelijke ordening",
+						"url": "https://voorbeeldstad.nl/raad/documenten/amendement-herinrichting-marktplein.pdf",
+						"fileName": "amendement-herinrichting-marktplein.pdf",
+						"contentSize": "134200",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "b5a56b9c-01c6-5465-ac40-803d8778215a",
+						"slug": "besluit-herinrichting-marktplein",
+						"name": "Besluit: Herinrichting marktplein Voorbeeldstad",
+						"documentType": "decision",
+						"classification": "ruimtelijke ordening",
+						"url": "https://voorbeeldstad.nl/raad/documenten/besluit-herinrichting-marktplein.pdf",
+						"fileName": "besluit-herinrichting-marktplein.pdf",
+						"contentSize": "215600",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "121b8ddd-a4d9-5ebc-a75a-9ff7ae13ba9f",
+						"slug": "besluit-subsidieregeling-duurzame-energie",
+						"name": "Besluit: Vaststelling subsidieregeling duurzame energie 2025-2026",
+						"documentType": "decision",
+						"classification": "duurzaamheid",
+						"url": "https://voorbeeldstad.nl/raad/documenten/besluit-subsidieregeling-duurzame-energie.pdf",
+						"fileName": "besluit-subsidieregeling-duurzame-energie.pdf",
+						"contentSize": "189400",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "f2855f99-411d-5a48-9bca-61c8c5d8f702",
+						"slug": "besluit-bestemmingsplan-buitengebied",
+						"name": "Besluit: Vaststelling bestemmingsplan buitengebied Voorbeeldstad",
+						"documentType": "decision",
+						"classification": "ruimtelijke ordening",
+						"url": "https://voorbeeldstad.nl/raad/documenten/besluit-bestemmingsplan-buitengebied.pdf",
+						"fileName": "besluit-bestemmingsplan-buitengebied.pdf",
+						"contentSize": "456700",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "d180fd80-041e-57be-a964-7e086bd5e977",
+						"slug": "brief-college-jeugdzorg",
+						"name": "Brief college: Stand van zaken jeugdzorg en wachtlijsten",
+						"documentType": "letter",
+						"classification": "jeugdzorg",
+						"url": "https://voorbeeldstad.nl/raad/documenten/brief-college-jeugdzorg.pdf",
+						"fileName": "brief-college-jeugdzorg.pdf",
+						"contentSize": "67800",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "a75cb409-b0fd-5526-bce5-050217643399",
+						"slug": "brief-inwoners-marktplein",
+						"name": "Brief inwoners: Bezwaren herinrichting marktplein",
+						"documentType": "letter",
+						"classification": "ruimtelijke ordening",
+						"url": "https://voorbeeldstad.nl/raad/documenten/brief-inwoners-marktplein.pdf",
+						"fileName": "brief-inwoners-marktplein.pdf",
+						"contentSize": "34500",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "face1d39-659b-5941-8fa1-4d8ef3955614",
+						"slug": "brief-provincie-buitengebied",
+						"name": "Brief Provincie: Reactie op bestemmingsplan buitengebied",
+						"documentType": "letter",
+						"classification": "ruimtelijke ordening",
+						"url": "https://voorbeeldstad.nl/raad/documenten/brief-provincie-buitengebied.pdf",
+						"fileName": "brief-provincie-buitengebied.pdf",
+						"contentSize": "52100",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "1db46863-ac74-5890-acd4-10e50c422b2b",
+						"slug": "rapport-jaarrekening-2024",
+						"name": "Rapport: Jaarrekening 2024 gemeente Voorbeeldstad",
+						"documentType": "report",
+						"classification": "financien",
+						"url": "https://voorbeeldstad.nl/raad/documenten/rapport-jaarrekening-2024.pdf",
+						"fileName": "rapport-jaarrekening-2024.pdf",
+						"contentSize": "1245000",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "8d83eae5-8095-5c51-a807-3eed680b6452",
+						"slug": "rapport-woningbouwmonitor",
+						"name": "Rapport: Woningbouwmonitor Voorbeeldstad 2025",
+						"documentType": "report",
+						"classification": "woningbouw",
+						"url": "https://voorbeeldstad.nl/raad/documenten/rapport-woningbouwmonitor.pdf",
+						"fileName": "rapport-woningbouwmonitor.pdf",
+						"contentSize": "876500",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "e858c75a-ff3d-54dd-af82-5246b904b1c7",
+						"slug": "notulen-raad-2025-09-02",
+						"name": "Notulen raadsvergadering 2 september 2025",
+						"documentType": "minutes",
+						"classification": "verslaglegging",
+						"url": "https://voorbeeldstad.nl/raad/documenten/notulen-raad-2025-09-02.pdf",
+						"fileName": "notulen-raad-2025-09-02.pdf",
+						"contentSize": "345600",
+						"encodingFormat": "application/pdf"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"uuid": "f4cabcb7-eb6a-596f-84f4-24d0ca5fb92d",
+						"slug": "notulen-raad-2025-10-21",
+						"name": "Notulen raadsvergadering 21 oktober 2025 (Begrotingsbehandeling)",
+						"documentType": "minutes",
+						"classification": "verslaglegging",
+						"url": "https://voorbeeldstad.nl/raad/documenten/notulen-raad-2025-10-21.pdf",
+						"fileName": "notulen-raad-2025-10-21.pdf",
+						"contentSize": "567800",
+						"encodingFormat": "application/pdf"
+					}
+				],
+				"agenda-item": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "0e816bc5-b199-5b7e-a7ac-365a5b349003",
+						"slug": "raad-20250902-01-opening",
+						"title": "Opening en mededelingen",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "De voorzitter opent de vergadering en deelt de mededelingen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "4a7b161f-c8c4-568b-b9cf-8e85723abe4e",
+						"slug": "raad-20250902-02-agenda",
+						"title": "Vaststelling agenda",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "De raad stelt de agenda voor deze vergadering vast."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "1bee08f1-54d8-51b7-ad91-4897bffbb9ee",
+						"slug": "raad-20250902-03-vragenuur",
+						"title": "Vragenuur",
+						"itemType": "discussion",
+						"orderNumber": 3,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "Raadsleden kunnen mondeling vragen stellen aan het college van burgemeester en wethouders."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "3a31733a-d7bb-520b-a4c2-5018fb0f414b",
+						"slug": "raad-20250902-04-herinrichting-marktplein",
+						"title": "Voorstel: Herinrichting marktplein",
+						"itemType": "decision",
+						"orderNumber": 4,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "Het college stelt voor om het marktplein in het centrum van Voorbeeldstad opnieuw in te richten met meer groen, autoluwe zones en nieuwe terrassen. Het totale budget bedraagt 2,3 miljoen euro. De oppositie heeft een amendement ingediend om het ontwerp aan te passen.",
+						"documents": [
+							"b5a56b9c-01c6-5465-ac40-803d8778215a",
+							"2c5afbc5-89ff-5d2e-bfe7-4cdba10b9a83",
+							"a75cb409-b0fd-5526-bce5-050217643399"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "46c25d99-674d-5c09-b164-0406c0442d11",
+						"slug": "raad-20250902-05-subsidie-duurzame-energie",
+						"title": "Voorstel: Subsidieregeling duurzame energie",
+						"itemType": "decision",
+						"orderNumber": 5,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "Voorstel tot vaststelling van een gemeentelijke subsidieregeling voor woningeigenaren die zonnepanelen, warmtepompen of isolatie willen aanschaffen. Totaal beschikbaar budget: 500.000 euro voor 2025-2026.",
+						"documents": [
+							"121b8ddd-a4d9-5ebc-a75a-9ff7ae13ba9f"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "87c0a85c-c528-5d5e-9efb-ae54f9522ed3",
+						"slug": "raad-20250902-06-bestemmingsplan",
+						"title": "Voorstel: Bestemmingsplan buitengebied",
+						"itemType": "decision",
+						"orderNumber": 6,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "Vaststelling van het gewijzigde bestemmingsplan voor het buitengebied van Voorbeeldstad. Het plan maakt beperkte woningbouw mogelijk op drie locaties aan de dorpsrand, met behoud van het groene karakter.",
+						"documents": [
+							"f2855f99-411d-5a48-9bca-61c8c5d8f702",
+							"face1d39-659b-5941-8fa1-4d8ef3955614"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "e9d05777-1bf6-586c-94d7-81248fdf88fd",
+						"slug": "raad-20250902-07-ingekomen-stukken",
+						"title": "Ingekomen stukken",
+						"itemType": "discussion",
+						"orderNumber": 7,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "Behandeling van de ingekomen brieven en stukken van het college, inwoners en externe partijen.",
+						"documents": [
+							"d180fd80-041e-57be-a964-7e086bd5e977"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "a7e397bd-acac-5c78-9b69-c8c5c88dcc31",
+						"slug": "raad-20250902-08-sluiting",
+						"title": "Sluiting",
+						"itemType": "discussion",
+						"orderNumber": 8,
+						"meeting": "4145c6b4-a4a0-5e5b-a6bf-19d31bfd6777",
+						"description": "De voorzitter sluit de vergadering."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "4cde120c-1ceb-5917-bd7a-85b56d4c41dc",
+						"slug": "cie-ms-20250911-01-opening",
+						"title": "Opening",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"meeting": "8c4c8441-b2d3-5d7b-a70e-cac8506ab944",
+						"description": "De voorzitter opent de commissievergadering."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "7670c88e-c0f7-5eed-9f34-e40fb3fb2532",
+						"slug": "cie-ms-20250911-02-jeugdzorg",
+						"title": "Bespreking: Stand van zaken jeugdzorg",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "8c4c8441-b2d3-5d7b-a70e-cac8506ab944",
+						"description": "Bespreking van de brief van het college over de ontwikkelingen in de jeugdzorg. De wachtlijsten zijn opgelopen en het college wordt gevraagd maatregelen te treffen.",
+						"documents": [
+							"d180fd80-041e-57be-a964-7e086bd5e977"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "26cb6f08-d31d-52c4-b580-68798ad87f32",
+						"slug": "cie-ms-20250911-03-wmo",
+						"title": "Bespreking: Evaluatie Wmo-beleid 2024",
+						"itemType": "discussion",
+						"orderNumber": 3,
+						"meeting": "8c4c8441-b2d3-5d7b-a70e-cac8506ab944",
+						"description": "Evaluatie van het Wmo-beleid over het afgelopen jaar. Aandachtspunten zijn de toegankelijkheid van voorzieningen en de eigen bijdrage."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "03b99da3-fd68-56c3-ba6c-970a9870f6f6",
+						"slug": "cie-ms-20250911-04-sluiting",
+						"title": "Sluiting",
+						"itemType": "discussion",
+						"orderNumber": 4,
+						"meeting": "8c4c8441-b2d3-5d7b-a70e-cac8506ab944",
+						"description": "De voorzitter sluit de commissievergadering."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "a5fe548e-531d-5d2d-9bb5-e3c9df5726c5",
+						"slug": "raad-20250916-01-opening",
+						"title": "Opening en mededelingen",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "987cd67f-9792-5cd3-8a1f-fe832b76dac9"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "5e82557a-a230-57e7-aa1b-a82ee083eb39",
+						"slug": "raad-20250916-02-notulen",
+						"title": "Vaststelling notulen raadsvergadering 2 september 2025",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "987cd67f-9792-5cd3-8a1f-fe832b76dac9",
+						"description": "De raad stelt de notulen van de vorige vergadering vast.",
+						"documents": [
+							"e858c75a-ff3d-54dd-af82-5246b904b1c7"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "031abb3a-aa54-538b-acb1-6690a49f9f99",
+						"slug": "raad-20250916-03-vuurwerkverbod",
+						"title": "Motie: Vuurwerkverbod jaarwisseling",
+						"itemType": "discussion",
+						"orderNumber": 3,
+						"meeting": "987cd67f-9792-5cd3-8a1f-fe832b76dac9",
+						"description": "Groen Links Voorbeeldstad dient een motie in om een gemeentelijk vuurwerkverbod in te stellen voor de komende jaarwisseling. De motie vraagt het college om een verbod voor te bereiden en alternatief entertainment te organiseren.",
+						"documents": [
+							"21f81304-093f-5627-b1dd-f3f0c803811a"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "c038f7ef-fc32-5595-bb35-5f0662a0d3db",
+						"slug": "raad-20250916-04-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 4,
+						"meeting": "987cd67f-9792-5cd3-8a1f-fe832b76dac9"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "05a0d315-e122-522d-81c9-a654f2e95bfb",
+						"slug": "raad-20251007-01-opening",
+						"title": "Opening en mededelingen",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "26d7b61a-c7c9-513b-b737-5f6f360481b0"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "2918c62f-2c91-52d7-a224-f581e8d5582b",
+						"slug": "raad-20251007-02-jaarrekening",
+						"title": "Vaststelling jaarrekening 2024",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "26d7b61a-c7c9-513b-b737-5f6f360481b0",
+						"description": "De raad behandelt de jaarrekening over het boekjaar 2024. De accountant heeft een goedkeurende verklaring afgegeven.",
+						"documents": [
+							"1db46863-ac74-5890-acd4-10e50c422b2b"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "aa9b4e1a-1067-51cc-a925-b0cd15dbc01d",
+						"slug": "raad-20251007-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "26d7b61a-c7c9-513b-b737-5f6f360481b0"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "aba7d351-7bd0-5ca3-877f-d3c85dced26c",
+						"slug": "cie-re-20251009-01-opening",
+						"title": "Opening",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "8e1dde72-f138-511b-bf91-2835bc7bcd54"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "9ae7c321-1622-5221-ab64-beb08d293938",
+						"slug": "cie-re-20251009-02-woningbouw",
+						"title": "Bespreking: Woningbouwmonitor Voorbeeldstad",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "8e1dde72-f138-511b-bf91-2835bc7bcd54",
+						"description": "Bespreking van de halfjaarlijkse woningbouwmonitor. Er is een tekort van 1.200 woningen. Het college wordt gevraagd om versnellingsmaatregelen.",
+						"documents": [
+							"8d83eae5-8095-5c51-a807-3eed680b6452"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "6041764d-b84b-50e8-9c7b-b48ccc67a601",
+						"slug": "cie-re-20251009-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "8e1dde72-f138-511b-bf91-2835bc7bcd54"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "814c69b3-d3e1-5917-8c4e-114af823affe",
+						"slug": "raad-20251021-01-opening",
+						"title": "Opening",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "De voorzitter opent de begrotingsvergadering."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "59bee8a5-a69d-59a9-b618-5faac5bb0080",
+						"slug": "raad-20251021-02-algemene-beschouwingen",
+						"title": "Algemene beschouwingen",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "Alle fracties geven hun visie op de begroting en het beleid van het college voor het komende jaar."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "26165b98-c2f5-5b5b-b685-37fc160d495e",
+						"slug": "raad-20251021-03-programmabegroting",
+						"title": "Programmabegroting 2026",
+						"itemType": "discussion",
+						"orderNumber": 3,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "Behandeling en vaststelling van de programmabegroting 2026 van de gemeente Voorbeeldstad. Totale begroting: 89 miljoen euro."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "69628b56-b51a-5bfd-b207-bf1d75c1a9e5",
+						"slug": "raad-20251021-04-motie-jeugdzorg",
+						"title": "Motie: Extra budget jeugdzorg",
+						"itemType": "decision",
+						"orderNumber": 4,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "Voorbeeldstad Vooruit en Groen Links Voorbeeldstad dienen een motie in om 750.000 euro extra budget vrij te maken voor jeugdzorg om de wachtlijsten terug te dringen.",
+						"documents": [
+							"b12f44d8-97e6-55c8-8ded-26b29fe3e28f"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "45dcb739-9e64-515f-9bb3-babe1ff23d53",
+						"slug": "raad-20251021-05-amendement-ozb",
+						"title": "Amendement: Verlaging OZB",
+						"itemType": "decision",
+						"orderNumber": 5,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "Lokaal Belang en VVD Voorbeeldstad dienen een amendement in om de OZB-verhoging van 5% terug te brengen naar 2%, conform het inflatieniveau.",
+						"documents": [
+							"13e859c8-2d37-5222-99c5-5edb4a837c2f"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "6e46dde8-b2f8-5f15-a886-24fa91acf642",
+						"slug": "raad-20251021-06-motie-woningbouw",
+						"title": "Motie: Onderzoek woningbouw",
+						"itemType": "decision",
+						"orderNumber": 6,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1",
+						"description": "PvdA Voorbeeldstad dient een motie in om een extern onderzoek te laten uitvoeren naar mogelijkheden voor versnelling van de woningbouwopgave in Voorbeeldstad.",
+						"documents": [
+							"4324a93e-9d8f-58ce-927b-4ea031562619"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "5511c15b-d936-50d5-b3e8-91b79c14b07f",
+						"slug": "raad-20251021-07-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 7,
+						"meeting": "4de64e0c-3ae2-5695-99c2-fa89e65201b1"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "a5c92470-485d-5fec-9d68-887bb75362c3",
+						"slug": "raad-20251104-01-opening",
+						"title": "Opening en mededelingen",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "7b2c01a8-bf4d-55a6-83bc-e81ef47d0231"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "9a13fcdc-53ad-584a-8e3f-3cfc6ac83e8a",
+						"slug": "raad-20251104-02-notulen",
+						"title": "Vaststelling notulen begrotingsbehandeling 21 oktober 2025",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "7b2c01a8-bf4d-55a6-83bc-e81ef47d0231",
+						"documents": [
+							"f4cabcb7-eb6a-596f-84f4-24d0ca5fb92d"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "1c43d2f3-3767-5a0c-8f56-c87739efcff8",
+						"slug": "raad-20251104-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "7b2c01a8-bf4d-55a6-83bc-e81ef47d0231"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "1cf412ee-1f2f-51c7-b874-ff5cb8ccd57d",
+						"slug": "cie-bf-20251113-01-opening",
+						"title": "Opening",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "02a26750-fbec-55d1-ac19-675aa6090aae"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "811b03f5-73e9-5294-afb5-4a6807d577f8",
+						"slug": "cie-bf-20251113-02-ict-aanbesteding",
+						"title": "Bespreking: ICT-aanbesteding gemeentelijke dienstverlening",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "02a26750-fbec-55d1-ac19-675aa6090aae",
+						"description": "Het college informeert de commissie over de voortgang van de ICT-aanbesteding voor de modernisering van de gemeentelijke dienstverlening. Het betreft een meerjarig contract van 1,2 miljoen euro."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "9434a31a-6c1a-5242-887d-d4e02753bb00",
+						"slug": "cie-bf-20251113-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "02a26750-fbec-55d1-ac19-675aa6090aae"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "59680c8d-c97b-5a74-b8ad-3d17bd02d719",
+						"slug": "raad-20251202-01-opening",
+						"title": "Opening en mededelingen",
+						"itemType": "informational",
+						"orderNumber": 1,
+						"meeting": "25119fbe-6162-5bbd-8ddb-dd1304d6214c"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "9142e386-fd4c-5072-bc5e-16beceee421e",
+						"slug": "raad-20251202-02-decembercirculaire",
+						"title": "Bespreking: Decembercirculaire gemeentefonds",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "25119fbe-6162-5bbd-8ddb-dd1304d6214c",
+						"description": "Bespreking van de gevolgen van de decembercirculaire van het gemeentefonds voor de begroting van Voorbeeldstad."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "ae4d0bc9-79f2-5a7d-9dde-8557b92c29d3",
+						"slug": "raad-20251202-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "25119fbe-6162-5bbd-8ddb-dd1304d6214c"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "565224fb-c3b1-5870-9cb9-86e0a50dd2f8",
+						"slug": "raad-20260114-01-opening",
+						"title": "Opening en nieuwjaarstoespraak",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"meeting": "afa664c1-7545-54bc-8e97-e3118eff7b5c",
+						"description": "De burgemeester opent het nieuwe raadsjaar met een nieuwjaarstoespraak."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "be103039-c14e-56ab-bf64-7dfe4cafd4f2",
+						"slug": "raad-20260114-02-werkprogramma",
+						"title": "Vaststelling werkprogramma raad 2026",
+						"itemType": "discussion",
+						"orderNumber": 2,
+						"meeting": "afa664c1-7545-54bc-8e97-e3118eff7b5c",
+						"description": "De raad stelt het werkprogramma vast voor het kalenderjaar 2026, inclusief de vergaderplanning en de aandachtspunten per commissie."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"uuid": "02579b25-1b10-5089-974f-2cfc6252eb59",
+						"slug": "raad-20260114-03-sluiting",
+						"title": "Sluiting",
+						"itemType": "informational",
+						"orderNumber": 3,
+						"meeting": "afa664c1-7545-54bc-8e97-e3118eff7b5c"
+					}
+				],
+				"decision": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "919b3e46-b84e-5b94-900b-3a95c08d3ad6",
+						"slug": "decision-stemming-herinrichting-marktplein",
+						"title": "Voorstel: Herinrichting marktplein Voorbeeldstad",
+						"text": "Voorstel: Herinrichting marktplein Voorbeeldstad",
+						"decisionType": "resolution",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "3a31733a-d7bb-520b-a4c2-5018fb0f414b",
+						"subjectLabel": "Voorstel: Herinrichting marktplein",
+						"decisionDate": "2025-09-02T19:00:00+02:00",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "0f218e0f-cf6b-5c99-aca6-62112f79c075",
+						"slug": "decision-stemming-subsidieregeling-duurzame-energie",
+						"title": "Voorstel: Subsidieregeling duurzame energie 2025-2026",
+						"text": "Voorstel: Subsidieregeling duurzame energie 2025-2026",
+						"decisionType": "resolution",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "46c25d99-674d-5c09-b164-0406c0442d11",
+						"subjectLabel": "Voorstel: Subsidieregeling duurzame energie",
+						"decisionDate": "2025-09-02T19:00:00+02:00",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "a8e8ffa6-5e83-5dd2-bdec-1268e45bc205",
+						"slug": "decision-stemming-motie-extra-budget-jeugdzorg",
+						"title": "Motie: Extra budget jeugdzorg",
+						"text": "Motie: Extra budget jeugdzorg",
+						"decisionType": "motion",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "69628b56-b51a-5bfd-b207-bf1d75c1a9e5",
+						"subjectLabel": "Motie: Extra budget jeugdzorg",
+						"decisionDate": "2025-10-21T19:00:00+02:00",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "4369174b-55a2-5636-9ffe-ba05b697b8cc",
+						"slug": "decision-stemming-amendement-verlaging-ozb",
+						"title": "Amendement: Verlaging OZB-verhoging van 5% naar 2%",
+						"text": "Amendement: Verlaging OZB-verhoging van 5% naar 2%",
+						"decisionType": "amendment",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "45dcb739-9e64-515f-9bb3-babe1ff23d53",
+						"subjectLabel": "Amendement: Verlaging OZB",
+						"decisionDate": "2025-10-21T19:00:00+02:00",
+						"outcome": "rejected"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "f045ecd0-34b3-5cd9-a285-244504dd1361",
+						"slug": "decision-stemming-motie-onderzoek-woningbouw",
+						"title": "Motie: Onderzoek versnelling woningbouw",
+						"text": "Motie: Onderzoek versnelling woningbouw",
+						"decisionType": "motion",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "6e46dde8-b2f8-5f15-a886-24fa91acf642",
+						"subjectLabel": "Motie: Onderzoek woningbouw",
+						"decisionDate": "2025-10-21T19:00:00+02:00",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"uuid": "327ccea9-29f6-53c5-90b2-d8fa7da12514",
+						"slug": "decision-stemming-bestemmingsplan-buitengebied",
+						"title": "Voorstel: Bestemmingsplan buitengebied Voorbeeldstad",
+						"text": "Voorstel: Bestemmingsplan buitengebied Voorbeeldstad",
+						"decisionType": "resolution",
+						"lifecycle": "decided",
+						"subjectSchema": "agenda-item",
+						"subjectId": "87c0a85c-c528-5d5e-9efb-ae54f9522ed3",
+						"subjectLabel": "Voorstel: Bestemmingsplan buitengebied",
+						"decisionDate": "2025-09-02T19:00:00+02:00",
+						"outcome": "adopted"
+					}
+				],
+				"voting-round": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "3166d0b6-9a01-54cd-ab24-12af1d75f12d",
+						"slug": "stemming-herinrichting-marktplein",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "for",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "for",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "against",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "against",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "against",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							}
+						],
+						"votesFor": 19,
+						"votesAgainst": 16,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"subjectDecision": "919b3e46-b84e-5b94-900b-3a95c08d3ad6"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "810ab16d-1a59-57f9-b537-403a492f5da2",
+						"slug": "stemming-subsidieregeling-duurzame-energie",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "for",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "for",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "against",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "for",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "against",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "for",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							}
+						],
+						"votesFor": 25,
+						"votesAgainst": 10,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"subjectDecision": "0f218e0f-cf6b-5c99-aca6-62112f79c075"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "a6b61b35-2f26-5545-a4a8-2a0ad972d53b",
+						"slug": "stemming-motie-extra-budget-jeugdzorg",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "for",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "for",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "against",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "for",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "against",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							}
+						],
+						"votesFor": 23,
+						"votesAgainst": 12,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"subjectDecision": "a8e8ffa6-5e83-5dd2-bdec-1268e45bc205"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "3ad13df8-6e0d-5e70-8399-74eecf22e895",
+						"slug": "stemming-amendement-verlaging-ozb",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "against",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "against",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "against",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "against",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "for",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "for",
+								"seatCount": 2
+							}
+						],
+						"votesFor": 10,
+						"votesAgainst": 25,
+						"votesAbstain": 0,
+						"result": "rejected",
+						"subjectDecision": "4369174b-55a2-5636-9ffe-ba05b697b8cc"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "477e9946-0d1a-52bd-a969-8d145e50db7e",
+						"slug": "stemming-motie-onderzoek-woningbouw",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "for",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "for",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "for",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "for",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "for",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "for",
+								"seatCount": 2
+							}
+						],
+						"votesFor": 35,
+						"votesAgainst": 0,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"subjectDecision": "f045ecd0-34b3-5cd9-a285-244504dd1361"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"uuid": "69145966-7f24-519c-a071-2abc1f42e9e1",
+						"slug": "stemming-bestemmingsplan-buitengebied",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"partyResults": [
+							{
+								"party": "Voorbeeldstad Vooruit",
+								"value": "for",
+								"seatCount": 8
+							},
+							{
+								"party": "Groen Links Voorbeeldstad",
+								"value": "for",
+								"seatCount": 6
+							},
+							{
+								"party": "Democraten Voorbeeldstad",
+								"value": "for",
+								"seatCount": 5
+							},
+							{
+								"party": "Lokaal Belang",
+								"value": "against",
+								"seatCount": 5
+							},
+							{
+								"party": "PvdA Voorbeeldstad",
+								"value": "for",
+								"seatCount": 4
+							},
+							{
+								"party": "VVD Voorbeeldstad",
+								"value": "for",
+								"seatCount": 3
+							},
+							{
+								"party": "SP Voorbeeldstad",
+								"value": "against",
+								"seatCount": 2
+							},
+							{
+								"party": "Forum Voorbeeldstad",
+								"value": "against",
+								"seatCount": 1
+							}
+						],
+						"votesFor": 27,
+						"votesAgainst": 8,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"subjectDecision": "327ccea9-29f6-53c5-90b2-d8fa7da12514"
+					}
+				]
+			}
+		}
+	},
+	"paths": {},
+	"components": {}
+}

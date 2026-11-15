@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\DecisionAuthority;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionAuthorityInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -54,14 +54,14 @@ class DecisionAuthorityController extends Controller {
 	 *
 	 * @param IRequest          $request     HTTP request
 	 * @param IUserSession      $userSession Nextcloud user session
-	 * @param DecisionAuthority $authority   Answers the authority question
+	 * @param DecisionAuthorityInterface $authority   Answers the authority question
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly DecisionAuthority $authority,
+		private readonly DecisionAuthorityInterface $authority,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

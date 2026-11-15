@@ -28,14 +28,17 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\OriPublicationService;
-use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
+use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Service\VoteCast;
-use OCA\Decidiq\Service\VotingErrorResponder;
-use OCA\Decidiq\Service\VotingOpenRequestHandler;
-use OCA\Decidiq\Service\VotingRoundGuard;
-use OCA\Decidiq\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -53,13 +56,14 @@ class VotingController extends Controller {
 	 * Constructor for VotingController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingService $votingService The voting service
-	 * @param OriPublicationService $oriService The ORI publication service
+	 * @param VotingServiceInterface $votingService The voting service
+	 * @param OriPublicationServiceInterface $oriService The ORI publication service
 	 * @param IUserSession $userSession The user session
-	 * @param VotingRoundGuard $guard Per-meeting authorisation guard
-	 * @param VotingOpenRequestHandler $openHandler Open-a-round request handling
-	 * @param ProxyDelegationService $proxyService Proxy (volmacht) grant / revoke
-	 * @param VotingErrorResponder $errors Exception-to-status mapping
+	 * @param VotingRoundGuardInterface $guard Per-meeting authorisation guard
+	 * @param VotingOpenRequestHandlerInterface $openHandler Open-a-round request handling
+	 * @param ProxyDelegationServiceInterface $proxyService Proxy (volmacht) grant / revoke
+	 * @param VotingErrorResponderInterface $errors Exception-to-status mapping
+	 * @param WrittenRoundServiceInterface $written Rounds held in writing, without a meeting
 	 *
 	 * @return void
 	 *
@@ -67,15 +71,16 @@ class VotingController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingService $votingService,
-		private readonly OriPublicationService $oriService,
+		private readonly VotingServiceInterface $votingService,
+		private readonly OriPublicationServiceInterface $oriService,
 		private readonly IUserSession $userSession,
-		private readonly VotingRoundGuard $guard,
-		private readonly VotingOpenRequestHandler $openHandler,
-		private readonly ProxyDelegationService $proxyService,
-		private readonly VotingErrorResponder $errors,
+		private readonly VotingRoundGuardInterface $guard,
+		private readonly VotingOpenRequestHandlerInterface $openHandler,
+		private readonly ProxyDelegationServiceInterface $proxyService,
+		private readonly VotingErrorResponderInterface $errors,
+		private readonly WrittenRoundServiceInterface $written,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -100,6 +105,12 @@ class VotingController extends Controller {
 	#[NoAdminRequired]
 	public function open(): JSONResponse {
 		$params = $this->request->getParams();
+
+		// A written round has no meeting: its own signatory-scope check runs
+		// in the written opener, never the meeting guard (REQ-WRS-001).
+		if (($params['procedure'] ?? 'in-meeting') === 'written') {
+			return $this->openWritten(params: $params);
+		}
 		$meetingId = ($params['meetingId'] ?? '');
 
 		// Per-meeting chair/secretary check: use the meetingId from the request body if present.
@@ -145,6 +156,12 @@ class VotingController extends Controller {
 			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
+		// A written round answers against its electorate snapshot, never the
+		// meeting participants (REQ-WRS-002).
+		if ($this->written->writtenRound(roundId: $id) !== null) {
+			return $this->answerWritten(id: $id, userId: $nextcloudUid, value: (string)($this->request->getParams()['value'] ?? ''));
+		}
+
 		// Resolve the OpenRegister participant UUID for this Nextcloud user.
 		$participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
 		if ($participantId === null) {
@@ -153,27 +170,17 @@ class VotingController extends Controller {
 
 		$params = $this->request->getParams();
 		$ballot = $this->ballotOf(params: $params);
-		$value = $ballot['value'];
-		$ranking = $ballot['ranking'];
-		$isProxy = (bool)($params['isProxy'] ?? false);
-		$delegatorId = null;
-		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
-			$delegatorId = $params['delegatorId'];
-		}
 
-		if ($value === '') {
-			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
-		}
-
-		if ($ranking === null && in_array($value, ['for', 'against', 'abstain'], true) === false) {
-			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
+		$refusal = self::ballotRefusal(ballot: $ballot);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->errors->badRequest(
-			function () use ($id, $participantId, $value, $ranking, $isProxy, $delegatorId, $nextcloudUid): JSONResponse {
-				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $value, ranking: $ranking);
-				if ($isProxy === true) {
-					$cast = $cast->asProxy(delegatorId: $delegatorId);
+			function () use ($id, $participantId, $ballot, $params, $nextcloudUid): JSONResponse {
+				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $ballot['value'], ranking: $ballot['ranking']);
+				if ((bool)($params['isProxy'] ?? false) === true) {
+					$cast = $cast->asProxy(delegatorId: self::delegatorOf(params: $params));
 				}
 
 				return new JSONResponse(
@@ -184,6 +191,64 @@ class VotingController extends Controller {
 		);
 
 	}//end cast()
+
+	/**
+	 * Open a round held in writing.
+	 *
+	 * @param array<string, mixed> $params The request body.
+	 *
+	 * @return JSONResponse 201 with the round; 401, 403 or 400 with the reason.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	private function openWritten(array $params): JSONResponse {
+		$userId = $this->userSession->getUser()?->getUID() ?? '';
+		if ($userId === '') {
+			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return $this->writtenResponse(
+			operation: fn (): JSONResponse => new JSONResponse($this->written->open(params: $params, userId: $userId), Http::STATUS_CREATED)
+		);
+	}//end openWritten()
+
+	/**
+	 * Answer a round held in writing.
+	 *
+	 * @param string $id     The round.
+	 * @param string $userId The Nextcloud user answering.
+	 * @param string $value  The answer.
+	 *
+	 * @return JSONResponse 201 with the vote and the round; 403, 404 or 400 with the reason.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 */
+	private function answerWritten(string $id, string $userId, string $value): JSONResponse {
+		return $this->writtenResponse(
+			operation: fn (): JSONResponse => new JSONResponse($this->written->answer(roundId: $id, userId: $userId, value: $value), Http::STATUS_CREATED)
+		);
+	}//end answerWritten()
+
+	/**
+	 * Map the refusals of a written round to their status.
+	 *
+	 * @param callable(): JSONResponse $operation The operation.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 */
+	private function writtenResponse(callable $operation): JSONResponse {
+		try {
+			return $operation();
+		} catch (AccessDeniedException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
+		} catch (NotFoundException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (\InvalidArgumentException | \RuntimeException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		}
+	}//end writtenResponse()
 
 	/**
 	 * The value and ranking a cast request carries.
@@ -204,6 +269,41 @@ class VotingController extends Controller {
 
 		return ['value' => ($params['value'] ?? ''), 'ranking' => null];
 	}//end ballotOf()
+
+	/**
+	 * The delegator a proxy vote names, or null when it names none.
+	 *
+	 * @param array<string, mixed> $params The request body.
+	 *
+	 * @return mixed The delegator id, or null.
+	 */
+	private static function delegatorOf(array $params): mixed {
+		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
+			return $params['delegatorId'];
+		}
+
+		return null;
+	}//end delegatorOf()
+
+	/**
+	 * The 400 for a ballot without a value, or with a plain value that is not
+	 * for, against or abstain; null for an acceptable ballot.
+	 *
+	 * @param array{value: mixed, ranking: array<int, mixed>|null} $ballot The ballot.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private static function ballotRefusal(array $ballot): ?JSONResponse {
+		if ($ballot['value'] === '') {
+			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		if ($ballot['ranking'] === null && in_array($ballot['value'], ['for', 'against', 'abstain'], true) === false) {
+			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
+		}
+
+		return null;
+	}//end ballotRefusal()
 
 	/**
 	 * Close a VotingRound, optionally anonymising votes.

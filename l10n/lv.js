@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kas drīkst balsot",
+        "All members of the body": "Visi institūcijas locekļi",
+        "Left out because they are no longer active members: {names}": "Izlaisti, jo vairs nav aktīvi locekļi: {names}",
         "sign-off route": "saskaņošanas maršruts",
         "#": "#",
         "+ Action item": "+ Rīcības punkts",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Solis {step} no {total}",
         "Still to do: stage {seq} ({maker})": "Vēl jāizdara: posms {seq} ({maker})",
         "Stop": "Apturēt",
-        "Store": "Saglabāt",
         "Subject description": "Temata apraksts",
         "Submission phase": "Iesniegšanas posms",
         "Submission window (hours)": "Iesniegšanas laiks (stundās)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ārkārtas sanāksme",
         "Committee meeting": "Komitejas sanāksme",
         "Public hearing": "Publiskā uzklausīšana",
-        "General assembly": "Kopsapulce"
+        "General assembly": "Kopsapulce",
+        "Members' ancillary positions": "Locekļu blakus amati"
     },
     "nplurals=2; plural=(n != 1);"
 )

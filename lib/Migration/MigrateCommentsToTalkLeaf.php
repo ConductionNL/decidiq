@@ -34,10 +34,10 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.2
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.3
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.4
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -47,7 +47,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -59,8 +59,8 @@ use Throwable;
  * Repair step migrating legacy Comment objects onto the Talk integration leaf,
  * then archiving them (no hard delete — audit trail retained).
  *
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
- * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.4
  */
 class MigrateCommentsToTalkLeaf implements IRepairStep {
 
@@ -98,15 +98,15 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService $settingsService Detects OpenRegister availability.
+	 * @param SettingsServiceInterface $settingsService Detects OpenRegister availability.
 	 * @param ContainerInterface $container DI container (lazy-loads OR + Talk services).
 	 * @param LoggerInterface $logger Logger.
 	 * @param IAppManager $appManager Checks whether the Talk app is installed.
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IAppManager $appManager,
@@ -118,7 +118,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	public function getName(): string {
 		return 'Migrate legacy Decidiq Comment objects to the Talk integration leaf';
@@ -131,10 +131,10 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.2
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.4
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -216,8 +216,8 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return bool True when the object was migrated; false when skipped.
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.4
 	 */
 	private function migrateOne(
 		object $objectService,
@@ -289,8 +289,8 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.2
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.3
 	 */
 	private function replayIntoTalk(
 		object $talkManager,
@@ -360,7 +360,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return object|null The Talk Room, or null when unavailable.
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	private function getOrCreateTalkRoom(object $talkManager, string $objectId): ?object {
 		try {
@@ -407,7 +407,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.3
 	 */
 	private function archiveLegacy(object $objectService, string $uuid, array $comment): void {
 		// Stamp the migration marker first so the step is resume-safe.
@@ -432,7 +432,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return object|null
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.4
 	 */
 	private function resolveTalkManager(): ?object {
 		if ($this->appManager->isEnabledForUser('spreed') === false) {
@@ -452,7 +452,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return object|null
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.4
 	 */
 	private function resolveTalkChatManager(): ?object {
 		if ($this->appManager->isEnabledForUser('spreed') === false) {
@@ -474,31 +474,9 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 *
 	 * @return array<string,mixed>|null The object array, or null when unusable.
 	 *
-	 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	private function toArray(mixed $entity): ?array {
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-
-			return null;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		return null;
+		return (new MigratedObjectNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class

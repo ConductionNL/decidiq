@@ -111,3 +111,14 @@ An answer whose ask could not be copied SHALL be skipped rather than bound to no
 
 - **WHEN** the change is applied to an instance holding these records
 - **THEN** every source row is still readable under its original schema
+
+### Requirement: A decision shows the advice asked of an advisory body and the answer
+
+Staff SHALL be able to record a consultation of an advisory body on a decision, with the body asked, whether its answer binds and a deadline, and to record the body's answer with its position and text. The decision's page SHALL list both the consultations held on it and the answers recorded, so the deciding body sees the advice before it decides.
+
+#### Scenario: The secretary records an advisory body's opinion
+
+- **GIVEN** the decision "Parking policy 2027" before the council
+- **WHEN** the secretary records a consultation of the traffic advisory committee on it with a deadline, and later records the committee's answer as in favour with its text
+- **THEN** the decision's page lists the consultation with its deadline and status
+- **AND** it lists the committee's answer with its position and text

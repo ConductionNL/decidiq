@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Tgi che dastga votar",
+        "All members of the body": "Tut ils commembers da l'organ",
+        "Left out because they are no longer active members: {names}": "Exclus perquai ch'els n'èn betg pli commembers activs: {names}",
         "sign-off route": "via d'approvaziun",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d per, %2$d cunter, %3$d abstenziuns",
@@ -2097,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Anc da far: fasa {seq} ({maker})",
         "Stop": "Fermar",
         "Stop {name}": "Fermar {name}",
-        "Store": "Memorisar",
         "Sub-item title": "Titel dal sutpunct",
         "Sub-item: {title}": "Sutpunct: {title}",
         "Sub-items of {title}": "Sutpuncts da {title}",
@@ -3321,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Radunanza extraordinara",
         "Committee meeting": "Radunanza da la cumissiun",
         "Public hearing": "Audiziun publica",
-        "General assembly": "Radunanza generala"
+        "General assembly": "Radunanza generala",
+        "Members' ancillary positions": "Funcziuns accessoricas dals commembers"
     },
     "nplurals=2; plural=(n != 1);"
 )

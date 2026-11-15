@@ -32,8 +32,10 @@ use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use stdClass;
 
 /**
  * Asserted through the catalogue, not through the listener's internals: the
@@ -79,4 +81,32 @@ class DecidiqFlowNodeListenerTest extends TestCase {
 
 		(new DecidiqFlowNodeListener($container, new NullLogger()))->handle(new Event());
 	}//end testAnyOtherEventIsIgnored()
+	public function testAFailedConstructionIsLoggedWithTheNodeAndReason(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new RuntimeException('interface not found'));
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('warning')
+			->with(
+				'Decidiq: could not construct a flow node; it will not be offered',
+				['node' => DecidiqRequestDecisionNode::class, 'error' => 'interface not found']
+			);
+
+		$registry = new FlowNodeRegistry(dispatcher: $this->createMock(IEventDispatcher::class), logger: new NullLogger());
+		(new DecidiqFlowNodeListener($container, $logger))->handle(new RegisterFlowNodesEvent($registry));
+	}//end testAFailedConstructionIsLoggedWithTheNodeAndReason()
+
+	public function testAResolvedObjectThatIsNotAFlowNodeIsNotRegistered(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->with(DecidiqRequestDecisionNode::class)->willReturn(new stdClass());
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::never())->method('warning');
+
+		$registry = new FlowNodeRegistry(dispatcher: $this->createMock(IEventDispatcher::class), logger: new NullLogger());
+		(new DecidiqFlowNodeListener($container, $logger))->handle(new RegisterFlowNodesEvent($registry));
+
+		self::assertSame([], $registry->all());
+	}//end testAResolvedObjectThatIsNotAFlowNodeIsNotRegistered()
 }//end class

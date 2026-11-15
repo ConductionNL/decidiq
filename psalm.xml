@@ -73,7 +73,9 @@
             Shared, not vendored per app: filinq and planninq adopted the same
             route table and carry the same call.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php" />
+        <!-- openregister #9078: aliasStoreController() takes a LeafAdoption; until the shared hydra-gates stub follows, psalm reads these. -->
+        <file name="tests/Stubs/AppHost/Bootstrap.php" preloadClasses="true" />
+        <file name="tests/Stubs/AppHost/LeafAdoption.php" preloadClasses="true" />
         <!--
             Integriq's connection-registry events (adopt-connection-registry).
             ConnectionReportService names them by string behind class_exists

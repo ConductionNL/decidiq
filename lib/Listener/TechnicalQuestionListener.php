@@ -30,8 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCP\EventDispatcher\Event;
@@ -62,14 +62,14 @@ class TechnicalQuestionListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param NotificationPreferenceService $notifications  Preference-aware dispatch
-	 * @param ListenerSchemaResolver        $schemaResolver Resolves the entity's schema slug
+	 * @param NotificationPreferenceServiceInterface $notifications  Preference-aware dispatch
+	 * @param ListenerSchemaResolverInterface        $schemaResolver Resolves the entity's schema slug
 	 * @param IL10N                         $l10n           Translations
 	 * @param LoggerInterface               $logger         Logger
 	 */
 	public function __construct(
-		private readonly NotificationPreferenceService $notifications,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly NotificationPreferenceServiceInterface $notifications,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
 	) {
@@ -203,15 +203,6 @@ class TechnicalQuestionListener implements IEventListener {
 	 * @return array<string, mixed>
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 }//end class

@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -42,12 +43,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-ori-007-the-public-ori-api-names-public-role-holders-only
  */
-class OriPersonPublicationRule {
-
-	/**
-	 * The register every object lives in.
-	 */
-	private const REGISTER = 'decidiq';
+class OriPersonPublicationRule implements OriPersonPublicationRuleInterface {
 
 	/**
 	 * How many people or memberships one collection request reads.
@@ -166,21 +162,6 @@ class OriPersonPublicationRule {
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function all(string $schema): array {
-		$entities = $this->objectService->findAll(
-			config: ['filters' => ['register' => self::REGISTER, 'schema' => $schema], 'limit' => self::LIMIT],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$objects = [];
-		foreach ($entities as $entity) {
-			$object = $entity->jsonSerialize();
-			$id = ($object['id'] ?? ($object['@self']['id'] ?? ($object['uuid'] ?? null)));
-			if (is_string($id) === true && $id !== '') {
-				$objects[$id] = $object;
-			}
-		}
-
-		return $objects;
+		return (new OriObjectsById(objectService: $this->objectService))->all(schema: $schema, limit: self::LIMIT);
 	}//end all()
 }//end class

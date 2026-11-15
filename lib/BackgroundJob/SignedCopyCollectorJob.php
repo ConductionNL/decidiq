@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\SigningRoundService;
+use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -43,12 +43,12 @@ class SignedCopyCollectorJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory $time Time factory
-	 * @param SigningRoundService $rounds Collects signed copies
+	 * @param SigningRoundServiceInterface $rounds Collects signed copies
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly SigningRoundService $rounds,
+		private readonly SigningRoundServiceInterface $rounds,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);
