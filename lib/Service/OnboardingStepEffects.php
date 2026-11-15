@@ -24,6 +24,9 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\OnboardingStepRefusedException;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Register reads and writes of OnboardingChecklistService, and its membership effects.
@@ -170,7 +173,12 @@ class OnboardingStepEffects {
 	 */
 	public function findData(string $id, string $schema): ?array {
 		try {
-			$data = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false)?->getObject();
+			$data = $this->objectService->find(
+				id: $id,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			)?->getObject();
 		} catch (\Throwable) {
 			return null;
 		}
@@ -196,9 +204,10 @@ class OnboardingStepEffects {
 	public function persist(array $object, string $schema, ?string $uuid=null): ObjectEntityInterface {
 		return $this->objectService->saveObject(
 			object: $object,
-			register: self::REGISTER,
-			schema: $schema,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: self::REGISTER, schema: $schema),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

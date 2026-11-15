@@ -32,6 +32,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -218,7 +219,7 @@ class ThemeRefreshService {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+		$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		$data   = self::dataOf(entity: $entity);
 		if ($data === []) {
 			return null;

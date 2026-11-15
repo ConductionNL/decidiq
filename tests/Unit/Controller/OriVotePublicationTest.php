@@ -43,6 +43,7 @@ use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * A vote is public when its round is closed and not secret, its decision is
@@ -134,7 +135,11 @@ class OriVotePublicationTest extends TestCase {
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null, bool $_rbac = true): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null || $_rbac === true) {
 					return null;

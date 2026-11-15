@@ -32,6 +32,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * A declaration from the page: the member's own Membership, an optional
@@ -76,7 +77,11 @@ class ConflictDeclareFromPageTest extends TestCase {
 		];
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($bySchema): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($bySchema): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($bySchema[(string)$schema][$id] ?? null);
 				return $row === null ? null : $this->entity($row);
 			}

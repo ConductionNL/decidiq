@@ -33,6 +33,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests the revoke flow and the delegate notification the base test never reaches.
@@ -156,7 +158,11 @@ class ProxyDelegationServiceEdgesTest extends TestCase {
 		}
 
 		$this->objectService->method('find')->willReturnCallback(
-			static function (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema) use ($roundEntity, $delegateEntity): ?ObjectEntity {
+			static function (mixed $id, ?ObjectFindOptions $options = null) use ($roundEntity, $delegateEntity): ?ObjectEntity {
+				$extend = $options?->extend;
+				$files = $options?->files;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'voting-round') {
 					return $roundEntity;
 				}
@@ -334,7 +340,13 @@ class ProxyDelegationServiceEdgesTest extends TestCase {
 		$bodyless = ['title' => 'Proxy'];
 		$other = $this->proxyNote('other-uuid', 'delegate-uuid');
 		$this->objectService->expects($this->once())->method('find')
-			->with('round-uuid', [], false, 'decidiq', 'voting-round')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'round-uuid',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'voting-round',
+			]))
 			->willReturn(
 				$this->entity(
 					[
@@ -351,7 +363,12 @@ class ProxyDelegationServiceEdgesTest extends TestCase {
 				)
 			);
 		$this->objectService->expects($this->once())->method('saveObject')
-			->with(['id' => 'round-uuid', 'openedAt' => null, 'notes' => [$agenda, $other, $bodyless]], [], 'decidiq', 'voting-round');
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+				'object' => ['id' => 'round-uuid', 'openedAt' => null, 'notes' => [$agenda, $other, $bodyless]],
+				'extend' => [],
+				'register' => 'decidiq',
+				'schema' => 'voting-round',
+			]));
 
 		$this->makeService()->revokeProxy(votingRoundId: 'round-uuid', fromParticipantId: 'granter-uuid');
 
@@ -365,7 +382,12 @@ class ProxyDelegationServiceEdgesTest extends TestCase {
 	public function testRevokeOnARoundWithoutNotesSavesAnEmptyList(): void {
 		$this->objectService->method('find')->willReturn($this->entity(['id' => 'round-uuid']));
 		$this->objectService->expects($this->once())->method('saveObject')
-			->with(['id' => 'round-uuid', 'notes' => []], [], 'decidiq', 'voting-round');
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+				'object' => ['id' => 'round-uuid', 'notes' => []],
+				'extend' => [],
+				'register' => 'decidiq',
+				'schema' => 'voting-round',
+			]));
 
 		$this->makeService()->revokeProxy(votingRoundId: 'round-uuid', fromParticipantId: 'granter-uuid');
 
