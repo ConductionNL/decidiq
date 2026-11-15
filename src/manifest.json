@@ -1377,7 +1377,7 @@
 					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "decision-lifecycle", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "3", "widgetId": "decision-governance", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "19", "widgetId": "decision-goal", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "20", "widgetId": "decision-goal", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "4", "widgetId": "decision-files", "gridX": 8, "gridY": 8, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "18", "widgetId": "decision-approval", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "5", "widgetId": "decision-actions", "gridX": 0, "gridY": 20, "gridWidth": 12, "gridHeight": 5 },
