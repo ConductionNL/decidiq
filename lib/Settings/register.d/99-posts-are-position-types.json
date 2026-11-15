@@ -1,0 +1,50 @@
+{
+	"_note": "configurable-types-domain-model task 3.5 (the Post half) — a body's formal post is a PositionType, and holding it is a PositionHold on the holder's membership. Post carried label/role and dates that described neither the position nor the holder well, and Membership.post was a bare reference with no duration and no hold type. Posts are copied onto position types and every membership's post onto a position hold by the counted MigratePostsToPositionHolds, which also repoints an appointment decision's targetPosts; an enacted appointment now writes a PositionHold instead of Membership.post.",
+	"_spec": "openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md",
+	"components": {
+		"schemas": {
+			"Post": {
+				"version": "0.2.0",
+				"description": "SUPERSEDED (configurable-types-domain-model): a post is a PositionType on its body. `label` became `name`, `role` became `key`, and the holder's dates live on the PositionHold of each membership that held it. Definition and slug are kept (hardDelete:false, existing rows).",
+				"x-openregister": {
+					"active": false,
+					"hardDelete": false
+				}
+			},
+			"Membership": {
+				"version": "0.5.0",
+				"properties": {
+					"post": {
+						"title": "Post (superseded)",
+						"description": "SUPERSEDED: the position a membership holds is a PositionHold that points at this membership. Kept so existing rows stay readable; nothing writes it any more."
+					}
+				}
+			},
+			"Decision": {
+				"version": "1.6.0",
+				"properties": {
+					"targetPosts": {
+						"description": "Revealed when decisionType=appointment. Zero or more positions (PositionType) of the target body the appointment fills. When the decision is enacted, each candidate's membership gets a PositionHold on its paired position. Optional.",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "position-type"
+						}
+					}
+				}
+			},
+			"PositionHold": {
+				"version": "0.2.0",
+				"properties": {
+					"migratedFromObject": {
+						"title": "Migrated from",
+						"type": "string",
+						"facetable": true,
+						"nullable": true,
+						"description": "The identifier of the membership whose superseded post this hold was copied from. Set only by the post migration; absent on seeds, on holds an appointment wrote and on anything a person created."
+					}
+				}
+			}
+		}
+	}
+}

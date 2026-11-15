@@ -376,6 +376,11 @@ class DecisionTransitionGoldenTest extends TestCase {
 				) {
 					$item = '<atom>';
 				}
+
+				// A position hold starts on the day of enactment, a date without a time.
+				if ($key === 'startDate' && is_string($item) === true && preg_match('/^\d{4}-\d{2}-\d{2}$/', $item) === 1) {
+					$item = '<day>';
+				}
 			}
 		);
 		return $value;

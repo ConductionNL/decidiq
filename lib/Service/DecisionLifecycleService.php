@@ -735,14 +735,15 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 * is adopted and enacted, and write the created ids back onto the
 	 * decision's `appointedMemberships` field.
 	 *
-	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`, the
-	 * paired `post` (design.md D1: no post when `targetPosts` is empty, the
-	 * one entry shared by every candidate when it has exactly one, else the
-	 * post at `index % count($targetPosts)` — a no-op modulo once the
-	 * enact-time pairing gate above has confirmed the lengths match, so
-	 * every candidate lands on its own index), `governanceBody=targetBody`
-	 * when resolvable, and either `person` (when the candidate carries one)
-	 * or `label=externalName` for a not-yet-registered candidate. Absent
+	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`,
+	 * `governanceBody=targetBody` when resolvable, and either `person` (when
+	 * the candidate carries one) or `label=externalName` for a
+	 * not-yet-registered candidate. Its paired position is held through a
+	 * PositionHold on the membership (design.md D1 pairing: no position when
+	 * `targetPosts` is empty, the one entry shared by every candidate when it
+	 * has exactly one, else the position at `index % count($targetPosts)` — a
+	 * no-op modulo once the enact-time pairing gate above has confirmed the
+	 * lengths match, so every candidate lands on its own index). Absent
 	 * fields are dropped rather than written as null (`array_filter`),
 	 * matching how every other guarded write in this file only sets what it
 	 * knows.
@@ -798,7 +799,6 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 						'role' => $targetRole,
 						'startDate' => $enactedAt,
 						'governanceBody' => $targetBody,
-						'post' => $post,
 						'person' => $personId,
 						'label' => $label,
 					],
@@ -811,8 +811,20 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 					schema: 'membership'
 				);
 
-				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
-			}
+				$membershipId = (string)($created->jsonSerialize()['id'] ?? '');
+				$membershipIds[] = $membershipId;
+
+				// The paired position is held through a PositionHold on the new
+				// membership (configurable-types-domain-model, task 3.5), not a
+				// `post` on the membership, which is superseded.
+				$this->holdAppointedPosition(
+					membershipId: $membershipId,
+					positionId: $post,
+					bodyId: $targetBody,
+					enactedAt: $enactedAt,
+					decisionId: $decisionId
+				);
+			}//end foreach
 
 			$this->objectService->saveObject(
 				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
@@ -828,6 +840,54 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		}//end try
 
 	}//end materializeAppointmentMemberships()
+
+	/**
+	 * Write the PositionHold through which an appointed membership holds its paired position.
+	 *
+	 * Writes nothing when the appointment paired no position, when the
+	 * membership got no id, or when the enactment has no day to start the
+	 * hold on (a hold's start date is required, and inventing one would
+	 * invent a fact). The hold is `regular` and names the enacted decision
+	 * as `appointedBy`.
+	 *
+	 * @param string      $membershipId The appointed membership.
+	 * @param string|null $positionId   The paired PositionType, or null when none.
+	 * @param string|null $bodyId       The target body, or null when unresolvable.
+	 * @param string      $enactedAt    When the decision was enacted.
+	 * @param string      $decisionId   The enacted decision.
+	 *
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
+	 *
+	 * @return void
+	 */
+	private function holdAppointedPosition(
+		string $membershipId,
+		?string $positionId,
+		?string $bodyId,
+		string $enactedAt,
+		string $decisionId
+	): void {
+		$startDate = substr($enactedAt, 0, 10);
+		if ($positionId === null || $membershipId === '' || preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) !== 1) {
+			return;
+		}
+
+		$this->objectService->saveObject(
+			object: array_filter(
+				[
+					'membership' => $membershipId,
+					'position' => $positionId,
+					'governanceBody' => $bodyId,
+					'holdType' => 'regular',
+					'startDate' => $startDate,
+					'appointedBy' => $decisionId,
+				],
+				static fn (mixed $value): bool => $value !== null
+			),
+			register: 'decidiq',
+			schema: 'position-hold'
+		);
+	}//end holdAppointedPosition()
 
 	/**
 	 * Resolve the process-template policy override for a decision (process-configuration).

@@ -644,7 +644,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * ('membership-1', 'membership-2', ...) so materializeAppointmentMemberships()
 	 * has something real to collect into `appointedMemberships`.
 	 *
-	 * @return object{decision: array<int, array<string, mixed>>, resolution: array<int, array<string, mixed>>, membership: array<int, array<string, mixed>>}
+	 * @return object{decision: array<int, array<string, mixed>>, resolution: array<int, array<string, mixed>>, membership: array<int, array<string, mixed>>, positionHold: array<int, array<string, mixed>>}
 	 */
 	private function captureBucketedSaves(): object {
 		$buckets = new class {
@@ -668,6 +668,13 @@ class DecisionLifecycleServiceTest extends TestCase {
 			 * @var array<int, array<string, mixed>>
 			 */
 			public array $membership = [];
+
+			/**
+			 * `position-hold` schema saves — the holds of the paired positions.
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $positionHold = [];
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
@@ -676,6 +683,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 					$id = 'membership-' . (count($buckets->membership) + 1);
 					$buckets->membership[] = $object;
 					return $this->entity(array_merge(['id' => $id], $object));
+				}
+
+				if ($schema === 'position-hold') {
+					$buckets->positionHold[] = $object;
+					return $this->entity(array_merge(['id' => 'hold-' . count($buckets->positionHold)], $object));
 				}
 
 				if ($schema === 'decision' && (string)($uuid ?? '') !== '') {
@@ -777,6 +789,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertSame(expected: 'body-1', actual: $membership['governanceBody']);
 		self::assertArrayNotHasKey(key: 'post', array: $membership);
 		self::assertArrayNotHasKey(key: 'label', array: $membership);
+		// A role-only appointment pairs no position, so it holds none.
+		self::assertSame(expected: [], actual: $buckets->positionHold);
 
 		// Exactly two uuid-bearing decision saves: the lifecycle write
 		// (enacted + enactedAt), then the appointedMemberships patch.
@@ -862,10 +876,20 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
 		self::assertSame(expected: 'person-a', actual: $buckets->membership[0]['person']);
-		self::assertSame(expected: 'post-a', actual: $buckets->membership[0]['post']);
 		self::assertSame(expected: 'Candidate B', actual: $buckets->membership[1]['label']);
-		self::assertSame(expected: 'post-b', actual: $buckets->membership[1]['post']);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[0]);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[1]);
 		self::assertSame(expected: ['membership-1', 'membership-2'], actual: $buckets->decision[1]['appointedMemberships']);
+
+		// Each membership holds its own paired position, from the day of enactment.
+		$startDate = substr($buckets->decision[0]['enactedAt'], 0, 10);
+		self::assertSame(
+			expected: [
+				['membership' => 'membership-1', 'position' => 'post-a', 'governanceBody' => 'body-3', 'holdType' => 'regular', 'startDate' => $startDate, 'appointedBy' => 'dec-1'],
+				['membership' => 'membership-2', 'position' => 'post-b', 'governanceBody' => 'body-3', 'holdType' => 'regular', 'startDate' => $startDate, 'appointedBy' => 'dec-1'],
+			],
+			actual: $buckets->positionHold
+		);
 
 	}//end testMaterializesMultipleCandidatesPairedByIndex()
 
@@ -904,8 +928,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[0]['post']);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[1]['post']);
+		self::assertSame(expected: ['membership-1', 'membership-2'], actual: array_column($buckets->positionHold, 'membership'));
+		self::assertSame(expected: ['post-shared', 'post-shared'], actual: array_column($buckets->positionHold, 'position'));
 
 	}//end testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost()
 

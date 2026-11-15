@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 230,
+			"objectCount": 231,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -3015,8 +3015,7 @@
 						"votingWeight": 1,
 						"startDate": "2018-05-30T00:00:00Z",
 						"person": "wieteke-doornbos",
-						"governanceBody": "gemeenteraad-amsterdam",
-						"post": "post-voorzitter-amsterdam"
+						"governanceBody": "gemeenteraad-amsterdam"
 					},
 					{
 						"@self": {
@@ -3048,8 +3047,7 @@
 						"votingWeight": 0,
 						"startDate": "2021-01-15T00:00:00Z",
 						"person": "jan-de-vries",
-						"governanceBody": "rvc-waterschap-amstel",
-						"post": "post-griffier-amsterdam"
+						"governanceBody": "rvc-waterschap-amstel"
 					},
 					{
 						"@self": {
@@ -4022,32 +4020,38 @@
 						"governanceBody": "auditcommissie-provincie-nh",
 						"termDurationMonths": 48,
 						"notes": "Benoeming voor de duur van de raadsperiode; geen maximum aan aansluitende termijnen."
-					}
-				],
-				"post": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "post"
-						},
-						"slug": "post-griffier-amsterdam",
-						"label": "Raadsgriffier",
-						"role": "secretary",
-						"startDate": "2021-01-15T00:00:00Z",
-						"governanceBody": "gemeenteraad-amsterdam"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "post"
+							"schema": "position-type"
 						},
-						"slug": "post-voorzitter-amsterdam",
-						"label": "Voorzitter gemeenteraad",
-						"role": "chair",
-						"startDate": "2018-05-30T00:00:00Z",
-						"governanceBody": "gemeenteraad-amsterdam"
+						"slug": "position-griffier-amsterdam",
+						"name": "Raadsgriffier",
+						"key": "secretary",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"allowedHoldTypes": [
+							"regular",
+							"interim"
+						],
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-voorzitter-amsterdam",
+						"name": "Voorzitter gemeenteraad",
+						"key": "chair",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"allowedHoldTypes": [
+							"regular",
+							"interim"
+						],
+						"active": true
 					}
 				],
 				"proxy-authorization": [
@@ -4842,6 +4846,21 @@
 						"skipped": [
 							"04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"
 						]
+					}
+				],
+				"position-hold": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-femke-amsterdam-voorzitter",
+						"membership": "m-femke-amsterdam",
+						"position": "position-voorzitter-amsterdam",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"holdType": "regular",
+						"startDate": "2018-05-30"
 					}
 				]
 			}
