@@ -614,6 +614,68 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 	}//end testRunSkipsRowWhenTheMeetingLookupThrows()
 
 	/**
+	 * An empty participant reference is never handed to the resolver: the row is
+	 * skipped as unresolvable and only the non-empty reference is resolved.
+	 *
+	 * @return void
+	 */
+	public function testRunSkipsRowWithEmptyGrantorWithoutResolvingIt(): void {
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config): array {
+				if (($config['filters']['schema'] ?? '') !== 'board-proxy') {
+					return [];
+				}
+
+				return [
+					$this->entity(
+						data: [
+							'id' => 'bp-9',
+							'grantorIntegration' => '',
+							'holderIntegration' => 'participant-holder',
+							'meetingIntegration' => 'meeting-1',
+						]
+					),
+				];
+			}
+		);
+		$objectService->method('find')->willReturn($this->entity(data: ['id' => 'meeting-1']));
+		$objectService->expects($this->never())->method('saveObject');
+
+		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
+		$resolver->expects($this->once())
+			->method('resolve')
+			->with('participant-holder')
+			->willReturn(['person' => 'person-holder', 'membership' => 'm']);
+
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				'Decidiq: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
+				[
+					'sourceBoardProxyUuid' => 'bp-9',
+					'grantorResolved' => false,
+					'holderResolved' => true,
+					'meetingResolved' => true,
+				]
+			);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->once())
+			->method('info')
+			->with('MigrateBoardProxyToProxyAuthorization: 0 migrated, 0 already migrated, 1 skipped.');
+
+		$step = new MigrateBoardProxyToProxyAuthorization(
+			objectService: $objectService,
+			resolver: $resolver,
+			logger: $logger,
+		);
+		$step->run(output: $output);
+
+	}//end testRunSkipsRowWithEmptyGrantorWithoutResolvingIt()
+
+	/**
 	 * getName() is descriptive.
 	 *
 	 * @return void
