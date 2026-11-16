@@ -43,6 +43,7 @@ use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -178,6 +179,8 @@ class ObjectListenerRegistrar {
 			);
 		}
 
+		$this->subscribeConfidentiality(dispatcher: $dispatcher);
+
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
 		// Platform-case-system-document-exchange (plt-24): minutes reaching
@@ -268,6 +271,30 @@ class ObjectListenerRegistrar {
 			);
 		}
 	}//end subscribeGoalProgress()
+
+	/**
+	 * Subscribe the confidential-agenda-item listener.
+	 *
+	 * A non-public agenda item closes its papers, and an imposed item
+	 * restriction closes the item (REQ-ACP-003/004).
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers
+	 */
+	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $confidentialityEvent,
+				listener: AgendaItemConfidentialityListener::class,
+				registers: null,
+				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
+			);
+		}
+	}//end subscribeConfidentiality()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.
