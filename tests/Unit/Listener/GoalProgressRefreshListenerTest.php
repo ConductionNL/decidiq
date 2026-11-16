@@ -42,6 +42,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 final class GoalProgressRefreshListenerTest extends TestCase {
 
@@ -67,7 +69,9 @@ final class GoalProgressRefreshListenerTest extends TestCase {
 		];
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (string $id, mixed $register = null, mixed $schema = null) use ($goals, $failRead): ?ObjectEntity {
+			function (string $id, ?ObjectFindOptions $options = null) use ($goals, $failRead): ?ObjectEntity {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->read[] = $id;
 				if ($failRead === true) {
 					throw new RuntimeException('database gone');
@@ -84,7 +88,11 @@ final class GoalProgressRefreshListenerTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, mixed $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid, '_rbac' => $_rbac, '_multitenancy' => $_multitenancy];
 				return new ObjectEntity();
 			}

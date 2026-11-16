@@ -44,6 +44,9 @@ use DateTimeInterface;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
 use OCA\Decidiq\Kernel\Contracts\BroadcastCaptionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Constants;
 use OCP\IURLGenerator;
@@ -390,7 +393,12 @@ class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}
@@ -414,9 +422,10 @@ class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 		unset($broadcast['id'], $broadcast['@self']);
 		$saved = $this->objectService->saveObject(
 			object: $broadcast,
-			register: 'decidiq',
-			schema: 'meeting-broadcast',
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting-broadcast'),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

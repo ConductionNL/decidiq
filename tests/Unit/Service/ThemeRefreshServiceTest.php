@@ -37,6 +37,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * The refresh over a mocked register, timeline and publication path.
@@ -106,10 +107,11 @@ final class ThemeRefreshServiceTest extends TestCase {
 			}
 		);
 		$objects->method('find')->willReturnCallback(
-			function (
-				string|int $id, ?array $_extend = [], bool $_files = false,
-				mixed $register = null, mixed $schema = null
-			) use ($rows): ?ObjectEntityInterface {
+			function (string|int $id, ?ObjectFindOptions $options = null) use ($rows): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$_files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				foreach (($rows[(string)$schema] ?? []) as $row) {
 					if ($row['id'] === $id) {
 						$entity = $this->createMock(ObjectEntityInterface::class);

@@ -25,6 +25,8 @@ use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Steps done and skipped, the lifecycle, the membership effects, and who may mark a step.
@@ -232,7 +234,11 @@ final class OnboardingChecklistServiceTest extends TestCase {
 	private function service(): OnboardingChecklistService {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->assertSame('decidiq', $register);
 				$data = ($this->store[$schema][$id] ?? null);
 				if ($data === null) {
@@ -244,7 +250,11 @@ final class OnboardingChecklistServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [(string)$schema, $uuid, $object];
 				$id = ($uuid ?? 'new-' . $schema);
 				$this->store[$schema][$id] = $object;

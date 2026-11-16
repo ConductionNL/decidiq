@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -297,8 +299,6 @@ class MigrateConsultationsToOneSchema implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema(self::TARGET);
 					$saved = $objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::TARGET,
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: self::TARGET),
@@ -313,6 +313,7 @@ class MigrateConsultationsToOneSchema implements IRepairStep {
 								sourceSlug: $schema
 							),
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET))
 					);
 					$existing[$origin] = $this->identifierOf(object: $this->toArray(entity: $saved));
 				} catch (Throwable $e) {
@@ -369,8 +370,6 @@ class MigrateConsultationsToOneSchema implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema(self::RESPONSE_TARGET);
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::RESPONSE_TARGET,
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: self::RESPONSE_TARGET),
@@ -383,6 +382,7 @@ class MigrateConsultationsToOneSchema implements IRepairStep {
 								consultation: $parent
 							),
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::RESPONSE_TARGET))
 					);
 					$existing[$origin] = $parent;
 					$copied++;

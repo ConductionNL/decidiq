@@ -33,6 +33,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for MinutesCorrectionController at its edges.
@@ -99,6 +100,7 @@ class MinutesCorrectionControllerEdgeTest extends TestCase {
 		$saved = null;
 		$this->objects->expects(self::once())->method('saveObject')->willReturnCallback(
 			function (array $object, mixed ...$rest) use (&$saved): ObjectEntity {
+				$rest = array_slice(LegacyObjectArgs::positional(method: 'saveObject', args: [$object, ...$rest]), 1);
 				$saved = [$object, $rest];
 				return $this->entity($object);
 			}

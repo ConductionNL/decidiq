@@ -37,6 +37,9 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -168,7 +171,12 @@ class GoalProgressRefreshListener implements IEventListener {
 	 */
 	private function refresh(string $goalId): void {
 		try {
-			$found = $this->objectService->find(id: $goalId, register: 'decidiq', schema: self::SCHEMA_GOAL, _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(
+				id: $goalId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA_GOAL),
+				_rbac: false,
+				_multitenancy: false
+			);
 			if ($found === null) {
 				return;
 			}
@@ -179,9 +187,10 @@ class GoalProgressRefreshListener implements IEventListener {
 			unset($goal['@self']);
 			$this->objectService->saveObject(
 				object: $goal,
-				register: 'decidiq',
-				schema: self::SCHEMA_GOAL,
-				uuid: $goalId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA_GOAL),
+					uuid: $goalId
+				),
 				_rbac: false,
 				_multitenancy: false
 			);

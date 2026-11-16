@@ -37,6 +37,8 @@ use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests publish/withdraw/rectify flow + catalog-retraction failure branch.
@@ -79,7 +81,11 @@ class PublicationServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?object {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?object {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (isset($this->store[(string)$id]) === false) {
 					return null;
 				}
@@ -90,7 +96,11 @@ class PublicationServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($uuid === null) {
 					$this->seq++;
 					$uuid = 'obj-' . $this->seq;

@@ -36,6 +36,9 @@ use Exception;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -173,7 +176,7 @@ class MinutesCorrectionController extends Controller {
 		// `?ObjectEntity`, so null remains reachable in principle, and a
 		// guard that costs nothing should not be removed on the strength of
 		// current behaviour alone.
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
 			return new JSONResponse(
 				['message' => 'Minutes not found.'],
@@ -209,9 +212,10 @@ class MinutesCorrectionController extends Controller {
 		$minutes['corrections'] = $corrections;
 		$this->objectService->saveObject(
 			object: $minutes,
-			register: 'decidiq',
-			schema: 'minutes',
-			uuid: $minutesId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
+				uuid: $minutesId
+			)
 		);
 
 		return new JSONResponse(['corrections' => $corrections]);
@@ -303,7 +307,7 @@ class MinutesCorrectionController extends Controller {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	private function applyCorrectionResolution(string $minutesId, string $correctionId, string $status): JSONResponse {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
 			return new JSONResponse(
 				['message' => 'Minutes not found.'],
@@ -339,9 +343,10 @@ class MinutesCorrectionController extends Controller {
 
 		$this->objectService->saveObject(
 			object: $minutes,
-			register: 'decidiq',
-			schema: 'minutes',
-			uuid: $minutesId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
+				uuid: $minutesId
+			)
 		);
 
 		return new JSONResponse(['correction' => $updated]);

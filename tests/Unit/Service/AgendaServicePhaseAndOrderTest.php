@@ -36,6 +36,7 @@ use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for the agenda phase and order paths.
@@ -95,12 +96,12 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$item = $this->createMock(ObjectEntity::class);
 		$item->method('getObject')->willReturn(['title' => 'No status']);
 		$this->objects->method('find')->willReturn($item);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['status' => 'oordeelsvorming'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'ai-1',
+				'data' => ['status' => 'oordeelsvorming'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 		$this->logger->expects($this->once())->method('info')->with(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',
 			['id' => 'ai-1', 'from' => 'beeldvorming', 'to' => 'oordeelsvorming']

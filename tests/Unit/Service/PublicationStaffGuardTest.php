@@ -29,6 +29,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\PublicationStaffGuard
@@ -75,7 +76,11 @@ class PublicationStaffGuardTest extends TestCase {
 	private function guard(bool $admin, array $objects=[], array $staffOf=[]): PublicationStaffGuard {
 		$store = $this->createMock(ObjectServiceInterface::class);
 		$store->method('find')->willReturnCallback(
-			function (string|int $id, ?array $extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use ($objects): ?ObjectEntity {
+			function (string|int $id, ?ObjectFindOptions $options = null) use ($objects): ?ObjectEntity {
+				$extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$key = $register . ':' . $schema . '/' . $id;
 				$this->finds[] = $key;
 				return ($objects[$key] ?? null);

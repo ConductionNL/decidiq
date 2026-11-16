@@ -31,6 +31,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Ordering enforcement, parent-motion and meeting resolution.
@@ -77,7 +78,11 @@ class AmendmentOrderServiceTest extends TestCase {
 		$this->motionService = $this->createMock(MotionService::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($register !== 'decidiq' || $schema !== 'decision' || isset($this->decisions[$id]) === false) {
 					return null;
 				}

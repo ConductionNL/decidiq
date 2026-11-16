@@ -30,6 +30,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * `BudgetVotingService::castAdvisoryVote()` refuses when the round cannot be
@@ -116,13 +117,11 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 	 */
 	private function stubFind(array $proposal, ?array $round): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($proposal, $round): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($proposal, $round): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'budget-proposal') {
 					return $this->entity($proposal);
 				}

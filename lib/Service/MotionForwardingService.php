@@ -31,6 +31,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
@@ -117,8 +119,7 @@ class MotionForwardingService {
 		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
-			register: 'decidiq',
-			schema: 'decision',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 		)->jsonSerialize();
 
 		$sourceMotionData = $this->noteForwarding(
@@ -240,9 +241,10 @@ class MotionForwardingService {
 		$objectService->setSchema('decision');
 		$objectService->saveObject(
 			object: $sourceMotionData,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $motionId
+			)
 		);
 
 		return $sourceMotionData;
