@@ -31,6 +31,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The lifting sweep over an in-memory register.
@@ -116,10 +118,14 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 			}
 		);
 		$objects->method('find')->willReturnCallback(
-			fn (string|int $id, $extend = [], bool $files = false, $register = null, $schema = null): ?ObjectEntity => isset($this->store[$schema][$id]) ? $this->entity(row: $this->store[$schema][$id]) : null
+			fn (string|int $id, ?ObjectFindOptions $options = null): ?ObjectEntity => isset($this->store[($options?->schema)][$id]) ? $this->entity(row: $this->store[($options?->schema)][$id]) : null
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, $extend = [], $register = null, $schema = null, $uuid = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$object = (array)$object;
 				$id     = (string)($uuid ?? ($object['id'] ?? ($schema . '-new-' . (count($this->saves) + 1))));
 				$object['id'] = $id;

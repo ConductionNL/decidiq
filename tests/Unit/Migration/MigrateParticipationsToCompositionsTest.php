@@ -23,6 +23,7 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The move of shared-body participations onto representation compositions.
@@ -368,7 +369,9 @@ class MigrateParticipationsToCompositionsTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(string $register, string $schema, array $object): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saves[] = [$schema, $object];
 
 				return ($object + ['id' => $schema . '-' . count($this->saves)]);

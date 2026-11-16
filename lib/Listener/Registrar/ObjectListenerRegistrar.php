@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\GoalProgressRefreshListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
@@ -187,6 +188,8 @@ class ObjectListenerRegistrar {
 			);
 		}
 
+		$this->subscribeGoalProgress(dispatcher: $dispatcher);
+
 		// Platform-case-system-document-exchange (plt-24): minutes reaching
 		// approved or signed render the decision list, and may send the
 		// meeting file. Declared interest is the handler's own schema guard.
@@ -222,6 +225,26 @@ class ObjectListenerRegistrar {
 		}
 
 	}//end register()
+
+	/**
+	 * Goal progress (goals-linked-to-decisions REQ-013): a contribution that
+	 * changes re-saves the goals it points at, so their rates follow.
+	 *
+	 * @param IEventDispatcher $dispatcher The event dispatcher.
+	 *
+	 * @return void
+	 */
+	private function subscribeGoalProgress(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $goalEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $goalEvent,
+				listener: GoalProgressRefreshListener::class,
+				registers: null,
+				schemas: array_keys(GoalProgressRefreshListener::CONTRIBUTORS)
+			);
+		}
+	}//end subscribeGoalProgress()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.

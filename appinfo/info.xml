@@ -143,6 +143,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
              run twice; a stage carries the stamp that says it already lapsed.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
+             governing document takes effect on its planned date.
+             @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are

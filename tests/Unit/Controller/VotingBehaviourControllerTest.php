@@ -21,6 +21,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\VotingBehaviourController;
 use OCA\Decidiq\Service\VotingBehaviourService;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 use OCA\Decidiq\Tests\Unit\Support\FakeSlugResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
@@ -245,7 +246,13 @@ class VotingBehaviourControllerTest extends TestCase {
 			// with the code and with no instance the code ran on. The controller
 			// is built here with a migrated instance, so this is now the
 			// assertion that reddens if the resolution is dropped.
-			->with($participantUuid, [], false, 'decidiq', 'participant')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => $participantUuid,
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'participant',
+			]))
 			->willReturn($this->makeParticipantEntity('user-1'));
 
 		$expectedStats = [

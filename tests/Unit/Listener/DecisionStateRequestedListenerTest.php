@@ -36,6 +36,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * The whole seam, wired as it ships: the REAL listener over the REAL
@@ -140,13 +141,11 @@ class DecisionStateRequestedListenerTest extends TestCase {
 		$service = $this->createMock(ObjectService::class);
 
 		$service->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				mixed $register = null,
-				mixed $schema = null,
-			): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ((string)$register !== 'decidiq' || (string)$schema !== 'decision') {
 					return null;
 				}

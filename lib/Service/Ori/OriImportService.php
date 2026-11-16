@@ -27,6 +27,9 @@ namespace OCA\Decidiq\Service\Ori;
 use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Reads every object of a source ORI register, maps it per the mapping table in
@@ -131,6 +134,13 @@ class OriImportService implements OriImportServiceInterface {
 	 * @var array<string, string>
 	 */
 	private array $itemTitles = [];
+
+	/**
+	 * Meeting or agenda item uuid => the meeting's start, the date its decisions were taken.
+	 *
+	 * @var array<string, string>
+	 */
+	private array $meetingDates = [];
 
 	/**
 	 * The council body's name and uuid.
@@ -253,9 +263,10 @@ class OriImportService implements OriImportServiceInterface {
 			foreach ($this->tagged[$schema] as $tag => $uuid) {
 				if ($this->dryRun === false) {
 					$this->objectService->deleteObject(
-						uuid: $uuid,
-						register: self::TARGET_REGISTER,
-						schema: $schema,
+						new ObjectDeletion(
+							uuid: $uuid,
+							target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema)
+						),
 						_rbac: false,
 						_multitenancy: false
 					);
@@ -281,6 +292,7 @@ class OriImportService implements OriImportServiceInterface {
 		$this->slugs = [];
 		$this->partyNames = [];
 		$this->itemTitles = [];
+		$this->meetingDates = [];
 		$this->council = ['name' => '', 'uuid' => ''];
 		$this->tagged = [];
 		$this->written = [];
@@ -437,7 +449,8 @@ class OriImportService implements OriImportServiceInterface {
 		$tag = self::tag(record: $record);
 		$ending = [];
 		if ($person['active'] === false) {
-			$ending = ['endDate' => $cutoverDate];
+			// The schema's endDate is a date-time; the cutover is a day, so it ends at that day's start.
+			$ending = ['endDate' => $cutoverDate . 'T00:00:00+00:00'];
 		}
 
 		$group = $this->politicalGroup(record: $record, person: $person);
@@ -541,6 +554,7 @@ class OriImportService implements OriImportServiceInterface {
 
 			$uuid = $this->upsert(schema: 'meeting', tag: self::tag(record: $record), data: $data, label: $meeting['title']);
 			$this->remember(schema: $schema, record: $record, uuid: $uuid);
+			$this->meetingDates[$uuid] = $meeting['scheduledDate'];
 		}//end foreach
 	}//end importMeetings()
 
@@ -657,8 +671,40 @@ class OriImportService implements OriImportServiceInterface {
 			$uuid = $this->upsert(schema: 'agenda-item', tag: self::tag(record: $record), data: $data, label: $item['title']);
 			$this->remember(schema: $schema, record: $record, uuid: $uuid);
 			$this->itemTitles[$uuid] = $item['title'];
+			$this->inheritMeetingDate(item: $uuid, meeting: (string)$meeting);
 		}//end foreach
 	}//end importAgendaItems()
+
+	/**
+	 * Let an agenda item carry its meeting's date, when the meeting has one.
+	 *
+	 * @param string $item    The agenda item uuid.
+	 * @param string $meeting The meeting uuid.
+	 *
+	 * @return void
+	 */
+	private function inheritMeetingDate(string $item, string $meeting): void {
+		if (isset($this->meetingDates[$meeting]) === true) {
+			$this->meetingDates[$item] = $this->meetingDates[$meeting];
+		}
+	}//end inheritMeetingDate()
+
+	/**
+	 * The date a decision on this agenda item was taken: its meeting's date, or nothing.
+	 *
+	 * A decided decision carries its date (the schema's terminal-completeness rule).
+	 *
+	 * @param string $item The agenda item uuid.
+	 *
+	 * @return array<string, string> `['decisionDate' => ...]`, or an empty array.
+	 */
+	private function decisionDate(string $item): array {
+		if (isset($this->meetingDates[$item]) === false) {
+			return [];
+		}
+
+		return ['decisionDate' => $this->meetingDates[$item]];
+	}//end decisionDate()
 
 	/**
 	 * The item type decidiq requires, derived from what the source item holds.
@@ -743,7 +789,8 @@ class OriImportService implements OriImportServiceInterface {
 				'subjectSchema' => 'agenda-item',
 				'subjectId' => $item,
 				'subjectLabel' => ($this->itemTitles[(string)$item] ?? ''),
-			];
+			] + $this->decisionDate(item: (string)$item);
+
 			$round = [
 				'votingMethod' => 'for-against-abstain',
 				'isSecret' => false,
@@ -848,9 +895,10 @@ class OriImportService implements OriImportServiceInterface {
 		if ($this->dryRun === false) {
 			$saved = $this->objectService->saveObject(
 				object: $data,
-				register: self::TARGET_REGISTER,
-				schema: $schema,
-				uuid: $existing,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema),
+					uuid: $existing
+				),
 				_rbac: false,
 				_multitenancy: false
 			);

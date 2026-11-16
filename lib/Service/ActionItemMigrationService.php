@@ -28,6 +28,9 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -299,9 +302,10 @@ class ActionItemMigrationService {
 		try {
 			$this->objectService->saveObject(
 				object: $data,
-				register: self::REGISTER,
-				schema: $schema,
-				uuid: $object['uuid'],
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: $schema),
+					uuid: $object['uuid']
+				),
 				_rbac: false,
 				_multitenancy: false
 			);
@@ -314,12 +318,12 @@ class ActionItemMigrationService {
 		try {
 			// Not permanent: OpenRegister archives the object, recoverable, instead of purging it.
 			$this->objectService->deleteObject(
-				uuid: $object['uuid'],
-				register: self::REGISTER,
-				schema: $schema,
+				new ObjectDeletion(
+					uuid: $object['uuid'],
+					target: new ObjectFindTarget(register: self::REGISTER, schema: $schema)
+				),
 				_rbac: false,
-				_multitenancy: false,
-				permanent: false
+				_multitenancy: false
 			);
 		} catch (Throwable $e) {
 			// Marked, so it is skipped from now on; archiving can be retried by hand.

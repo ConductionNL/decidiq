@@ -29,6 +29,7 @@ use OCA\Decidiq\Service\LegalRemedyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -205,7 +206,7 @@ class DecisionRemedyStampListener implements IEventListener {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $typeId, register: 'decidiq', schema: 'decision-template');
+			$found = $this->objectService->find(id: $typeId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision-template'));
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				message: 'Decidiq: the decision type could not be read, so no remedy clause was stamped',

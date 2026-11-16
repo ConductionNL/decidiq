@@ -33,6 +33,8 @@ use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for the guarded decision lifecycle transition orchestration:
@@ -138,7 +140,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($holder) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($holder) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$holder->value = $object;
 				return $this->entity($object);
 			}
@@ -206,7 +212,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		// legislative domain: deliberating → voting is chair-only.
 		// The linked meeting has no chair → reject, never skip.
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
 				}
@@ -234,7 +244,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 */
 	public function testChairOnlyRejectsNonChair(): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
 				}
@@ -266,7 +280,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 */
 	public function testQuorumGateBlocksOpenVoting(): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
 				}
@@ -393,7 +411,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -441,14 +463,22 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 */
 	public function testInFlightTransitionNeedsNoOutcome(): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie Woonlasten']);
 			}
 		);
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -475,7 +505,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -540,7 +574,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		$updates = [];
 		$resolution = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$updates, &$resolution) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$updates, &$resolution) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ((string)($uuid ?? '') !== '') {
 					$updates[] = $object;
 				} else {
@@ -587,7 +625,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 */
 	public function testGetAvailableTransitions(): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
 				}
@@ -671,7 +713,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($buckets) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($buckets) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($schema === 'membership') {
 					$id = 'membership-' . (count($buckets->membership) + 1);
 					$buckets->membership[] = $object;

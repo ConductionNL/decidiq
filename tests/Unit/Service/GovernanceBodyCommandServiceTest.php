@@ -22,6 +22,7 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Covers the cross-app governance-body command engine.
@@ -156,13 +157,11 @@ class GovernanceBodyCommandServiceTest extends TestCase {
 		$state = $this->objectService;
 		$facade = $this->createMock(ObjectServiceInterface::class);
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);

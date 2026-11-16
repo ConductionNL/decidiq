@@ -28,6 +28,7 @@ use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -259,7 +260,7 @@ class VotingBehaviourController extends Controller {
 	 */
 	private function ownsParticipant(string $participantId, string $uid, string $registerSlug): bool {
 		try {
-			$participantEntity = $this->objectService->find($participantId, [], false, $registerSlug, 'participant');
+			$participantEntity = $this->objectService->find($participantId, new ObjectFindOptions(register: $registerSlug, schema: 'participant'));
 		} catch (DoesNotExistException) {
 			return false;
 		}

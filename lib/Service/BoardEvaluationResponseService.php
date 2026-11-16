@@ -34,6 +34,9 @@ use DateTimeInterface;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 
@@ -101,8 +104,7 @@ class BoardEvaluationResponseService implements BoardEvaluationResponseServiceIn
 		try {
 			$entity = $this->objectService()->find(
 				id: $evaluationId,
-				register: 'decidiq',
-				schema: 'board-evaluation'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation')
 			);
 			if ($entity !== null) {
 				$evaluation = $entity->jsonSerialize();
@@ -154,7 +156,7 @@ class BoardEvaluationResponseService implements BoardEvaluationResponseServiceIn
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -185,7 +187,10 @@ class BoardEvaluationResponseService implements BoardEvaluationResponseServiceIn
 				],
 			];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'evaluation-response', object: $response);
+			$saved = $objectService->saveObject(
+				object: $response,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'evaluation-response'))
+			);
 
 			// Completion tracking lives on the BoardEvaluation roster, entirely
 			// separate from the response content saved above.
@@ -337,7 +342,7 @@ class BoardEvaluationResponseService implements BoardEvaluationResponseServiceIn
 
 		// Re-fetch to reduce (not eliminate) a lost-update race between the
 		// response write above and this roster update.
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity !== null) {
 			$evaluation = $entity->jsonSerialize();
 		}
@@ -350,7 +355,10 @@ class BoardEvaluationResponseService implements BoardEvaluationResponseServiceIn
 		$evaluation['respondedParticipantIds'] = array_values($responded);
 		$evaluation['respondedCount'] = count($responded);
 
-		$objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+		$objectService->saveObject(
+			object: $evaluation,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+		);
 
 	}//end recordCompletion()
 

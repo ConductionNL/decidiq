@@ -35,6 +35,9 @@ use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\Decidiq\Kernel\Contracts\MinutesDocumentServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -414,7 +417,7 @@ class MinutesDocumentService implements MinutesDocumentServiceInterface {
 	 * @return string
 	 */
 	private function lookupAgendaItemTitle(string $agendaItemId): string {
-		$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		if ($entity === null) {
 			return $agendaItemId;
 		}
@@ -552,7 +555,10 @@ class MinutesDocumentService implements MinutesDocumentServiceInterface {
 	 */
 	private function recordGeneratedDocument(string $minutesId, array $minutes): void {
 		try {
-			$this->objectService->saveObject(object: $minutes, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+			$this->objectService->saveObject(
+				object: $minutes,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+			);
 		} catch (\Throwable $e) {
 			// The document itself was persisted; a failed bookkeeping write must
 			// not fail the request. Log and continue.
