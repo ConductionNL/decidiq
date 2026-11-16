@@ -33,6 +33,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Schema;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -128,8 +129,8 @@ final class RoomSystemFeedTest extends TestCase {
 	private function objects(): ObjectServiceInterface {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			fn (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface
-				=> isset($this->store[$schema][$id]) === true ? $this->entity(id: (string)$id, data: $this->store[$schema][$id]) : null
+			fn (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface
+				=> isset($this->store[(string)$options?->schema][$id]) === true ? $this->entity(id: (string)$id, data: $this->store[(string)$options?->schema][$id]) : null
 		);
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config): array {

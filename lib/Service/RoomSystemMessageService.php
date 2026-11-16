@@ -28,6 +28,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -250,9 +253,7 @@ class RoomSystemMessageService {
 		unset($stored['id'], $stored['@self']);
 		$this->objects->saveObject(
 			object: (['castAs' => 'in-person', 'castVia' => 'room-system'] + $stored),
-			register: self::REGISTER,
-			schema: 'vote',
-			uuid: $voteId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'vote'), uuid: $voteId),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -333,9 +334,7 @@ class RoomSystemMessageService {
 
 		$saved = $this->objects->saveObject(
 			object: $fields,
-			register: self::REGISTER,
-			schema: self::SCHEMA,
-			uuid: $id,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA), uuid: $id),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -357,7 +356,12 @@ class RoomSystemMessageService {
 		}
 
 		try {
-			$entity = $this->objects->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+			$entity = $this->objects->find(
+				id: $id,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable) {
 			return null;
 		}

@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Throwable;
 
 /**
@@ -280,7 +281,12 @@ class RoomSystemFeed {
 		}
 
 		try {
-			$entity = $this->objects->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+			$entity = $this->objects->find(
+				id: $id,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable) {
 			return null;
 		}

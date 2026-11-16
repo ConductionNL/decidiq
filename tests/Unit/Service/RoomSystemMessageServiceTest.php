@@ -34,6 +34,8 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Schema;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -116,8 +118,8 @@ final class RoomSystemMessageServiceTest extends TestCase {
 	private function objects(): ObjectServiceInterface {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			fn (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface
-				=> isset($this->store[$schema][$id]) === true ? $this->entity(id: (string)$id, data: $this->store[$schema][$id]) : null
+			fn (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface
+				=> isset($this->store[(string)$options?->schema][$id]) === true ? $this->entity(id: (string)$id, data: $this->store[(string)$options?->schema][$id]) : null
 		);
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config): array {
@@ -135,7 +137,9 @@ final class RoomSystemMessageServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options): ObjectEntityInterface {
+				$schema = (string)$options->target->schema;
+				$uuid   = (string)$options->uuid;
 				$this->store[$schema][$uuid] = $object;
 				$this->saves[] = [$schema, $uuid, $object];
 				return $this->entity(id: (string)$uuid, data: $object);
