@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\WrittenRoundCloser;
-use OCA\Decidiq\Service\WrittenRoundStore;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundCloserInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundStoreInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -50,15 +50,15 @@ class WrittenResolutionDeadlineJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory       $time   Nextcloud time factory.
-	 * @param WrittenRoundStore  $store  Reads the written rounds.
-	 * @param WrittenRoundCloser $closer Closes a round at its deadline.
-	 * @param LoggerInterface    $logger Logger.
+	 * @param ITimeFactory                $time   Nextcloud time factory.
+	 * @param WrittenRoundStoreInterface  $store  Reads the written rounds.
+	 * @param WrittenRoundCloserInterface $closer Closes a round at its deadline.
+	 * @param LoggerInterface             $logger Logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly WrittenRoundStore $store,
-		private readonly WrittenRoundCloser $closer,
+		private readonly WrittenRoundStoreInterface $store,
+		private readonly WrittenRoundCloserInterface $closer,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

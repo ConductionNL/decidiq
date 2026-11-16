@@ -62,13 +62,14 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\LegalRemedyResolverInterface;
 
 /**
  * Resolves a decision type's remedy declaration onto a decision.
  *
  * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
  */
-final class LegalRemedyResolver {
+final class LegalRemedyResolver implements LegalRemedyResolverInterface {
 	/**
 	 * The remedies a type may declare.
 	 *

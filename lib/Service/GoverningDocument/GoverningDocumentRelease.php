@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service\GoverningDocument;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\GoverningDocumentReleaseInterface;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCP\AppFramework\Utility\ITimeFactory;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ use Throwable;
  *
  * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
  */
-class GoverningDocumentRelease {
+class GoverningDocumentRelease implements GoverningDocumentReleaseInterface {
 
 	/**
 	 * The schema slug of a governing document.
