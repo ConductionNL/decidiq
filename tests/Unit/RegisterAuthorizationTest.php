@@ -672,6 +672,18 @@ class RegisterAuthorizationTest extends TestCase {
 				continue;
 			}
 
+			// RoomSystemMessage (live-room-conference-system-link, REQ-RCSL-003):
+			// only the integriq synchronisation group stores what the room system
+			// sent; RoomSystemMessageService writes the outcome in system context,
+			// so update and delete stay closed and a member cannot forge a desk vote.
+			if ($name === 'RoomSystemMessage') {
+				$this->assertSame(['integriq-synchronisation'], $block['create'] ?? null, 'RoomSystemMessage opens `create` to the integriq synchronisation group only.');
+				$this->assertArrayNotHasKey('update', $block, 'RoomSystemMessage keeps `update` closed: RoomSystemMessageService owns the outcome.');
+				$this->assertArrayNotHasKey('delete', $block, 'RoomSystemMessage keeps `delete` closed.');
+
+				continue;
+			}
+
 			// ImplementationUpdate (followup-implementation-progress,
 			// REQ-FUP-001): the secretariat reports progress through the
 			// object API; correcting or removing a report is for
@@ -744,10 +756,10 @@ class RegisterAuthorizationTest extends TestCase {
 		// EvaluationResponse, 1 is PublicationSubscription, 8 are written by
 		// the secretariat (MandateRemuneration, PaperSummary, MeetingBroadcast,
 		// VotingGroup, MeetingPack, SpeakingRequest, SpeakingPolicy,
-		// ChangeRecommendation), 1 is ImplementationUpdate, 17 are retired. A
-		// different number means schemas gained or lost their own block, which
-		// changes which ones the register baseline governs.
-		$this->assertCount(expectedCount: 52, haystack: $blocks, message: 'Expected 52 schema-level authorization blocks.');
+		// ChangeRecommendation), 1 is ImplementationUpdate, 1 is RoomSystemMessage,
+		// 17 are retired. A different number means schemas gained or lost their own
+		// block, which changes which ones the register baseline governs.
+		$this->assertCount(expectedCount: 53, haystack: $blocks, message: 'Expected 53 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

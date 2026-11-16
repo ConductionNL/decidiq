@@ -53,6 +53,9 @@ $extra = [
         ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
         ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
         ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
+        // The room's conference and voting system through integriq (live-room-conference-system-link, REQ-RCSL-001, REQ-RCSL-006).
+        ['name' => 'roomSystem#meeting',        'url' => '/api/meetings/{id}/room-system',              'verb' => 'GET'],
+        ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],

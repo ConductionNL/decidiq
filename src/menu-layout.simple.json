@@ -1815,6 +1815,9 @@
 					"meeting-case-system": {
 						"type": "MeetingCaseSystemTab"
 					},
+					"meeting-room-system": {
+						"type": "MeetingRoomSystemTab"
+					},
 					"meeting-broadcast": {
 						"type": "MeetingBroadcastTab"
 					},
@@ -2195,6 +2198,11 @@
 								{
 									"widgetId": "meeting-case-system",
 									"label": "Case system",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-room-system",
+									"label": "Room system",
 									"overflow": true
 								},
 								{
