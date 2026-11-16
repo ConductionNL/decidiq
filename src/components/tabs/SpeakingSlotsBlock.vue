@@ -71,8 +71,18 @@ export default {
 	},
 
 	watch: {
-		meetingId: { immediate: true, handler() { this.load() } },
-		place() { this.load() },
+		meetingId: {
+			immediate: true,
+			/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+			handler() {
+				this.load()
+			},
+		},
+
+		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+		place() {
+			this.load()
+		},
 	},
 
 	methods: {
