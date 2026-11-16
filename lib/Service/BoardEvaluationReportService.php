@@ -321,26 +321,12 @@ class BoardEvaluationReportService implements BoardEvaluationReportServiceInterf
 			$segments[] = 'Evaluations';
 			$segments[] = $this->sanitize(name: (string)($evaluation['cycleLabel'] ?? 'cycle'));
 
-			$path = '';
-			foreach ($segments as $segment) {
-				$prefix = $path;
-				$path = $segment;
-				if ($prefix !== '') {
-					$path = $prefix . '/' . $segment;
-				}
-
-				$this->fileService->createFolder($path);
-			}
+			$path = MeetingFileTree::createPath(fileService: $this->fileService, segments: $segments);
 
 			$folderNode = $this->fileService->createFolder($path);
 			$safeName = $this->sanitize(name: $fileName);
 
-			try {
-				$existing = $folderNode->get($safeName);
-				$existing->putContent($content);
-			} catch (\OCP\Files\NotFoundException) {
-				$folderNode->newFile($safeName, $content);
-			}
+			MeetingFileTree::putFile(folderNode: $folderNode, name: $safeName, content: $content);
 
 			return $path . '/' . $safeName;
 		} catch (\Throwable $e) {
@@ -363,26 +349,7 @@ class BoardEvaluationReportService implements BoardEvaluationReportServiceInterf
 	 */
 	private function resolveBodyName(array $evaluation, object $objectService): string {
 		$bodyId = $evaluation['governanceBody'] ?? ($evaluation['relations']['governanceBody'][0] ?? null);
-		if (is_array($bodyId) === true) {
-			$bodyId = ($bodyId['id'] ?? null);
-		}
-
-		if (is_string($bodyId) === false || $bodyId === '') {
-			return '';
-		}
-
-		try {
-			$entity = $objectService->find(id: $bodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
-		} catch (\Throwable) {
-			return '';
-		}
-
-		if ($entity === null) {
-			return '';
-		}
-
-		$body = (array)$entity->jsonSerialize();
-		return (string)($body['name'] ?? ($body['title'] ?? ''));
+		return MeetingFileTree::bodyName(objectService: $objectService, bodyId: $bodyId);
 	}//end resolveBodyName()
 
 	/**

@@ -231,6 +231,12 @@
 						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "variant": "warning", "route": { "name": "Commitments", "query": { "lifecycle": ["open", "in-execution"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "governance-commitment", "metric": "count", "filter": { "lifecycle": { "in": ["open", "in-execution"] } } } }
 					},
 					{
+						"_note": "termijnagenda REQ-LTA-010 / design D6. Counts long-term agenda items whose planned period's last day has passed while they are planned or postponed and nothing realised them. The aggregation endpoint has no relative-today token and honours scalar-equality filters only (see open-commitments-overdue), so this is a custom widget that fetches the open items and applies the period rule client-side (src/utils/plannedAgenda.js), never a silently wrong declarative count. It deep-links to the long-term agenda filtered to the open states. Placed in its own band below the spec'd rows.",
+						"id": "overdue-planned-agenda",
+						"type": "custom",
+						"title": "Long-term agenda overdue"
+					},
+					{
 						"_note": "openspec/specs/dashboard/spec.md REQ 'Upcoming Meetings Widget' requires body name and agenda-item count per row and a highlight for meetings inside 24h. A declarative object-list renders columns from one schema and can do none of that, so UpcomingMeetingsListWidget.vue was built for it — and then never referenced, leaving the component orphaned and the spec'd behaviour absent.",
 						"id": "upcoming-meetings-list",
 						"type": "custom",
@@ -432,6 +438,16 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "overdue-planned-agenda",
+						"gridX": 3,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -441,6 +457,7 @@
 				"widget-active-decisions": "ActiveDecisionsKpiWidget",
 				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
 				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
+				"widget-overdue-planned-agenda": "OverduePlannedAgendaKpiWidget",
 				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
 				"widget-recent-decisions": "RecentDecisionsWidget",
 				"widget-governance-health": "GovernanceHealthWidget",
@@ -652,6 +669,7 @@
 					{ "id": "meeting-stats-agenda-items", "type": "stats-block", "title": "Agenda items", "icon": "ChartBar", "content": { "entries": [ { "title": "Agenda items", "icon": "ClipboardList", "register": "decidiq", "schema": "agenda-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
 					{ "id": "meeting-stats-action-items", "type": "stats-block", "title": "Action items", "icon": "ChartBar", "content": { "entries": [ { "title": "Action items", "icon": "CheckCircleOutline", "register": "decidiq", "schema": "action-item", "metric": "count", "filter": { "meeting": "@objectId" } } ] } },
 					{ "id": "meeting-participants", "type": "custom", "component": "MeetingParticipantsTab", "title": "Participants", "icon": "AccountGroup" },
+					{ "id": "meeting-speakers", "type": "custom", "component": "MeetingSpeakersTab", "title": "Public speakers", "icon": "AccountVoice", "_note": "inspreekrecht-plenair (REQ-INS-007): for a body whose speaking policy is per meeting, the approved public speakers of the meeting as a whole in their order with their minutes, and the pending requests, marked pending in text." },
 					{ "id": "meeting-agenda", "type": "custom", "component": "MeetingAgendaTab", "title": "Agenda", "icon": "ClipboardList" },
 					{ "id": "meeting-decisions", "type": "custom", "component": "MeetingDecisionsTab", "title": "Decisions", "icon": "ScaleBalance" },
 					{ "id": "meeting-minutes", "type": "custom", "component": "MeetingMinutesTab", "title": "Minutes", "icon": "FileDocument" },
@@ -673,6 +691,7 @@
 					{ "id": "26", "widgetId": "meeting-case-system", "gridX": 0, "gridY": 70, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "27", "widgetId": "meeting-broadcast", "gridX": 0, "gridY": 75, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "28", "widgetId": "meeting-sessions", "gridX": 0, "gridY": 81, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "29", "widgetId": "meeting-speakers", "gridX": 0, "gridY": 87, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "13", "widgetId": "meeting-stats-agenda-items", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "14", "widgetId": "meeting-stats-action-items", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "12", "widgetId": "meeting-participants", "gridX": 8, "gridY": 4, "gridWidth": 4, "gridHeight": 8 },
@@ -720,7 +739,8 @@
 				"widget-meeting-stage": "MeetingStageTab",
 				"widget-meeting-video-call": "MeetingVideoCallTab",
 				"widget-meeting-broadcast": "MeetingBroadcastTab",
-				"widget-meeting-sessions": "MeetingSessionsTab"
+				"widget-meeting-sessions": "MeetingSessionsTab",
+				"widget-meeting-speakers": "MeetingSpeakersTab"
 			}
 		},
 		{
@@ -934,7 +954,8 @@
 			"slots": {
 				"widget-agenda-motions": "AgendaMotionsTab",
 				"widget-agenda-type-fields": "AgendaItemTypeFieldsTab",
-				"widget-agenda-conflicts": "AgendaItemConflictsTab"
+				"widget-agenda-conflicts": "AgendaItemConflictsTab",
+				"widget-agenda-speakers": "AgendaItemSpeakersTab"
 			},
 			"title": "Agenda item",
 			"config": {
@@ -949,6 +970,7 @@
 					{ "id": "agenda-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
+					{ "id": "agenda-speakers", "type": "custom", "component": "AgendaItemSpeakersTab", "title": "Public speakers", "icon": "AccountVoice", "_note": "inspreekrecht-plenair (REQ-INS-007): the approved public speakers of this item as speaking slots in their order with their minutes, and the pending requests after them, marked pending in text. Rejected requests are left out by the server." },
 					{ "id": "agenda-conflicts", "type": "custom", "component": "AgendaItemConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this agenda item; a member declares here and may keep herself out of the vote on it and its motions." },
 					{ "id": "agenda-paper-summaries", "type": "custom", "component": "AgendaPaperSummariesTab", "title": "Summaries of the papers", "icon": "TextBoxSearchOutline", "_note": "agenda-ai-paper-summaries (age-16 age-20 plt-27): a clerk asks the AI for a summary of a paper or a comparison of two, corrects the draft and shows it to members; members read shown ones only, labelled as AI-generated with the clerk who checked it. Without an AI provider the actions are left out." }
 				],
@@ -961,7 +983,8 @@
 					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "6", "widgetId": "agenda-document-details", "gridX": 0, "gridY": 21, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "agenda-paper-renditions", "gridX": 0, "gridY": 26, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "10", "widgetId": "agenda-speakers", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,

@@ -273,6 +273,26 @@
             }
           }
         }
+      },
+      "GoverningDocument": {
+        "slug": "governing-document",
+        "version": "0.3.0",
+        "properties": {
+          "plannedEffectiveDate": {
+            "title": "Planned effective date",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "The date the document is to take effect. Once it is approved and this date has arrived, the system sets the effective date."
+          },
+          "effectiveDate": {
+            "title": "Effective date",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "The date the document took effect. Set by the system on the planned date, for an approved document only; while it is empty the document is not in force."
+          }
+        }
       }
     }
   }

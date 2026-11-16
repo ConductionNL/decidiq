@@ -36,6 +36,7 @@ use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
+use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -95,6 +96,19 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Planned-agenda rules (termijnagenda, REQ-LTA-001 and REQ-LTA-003):
+		// a portfolio holder as owner type names a person, and an item
+		// entering lapsed carries its reason, on create and on update.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
+		[
+			'event'    => ObjectUpdatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
 		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
 		// decision carries the clause of its type as it stood when it was
 		// taken. After the competence guard, so a refused save stamps nothing.
