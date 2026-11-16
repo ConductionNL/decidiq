@@ -55,6 +55,7 @@
         "version": "1.0.0",
         "title": "Room system message",
         "description": "A speaker marking or a desk vote the chamber's conference and voting system sent, and whether decidiq applied it.",
+        "x-openregister-demo-data": "An inbox of what the room system sent: RoomSystemMessageListener applies every new message as a speech or a vote, so a seeded message would act on the demo meetings.",
         "type": "object",
         "_authorizationNote": "Only the integriq synchronisation group creates messages; staff read them. Nobody updates or deletes through the object API: decidiq's RoomSystemMessageService writes status, rejectReason and participant in system context, after the listener (on create) or the chair or secretary (apply again) started it. A schema block replaces the register block whole, so the write actions left out stay closed.",
         "authorization": {
