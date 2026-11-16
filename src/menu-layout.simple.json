@@ -2644,6 +2644,16 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "overdue-planned-agenda",
+						"gridX": 3,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"showHeader": false,

@@ -98,6 +98,7 @@ import OnboardingChecklistTab from './components/tabs/OnboardingChecklistTab.vue
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
+import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
@@ -134,6 +135,7 @@ import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWi
 import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+import OverduePlannedAgendaKpiWidget from './views/dashboard/widgets/OverduePlannedAgendaKpiWidget.vue'
 // interests-and-integrity (REQ-INT-010): the overdue-review KPI card.
 import OverdueReviewsKpiWidget from './views/dashboard/widgets/OverdueReviewsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
@@ -153,6 +155,7 @@ import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
 // schema config; these two are bespoke action surfaces (citizen + staff
 // participation, and the staff moderation queue).
 import ParticipationPage from './views/participation/ParticipationPage.vue'
+import PlannedAgendaBoard from './views/plannedAgenda/PlannedAgendaBoard.vue'
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
@@ -340,6 +343,8 @@ export default {
 	MotionStageTab: page(MotionStageTab),
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
+	// termijnagenda: reschedule / realise / lapse on a long-term agenda item.
+	PlannedAgendaActionsTab: page(PlannedAgendaActionsTab),
 	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
 	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
@@ -416,6 +421,12 @@ export default {
 		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverduePlannedAgendaKpiWidget: widget(OverduePlannedAgendaKpiWidget, {
 		defaultSize: { w: 3, h: 2 },
 		minSize: { w: 2, h: 2 },
 		maxSize: { w: 4, h: 3 },
@@ -540,5 +551,7 @@ export default {
 	// form, proposal form, advisory voting cards, staff lifecycle/publish) and
 	// the staff reaction moderation queue.
 	ParticipationPage: page(ParticipationPage),
+	// termijnagenda: the per-body period board (REQ-LTA-005).
+	PlannedAgendaBoard: page(PlannedAgendaBoard),
 	ModerationQueuePage: page(ModerationQueuePage),
 }
