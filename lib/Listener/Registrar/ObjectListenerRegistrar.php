@@ -175,18 +175,7 @@ class ObjectListenerRegistrar {
 			);
 		}
 
-		// Confidential agenda items (agenda-item-confidential-papers,
-		// REQ-ACP-003/004): a non-public item closes its papers, and an
-		// imposed item restriction closes the item.
-		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
-			$this->subscribe(
-				dispatcher: $dispatcher,
-				event: $confidentialityEvent,
-				listener: AgendaItemConfidentialityListener::class,
-				registers: null,
-				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
-			);
-		}
+		$this->subscribeConfidentiality(dispatcher: $dispatcher);
 
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
@@ -245,6 +234,30 @@ class ObjectListenerRegistrar {
 			);
 		}
 	}//end subscribeGoalProgress()
+
+	/**
+	 * Subscribe the confidential-agenda-item listener.
+	 *
+	 * A non-public agenda item closes its papers, and an imposed item
+	 * restriction closes the item (REQ-ACP-003/004).
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers
+	 */
+	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $confidentialityEvent,
+				listener: AgendaItemConfidentialityListener::class,
+				registers: null,
+				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
+			);
+		}
+	}//end subscribeConfidentiality()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.
