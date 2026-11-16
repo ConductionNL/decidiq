@@ -213,6 +213,20 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	}//end testAPaperMovedOntoANonPublicItemIsClosed()
 
 	/**
+	 * A paper whose item cannot be read is saved closed, not left public.
+	 *
+	 * @return void
+	 */
+	public function testAPaperWhoseItemCannotBeReadIsSavedClosed(): void {
+		$this->objectService->method('find')->willThrowException(new RuntimeException('database gone'));
+
+		$event = new ObjectCreatingEvent($this->entity(uuid: 'paper-9', schemaId: '52', payload: ['title' => 'Advies', 'agendaItem' => 'item-7']));
+		$this->listener->handle($event);
+
+		self::assertSame(['public' => false], $event->getModifiedData());
+	}//end testAPaperWhoseItemCannotBeReadIsSavedClosed()
+
+	/**
 	 * A paper of a public item, or of no item, stays as it is.
 	 *
 	 * @return void

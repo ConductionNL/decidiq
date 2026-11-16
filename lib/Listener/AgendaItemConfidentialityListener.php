@@ -199,7 +199,16 @@ class AgendaItemConfidentialityListener implements IEventListener {
 			return false;
 		}
 
-		return $this->isPublic(item: $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM)) === false;
+		// An item that cannot be read closes the paper: a confidential item
+		// must not leak a paper because the lookup failed.
+		try {
+			$item = $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM);
+		} catch (Throwable $e) {
+			$this->logger->warning('Decidiq: agenda item of a paper could not be read; the paper is saved closed', ['exception' => $e->getMessage()]);
+			return true;
+		}
+
+		return $this->isPublic(item: $item) === false;
 	}//end onClosedItem()
 
 	/**
