@@ -13,7 +13,7 @@
 			"label": "Association or VvE",
 			"description": "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.",
 			"order": 2,
-			"objectCount": 48,
+			"objectCount": 50,
 			"icon": "AccountGroupOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -1129,6 +1129,47 @@
 						"signedAt": "2026-04-10T08:30:00Z",
 						"signingReference": "docudesk:sign:seed-jansen-alv-2026",
 						"proxyStatus": "active"
+					}
+				],
+				"speaking-policy": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-policy"
+						},
+						"slug": "speaking-policy-ledenraad-vng",
+						"governanceBody": "ledenraad-vng",
+						"enabled": true,
+						"registrationDeadlineHours": 48,
+						"defaultSpeakingMinutes": 3,
+						"level": "meeting",
+						"publicDisplay": "count"
+					}
+				],
+				"speaking-request": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-request"
+						},
+						"slug": "speaking-request-alv-servicekosten",
+						"meeting": "ledenvergadering-vng-voorjaar-2025",
+						"governanceBody": "ledenraad-vng",
+						"topic": {
+							"speakerName": "Mw. Pietersen",
+							"topicText": "Verhoging servicekosten",
+							"requestedMinutes": 3
+						},
+						"contactDetails": {
+							"name": "Els Pietersen",
+							"email": "e.pietersen@example.org",
+							"phone": "06-45678901",
+							"address": "Parklaan 21, 3511 GH Utrecht"
+						},
+						"lifecycle": "rejected",
+						"rejectionReason": "Onderwerp staat niet op de agenda van deze vergadering"
 					}
 				]
 			}
