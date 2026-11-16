@@ -34,11 +34,14 @@ use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+
 
 /**
  * A non-public item closes its papers; an imposed item restriction closes the item.
@@ -78,10 +81,10 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 		parent::setUp();
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
-				self::assertSame('decidiq', $register);
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				self::assertSame('decidiq', $options->target->register);
 				self::assertFalse($_rbac, 'closing is a system invariant, not the saver\'s right');
-				$this->saved[] = [(string)$schema, (string)$uuid, $object];
+				$this->saved[] = [(string)$options->target->schema, (string)$options->uuid, $object];
 				return new ObjectEntity();
 			}
 		);
@@ -183,7 +186,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	public function testAPaperAddedToANonPublicItemIsSavedClosed(): void {
 		$this->objectService->expects(self::once())
 			->method('find')
-			->with('item-7', [], false, 'decidiq', 'agenda-item', false, false)
+			->with('item-7', new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'), false, false)
 			->willReturn($this->entity(uuid: 'item-7', schemaId: '41', payload: ['public' => false]));
 
 		$event = new ObjectCreatingEvent($this->entity(uuid: 'paper-9', schemaId: '52', payload: ['title' => 'Advies Fietsersbond', 'agendaItem' => 'item-7']));
@@ -235,7 +238,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	public function testAnImposedRestrictionClosesTheItemAndItsPapers(): void {
 		$this->objectService->expects(self::once())
 			->method('find')
-			->with('item-9', [], false, 'decidiq', 'agenda-item', false, false)
+			->with('item-9', new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'), false, false)
 			->willReturn($this->entity(uuid: 'item-9', schemaId: '41', payload: ['title' => 'Grondaankoop', 'public' => true]));
 		$this->objectService->expects(self::once())->method('findAll')
 			->willReturn([$this->entity(uuid: 'paper-4', schemaId: '52', payload: ['agendaItem' => 'item-9'])]);
