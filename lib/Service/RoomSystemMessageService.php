@@ -238,8 +238,14 @@ class RoomSystemMessageService {
 			throw new RoomSystemRefusal(message: 'The vote names no voting round or no vote.', participant: $participant);
 		}
 
+		// A round that cannot be read is refused, never cast: the secret check
+		// below must not be skipped because the lookup failed.
 		$round = $this->find(id: $roundId, schema: 'voting-round');
-		if ($round !== null && (bool)($round['isSecret'] ?? false) === true) {
+		if ($round === null) {
+			throw new RoomSystemRefusal(message: 'The voting round could not be found', participant: $participant);
+		}
+
+		if ((bool)($round['isSecret'] ?? false) === true) {
 			throw new RoomSystemRefusal(message: 'A secret ballot cannot be read from the desk units', participant: $participant);
 		}
 

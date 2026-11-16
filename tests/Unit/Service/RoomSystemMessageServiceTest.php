@@ -267,6 +267,21 @@ final class RoomSystemMessageServiceTest extends TestCase {
 	}//end testASecretBallotIsNotReadFromTheDesk()
 
 	/**
+	 * A desk vote on a round that cannot be read is refused, not cast.
+	 *
+	 * @return void
+	 */
+	public function testADeskVoteOnAnUnreadableRoundIsRefused(): void {
+		$this->votes->expects(self::never())->method('castVote');
+
+		$result = $this->service()->apply($this->deskVote(id: 'm9', seat: '14', round: 'round-gone'));
+
+		self::assertSame('rejected', $result['status']);
+		self::assertSame('The voting round could not be found', $result['rejectReason']);
+		self::assertSame([], $this->store['vote']);
+	}//end testADeskVoteOnAnUnreadableRoundIsRefused()
+
+	/**
 	 * The same external id twice in a meeting counts once.
 	 *
 	 * @return void
