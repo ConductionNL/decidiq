@@ -134,74 +134,104 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			return;
 		}
 
-		$resolved = 0;
-		$alreadyMigrated = 0;
-		$skipped = 0;
+		$counts = ['resolved' => 0, 'alreadyMigrated' => 0, 'skipped' => 0];
 
 		foreach ($rows as $entity) {
-			$keys = $this->rowKeys(entity: $entity);
-			if ($keys === null) {
-				$skipped++;
-				continue;
-			}
-
-			[$id, $boardMember, $row] = $keys;
-
-			$stillParticipant = $this->isParticipant(id: $boardMember);
-			if ($stillParticipant === null) {
-				// Unknown — the lookup itself failed. Count as skipped so the
-				// row stays eligible on the next run; never as already-migrated.
-				$skipped++;
-				continue;
-			}
-
-			if ($stillParticipant === false) {
-				// Already migrated to a Membership UUID, or otherwise not a live
-				// Participant. Either way there is nothing this step can safely
-				// do — leave it alone.
-				$alreadyMigrated++;
-				continue;
-			}
-
-			$resolution = $this->resolver->resolve(participantId: $boardMember);
-			if ($resolution === null) {
-				$skipped++;
-				$this->logger->warning(
-					'Decidiq: RepointConflictOfInterestBoardMember could not resolve boardMember',
-					['id' => $id, 'boardMember' => $boardMember]
-				);
-				continue;
-			}
-
-			try {
-				$this->objectService->saveObject(
-					object: array_merge($row, ['boardMember' => $resolution['membership']]),
-					options: new ObjectSaveOptions(
-						target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
-						uuid: $id
-					)
-				);
-				$resolved++;
-				$this->logger->info(
-					'Decidiq: RepointConflictOfInterestBoardMember repointed boardMember',
-					['id' => $id, 'fromParticipant' => $boardMember, 'toMembership' => $resolution['membership']]
-				);
-			} catch (Throwable $e) {
-				$skipped++;
-				$output->warning('Failed to repoint conflict-of-interest ' . $id . ': ' . $e->getMessage());
-				$this->logger->warning(
-					'Decidiq: RepointConflictOfInterestBoardMember failed to save one object',
-					['id' => $id, 'exception' => $e->getMessage()]
-				);
-			}//end try
-		}//end foreach
+			$counts[$this->repointRow(entity: $entity, output: $output)]++;
+		}
 
 		$output->info(
-			'RepointConflictOfInterestBoardMember: ' . $resolved . ' resolved, '
-			. $alreadyMigrated . ' already migrated, ' . $skipped . ' skipped.'
+			'RepointConflictOfInterestBoardMember: ' . $counts['resolved'] . ' resolved, '
+			. $counts['alreadyMigrated'] . ' already migrated, ' . $counts['skipped'] . ' skipped.'
 		);
 
 	}//end run()
+
+	/**
+	 * Repoint one row's boardMember from its Participant to the Membership.
+	 *
+	 * @param mixed   $entity One row as returned by ObjectService::findAll().
+	 * @param IOutput $output Repair output.
+	 *
+	 * @return string Which counter the row lands in: resolved, alreadyMigrated or skipped.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
+	 */
+	private function repointRow(mixed $entity, IOutput $output): string {
+		$keys = $this->rowKeys(entity: $entity);
+		if ($keys === null) {
+			return 'skipped';
+		}
+
+		[$id, $boardMember, $row] = $keys;
+
+		$stillParticipant = $this->isParticipant(id: $boardMember);
+		if ($stillParticipant === null) {
+			// Unknown — the lookup itself failed. Count as skipped so the
+			// row stays eligible on the next run; never as already-migrated.
+			return 'skipped';
+		}
+
+		if ($stillParticipant === false) {
+			// Already migrated to a Membership UUID, or otherwise not a live
+			// Participant. Either way there is nothing this step can safely
+			// do — leave it alone.
+			return 'alreadyMigrated';
+		}
+
+		$resolution = $this->resolver->resolve(participantId: $boardMember);
+		if ($resolution === null) {
+			$this->logger->warning(
+				'Decidiq: RepointConflictOfInterestBoardMember could not resolve boardMember',
+				['id' => $id, 'boardMember' => $boardMember]
+			);
+			return 'skipped';
+		}
+
+		return $this->saveRepointed(
+			change: ['id' => $id, 'row' => $row, 'from' => $boardMember, 'to' => $resolution['membership']],
+			output: $output
+		);
+
+	}//end repointRow()
+
+	/**
+	 * Save one row with its boardMember pointing at the Membership.
+	 *
+	 * @param array{id: string, row: array<string, mixed>, from: string, to: mixed} $change The row's UUID, the
+	 *        row as stored, the participant and the membership replacing it.
+	 * @param IOutput                                                             $output Repair output.
+	 *
+	 * @return string resolved when saved, skipped when the save failed.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairrepointconflictofinterestboardmember
+	 */
+	private function saveRepointed(array $change, IOutput $output): string {
+		$id = $change['id'];
+
+		try {
+			$this->objectService->saveObject(
+				object: array_merge($change['row'], ['boardMember' => $change['to']]),
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
+					uuid: $id
+				)
+			);
+			$this->logger->info(
+				'Decidiq: RepointConflictOfInterestBoardMember repointed boardMember',
+				['id' => $id, 'fromParticipant' => $change['from'], 'toMembership' => $change['to']]
+			);
+			return 'resolved';
+		} catch (Throwable $e) {
+			$output->warning('Failed to repoint conflict-of-interest ' . $id . ': ' . $e->getMessage());
+			$this->logger->warning(
+				'Decidiq: RepointConflictOfInterestBoardMember failed to save one object',
+				['id' => $id, 'exception' => $e->getMessage()]
+			);
+			return 'skipped';
+		}//end try
+
+	}//end saveRepointed()
 
 	/**
 	 * Normalise one row and pull the two keys this step needs.

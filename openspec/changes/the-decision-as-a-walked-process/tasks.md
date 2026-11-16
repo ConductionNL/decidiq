@@ -94,12 +94,14 @@ them reachable is in reachability-scope.md beside this file.
 
 ## 6. The future effective date
 
-<!-- DEFERRED: needs the governing-document release job and a frozen-clock harness; the decision half of this change ships without it. -->
-
-- [ ] 6.1 Add `plannedEffectiveDate` and `effectiveDate` to the governing document schema.
-- [ ] 6.2 Write the daily release job, approved documents only, and write each release to the audit trail.
-- [ ] 6.3 Report an approved-but-unreleased document as overdue.
-- [ ] 6.4 PHPUnit on the job with a frozen clock.
+- [x] 6.1 Add `plannedEffectiveDate` and `effectiveDate` to the governing document schema.
+      <!-- In register.d/80-decision-as-a-walked-process.json (governing-document 0.3.0, sorted after 55 and 77), both optional dates. -->
+- [x] 6.2 Write the daily release job, approved documents only, and write each release to the audit trail.
+      <!-- REACHABLE: GoverningDocumentReleaseJob (appinfo/info.xml, daily) runs GoverningDocumentRelease::sweep(): a document whose planned date has arrived, with no effective date and status adopted, in-force or in-effect, is patched through OpenRegister with effectiveDate = its planned date, so the object's own audit trail records the release; a lapsed or unapproved document is not written. -->
+- [x] 6.3 Report an approved-but-unreleased document as overdue.
+      <!-- The sweep answers the due but unapproved documents as `overdue` and the job logs them as a warning naming each. Not built: a register view of them (a list filter on "planned date passed, no effective date" needs a null filter in a manifest view). -->
+- [x] 6.4 PHPUnit on the job with a frozen clock.
+      <!-- tests/Unit/Service/GoverningDocument/GoverningDocumentReleaseTest.php (clock frozen at 1 January 2027), tests/Unit/BackgroundJob/GoverningDocumentReleaseJobTest.php, tests/Unit/Settings/GoverningDocumentEffectiveDateRegisterTest.php. -->
 
 ## 7. The remedy clause
 
@@ -151,5 +153,10 @@ them reachable is in reachability-scope.md beside this file.
 ## 11. Handover
 
 - [ ] 11.1 Give the dossiq lane the consumer half: the approval outcome on the case, the admissibility verdict, the remedy clause.
-- [ ] 11.2 Confirm `ZgwZrcRulesService`'s refusal in dossiq stays where it is, so C-decisions-22 is not built twice.
+- [x] 11.2 Confirm `ZgwZrcRulesService`'s refusal in dossiq stays where it is, so C-decisions-22 is not built twice.
+      <!-- Confirmed 2026-11-15 on dossiq development: the zrc-020 refusal of a resultaat whose
+      resultaattype the zaak's zaaktype does not carry now lives in
+      lib/Service/Zgw/ZrcSubResourceRules.php (rulesResultatenCreate), the delegate ZgwZrcRulesService
+      constructs and calls; the proposal's line reference (ZgwZrcRulesService.php:362) predates that
+      split. decidiq's lib/ holds no resultaattype check, so the rule is built once, in dossiq. -->
 - [ ] 11.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
