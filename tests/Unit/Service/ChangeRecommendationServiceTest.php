@@ -30,6 +30,8 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Accepting works the passage into the text; rejecting only records the decision.
@@ -255,12 +257,16 @@ class ChangeRecommendationServiceTest extends TestCase {
 	private function service(): ChangeRecommendationService {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			fn (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface => isset($this->objects[(string) $schema][(string) $id]) === true
-				? $this->entity(data: $this->objects[(string) $schema][(string) $id])
+			fn (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface => isset($this->objects[(string) ($options?->schema)][(string) $id]) === true
+				? $this->entity(data: $this->objects[(string) ($options?->schema)][(string) $id])
 				: null
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->assertSame('decidiq', $register);
 				$this->objects[(string) $schema][(string) $uuid] = $object;
 				$this->saves[] = [(string) $schema, (string) $uuid];

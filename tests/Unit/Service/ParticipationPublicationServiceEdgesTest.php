@@ -35,6 +35,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The paths ParticipationPublicationServiceTest leaves alone: OpenCatalogi
@@ -157,7 +159,10 @@ class ParticipationPublicationServiceEdgesTest extends TestCase {
 	 */
 	private function recordSaves(bool $catalogFails = false): void {
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use ($catalogFails): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($catalogFails): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				if ($catalogFails === true && $register === 'opencatalogi') {
 					throw new RuntimeException('catalog schema missing');
 				}
@@ -197,7 +202,13 @@ class ParticipationPublicationServiceEdgesTest extends TestCase {
 	 */
 	public function testPublishBudgetResultsRoutesToTheBodysCatalog(): void {
 		$this->objectService->expects($this->once())->method('find')
-			->with('pb-1', [], false, 'decidiq', 'participatory-budget')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'pb-1',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'participatory-budget',
+			]))
 			->willReturn(
 				$this->entity(
 					[
@@ -368,7 +379,13 @@ class ParticipationPublicationServiceEdgesTest extends TestCase {
 	 */
 	public function testConsultationVanishedBeforePublishIsSavedFromAnEmptySource(): void {
 		$this->objectService->expects($this->exactly(2))->method('find')
-			->with('c-gone', [], false, 'decidiq', 'public-consultation')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'c-gone',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'public-consultation',
+			]))
 			->willReturnOnConsecutiveCalls($this->entity(['id' => 'c-gone', 'title' => 'Oud']), null);
 		$this->objectService->method('findAll')->willReturn([]);
 		$this->appManager->method('isEnabledForAnyone')->willReturn(false);
@@ -413,7 +430,13 @@ class ParticipationPublicationServiceEdgesTest extends TestCase {
 	 */
 	public function testPublishReactionSetsThePredicateOnAnApprovedReaction(): void {
 		$this->objectService->expects($this->once())->method('find')
-			->with('r-1', [], false, 'decidiq', 'consultation-reaction')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'r-1',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'consultation-reaction',
+			]))
 			->willReturn($this->entity(['id' => 'r-1', 'body' => 'Goed plan', 'moderationStatus' => 'approved']));
 		$this->recordSaves();
 

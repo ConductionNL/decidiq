@@ -30,6 +30,9 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * The live meeting's current agenda item.
@@ -62,7 +65,7 @@ class CurrentAgendaItemService implements CurrentAgendaItemServiceInterface {
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 	 */
 	public function setCurrentItem(string $meetingId, string $itemId): void {
-		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $itemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		$item = [];
 		if ($entity !== null) {
 			$item = $entity->jsonSerialize();
@@ -73,10 +76,11 @@ class CurrentAgendaItemService implements CurrentAgendaItemServiceInterface {
 		}
 
 		$this->objectService->patchObject(
-			objectId: $meetingId,
-			data: ['currentAgendaItem' => $itemId],
-			register: 'decidiq',
-			schema: 'meeting',
+			new ObjectPatch(
+				objectId: $meetingId,
+				data: ['currentAgendaItem' => $itemId],
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting')
+			)
 		);
 	}//end setCurrentItem()
 }//end class

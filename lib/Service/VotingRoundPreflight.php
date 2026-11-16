@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -162,7 +163,7 @@ class VotingRoundPreflight {
 		}
 
 		try {
-			$body = $this->objectService->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
+			$body = $this->objectService->find(id: $governanceBodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 		} catch (\Throwable $e) {
 			throw new RuntimeException('Cannot open voting round: the governance body could not be read', 0, $e);
 		}
@@ -212,7 +213,10 @@ class VotingRoundPreflight {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function assertRevoteAllowed(string $revoteOfRoundId): void {
-		$originalEntity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
+		$originalEntity = $this->objectService->find(
+			id: $revoteOfRoundId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round')
+		);
 		if ($originalEntity === null) {
 			throw new RuntimeException("Revote refused: round {$revoteOfRoundId} not found");
 		}
@@ -251,7 +255,7 @@ class VotingRoundPreflight {
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
 	 */
 	public function tiedOptionsOf(string $revoteOfRoundId): ?array {
-		$entity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
+		$entity = $this->objectService->find(id: $revoteOfRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$original = [];
 		if ($entity !== null) {
 			$original = $entity->jsonSerialize();

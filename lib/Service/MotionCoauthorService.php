@@ -34,6 +34,9 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\Contracts\MotionCoauthorServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -108,7 +111,7 @@ class MotionCoauthorService implements MotionCoauthorServiceInterface {
 		// M4: use named-arg find() instead of setRegister/setSchema pattern.
 		// ADR-005: motions live in the unified `decision` schema, so the id
 		// lookup no longer proves the type — `decisionType` does.
-		$entity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+		$entity = $objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		$motion = [];
 		if ($entity !== null) {
 			$motion = $entity->jsonSerialize();
@@ -231,9 +234,10 @@ class MotionCoauthorService implements MotionCoauthorServiceInterface {
 	private function saveMotion(array $motion, string $motionId): void {
 		$this->getObjectService()->saveObject(
 			object: $motion,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $motionId
+			)
 		);
 	}//end saveMotion()
 
