@@ -112,22 +112,7 @@ class MinutesCorrectionController extends Controller {
 			return $invalid;
 		}
 
-		try {
-			return $this->recordCorrection(minutesId: $minutesId, text: $text);
-		} catch (DoesNotExistException) {
-			// Must precede the Exception arm: DoesNotExistException extends
-			// \Exception, so an unknown id would otherwise be reported as a
-			// server error rather than as the 404 it is.
-			return new JSONResponse(
-				['message' => 'Minutes not found.'],
-				Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new JSONResponse(
-				['message' => 'Internal server error.'],
-				Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+		return $this->answered(action: fn (): JSONResponse => $this->recordCorrection(minutesId: $minutesId, text: $text));
 
 	}//end addCorrection()
 
@@ -178,10 +163,7 @@ class MinutesCorrectionController extends Controller {
 		// current behaviour alone.
 		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
-			return new JSONResponse(
-				['message' => 'Minutes not found.'],
-				Http::STATUS_NOT_FOUND
-			);
+			return $this->minutesNotFound();
 		}
 
 		$minutes = $minutesEntity->jsonSerialize();
@@ -210,13 +192,7 @@ class MinutesCorrectionController extends Controller {
 		];
 
 		$minutes['corrections'] = $corrections;
-		$this->objectService->saveObject(
-			object: $minutes,
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
-				uuid: $minutesId
-			)
-		);
+		$this->saveMinutes(minutes: $minutes, minutesId: $minutesId);
 
 		return new JSONResponse(['corrections' => $corrections]);
 	}//end recordCorrection()
@@ -256,26 +232,13 @@ class MinutesCorrectionController extends Controller {
 			);
 		}
 
-		try {
-			return $this->applyCorrectionResolution(
+		return $this->answered(
+			action: fn (): JSONResponse => $this->applyCorrectionResolution(
 				minutesId: $minutesId,
 				correctionId: $correctionId,
 				status: $status
-			);
-		} catch (DoesNotExistException) {
-			// Must precede the Exception arm: DoesNotExistException extends
-			// \Exception, so an unknown id would otherwise be reported as a
-			// server error rather than as the 404 it is.
-			return new JSONResponse(
-				['message' => 'Minutes not found.'],
-				Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new JSONResponse(
-				['message' => 'Internal server error.'],
-				Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			)
+		);
 
 	}//end resolveCorrection()
 
@@ -309,10 +272,7 @@ class MinutesCorrectionController extends Controller {
 	private function applyCorrectionResolution(string $minutesId, string $correctionId, string $status): JSONResponse {
 		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
-			return new JSONResponse(
-				['message' => 'Minutes not found.'],
-				Http::STATUS_NOT_FOUND
-			);
+			return $this->minutesNotFound();
 		}
 
 		$minutes = $minutesEntity->jsonSerialize();
@@ -341,13 +301,7 @@ class MinutesCorrectionController extends Controller {
 		$corrections[$index] = $updated;
 		$minutes['corrections'] = $corrections;
 
-		$this->objectService->saveObject(
-			object: $minutes,
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
-				uuid: $minutesId
-			)
-		);
+		$this->saveMinutes(minutes: $minutes, minutesId: $minutesId);
 
 		return new JSONResponse(['correction' => $updated]);
 	}//end applyCorrectionResolution()
@@ -389,4 +343,64 @@ class MinutesCorrectionController extends Controller {
 
 		return $correction;
 	}//end markCorrectionResolved()
+
+	/**
+	 * Run a correction action: its answer, 404 when OpenRegister cannot
+	 * resolve the minutes, 500 on any other failure.
+	 *
+	 * @param callable(): JSONResponse $action The action.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 */
+	private function answered(callable $action): JSONResponse {
+		try {
+			return $action();
+		} catch (DoesNotExistException) {
+			// Must precede the Exception arm: DoesNotExistException extends
+			// \Exception, so an unknown id would otherwise be reported as a
+			// server error rather than as the 404 it is.
+			return $this->minutesNotFound();
+		} catch (Exception $e) {
+			return new JSONResponse(
+				['message' => 'Internal server error.'],
+				Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
+
+	}//end answered()
+
+	/**
+	 * The 404 answer for minutes that do not exist.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 */
+	private function minutesNotFound(): JSONResponse {
+		return new JSONResponse(['message' => 'Minutes not found.'], Http::STATUS_NOT_FOUND);
+	}//end minutesNotFound()
+
+	/**
+	 * Store the minutes with their corrections.
+	 *
+	 * @param array<string, mixed> $minutes   The minutes.
+	 * @param string               $minutesId The UUID of the Minutes object.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When `saveObject()` rejects the minutes.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 */
+	private function saveMinutes(array $minutes, string $minutesId): void {
+		$this->objectService->saveObject(
+			object: $minutes,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
+				uuid: $minutesId
+			)
+		);
+	}//end saveMinutes()
 }//end class
