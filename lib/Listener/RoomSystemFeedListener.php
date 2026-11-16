@@ -79,14 +79,12 @@ class RoomSystemFeedListener implements IEventListener {
 	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectCreatedEvent) === false && ($event instanceof ObjectUpdatedEvent) === false) {
-			return;
-		}
-
-		try {
-			$this->pass(event: $event);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: the room system could not be updated', ['exception' => $e->getMessage()]);
+		if ($event instanceof ObjectCreatedEvent || $event instanceof ObjectUpdatedEvent) {
+			try {
+				$this->pass(event: $event);
+			} catch (Throwable $e) {
+				$this->logger->warning('Decidiq: the room system could not be updated', ['exception' => $e->getMessage()]);
+			}
 		}
 	}//end handle()
 

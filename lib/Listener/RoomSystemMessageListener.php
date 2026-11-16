@@ -70,20 +70,26 @@ class RoomSystemMessageListener implements IEventListener {
 	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectCreatedEvent) === false) {
-			return;
-		}
-
-		try {
-			$entity = $event->getObject();
-			$row = (new EntityPayloadReader())->payloadOf(entity: $entity);
-			if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_MESSAGE, row: $row) === false) {
-				return;
+		if ($event instanceof ObjectCreatedEvent) {
+			try {
+				$this->applyCreated(entity: $event->getObject());
+			} catch (\Throwable $e) {
+				$this->logger->warning('Decidiq: room system message could not be applied', ['exception' => $e->getMessage()]);
 			}
-
-			$this->messages->apply(message: (['id' => (string)$entity->getUuid()] + $row));
-		} catch (\Throwable $e) {
-			$this->logger->warning('Decidiq: room system message could not be applied', ['exception' => $e->getMessage()]);
 		}
 	}//end handle()
+
+	/**
+	 * Apply the created object when it is a room system message.
+	 *
+	 * @param object $entity The created object.
+	 *
+	 * @return void
+	 */
+	private function applyCreated(object $entity): void {
+		$row = (new EntityPayloadReader())->payloadOf(entity: $entity);
+		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_MESSAGE, row: $row) === true) {
+			$this->messages->apply(message: (['id' => (string)$entity->getUuid()] + $row));
+		}
+	}//end applyCreated()
 }//end class

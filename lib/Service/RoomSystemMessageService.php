@@ -388,13 +388,6 @@ class RoomSystemMessageService {
 			_multitenancy: false
 		);
 
-		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
-			if (is_object($row) === true && method_exists($row, 'getObject') === true) {
-				$rows[] = ['id' => (string)$row->getUuid()] + (array)$row->getObject();
-			}
-		}
-
-		return $rows;
+		return ObjectRows::of(found: $found);
 	}//end rows()
 }//end class
