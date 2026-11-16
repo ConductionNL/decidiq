@@ -28,11 +28,13 @@ export default {
 	name: 'SpeakingRequestDeadlineCell',
 	props: {
 		row: { type: Object, default: null },
-		value: { type: [String, Number, Boolean, Object, Array], default: null },
+		value: { type: [Boolean, String, Number, Object, Array], default: null },
 	},
+
 	data() {
 		return { state: 'unknown' }
 	},
+
 	computed: {
 		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
 		label() {
@@ -42,9 +44,11 @@ export default {
 			return ''
 		},
 	},
+
 	watch: {
 		row: { immediate: true, handler() { this.load() } },
 	},
+
 	methods: {
 		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
 		async load() {
