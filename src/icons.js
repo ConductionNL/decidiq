@@ -35,6 +35,7 @@ import Api from 'vue-material-design-icons/Api.vue'
 import ArchiveArrowUpOutline from 'vue-material-design-icons/ArchiveArrowUpOutline.vue'
 import ArchiveCheckOutline from 'vue-material-design-icons/ArchiveCheckOutline.vue'
 import ArchiveOutline from 'vue-material-design-icons/ArchiveOutline.vue'
+import ArrowRightCircleOutline from 'vue-material-design-icons/ArrowRightCircleOutline.vue'
 import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
@@ -67,6 +68,7 @@ import ClipboardList from 'vue-material-design-icons/ClipboardList.vue'
 import ClipboardListOutline from 'vue-material-design-icons/ClipboardListOutline.vue'
 import ClipboardTextClockOutline from 'vue-material-design-icons/ClipboardTextClockOutline.vue'
 import ClipboardTextOutline from 'vue-material-design-icons/ClipboardTextOutline.vue'
+import CloseCircleOutline from 'vue-material-design-icons/CloseCircleOutline.vue'
 import CloudUploadOutline from 'vue-material-design-icons/CloudUploadOutline.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
@@ -174,6 +176,7 @@ export default {
 	ArchiveArrowUpOutline,
 	ArchiveCheckOutline,
 	ArchiveOutline,
+	ArrowRightCircleOutline,
 	BellCogOutline,
 	BellOutline,
 	BookOpenVariant,
@@ -206,6 +209,7 @@ export default {
 	ClipboardList,
 	ClipboardTextClockOutline,
 	ClipboardTextOutline,
+	CloseCircleOutline,
 	CloudUploadOutline,
 	Cog,
 	CogOutline,
