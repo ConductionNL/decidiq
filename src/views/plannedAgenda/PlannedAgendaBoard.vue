@@ -118,21 +118,41 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The board's period columns.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+		 */
 		columns() {
 			return boardColumns(this.items)
 		},
 
+		/**
+		 * The items grouped by their column.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+		 */
 		groups() {
 			return groupByPeriod(this.items, this.columns)
 		},
 	},
 
 	watch: {
+		/**
+		 * Load the newly selected body's items.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+		 */
 		body() {
 			this.loadItems()
 		},
 	},
 
+	/**
+	 * Read the governance bodies to choose from.
+	 *
+	 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+	 */
 	async mounted() {
 		try {
 			this.bodies = await ensureRelationType('governance-body').fetchCollection('governance-body', {})
@@ -143,14 +163,32 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Whether the item is overdue.
+		 *
+		 * @param {object} item The long-term agenda item.
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+		 */
 		overdue(item) {
 			return isOverdue(item, Date.now())
 		},
 
+		/**
+		 * Whether the item is in a terminal state.
+		 *
+		 * @param {object} item The long-term agenda item.
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 */
 		settled(item) {
 			return isTerminal(item)
 		},
 
+		/**
+		 * How often the item has been shifted.
+		 *
+		 * @param {object} item The long-term agenda item.
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
+		 */
 		shiftCount(item) {
 			return Array.isArray(item.shiftHistory) ? item.shiftHistory.length : 0
 		},
@@ -182,6 +220,8 @@ export default {
 		 * on its own column.
 		 *
 		 * @param {string} period The column's period.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
 		 */
 		drop(period) {
 			const item = this.dragged
@@ -191,6 +231,13 @@ export default {
 			this.startReschedule(item, period)
 		},
 
+		/**
+		 * Ask for the reason of a shift to another period.
+		 *
+		 * @param {object} item The item to shift.
+		 * @param {string} toPeriod The period it is dropped on.
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+		 */
 		startReschedule(item, toPeriod) {
 			this.pending = { item, toPeriod }
 		},

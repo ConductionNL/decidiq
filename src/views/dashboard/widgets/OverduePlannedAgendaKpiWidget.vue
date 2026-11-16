@@ -62,6 +62,8 @@ export default {
 
 		/**
 		 * @return {string} "warning" while any item is overdue.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
 		 */
 		variant() {
 			return this.count > 0 ? 'warning' : 'default'

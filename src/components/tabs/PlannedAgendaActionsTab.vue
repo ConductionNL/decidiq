@@ -99,14 +99,29 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the item is in a terminal state.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 */
 		settled() {
 			return isTerminal(this.item)
 		},
 
+		/**
+		 * Whether the owner reference needs attention.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+		 */
 		ownerWarning() {
 			return ownerProblem(this.item) !== null
 		},
 
+		/**
+		 * The sentence that says where the item stands.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 */
 		stateText() {
 			const lifecycle = this.item?.lifecycle
 			if (lifecycle === 'realised') return this.t('decidiq', 'This item has been realised.')
@@ -161,6 +176,8 @@ export default {
 		 * Save the item built by one of the rules, once.
 		 *
 		 * @param {Function} build Builds the item to save from the current one.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 		 */
 		async save(build) {
 			this.error = ''

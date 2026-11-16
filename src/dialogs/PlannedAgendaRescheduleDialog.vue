@@ -68,11 +68,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the new period is valid and differs from the current one.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+		 */
 		periodOk() {
 			const period = this.period.trim()
 			return isValidPeriod(period) && period !== this.item.plannedPeriod
 		},
 
+		/**
+		 * Whether a valid period and a reason are given.
+		 *
+		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
+		 */
 		canConfirm() {
 			return this.periodOk && this.reason.trim() !== ''
 		},

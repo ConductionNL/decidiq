@@ -150,6 +150,8 @@ export function overdueItems(items, now) {
  *
  * @param {string} period A `YYYY-Qn` or `YYYY-MM` string.
  * @return {string|null} The next period, or null when the text is no period.
+ *
+ * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function nextPeriod(period) {
 	const parsed = parsePeriod(period)
