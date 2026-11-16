@@ -66,6 +66,7 @@ use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ExportBundleServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
@@ -151,6 +152,7 @@ use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\WrittenRoundCloserInterface;
 use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\WrittenRoundStoreInterface;
+use OCA\Decidiq\Service\Forms\FormResponseImportService;
 use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentRelease;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
 use OCA\Decidiq\Service\Records\DossierCategory;
@@ -226,6 +228,7 @@ final class ContractBindings {
 		ExportBundleServiceInterface::class => ExportBundleService::class,
 		ExportBundleWriterInterface::class => ExportBundleWriter::class,
 		FlowDecisionServiceInterface::class => FlowDecisionService::class,
+		FormResponseImportServiceInterface::class => FormResponseImportService::class,
 		FullExportServiceInterface::class => FullExportService::class,
 		GovernanceBodyCommandServiceInterface::class => GovernanceBodyCommandService::class,
 		GovernanceBodyQueryServiceInterface::class => GovernanceBodyQueryService::class,
