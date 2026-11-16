@@ -27,6 +27,7 @@ use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ALVMinutesServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalActionStateRepairInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
@@ -189,6 +190,7 @@ final class ContractBindings {
 		ActionItemWriterInterface::class => ActionItemWriter::class,
 		AgendaAuthorizationGuardInterface::class => AgendaAuthorizationGuard::class,
 		AgendaServiceInterface::class => AgendaService::class,
+		ApprovalActionStateRepairInterface::class => ApprovalActionStateRepair::class,
 		ApprovalRouteCommandServiceInterface::class => ApprovalRouteCommandService::class,
 		ApprovalRouteConclusionAnnouncerInterface::class => ApprovalRouteConclusionAnnouncer::class,
 		ApprovalRouteServiceInterface::class => ApprovalRouteService::class,

@@ -20,14 +20,29 @@ them reachable is in reachability-scope.md beside this file.
 
 ## 1. The approval as a work item
 
-- [ ] 1.1 Add `assignee`, `dueAt` and `state` to `ApprovalAction` and migrate the seeded rows.
-      <!-- HALF: the three properties are in the register fragment. The seeded-row
-      migration was never written (no file under lib/Migration touches
-      ApprovalAction), and nothing anywhere WRITES `state`, so every stored row
-      carries the schema default `open`. -->
-- [ ] 1.2 Block a subject whose current step has an open mandatory action, and name the action in the refusal.
-      <!-- NOT DELIVERED: OpenApprovalGuard::assertCanAdvance() exists and is
-      tested, nothing calls it. No subject is blocked by anything today. -->
+- [x] 1.1 Add `assignee`, `dueAt` and `state` to `ApprovalAction` and migrate the seeded rows.
+      <!-- REACHABLE (2026-11-16): ApprovalRouteService::appendAction() writes the
+      terminal state of every recorded act (approved, endorsed, advised, skipped
+      -> granted; returned -> refused; a lapse already wrote its own), so no
+      sign-off reads as an open work item any more. Stored rows are backfilled by
+      the post-migration step RepairApprovalActionStates
+      (ApprovalActionStateRepair): a row with a verb and no terminal state gets
+      the state its verb ends in; a verb-less open work item and a terminal state
+      are left alone. Proven by ApprovalRouteServiceTest::testARecordedActCarriesItsTerminalState
+      and ApprovalActionStateRepairTest. Nothing writes `assignee` or `dueAt` on
+      an open work item yet; that is task 1.3. -->
+- [x] 1.2 Block a subject whose current step has an open mandatory action, and name the action in the refusal.
+      <!-- REACHABLE (2026-11-16): before the completion that would close a
+      step, ApprovalRouteService::record() has ApprovalRouteAdvancer read the
+      subject's actions and call OpenApprovalGuard::assertStepMayClose(). An
+      open work item (state `open`, no recorded verb) on that step, mandatory,
+      assigned to anybody but the actor, refuses the act with a message naming
+      each item and its assignee; nothing is written. The actor's own open item
+      on the step is ended by the act, in the act's own state. A parallel
+      sibling still signing means the step does not close, so it is not asked.
+      Proven by ApprovalRouteServiceTest::testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep,
+      testTheActorsOwnOpenApprovalIsEndedByTheirAct and
+      testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks. -->
 - [ ] 1.3 List open actions in the assignee's task list, with subject, step and due date.
       <!-- NOT DELIVERED: OpenApprovalGuard::taskListFor() exists and is tested,
       nothing calls it and no surface renders it. -->
