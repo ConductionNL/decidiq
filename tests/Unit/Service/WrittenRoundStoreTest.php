@@ -29,6 +29,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Find, page, filter, save and reference resolution of the written-round store.
@@ -94,7 +96,15 @@ class WrittenRoundStoreTest extends TestCase {
 	public function testFindReturnsArrayWithIdFromSelf(): void {
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('round-1', [], false, 'decidiq', 'voting-round', false, false)
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'round-1',
+					'_extend' => [],
+					'files' => false,
+					'register' => 'decidiq',
+					'schema' => 'voting-round',
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity(['title' => 'R1', '@self' => ['id' => 'round-1']]));
 
 		$this->assertSame(
@@ -202,7 +212,15 @@ class WrittenRoundStoreTest extends TestCase {
 	public function testSaveReturnsStoredObject(): void {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(['title' => 'x'], [], 'decidiq', 'voting-round', null, false, false)
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => ['title' => 'x'],
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'voting-round',
+					'uuid' => null,
+					'_rbac' => false,
+					'_multitenancy' => false,
+				]))
 			->willReturn($this->entity(['title' => 'x', '@self' => ['id' => 'new-1']]));
 
 		$this->assertSame(

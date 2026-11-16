@@ -42,6 +42,8 @@ use OCP\IUserSession;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\MemberCompetenceService
@@ -149,13 +151,21 @@ class MemberCompetenceServiceTest extends TestCase {
 	private function service(): MemberCompetenceService {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				return $data === null ? null : self::entity(schema: (string)$schema, id: (string)$id, data: $data);
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [(string)$schema, $object, $uuid, $_rbac, $_multitenancy];
 				$id = ($uuid ?? sprintf('6a1c0000-0000-4000-8000-%012d', 900 + count($this->saves)));
 				$this->store[(string)$schema][$id] = $object;

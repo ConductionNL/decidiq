@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -233,10 +235,11 @@ class RenameStepTypes implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema($schema);
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: $schema,
 					object: $payload,
-					uuid: $identifier,
+					options: new ObjectSaveOptions(
+						target: new ObjectFindTarget(register: self::REGISTER, schema: $schema),
+						uuid: $identifier
+					)
 				);
 				$rewritten++;
 			} catch (Throwable $e) {

@@ -34,6 +34,9 @@ use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IUserSession;
@@ -171,9 +174,10 @@ class ImplementationUpdateListener implements IEventListener {
 			$decision['implementationStatusDate'] = $reportedOn;
 			$this->objectService->saveObject(
 				object: $decision,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+					uuid: $decisionId
+				),
 				_rbac: false,
 				_multitenancy: false
 			);
@@ -206,7 +210,12 @@ class ImplementationUpdateListener implements IEventListener {
 			return null;
 		}
 
-		$found = $this->objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision', _rbac: false, _multitenancy: false);
+		$found = $this->objectService->find(
+			id: $decisionId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($found === null) {
 			return null;
 		}

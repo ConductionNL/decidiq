@@ -33,6 +33,7 @@ use OCP\Notification\INotification;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Covers the notification sent for an unreadable email-vote reply.
@@ -83,6 +84,7 @@ class MailVoteReplyNotificationTest extends TestCase {
 			 * @return object The participant
 			 */
 			public function find(mixed ...$args): object {
+				$args = LegacyObjectArgs::flatten(args: $args);
 				return new class {
 					/**
 					 * @return array<string, string>
@@ -99,6 +101,7 @@ class MailVoteReplyNotificationTest extends TestCase {
 			 * @return array<string, mixed>
 			 */
 			public function saveObject(mixed ...$args): array {
+				$args = LegacyObjectArgs::flatten(args: $args);
 				return [];
 			}
 		};

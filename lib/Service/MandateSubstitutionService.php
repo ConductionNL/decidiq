@@ -35,6 +35,9 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Start, end and read the seats of a meeting.
@@ -212,8 +215,7 @@ class MandateSubstitutionService implements MandateSubstitutionServiceInterface 
 
 		$entity = $this->objectService->find(
 			id: $substitutionId,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
+			options: new ObjectFindOptions(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -331,9 +333,10 @@ class MandateSubstitutionService implements MandateSubstitutionServiceInterface 
 	private function write(array $object, ?string $id): array {
 		$saved = $this->objectService->saveObject(
 			object: $object,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
-			uuid: $id,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
+				uuid: $id
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

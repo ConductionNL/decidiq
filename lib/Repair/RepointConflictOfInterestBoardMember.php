@@ -38,6 +38,9 @@ namespace OCA\Decidiq\Repair;
 use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\Decidiq\Service\ObjectResultNormaliser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -173,9 +176,10 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			try {
 				$this->objectService->saveObject(
 					object: array_merge($row, ['boardMember' => $resolution['membership']]),
-					register: self::REGISTER,
-					schema: self::SCHEMA,
-					uuid: $id
+					options: new ObjectSaveOptions(
+						target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
+						uuid: $id
+					)
 				);
 				$resolved++;
 				$this->logger->info(
@@ -232,7 +236,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 */
 	private function isParticipant(string $id): ?bool {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA));
 		} catch (Throwable $e) {
 			// Null means UNKNOWN, not "no". A transient OpenRegister failure
 			// here used to be indistinguishable from "already migrated", so a

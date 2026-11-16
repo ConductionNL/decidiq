@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Throwable;
 
 /**
@@ -144,7 +145,7 @@ class VotingGroupResolver {
 	 */
 	private function read(string $id, string $schema): ?array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (Throwable $e) {
 			return null;
 		}

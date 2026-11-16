@@ -27,6 +27,9 @@ namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -197,9 +200,10 @@ class TranscriptRetentionJob extends TimedJob {
 		$transcript['retentionState'] = $currentState;
 		$objectService->saveObject(
 			object: $transcript,
-			register: 'decidiq',
-			schema: 'transcript',
-			uuid: $this->objectId(object: $transcript)
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+				uuid: $this->objectId(object: $transcript)
+			)
 		);
 
 		$this->appendAudit(meetingId: $meetingId, deleted: $deleted, policy: $policy);
@@ -430,7 +434,7 @@ class TranscriptRetentionJob extends TimedJob {
 	 */
 	private function fetchObject(object $objectService, string $id, string $schema): ?array {
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable) {
 			return null;
 		}

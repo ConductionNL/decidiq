@@ -36,6 +36,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Opis\JsonSchema\Validator;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\PublicationEligibilityService
@@ -182,7 +183,11 @@ class ActivityPublicationTest extends TestCase {
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => isset($store[(string)$id]) === true ? $this->entity($store[(string)$id]) : null);
 		$objects->method('findAll')->willReturn([]);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->written[] = ['_schema' => $schema] + $object;
 				return $this->entity(['id' => 'obj-' . count($this->written)] + $object);
 			}

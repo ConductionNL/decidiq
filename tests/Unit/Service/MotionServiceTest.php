@@ -47,6 +47,7 @@ use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for MotionService.
@@ -107,13 +108,11 @@ class MotionServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($storeRef, $saves): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($storeRef, $saves): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saves->append(['uuid' => $uuid, 'object' => $object]);
 				$storeRef[(string)($uuid ?? $object['id'] ?? ('new-' . count($saves)))] = $object;
 				return $this->entity($object);

@@ -25,6 +25,9 @@ namespace OCA\Decidiq\BackgroundJob;
 use DateTimeImmutable;
 use OCA\Decidiq\Service\SystemObjectRows;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -186,15 +189,15 @@ class ConfidentialityLiftBySweep {
 					'itemType'    => 'decision',
 					'orderNumber' => $this->nextOrderNumber(meetingId: $meetingId),
 				],
-				register: self::REGISTER,
-				schema: 'agenda-item'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'agenda-item'))
 			);
 			$itemRow = $this->asRow(row: $item);
 			$this->objectService->saveObject(
 				object: array_merge($restriction, ['liftingAgendaItem' => $this->idOf(row: $itemRow), 'liftStatus' => self::STATUS_PREPARING]),
-				register: self::REGISTER,
-				schema: 'confidentiality-restriction',
-				uuid: $id
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: 'confidentiality-restriction'),
+					uuid: $id
+				)
 			);
 		} catch (Throwable $e) {
 			$this->logger->error(
@@ -223,9 +226,10 @@ class ConfidentialityLiftBySweep {
 		try {
 			$this->objectService->saveObject(
 				object: array_merge($restriction, ['liftStatus' => $status]),
-				register: self::REGISTER,
-				schema: 'confidentiality-restriction',
-				uuid: $this->idOf(row: $restriction)
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: 'confidentiality-restriction'),
+					uuid: $this->idOf(row: $restriction)
+				)
 			);
 		} catch (Throwable $e) {
 			$this->logger->error(
@@ -340,7 +344,12 @@ class ConfidentialityLiftBySweep {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(
+				id: $id,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable $e) {
 			return null;
 		}

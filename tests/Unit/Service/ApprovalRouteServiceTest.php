@@ -29,6 +29,9 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the approval-route engine.
@@ -393,13 +396,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				// saveObject returns an ENTITY, not an array. The store already
@@ -415,12 +416,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);
@@ -435,13 +435,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
