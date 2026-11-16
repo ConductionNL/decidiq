@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ActionItemMigrationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
-class ActionItemMigrationService {
+class ActionItemMigrationService implements ActionItemMigrationServiceInterface {
 
 	/**
 	 * The register the legacy objects live in.

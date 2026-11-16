@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentRelease;
+use OCA\Decidiq\Kernel\Contracts\GoverningDocumentReleaseInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -47,15 +47,15 @@ class GoverningDocumentReleaseJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory             $time    The clock.
-	 * @param GoverningDocumentRelease $release The release.
-	 * @param LoggerInterface          $logger  The logger.
+	 * @param ITimeFactory                      $time    The clock.
+	 * @param GoverningDocumentReleaseInterface $release The release.
+	 * @param LoggerInterface                   $logger  The logger.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly GoverningDocumentRelease $release,
+		private readonly GoverningDocumentReleaseInterface $release,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);
