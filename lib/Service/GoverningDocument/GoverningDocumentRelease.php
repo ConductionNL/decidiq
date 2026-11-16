@@ -84,11 +84,7 @@ class GoverningDocumentRelease {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
 	 */
 	public function dueFor(array $document, string $today): ?string {
-		$planned = self::day(value: ($document['plannedEffectiveDate'] ?? null));
-		if ($planned === null || $planned > $today
-			|| self::day(value: ($document['effectiveDate'] ?? null)) !== null
-			|| ($document['status'] ?? null) === 'lapsed'
-		) {
+		if (self::isPending(document: $document, today: $today) === false) {
 			return null;
 		}
 
@@ -98,6 +94,25 @@ class GoverningDocumentRelease {
 
 		return 'overdue';
 	}//end dueFor()
+
+	/**
+	 * Whether a document's planned date has come while it has no effective
+	 * date yet and has not lapsed.
+	 *
+	 * @param array<string,mixed> $document The governing document.
+	 * @param string              $today    Today as Y-m-d.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
+	 */
+	private static function isPending(array $document, string $today): bool {
+		$planned = self::day(value: ($document['plannedEffectiveDate'] ?? null));
+
+		return $planned !== null && $planned <= $today
+			&& self::day(value: ($document['effectiveDate'] ?? null)) === null
+			&& ($document['status'] ?? null) !== 'lapsed';
+	}//end isPending()
 
 	/**
 	 * Release every approved document whose planned date has arrived.
@@ -122,32 +137,44 @@ class GoverningDocumentRelease {
 				continue;
 			}
 
-			if ($due === 'overdue') {
-				$result['overdue'][] = $id;
-				continue;
+			$outcome = 'overdue';
+			if ($due === 'release') {
+				$outcome = $this->release(id: $id, planned: (string)self::day(value: $document['plannedEffectiveDate']));
 			}
 
-			$planned = (string)self::day(value: $document['plannedEffectiveDate']);
-			try {
-				$this->store->patch(schema: self::SCHEMA, data: ['effectiveDate' => $planned], uuid: $id);
-			} catch (Throwable $e) {
-				$this->logger->error(
-					'Decidiq: a governing document could not take effect on its planned date',
-					['document' => $id, 'plannedEffectiveDate' => $planned, 'reason' => $e->getMessage()]
-				);
-				$result['failed'][] = $id;
-				continue;
-			}
-
-			$this->logger->info(
-				'Decidiq: a governing document took effect on its planned date',
-				['document' => $id, 'effectiveDate' => $planned]
-			);
-			$result['released'][] = $id;
-		}//end foreach
+			$result[$outcome][] = $id;
+		}
 
 		return $result;
 	}//end sweep()
+
+	/**
+	 * Give one document its planned date as its effective date.
+	 *
+	 * @param string $id      The document uuid.
+	 * @param string $planned The planned effective date (Y-m-d).
+	 *
+	 * @return string `released`, or `failed` when the save was refused (logged).
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
+	 */
+	private function release(string $id, string $planned): string {
+		try {
+			$this->store->patch(schema: self::SCHEMA, data: ['effectiveDate' => $planned], uuid: $id);
+		} catch (Throwable $e) {
+			$this->logger->error(
+				'Decidiq: a governing document could not take effect on its planned date',
+				['document' => $id, 'plannedEffectiveDate' => $planned, 'reason' => $e->getMessage()]
+			);
+			return 'failed';
+		}
+
+		$this->logger->info(
+			'Decidiq: a governing document took effect on its planned date',
+			['document' => $id, 'effectiveDate' => $planned]
+		);
+		return 'released';
+	}//end release()
 
 	/**
 	 * A date value as Y-m-d, or null when there is none or it cannot be read.
