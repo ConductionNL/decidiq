@@ -105,16 +105,7 @@ class MeetingFolderService implements MeetingFolderServiceInterface {
 
 			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 
-			$path = '';
-			foreach ($segments as $segment) {
-				$prefix = $path;
-				$path = $segment;
-				if ($prefix !== '') {
-					$path = $prefix . '/' . $segment;
-				}
-
-				$fileService->createFolder($path);
-			}
+			$path = MeetingFileTree::createPath(fileService: $fileService, segments: $segments);
 
 			foreach (self::SUBFOLDERS as $subfolder) {
 				$fileService->createFolder($path . '/' . $subfolder);
@@ -191,12 +182,7 @@ class MeetingFolderService implements MeetingFolderServiceInterface {
 			// CreateFolder is idempotent and returns the (existing or new) Folder node.
 			$folderNode = $fileService->createFolder($folderPath);
 
-			try {
-				$existing = $folderNode->get($safeName);
-				$existing->putContent($content);
-			} catch (\OCP\Files\NotFoundException) {
-				$folderNode->newFile($safeName, $content);
-			}
+			MeetingFileTree::putFile(folderNode: $folderNode, name: $safeName, content: $content);
 
 			$filePath = $folderPath . '/' . $safeName;
 			$this->logger->info('Decidiq: meeting file written', ['path' => $filePath]);
@@ -281,27 +267,17 @@ class MeetingFolderService implements MeetingFolderServiceInterface {
 	 */
 	private function resolveBodyName(array $meeting): string {
 		$bodyId = $meeting['governanceBody'] ?? ($meeting['body'] ?? ($meeting['relations']['GovernanceBody'][0] ?? null));
-		if (is_array($bodyId) === true) {
-			$bodyId = ($bodyId['id'] ?? null);
-		}
-
-		if (is_string($bodyId) === false || $bodyId === '') {
+		if (is_string($bodyId) === false && is_array($bodyId) === false) {
 			return '';
 		}
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
 		} catch (\Throwable) {
 			return '';
 		}
 
-		if ($entity === null) {
-			return '';
-		}
-
-		$body = (array)$entity->jsonSerialize();
-		return (string)($body['name'] ?? ($body['title'] ?? ''));
+		return MeetingFileTree::bodyName(objectService: $objectService, bodyId: $bodyId);
 	}//end resolveBodyName()
 
 	/**

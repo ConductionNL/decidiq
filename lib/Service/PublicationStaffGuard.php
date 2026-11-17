@@ -35,6 +35,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 
@@ -127,7 +128,7 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 			return self::ALLOWED;
 		}
 
-		$record = $this->objectService->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
+		$record = $this->objectService->find(id: $recordId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-record'));
 		if ($record === null) {
 			return self::RECORD_NOT_FOUND;
 		}
@@ -194,7 +195,7 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 			$schema = 'minutes';
 		}
 
-		$entity = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}
@@ -222,13 +223,13 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
 	 */
 	private function incomingDocumentMeetingId(string $sourceId): ?string {
-		$stuk = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: 'ingekomen-stuk');
+		$stuk = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'ingekomen-stuk'));
 		$agendaItemId = (string)($stuk?->jsonSerialize()['listAgendaItem'] ?? '');
 		if ($agendaItemId === '') {
 			return null;
 		}
 
-		$agendaItem = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+		$agendaItem = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		$meetingId  = (string)($agendaItem?->jsonSerialize()['meeting'] ?? '');
 		if ($meetingId === '') {
 			return null;

@@ -508,8 +508,10 @@ describe('the decision page in the simple structure', () => {
 			(item) => item.id,
 		)
 		// routes-send-proposal-along-route added the approval route block,
+		// goals-linked-to-decisions the goal block,
+		// voting-written-resolution the written resolution block and
 		// publication-theme-pages the themes block.
-		expect(declared).toHaveLength(17)
+		expect(declared).toHaveLength(19)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {

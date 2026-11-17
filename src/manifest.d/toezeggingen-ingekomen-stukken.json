@@ -105,7 +105,8 @@
 			"route": "/commitments/:id",
 			"type": "detail",
 			"slots": {
-				"widget-commitment-progress": "CommitmentProgressTab"
+				"widget-commitment-progress": "CommitmentProgressTab",
+				"widget-commitment-publication": "CommitmentPublicationTab"
 			},
 			"title": "Commitment",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
@@ -130,6 +131,14 @@
 						"title": "Progress",
 						"icon": "Timeline",
 						"_note": "followup-public-progress (REQ-FPP-002, fol-06): dated progress entries, newest first; the chair or secretary of the meeting adds one. Public on the ORI commitments resource from the publication date on."
+					},
+					{
+						"id": "commitment-publication",
+						"type": "custom",
+						"component": "CommitmentPublicationTab",
+						"title": "Publication",
+						"icon": "Earth",
+						"_note": "toezeggingen-ingekomen-stukken Task 7 (REQ-005, REQ-002): publish and withdraw on the public list through explicit dialogs, and Record settlement (note + evidence) from in-execution. Saves the whole object; OpenRegister access rules decide who may."
 					},
 					{
 						"id": "toezegging-files",
@@ -160,7 +169,15 @@
 						"gridX": 8,
 						"gridY": 0,
 						"gridWidth": 4,
-						"gridHeight": 6
+						"gridHeight": 3
+					},
+					{
+						"id": "5",
+						"widgetId": "commitment-publication",
+						"gridX": 8,
+						"gridY": 3,
+						"gridWidth": 4,
+						"gridHeight": 3
 					},
 					{
 						"id": "4",

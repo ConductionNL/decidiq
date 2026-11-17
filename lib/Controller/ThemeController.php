@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ThemeTimelineBuilder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -116,7 +117,7 @@ class ThemeController extends Controller {
 	 */
 	private function readableTheme(string $id): ?array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: 'governance-theme');
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-theme'));
 		} catch (Throwable $e) {
 			$this->logger->info('Decidiq theme timeline: the theme could not be read', ['id' => $id, 'exception' => $e->getMessage()]);
 			return null;

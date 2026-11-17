@@ -23,6 +23,7 @@ use OCA\Decidiq\Controller\ThemeController;
 use OCA\Decidiq\Service\ThemeTimelineBuilder;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -96,7 +97,10 @@ class ThemeControllerTest extends TestCase {
 	public function testTheTimelineListsEveryEntryWithItsPublishedState(): void {
 		$theme = ['id' => 'th-1', 'title' => 'Nieuw zwembad De Hoge Dijk', 'meetings' => ['m-1']];
 		$this->objects->expects($this->once())->method('find')
-			->with('th-1', [], false, 'decidiq', 'governance-theme')
+			->with(
+				'th-1',
+				$this->callback(static fn (?ObjectFindOptions $options): bool => $options !== null && $options->register === 'decidiq' && $options->schema === 'governance-theme')
+			)
 			->willReturn($this->entity(data: $theme));
 		$this->builder->expects($this->once())->method('entries')->with($theme)->willReturn(
 			[

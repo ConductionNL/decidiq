@@ -29,6 +29,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for QesGuard.
@@ -54,7 +55,11 @@ class QesGuardTest extends TestCase {
 		$resolutionEntity->method('getObject')->willReturn($resolution);
 
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($resolutionEntity) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($resolutionEntity) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					return $resolutionEntity;
 				}
