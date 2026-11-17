@@ -168,18 +168,7 @@ class ObjectListenerRegistrar {
 			schemas: [ImplementationUpdateListener::SCHEMA_UPDATE]
 		);
 
-		// Governing documents (governing-documents-register, REQ-GDR-006): a
-		// version put in effect writes its date onto its document, which the
-		// register lists. Declared interest is the version schema.
-		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $versionEvent) {
-			$this->subscribe(
-				dispatcher: $dispatcher,
-				event: $versionEvent,
-				listener: GoverningDocumentCurrentDateListener::class,
-				registers: null,
-				schemas: ['governing-document-versie']
-			);
-		}
+		$this->registerGoverningDocuments(dispatcher: $dispatcher);
 
 		// Agenda change notices (#1396). Declared interest is the handler's
 		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.
@@ -232,6 +221,27 @@ class ObjectListenerRegistrar {
 		}
 
 	}//end register()
+
+	/**
+	 * Governing documents (governing-documents-register, REQ-GDR-006): a
+	 * version put in effect writes its date onto its document, which the
+	 * register lists. Declared interest is the version schema.
+	 *
+	 * @param IEventDispatcher $dispatcher The event dispatcher.
+	 *
+	 * @return void
+	 */
+	private function registerGoverningDocuments(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $versionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $versionEvent,
+				listener: GoverningDocumentCurrentDateListener::class,
+				registers: null,
+				schemas: ['governing-document-versie']
+			);
+		}
+	}//end registerGoverningDocuments()
 
 	/**
 	 * Room system messages (live-room-conference-system-link, liv-22): a speaker

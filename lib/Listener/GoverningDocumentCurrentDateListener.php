@@ -68,26 +68,13 @@ class GoverningDocumentCurrentDateListener implements IEventListener {
 	 * @spec openspec/changes/governing-documents-register
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof ObjectCreatedEvent === false && $event instanceof ObjectUpdatedEvent === false) {
-			return;
-		}
-
-		$entity = null;
-		if ($event instanceof ObjectUpdatedEvent) {
-			$entity = $event->getNewObject();
-		} else {
-			$entity = $event->getObject();
-		}
-
+		$entity = self::savedObject(event: $event);
 		if (is_object($entity) === false) {
 			return;
 		}
 
 		$row = (new EntityPayloadReader())->payloadOf(entity: $entity);
-		$schema = ($row['_schemaSlug'] ?? ($row['_schema'] ?? null));
-		if (is_string($schema) === true && $schema !== '' && ctype_digit($schema) === false
-			&& strtolower($schema) !== GoverningDocumentConsolidationService::VERSION_SCHEMA
-		) {
+		if (self::namesAnotherSchema(row: $row) === true) {
 			return;
 		}
 
@@ -100,4 +87,41 @@ class GoverningDocumentCurrentDateListener implements IEventListener {
 			);
 		}
 	}//end handle()
+
+	/**
+	 * The object an after-save event carries: the new object on an update,
+	 * the object on a create, null on any other event.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return mixed
+	 */
+	private static function savedObject(Event $event): mixed {
+		if ($event instanceof ObjectUpdatedEvent) {
+			return $event->getNewObject();
+		}
+
+		if ($event instanceof ObjectCreatedEvent) {
+			return $event->getObject();
+		}
+
+		return null;
+	}//end savedObject()
+
+	/**
+	 * Whether the row clearly names a schema other than the version; a numeric
+	 * id or no slug is the version it was routed as.
+	 *
+	 * @param array<string, mixed> $row The saved row.
+	 *
+	 * @return bool
+	 */
+	private static function namesAnotherSchema(array $row): bool {
+		$schema = ($row['_schemaSlug'] ?? ($row['_schema'] ?? null));
+		if (is_string($schema) === false || $schema === '' || ctype_digit($schema) === true) {
+			return false;
+		}
+
+		return strtolower($schema) !== GoverningDocumentConsolidationService::VERSION_SCHEMA;
+	}//end namesAnotherSchema()
 }//end class

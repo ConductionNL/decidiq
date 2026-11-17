@@ -25,7 +25,6 @@ namespace OCA\Decidiq\Listener;
 use OCA\Decidiq\Exception\GoverningDocumentVersionRefusedException;
 use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCA\Decidiq\Service\GoverningDocumentConsolidationService;
-use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -63,18 +62,9 @@ class GoverningDocumentVersionGuardListener implements IEventListener {
 	 * @spec openspec/changes/governing-documents-register
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
-			return;
-		}
-
-		$entity = null;
-		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
-		} else {
-			$entity = $event->getObject();
-		}
-
-		if (is_object($entity) === false) {
+		// The new object on an update, the object on a create, null on any other event.
+		$entity = SaveGuardEvent::entityOf(event: $event);
+		if ($entity === null) {
 			return;
 		}
 
@@ -83,10 +73,37 @@ class GoverningDocumentVersionGuardListener implements IEventListener {
 			return;
 		}
 
+		$refusal = $this->refusal(event: $event, row: self::withId(row: $row, entity: $entity));
+		if ($refusal !== null) {
+			SaveGuardEvent::refuse(event: $event, message: $refusal);
+		}
+	}//end handle()
+
+	/**
+	 * The row with the entity's uuid as its id when the payload carries none.
+	 *
+	 * @param array<string, mixed> $row    The version being saved.
+	 * @param object               $entity The saved entity.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function withId(array $row, object $entity): array {
 		if (isset($row['id']) === false && method_exists($entity, 'getUuid') === true && is_string($entity->getUuid()) === true) {
 			$row['id'] = $entity->getUuid();
 		}
 
+		return $row;
+	}//end withId()
+
+	/**
+	 * Why the version may not be saved, or null when it may; any failure refuses.
+	 *
+	 * @param Event                $event The before-save event.
+	 * @param array<string, mixed> $row   The version being saved.
+	 *
+	 * @return string|null The refusal.
+	 */
+	private function refusal(Event $event, array $row): ?string {
 		try {
 			if ($event instanceof ObjectUpdatingEvent && is_object($event->getOldObject()) === true) {
 				$this->consolidation->assertEditable(
@@ -97,28 +114,14 @@ class GoverningDocumentVersionGuardListener implements IEventListener {
 
 			$this->consolidation->assertAcceptable(version: $row);
 		} catch (GoverningDocumentVersionRefusedException $e) {
-			$this->refuse(event: $event, message: $e->getMessage());
+			return $e->getMessage();
 		} catch (Throwable $e) {
 			$this->logger->warning(message: 'Decidiq: a governing-document version could not be checked', context: ['error' => $e->getMessage()]);
-			$this->refuse(
-				event: $event,
-				message: 'The version was not saved: it could not be checked against the other versions of its document. Try again in a moment.'
-			);
+			return 'The version was not saved: it could not be checked against the other versions of its document. Try again in a moment.';
 		}
-	}//end handle()
 
-	/**
-	 * Stop a save, telling the person why.
-	 *
-	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event   The before-save event.
-	 * @param string                                  $message The refusal.
-	 *
-	 * @return void
-	 */
-	private function refuse(ObjectCreatingEvent|ObjectUpdatingEvent $event, string $message): void {
-		$event->setErrors(['message' => $message]);
-		$event->stopPropagation();
-	}//end refuse()
+		return null;
+	}//end refusal()
 
 	/**
 	 * Whether the row clearly names a schema other than the version.
@@ -128,13 +131,16 @@ class GoverningDocumentVersionGuardListener implements IEventListener {
 	 * @return bool True when it is clearly another schema.
 	 */
 	private function isAnotherSchema(array $row): bool {
-		foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
-			$candidate = ($row[$key] ?? null);
-			if (is_string($candidate) === true && $candidate !== '' && ctype_digit($candidate) === false) {
-				return strtolower($candidate) !== GoverningDocumentConsolidationService::VERSION_SCHEMA;
-			}
+		// The first slug the row names decides; a numeric id or no slug at all
+		// is the version it was routed as.
+		$slugs = array_filter(
+			[($row['_schemaSlug'] ?? null), ($row['_schema'] ?? null), ($row['schema'] ?? null)],
+			static fn (mixed $candidate): bool => is_string($candidate) === true && $candidate !== '' && ctype_digit($candidate) === false
+		);
+		if ($slugs === []) {
+			return false;
 		}
 
-		return false;
+		return strtolower((string) reset($slugs)) !== GoverningDocumentConsolidationService::VERSION_SCHEMA;
 	}//end isAnotherSchema()
 }//end class

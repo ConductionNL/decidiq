@@ -122,21 +122,7 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	 * @spec openspec/changes/governing-documents-register
 	 */
 	public function readableDocument(string $documentId): ?array {
-		try {
-			$entity = $this->objectService->find(
-				id: $documentId,
-				options: new ObjectFindOptions(register: 'decidiq', schema: self::DOCUMENT_SCHEMA),
-				_rbac: true
-			);
-		} catch (DoesNotExistException) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return (array)$entity->jsonSerialize();
+		return $this->readObject(id: $documentId, options: new ObjectFindOptions(register: 'decidiq', schema: self::DOCUMENT_SCHEMA), rbac: true);
 	}//end readableDocument()
 
 	/**
@@ -258,33 +244,67 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	 * @spec openspec/changes/governing-documents-register
 	 */
 	public static function resolveInForce(array $versions, string $date): ?array {
-		$latest = null;
-		foreach ($versions as $version) {
-			$effective = self::date(value: ($version['effectiveDate'] ?? null));
-			if (self::isSealed(version: $version) === false || $effective === '' || $effective > $date) {
-				continue;
-			}
-
-			if ($latest === null || $effective > self::date(value: $latest['effectiveDate'])) {
-				$latest = $version;
-			}
-		}
-
-		if ($latest === null) {
-			return null;
-		}
-
-		$expiry = self::date(value: ($latest['expiryDate'] ?? null));
-		if ($expiry !== '' && $expiry <= $date) {
-			return null;
-		}
-
-		if ($expiry === '' && ($latest['status'] ?? null) === 'lapsed') {
+		$latest = self::latestSealedOn(versions: $versions, date: $date);
+		if ($latest === null || self::endedBy(version: $latest, date: $date) === true) {
 			return null;
 		}
 
 		return $latest;
 	}//end resolveInForce()
+
+	/**
+	 * The sealed version with the latest effective date on or before a date.
+	 *
+	 * @param array<int, array<string, mixed>> $versions The document's versions.
+	 * @param string                           $date     The date, Y-m-d.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function latestSealedOn(array $versions, string $date): ?array {
+		$latest = null;
+		$latestDate = '';
+		foreach ($versions as $version) {
+			$effective = self::sealedEffectiveDate(version: $version);
+			if ($effective !== '' && $effective <= $date && ($latest === null || $effective > $latestDate)) {
+				$latest     = $version;
+				$latestDate = $effective;
+			}
+		}
+
+		return $latest;
+	}//end latestSealedOn()
+
+	/**
+	 * A sealed version's effective date, or '' for an unsealed or undated one.
+	 *
+	 * @param array<string, mixed> $version The version.
+	 *
+	 * @return string The date, Y-m-d.
+	 */
+	private static function sealedEffectiveDate(array $version): string {
+		if (self::isSealed(version: $version) === false) {
+			return '';
+		}
+
+		return self::date(value: ($version['effectiveDate'] ?? null));
+	}//end sealedEffectiveDate()
+
+	/**
+	 * Whether a version no longer holds on a date: it expired, or it lapsed without an expiry date.
+	 *
+	 * @param array<string, mixed> $version The version.
+	 * @param string               $date    The date, Y-m-d.
+	 *
+	 * @return bool
+	 */
+	private static function endedBy(array $version, string $date): bool {
+		$expiry = self::date(value: ($version['expiryDate'] ?? null));
+		if ($expiry !== '') {
+			return $expiry <= $date;
+		}
+
+		return ($version['status'] ?? null) === 'lapsed';
+	}//end endedBy()
 
 	/**
 	 * Refuse an amendment version without the decision that enacted it.
@@ -583,13 +603,8 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		);
 
 		$versions = [];
-		foreach (($rows['results'] ?? $rows) as $row) {
-			$data = $row;
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$data = $row->jsonSerialize();
-			}
-
-			if (is_array($data) === true && self::reference(value: ($data['document'] ?? null)) === $documentId) {
+		foreach (self::rowsOf(page: $rows) as $data) {
+			if (self::reference(value: ($data['document'] ?? null)) === $documentId) {
 				$versions[] = $data;
 			}
 		}
@@ -611,13 +626,21 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 			return null;
 		}
 
+		return $this->readObject(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema, files: $files), rbac: false);
+	}//end systemRead()
+
+	/**
+	 * One object, read with or without the caller's rights, or null when it does not exist.
+	 *
+	 * @param string             $id      The uuid.
+	 * @param ObjectFindOptions  $options The register, schema and files.
+	 * @param bool               $rbac    Whether the caller's rights and organisation apply.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function readObject(string $id, ObjectFindOptions $options, bool $rbac): ?array {
 		try {
-			$entity = $this->objectService->find(
-				id: $id,
-				options: new ObjectFindOptions(register: 'decidiq', schema: $schema, files: $files),
-				_rbac: false,
-				_multitenancy: false
-			);
+			$entity = $this->objectService->find(id: $id, options: $options, _rbac: $rbac, _multitenancy: $rbac);
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -627,7 +650,7 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		}
 
 		return (array)$entity->jsonSerialize();
-	}//end systemRead()
+	}//end readObject()
 
 	/**
 	 * The rows of a list answer, as arrays.
