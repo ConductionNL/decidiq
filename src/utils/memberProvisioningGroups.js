@@ -12,6 +12,7 @@
  *
  * @param {object} settings The GET /api/settings answer.
  * @return {string[]} The allowed group ids, trimmed, without duplicates.
+ * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 export function provisioningGroups(settings) {
 	const raw = String(settings?.member_provisioning_groups ?? '')
@@ -23,6 +24,7 @@ export function provisioningGroups(settings) {
  *
  * @param {string[]} groups The allowed group ids.
  * @return {object} The payload.
+ * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 export function provisioningGroupsPayload(groups) {
 	return { member_provisioning_groups: provisioningGroups({ member_provisioning_groups: (groups || []).join(',') }).join(',') }

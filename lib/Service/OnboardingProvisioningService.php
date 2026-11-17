@@ -451,6 +451,8 @@ class OnboardingProvisioningService {
 	 * @param list<string> $names The group ids the body maps.
 	 *
 	 * @return list<string> The refused group ids, in the order given.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	private function notAllowed(array $names): array {
 		$allowed = $this->allowedGroups();

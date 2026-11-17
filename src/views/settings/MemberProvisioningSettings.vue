@@ -69,7 +69,11 @@ export default {
 	},
 
 	methods: {
-		/** Read the allowed groups from the app settings. */
+		/**
+		 * Read the allowed groups from the app settings.
+		 *
+		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		 */
 		async load() {
 			try {
 				const { data } = await axios.get(
@@ -85,13 +89,18 @@ export default {
 		 * Show the groups as the settings hold them.
 		 *
 		 * @param {object} settings The settings.
+		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 		 */
 		apply(settings) {
 			this.groups = provisioningGroups(settings).join(', ')
 			this.loaded = true
 		},
 
-		/** Write the allowed groups. */
+		/**
+		 * Write the allowed groups.
+		 *
+		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		 */
 		async save() {
 			this.saving = true
 			this.error = ''
