@@ -50,6 +50,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Support\FleetAppId
  * @uses   \OCA\Decidiq\Listener\EntityPayloadReader
  * @uses   \OCA\Decidiq\Service\ListenerSchemaResolver
+ * @uses   \OCA\Decidiq\Service\ObjectRows
  */
 final class RoomSystemFeedTest extends TestCase {
 
