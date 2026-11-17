@@ -1,0 +1,2155 @@
+{
+  "info": {
+    "name": "decidiq-document-accessibility",
+    "description": "Wire contract of the document accessibility check (openspec/changes/document-accessibility-check):\n\n  POST /api/accessibility/scan           accessibility#scan   400 / 200 pass / 200 fail / 403 / 401\n  POST /api/agendas/{meetingId}/publish  agenda#publish       409 accessibility-gate in block and warn mode, acknowledged warn publishes, mode off unchanged\n\nThe two papers are the Playwright fixtures in tests/e2e/fixtures (a tiny tagged PDF and a scanned-image PDF without a text layer), stored as plain text through OpenRegister's files API. Self-contained and idempotent: it seeds what it needs, switches the enforcement mode, and restores the previous settings and deletes its objects in teardown.\n\nSPDX-License-Identifier: EUPL-1.2\nSPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "Read the current document scan settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: settings readable (200)', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json() || {};",
+                  "const v = b.config || b;",
+                  "pm.collectionVariables.set('a11yPriorMode', String(v.accessibility_enforcement_mode || 'warn'));",
+                  "pm.collectionVariables.set('a11yPriorScan', String(v.accessibility_scan_on_upload || 'true'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Warn mode, no scan on upload (no background job races the on-demand scans)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_enforcement_mode\": \"warn\",\n  \"accessibility_scan_on_upload\": \"false\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Settings: enforcement mode warn saved', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create outsider probe user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ocs",
+                "v2.php",
+                "cloud",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "userid",
+                  "value": "{{a11yOutsiderUser}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{a11yOutsiderPass}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 200 = created; 400 with OCS statuscode 102 = already exists (idempotent re-run).",
+                  "pm.test('Setup: outsider probe user available', () => {",
+                  "    if (pm.response.code === 200) { return; }",
+                  "    pm.expect(pm.response.json()?.ocs?.meta?.statuscode).to.eql(102);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed governance body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "governance-body"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A11Y Newman body\",\n  \"bodyType\": \"legislative\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: governance-body created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yBodyId', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: governance-body has an id', () => pm.expect(pm.collectionVariables.get('a11yBodyId')).to.have.length.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed meeting (gated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "meeting"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A11Y Newman raadsvergadering\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-12-09T19:30:00+00:00\",\n  \"governanceBody\": \"{{a11yBodyId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yMeetingId', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('a11yMeetingId')).to.have.length.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed agenda item (gated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A11Y Newman krediet verlichting\",\n  \"itemType\": \"decision\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{a11yMeetingId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: agenda-item created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yItemId', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: agenda-item has an id', () => pm.expect(pm.collectionVariables.get('a11yItemId')).to.have.length.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attach the tagged PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{a11yItemId}}/files",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item",
+                "{{a11yItemId}}",
+                "files"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"newman-tagged-paper.pdf\",\n  \"content\": \"%PDF-1.7\\n1 0 obj\\n<< /Type /Catalog /Pages 2 0 R /Lang (nl-NL) /MarkInfo << /Marked true >> /StructTreeRoot 6 0 R /ViewerPreferences << /DisplayDocTitle true >> >>\\nendobj\\n2 0 obj\\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\\nendobj\\n3 0 obj\\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> /StructParents 0 >>\\nendobj\\n4 0 obj\\n<< /Length 113 >>\\nstream\\n/P <</MCID 0>> BDC BT /F1 14 Tf 72 720 Td (Raadsvoorstel: krediet voor de verlichting van het fietspad) Tj ET EMC\\nendstream\\nendobj\\n5 0 obj\\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\\nendobj\\n6 0 obj\\n<< /Type /StructTreeRoot /K [7 0 R] >>\\nendobj\\n7 0 obj\\n<< /Type /StructElem /S /P /P 6 0 R /Pg 3 0 R /K 0 >>\\nendobj\\n8 0 obj\\n<< /Title (Raadsvoorstel e2e toegankelijk) /Producer (decidiq e2e fixture) >>\\nendobj\\nxref\\n0 9\\n0000000000 65535 f \\n0000000009 00000 n \\n0000000170 00000 n \\n0000000227 00000 n \\n0000000370 00000 n \\n0000000534 00000 n \\n0000000604 00000 n \\n0000000658 00000 n \\n0000000727 00000 n \\ntrailer\\n<< /Size 9 /Root 1 0 R /Info 8 0 R >>\\nstartxref\\n820\\n%%EOF\\n\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: paper stored on the agenda item', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yTaggedFileId', String(b.id || b.fileId || ''));",
+                  "pm.test('Setup: paper has a file id', () => pm.expect(Number(pm.collectionVariables.get('a11yTaggedFileId'))).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attach the scanned-image PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{a11yItemId}}/files",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item",
+                "{{a11yItemId}}",
+                "files"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"newman-scanned-paper.pdf\",\n  \"content\": \"%PDF-1.7\\n1 0 obj\\n<< /Type /Catalog /Pages 2 0 R >>\\nendobj\\n2 0 obj\\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\\nendobj\\n3 0 obj\\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /XObject << /Im1 5 0 R >> >> >>\\nendobj\\n4 0 obj\\n<< /Length 30 >>\\nstream\\nq 595 0 0 842 0 0 cm /Im1 Do Q\\nendstream\\nendobj\\n5 0 obj\\n<< /Length 64 /Type /XObject /Subtype /Image /Width 8 /Height 8 /ColorSpace /DeviceGray /BitsPerComponent 8 >>\\nstream\\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\nendstream\\nendobj\\nxref\\n0 6\\n0000000000 65535 f \\n0000000009 00000 n \\n0000000058 00000 n \\n0000000115 00000 n \\n0000000245 00000 n \\n0000000325 00000 n \\ntrailer\\n<< /Size 6 /Root 1 0 R >>\\nstartxref\\n533\\n%%EOF\\n\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: paper stored on the agenda item', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yScannedFileId', String(b.id || b.fileId || ''));",
+                  "pm.test('Setup: paper has a file id', () => pm.expect(Number(pm.collectionVariables.get('a11yScannedFileId'))).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed meeting (mode off regression)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "meeting"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A11Y Newman commissievergadering\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-12-16T19:30:00+00:00\",\n  \"governanceBody\": \"{{a11yBodyId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yOffMeetingId', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('a11yOffMeetingId')).to.have.length.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed agenda item (mode off regression)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"A11Y Newman kaart Lindelaan\",\n  \"itemType\": \"decision\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{a11yOffMeetingId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: agenda-item created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yOffItemId', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: agenda-item has an id', () => pm.expect(pm.collectionVariables.get('a11yOffItemId')).to.have.length.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attach the scanned-image PDF (mode off regression)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{a11yOffItemId}}/files",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item",
+                "{{a11yOffItemId}}",
+                "files"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"newman-scanned-paper.pdf\",\n  \"content\": \"%PDF-1.7\\n1 0 obj\\n<< /Type /Catalog /Pages 2 0 R >>\\nendobj\\n2 0 obj\\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\\nendobj\\n3 0 obj\\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /XObject << /Im1 5 0 R >> >> >>\\nendobj\\n4 0 obj\\n<< /Length 30 >>\\nstream\\nq 595 0 0 842 0 0 cm /Im1 Do Q\\nendstream\\nendobj\\n5 0 obj\\n<< /Length 64 /Type /XObject /Subtype /Image /Width 8 /Height 8 /ColorSpace /DeviceGray /BitsPerComponent 8 >>\\nstream\\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\nendstream\\nendobj\\nxref\\n0 6\\n0000000000 65535 f \\n0000000009 00000 n \\n0000000058 00000 n \\n0000000115 00000 n \\n0000000245 00000 n \\n0000000325 00000 n \\ntrailer\\n<< /Size 6 /Root 1 0 R >>\\nstartxref\\n533\\n%%EOF\\n\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Setup: paper stored on the agenda item', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('a11yOffScannedFileId', String(b.id || b.fileId || ''));",
+                  "pm.test('Setup: paper has a file id', () => pm.expect(Number(pm.collectionVariables.get('a11yOffScannedFileId'))).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. On-demand scan endpoint",
+      "item": [
+        {
+          "name": "Scan without a file id is refused (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/accessibility/scan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "accessibility",
+                "scan"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceObject\": \"{{a11yItemId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Missing fileId: 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan the tagged PDF (200, pass)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/accessibility/scan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "accessibility",
+                "scan"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceObject\": \"{{a11yItemId}}\",\n  \"fileId\": {{a11yTaggedFileId}}\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Tagged PDF scanned: 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Tagged PDF passes with the scanner version recorded', () => {",
+                  "    pm.expect(r.status).to.eql('pass');",
+                  "    pm.expect(r.scannerVersion, 'scannerVersion').to.be.a('string').and.to.have.length.above(0);",
+                  "    pm.expect(String(r.fileId)).to.eql(pm.collectionVariables.get('a11yTaggedFileId'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan the scanned-image PDF (200, fail with evidence)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/accessibility/scan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "accessibility",
+                "scan"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceObject\": \"{{a11yItemId}}\",\n  \"fileId\": {{a11yScannedFileId}}\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Scanned-image PDF scanned: 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "const codes = (r.findings || []).map((f) => f.code);",
+                  "pm.test('Scanned-image PDF fails on no-text-layer and not-tagged', () => {",
+                  "    pm.expect(r.status).to.eql('fail');",
+                  "    pm.expect(codes).to.include.members(['no-text-layer', 'not-tagged']);",
+                  "});",
+                  "pm.test('Every finding carries evidence', () => (r.findings || []).forEach((f) => pm.expect(f.evidence, f.code).to.be.a('string').and.to.have.length.above(0)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan as a user who may not read the agenda item (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/accessibility/scan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "accessibility",
+                "scan"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{a11yOutsiderUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{a11yOutsiderPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceObject\": \"{{a11yItemId}}\",\n  \"fileId\": {{a11yTaggedFileId}}\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Outsider: 403 (per-object RBAC on the source)', () => pm.response.to.have.status(403));",
+                  "pm.test('Outsider: no report in the answer', () => pm.expect(pm.response.json().status).to.be.undefined);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan unauthenticated (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/accessibility/scan",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "accessibility",
+                "scan"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceObject\": \"{{a11yItemId}}\",\n  \"fileId\": {{a11yTaggedFileId}}\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unauthenticated: 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Publication gate",
+      "item": [
+        {
+          "name": "Block mode",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_enforcement_mode\": \"block\",\n  \"accessibility_scan_on_upload\": \"false\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Settings: enforcement mode block saved', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish in block mode without a reason (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yMeetingId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "agendas",
+                "{{a11yMeetingId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('a11yExpectMode', 'block');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Held back: 409', () => pm.response.to.have.status(409));",
+                  "const b = pm.response.json();",
+                  "pm.test('409 carries the accessibility-gate contract', () => {",
+                  "    pm.expect(b.error).to.eql('accessibility-gate');",
+                  "    pm.expect(b.mode).to.eql(pm.variables.get('a11yExpectMode'));",
+                  "    pm.expect(b.documents).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(JSON.stringify(b.documents)).to.include('newman-scanned-paper.pdf');",
+                  "    pm.expect(JSON.stringify(b.documents)).to.not.include('newman-tagged-paper.pdf');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish in block mode with only an acknowledgement (409)",
+          "description": "Block mode needs a reason; acknowledging is what warn mode asks for and is not enough here.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yMeetingId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "agendas",
+                "{{a11yMeetingId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibilityAcknowledged\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('a11yExpectMode', 'block');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Held back: 409', () => pm.response.to.have.status(409));",
+                  "const b = pm.response.json();",
+                  "pm.test('409 carries the accessibility-gate contract', () => {",
+                  "    pm.expect(b.error).to.eql('accessibility-gate');",
+                  "    pm.expect(b.mode).to.eql(pm.variables.get('a11yExpectMode'));",
+                  "    pm.expect(b.documents).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(JSON.stringify(b.documents)).to.include('newman-scanned-paper.pdf');",
+                  "    pm.expect(JSON.stringify(b.documents)).to.not.include('newman-tagged-paper.pdf');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Warn mode",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_enforcement_mode\": \"warn\",\n  \"accessibility_scan_on_upload\": \"false\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Settings: enforcement mode warn saved', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish in warn mode without acknowledging (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yMeetingId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "agendas",
+                "{{a11yMeetingId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('a11yExpectMode', 'warn');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Held back: 409', () => pm.response.to.have.status(409));",
+                  "const b = pm.response.json();",
+                  "pm.test('409 carries the accessibility-gate contract', () => {",
+                  "    pm.expect(b.error).to.eql('accessibility-gate');",
+                  "    pm.expect(b.mode).to.eql(pm.variables.get('a11yExpectMode'));",
+                  "    pm.expect(b.documents).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(JSON.stringify(b.documents)).to.include('newman-scanned-paper.pdf');",
+                  "    pm.expect(JSON.stringify(b.documents)).to.not.include('newman-tagged-paper.pdf');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish in warn mode, acknowledged (published)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yMeetingId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "agendas",
+                "{{a11yMeetingId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibilityAcknowledged\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Acknowledged warning: published (2xx)', () => pm.expect(pm.response.code).to.be.within(200, 299));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mode off",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_enforcement_mode\": \"off\",\n  \"accessibility_scan_on_upload\": \"false\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Settings: enforcement mode off saved', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish in mode off (regression: unchanged agenda publication)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yOffMeetingId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "agendas",
+                "{{a11yOffMeetingId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Mode off: published (2xx) although a paper fails the scan', () => pm.expect(pm.response.code).to.be.within(200, 299));",
+                  "pm.test('Mode off: no accessibility-gate payload', () => pm.expect(pm.response.text()).to.not.include('accessibility-gate'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Teardown",
+      "item": [
+        {
+          "name": "Restore the document scan settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "decidiq",
+                "api",
+                "settings"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accessibility_enforcement_mode\": \"{{a11yPriorMode}}\",\n  \"accessibility_scan_on_upload\": \"{{a11yPriorScan}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: settings restored', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete agenda item (gated)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{a11yItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item",
+                "{{a11yItemId}}"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: removed (or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete agenda item (mode off)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{a11yOffItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "agenda-item",
+                "{{a11yOffItemId}}"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: removed (or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete meeting (gated)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{a11yMeetingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "meeting",
+                "{{a11yMeetingId}}"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: removed (or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete meeting (mode off)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{a11yOffMeetingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "meeting",
+                "{{a11yOffMeetingId}}"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: removed (or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete governance body",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{a11yBodyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "governance-body",
+                "{{a11yBodyId}}"
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: removed (or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete outsider probe user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{a11yOutsiderUser}}?format=json",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ocs",
+                "v2.php",
+                "cloud",
+                "users",
+                "{{a11yOutsiderUser}}"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teardown: outsider removed (or already gone)', () => pm.expect([200, 404]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "noAuthBase",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "adminUser",
+      "value": "admin"
+    },
+    {
+      "key": "adminPass",
+      "value": "admin"
+    },
+    {
+      "key": "register",
+      "value": "decidiq"
+    },
+    {
+      "key": "a11yOutsiderUser",
+      "value": "decidiq-a11y-outsider"
+    },
+    {
+      "key": "a11yOutsiderPass",
+      "value": "Decidiq-A11y-Outsider!42x"
+    },
+    {
+      "key": "a11yPriorMode",
+      "value": "warn"
+    },
+    {
+      "key": "a11yPriorScan",
+      "value": "true"
+    },
+    {
+      "key": "a11yBodyId",
+      "value": ""
+    },
+    {
+      "key": "a11yMeetingId",
+      "value": ""
+    },
+    {
+      "key": "a11yItemId",
+      "value": ""
+    },
+    {
+      "key": "a11yTaggedFileId",
+      "value": ""
+    },
+    {
+      "key": "a11yScannedFileId",
+      "value": ""
+    },
+    {
+      "key": "a11yOffMeetingId",
+      "value": ""
+    },
+    {
+      "key": "a11yOffItemId",
+      "value": ""
+    },
+    {
+      "key": "a11yOffScannedFileId",
+      "value": ""
+    }
+  ]
+}
