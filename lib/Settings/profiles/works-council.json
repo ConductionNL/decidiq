@@ -63,6 +63,65 @@
 						"taskStatus": "in-progress"
 					}
 				],
+				"meeting": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "or-vergadering-2026-01-14",
+						"title": "OR-vergadering 14 januari 2026",
+						"meetingType": "regular",
+						"governanceBody": "ondernemingsraad-acme",
+						"scheduledDate": "2026-01-14T09:30:00Z",
+						"endDate": "2026-01-14T12:00:00Z",
+						"location": "ACME B.V., vergaderruimte Noord",
+						"meetingMode": "in-person",
+						"lifecycle": "closed",
+						"quorumRequired": 4,
+						"chair": "or-sanne-de-groot",
+						"isPublic": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "or-overlegvergadering-2026-02-18",
+						"title": "Overlegvergadering 18 februari 2026",
+						"meetingType": "regular",
+						"governanceBody": "ondernemingsraad-acme",
+						"scheduledDate": "2026-02-18T13:00:00Z",
+						"endDate": "2026-02-18T15:30:00Z",
+						"location": "ACME B.V., directiekamer",
+						"meetingMode": "hybrid",
+						"lifecycle": "closed",
+						"quorumRequired": 4,
+						"chair": "or-sanne-de-groot",
+						"isPublic": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "or-vergadering-2026-06-17",
+						"title": "OR-vergadering 17 juni 2026",
+						"meetingType": "regular",
+						"governanceBody": "ondernemingsraad-acme",
+						"scheduledDate": "2026-06-17T09:30:00Z",
+						"endDate": "2026-06-17T12:00:00Z",
+						"location": "ACME B.V., vergaderruimte Noord",
+						"meetingMode": "in-person",
+						"lifecycle": "scheduled",
+						"quorumRequired": 4,
+						"chair": "or-sanne-de-groot",
+						"isPublic": false
+					}
+				],
 				"agenda-item": [
 					{
 						"@self": {
@@ -148,6 +207,162 @@
 						"meeting": "or-vergadering-2026-06-17"
 					}
 				],
+				"decision": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "or-advies-uitbesteding-ict",
+						"decisionType": "report-adoption",
+						"title": "Advies OR over uitbesteding ICT-beheer",
+						"text": "De ondernemingsraad adviseert positief over de uitbesteding van het ICT-beheer, onder voorwaarde van een sociaal plan voor de zes betrokken medewerkers en een evaluatie na 12 maanden.",
+						"decisionDate": "2026-02-18T14:45:00Z",
+						"outcome": "adopted",
+						"isPublished": "internal",
+						"legalBasis": "art. 25 lid 1 sub n WOR",
+						"lifecycle": "enacted",
+						"enactedAt": "2026-02-24T09:00:00Z",
+						"voteType": "named",
+						"voteThreshold": "simple-majority",
+						"meeting": "or-overlegvergadering-2026-02-18",
+						"agendaItem": "or-overleg-2026-02-ict"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "beleid-thuiswerkregeling",
+						"decisionType": "policy",
+						"title": "Vaststelling thuiswerkregeling",
+						"text": "De organisatie stelt de thuiswerkregeling 2026 vast: standaard twee thuiswerkdagen per week, met een vergoeding conform de fiscale onbelaste norm.",
+						"lifecycle": "enacted",
+						"outcome": "adopted",
+						"decisionDate": "2026-03-18T11:00:00Z",
+						"isPublished": "public"
+					}
+				],
+				"governance-body": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "ondernemingsraad-acme",
+						"name": "Ondernemingsraad ACME B.V.",
+						"bodyType": "works-council",
+						"domain": "medezeggenschap",
+						"statutoryBasis": "Wet op de ondernemingsraden (WOR)",
+						"votingDefault": "for-against-abstain",
+						"quorum": 4,
+						"active": true,
+						"termStart": "2025-04-01T00:00:00Z",
+						"termEnd": "2029-03-31T00:00:00Z",
+						"parentBody": "raad-van-bestuur-acme-bv"
+					}
+				],
+				"governance-consultation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-consultation"
+						},
+						"slug": "achterban-or-thuiswerkregeling",
+						"subject": "Wat vindt de achterban van de voorgestelde thuiswerkregeling (instemmingsaanvraag art. 27 WOR)?",
+						"audienceType": "user-group",
+						"binding": false,
+						"deadline": "2026-02-15T17:00:00Z",
+						"description": "Informele raadpleging van de achterban voor het OR-besluit over de instemmingsaanvraag.",
+						"responseType": "open-text",
+						"audienceGroup": "or-achterban-acme",
+						"agendaItem": "or-2026-01-achterban",
+						"opensAt": "2026-02-01T09:00:00Z",
+						"anonymousResponses": true,
+						"lifecycle": "processed",
+						"results": {
+							"audienceSize": 12,
+							"responseCount": 9,
+							"openTextDigest": "Meerderheid positief. Zorgen over de bereikbaarheid van de servicedesk en over de productieploegen, die niet thuis kunnen werken."
+						}
+					}
+				],
+				"person": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "or-sanne-de-groot",
+						"name": "Sanne de Groot",
+						"givenName": "Sanne",
+						"familyName": "de Groot",
+						"gender": "female",
+						"email": "s.degroot@acme.example",
+						"biography": "Voorzitter van de ondernemingsraad, teamleider logistiek."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "or-youssef-benali",
+						"name": "Youssef Benali",
+						"givenName": "Youssef",
+						"familyName": "Benali",
+						"gender": "male",
+						"email": "y.benali@acme.example",
+						"biography": "Secretaris van de ondernemingsraad, medewerker ICT-beheer."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "or-linda-vermeer",
+						"name": "Linda Vermeer",
+						"givenName": "Linda",
+						"familyName": "Vermeer",
+						"gender": "female",
+						"email": "l.vermeer@acme.example",
+						"biography": "OR-lid namens de productieploegen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "or-dennis-kok",
+						"name": "Dennis Kok",
+						"givenName": "Dennis",
+						"familyName": "Kok",
+						"gender": "male",
+						"email": "d.kok@acme.example",
+						"biography": "OR-lid namens de servicedesk."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "acme-bestuurder-hilde-jansen",
+						"name": "Hilde Jansen",
+						"givenName": "Hilde",
+						"familyName": "Jansen",
+						"gender": "female",
+						"email": "h.jansen@acme.example",
+						"biography": "Bestuurder in de zin van de WOR, directeur bedrijfsvoering ACME B.V."
+					}
+				],
 				"consultation-request": [
 					{
 						"@self": {
@@ -211,44 +426,6 @@
 						"lifecycle": "constituencyConsultation"
 					}
 				],
-				"decision": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "decision"
-						},
-						"slug": "or-advies-uitbesteding-ict",
-						"decisionType": "report-adoption",
-						"title": "Advies OR over uitbesteding ICT-beheer",
-						"text": "De ondernemingsraad adviseert positief over de uitbesteding van het ICT-beheer, onder voorwaarde van een sociaal plan voor de zes betrokken medewerkers en een evaluatie na 12 maanden.",
-						"decisionDate": "2026-02-18T14:45:00Z",
-						"outcome": "adopted",
-						"isPublished": "internal",
-						"legalBasis": "art. 25 lid 1 sub n WOR",
-						"lifecycle": "enacted",
-						"enactedAt": "2026-02-24T09:00:00Z",
-						"voteType": "named",
-						"voteThreshold": "simple-majority",
-						"meeting": "or-overlegvergadering-2026-02-18",
-						"agendaItem": "or-overleg-2026-02-ict"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "decision"
-						},
-						"slug": "beleid-thuiswerkregeling",
-						"decisionType": "policy",
-						"title": "Vaststelling thuiswerkregeling",
-						"text": "De organisatie stelt de thuiswerkregeling 2026 vast: standaard twee thuiswerkdagen per week, met een vergoeding conform de fiscale onbelaste norm.",
-						"lifecycle": "enacted",
-						"outcome": "adopted",
-						"decisionDate": "2026-03-18T11:00:00Z",
-						"isPublished": "public"
-					}
-				],
 				"decision-template": [
 					{
 						"@self": {
@@ -272,52 +449,6 @@
 						"allowDecideWithoutVote": false,
 						"regulationSource": "Wet op de ondernemingsraden, art. 25 en art. 27",
 						"checklist": []
-					}
-				],
-				"governance-body": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-body"
-						},
-						"slug": "ondernemingsraad-acme",
-						"name": "Ondernemingsraad ACME B.V.",
-						"bodyType": "works-council",
-						"domain": "medezeggenschap",
-						"statutoryBasis": "Wet op de ondernemingsraden (WOR)",
-						"votingDefault": "for-against-abstain",
-						"quorum": 4,
-						"active": true,
-						"termStart": "2025-04-01T00:00:00Z",
-						"termEnd": "2029-03-31T00:00:00Z",
-						"parentBody": "raad-van-bestuur-acme-bv"
-					}
-				],
-				"governance-consultation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-consultation"
-						},
-						"slug": "achterban-or-thuiswerkregeling",
-						"subject": "Wat vindt de achterban van de voorgestelde thuiswerkregeling (instemmingsaanvraag art. 27 WOR)?",
-						"audienceType": "user-group",
-						"binding": false,
-						"deadline": "2026-02-15T17:00:00Z",
-						"description": "Informele raadpleging van de achterban voor het OR-besluit over de instemmingsaanvraag.",
-						"responseType": "open-text",
-						"audienceGroup": "or-achterban-acme",
-						"agendaItem": "or-2026-01-achterban",
-						"opensAt": "2026-02-01T09:00:00Z",
-						"anonymousResponses": true,
-						"lifecycle": "processed",
-						"results": {
-							"audienceSize": 12,
-							"responseCount": 9,
-							"openTextDigest": "Meerderheid positief. Zorgen over de bereikbaarheid van de servicedesk en over de productieploegen, die niet thuis kunnen werken."
-						}
 					}
 				],
 				"governance-consultation-response": [
@@ -361,63 +492,30 @@
 						"status": "submitted"
 					}
 				],
-				"meeting": [
+				"post": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "meeting"
+							"schema": "post"
 						},
-						"slug": "or-vergadering-2026-01-14",
-						"title": "OR-vergadering 14 januari 2026",
-						"meetingType": "regular",
-						"governanceBody": "ondernemingsraad-acme",
-						"scheduledDate": "2026-01-14T09:30:00Z",
-						"endDate": "2026-01-14T12:00:00Z",
-						"location": "ACME B.V., vergaderruimte Noord",
-						"meetingMode": "in-person",
-						"lifecycle": "closed",
-						"quorumRequired": 4,
-						"chair": "or-sanne-de-groot",
-						"isPublic": false
+						"slug": "post-or-voorzitter-acme",
+						"label": "OR-voorzitter",
+						"role": "chair",
+						"startDate": "2025-04-01T00:00:00Z",
+						"governanceBody": "ondernemingsraad-acme"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "meeting"
+							"schema": "post"
 						},
-						"slug": "or-overlegvergadering-2026-02-18",
-						"title": "Overlegvergadering 18 februari 2026",
-						"meetingType": "regular",
-						"governanceBody": "ondernemingsraad-acme",
-						"scheduledDate": "2026-02-18T13:00:00Z",
-						"endDate": "2026-02-18T15:30:00Z",
-						"location": "ACME B.V., directiekamer",
-						"meetingMode": "hybrid",
-						"lifecycle": "closed",
-						"quorumRequired": 4,
-						"chair": "or-sanne-de-groot",
-						"isPublic": false
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "meeting"
-						},
-						"slug": "or-vergadering-2026-06-17",
-						"title": "OR-vergadering 17 juni 2026",
-						"meetingType": "regular",
-						"governanceBody": "ondernemingsraad-acme",
-						"scheduledDate": "2026-06-17T09:30:00Z",
-						"endDate": "2026-06-17T12:00:00Z",
-						"location": "ACME B.V., vergaderruimte Noord",
-						"meetingMode": "in-person",
-						"lifecycle": "scheduled",
-						"quorumRequired": 4,
-						"chair": "or-sanne-de-groot",
-						"isPublic": false
+						"slug": "post-or-secretaris-acme",
+						"label": "OR-secretaris",
+						"role": "secretary",
+						"startDate": "2025-04-01T00:00:00Z",
+						"governanceBody": "ondernemingsraad-acme"
 					}
 				],
 				"membership": [
@@ -569,102 +667,26 @@
 						"governanceBody": "ondernemingsraad-acme"
 					}
 				],
-				"person": [
+				"voting-round": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "person"
+							"schema": "voting-round"
 						},
-						"slug": "or-sanne-de-groot",
-						"name": "Sanne de Groot",
-						"givenName": "Sanne",
-						"familyName": "de Groot",
-						"gender": "female",
-						"email": "s.degroot@acme.example",
-						"biography": "Voorzitter van de ondernemingsraad, teamleider logistiek."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "or-youssef-benali",
-						"name": "Youssef Benali",
-						"givenName": "Youssef",
-						"familyName": "Benali",
-						"gender": "male",
-						"email": "y.benali@acme.example",
-						"biography": "Secretaris van de ondernemingsraad, medewerker ICT-beheer."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "or-linda-vermeer",
-						"name": "Linda Vermeer",
-						"givenName": "Linda",
-						"familyName": "Vermeer",
-						"gender": "female",
-						"email": "l.vermeer@acme.example",
-						"biography": "OR-lid namens de productieploegen."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "or-dennis-kok",
-						"name": "Dennis Kok",
-						"givenName": "Dennis",
-						"familyName": "Kok",
-						"gender": "male",
-						"email": "d.kok@acme.example",
-						"biography": "OR-lid namens de servicedesk."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "acme-bestuurder-hilde-jansen",
-						"name": "Hilde Jansen",
-						"givenName": "Hilde",
-						"familyName": "Jansen",
-						"gender": "female",
-						"email": "h.jansen@acme.example",
-						"biography": "Bestuurder in de zin van de WOR, directeur bedrijfsvoering ACME B.V."
-					}
-				],
-				"post": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "post"
-						},
-						"slug": "post-or-voorzitter-acme",
-						"label": "OR-voorzitter",
-						"role": "chair",
-						"startDate": "2025-04-01T00:00:00Z",
-						"governanceBody": "ondernemingsraad-acme"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "post"
-						},
-						"slug": "post-or-secretaris-acme",
-						"label": "OR-secretaris",
-						"role": "secretary",
-						"startDate": "2025-04-01T00:00:00Z",
-						"governanceBody": "ondernemingsraad-acme"
+						"slug": "stemming-or-advies-ict",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"openedAt": "2026-02-18T14:35:00Z",
+						"closedAt": "2026-02-18T14:44:00Z",
+						"quorumWith": true,
+						"result": "adopted",
+						"votesFor": 3,
+						"votesAgainst": 0,
+						"votesAbstain": 1,
+						"voteThreshold": "simple-majority",
+						"abstentionHandling": "exclude",
+						"voteBase": 4
 					}
 				],
 				"vote": [
@@ -727,28 +749,6 @@
 						"castAs": "in-person",
 						"votingRound": "stemming-or-advies-ict",
 						"participant": "or-p-dennis-kok"
-					}
-				],
-				"voting-round": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "voting-round"
-						},
-						"slug": "stemming-or-advies-ict",
-						"votingMethod": "for-against-abstain",
-						"isSecret": false,
-						"openedAt": "2026-02-18T14:35:00Z",
-						"closedAt": "2026-02-18T14:44:00Z",
-						"quorumWith": true,
-						"result": "adopted",
-						"votesFor": 3,
-						"votesAgainst": 0,
-						"votesAbstain": 1,
-						"voteThreshold": "simple-majority",
-						"abstentionHandling": "exclude",
-						"voteBase": 4
 					}
 				]
 			}

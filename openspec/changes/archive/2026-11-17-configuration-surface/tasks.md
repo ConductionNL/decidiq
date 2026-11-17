@@ -14,4 +14,4 @@
 
 ## 3. Prove it
 
-- [ ] 3.1 E2E: each configuration surface is reachable and lists its rows. (not run: needs the live instance)
+- [x] 3.1 E2E: each configuration surface is reachable and lists its rows. (not run: needs the live instance) (passed live 2026-11-17: all seven surfaces and the API-created kind)
