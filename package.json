@@ -95,7 +95,7 @@
     "eslint-config-prettier": "^10.1.8",
     "node-polyfill-webpack-plugin": "4.1.0",
     "postcss-html": "^2.0.0",
-    "prettier": "^3.9.6",
+    "prettier": "^3.10.1",
     "style-loader": "~4.0.0",
     "stylelint": "^17.15.0",
     "stylelint-config-html": "^2.0.0",
