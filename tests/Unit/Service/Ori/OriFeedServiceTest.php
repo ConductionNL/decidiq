@@ -95,7 +95,7 @@ final class OriFeedServiceTest extends TestCase {
 
 		$store->seed('decidiq', 'confidentiality-restriction', ['id' => 'r-1', 'scope' => 'document', 'targetDocument' => 'd-own', 'lifecycle' => 'imposed']);
 		$store->seed('decidiq', 'confidentiality-restriction', ['id' => 'r-2', 'scope' => 'document', 'targetDocument' => 'd-ratified', 'lifecycle' => 'ratified']);
-		$store->seed('decidiq', 'confidentiality-restriction', ['id' => 'r-3', 'scope' => 'document', 'targetDocument' => 'd-lifted', 'lifecycle' => 'lifted']);
+		$store->seed('decidiq', 'confidentiality-restriction', ['id' => 'r-3', 'scope' => 'document', 'targetDocument' => 'd-lifted', 'lifecycle' => 'dissolved']);
 		$store->seed('decidiq', 'confidentiality-restriction', ['id' => 'r-4', 'scope' => 'item', 'targetAgendaItem' => 'a-closed', 'lifecycle' => 'imposed']);
 
 		$feeds = new OriFeedService($store->service($this), new OriExportMapper(), new RssDocument());
