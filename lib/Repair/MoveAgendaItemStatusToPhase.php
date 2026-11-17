@@ -35,6 +35,8 @@ namespace OCA\Decidiq\Repair;
 use OCA\Decidiq\Service\AgendaRules;
 use OCA\Decidiq\Service\ObjectResultNormaliser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -158,7 +160,13 @@ class MoveAgendaItemStatusToPhase implements IRepairStep {
 
 		$id = (string)($item['id'] ?? ($item['@self']['id'] ?? ($item['uuid'] ?? '')));
 		try {
-			$this->objectService->patchObject(objectId: $id, data: ['phase' => $phase], register: self::REGISTER, schema: self::SCHEMA);
+			$this->objectService->patchObject(
+				new ObjectPatch(
+					objectId: $id,
+					data: ['phase' => $phase],
+					target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA)
+				)
+			);
 			return true;
 		} catch (Throwable $e) {
 			$this->logger->warning(

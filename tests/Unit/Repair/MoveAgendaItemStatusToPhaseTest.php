@@ -23,8 +23,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Repair;
 
 use OCA\Decidiq\Repair\MoveAgendaItemStatusToPhase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -80,12 +82,12 @@ class MoveAgendaItemStatusToPhaseTest extends TestCase {
 	 */
 	public function testAPhaseInStatusIsMovedToPhase(): void {
 		$this->objects->method('findAll')->willReturn([$this->entity(['id' => 'ai-1', 'title' => 'Begroting', 'status' => 'besluitvorming'])]);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['phase' => 'besluitvorming'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'ai-1',
+				'data' => ['phase' => 'besluitvorming'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 		$this->objects->expects($this->never())->method('saveObject');
 		$this->output->expects($this->once())->method('info')->with('MoveAgendaItemStatusToPhase: 1 moved, 0 failed.');
 
@@ -105,8 +107,8 @@ class MoveAgendaItemStatusToPhaseTest extends TestCase {
 			}
 		);
 		$this->objects->expects($this->once())->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data) use (&$store): ObjectEntity {
-				$store = array_merge($store, $data);
+			function (ObjectPatch $patch) use (&$store): ObjectEntity {
+				$store = array_merge($store, $patch->data);
 				return $this->entity($store);
 			}
 		);
@@ -132,12 +134,12 @@ class MoveAgendaItemStatusToPhaseTest extends TestCase {
 				$this->entity(['@self' => ['id' => 'self-id'], 'phase' => '', 'status' => 'voorstel']),
 			]
 		);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'self-id',
-			data: ['phase' => 'voorstel'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'self-id',
+				'data' => ['phase' => 'voorstel'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 
 		$this->step()->run($this->output);
 	}//end testOnlyAPhaseInStatusOnAnItemWithoutPhaseIsMoved()
@@ -156,7 +158,9 @@ class MoveAgendaItemStatusToPhaseTest extends TestCase {
 		);
 		$written = [];
 		$this->objects->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data) use (&$written): ObjectEntity {
+			function (ObjectPatch $patch) use (&$written): ObjectEntity {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
 				if ($objectId === 'ai-1') {
 					throw new RuntimeException('validation failed');
 				}
