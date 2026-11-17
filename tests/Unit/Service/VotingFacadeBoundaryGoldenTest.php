@@ -304,6 +304,7 @@ class VotingFacadeBoundaryGoldenTest extends TestCase {
 				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: $logger),
+			written: $this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 	}//end controller()
 }//end class

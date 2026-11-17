@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Tko smije glasati",
+        "All members of the body": "Svi članovi tijela",
+        "Left out because they are no longer active members: {names}": "Izostavljeni jer više nisu aktivni članovi: {names}",
         "sign-off route": "tijek odobrenja",
         "#": "#",
         "+ Action item": "+ Akcijska točka",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Korak {step} od {total}",
         "Still to do: stage {seq} ({maker})": "Još treba napraviti: faza {seq} ({maker})",
         "Stop": "Zaustavi",
-        "Store": "Pohrani",
         "Subject description": "Opis predmeta",
         "Submission phase": "Faza predaje",
         "Submission window (hours)": "Rok za predaju (sati)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Izvanredni sastanak",
         "Committee meeting": "Sastanak povjerenstva",
         "Public hearing": "Javno saslušanje",
-        "General assembly": "Glavna skupština"
+        "General assembly": "Glavna skupština",
+        "Members' ancillary positions": "Sporedne funkcije članova"
     },
     "nplurals=2; plural=(n != 1);"
 )

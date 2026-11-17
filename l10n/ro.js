@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Cine poate vota",
+        "All members of the body": "Toți membrii organului",
+        "Left out because they are no longer active members: {names}": "Excluși deoarece nu mai sunt membri activi: {names}",
         "sign-off route": "traseu de aprobare",
         "#": "#",
         "+ Action item": "+ Element de acțiune",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Pasul {step} din {total}",
         "Still to do: stage {seq} ({maker})": "Încă de făcut: etapa {seq} ({maker})",
         "Stop": "Oprește",
-        "Store": "Stochează",
         "Subject description": "Descrierea subiectului",
         "Submission phase": "Faza de depunere",
         "Submission window (hours)": "Fereastra de depunere (ore)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ședință extraordinară",
         "Committee meeting": "Ședința comisiei",
         "Public hearing": "Audiere publică",
-        "General assembly": "Adunare generală"
+        "General assembly": "Adunare generală",
+        "Members' ancillary positions": "Funcțiile auxiliare ale membrilor"
     },
     "nplurals=2; plural=(n != 1);"
 )

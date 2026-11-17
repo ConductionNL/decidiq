@@ -29,6 +29,9 @@ use DateTimeImmutable;
 use OCA\Decidiq\Service\Pathway\PathwaySteps;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -128,7 +131,7 @@ class RosterTurnoverService {
 		}
 
 		try {
-			return $this->objectService->find(id: $bodyId, register: self::REGISTER, schema: 'governance-body') !== null;
+			return $this->objectService->find(id: $bodyId, options: new ObjectFindOptions(register: self::REGISTER, schema: 'governance-body')) !== null;
 		} catch (\Throwable) {
 			return false;
 		}
@@ -479,7 +482,7 @@ class RosterTurnoverService {
 				],
 				static fn (string $value): bool => $value !== ''
 			);
-			$personId = $this->idOf(saved: $this->objectService->saveObject(object: $person, register: self::REGISTER, schema: 'person'));
+			$personId = $this->idOf(saved: $this->objectService->saveObject(object: $person, options: $this->saveTo(schema: 'person')));
 		}
 
 		$record = [
@@ -496,7 +499,7 @@ class RosterTurnoverService {
 		}
 
 		return $this->idOf(
-			saved: $this->objectService->saveObject(object: $record, register: self::REGISTER, schema: OnboardingProvisioningService::ONBOARDING)
+			saved: $this->objectService->saveObject(object: $record, options: $this->saveTo(schema: OnboardingProvisioningService::ONBOARDING))
 		);
 	}//end createOnboarding()
 
@@ -527,7 +530,7 @@ class RosterTurnoverService {
 		];
 
 		return $this->idOf(
-			saved: $this->objectService->saveObject(object: $record, register: self::REGISTER, schema: OnboardingProvisioningService::OFFBOARDING)
+			saved: $this->objectService->saveObject(object: $record, options: $this->saveTo(schema: OnboardingProvisioningService::OFFBOARDING))
 		);
 	}//end createOffboarding()
 
@@ -712,4 +715,15 @@ class RosterTurnoverService {
 		return '';
 	}//end idOf()
 
+	/**
+	 * The save options that write an object of this register's schema.
+	 *
+	 * @param string $schema The schema slug.
+	 *
+	 * @return ObjectSaveOptions The save options.
+	 */
+	private function saveTo(string $schema): ObjectSaveOptions {
+		return new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $schema));
+
+	}//end saveTo()
 }//end class

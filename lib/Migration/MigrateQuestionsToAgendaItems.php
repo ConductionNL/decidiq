@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -229,8 +231,6 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema(self::TARGET_SCHEMA);
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::TARGET_SCHEMA,
 						object: $this->mapItem(
 							source: $source,
 							mapping: $mapping,
@@ -246,6 +246,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 								reference: (string)($source[$mapping['meetingField']] ?? '')
 							)
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
 					);
 					$alreadyMigrated[$origin] = true;
 					$migrated++;
@@ -477,10 +478,11 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 					// type up by, so carrying it changes nothing but the
 					// completeness of the payload.
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::TYPE_SCHEMA,
-						object: ($patch + ['name' => $mapping['typeName']]),
-						uuid: $typeId,
+						object: $patch + ['name' => $mapping['typeName']],
+						options: new ObjectSaveOptions(
+							target: new ObjectFindTarget(register: self::REGISTER, schema: self::TYPE_SCHEMA),
+							uuid: $typeId
+						)
 					);
 					$applied++;
 				} catch (Throwable $e) {

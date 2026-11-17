@@ -30,6 +30,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -229,7 +230,7 @@ class MeetingDefaultsListener implements IEventListener {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (Throwable) {
 			return null;
 		}

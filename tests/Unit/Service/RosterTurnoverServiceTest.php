@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\Pathway\PathwaySteps;
 use OCA\Decidiq\Service\RosterTurnoverService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -124,8 +125,9 @@ class RosterTurnoverServiceTest extends TestCase {
 			}
 		);
 		$this->objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null): ObjectEntityInterface {
-				$this->saved[] = [(string) $schema, $object];
+			function (array $object, ObjectSaveOptions $options): ObjectEntityInterface {
+				$schema = (string) $options->target->schema;
+				$this->saved[] = [$schema, $object];
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('getUuid')->willReturn($schema . '-' . count($this->saved));
 				return $entity;

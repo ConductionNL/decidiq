@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\VoteBreakdownServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * A round's result per member and per faction.
@@ -68,7 +69,7 @@ class VoteBreakdownService implements VoteBreakdownServiceInterface {
 	 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 	 */
 	public function canReadRound(string $roundId): bool {
-		return $this->objectService->find(id: $roundId, register: 'decidiq', schema: 'voting-round') !== null;
+		return $this->objectService->find(id: $roundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round')) !== null;
 	}//end canReadRound()
 
 	/**
@@ -82,7 +83,7 @@ class VoteBreakdownService implements VoteBreakdownServiceInterface {
 	 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 	 */
 	public function forRound(string $roundId): ?array {
-		$roundEntity = $this->objectService->find(id: $roundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $roundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		if ($roundEntity === null) {
 			return null;
 		}
@@ -224,8 +225,7 @@ class VoteBreakdownService implements VoteBreakdownServiceInterface {
 		if (isset($this->people[$participantId]) === false) {
 			$entity = $this->objectService->find(
 				id: $participantId,
-				register: 'decidiq',
-				schema: 'participant',
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'),
 				_rbac: false,
 				_multitenancy: false
 			);

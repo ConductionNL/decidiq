@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kas gali balsuoti",
+        "All members of the body": "Visi organo nariai",
+        "Left out because they are no longer active members: {names}": "Neįtraukti, nes nebėra aktyvūs nariai: {names}",
         "sign-off route": "tvirtinimo maršrutas",
         "#": "#",
         "+ Action item": "+ Veiksmo punktas",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Žingsnis {step} iš {total}",
         "Still to do: stage {seq} ({maker})": "Dar liko: etapas {seq} ({maker})",
         "Stop": "Sustabdyti",
-        "Store": "Saugoti",
         "Subject description": "Objekto aprašymas",
         "Submission phase": "Pateikimo etapas",
         "Submission window (hours)": "Pateikimo laikotarpis (valandomis)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Neeilinis susirinkimas",
         "Committee meeting": "Komiteto posėdis",
         "Public hearing": "Viešasis svarstymas",
-        "General assembly": "Visuotinis susirinkimas"
+        "General assembly": "Visuotinis susirinkimas",
+        "Members' ancillary positions": "Narių papildomos pareigos"
     },
     "nplurals=2; plural=(n != 1);"
 )

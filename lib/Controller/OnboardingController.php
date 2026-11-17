@@ -3,10 +3,9 @@
 /**
  * Decidiq Onboarding Controller
  *
- * The secretariat's actions on member onboardings and offboardings that no
- * register dialect can express: granting and revoking groups, and
- * delivering the induction pack, and turning an incoming roster into
- * onboardings and offboardings.
+ * The step update of a member onboarding or offboarding checklist. Only the
+ * body's secretary, chair or vice-chair (its signatory scope) or an
+ * administrator may mark a step; a plain member gets 403 and nothing changes.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -15,272 +14,124 @@
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
-// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
-// SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
+use OCA\Decidiq\Exception\OnboardingStepRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\InductionPackService;
-use OCA\Decidiq\Service\OnboardingProvisioningService;
-use OCA\Decidiq\Service\Pathway\PathwayResult;
-use OCA\Decidiq\Service\Pathway\PathwayStaffGuard;
-use OCA\Decidiq\Service\RosterTurnoverService;
+use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
+use OCA\Decidiq\Service\OnboardingChecklistService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Every action is open to signed-in users at the routing level and then
- * checked per record: the caller must be allowed to manage the body the
- * record belongs to ({@see PathwayStaffGuard}). An unknown record answers
- * 404 before the check; a record without a body is refused. The actions
- * change state, so they keep Nextcloud's CSRF check.
+ * Marks checklist steps for the body's secretariat.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist
  */
 class OnboardingController extends Controller {
+
+	/**
+	 * The scope group whose members steer a body's checklists; the value of
+	 * GovernanceScopeGuard's signatory scope, held here so the controller depends on the
+	 * guard's contract only.
+	 */
+	private const SIGNATORY_SCOPE = 'signatory';
 
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest                      $request      The request.
-	 * @param IUserSession                  $userSession  The user session.
-	 * @param PathwayStaffGuard             $guard        Who may manage a body's pathways.
-	 * @param OnboardingProvisioningService $provisioning Granting and revoking groups.
-	 * @param InductionPackService          $inductionPack Delivering the induction documents.
-	 * @param RosterTurnoverService         $turnover      Suggesting and creating onboardings and offboardings.
+	 * @param IUserSession                  $userSession  The caller.
+	 * @param IGroupManager                 $groupManager The administrator check.
+	 * @param GovernanceScopeGuardInterface $scopeGuard   The body's signatory scope.
+	 * @param OnboardingChecklistService    $checklist    Marks the step.
+	 *
+	 * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly PathwayStaffGuard $guard,
-		private readonly OnboardingProvisioningService $provisioning,
-		private readonly InductionPackService $inductionPack,
-		private readonly RosterTurnoverService $turnover,
+		private readonly IGroupManager $groupManager,
+		private readonly GovernanceScopeGuardInterface $scopeGuard,
+		private readonly OnboardingChecklistService $checklist,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
-	 * Grant a joining member the groups of their role on the body.
+	 * PUT /api/onboarding/{kind}/{id}/steps/{index}: mark a step completed or skipped.
 	 *
-	 * @param string $id The member onboarding uuid.
+	 * @param string $kind  `onboarding` or `offboarding`.
+	 * @param string $id    The record's uuid.
+	 * @param int    $index The step's position.
 	 *
-	 * @return JSONResponse
+	 * @return JSONResponse The record as saved, or the refusal.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist
 	 */
 	#[NoAdminRequired]
-	public function assignGroups(string $id): JSONResponse {
-		$denied = $this->deny(schema: OnboardingProvisioningService::ONBOARDING, id: $id);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		return $this->respond(result: $this->provisioning->provision(onboardingId: $id, actor: $this->uid()));
-	}//end assignGroups()
-
-	/**
-	 * Take a leaving member's groups on the body away and end the membership.
-	 *
-	 * @param string $id The member offboarding uuid.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
-	 */
-	#[NoAdminRequired]
-	public function revokeGroups(string $id): JSONResponse {
-		$denied = $this->deny(schema: OnboardingProvisioningService::OFFBOARDING, id: $id);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		return $this->respond(result: $this->provisioning->revoke(offboardingId: $id, actor: $this->uid()));
-	}//end revokeGroups()
-
-	/**
-	 * Deliver the body's induction documents into the joining member's Files.
-	 *
-	 * @param string $id The member onboarding uuid.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
-	 */
-	#[NoAdminRequired]
-	public function deliverInductionPack(string $id): JSONResponse {
-		$denied = $this->deny(schema: OnboardingProvisioningService::ONBOARDING, id: $id);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		return $this->respond(result: $this->inductionPack->deliver(onboardingId: $id, actor: $this->uid()));
-	}//end deliverInductionPack()
-
-	/**
-	 * The suggestion list for an incoming roster. Creates nothing.
-	 *
-	 * @param string $bodyId The governance body uuid.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
-	 */
-	#[NoAdminRequired]
-	public function turnoverSuggestions(string $bodyId): JSONResponse {
-		$denied = $this->denyBody(bodyId: $bodyId);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		$rows = $this->request->getParam('rows');
-		if (is_array($rows) === false) {
-			return new JSONResponse(['message' => 'rows must be a list.'], Http::STATUS_UNPROCESSABLE_ENTITY);
-		}
-
-		return new JSONResponse($this->turnover->suggest(bodyId: $bodyId, rows: $rows));
-	}//end turnoverSuggestions()
-
-	/**
-	 * Create the confirmed onboardings and offboardings that still hold.
-	 *
-	 * @param string $bodyId The governance body uuid.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
-	 */
-	#[NoAdminRequired]
-	public function confirmTurnover(string $bodyId): JSONResponse {
-		$denied = $this->denyBody(bodyId: $bodyId);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		$rows    = $this->request->getParam('rows');
-		$joining = $this->request->getParam('joining', []);
-		$leaving = $this->request->getParam('leaving', []);
-		if (is_array($rows) === false || is_array($joining) === false || is_array($leaving) === false) {
-			return new JSONResponse(['message' => 'rows, joining and leaving must be lists.'], Http::STATUS_UNPROCESSABLE_ENTITY);
+	public function updateStep(string $kind, string $id, int $index): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$result = $this->turnover->confirm(
-				bodyId: $bodyId,
-				rows: $rows,
-				joining: array_values(array_filter($joining, 'is_string')),
-				leaving: array_values(array_filter($leaving, 'is_string')),
-				batch: (string) $this->request->getParam('batch', ''),
-				endDate: (string) $this->request->getParam('endDate', ''),
-				endReason: (string) $this->request->getParam('endReason', '')
-			);
-		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+			$record = $this->checklist->record(kind: $kind, id: $id);
+			if ($this->maySteer(userId: $user->getUID(), bodyId: OnboardingChecklistService::bodyOf(kind: $kind, record: $record)) === false) {
+				return new JSONResponse(['message' => 'Only the secretary, the chair or an administrator may change this checklist.'], Http::STATUS_FORBIDDEN);
+			}
+
+			$saved = $this->checklist->completeStep(kind: $kind, id: $id, index: $index, outcome: $this->outcomeParam());
+		} catch (OnboardingStepRefusedException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
 		}
 
-		return new JSONResponse($result);
-	}//end confirmTurnover()
+		return new JSONResponse($saved);
+	}//end updateStep()
 
 	/**
-	 * The refusal for a caller who may not manage the body, or null.
-	 *
-	 * @param string $bodyId The governance body uuid.
-	 *
-	 * @return JSONResponse|null
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
-	 */
-	private function denyBody(string $bodyId): ?JSONResponse {
-		$uid = $this->uid();
-		if ($uid === '') {
-			return new JSONResponse(['message' => 'Not signed in.'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		if ($this->turnover->bodyExists(bodyId: $bodyId) === false) {
-			return new JSONResponse(['message' => 'Not found.'], Http::STATUS_NOT_FOUND);
-		}
-
-		if ($this->guard->mayManage(userId: $uid, bodyId: $bodyId) === false) {
-			return new JSONResponse(
-				['message' => 'Only the secretariat of this body may do this.'],
-				Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end denyBody()
-
-	/**
-	 * The refusal for a caller who may not manage the record's body, or null.
-	 *
-	 * @param string $schema The record's schema.
-	 * @param string $id     The record uuid.
-	 *
-	 * @return JSONResponse|null
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
-	 */
-	private function deny(string $schema, string $id): ?JSONResponse {
-		$uid = $this->uid();
-		if ($uid === '') {
-			return new JSONResponse(['message' => 'Not signed in.'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$bodyId = $this->provisioning->bodyOf(schema: $schema, id: $id);
-		if ($bodyId === null) {
-			return new JSONResponse(['message' => 'Not found.'], Http::STATUS_NOT_FOUND);
-		}
-
-		if ($this->guard->mayManage(userId: $uid, bodyId: $bodyId) === false) {
-			return new JSONResponse(
-				['message' => 'Only the secretariat of this body may do this.'],
-				Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end deny()
-
-	/**
-	 * The response for a pathway result.
-	 *
-	 * @param PathwayResult $result The result.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
-	 */
-	private function respond(PathwayResult $result): JSONResponse {
-		return new JSONResponse($result->toArray(), $result->httpStatus());
-	}//end respond()
-
-	/**
-	 * The signed-in uid, or empty.
+	 * The requested step outcome, '' when it is not a string.
 	 *
 	 * @return string
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
-	private function uid(): string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
+	private function outcomeParam(): string {
+		$outcome = $this->request->getParam('status', '');
+		if (is_string($outcome) === false) {
 			return '';
 		}
 
-		return $user->getUID();
-	}//end uid()
+		return $outcome;
+	}//end outcomeParam()
 
+	/**
+	 * Whether the caller is an administrator or in the body's signatory scope.
+	 *
+	 * @param string $userId The caller.
+	 * @param string $bodyId The record's body.
+	 *
+	 * @return bool
+	 */
+	private function maySteer(string $userId, string $bodyId): bool {
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return true;
+		}
+
+		return $this->scopeGuard->isInBodyScope(userId: $userId, bodyId: $bodyId, scope: self::SIGNATORY_SCOPE);
+	}//end maySteer()
 }//end class

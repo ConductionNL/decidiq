@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Wien ofstëmme dierf",
+        "All members of the body": "All Memberen vum Gremium",
+        "Left out because they are no longer active members: {names}": "Net berécksiichtegt, well se keng aktiv Memberen méi sinn: {names}",
         "sign-off route": "Fräigabwee",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d dofir, %2$d dergéint, %3$d enthalen",
@@ -2097,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Nach ze maachen: Phas {seq} ({maker})",
         "Stop": "Stoppen",
         "Stop {name}": "{name} stoppen",
-        "Store": "Späicheren",
         "Sub-item title": "Titel vum Ënnerpunkt",
         "Sub-item: {title}": "Ënnerpunkt: {title}",
         "Sub-items of {title}": "Ënnerpunkte vun {title}",
@@ -3321,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ausseruerdentlech Sëtzung",
         "Committee meeting": "Kommissiounssëtzung",
         "Public hearing": "Ëffentlech Hearing",
-        "General assembly": "Generalversammlung"
+        "General assembly": "Generalversammlung",
+        "Members' ancillary positions": "Niewefunktioune vun de Memberen"
     },
     "nplurals=2; plural=(n != 1);"
 )

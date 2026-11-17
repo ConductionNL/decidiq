@@ -30,6 +30,9 @@ namespace OCA\Decidiq\Service;
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\MinutesDraftServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
 use Psr\Container\ContainerInterface;
@@ -349,7 +352,7 @@ class MinutesDraftService implements MinutesDraftServiceInterface {
 	private function fetchObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable) {
 			return null;
 		}
@@ -381,9 +384,10 @@ class MinutesDraftService implements MinutesDraftServiceInterface {
 
 			$objectService->saveObject(
 				object: $transcript,
-				register: 'decidiq',
-				schema: 'transcript',
-				uuid: $uuid
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+					uuid: $uuid
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

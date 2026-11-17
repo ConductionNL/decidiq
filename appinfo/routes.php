@@ -53,6 +53,9 @@ $extra = [
         ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
         ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
         ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
+        // The room's conference and voting system through integriq (live-room-conference-system-link, REQ-RCSL-001, REQ-RCSL-006).
+        ['name' => 'roomSystem#meeting',        'url' => '/api/meetings/{id}/room-system',              'verb' => 'GET'],
+        ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
@@ -100,11 +103,11 @@ $extra = [
 
         // Member pathways — granting and revoking a member's groups (secretariat of the body).
         // @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md
-        ['name' => 'onboarding#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
-        ['name' => 'onboarding#deliverInductionPack', 'url' => '/api/member-onboardings/{id}/induction-pack', 'verb' => 'POST'],
-        ['name' => 'onboarding#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],
-        ['name' => 'onboarding#turnoverSuggestions', 'url' => '/api/governance-bodies/{bodyId}/turnover/suggestions', 'verb' => 'POST'],
-        ['name' => 'onboarding#confirmTurnover', 'url' => '/api/governance-bodies/{bodyId}/turnover/confirm', 'verb' => 'POST'],
+        ['name' => 'memberPathway#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
+        ['name' => 'memberPathway#deliverInductionPack', 'url' => '/api/member-onboardings/{id}/induction-pack', 'verb' => 'POST'],
+        ['name' => 'memberPathway#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],
+        ['name' => 'memberPathway#turnoverSuggestions', 'url' => '/api/governance-bodies/{bodyId}/turnover/suggestions', 'verb' => 'POST'],
+        ['name' => 'memberPathway#confirmTurnover', 'url' => '/api/governance-bodies/{bodyId}/turnover/confirm', 'verb' => 'POST'],
 
         // Member import (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/admin-settings/spec.md
@@ -194,6 +197,9 @@ $extra = [
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
+        // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.
+        ['name' => 'teams_meeting#status', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'GET'],
+        ['name' => 'teams_meeting#create', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'POST'],
         // live-public-livestream (REQ-LSTR-002 to REQ-LSTR-004): test, go live, pause, resume and stop a meeting's broadcast.
         ['name' => 'broadcast#status',     'url' => '/api/meetings/{meetingId}/broadcast',       'verb' => 'GET'],
         ['name' => 'broadcast#test',       'url' => '/api/meetings/{meetingId}/broadcast/test',  'verb' => 'POST'],
@@ -204,6 +210,16 @@ $extra = [
         ['name' => 'broadcast#stop',       'url' => '/api/meeting-broadcasts/{id}/stop',         'verb' => 'POST'],
         ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
         ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
+
+        // inspreekrecht-plenair (REQ-INS-004/005): register to speak, and the secretariat's moderation.
+        ['name' => 'speakingRequest#create',  'url' => '/api/speaking-requests',               'verb' => 'POST'],
+        ['name' => 'speakingRequest#approve', 'url' => '/api/speaking-requests/{id}/approve',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#reject',  'url' => '/api/speaking-requests/{id}/reject',   'verb' => 'POST'],
+        ['name' => 'speakingRequest#refer',   'url' => '/api/speaking-requests/{id}/refer',    'verb' => 'POST'],
+        ['name' => 'speakingRequest#outcome', 'url' => '/api/speaking-requests/{id}/outcome',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#agenda',  'url' => '/api/meetings/{meetingId}/speaking-slots',        'verb' => 'GET'],
+        ['name' => 'speakingRequest#publicAgenda', 'url' => '/api/meetings/{meetingId}/speaking-slots/public', 'verb' => 'GET'],
+        ['name' => 'speakingRequest#queue',   'url' => '/api/meetings/{meetingId}/speaking-queue',        'verb' => 'GET'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
@@ -237,6 +253,9 @@ $extra = [
         ['name' => 'voting#cast',        'url' => '/api/voting-rounds/{id}/cast',   'verb' => 'POST'],
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
         ['name' => 'paperVote#record',   'url' => '/api/voting-rounds/{id}/recorded-votes', 'verb' => 'POST'],
+        // motion-change-recommendations (REQ-MCR-003/004): the chair or secretary decides a recommended text change without a vote.
+        ['name' => 'changeRecommendation#accept', 'url' => '/api/change-recommendations/{id}/accept', 'verb' => 'POST'],
+        ['name' => 'changeRecommendation#reject', 'url' => '/api/change-recommendations/{id}/reject', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
@@ -297,6 +316,8 @@ $extra = [
 
         // Send minutes, a meeting's decision list or a motion for signature in order,
         // and collect the signed copy (signing-external-service-with-order, min-17).
+        // bodies-onboarding-checklist-walkthrough: mark one checklist step completed or skipped (secretariat or admin).
+        ['name' => 'onboarding#updateStep', 'url' => '/api/onboarding/{kind}/{id}/steps/{index}', 'verb' => 'PUT', 'requirements' => ['kind' => 'onboarding|offboarding', 'index' => '\\d+']],
         ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
         ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
@@ -364,6 +385,12 @@ $extra = [
         ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+
+        // Public ORI RSS feeds (ori-adoption REQ-ORIA-004).
+        // @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+        ['name' => 'oriFeed#meetings',    'url' => '/feed/ori/meetings.rss',     'verb' => 'GET'],
+        ['name' => 'oriFeed#agendaItems', 'url' => '/feed/ori/agenda-items.rss', 'verb' => 'GET'],
+        ['name' => 'oriFeed#documents',   'url' => '/feed/ori/documents.rss',    'verb' => 'GET'],
 
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],

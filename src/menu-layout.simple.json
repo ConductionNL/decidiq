@@ -499,7 +499,7 @@
 		},
 		{
 			"id": "CommitmentDetail",
-			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
+			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts and the publication actions beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
 			"config": {
 				"sideColumn": [
 					{
@@ -520,7 +520,8 @@
 							"hideEmpty": true,
 							"editable": false
 						}
-					}
+					},
+					"commitment-publication"
 				],
 				"layout": [
 					{
@@ -538,6 +539,9 @@
 				"widgets": {
 					"commitment-progress": {
 						"type": "CommitmentProgressTab"
+					},
+					"commitment-publication": {
+						"type": "CommitmentPublicationTab"
 					}
 				}
 			},
@@ -861,6 +865,9 @@
 					"decision-lifecycle": {
 						"type": "DecisionLifecycleTab"
 					},
+					"decision-goal": {
+						"type": "DecisionGoalWidget"
+					},
 					"decision-actions": {
 						"type": "ActionItemsSurface"
 					},
@@ -875,6 +882,9 @@
 					},
 					"decision-voting": {
 						"type": "DecisionVotingTab"
+					},
+					"decision-written-resolution": {
+						"type": "WrittenResolutionTab"
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
@@ -1056,6 +1066,10 @@
 								{
 									"label": "Governance",
 									"widgetId": "decision-governance"
+								},
+								{
+									"label": "Goal",
+									"widgetId": "decision-goal"
 								}
 							]
 						}
@@ -1078,6 +1092,10 @@
 								{
 									"label": "Voting results",
 									"widgetId": "decision-voting"
+								},
+								{
+									"label": "Written resolution",
+									"widgetId": "decision-written-resolution"
 								}
 							]
 						}
@@ -1513,6 +1531,44 @@
 						"icon": "History"
 					},
 					{
+						"id": "motion-panel-overview",
+						"type": "detail-sections",
+						"title": "Overview",
+						"icon": "NoteTextOutline",
+						"_note": "motion-change-recommendations (REQ-MCR-001): the motion text with line numbers sits under the motion's own fields, so Recommend a change is next to the text it changes.",
+						"content": {
+							"sections": [
+								{
+									"label": "Motion",
+									"widgetId": "motion-data"
+								},
+								{
+									"label": "Motion text",
+									"widgetId": "motion-text-lines"
+								}
+							]
+						}
+					},
+					{
+						"id": "motion-panel-amendments",
+						"type": "detail-sections",
+						"title": "Amendments",
+						"icon": "FileSign",
+						"_note": "motion-change-recommendations (REQ-MCR-006): Recommended changes directly below Amendments, as board DcVoorstel places the card.",
+						"content": {
+							"sections": [
+								{
+									"label": "Amendments",
+									"widgetId": "motion-amendments"
+								},
+								{
+									"label": "Recommended changes",
+									"widgetId": "motion-change-recommendations"
+								}
+							]
+						}
+					},
+					{
 						"id": "motion-panel-voting",
 						"type": "detail-sections",
 						"title": "Voting",
@@ -1540,7 +1596,7 @@
 							"moreLabel": "More",
 							"tabs": [
 								{
-									"widgetId": "motion-data",
+									"widgetId": "motion-panel-overview",
 									"label": "Overview"
 								},
 								{
@@ -1548,7 +1604,7 @@
 									"label": "Papers"
 								},
 								{
-									"widgetId": "motion-amendments",
+									"widgetId": "motion-panel-amendments",
 									"label": "Amendments"
 								},
 								{
@@ -1586,6 +1642,12 @@
 					},
 					"motion-amendments": {
 						"type": "MotionAmendmentsTab"
+					},
+					"motion-text-lines": {
+						"type": "MotionTextLinesTab"
+					},
+					"motion-change-recommendations": {
+						"type": "MotionChangeRecommendationsTab"
 					},
 					"motion-votes": {
 						"type": "MotionVotesTab"
@@ -1753,17 +1815,26 @@
 					"meeting-case-system": {
 						"type": "MeetingCaseSystemTab"
 					},
+					"meeting-room-system": {
+						"type": "MeetingRoomSystemTab"
+					},
 					"meeting-broadcast": {
 						"type": "MeetingBroadcastTab"
 					},
 					"meeting-sessions": {
 						"type": "MeetingSessionsTab"
 					},
+					"meeting-speakers": {
+						"type": "MeetingSpeakersTab"
+					},
 					"meeting-stage": {
 						"type": "MeetingStageTab"
 					},
 					"meeting-video-call": {
 						"type": "MeetingVideoCallTab"
+					},
+					"meeting-teams": {
+						"type": "MeetingTeamsTab"
 					},
 					"meeting-participants": {
 						"type": "MeetingParticipantsTab"
@@ -1935,6 +2006,10 @@
 									"widgetId": "meeting-agenda"
 								},
 								{
+									"label": "Public speakers",
+									"widgetId": "meeting-speakers"
+								},
+								{
 									"label": "Incoming documents",
 									"widgetId": "meeting-routed-documents"
 								},
@@ -1967,6 +2042,10 @@
 								{
 									"label": "Video call",
 									"widgetId": "meeting-video-call"
+								},
+								{
+									"label": "Microsoft Teams",
+									"widgetId": "meeting-teams"
 								}
 							]
 						}
@@ -2126,6 +2205,11 @@
 								{
 									"widgetId": "meeting-case-system",
 									"label": "Case system",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-room-system",
+									"label": "Room system",
 									"overflow": true
 								},
 								{
@@ -2568,7 +2652,7 @@
 					},
 					{
 						"id": "14",
-						"widgetId": "onboarding-open",
+						"widgetId": "overdue-reviews-kpi",
 						"gridX": 0,
 						"gridY": 36,
 						"gridWidth": 3,
@@ -2578,7 +2662,7 @@
 					},
 					{
 						"id": "15",
-						"widgetId": "offboarding-open",
+						"widgetId": "overdue-planned-agenda",
 						"gridX": 3,
 						"gridY": 36,
 						"gridWidth": 3,
@@ -2588,9 +2672,29 @@
 					},
 					{
 						"id": "16",
+						"widgetId": "onboarding-open",
+						"gridX": 0,
+						"gridY": 38,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "17",
+						"widgetId": "offboarding-open",
+						"gridX": 3,
+						"gridY": 38,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "18",
 						"widgetId": "member-pathways-by-status",
 						"gridX": 6,
-						"gridY": 36,
+						"gridY": 38,
 						"gridWidth": 6,
 						"gridHeight": 2,
 						"showTitle": true
@@ -3103,7 +3207,7 @@
 		},
 		{
 			"id": "AgendaItemDetail",
-			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn: an agenda item has no speakers list outside the live meeting. The full structure keeps the manifest's stack.",
+			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn as a tab: the item's public speakers (inspreekrecht-plenair, approved slots and pending requests) sit in the side column, and the live speaker queue stays on the live meeting screen. The full structure keeps the manifest's stack.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3126,6 +3230,7 @@
 						}
 					},
 					"agenda-conflicts",
+					"agenda-speakers",
 					"agenda-paper-summaries"
 				],
 				"layout": [
@@ -3159,6 +3264,9 @@
 					},
 					"agenda-conflicts": {
 						"type": "AgendaItemConflictsTab"
+					},
+					"agenda-speakers": {
+						"type": "AgendaItemSpeakersTab"
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
@@ -3261,7 +3369,7 @@
 		},
 		{
 			"id": "GoalDetail",
-			"_note": "The goal page in the simple structure (board DcDoel): tabs Overview, Related and History, the key facts beside them. The full structure keeps the manifest's stack. THE OVERVIEW (board DcDoel) holds the goal, its sub-goals (goals whose parentGoal is this one; adding one fills in the parent) and what contributes to it: the action items and the commitments that name this goal.",
+			"_note": "The goal page in the simple structure (board DcDoel): the step bar (Draft, Active, Achieved with their dates) over tabs Overview, Related and History, the key facts and the parent goal beside them. The full structure keeps the manifest's stack. THE OVERVIEW (board DcDoel, goals-linked-to-decisions Task 4) holds the progress card (target value, commitments settled, action items done, sub-goals reached, each \"x of y\", a line with a zero total hidden), the goal, its sub-goals (goals whose parentGoal is this one; Add sub-goal fills in the parent) and what contributes to it: every commitment, action item, planned agenda item and decision that names this goal, with the total and View all n. THE FOUR CUSTOM BLOCKS are named here by their registry component (configPatch.widgets), because a tab resolves a widget by type.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3284,19 +3392,46 @@
 							"hideEmpty": true,
 							"editable": false
 						}
-					}
+					},
+					"goal-parent"
 				],
 				"layout": [
 					{
 						"id": "1",
-						"widgetId": "goal-panels",
+						"widgetId": "goal-steps",
 						"gridX": 0,
 						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "goal-panels",
+						"gridX": 0,
+						"gridY": 2,
 						"gridWidth": 12,
 						"gridHeight": 12,
 						"showTitle": false
 					}
 				]
+			},
+			"configPatch": {
+				"widgets": {
+					"goal-steps": {
+						"type": "GoalStepBar"
+					},
+					"goal-progress": {
+						"type": "GoalProgressWidget"
+					},
+					"goal-parent": {
+						"type": "GoalParentWidget"
+					},
+					"goal-contributions": {
+						"type": "GoalContributionsWidget"
+					}
+				}
 			},
 			"configAppend": {
 				"widgets": [
@@ -3307,128 +3442,16 @@
 						"icon": "History"
 					},
 					{
-						"id": "goal-subgoals",
-						"type": "object-list",
-						"title": "Sub-goals",
-						"icon": "FileSign",
-						"content": {
-							"register": "decidiq",
-							"schema": "goal",
-							"filter": {
-								"parentGoal": "@objectId"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "title",
-									"label": "Title"
-								},
-								{
-									"key": "owner",
-									"label": "Owner"
-								},
-								{
-									"key": "deadline",
-									"label": "Deadline"
-								},
-								{
-									"key": "status",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"rowRoute": "GoalDetail"
-						}
-					},
-					{
-						"id": "goal-contributing-actions",
-						"type": "object-list",
-						"title": "Action items",
-						"icon": "CheckCircleOutline",
-						"content": {
-							"register": "decidiq",
-							"schema": "action-item",
-							"filter": {
-								"goal": "@objectId"
-							},
-							"sort": {
-								"field": "dueDate",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "title",
-									"label": "Title"
-								},
-								{
-									"key": "assignee",
-									"label": "Assignee"
-								},
-								{
-									"key": "dueDate",
-									"label": "Deadline"
-								},
-								{
-									"key": "taskStatus",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"allowCreate": false,
-							"rowRoute": "ActionItemDetail"
-						}
-					},
-					{
-						"id": "goal-contributing-commitments",
-						"type": "object-list",
-						"title": "Commitments",
-						"icon": "HandshakeOutline",
-						"content": {
-							"register": "decidiq",
-							"schema": "governance-commitment",
-							"filter": {
-								"goal": "@objectId"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "text",
-									"label": "Commitment"
-								},
-								{
-									"key": "madeBy",
-									"label": "Made by"
-								},
-								{
-									"key": "deadline",
-									"label": "Deadline"
-								},
-								{
-									"key": "lifecycle",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"allowCreate": false,
-							"rowRoute": "CommitmentDetail"
-						}
-					},
-					{
 						"id": "goal-panel-overview",
 						"type": "detail-sections",
 						"title": "Goal",
 						"icon": "FileSign",
 						"content": {
 							"sections": [
+								{
+									"label": "Progress",
+									"widgetId": "goal-progress"
+								},
 								{
 									"label": "Goal",
 									"widgetId": "goal-data"
@@ -3438,12 +3461,8 @@
 									"widgetId": "goal-subgoals"
 								},
 								{
-									"label": "Action items",
-									"widgetId": "goal-contributing-actions"
-								},
-								{
-									"label": "Commitments",
-									"widgetId": "goal-contributing-commitments"
+									"label": "What contributes to this goal",
+									"widgetId": "goal-contributions"
 								}
 							]
 						}
@@ -3573,7 +3592,7 @@
 		},
 		{
 			"id": "ConfidentialityRestrictionDetail",
-			"_note": "The confidentiality page in the simple structure (board DcGeheimhouding): tabs Overview (the status timeline, then the restriction), Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"_note": "The confidentiality page in the simple structure (board DcGeheimhouding): the header with the status pill, the ratification line and the stepper as in the full structure; tabs Overview (the status timeline, the restriction, what it covers and its ground), Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3630,6 +3649,14 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "geheimhouding-data"
+								},
+								{
+									"label": "What the confidentiality covers",
+									"widgetId": "geheimhouding-target"
+								},
+								{
+									"label": "Ground",
+									"widgetId": "geheimhouding-ground"
 								}
 							]
 						}

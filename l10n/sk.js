@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kto môže hlasovať",
+        "All members of the body": "Všetci členovia orgánu",
+        "Left out because they are no longer active members: {names}": "Vynechaní, pretože už nie sú aktívnymi členmi: {names}",
         "sign-off route": "schvaľovací postup",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d za, %2$d proti, %3$d sa zdržali",
@@ -2097,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Zostáva urobiť: fáza {seq} ({maker})",
         "Stop": "Zastaviť",
         "Stop {name}": "Zastaviť {name}",
-        "Store": "Uložiť",
         "Sub-item title": "Názov podbodu",
         "Sub-item: {title}": "Podbod: {title}",
         "Sub-items of {title}": "Podbody {title}",
@@ -3321,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Mimoriadne zasadnutie",
         "Committee meeting": "Zasadnutie výboru",
         "Public hearing": "Verejné vypočutie",
-        "General assembly": "Valné zhromaždenie"
+        "General assembly": "Valné zhromaždenie",
+        "Members' ancillary positions": "Vedľajšie funkcie členov"
     },
     "nplurals=2; plural=(n != 1);"
 )

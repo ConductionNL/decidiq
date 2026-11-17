@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kush mund të votojë",
+        "All members of the body": "Të gjithë anëtarët e organit",
+        "Left out because they are no longer active members: {names}": "Të lënë jashtë sepse nuk janë më anëtarë aktivë: {names}",
         "sign-off route": "rruga e miratimit",
         "#": "#",
         "+ Action item": "+ Veprimi",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Hapi {step} nga {total}",
         "Still to do: stage {seq} ({maker})": "Ende për t'u bërë: faza {seq} ({maker})",
         "Stop": "Ndalo",
-        "Store": "Ruaj",
         "Subject description": "Përshkrimi i subjektit",
         "Submission phase": "Faza e dorëzimit",
         "Submission window (hours)": "Dritarja e dorëzimit (orë)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Mbledhje e jashtëzakonshme",
         "Committee meeting": "Mbledhje komisioni",
         "Public hearing": "Dëgjesë publike",
-        "General assembly": "Asambleja e përgjithshme"
+        "General assembly": "Asambleja e përgjithshme",
+        "Members' ancillary positions": "Funksionet dytësore të anëtarëve"
     },
     "nplurals=2; plural=(n != 1);"
 )
