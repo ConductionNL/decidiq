@@ -1840,6 +1840,9 @@
 					"meeting-video-call": {
 						"type": "MeetingVideoCallTab"
 					},
+					"meeting-teams": {
+						"type": "MeetingTeamsTab"
+					},
 					"meeting-participants": {
 						"type": "MeetingParticipantsTab"
 					},
@@ -2046,6 +2049,10 @@
 								{
 									"label": "Video call",
 									"widgetId": "meeting-video-call"
+								},
+								{
+									"label": "Microsoft Teams",
+									"widgetId": "meeting-teams"
 								}
 							]
 						}
@@ -2671,10 +2678,30 @@
 						"dateChip": false
 					},
 					{
-						"id": "urgency-kpi",
-						"widgetId": "awaiting-ratification-kpi",
+						"id": "16",
+						"widgetId": "open-wor-consultations",
 						"gridX": 6,
 						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "17",
+						"widgetId": "wor-response-overdue",
+						"gridX": 9,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "urgency-kpi",
+						"widgetId": "awaiting-ratification-kpi",
+						"gridX": 0,
+						"gridY": 38,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,

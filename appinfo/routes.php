@@ -140,6 +140,8 @@ $extra = [
         ['name' => 'minutesCorrection#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}', 'verb' => 'PUT'],
         ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
         ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
+        // works-council-consultation (REQ-WCC-005): the formal advice or consent document of a WOR traject (works council chair, secretary or admin).
+        ['name' => 'worksCouncilConsultation#generateResponseDocument', 'url' => '/api/works-council-consultations/{id}/response-document', 'verb' => 'POST'],
 
         // Notarial proof package (minutes-ui-v1) — chair/secretary gated.
         // @spec openspec/specs/resolution-minutes/spec.md
@@ -193,6 +195,9 @@ $extra = [
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
+        // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.
+        ['name' => 'teams_meeting#status', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'GET'],
+        ['name' => 'teams_meeting#create', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'POST'],
         // live-public-livestream (REQ-LSTR-002 to REQ-LSTR-004): test, go live, pause, resume and stop a meeting's broadcast.
         ['name' => 'broadcast#status',     'url' => '/api/meetings/{meetingId}/broadcast',       'verb' => 'GET'],
         ['name' => 'broadcast#test',       'url' => '/api/meetings/{meetingId}/broadcast/test',  'verb' => 'POST'],

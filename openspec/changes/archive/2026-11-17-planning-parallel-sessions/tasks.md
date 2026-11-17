@@ -21,7 +21,7 @@
   - GIVEN a session's page WHEN opened THEN it names its evening and links the other two sessions
   - GIVEN the secretariat WHEN it chooses Add session THEN the create form opens with the evening, date and body preset
 - [x] Implement
-- [ ] Test (Playwright: tests/e2e/parallel-sessions.spec.ts written, not run; the columns, siblings and presets are covered by vitest meetingSessionsTab.spec.js)
+- [x] Test (Playwright: tests/e2e/parallel-sessions.spec.ts written, not run; the columns, siblings and presets are covered by vitest meetingSessionsTab.spec.js) (passed live 2026-11-17: columns, a session opens, the 23:30 refusal names 18:00 to 23:00; the portaliq broadcast case skips without portaliq)
 
 ### Task 3: The calendar and the list group sessions
 - **spec_ref**: `openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening`
@@ -30,7 +30,7 @@
   - GIVEN the example evening WHEN the calendar renders 3 November THEN one event shows with its three sessions inside it
   - GIVEN the Meetings list WHEN filtered on the evening THEN the three sessions are listed
 - [x] Implement
-- [ ] Test (vitest on the grouping: done, meetingCalendarSessions.spec.js; Playwright on the calendar: written, not run)
+- [x] Test (vitest on the grouping: done, meetingCalendarSessions.spec.js; Playwright on the calendar: written, not run) (calendar test passed live 2026-11-17)
 
 ### Task 4: Residents see the evening's broadcasts together
 - **spec_ref**: `openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-004-each-sessions-broadcast-names-its-evening-for-residents`

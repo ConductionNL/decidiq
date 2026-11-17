@@ -76,6 +76,7 @@ import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
 import MeetingSpeakersTab from './components/tabs/MeetingSpeakersTab.vue'
 import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
+import MeetingTeamsTab from './components/tabs/MeetingTeamsTab.vue'
 import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
 import MeetingVideoCallTab from './components/tabs/MeetingVideoCallTab.vue'
@@ -103,6 +104,7 @@ import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
 import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
@@ -365,6 +367,8 @@ export default {
 	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
 	MeetingRoomSystemTab: page(MeetingRoomSystemTab),
 	MeetingBroadcastTab: page(MeetingBroadcastTab),
+	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
+	MeetingTeamsTab: page(MeetingTeamsTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
@@ -545,6 +549,7 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
 	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---

@@ -33,7 +33,7 @@
   - GIVEN the widget WHEN rendered THEN members are rows, competences columns, and unconfirmed levels are marked
   - Verification: vitest on the pure functions, red first; Playwright on the seeded board page
 - [x] Implement
-- [ ] Test (vitest green; the Playwright half runs against the live instance and stays open)
+- [x] Test (vitest green; the Playwright half runs against the live instance and stays open) (Playwright passed live 2026-11-17)
 
 ### Task 4: Composition figures and targets
 
@@ -46,4 +46,4 @@
   - GIVEN the widget WHEN rendered THEN no list of names per value appears
   - Verification: vitest red-then-green, with a fixed clock; Playwright asserts the gender row on the seeded board
 - [x] Implement
-- [ ] Test (vitest green; the Playwright half runs against the live instance and stays open)
+- [x] Test (vitest green; the Playwright half runs against the live instance and stays open) (Playwright passed live 2026-11-17)
