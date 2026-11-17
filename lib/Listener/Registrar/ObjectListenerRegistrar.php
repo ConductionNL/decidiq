@@ -37,10 +37,13 @@ use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\GoalProgressRefreshListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\RoomSystemFeedListener;
+use OCA\Decidiq\Listener\RoomSystemMessageListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -141,6 +144,8 @@ class ObjectListenerRegistrar {
 			);
 		}
 
+		$this->subscribeRoomSystem(dispatcher: $dispatcher);
+
 		// A planning cycle made from a template gets its steps
 		// (planning-cycle-generate-from-template, pla-12). Declared interest is
 		// the handler's own schema guard.
@@ -173,6 +178,8 @@ class ObjectListenerRegistrar {
 				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
 			);
 		}
+
+		$this->subscribeConfidentiality(dispatcher: $dispatcher);
 
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
@@ -213,6 +220,39 @@ class ObjectListenerRegistrar {
 	}//end register()
 
 	/**
+	 * Room system messages (live-room-conference-system-link, liv-22): a speaker
+	 * marking or desk vote integriq stored is applied at once. Declared interest
+	 * is the handler's own schema guard.
+	 *
+	 * @param IEventDispatcher $dispatcher The dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
+	 */
+	private function subscribeRoomSystem(IEventDispatcher $dispatcher): void {
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: RoomSystemMessageListener::class,
+			registers: null,
+			schemas: [RoomSystemMessageListener::SCHEMA_MESSAGE]
+		);
+
+		// The agenda, the speakers and closed rounds' totals go back to the
+		// room (REQ-RCSL-007); the feed sends nothing while no room is linked.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $event) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $event,
+				listener: RoomSystemFeedListener::class,
+				registers: null,
+				schemas: array_keys(RoomSystemFeedListener::HANDLERS)
+			);
+		}
+	}//end subscribeRoomSystem()
+
+	/**
 	 * Goal progress (goals-linked-to-decisions REQ-013): a contribution that
 	 * changes re-saves the goals it points at, so their rates follow.
 	 *
@@ -231,6 +271,30 @@ class ObjectListenerRegistrar {
 			);
 		}
 	}//end subscribeGoalProgress()
+
+	/**
+	 * Subscribe the confidential-agenda-item listener.
+	 *
+	 * A non-public agenda item closes its papers, and an imposed item
+	 * restriction closes the item (REQ-ACP-003/004).
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers
+	 */
+	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $confidentialityEvent,
+				listener: AgendaItemConfidentialityListener::class,
+				registers: null,
+				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
+			);
+		}
+	}//end subscribeConfidentiality()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.

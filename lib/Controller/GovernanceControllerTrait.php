@@ -89,4 +89,19 @@ trait GovernanceControllerTrait {
 
 		return new JSONResponse(($result[$payloadKey] ?? null), $successCode);
 	}//end respondFromResult()
+
+	/**
+	 * The refusal of a service result tuple ({success: false, message}) as a
+	 * JSONResponse carrying its message.
+	 *
+	 * @param array<string, mixed> $result The service result
+	 * @param int                  $status The HTTP status
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 */
+	protected function refused(array $result, int $status = Http::STATUS_UNPROCESSABLE_ENTITY): JSONResponse {
+		return new JSONResponse(['message' => $result['message']], $status);
+	}//end refused()
 }//end trait

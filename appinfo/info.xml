@@ -143,6 +143,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
              run twice; a stage carries the stamp that says it already lapsed.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
+             governing document takes effect on its planned date.
+             @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
@@ -467,6 +471,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 a fresh install has no stages to repair.
             -->
             <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
+            <!--
+                the-decision-as-a-walked-process task 1.1: the engine now writes a
+                terminal `state` onto every approval action it records. Actions stored
+                before that carry the schema default `open` and would read as approvals
+                still awaited. Backfills the state from the recorded verb; a row with no
+                verb (a real open work item) and a row with a terminal state are left
+                alone. Idempotent. <post-migration> only: a fresh install has no actions.
+            -->
+            <step>OCA\Decidiq\Migration\RepairApprovalActionStates</step>
             <!--
                 Fifth leg of the rename, on the ADMINISTRATORS GROUP. The
                 register's authorization baseline named `decidesk-administrators`

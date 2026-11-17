@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\LegalRemedyResolver;
+use OCA\Decidiq\Kernel\Contracts\LegalRemedyResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -60,14 +60,14 @@ class DecisionRemedyStampListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param LegalRemedyResolver    $remedies      Resolves and stamps the clause.
-	 * @param ObjectServiceInterface $objectService Reads the decision type.
-	 * @param LoggerInterface        $logger        Logs a type that could not be read.
+	 * @param LegalRemedyResolverInterface $remedies      Resolves and stamps the clause.
+	 * @param ObjectServiceInterface       $objectService Reads the decision type.
+	 * @param LoggerInterface              $logger        Logs a type that could not be read.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/tasks.md
 	 */
 	public function __construct(
-		private readonly LegalRemedyResolver $remedies,
+		private readonly LegalRemedyResolverInterface $remedies,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly LoggerInterface $logger,
 	) {
