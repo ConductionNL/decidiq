@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -122,7 +123,7 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 	private function loadMeeting(string $meetingId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$this->logger->error('Decidiq: MeetingPackageService::assemble lookup failed', ['meetingId' => $meetingId, 'exception' => $e->getMessage()]);
 			return ['failure' => $this->failure(message: 'Failed to load meeting.')];
@@ -367,13 +368,33 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 		foreach ($this->agendaRows(objectService: $objectService, meetingId: $meetingId) as $row) {
 			$row = $this->rowArray(row: $row);
 			if ($row !== null && $this->belongsTo(row: $row, meetingId: $meetingId) === true) {
-				$items[] = $row;
+				$items[] = $this->withoutClosedPapers(item: $row);
 			}
 		}
 
 		usort($items, static fn (array $a, array $b): int => ((int)($a['orderNumber'] ?? 0)) <=> ((int)($b['orderNumber'] ?? 0)));
 		return $items;
 	}//end collectAgendaItems()
+
+	/**
+	 * A non-public agenda item as it may appear in the pack: listed as
+	 * "Besloten punt", without its id, title or papers, so nothing of it is
+	 * copied. A public item is returned unchanged.
+	 *
+	 * @param array<string, mixed> $item Agenda item row
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function withoutClosedPapers(array $item): array {
+		if (($item['public'] ?? true) !== false) {
+			return $item;
+		}
+
+		return ['title' => 'Besloten punt', 'orderNumber' => ($item['orderNumber'] ?? 0), 'public' => false, 'files' => []];
+
+	}//end withoutClosedPapers()
 
 	/**
 	 * The agenda item rows of a meeting; none (logged as a warning) when the query fails.

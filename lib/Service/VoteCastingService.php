@@ -27,6 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -163,7 +165,10 @@ class VoteCastingService {
 
 		$vote = $this->ballots->buildVote(cast: $cast, existingVote: $this->findExistingVote(cast: $cast));
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
+		$saved = $this->objectService()->saveObject(
+			object: $vote,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'vote'))
+		);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliseSaved(saved: $saved, fallback: $vote);

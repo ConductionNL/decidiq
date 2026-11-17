@@ -47,6 +47,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -229,8 +232,7 @@ class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 			// (same convention as ProxyVoteService::transition()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidiq',
-				schema: 'conflict-of-interest',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'conflict-of-interest')),
 				_rbac: false
 			);
 
@@ -306,8 +308,7 @@ class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 		try {
 			$entity = $this->objectService->find(
 				id: $declarationId,
-				register: 'decidiq',
-				schema: 'conflict-of-interest'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'conflict-of-interest')
 			);
 
 			if ($entity === null) {
@@ -337,9 +338,10 @@ class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 			// chair/secretary-only rule; see the class docblock note on declare().
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: 'decidiq',
-				schema: 'conflict-of-interest',
-				uuid: $declarationId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'conflict-of-interest'),
+					uuid: $declarationId
+				),
 				_rbac: false
 			);
 

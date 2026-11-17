@@ -31,6 +31,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -69,6 +71,13 @@ class VotingRoundOpener {
 	private readonly MeetingRuleSource $ruleSource;
 
 	/**
+	 * Turns a voting group into the meeting's participants.
+	 *
+	 * @var VotingGroupResolver
+	 */
+	private readonly VotingGroupResolver $votingGroups;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -76,6 +85,7 @@ class VotingRoundOpener {
 	 * @param VotingRoundPreflight $preflight Fail-closed preflight (rules, revote guard, presets)
 	 * @param VotingOpenedNotifier $notifier Fail-soft announcements for a freshly opened round
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract (ADR-084)
+	 * @param VotingGroupResolver|null $votingGroups Turns a voting group into the meeting's participants; null builds the default
 	 *
 	 * @return void
 	 *
@@ -87,6 +97,7 @@ class VotingRoundOpener {
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,
+		?VotingGroupResolver $votingGroups = null,
 	) {
 		// ADR-084 replaced this class's `ContainerInterface $container`
 		// parameter with `ObjectServiceInterface $objectService`, and replaced
@@ -103,6 +114,7 @@ class VotingRoundOpener {
 		$this->normaliser = new SavedObjectNormaliser();
 		$this->rankedRules = new RankedBallotRules();
 		$this->ruleSource = new MeetingRuleSource(objectService: $objectService, participantResolver: $participantResolver);
+		$this->votingGroups = ($votingGroups ?? new VotingGroupResolver(participants: $participantResolver, objectService: $objectService));
 
 	}//end __construct()
 
@@ -150,6 +162,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/process-configuration/spec.md
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 	 */
 	public function openVotingRound(VotingRoundRequest $request): array {
 		$roundRules = $request->rules();
@@ -161,13 +174,17 @@ class VotingRoundOpener {
 		// Resolution order per rule: the chair's pick (non-null), then the meeting
 		// type's threshold, then the template of the body (named, else the
 		// meeting's), then the built-in default. Unknown values are rejected.
+		$bodyId = ($roundRules->governanceBodyId ?? $this->ruleSource->bodyIdOf(meetingId: $meetingId));
 		$rules = $this->preflight->resolveRules(
-			governanceBodyId: ($roundRules->governanceBodyId ?? $this->ruleSource->bodyIdOf(meetingId: $meetingId)),
+			governanceBodyId: $bodyId,
 			voteThreshold: ($roundRules->voteThreshold ?? $this->ruleSource->meetingTypeThreshold(meetingId: $meetingId)),
 			abstentionHandling: $roundRules->abstentionHandling,
 			tieBreakRule: $roundRules->tieBreakRule,
 			subjectType: $subjectType
 		);
+
+		// The body may limit the methods its meetings use; checked before anything is written.
+		$this->preflight->assertMethodAllowed(governanceBodyId: $bodyId, votingMethod: $request->votingMethod);
 
 		$quorumWith = $this->quorumOrRefuse(meetingId: $meetingId);
 
@@ -187,14 +204,23 @@ class VotingRoundOpener {
 			$this->amendmentOrder->assertOrdering(subjectId: $motionId, subjectType: $subjectType);
 		}
 
+		// A voting group stands for its members who are participants of this
+		// meeting (REQ-VGP-002); refused before anything is written when it
+		// cannot be used. Its left-out members are reported (REQ-VGP-005).
+		$group = $this->groupParticipants(request: $request, governanceBodyId: $roundRules->governanceBodyId);
+
 		// Preset UUIDs are validated against active memberships; the eligible
 		// ones become participant relations, a substituted seat as its substitute (REQ-MSW-002).
-		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $request->presetParticipantIds());
+		$chosen = ($group['participantIds'] ?? $request->presetParticipantIds());
+		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $chosen);
 		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
 		$resolution = new VotingRoundResolution(rules: $rules, quorumWith: $quorumWith, participantIds: $presets['eligible']);
 		$votingRound = $this->withOptions(votingRound: $resolution->roundPayload(request: $request), options: $options);
 
-		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
+		$created = $this->objectService()->saveObject(
+			object: $votingRound,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		if ($request->isFreshRound() === true) {
 			$this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);
@@ -206,6 +232,7 @@ class VotingRoundOpener {
 			result: $this->normaliser->toArray(saved: $created, fallback: $votingRound),
 			excluded: $presets['excluded']
 		);
+		$result = $this->withExcludedGroupMembers(result: $result, excluded: ($group['excluded'] ?? []));
 
 		// Fail-soft announcements: the activity-feed entry and the
 		// preference-aware "pending vote" notifications (user-settings spec),
@@ -276,6 +303,53 @@ class VotingRoundOpener {
 
 		return $result;
 	}//end withExcludedPresets()
+
+	/**
+	 * The participants and left-out members of the round's voting group, or null when it names none.
+	 *
+	 * @param VotingRoundRequest $request          The request.
+	 * @param string|null        $governanceBodyId The body the request names, or null for the meeting's.
+	 *
+	 * @return array{participantIds: list<string>, excluded: list<array{id: string, name: string}>}|null
+	 *
+	 * @throws \InvalidArgumentException When the group cannot be used for this round.
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 */
+	private function groupParticipants(VotingRoundRequest $request, ?string $governanceBodyId): ?array {
+		$groupId = $request->votingGroupId();
+		if ($groupId === null) {
+			return null;
+		}
+
+		return $this->votingGroups->resolve(groupId: $groupId, meetingId: $request->meetingId, bodyId: $governanceBodyId);
+	}//end groupParticipants()
+
+	/**
+	 * The created round with the voting group's left-out members, when there are any.
+	 *
+	 * Their ids join `excludedPresetUuids`, and `excludedGroupMembers` carries
+	 * their names, so the panel can say who was left out (REQ-VGP-005).
+	 *
+	 * @param array<string, mixed>                  $result   The created round.
+	 * @param list<array{id: string, name: string}> $excluded The left-out members.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+	 */
+	private function withExcludedGroupMembers(array $result, array $excluded): array {
+		if ($excluded === []) {
+			return $result;
+		}
+
+		$result['excludedPresetUuids'] = array_values(
+			array_merge(($result['excludedPresetUuids'] ?? []), array_column($excluded, 'id'))
+		);
+		$result['excludedGroupMembers'] = $excluded;
+
+		return $result;
+	}//end withExcludedGroupMembers()
 
 	/**
 	 * The options a round opens with: the requested ones for a ranked-choice

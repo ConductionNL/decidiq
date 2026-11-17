@@ -36,6 +36,7 @@ use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests for the agenda phase and order paths.
@@ -95,12 +96,12 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$item = $this->createMock(ObjectEntity::class);
 		$item->method('getObject')->willReturn(['title' => 'No status']);
 		$this->objects->method('find')->willReturn($item);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['phase' => 'oordeelsvorming'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'ai-1',
+				'data' => ['phase' => 'oordeelsvorming'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 		$this->logger->expects($this->once())->method('info')->with(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',
 			['id' => 'ai-1', 'from' => 'beeldvorming', 'to' => 'oordeelsvorming']
@@ -121,12 +122,12 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$item = $this->createMock(ObjectEntity::class);
 		$item->method('getObject')->willReturn(['itemType' => 'decision', 'phase' => 'oordeelsvorming', 'status' => 'beeldvorming']);
 		$this->objects->method('find')->willReturn($item);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['phase' => 'besluitvorming'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'ai-1',
+				'data' => ['phase' => 'besluitvorming'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 
 		$this->service->advanceBobPhase('ai-1');
 	}//end testTheDeclaredPhaseWinsOverALegacyStatus()
@@ -143,12 +144,12 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$item = $this->createMock(ObjectEntity::class);
 		$item->method('getObject')->willReturn(['itemType' => 'decision', 'status' => 'besluitvorming']);
 		$this->objects->method('find')->willReturn($item);
-		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['phase' => 'completed'],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->objects->expects($this->once())->method('patchObject')->with(...LegacyObjectArgs::with(method: 'patchObject', expected: [
+				'objectId' => 'ai-1',
+				'data' => ['phase' => 'completed'],
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]));
 
 		$this->service->advanceBobPhase('ai-1');
 	}//end testALegacyStatusPhaseStillAdvances()

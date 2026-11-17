@@ -33,6 +33,7 @@ use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Tests for AgendaService.
@@ -248,7 +249,9 @@ class AgendaServiceTest extends TestCase {
 				->expects($this->once())
 				->method('patchObject')
 				->willReturnCallback(
-					function (string $objectId, array $data) use (&$patches): ObjectEntity {
+					function (ObjectPatch $patch) use (&$patches): ObjectEntity {
+						$objectId = $patch->objectId;
+						$data = $patch->data;
 						$patches[] = ['id' => $objectId, 'data' => $data];
 						return $this->entity($data);
 					}
@@ -725,7 +728,9 @@ class AgendaServiceTest extends TestCase {
 		$this->objectService
 			->method('patchObject')
 			->willReturnCallback(
-				function (string $objectId, array $data) use ($patches): ObjectEntity {
+				function (ObjectPatch $patch) use ($patches): ObjectEntity {
+					$objectId = $patch->objectId;
+					$data = $patch->data;
 					$patches->append(['id' => $objectId, 'data' => $data]);
 					return $this->entity($data);
 				}

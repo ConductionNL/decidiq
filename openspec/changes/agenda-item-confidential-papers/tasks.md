@@ -4,12 +4,13 @@
 
 ### Task 1: Fields and read rules
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`, `#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers`
-- **files**: `lib/Settings/register.d/124-agenda-item-confidential-papers.json` (new: `public`, `authorisedReaders`, `authorization.read` on AgendaItem and DigitalDocument), register version move and lock-file test (decision 70)
+- **files**: `lib/Settings/register.d/129-agenda-item-confidential-papers.json` (new: `public`, `authorisedReaders`, `authorization.read` on AgendaItem and DigitalDocument), register version move and lock-file test (decision 70)
 - **acceptance_criteria**:
   - the read rules are evaluated by OpenRegister's real RBAC evaluator in the test: body member yes, other body no, named reader yes
   - if the dialect cannot express "user in `authorisedReaders`", stop and file an OpenRegister ask; do not filter in decidiq PHP
 - [ ] Implement
 - [ ] Test (red first): register fragment test with the real evaluator
+- Note: the fields (`public`, `authorisedReaders`) are in the fragment. The read rules are not yet: the body rule needs the governance body on AgendaItem (it only has `meeting`) for a `$memberOf` rule on participant `governanceBody` matched by `nextcloudUserId`; the named-reader rule is expressible as `{"authorisedReaders":{"$contains":"$userId"}}`. Both need a test through OpenRegister's evaluator, which decidiq's unit suite does not load.
 
 ### Task 2: Item page and Stukken badges (board DcAgendapunt)
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`
@@ -18,26 +19,29 @@
   - matches the board's Kerngegevens and Stukken
 - [ ] Implement
 - [ ] Test (red first): vitest on the page config
+- Note: the Stukken badge is built: `DocumentMetadataTab` shows "Openbaar" or "Besloten" per paper from its record (`src/utils/paperPublicity.js`, `tests/vitest/paperPublicity.spec.js`). Kerngegevens shows `public` through the page's generic data widget, which renders every schema field. Left: the "Alleen voor leden van {orgaan}" line with "Lezers toevoegen" for the secretariat, and "Besloten punt" with only the number for readers who may not read the item (that one depends on the read rules of task 1).
 
 ### Task 3: Inheritance and restriction listener
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public`, `#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item`
 - **files**: `lib/Listener/AgendaItemConfidentialityListener.php` (new), `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - the test constructs the real OpenRegister object events, not fakes
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- Note: before-save on `digital-document` (SaveGuardSubscriptions) closes a paper saved onto a non-public item; after-save on `agenda-item` closes the item's public papers; after-save on `confidentiality-restriction` closes the item when scope `item` reaches `imposed` (lifting changes nothing). Writes run with `_rbac: false`: closing is an invariant, not the saver's right.
 
 ### Task 4: Pack and publication leave the item out
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site`
-- **files**: `lib/Service/MeetingPackageService.php`, `lib/Service/PublicationService.php`
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Service/MeetingPackageServiceTest.php`, `PublicationServiceTest.php`
+- **files**: `lib/Service/MeetingPackageService.php`, `lib/Service/PublicationPayloadService.php`
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Service/MeetingPackageServiceTest.php`, `tests/Unit/Service/PublicationClosedItemTest.php`
 
 ### Task 5: View log
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged`
 - **files**: the paper download path (`lib/Controller/` that serves meeting papers), `lib/Service/AuditLogService.php`
 - [ ] Implement
 - [ ] Test (red first)
+- Note: decidiq has no paper download path to hook: the Documents widget and DocumentMetadataTab read papers through OpenRegister's object file endpoints and Nextcloud Files, so a read never passes decidiq PHP. Logging each read of a closed paper belongs where the file is served (an OpenRegister read audit on object files), then shown on the item's History tab, which already renders OpenRegister's audit trail.
 
 ## Verification
 

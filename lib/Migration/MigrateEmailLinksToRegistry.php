@@ -42,6 +42,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -227,7 +231,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 
 		[$register, $schema, $targetUuid] = $parts;
 
-		$targetEntity = $objectService->find(id: $targetUuid, register: $register, schema: $schema);
+		$targetEntity = $objectService->find(id: $targetUuid, options: new ObjectFindOptions(register: $register, schema: $schema));
 		if ($targetEntity === null) {
 			return;
 		}
@@ -247,9 +251,8 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 			$targetObject['relations'] = $relations;
 
 			$objectService->saveObject(
-				register: $register,
-				schema: $schema,
-				object: $targetObject
+				object: $targetObject,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: $register, schema: $schema))
 			);
 		}
 	}//end relinkToRegistry()
@@ -274,16 +277,16 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 		// Stamp the migration marker first so the step is resume-safe.
 		$link['_migratedToRegistry'] = true;
 		$objectService->saveObject(
-			register: self::REGISTER,
-			schema: self::LEGACY_SCHEMA,
-			object: $link
+			object: $link,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::LEGACY_SCHEMA))
 		);
 
 		// Archive via OR archival workflow (soft delete; not a hard purge).
 		$objectService->deleteObject(
-			uuid: $uuid,
-			register: self::REGISTER,
-			schema: self::LEGACY_SCHEMA
+			new ObjectDeletion(
+				uuid: $uuid,
+				target: new ObjectFindTarget(register: self::REGISTER, schema: self::LEGACY_SCHEMA)
+			)
 		);
 	}//end archiveLegacy()
 

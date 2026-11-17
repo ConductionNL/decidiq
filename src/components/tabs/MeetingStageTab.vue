@@ -87,6 +87,7 @@ export default {
 				paused: this.t('decidiq', 'Paused'),
 				adjourned: this.t('decidiq', 'Adjourned'),
 				closed: this.t('decidiq', 'Closed'),
+				cancelled: this.t('decidiq', 'Cancelled'),
 			}
 			return labels[lifecycle] || lifecycle || '-'
 		},

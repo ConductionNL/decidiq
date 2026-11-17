@@ -166,6 +166,11 @@ class ScheduledNotificationFilterTest extends TestCase {
 			$expected = $expected['value'];
 		}
 
+		// A list operator (`in`, `notIn`) carries its operand under `values`.
+		if (is_array($expected) === true && array_key_exists('values', $expected) === true) {
+			$expected = (array)$expected['values'];
+		}
+
 		if (is_array($expected) === false) {
 			$expected = [$expected];
 		}

@@ -63,7 +63,7 @@
                 }
             },
             {
-                "createAuditTrailEntry": [
+                "recordObjectEvent": [
                     {
                         "id": "o-1"
                     },
@@ -80,7 +80,9 @@
                         "payload": {
                             "choice": "for"
                         }
-                    }
+                    },
+                    null,
+                    null
                 ]
             },
             {
@@ -123,7 +125,7 @@
                 }
             },
             {
-                "createAuditTrailEntry": [
+                "recordObjectEvent": [
                     {
                         "id": "o-1"
                     },
@@ -135,7 +137,9 @@
                             "o-1"
                         ],
                         "payload": []
-                    }
+                    },
+                    null,
+                    null
                 ]
             },
             {
@@ -191,7 +195,7 @@
                 }
             },
             {
-                "createAuditTrailEntry": [
+                "recordObjectEvent": [
                     {
                         "id": "o-1"
                     },
@@ -202,7 +206,9 @@
                             "o-1"
                         ],
                         "payload": []
-                    }
+                    },
+                    null,
+                    null
                 ]
             },
             {

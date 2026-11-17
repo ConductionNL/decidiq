@@ -507,7 +507,10 @@ describe('the decision page in the simple structure', () => {
 		const declared = pageOf(full, 'DecisionDetail').config.widgets.map(
 			(item) => item.id,
 		)
-		expect(declared).toHaveLength(15)
+		// routes-send-proposal-along-route added the approval route block,
+		// goals-linked-to-decisions the goal block, and
+		// voting-written-resolution the written resolution block.
+		expect(declared).toHaveLength(18)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {

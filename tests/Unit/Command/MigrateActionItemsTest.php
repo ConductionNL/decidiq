@@ -44,6 +44,13 @@ class MigrateActionItemsTest extends TestCase {
 	private IUserSession&MockObject $userSession;
 
 	/**
+	 * The logger the command writes to.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
+
+	/**
 	 * Session calls, in order.
 	 *
 	 * @var list<string|null>
@@ -70,6 +77,7 @@ class MigrateActionItemsTest extends TestCase {
 				return $user;
 			}
 		);
+		$this->logger      = $this->createMock(LoggerInterface::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->userSession->method('setUser')->willReturnCallback(
 			function (?IUser $user): void {
@@ -87,7 +95,7 @@ class MigrateActionItemsTest extends TestCase {
 	 */
 	private function runCommand(array $input=[]): CommandTester {
 		$tester = new CommandTester(
-			new MigrateActionItems(migration: $this->migration, userManager: $this->userManager, userSession: $this->userSession, logger: $this->createMock(LoggerInterface::class))
+			new MigrateActionItems(migration: $this->migration, userManager: $this->userManager, userSession: $this->userSession, logger: $this->logger)
 		);
 		$tester->execute($input);
 		return $tester;
@@ -159,4 +167,86 @@ class MigrateActionItemsTest extends TestCase {
 
 		self::assertSame(0, $this->runCommand(['--user' => 'bob'])->getStatusCode());
 	}//end testTheUserOptionNarrowsTheRun()
+
+	/**
+	 * A user whose migration counts failures makes the run fail, though every user exists.
+	 *
+	 * @return void
+	 */
+	public function testCountedFailuresMakeTheRunFail(): void {
+		$this->migration->method('pendingOwners')->willReturn(['alice', 'bob']);
+		$this->migration->method('migrateUser')->willReturnCallback(
+			static fn (string $userId): array => [
+				'migrated' => 1,
+				'delegations' => 0,
+				'skipped' => 0,
+				'failed' => ($userId === 'bob') ? 2 : 0,
+			]
+		);
+
+		$tester = $this->runCommand();
+
+		self::assertSame(1, $tester->getStatusCode());
+		self::assertStringContainsString('bob: 1 migrated, 0 delegations applied, 0 skipped, 2 failed', $tester->getDisplay());
+		self::assertSame(['alice', null, 'bob', null], $this->acting);
+	}//end testCountedFailuresMakeTheRunFail()
+
+	/**
+	 * An unknown user and a stopped migration are each logged with the user, and nobody is impersonated for the unknown one.
+	 *
+	 * @return void
+	 */
+	public function testSkippedUsersAreLoggedWithTheirId(): void {
+		$this->migration->method('pendingOwners')->willReturn(['ghost', 'alice']);
+		$this->migration->method('migrateUser')->willThrowException(new RuntimeException('no calendar'));
+		$warnings = [];
+		$this->logger->method('warning')->willReturnCallback(
+			static function (string $message, array $context = []) use (&$warnings): void {
+				$warnings[] = [$message, $context];
+			}
+		);
+
+		$tester = $this->runCommand();
+
+		self::assertSame(
+			[
+				['Decidiq: legacy action items of an unknown user were left as they are', ['user' => 'ghost']],
+				['Decidiq: action-item migration for a user stopped', ['user' => 'alice', 'error' => 'no calendar']],
+			],
+			$warnings
+		);
+		self::assertSame(['alice', null], $this->acting);
+		self::assertSame(1, $tester->getStatusCode());
+	}//end testSkippedUsersAreLoggedWithTheirId()
+
+	/**
+	 * --user for someone with nothing pending migrates nobody.
+	 *
+	 * @return void
+	 */
+	public function testTheUserOptionForSomeoneWithNothingPendingIsANoOp(): void {
+		$this->migration->method('pendingOwners')->willReturn(['alice']);
+		$this->migration->expects(self::never())->method('migrateUser');
+
+		$tester = $this->runCommand(['--user' => 'carol']);
+
+		self::assertSame(0, $tester->getStatusCode());
+		self::assertStringContainsString('No legacy action items to migrate.', $tester->getDisplay());
+		self::assertSame([], $this->acting);
+	}//end testTheUserOptionForSomeoneWithNothingPendingIsANoOp()
+
+	/**
+	 * The command is decidiq:migrate-action-items with a --user/-u option that needs a value.
+	 *
+	 * @return void
+	 */
+	public function testTheCommandNameAndItsUserOption(): void {
+		$command = new MigrateActionItems(migration: $this->migration, userManager: $this->userManager, userSession: $this->userSession, logger: $this->logger);
+		$option  = $command->getDefinition()->getOption('user');
+
+		self::assertSame('decidiq:migrate-action-items', $command->getName());
+		self::assertSame('u', $option->getShortcut());
+		self::assertTrue($option->isValueRequired());
+		self::assertNotSame('', $command->getDescription());
+	}//end testTheCommandNameAndItsUserOption()
 }//end class

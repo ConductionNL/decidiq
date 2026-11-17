@@ -29,6 +29,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for MigrateBoardProxyToProxyAuthorization.
@@ -112,13 +114,11 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($knownMeetings) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($knownMeetings) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'meeting' && in_array($id, $knownMeetings, true) === true) {
 					return $this->entity(data: ['id' => $id]);
 				}
@@ -129,13 +129,11 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef, $saveObjectThrowsForGrantor) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef, $saveObjectThrowsForGrantor) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if (in_array(($object['grantor'] ?? null), $saveObjectThrowsForGrantor, true) === true) {
 					throw new \RuntimeException('save failed for grantor ' . (string)($object['grantor'] ?? ''));
 				}
@@ -614,6 +612,68 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 		$step->run(output: $output);
 
 	}//end testRunSkipsRowWhenTheMeetingLookupThrows()
+
+	/**
+	 * An empty participant reference is never handed to the resolver: the row is
+	 * skipped as unresolvable and only the non-empty reference is resolved.
+	 *
+	 * @return void
+	 */
+	public function testRunSkipsRowWithEmptyGrantorWithoutResolvingIt(): void {
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturnCallback(
+			function (array $config): array {
+				if (($config['filters']['schema'] ?? '') !== 'board-proxy') {
+					return [];
+				}
+
+				return [
+					$this->entity(
+						data: [
+							'id' => 'bp-9',
+							'grantorIntegration' => '',
+							'holderIntegration' => 'participant-holder',
+							'meetingIntegration' => 'meeting-1',
+						]
+					),
+				];
+			}
+		);
+		$objectService->method('find')->willReturn($this->entity(data: ['id' => 'meeting-1']));
+		$objectService->expects($this->never())->method('saveObject');
+
+		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
+		$resolver->expects($this->once())
+			->method('resolve')
+			->with('participant-holder')
+			->willReturn(['person' => 'person-holder', 'membership' => 'm']);
+
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				'Decidiq: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
+				[
+					'sourceBoardProxyUuid' => 'bp-9',
+					'grantorResolved' => false,
+					'holderResolved' => true,
+					'meetingResolved' => true,
+				]
+			);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->once())
+			->method('info')
+			->with('MigrateBoardProxyToProxyAuthorization: 0 migrated, 0 already migrated, 1 skipped.');
+
+		$step = new MigrateBoardProxyToProxyAuthorization(
+			objectService: $objectService,
+			resolver: $resolver,
+			logger: $logger,
+		);
+		$step->run(output: $output);
+
+	}//end testRunSkipsRowWithEmptyGrantorWithoutResolvingIt()
 
 	/**
 	 * getName() is descriptive.

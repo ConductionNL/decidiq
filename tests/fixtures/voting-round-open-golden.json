@@ -43,6 +43,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -278,6 +285,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -519,6 +533,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -757,6 +778,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -992,6 +1020,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -1253,6 +1288,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -1530,6 +1572,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -1863,6 +1912,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-typed",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -2094,6 +2150,13 @@
             },
             {
                 "find": {
+                    "id": "body-2",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -2311,6 +2374,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-small",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -2424,6 +2494,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -2528,6 +2605,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -2755,6 +2839,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -2867,6 +2958,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -3093,6 +3191,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -3193,6 +3298,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -3280,6 +3392,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -3401,6 +3520,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -3631,6 +3757,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -3711,6 +3844,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -3826,6 +3966,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {
@@ -4069,6 +4216,13 @@
             },
             {
                 "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
                     "id": "meet-1",
                     "register": "decidiq",
                     "schema": "meeting"
@@ -4210,6 +4364,13 @@
             },
             {
                 "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
             },
             {
                 "find": {

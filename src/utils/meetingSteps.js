@@ -27,6 +27,12 @@ export const MEETING_STEPS = ['draft', 'scheduled', 'opened', 'closed']
 export const MEETING_BREAKS = ['paused', 'adjourned']
 
 /**
+ * The states off the bar: a cancelled meeting (an imported ORI `afgelast`)
+ * never took place, so it stands on no step.
+ */
+export const MEETING_OFF_BAR = ['cancelled']
+
+/**
  * The English source label of every state. The same words the Stage block
  * and the status pill use.
  */
@@ -37,6 +43,7 @@ export const MEETING_STATE_LABELS = {
 	paused: 'Paused',
 	adjourned: 'Adjourned',
 	closed: 'Closed',
+	cancelled: 'Cancelled',
 }
 
 /**

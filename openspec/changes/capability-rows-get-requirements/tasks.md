@@ -10,18 +10,18 @@
 
 - **spec_ref**: `openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package`
 - **files**: `lib/Service/ProofPackageService.php`, `tests/Unit/Service/ProofPackageServiceTest.php`
-- [ ] 2.1 Add the approved minutes, the attendance list and the signatures to `assemble()`, inside the hashed package.
-- [ ] 2.2 Name the minutes' state in the package when they are not approved.
-- [ ] 2.3 Unit tests for both scenarios.
+- [x] 2.1 Add the approved minutes, the attendance list and the signatures to `assemble()`, inside the hashed package.
+- [x] 2.2 Name the minutes' state in the package when they are not approved.
+- [x] 2.3 Unit tests for both scenarios.
 
 ## 3. A body limits its voting methods (bod-14)
 
 - **spec_ref**: `openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use`
 - **files**: `lib/Settings/decidesk_register.json` (GovernanceBody `allowedVotingMethods`), `lib/Service/VotingRoundPreflight.php`, `src/components/VotingRoundPanel.vue`, `tests/Unit/Service/VotingRoundPreflightTest.php`
-- [ ] 3.1 Add the allowed methods to the body schema, empty meaning all.
-- [ ] 3.2 Refuse a round whose method the body does not allow, with a message naming the allowed ones.
+- [x] 3.1 Add the allowed methods to the body schema, empty meaning all.
+- [x] 3.2 Refuse a round whose method the body does not allow, with a message naming the allowed ones.
 - [ ] 3.3 Offer only the allowed methods in the voting round panel.
-- [ ] 3.4 Unit tests.
+- [x] 3.4 Unit tests.
 
 ## 4. Amendments on proposals (mot-02)
 

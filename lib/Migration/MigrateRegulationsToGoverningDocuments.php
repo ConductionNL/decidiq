@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -159,8 +161,6 @@ class MigrateRegulationsToGoverningDocuments implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema('governing-document');
 				$saved = $objectService->saveObject(
-					register: self::REGISTER,
-					schema: 'governing-document',
 					object: $this->mapDocument(
 						source: $source,
 						origin: $origin,
@@ -169,6 +169,7 @@ class MigrateRegulationsToGoverningDocuments implements IRepairStep {
 							reference: (string)($source['determiningBody'] ?? '')
 						)
 					),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'governing-document'))
 				);
 				$existing[$origin] = $this->identifierOf(object: $this->toArray(entity: $saved));
 			} catch (Throwable $e) {
@@ -222,9 +223,8 @@ class MigrateRegulationsToGoverningDocuments implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema('governing-document-versie');
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: 'governing-document-versie',
 					object: $this->mapVersion(source: $source, origin: $origin, document: $parent),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'governing-document-versie'))
 				);
 				$existing[$origin] = $parent;
 				$copied++;

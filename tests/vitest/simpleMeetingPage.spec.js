@@ -38,6 +38,7 @@ import {
 	fetchOfferedSteps,
 	MEETING_BREAKS,
 	MEETING_NEXT_ACTION,
+	MEETING_OFF_BAR,
 	MEETING_STATE_LABELS,
 	MEETING_STEPS,
 	nextStepIsOffered,
@@ -229,6 +230,7 @@ describe('the meeting page in the simple structure', () => {
 			'paused',
 			'adjourned',
 			'closed',
+			'cancelled',
 		])
 	})
 
@@ -524,7 +526,7 @@ describe('the meeting page in the simple structure', () => {
 
 	it('draws four steps and keeps a meeting on a break on the third', () => {
 		expect(MEETING_STEPS).toEqual(['draft', 'scheduled', 'opened', 'closed'])
-		expect([...MEETING_STEPS, ...MEETING_BREAKS].sort()).toEqual(
+		expect([...MEETING_STEPS, ...MEETING_BREAKS, ...MEETING_OFF_BAR].sort()).toEqual(
 			[...lifecycleStates].sort(),
 		)
 		expect(buildMeetingSteps('scheduled')).toEqual([
@@ -653,6 +655,7 @@ describe('the meeting page in the simple structure', () => {
 		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual([
 			'Broadcast',
 			'Case system',
+			'Room system',
 			'Audit statements',
 			'Stage',
 		])
@@ -691,7 +694,7 @@ describe('the meeting page in the simple structure', () => {
 		const declared = pageOf(full, 'MeetingDetail').config.widgets.map(
 			(item) => item.id,
 		)
-		expect(declared).toHaveLength(25)
+		expect(declared).toHaveLength(27)
 		const tabs = widgets.get('meeting-panels').content.tabs
 		// The History tab is the one block the profile adds.
 		const shown = tabs
@@ -701,7 +704,7 @@ describe('the meeting page in the simple structure', () => {
 		expect(shown.filter((id) => !declared.includes(id))).toEqual([])
 		// No block is shown twice either.
 		expect(new Set(shown).size).toBe(shown.length)
-		expect(shown).toHaveLength(25)
+		expect(shown).toHaveLength(27)
 	})
 
 	it('writes the definition into every section, and it is the one the page declares', () => {
@@ -747,7 +750,7 @@ describe('the meeting page in the simple structure', () => {
 		const custom = before.config.widgets.filter(
 			(widget) => widget.type === 'custom',
 		)
-		expect(custom).toHaveLength(19)
+		expect(custom).toHaveLength(21)
 		for (const widget of custom) {
 			expect(widget.component, widget.id).toBeTruthy()
 			expect(widgets.get(widget.id).type, widget.id).toBe(widget.component)
