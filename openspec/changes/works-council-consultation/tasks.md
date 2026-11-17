@@ -18,8 +18,8 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN the "Ondernemingsraad Voorbeeldingen B.V." governance body (`bodyType=works-council`) exists with Person + Membership members, and 3 consultation-request objects per the design tables (one overdue non-terminal adviesaanvraag, one instemmingsverzoek in achterbanraadpleging, one afgerond adviesaanvraag with response, afwijkend besluit, and derived `opschortingTot`) exist with only nil-UUID placeholders for unresolved refs
   - GIVEN the seeded data WHEN the dashboard renders THEN both KPIs are non-zero (ADR-016 testability)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the example set `lib/Settings/profiles/works-council.json` carries the body, members and three trajecten; the finished advice request now records a decision contrary to the advice, so its suspension term is derived)
+- [x] Test (`tests/Unit/Settings/WorksCouncilSeedTest.php`)
 
 ### Task 3: Manifest fragment — WOR-trajecten index/detail pages + menu
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis` (+ REQ-WCC-003/REQ-WCC-004)
@@ -27,8 +27,8 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the WOR-trajecten index renders with the specced columns and quick filters (type, lifecycle, governance body), and row click opens the detail page (schema ref by slug `consultation-request`, never PascalCase)
   - GIVEN the detail page WHEN opened THEN linked overlegvergadering/agenda item/raadpleging/decision render as navigable references, the Files leaf shows submitted documents, the running opschortingstermijn is surfaced when set, and an empty `achterbanraadpleging` reference renders without error
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the pages were on development; this adds the works-council column and a `governanceBody` facet to the list, and a suspension-term card on the page that shows only while `suspensionTo` is set)
+- [x] Test (`tests/vitest/worksCouncilPages.spec.js`)
 
 ### Task 4: Dashboard KPIs — open trajecten and responses past requested date
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis`
@@ -36,8 +36,8 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN "Open WOR-trajecten" counts non-terminal trajecten and "Reactie over gevraagde datum" counts non-terminal trajecten before `verzonden` with `requestedResponseDate` in the past, both via declarative source aggregations (no imperative counting endpoint), and clicking each routes to the pre-filtered index
   - GIVEN the widget filter DSL lacks a relative-now token WHEN implementing THEN the toezeggingen D6-style documented fallback is applied — never a silently wrong count
-- [ ] Implement
-- [ ] Test
+- [x] Implement (two stat tiles on the dashboard, "Open WOR cases" and "Reply overdue", in the full and the simple layout. Both filters hold a list of states, which the aggregation endpoint cannot count, so they count through the list endpoint with `via: list`; the overdue tile compares `requestedResponseDate` with `@today`, which the widget resolves at fetch time, so no fallback is needed. Each opens the index filtered the same way)
+- [x] Test (`tests/vitest/worksCouncilKpis.spec.js`, and the simple dashboard spec)
 
 ### Task 5: ConsultationResponseDocumentService — formal advies/instemming document generation
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage`
@@ -46,8 +46,8 @@
   - GIVEN a traject in `vastgesteld` with response fields WHEN generation is triggered THEN a markdown document persists to the traject's Files folder, Docudesk PDF renders when available, the document links as `responseDocument`, and the save carries all fields forward (PUT-semantic)
   - GIVEN an instance without Docudesk WHEN generation is triggered with PDF format THEN the markdown persists and the response honestly states the fallback (never a silent fake PDF)
   - GIVEN a user without governance-body scope on the traject WHEN calling the endpoint THEN it is rejected (per-object guard + correct auth attributes — no-admin-idor/semantic-auth/route-reachability gates pass)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ConsultationResponseDocumentService`, `WorksCouncilConsultationController::generateResponseDocument`, `POST /api/works-council-consultations/{id}/response-document`, documented in `openapi.json`. The file is stored on the traject itself, so its Files leaf shows it; a DigitalDocument records it and becomes `responseDocument`, the save carrying every other field. A PDF comes through filinq, which replaced Docudesk for PDF rendering in this app (`FilinqPdf`); without it the markdown is stored and the answer says so. The caller must be in the works council's signatory scope or an administrator)
+- [x] Test (`tests/Unit/Service/ConsultationResponseDocumentServiceTest.php`: markdown, PDF, fallback, refusals, and the controller's 401/403/404/201)
 
 ### Task 6: UI wiring — besluit recording, achterban link, and advisory-stage handoff
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn` (+ REQ-WCC-003/REQ-WCC-005)
@@ -56,8 +56,8 @@
   - GIVEN a traject in `verzonden` WHEN the secretaris records the bestuurder besluit via an explicit dialog THEN `besluitOutcome`/`besluitText`/`besluitDate` are stored with the transition to `besluit-ontvangen`, an afwijkend besluit on an adviesaanvraag shows the derived opschortingstermijn, and the OR-members notification fires declaratively
   - GIVEN a traject in `achterbanraadpleging` WHEN the OR links a constituency-consultation raadpleging THEN it renders as a navigable reference and no poll mechanics are stored on the traject
   - GIVEN a traject with `relatedDecision` set WHEN the formal response is recorded THEN the advisory stage flow (existing `method=advice` semantics) is reachable from the traject detail and no new derivation mechanism is introduced
-- [ ] Implement
-- [ ] Test
+- [x] Implement (a "Next step" widget on the traject page, `WorksCouncilResponseTab`: "Write the response document" once the response is adopted, and "Record the director's decision" once it is sent, through `src/dialogs/RecordDirectorDecisionDialog.vue`, which saves the outcome, text and date with the move to decision-received and shows the suspension term a decision contrary to the advice starts. The constituency consultation and the related decision open as links; nothing of the poll or the advisory stage is stored on the traject. The OR-members notification is the declared one in fragment 47)
+- [x] Test (`tests/vitest/worksCouncilResponse.spec.js`, the saved payload checked against the shipped schema)
 
 ### Task 7: E2E coverage — Playwright scenarios for the WOR traject
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md`
