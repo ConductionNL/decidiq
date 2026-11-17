@@ -172,7 +172,7 @@
 						"format": "uuid",
 						"$ref": "Person",
 						"nullable": true,
-						"description": "Reference to the owning Person (portefeuillehouder). REQUIRED when ownerType is 'portefeuillehouder', otherwise null. This conditional-required rule is NOT expressible in the OR 'required' array (which cannot be value-dependent); it is enforced at save time by the UI and documented here."
+						"description": "Reference to the owning Person (portefeuillehouder). REQUIRED when ownerType is 'portefeuillehouder', otherwise null. This conditional-required rule is NOT expressible in the OR 'required' array (which cannot be value-dependent); PlannedAgendaItemRulesGuardListener refuses such a save on create and update."
 					},
 					"notes": {
 						"title": "Note",
@@ -233,7 +233,7 @@
 						"title": "Drop reason",
 						"type": "string",
 						"nullable": true,
-						"description": "Reason the item was dropped (recorded when moving lifecycle to vervallen). REQUIRED when entering vervallen (enforced at the UI layer; not expressible as a state-dependent OR 'required' rule). Optional otherwise.",
+						"description": "Reason the item was dropped (recorded when moving lifecycle to vervallen). REQUIRED when entering vervallen (not expressible as a state-dependent OR 'required' rule; the lapse dialog and PlannedAgendaItemRulesGuardListener refuse a save without it). Optional otherwise.",
 						"example": "Onderwerp opgegaan in omgevingsvisie"
 					},
 					"originCommitment": {

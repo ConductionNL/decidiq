@@ -39,6 +39,9 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
 use OCA\Decidiq\Kernel\Contracts\GuestInvitationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use OCP\IGroupManager;
 use OCP\IL10N;
@@ -147,15 +150,13 @@ class GuestInvitationService implements GuestInvitationServiceInterface {
 
 		$participant = $this->objectService->saveObject(
 			object: ['displayName' => $name, 'role' => 'guest', 'email' => $email],
-			register: 'decidiq',
-			schema: 'participant'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 		);
 		$participantId = $this->idOf(entity: $participant);
 
 		$attendance = $this->objectService->saveObject(
 			object: ['meeting' => $meetingId, 'participant' => $participantId],
-			register: 'decidiq',
-			schema: 'meeting-attendance'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting-attendance'))
 		);
 
 		$mailed = $this->sendInvitation(meeting: $meeting, meetingId: $meetingId, email: $email, name: $name, link: $link);
@@ -222,7 +223,7 @@ class GuestInvitationService implements GuestInvitationServiceInterface {
 	 */
 	private function loadMeeting(string $meetingId): array {
 		try {
-			$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$entity = null;
 		}

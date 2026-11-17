@@ -35,6 +35,7 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Start, end and read the seats of a meeting.
@@ -212,8 +213,7 @@ class MandateSubstitutionService implements MandateSubstitutionServiceInterface 
 
 		$entity = $this->objectService->find(
 			id: $substitutionId,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
+			options: new ObjectFindOptions(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -329,17 +329,6 @@ class MandateSubstitutionService implements MandateSubstitutionServiceInterface 
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-001-the-chair-or-secretary-swaps-a-member-for-a-substitute-during-a-meeting
 	 */
 	private function write(array $object, ?string $id): array {
-		$saved = $this->objectService->saveObject(
-			object: $object,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
-			uuid: $id,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: SubstitutionResolver::SCHEMA, object: $object, uuid: $id);
 	}//end write()
 }//end class

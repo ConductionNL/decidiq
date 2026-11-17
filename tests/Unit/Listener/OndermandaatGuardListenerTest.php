@@ -43,6 +43,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Service\AnyOfFieldsGuard
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
  * @covers \OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions
+ * @uses   \OCA\Decidiq\Listener\EntityPayloadReader
  */
 class OndermandaatGuardListenerTest extends TestCase {
 

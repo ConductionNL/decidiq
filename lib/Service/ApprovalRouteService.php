@@ -72,6 +72,16 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	private readonly ApprovalRouteAdvancer $advancer;
 
 	/**
+	 * Says which terminal state each recorded verb leaves its action in.
+	 *
+	 * Built here for the same reason as the advancer: it is a pure rule with no
+	 * dependency, so no caller of the constructor has to change.
+	 *
+	 * @var OpenApprovalGuard
+	 */
+	private readonly OpenApprovalGuard $openGuard;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
@@ -109,6 +119,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
 	) {
 		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
+		$this->openGuard = new OpenApprovalGuard();
 	}//end __construct()
 
 	/**
@@ -591,12 +602,16 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		$this->guard->assertVerbFitsStage(stage: $active, verb: $verb);
 		$this->guard->assertRequiredFields(verb: $verb, action: $action);
 
+		$trail = $this->advancer->assertNoOpenApprovalHoldsTheStep(subject: $subject, stages: $stages, active: $active, actor: $actor);
+
 		$this->advancer->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
 		$recorded = $this->appendAction(action: $action, stage: $active);
+		$this->advancer->closeOwnOpenApprovals(trail: $trail, active: $active, actor: $actor, verb: $verb);
 		$this->projectTasks(subject: $subject);
 
 		return $recorded;
 	}//end record()
+
 
 	/**
 	 * Append the action as a new object.
@@ -618,6 +633,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 				'onBehalfOf' => (string)($action['onBehalfOf'] ?? ''),
 				'mandate' => (string)($action['mandate'] ?? ''),
 				'action' => (string)$action['action'],
+				// A recorded act is never an open work item. Without this the
+				// schema default `open` made every sign-off read as an approval
+				// still awaited (REQ-DWP-001).
+				'state' => $this->openGuard->stateForVerb(verb: (string)$action['action']),
 				'returnToStep' => ($action['returnToStep'] ?? null),
 				'comment' => (string)($action['comment'] ?? ''),
 				'advice' => (string)($action['advice'] ?? ''),

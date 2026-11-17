@@ -26,6 +26,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\OndermandaatRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Throwable;
 
@@ -146,7 +147,11 @@ class OndermandaatGuardService {
 	private function parent(string $parentId): array {
 		foreach (self::SCHEMAS as $schema) {
 			try {
-				$entity = $this->objectService->find(id: $parentId, register: 'decidiq', schema: $schema, _rbac: false);
+				$entity = $this->objectService->find(
+					id: $parentId,
+					options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+					_rbac: false
+				);
 			} catch (DoesNotExistException) {
 				$entity = null;
 			} catch (Throwable $e) {

@@ -29,6 +29,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * @covers \OCA\Decidiq\Service\OndermandaatGuardService
@@ -74,6 +75,7 @@ class OndermandaatGuardServiceTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$args) use ($failure): ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				if ($failure !== null) {
 					throw $failure;
 				}
