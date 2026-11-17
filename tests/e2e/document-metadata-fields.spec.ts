@@ -16,6 +16,7 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 // @e2e document-metadata-fields::the-administrator-adds-a-field-without-the-supplier
 test('an administrator opens the document types page', async ({ page }) => {
@@ -26,7 +27,7 @@ test('an administrator opens the document types page', async ({ page }) => {
 // @e2e document-metadata-fields::the-clerk-records-the-zaaknummer-of-a-raadsvoorstel
 test('the clerk records the zaaknummer of a raadsvoorstel', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Vaststelling omgevingsvisie').first().click()
+	await openRow(page, 'Vaststelling omgevingsvisie')
 	const row = page.getByTestId('document-details-row').first()
 	await row.getByTestId('document-details-open').click()
 	const dialog = page.getByTestId('document-details-dialog')
@@ -43,7 +44,7 @@ test('a meeting-only type is not offered on an agenda item file', async ({
 	page,
 }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Vaststelling omgevingsvisie').first().click()
+	await openRow(page, 'Vaststelling omgevingsvisie')
 	await page.getByTestId('document-details-open').first().click()
 	await page.getByTestId('document-details-type').click()
 	await expect(page.getByRole('option', { name: 'Presentatie' })).toHaveCount(0)

@@ -33,6 +33,7 @@ const evening = {
 	scheduledDate: '2026-11-03T18:00:00+01:00',
 	endDate: '2026-11-03T23:00:00+01:00',
 	governanceBody: 'body-raad',
+	meetingType: 'committee',
 	meetingMode: 'hybrid',
 	isPublic: true,
 }
@@ -121,10 +122,12 @@ describe('newSession', () => {
 			}),
 		).toEqual({
 			title: 'Commissie Bestuur',
+			lifecycle: 'scheduled',
 			room: 'Commissiekamer 1',
 			parentMeeting: 'ev',
 			scheduledDate: '2026-11-03T19:30:00+01:00',
 			governanceBody: 'body-raad',
+			meetingType: 'committee',
 			meetingMode: 'hybrid',
 			isPublic: true,
 		})
@@ -134,6 +137,7 @@ describe('newSession', () => {
 		const utc = { id: 'ev', scheduledDate: '2026-11-03T17:00:00Z' }
 		expect(newSession(utc, { title: 'X', room: '', time: '18:15' })).toEqual({
 			title: 'X',
+			lifecycle: 'scheduled',
 			parentMeeting: 'ev',
 			scheduledDate: '2026-11-03T18:15:00Z',
 		})
@@ -169,6 +173,6 @@ describe('the meeting page', () => {
 		expect(tab).toContain('meeting-sessions-evening-link')
 		expect(tab).toMatch(/v-for="sibling in siblings"/)
 		expect(tab).toMatch(/newSession\(/)
-		expect(tab).toMatch(/saveObject\(\s*'meeting'/)
+		expect(tab).toMatch(/saveOrThrow\(\s*ensureRelationType\('meeting'\),\s*'meeting'/)
 	})
 })

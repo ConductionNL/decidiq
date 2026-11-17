@@ -19,6 +19,7 @@
 			"title": "Urgent decisions",
 			"_note": "spec: openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi",
 			"config": {
+				"rowRoute": "DecisionDetail",
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
