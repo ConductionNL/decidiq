@@ -35,6 +35,7 @@ use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
+use OCP\IDateTimeZone;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -79,12 +80,14 @@ class ParallelSessionListener implements IEventListener {
 	 *
 	 * @param LoggerInterface        $logger        Logger
 	 * @param ObjectServiceInterface $objectService Reads the evening and its sessions
+	 * @param IDateTimeZone          $timeZone      The zone the refusal names the evening's times in
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly IDateTimeZone $timeZone,
 	) {
 	}//end __construct()
 
@@ -221,9 +224,13 @@ class ParallelSessionListener implements IEventListener {
 			return null;
 		}
 
+		// OpenRegister stores date-times in UTC, so the evening's own offset is
+		// gone by the time it is read back; the reader's zone names its times.
+		$zone   = $this->timeZone->getTimeZone();
+		$opens  = $opens->setTimezone($zone);
 		$window = $opens->format('j F Y') . ' from ' . $opens->format('H:i');
 		if ($closes !== null) {
-			$window .= ' to ' . $closes->setTimezone($opens->getTimezone())->format('H:i');
+			$window .= ' to ' . $closes->setTimezone($zone)->format('H:i');
 		}
 
 		return 'A session must take place within its evening, ' . $window . '.';

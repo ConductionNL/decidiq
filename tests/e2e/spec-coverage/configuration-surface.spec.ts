@@ -52,11 +52,14 @@ for (const surface of SURFACES) {
 		// 🔑 THE HEADING IS THE ASSERTION. A route that does not resolve renders
 		// the app shell and nothing else, which looks identical to a page whose
 		// list happens to be empty. The heading is what tells the two apart.
+		// CnIndexPage keeps the heading for assistive technology but clips it
+		// from view unless the page opts into showTitle, so it is attached, not
+		// visible.
 		await expect(
 			page
 				.getByRole('heading', { name: surface.heading, exact: true })
 				.first(),
-		).toBeVisible({ timeout: 30_000 })
+		).toBeAttached({ timeout: 30_000 })
 
 		// An empty configuration is a valid state — an instance that loaded no
 		// example set has no kinds — so this asserts the page RENDERED, not that
@@ -83,6 +86,7 @@ test('configuration: an agenda item type created over the API appears on its pag
 		extraHTTPHeaders: {
 			Authorization: `Basic ${Buffer.from('admin:admin').toString('base64')}`,
 			Accept: 'application/json',
+			'OCS-APIRequest': 'true',
 		},
 	})
 
