@@ -56,8 +56,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **acceptance_criteria**:
   - a route open at upgrade continues on the old engine; a new send never does
   - the delete lands only when the legacy command lists nothing on the reference instances
-- [ ] Implement marking and command
-- [ ] Test (red first)
+- Built: `LegacyApprovalRoutes` finds every decision with an active or pending stage on the old engine and marks it `approvalEngine: legacy`; it is idempotent. `MarkLegacyApprovalRoutes` is the post-migration repair step and `occ decidiq:approval-routes:legacy` lists what is left, one decision and its open step per line. The send path does not depend on the mark: `ApprovalRouteController` never starts a flow for a decision that has stage rows. The repair step runs on the next `occ upgrade` with a version move; this PR does not bump the version. Tests: `LegacyApprovalRoutesTest` (4). Left: deleting the old engine, a separate PR once the command lists nothing on the reference instances.
+- [x] Implement marking and command
+- [x] Test (red first)
 - [ ] Delete the old engine (separate PR)
 
 ## Verification
