@@ -24,6 +24,9 @@ namespace OCA\Decidiq\Repair;
 
 use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -204,7 +207,13 @@ class FillDecisionDecidingBody implements IRepairStep {
 		unset($decision['@self']);
 		$decision['decidingBody'] = $body;
 		try {
-			$this->objectService->saveObject(object: $decision, register: self::REGISTER, schema: DecisionDecidingBodyListener::SCHEMA, uuid: $id);
+			$this->objectService->saveObject(
+				object: $decision,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: DecisionDecidingBodyListener::SCHEMA),
+					uuid: $id
+				)
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: a decision could not get its deciding body', ['decision' => $id, 'error' => $e->getMessage()]);
 			return 0;
@@ -222,7 +231,7 @@ class FillDecisionDecidingBody implements IRepairStep {
 	 */
 	private function bodyOf(string $meetingId): ?string {
 		try {
-			$meeting = $this->objectService->find(id: $meetingId, register: self::REGISTER, schema: 'meeting', _rbac: false);
+			$meeting = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: self::REGISTER, schema: 'meeting'), _rbac: false);
 		} catch (Throwable) {
 			return null;
 		}

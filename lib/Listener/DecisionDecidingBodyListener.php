@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
@@ -144,7 +145,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 */
 	private function meetingBody(string $meetingId): ?string {
 		try {
-			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false);
+			$meeting = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'), _rbac: false);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: the meeting of a decision could not be read; no deciding body filled',

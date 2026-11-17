@@ -101,10 +101,10 @@ class DecisionDecidingBodyListenerTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed ...$args): ObjectEntity {
-				// The double receives every parameter of the stub's signature: object, extend, register, schema, uuid, ...
-				[$object, , $register, $schema, $uuid] = array_values($args);
-				self::assertSame(['decidiq', 'decision'], [$register, $schema]);
-				$this->saved[(string)$uuid] = $object;
+				// openregister main's signature: the object, then ObjectSaveOptions naming the target and uuid.
+				[$object, $options] = array_values($args);
+				self::assertSame(['decidiq', 'decision'], [$options->target->register, $options->target->schema]);
+				$this->saved[(string)$options->uuid] = $object;
 				return $this->entity($object);
 			}
 		);
