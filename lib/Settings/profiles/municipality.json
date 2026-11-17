@@ -3176,6 +3176,46 @@
 							"register": "decidiq",
 							"schema": "meeting"
 						},
+						"slug": "commissie-ruimte-digitaal-2027-04-16",
+						"title": "Commissie Ruimte (digitaal)",
+						"meetingType": "committee",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2027-04-16T19:30:00+02:00",
+						"endDate": "2027-04-16T22:00:00+02:00",
+						"location": "Online",
+						"meetingMode": "digital",
+						"isPublic": true,
+						"lifecycle": "scheduled",
+						"teamsMeeting": {
+							"joinUrl": "https://teams.microsoft.com/l/meetup-join/00000000-0000-0000-0000-000000000000",
+							"externalId": null,
+							"createdBy": "Griffie",
+							"createdAt": "2027-03-30T10:00:00+02:00"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "raadsvergadering-2027-04-23",
+						"title": "Raadsvergadering 23 april 2027",
+						"meetingType": "regular",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2027-04-23T19:30:00+02:00",
+						"endDate": "2027-04-23T23:00:00+02:00",
+						"location": "Raadzaal, Stadhuis",
+						"meetingMode": "hybrid",
+						"isPublic": true,
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
 						"slug": "raadsvergadering-2025-01-15",
 						"title": "Raadsvergadering 15 januari 2025",
 						"meetingType": "regular",
