@@ -58,6 +58,8 @@ $extra = [
         ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
+        // The long-term agenda as a formatted report (planning-long-term-agenda-tracks-and-report, REQ-LTAT-004).
+        ['name' => 'plannedAgendaReport#create', 'url' => '/api/planned-agenda/report', 'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
         // The decision type vocabulary, edited from the admin settings page (decision-types-as-configuration 4.2).
@@ -183,6 +185,12 @@ $extra = [
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
         ['name' => 'guestInvitation#invite',  'url' => '/api/meetings/{id}/guests',  'verb' => 'POST'],
         // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.
+        // governing-documents-register (REQ-GDR-004): the version of a governing document in force on a date.
+        ['name' => 'governingDocument#inForce', 'url' => '/api/governing-documents/{id}/in-force', 'verb' => 'GET'],
+        // governing-documents-register (REQ-GDR-005): the decisions citing a governing document.
+        ['name' => 'governingDocument#citedBy', 'url' => '/api/governing-documents/{id}/cited-by', 'verb' => 'GET'],
+        // governing-documents-register (REQ-GDR-007): the public view of a document marked public.
+        ['name' => 'governingDocument#publicView', 'url' => '/api/public/governing-documents/{id}', 'verb' => 'GET'],
         ['name' => 'mandateSubstitution#seats',           'url' => '/api/meetings/{meetingId}/seats', 'verb' => 'GET'],
         ['name' => 'mandateSubstitution#substitute',      'url' => '/api/meetings/{meetingId}/substitutions', 'verb' => 'POST'],
         ['name' => 'mandateSubstitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
