@@ -206,6 +206,35 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 		$this->listener()->handle(self::concluded());
 	}//end testAnUnknownRunIsSwallowed()
 
+	/**
+	 * A conclusion without a decision id is not looked up.
+	 *
+	 * @return void
+	 */
+	public function testAConclusionWithoutADecisionIdIsIgnored(): void {
+		$this->runs->expects(self::never())->method('findByUuid');
+		$this->runs->expects(self::never())->method('findSuspendedBySubject');
+		$this->signals->expects(self::never())->method('answer');
+
+		$this->listener()->handle(self::concluded(decisionId: '   '));
+	}//end testAConclusionWithoutADecisionIdIsIgnored()
+
+	/**
+	 * A suspended run whose resume slots are not a map waits on nothing.
+	 *
+	 * @return void
+	 */
+	public function testARunWithUnreadableSlotsIsNotWoken(): void {
+		$run = new FlowRun();
+		$run->setUuid('run-1');
+		$run->setStatus(FlowRun::STATUS_SUSPENDED);
+		$run->setContext([FlowResumeState::CONTEXT_KEY => 'd-1']);
+		$this->runs->expects(self::once())->method('findByUuid')->with('run-1')->willReturn($run);
+		$this->signals->expects(self::never())->method('answer');
+
+		$this->listener()->handle(self::concluded());
+	}//end testARunWithUnreadableSlotsIsNotWoken()
+
 	public function testAnyOtherEventIsIgnored(): void {
 		$this->runs->expects(self::never())->method('findByUuid');
 

@@ -41,10 +41,11 @@ change dirs evaporate on archive.
   - GIVEN `ConsultationDetail` WHEN its widgets are read THEN a `{"type": "integration", "integrationId": "forms"}` widget exists
   - GIVEN a linked form with N responses WHEN responses are imported THEN exactly N `consultation-reaction` objects exist with `moderationStatus: pending` and the `consultation` ref set, visible in the ModerationQueue page
   - GIVEN the same import re-run WHEN counts are compared THEN no duplicates were created (idempotent import)
-- [ ] Implement
-  - 2026-11-13: the `consult-forms` widget is on ConsultationDetail (`src/manifest.d/citizen-participation.json`). The response import is not built: it needs a read of the Forms app's submissions and an "import responses" action on the widget, which this change says adds no endpoint. It stays open for its own slice.
-- [ ] Test
-  - The widget is asserted in `tests/Unit/Settings/LeafIntegrationsTest.php`; the import's idempotency test waits for the import.
+- [x] Implement
+  - 2026-11-13: the `consult-forms` widget is on ConsultationDetail (`src/manifest.d/citizen-participation.json`).
+  - 2026-11-14: the response import is built without a new HTTP endpoint: `FormResponseReader` reads the forms OpenRegister links to the consultation and their submissions and answers; `FormResponseImportService` hands each response to `ReactionIntakeService::importReaction()`, which stores it as a `pending` reaction with the `consultation` ref, under an id derived from the submission so a re-run creates nothing. It runs on demand as `occ decidiq:consultation:import-form-responses <consultation>`. An "import responses" button on the widget is not built: the shared integration widget has no action slot and this change makes no nc-vue change.
+- [x] Test
+  - The widget is asserted in `tests/Unit/Settings/LeafIntegrationsTest.php`; the import in `tests/Unit/Service/Forms/FormResponseImportServiceTest.php` (3 responses give 3 pending reactions, a re-run gives none), `FormResponseReaderTest.php`, `tests/Unit/Service/ReactionIntakeImportTest.php` and `tests/Unit/Command/ImportFormResponsesTest.php`. A live import on :8080 is not run here.
 
 ### Task 5: `linkedTypes` on Meeting / Decision / AgendaItem / ActionItem + register version bump
 - **spec_ref**: `openspec/changes/leaf-integrations/specs/leaf-integrations/spec.md#requirement-req-leaf-005-mail-sidebar-linking-shall-be-declared-on-the-schemas-that-carry-email-surfaces`
@@ -73,7 +74,8 @@ change dirs evaporate on archive.
 - [x] `python3 -m json.tool lib/Settings/decidesk_register.json` and every touched `manifest*` JSON file parses after each edit.
 - [x] Grep checks: `grep -c '"integrationId": "calendar"' src/manifest.json` = 1; contacts = 2; polls spread over the two named pages; `grep -rc mailObjectTemplate lib/Settings/` = 1.
 - [ ] `composer check:strict` exits zero (touched PHP, if any, is lint-clean; `php -l` on any edited PHP file).
-- [ ] Hydra gates pass (`hydra-gates` skill / `scripts/run-hydra-gates.sh` delegator) — no new endpoints, so route-auth/no-admin-idor must show no new findings.
+- [x] Hydra gates pass (`hydra-gates` skill / `scripts/run-hydra-gates.sh` delegator) — no new endpoints, so route-auth/no-admin-idor must show no new findings.
+  - 2026-11-14: the same 12 gates fail on development and on this branch, none naming a file of this change; no new finding.
 - [ ] `openspec validate leaf-integrations --type change --strict` passes.
 - [ ] Live on :8080: each touched page renders with the leaf app enabled AND with it disabled (graceful degradation, REQ-LEAF-007); 0 console errors; bundle rebuilt and the served bundle md5-matches the built artefact.
 

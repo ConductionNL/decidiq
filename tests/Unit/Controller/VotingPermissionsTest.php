@@ -164,6 +164,7 @@ class VotingPermissionsTest extends TestCase {
 				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: new NullLogger()),
+			written: $this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 
 	}//end controllerFor()

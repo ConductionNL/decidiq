@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Hvem som kan stemme",
+        "All members of the body": "Alle medlemmer av organet",
+        "Left out because they are no longer active members: {names}": "Utelatt fordi de ikke lenger er aktive medlemmer: {names}",
         "sign-off route": "godkjenningsløp",
         "#": "#",
         "+ Action item": "+ Oppgavepunkt",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Trinn {step} av {total}",
         "Still to do: stage {seq} ({maker})": "Gjenstår: fase {seq} ({maker})",
         "Stop": "Stopp",
-        "Store": "Lagre",
         "Subject description": "Beskrivelse av emne",
         "Submission phase": "Innsendingsfase",
         "Submission window (hours)": "Innsendingsvindu (timer)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ekstraordinært møte",
         "Committee meeting": "Komitémøte",
         "Public hearing": "Offentlig høring",
-        "General assembly": "Generalforsamling"
+        "General assembly": "Generalforsamling",
+        "Members' ancillary positions": "Medlemmenes bierverv"
     },
     "nplurals=2; plural=(n != 1);"
 )

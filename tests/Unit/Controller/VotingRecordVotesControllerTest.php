@@ -30,6 +30,7 @@ use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUser;
@@ -82,6 +83,7 @@ class VotingRecordVotesControllerTest extends TestCase {
 			openHandler: $this->createMock(VotingOpenRequestHandlerInterface::class),
 			proxyService: $this->createMock(ProxyDelegationServiceInterface::class),
 			errors: $this->createMock(VotingErrorResponderInterface::class),
+			written: $this->createMock(WrittenRoundServiceInterface::class),
 		);
 	}//end controller()
 

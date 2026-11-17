@@ -134,6 +134,7 @@ final class VotingCastGoldenTest extends TestCase {
 			$this->createMock(VotingOpenRequestHandler::class),
 			$this->createMock(ProxyDelegationService::class),
 			new VotingErrorResponder($this->createMock(LoggerInterface::class)),
+			$this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 		$response = $controller->cast('r-1');
 		return [$response->getStatus(), $response->getData(), $this->casts];

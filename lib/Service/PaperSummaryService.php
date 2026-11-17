@@ -36,6 +36,8 @@ use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Kernel\Contracts\PaperSummaryServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\TaskProcessing\IManager;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
@@ -169,9 +171,10 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 		$record += ['status' => 'requested', 'taskId' => $task->getId(), 'chunked' => $chunked];
 		$saved = $this->objectService->saveObject(
 			object: $record,
-			register: 'decidiq',
-			schema: 'paper-summary',
-			uuid: $uuid,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'paper-summary'),
+				uuid: $uuid
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kimler oy kullanabilir",
+        "All members of the body": "Organın tüm üyeleri",
+        "Left out because they are no longer active members: {names}": "Artık aktif üye olmadıkları için dışarıda bırakıldı: {names}",
         "sign-off route": "onay akışı",
         "#": "#",
         "+ Action item": "+ Eylem maddesi",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Adım {step} / {total}",
         "Still to do: stage {seq} ({maker})": "Yapılacak: aşama {seq} ({maker})",
         "Stop": "Durdur",
-        "Store": "Sakla",
         "Subject description": "Konu açıklaması",
         "Submission phase": "Gönderim aşaması",
         "Submission window (hours)": "Gönderim penceresi (saat)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Olağanüstü toplantı",
         "Committee meeting": "Komite toplantısı",
         "Public hearing": "Kamuya açık oturum",
-        "General assembly": "Genel kurul"
+        "General assembly": "Genel kurul",
+        "Members' ancillary positions": "Üyelerin yan görevleri"
     },
     "nplurals=2; plural=(n != 1);"
 )

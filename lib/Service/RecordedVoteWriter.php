@@ -26,6 +26,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\RecordedVotesRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -117,7 +120,10 @@ class RecordedVoteWriter {
 			$vote['entryMode'] = 'recorded';
 			$vote['recordedBy'] = $recordedBy;
 			$vote['castAt'] = $castAt;
-			$this->objectService->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
+			$this->objectService->saveObject(
+				object: $vote,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'vote'))
+			);
 		}
 
 		return ['votingRoundId' => $votingRoundId, 'recorded' => count($choices)];
@@ -134,7 +140,10 @@ class RecordedVoteWriter {
 	 */
 	private function openRollCall(string $votingRoundId): array {
 		try {
-			$entity = $this->objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+			$entity = $this->objectService->find(
+				id: $votingRoundId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round')
+			);
 		} catch (Throwable) {
 			$entity = null;
 		}

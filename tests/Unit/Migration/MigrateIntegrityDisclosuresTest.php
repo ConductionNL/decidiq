@@ -24,6 +24,7 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The rename of ancillary positions and gifts, and the fold of the integrity policy.
@@ -424,7 +425,10 @@ class MigrateIntegrityDisclosuresTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(string $register, string $schema, array $object, ?string $uuid = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$id = ($uuid ?? ('new-' . $schema . '-' . (count($this->saves) + 1)));
 				$this->saves[] = [$schema, $object, $id];
 

@@ -39,6 +39,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * POST /api/voting-rounds with forged bodies: a chair of meeting A must not
@@ -312,6 +313,7 @@ class VotingOpenSubjectScopeTest extends TestCase {
 				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: $logger),
+			written: $this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 
 	}//end controller()
@@ -340,7 +342,9 @@ class VotingOpenSubjectScopeTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, mixed $register = null, mixed $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (str_ends_with((string)$id, '-boom') === true) {
 					throw new RuntimeException('lookup failed');
 				}

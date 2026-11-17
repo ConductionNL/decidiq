@@ -33,6 +33,8 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -212,9 +214,10 @@ class MotionLifecycleTransitioner {
 
 		$this->objectService->saveObject(
 			object: array_merge($payload, ['lifecycle' => $newState, 'status' => $newState]),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $objectId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $objectId
+			)
 		);
 
 		$this->logger->info(

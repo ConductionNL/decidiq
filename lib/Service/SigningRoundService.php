@@ -34,6 +34,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 
@@ -125,7 +128,7 @@ class SigningRoundService implements SigningRoundServiceInterface {
 			return ['success' => false, 'message' => 'This record cannot be sent for signature.'];
 		}
 
-		$entity = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $subjectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return ['success' => false, 'message' => 'The record was not found.'];
 		}
@@ -149,9 +152,10 @@ class SigningRoundService implements SigningRoundServiceInterface {
 					'signingStatus' => 'sent',
 				]
 			),
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $subjectId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: $schema),
+				uuid: $subjectId
+			)
 		);
 
 		return [
@@ -179,7 +183,7 @@ class SigningRoundService implements SigningRoundServiceInterface {
 			return ['status' => 'failed', 'message' => 'This record cannot be sent for signature.'];
 		}
 
-		$entity = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $subjectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return ['status' => 'failed', 'message' => 'The record was not found.'];
 		}
@@ -239,9 +243,10 @@ class SigningRoundService implements SigningRoundServiceInterface {
 		if ($result['status'] === 'failed') {
 			$this->objectService->saveObject(
 				object: array_merge($data, ['signingStatus' => 'failed']),
-				register: 'decidiq',
-				schema: $schema,
-				uuid: $subjectId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: $schema),
+					uuid: $subjectId
+				)
 			);
 			return ['status' => 'failed', 'message' => $result['message']];
 		}
@@ -265,9 +270,10 @@ class SigningRoundService implements SigningRoundServiceInterface {
 					'signedAt' => $now,
 				]
 			),
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $subjectId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: $schema),
+				uuid: $subjectId
+			)
 		);
 
 		return ['status' => 'signed', 'message' => 'The signed copy is stored.', 'signedCopy' => $fileName];

@@ -29,6 +29,9 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the approval-route engine.
@@ -393,13 +396,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				// saveObject returns an ENTITY, not an array. The store already
@@ -415,12 +416,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);
@@ -435,13 +435,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -1031,4 +1029,114 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('approvalBasis', $this->stages()[0]);
 	}
 
+
+	/**
+	 * Seed an approval action row straight into the fake, as a stored row.
+	 *
+	 * @param string               $uuid The row's uuid.
+	 * @param array<string, mixed> $row  The row.
+	 *
+	 * @return void
+	 */
+	private function seedAction(string $uuid, array $row): void {
+		$this->objectService->rows['approval-action'][$uuid] = ($row + ['id' => $uuid]);
+	}
+
+	/**
+	 * Every recorded act carries the state it ends in, so none reads as open.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testARecordedActCarriesItsTerminalState(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
+
+		$states = array_map(
+			static fn (array $a): string => (string)$a['action'] . ':' . (string)$a['state'],
+			array_values($this->objectService->rows['approval-action'])
+		);
+		$this->assertSame(['advised:granted', 'endorsed:granted', 'returned:refused'], $states);
+	}
+
+	/**
+	 * An open mandatory approval assigned to somebody else holds the step, and
+	 * the refusal names it; nothing is written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$before = $this->statuses();
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+			$this->fail('An open mandatory approval must hold the step.');
+		} catch (RuntimeException $e) {
+			$this->assertSame('This subject is waiting on an approval: j.jansen at step 1.', $e->getMessage());
+		}
+
+		$this->assertSame($before, $this->statuses(), 'A refused advance changes no stage.');
+		$this->assertSame(['open-1'], array_keys($this->objectService->rows['approval-action']), 'A refused advance records no action.');
+	}
+
+	/**
+	 * The actor's own open approval does not hold them up; their act ends it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testTheActorsOwnOpenApprovalIsEndedByTheirAct(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'bob']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+		$this->assertSame('granted', $this->objectService->rows['approval-action']['open-1']['state']);
+	}
+
+	/**
+	 * Open approvals on another step, on an optional step, or rows that record
+	 * an act but still read `open` (stored before the state was written) never
+	 * hold the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(thirdMandatory: false), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'legacy', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => 'x', 'action' => 'advised', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'other-subject', row: ['subject' => 'subj-2', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+			$this->fail('The open approval on step 2 must hold step 2.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('j.jansen at step 2', $e->getMessage());
+		}
+
+		// An optional step is never held: skipping it is already allowed.
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => 'alice', 'action' => 'endorsed', 'state' => 'granted']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$this->seedAction(uuid: 'optional', row: ['subject' => 'subj-1', 'step' => 3, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
+		$this->assertSame(['decided', 'decided', 'skipped'], $this->statuses());
+	}
 }

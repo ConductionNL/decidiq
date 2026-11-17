@@ -11,7 +11,7 @@
   - Verification: `RegisterJsonTest` case written red first, then green
 - [x] Implement
 - [x] Test
-  > Fragment `lib/Settings/register.d/132-named-paper-vote-entry.json` (VotingRound 0.6.0, Vote 0.4.0); the municipality set carries the roll call and its three recorded votes (objectCount 232). Test: `tests/Unit/NamedPaperVoteRegisterTest.php`.
+  > Fragment `lib/Settings/register.d/132-named-paper-vote-entry.json` (VotingRound 0.7.0, Vote 0.5.0, moved past development's written-resolution and ori-adoption versions); the municipality set carries the roll call and its three recorded votes. Test: `tests/Unit/NamedPaperVoteRegisterTest.php`.
 
 ### Task 2: Record named votes on a roll call round
 

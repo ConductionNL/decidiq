@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Quién puede votar",
+        "All members of the body": "Todos los miembros del órgano",
+        "Left out because they are no longer active members: {names}": "Excluidos porque ya no son miembros activos: {names}",
         "sign-off route": "circuito de aprobación",
         "#": "#",
         "+ Action item": "+ Punto de acción",
@@ -2704,7 +2707,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Paso {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Pendiente: etapa {seq} ({maker})",
         "Stop": "Detener",
-        "Store": "Guardar",
         "Subject description": "Descripción del asunto",
         "Submission phase": "Fase de presentación",
         "Submission window (hours)": "Plazo de presentación (horas)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Reunión extraordinaria",
         "Committee meeting": "Reunión de comisión",
         "Public hearing": "Audiencia pública",
-        "General assembly": "Asamblea general"
+        "General assembly": "Asamblea general",
+        "Members' ancillary positions": "Cargos complementarios de los miembros"
     },
     "nplurals=2; plural=(n != 1);"
 )

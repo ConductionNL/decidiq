@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Ко може да гласа",
+        "All members of the body": "Сви чланови тела",
+        "Left out because they are no longer active members: {names}": "Изостављени јер више нису активни чланови: {names}",
         "sign-off route": "tok odobrenja",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d против, %3$d уздржано",
@@ -2097,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Преостаје: фаза {seq} ({maker})",
         "Stop": "Заустави",
         "Stop {name}": "Заустави {name}",
-        "Store": "Сачувај",
         "Sub-item title": "Наслов подтачке",
         "Sub-item: {title}": "Подтачка: {title}",
         "Sub-items of {title}": "Подтачке за {title}",
@@ -3321,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ванредна седница",
         "Committee meeting": "Седница одбора",
         "Public hearing": "Јавна расправа",
-        "General assembly": "Скупштина чланова"
+        "General assembly": "Скупштина чланова",
+        "Members' ancillary positions": "Споредне функције чланова"
     },
     "nplurals=2; plural=(n != 1);"
 )

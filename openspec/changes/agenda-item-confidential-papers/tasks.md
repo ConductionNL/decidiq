@@ -19,14 +19,16 @@
   - matches the board's Kerngegevens and Stukken
 - [ ] Implement
 - [ ] Test (red first): vitest on the page config
+- Note: the Stukken badge is built: `DocumentMetadataTab` shows "Openbaar" or "Besloten" per paper from its record (`src/utils/paperPublicity.js`, `tests/vitest/paperPublicity.spec.js`). Kerngegevens shows `public` through the page's generic data widget, which renders every schema field. Left: the "Alleen voor leden van {orgaan}" line with "Lezers toevoegen" for the secretariat, and "Besloten punt" with only the number for readers who may not read the item (that one depends on the read rules of task 1).
 
 ### Task 3: Inheritance and restriction listener
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public`, `#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item`
 - **files**: `lib/Listener/AgendaItemConfidentialityListener.php` (new), `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - the test constructs the real OpenRegister object events, not fakes
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- Note: before-save on `digital-document` (SaveGuardSubscriptions) closes a paper saved onto a non-public item; after-save on `agenda-item` closes the item's public papers; after-save on `confidentiality-restriction` closes the item when scope `item` reaches `imposed` (lifting changes nothing). Writes run with `_rbac: false`: closing is an invariant, not the saver's right.
 
 ### Task 4: Pack and publication leave the item out
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site`
@@ -39,6 +41,7 @@
 - **files**: the paper download path (`lib/Controller/` that serves meeting papers), `lib/Service/AuditLogService.php`
 - [ ] Implement
 - [ ] Test (red first)
+- Note: decidiq has no paper download path to hook: the Documents widget and DocumentMetadataTab read papers through OpenRegister's object file endpoints and Nextcloud Files, so a read never passes decidiq PHP. Logging each read of a closed paper belongs where the file is served (an OpenRegister read audit on object files), then shown on the item's History tab, which already renders OpenRegister's audit trail.
 
 ## Verification
 

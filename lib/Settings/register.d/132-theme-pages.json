@@ -1,0 +1,201 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment (list values concatenate on merge, so an enum here names only the value it adds), change publication-theme-pages (REQ-THP-001, REQ-THP-003, matrix row pub-20). A theme (slug governance-theme: the plain slug theme is global on a shared OpenRegister and thematiq owns theming) gathers the meetings, agenda items, decisions, commitments and long-term agenda items of one long-running topic. Publishing it writes a payload whose timeline holds only the linked items that are published themselves.",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"governance-theme"
+				]
+			}
+		},
+		"schemas": {
+			"GovernanceTheme": {
+				"slug": "governance-theme",
+				"icon": "BookOpenPageVariantOutline",
+				"version": "1.0.0",
+				"title": "Theme",
+				"description": "A long-running topic, such as a new swimming pool, with everything that belongs to it.",
+				"type": "object",
+				"x-openregister": {
+					"schemaType": "schema:CreativeWork",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true
+				},
+				"required": [
+					"title",
+					"introduction"
+				],
+				"properties": {
+					"title": {
+						"title": "Title",
+						"type": "string",
+						"description": "The topic, as residents know it."
+					},
+					"introduction": {
+						"title": "Introduction",
+						"type": "string",
+						"format": "markdown",
+						"description": "What the topic is about and what happens next."
+					},
+					"blocks": {
+						"title": "Text blocks",
+						"type": "array",
+						"description": "Further text, each block with a heading.",
+						"items": {
+							"type": "object",
+							"properties": {
+								"heading": {
+									"type": "string",
+									"title": "Heading"
+								},
+								"body": {
+									"type": "string",
+									"format": "markdown",
+									"title": "Text"
+								}
+							}
+						}
+					},
+					"status": {
+						"title": "Status",
+						"type": "string",
+						"enum": [
+							"active",
+							"concluded"
+						],
+						"default": "active",
+						"facetable": true,
+						"description": "An active theme is kept current; a concluded one is no longer refreshed."
+					},
+					"governanceBody": {
+						"title": "Responsible body",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "governance-body",
+						"facetable": true,
+						"description": "The body responsible for the topic. Its catalog receives the published theme."
+					},
+					"portfolioHolder": {
+						"title": "Portfolio holder",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "person",
+						"description": "The executive member responsible for the topic."
+					},
+					"meetings": {
+						"title": "Meetings",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "meeting"
+						},
+						"description": "The meetings that discussed the topic."
+					},
+					"agendaItems": {
+						"title": "Agenda items",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "agenda-item"
+						},
+						"description": "The agenda items on the topic."
+					},
+					"decisions": {
+						"title": "Decisions and motions",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "decision"
+						},
+						"description": "The decisions and motions on the topic."
+					},
+					"commitments": {
+						"title": "Commitments",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "governance-commitment"
+						},
+						"description": "The commitments made on the topic."
+					},
+					"plannedAgendaItems": {
+						"title": "Long-term agenda",
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "uuid",
+							"$ref": "planned-agenda-item"
+						},
+						"description": "The long-term agenda items on the topic."
+					},
+					"isPublic": {
+						"title": "Public",
+						"type": "boolean",
+						"default": false,
+						"description": "Whether the theme may be published as a theme page."
+					}
+				}
+			},
+			"PublicationRecord": {
+				"slug": "publication-record",
+				"version": "0.4.0",
+				"properties": {
+					"sourceType": {
+						"title": "Source type",
+						"description": "The kind of governance output published, a calendar entry for a public meeting, or a theme page.",
+						"enum": [
+							"theme"
+						]
+					}
+				}
+			},
+			"PublicationPayload": {
+				"slug": "publication-payload",
+				"version": "0.4.0",
+				"properties": {
+					"documentType": {
+						"title": "Document type",
+						"description": "What was published: an agenda, a decision, minutes, a calendar entry or a theme page. Citizens filter on it.",
+						"enum": [
+							"theme"
+						]
+					},
+					"introduction": {
+						"title": "Introduction",
+						"type": "string",
+						"description": "A theme page's introduction."
+					},
+					"blocks": {
+						"title": "Text blocks",
+						"type": "array",
+						"description": "A theme page's further text blocks.",
+						"items": {
+							"type": "object"
+						}
+					},
+					"timeline": {
+						"title": "Timeline",
+						"type": "array",
+						"description": "A theme page's published items, oldest first, each with its date, kind, title and publication.",
+						"items": {
+							"type": "object"
+						}
+					},
+					"status": {
+						"title": "Status",
+						"type": "string",
+						"description": "Whether a theme is still active or concluded."
+					}
+				}
+			}
+		}
+	}
+}

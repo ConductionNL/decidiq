@@ -33,6 +33,9 @@ namespace OCA\Decidiq\Service;
 
 use DateTime;
 use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -127,7 +130,10 @@ class MailVoteReplyProcessor implements MailVoteReplyProcessorInterface {
 
 		// Persist mutations: write the updated _mail metadata back to OpenRegister.
 		$round['_mail'] = $entries;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 	}//end processRound()
 
@@ -261,7 +267,7 @@ class MailVoteReplyProcessor implements MailVoteReplyProcessorInterface {
 	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function findParticipant(object $objectService, string $participantId, string $roundId): ?array {
-		$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
+		$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		if ($entity !== null) {
 			return $entity->jsonSerialize();
 		}

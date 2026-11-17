@@ -54,9 +54,13 @@ describe('the portfolio holder of a decision', () => {
 	})
 
 	it('bumps the app version so the register is read in again', () => {
-		expect(read('appinfo', 'info.xml')).toContain(
-			'<version>1.2.6-unstable.20261020200000</version>',
-		)
+		// At least the version that brought this change: a later bump by
+		// another change must not turn this red.
+		const version = read('appinfo', 'info.xml').match(/<version>([^<]+)<\/version>/)[1]
+		const parts = (value) => value.match(/\d+/g).map(Number)
+		const [have, need] = [parts(version), parts('1.2.6-unstable.20261020200000')]
+		const order = need.map((n, i) => Math.sign((have[i] ?? 0) - n)).find((d) => d !== 0) ?? 0
+		expect(order, version).toBeGreaterThanOrEqual(0)
 	})
 
 	it('is the last of the board columns on the proposals list, by name', () => {
