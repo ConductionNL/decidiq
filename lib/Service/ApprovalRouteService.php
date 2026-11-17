@@ -82,6 +82,16 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	private readonly OpenApprovalGuard $openGuard;
 
 	/**
+	 * Applies an admissibility verdict on an intake stage.
+	 *
+	 * Built here for the same reason as the advancer: it needs only the store
+	 * and the advancer this class already holds.
+	 *
+	 * @var IntakeVerdictRecorder
+	 */
+	private readonly IntakeVerdictRecorder $intake;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
@@ -120,6 +130,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	) {
 		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
 		$this->openGuard = new OpenApprovalGuard();
+		$this->intake    = new IntakeVerdictRecorder(store: $store, advancer: $this->advancer);
 	}//end __construct()
 
 	/**
@@ -591,6 +602,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 			return $recorded;
 		}
 
+		if (IntakeVerdictRecorder::isIntakeStage(stage: $active) === true) {
+			return $this->recordVerdict(action: $action, stages: $stages, active: $active);
+		}
+
 		if (isset(ApprovalRouteAdvancer::COMPLETING_ACTIONS[$verb]) === false) {
 			throw new RuntimeException('Unknown action: ' . $verb);
 		}
@@ -611,6 +626,36 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 
 		return $recorded;
 	}//end record()
+
+	/**
+	 * Record an admissibility verdict on an intake stage (REQ-DWP-004).
+	 *
+	 * The verdict is validated before any write. `ontvankelijk` completes the
+	 * stage and the route walks on; `niet-ontvankelijk` closes the route with
+	 * `ended-at-intake`. The action row keeps the verdict as its verb and the
+	 * ground as its comment.
+	 *
+	 * @param array<string, mixed>             $action The action.
+	 * @param array<int, array<string, mixed>> $stages The subject's stages.
+	 * @param array<string, mixed>             $active The intake stage.
+	 *
+	 * @return array<string, mixed> The recorded action.
+	 *
+	 * @throws RuntimeException When the verdict is refused.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	private function recordVerdict(array $action, array $stages, array $active): array {
+		$verdict  = $this->intake->conclude(action: $action, stages: $stages, active: $active);
+		if (trim((string)($action['comment'] ?? '')) === '') {
+			$action['comment'] = $verdict['ground'];
+		}
+
+		$recorded = $this->appendAction(action: $action, stage: $active);
+		$this->projectTasks(subject: (string)$action['subject']);
+
+		return $recorded;
+	}//end recordVerdict()
 
 
 	/**
