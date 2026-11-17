@@ -28,8 +28,17 @@ const SESSIONS = ['Commissie Ruimte', 'Commissie Bestuur', 'Commissie Samenlevin
  * @return The widget.
  */
 async function openMeeting(page, title: string) {
-	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
-	await page.getByText(title, { exact: true }).first().click()
+	// The evening is in the past once 3 November has gone by, and the meetings
+	// index lists upcoming meetings, so the meeting is opened by its id.
+	const response = await page.request.get(
+		`${BASE}/index.php/apps/openregister/api/objects/decidiq/meeting?_limit=200`,
+		{ headers: { 'OCS-APIREQUEST': 'true' } },
+	)
+	expect(response.ok()).toBe(true)
+	const body = await response.json()
+	const meeting = (body.results ?? body).find((m) => m.title === title)
+	expect(meeting, `the example set has no meeting "${title}"`).toBeTruthy()
+	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${meeting.id ?? meeting['@self']?.id}`)
 	const widget = page.getByTestId('meeting-sessions')
 	await expect(widget).toBeVisible()
 	return widget

@@ -95,6 +95,9 @@ final class OpenApprovalGuard {
 		'lapsed' => self::STATE_GRANTED,
 		'rejected' => self::STATE_REFUSED,
 		'returned' => self::STATE_REFUSED,
+		// An admissibility verdict on an intake step (REQ-DWP-004).
+		'ontvankelijk' => self::STATE_GRANTED,
+		'niet-ontvankelijk' => self::STATE_REFUSED,
 	];
 
 	/**

@@ -255,34 +255,67 @@ final class ApprovalRouteAdvancer {
 			$status = 'skipped';
 		}
 
+		$this->completeWithOutcome(stages: $stages, active: $active, outcome: self::COMPLETING_ACTIONS[$verb], status: $status);
+	}//end completeAndAdvance()
+
+	/**
+	 * Complete the addressed stage with a given outcome and advance the route.
+	 *
+	 * The same walk as `completeAndAdvance()`, for a stage whose outcome is not
+	 * an approval verb: an intake step completes with its admissibility verdict.
+	 *
+	 * @param array<int, array<string, mixed>> $stages  All stages, in order.
+	 * @param array<string, mixed>             $active  The addressed stage.
+	 * @param string                           $outcome The outcome the stage records.
+	 * @param string                           $status  The status it ends in.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function completeWithOutcome(array $stages, array $active, string $outcome, string $status = 'decided'): void {
 		$this->store->patch(
 			schema: 'decision-stage',
 			data: [
 				'status' => $status,
-				'outcome' => self::COMPLETING_ACTIONS[$verb],
+				'outcome' => $outcome,
 				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
 			],
 			uuid: (string)$active['id'],
 		);
 
-		$sequence = (int)$active['sequence'];
 		if ($this->groupStillSigning(stages: $stages, active: $active) === true) {
 			// A parallel sibling is still signing; the group is not done.
 			return;
 		}
 
-		$nextSequence = $this->nextPendingSequence(stages: $stages, after: $sequence);
+		$nextSequence = $this->nextPendingSequence(stages: $stages, after: (int)$active['sequence']);
 		if ($nextSequence === null) {
 			return;
 		}
 
+		$this->activateSequence(stages: $stages, active: $active, sequence: $nextSequence);
+	}//end completeWithOutcome()
+
+	/**
+	 * Make the pending stages of one sequence live.
+	 *
+	 * @param array<int, array<string, mixed>> $stages   All stages, in order.
+	 * @param array<string, mixed>             $active   The stage that just completed.
+	 * @param int                              $sequence The sequence to activate.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
+	 */
+	private function activateSequence(array $stages, array $active, int $sequence): void {
 		$owner = $this->ownerOf(
 			subject: (string)($active['decision'] ?? ''),
 			subjectSchema: (string)($active['note'] ?? ''),
 		);
 
 		foreach ($stages as $stage) {
-			if ((int)$stage['sequence'] === $nextSequence && (string)($stage['status'] ?? '') === 'pending') {
+			if ((int)$stage['sequence'] === $sequence && (string)($stage['status'] ?? '') === 'pending') {
 				// The rule on this step resolves NOW, against today's
 				// organisation record, not against the one the route started
 				// under. That is the whole reason the rule travelled onto the
@@ -291,7 +324,7 @@ final class ApprovalRouteAdvancer {
 				$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
 			}
 		}
-	}//end completeAndAdvance()
+	}//end activateSequence()
 
 	/**
 	 * Conclude the route back to its sender.
@@ -311,23 +344,39 @@ final class ApprovalRouteAdvancer {
 	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function applyTerminalReturn(array $stages, array $active): void {
+		$this->concludeWithOutcome(stages: $stages, active: $active, outcome: 'returned');
+	}//end applyTerminalReturn()
+
+	/**
+	 * Close the route at the addressed stage with a given outcome.
+	 *
+	 * The addressed stage records the outcome; every other stage still active
+	 * or pending goes back to `pending` with its outcome cleared, so no stage
+	 * is left active and no later step becomes live. A return to the sender
+	 * closes with `returned`, an inadmissible intake with `ended-at-intake`.
+	 *
+	 * @param array<int, array<string, mixed>> $stages  All stages, in order.
+	 * @param array<string, mixed>             $active  The stage the route ends at.
+	 * @param string                           $outcome The outcome it records.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function concludeWithOutcome(array $stages, array $active, string $outcome): void {
 		$this->store->patch(
 			schema: 'decision-stage',
 			data: [
 				'status' => 'decided',
-				'outcome' => 'returned',
+				'outcome' => $outcome,
 				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
 			],
 			uuid: (string)$active['id'],
 		);
 
 		foreach ($stages as $stage) {
-			if ((string)$stage['id'] === (string)$active['id']) {
-				continue;
-			}
-
 			$status = (string)($stage['status'] ?? '');
-			if ($status !== 'active' && $status !== 'pending') {
+			if ((string)$stage['id'] === (string)$active['id'] || ($status !== 'active' && $status !== 'pending')) {
 				continue;
 			}
 
@@ -337,7 +386,7 @@ final class ApprovalRouteAdvancer {
 				uuid: (string)$stage['id'],
 			);
 		}
-	}//end applyTerminalReturn()
+	}//end concludeWithOutcome()
 
 	/**
 	 * Re-open an earlier stage and reset everything after it.
