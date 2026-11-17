@@ -30,6 +30,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * The activity entry and participant notices sent when a vote opens.
@@ -183,7 +184,13 @@ class VotingOpenedNotifierTest extends TestCase {
 			->willReturn(1);
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('motion-1', [], false, 'decidiq', 'motion')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'motion-1',
+					'_extend' => [],
+					'files' => false,
+					'register' => 'decidiq',
+					'schema' => 'motion',
+				]))
 			->willReturn($this->entity(['title' => 'Motie A']));
 		$this->participantResolver->method('resolveMeetingParticipants')->with('meeting-1')->willReturn(
 			[
@@ -227,7 +234,13 @@ class VotingOpenedNotifierTest extends TestCase {
 			->willReturn(1);
 		$this->objectService->expects($this->once())
 			->method('find')
-			->with('amend-1', [], false, 'decidiq', 'amendment')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+					'id' => 'amend-1',
+					'_extend' => [],
+					'files' => false,
+					'register' => 'decidiq',
+					'schema' => 'amendment',
+				]))
 			->willReturn($this->entity([]));
 		$this->participantResolver->method('resolveMeetingParticipants')->willReturn([['nextcloudUserId' => 'alice']]);
 		$calls = $this->captureDispatches();

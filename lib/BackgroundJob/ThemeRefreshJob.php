@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
-use OCA\Decidiq\Service\ThemeRefreshService;
+use OCA\Decidiq\Kernel\Contracts\ThemeRefreshServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -50,13 +50,13 @@ class ThemeRefreshJob extends TimedJob {
 	 * Construct the job and set its daily interval.
 	 *
 	 * @param ITimeFactory                      $time    Time factory for the TimedJob base.
-	 * @param ThemeRefreshService               $refresh The refresh.
+	 * @param ThemeRefreshServiceInterface      $refresh The refresh.
 	 * @param SystemWhenNobodySignedInInterface $system  Runs the refresh as the system in the background.
 	 * @param LoggerInterface                   $logger  Logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly ThemeRefreshService $refresh,
+		private readonly ThemeRefreshServiceInterface $refresh,
 		private readonly SystemWhenNobodySignedInInterface $system,
 		private readonly LoggerInterface $logger,
 	) {

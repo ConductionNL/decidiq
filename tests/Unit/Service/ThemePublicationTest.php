@@ -33,6 +33,7 @@ use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * A theme publishes only when it is public and something in it is published.
@@ -74,7 +75,11 @@ class ThemePublicationTest extends TestCase {
 	private function eligibility(array $theme): PublicationEligibilityService {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($theme): ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($theme): ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->loadedSchema = $schema;
 				$entity = $this->createMock(ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($theme);

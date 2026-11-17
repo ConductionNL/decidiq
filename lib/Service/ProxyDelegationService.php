@@ -35,6 +35,9 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use OCP\Notification\IManager;
@@ -129,7 +132,7 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 
 		// Store proxy as a structured note on the VotingRound. Without the round
 		// the held proxies cannot be counted, so the grant is refused.
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		if ($roundEntity === null) {
 			throw new RuntimeException("VotingRound {$votingRoundId} not found");
 		}
@@ -148,7 +151,10 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 			'body' => json_encode($proxyRecord),
 		];
 		$round['notes'] = $notes;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		if ($toParticipant !== null) {
 			$this->notifyDelegate(
@@ -174,7 +180,7 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
 	 */
 	private function eligibleDelegate(object $objectService, string $toParticipantId): ?array {
-		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidiq', schema: 'participant');
+		$toParticipantEntity = $objectService->find(id: $toParticipantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		if ($toParticipantEntity === null) {
 			return null;
 		}
@@ -319,7 +325,7 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 	 */
 	public function revokeProxy(string $votingRoundId, string $fromParticipantId): void {
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -349,7 +355,10 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 		);
 
 		$round['notes'] = $filtered;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 	}//end revokeProxy()
 

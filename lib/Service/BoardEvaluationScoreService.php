@@ -35,6 +35,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationScoreServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -180,7 +183,7 @@ class BoardEvaluationScoreService implements BoardEvaluationScoreServiceInterfac
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -243,7 +246,10 @@ class BoardEvaluationScoreService implements BoardEvaluationScoreServiceInterfac
 			$evaluation['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$evaluation['respondedCount'] = $summary['respondentCount'];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+			$saved = $objectService->saveObject(
+				object: $evaluation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+			);
 
 			return [
 				'success' => true,

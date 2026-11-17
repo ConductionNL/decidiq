@@ -81,6 +81,12 @@
 				}}</span>
 				<span class="speaker-queue__name">{{ entry.displayName }}</span>
 				<span
+					v-if="isPublicSpeaker(entry)"
+					class="speaker-queue__public-tag"
+					data-testid="speaker-queue-public-speaker">
+					{{ t('decidiq', 'Public speaker') }}
+				</span>
+				<span
 					class="speaker-queue__elapsed"
 					:class="{
 						'speaker-queue__elapsed--over':
@@ -141,7 +147,36 @@
 						@click="move(entry.participantId, 1)">
 						↓
 					</NcButton>
+					<template v-if="isPublicSpeaker(entry) && markOutcome">
+						<NcButton
+							size="small"
+							variant="secondary"
+							data-testid="speaker-queue-spoke"
+							:disabled="outcomeBusy === entry.participantId"
+							:aria-label="
+								t('decidiq', 'Mark {name} as spoken', {
+									name: entry.displayName,
+								})
+							"
+							@click="recordOutcome(entry, 'spoke')">
+							{{ t('decidiq', 'Spoke') }}
+						</NcButton>
+						<NcButton
+							size="small"
+							variant="secondary"
+							data-testid="speaker-queue-no-show"
+							:disabled="outcomeBusy === entry.participantId"
+							:aria-label="
+								t('decidiq', 'Mark {name} as no-show', {
+									name: entry.displayName,
+								})
+							"
+							@click="recordOutcome(entry, 'no-show')">
+							{{ t('decidiq', 'No-show') }}
+						</NcButton>
+					</template>
 					<NcButton
+						v-if="!isPublicSpeaker(entry)"
 						size="small"
 						variant="secondary"
 						data-testid="speaker-queue-question"
@@ -170,6 +205,13 @@
 		</ol>
 		<p v-else class="speaker-queue__empty" data-testid="speaker-queue-empty">
 			{{ t('decidiq', 'No speakers in the queue.') }}
+		</p>
+		<p
+			v-if="outcomeError"
+			class="speaker-queue__error"
+			role="alert"
+			data-testid="speaker-queue-outcome-error">
+			{{ outcomeError }}
 		</p>
 
 		<div
@@ -212,6 +254,7 @@ import {
 	startSpeaker,
 	stopSpeaker,
 } from '../../utils/speakerQueue.js'
+import { entryLimitSeconds, isPublicSpeaker, preloadSpeakers } from '../../utils/speakingRequests.js'
 
 /**
  * @spec openspec/specs/meeting-efficiency/spec.md
@@ -228,6 +271,13 @@ export default {
 		currentItemId: { type: String, default: null },
 		participants: { type: Array, default: () => [] },
 		isChair: { type: Boolean, default: false },
+		// Approved public speakers of an agenda item, `{ itemId, entries }`
+		// (inspreekrecht-plenair REQ-INS-009). Placed once, when the item is
+		// current, ahead of the chair's own entries; the chair's edits win after.
+		preload: { type: Object, default: null },
+		// Records a public speaker's outcome: `(requestId, 'spoke'|'no-show') => Promise`.
+		// Absent, the spoke/no-show buttons are not shown.
+		markOutcome: { type: Function, default: null },
 	},
 
 	data() {
@@ -240,6 +290,11 @@ export default {
 			// This meeting's engagement records, for the contributions on
 			// the current item (live-meeting-shared-current-item).
 			records: [],
+			// The agenda item whose public speakers were last placed.
+			preloadedFor: null,
+			// The entry whose outcome is being recorded.
+			outcomeBusy: null,
+			outcomeError: '',
 		}
 	},
 
@@ -285,6 +340,20 @@ export default {
 
 			immediate: true,
 		},
+
+		/**
+		 * Place an item's approved public speakers once it is current.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		preload: {
+			/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back */
+			handler() {
+				this.applyPreload()
+			},
+
+			immediate: true,
+		},
 	},
 
 	/** @spec exclude lifecycle hook; starts the 1s render tick only */
@@ -300,6 +369,44 @@ export default {
 	},
 
 	methods: {
+		isPublicSpeaker,
+
+		/**
+		 * Put the preloaded public speakers in the queue, once per agenda item.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		applyPreload() {
+			const preload = this.preload
+			if (!preload || !preload.itemId || preload.itemId !== this.currentItemId) return
+			if (this.preloadedFor === preload.itemId) return
+			this.preloadedFor = preload.itemId
+			this.queue = preloadSpeakers(this.queue, preload.entries)
+		},
+
+		/**
+		 * Record that a public speaker spoke or did not show up; on success the
+		 * entry leaves the queue. Removing an entry with ✕ records nothing.
+		 *
+		 * @param {object} entry The public speaker's queue entry.
+		 * @param {'spoke'|'no-show'} outcome The outcome.
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		async recordOutcome(entry, outcome) {
+			if (!this.markOutcome || !entry?.requestId) return
+			this.outcomeBusy = entry.participantId
+			this.outcomeError = ''
+			try {
+				if (entry.speaking) this.stop()
+				await this.markOutcome(entry.requestId, outcome)
+				this.queue = removeSpeaker(this.queue, entry.participantId)
+			} catch (e) {
+				this.outcomeError = e?.response?.data?.message || this.t('decidiq', 'The outcome could not be saved.')
+			} finally {
+				this.outcomeBusy = null
+			}
+		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		addSelected() {
 			if (!this.selectedParticipant) return
@@ -365,7 +472,7 @@ export default {
 		 * @spec openspec/specs/meeting-efficiency/spec.md
 		 */
 		overLimit(entry) {
-			return isOverLimit(entry, this.limitSeconds, this.now)
+			return isOverLimit(entry, entryLimitSeconds(entry, this.limitSeconds), this.now)
 		},
 
 		/**
@@ -403,6 +510,9 @@ export default {
 		 */
 		async recordSpeech(stopped) {
 			if (!stopped || stopped.durationSeconds <= 0) return
+			// A public speaker is not a participant: the speaking request's
+			// outcome records it (REQ-INS-009), not an engagement record.
+			if (isPublicSpeaker({ participantId: stopped.participantId })) return
 			try {
 				await this.postEngagement({
 					participant: stopped.participantId,
@@ -549,6 +659,17 @@ export default {
 
 .speaker-queue__name {
 	flex: 1;
+}
+
+.speaker-queue__public-tag {
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius-pill);
+	padding: 0 8px;
+	font-size: 0.9em;
+}
+
+.speaker-queue__error {
+	color: var(--color-error-text);
 }
 
 .speaker-queue__elapsed {
