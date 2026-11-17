@@ -1,0 +1,25 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process, tasks 4.2 and 4.3. An intake step is acted on with an admissibility verdict, not a sign-off, and the verdict is recorded as the action's verb. Fragments union list values, so this ADDS the two verdicts to the action enum rather than replacing it. Without them the action row of a verdict fails validation and the verdict leaves no trace (REQ-DWP-004).",
+  "components": {
+    "schemas": {
+      "ApprovalAction": {
+        "slug": "approval-action",
+        "version": "1.3.0",
+        "description": "Patched by the-decision-as-a-walked-process: an admissibility verdict on an intake step is an action like any other.",
+        "properties": {
+          "action": {
+            "title": "Action",
+            "enum": [
+              "ontvankelijk",
+              "niet-ontvankelijk"
+            ],
+            "description": "Widened with the two admissibility verdicts an intake step yields. `niet-ontvankelijk` closes the route with outcome `ended-at-intake`; its ground is kept as the action's comment (REQ-DWP-004)."
+          }
+        }
+      }
+    }
+  }
+}
