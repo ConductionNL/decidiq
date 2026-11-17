@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
+use OCA\Decidiq\Service\ApprovalFlowGateway;
+use OCA\Decidiq\Service\OpenRegisterApprovalFlowGateway;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -94,5 +96,10 @@ class OpenRegisterContractRegistrar {
 			RegisterSlugResolverInterface::class,
 			'OCA\OpenRegister\Service\RegisterSlugResolver'
 		);
+
+		// Approval routes run as OpenRegister flows
+		// (approval-routes-on-flow-user-tasks, REQ-ARF-002): the gateway over
+		// OpenRegister's flow services that stores a compiled route and runs it.
+		$context->registerServiceAlias(ApprovalFlowGateway::class, OpenRegisterApprovalFlowGateway::class);
 	}//end register()
 }//end class

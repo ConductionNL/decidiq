@@ -19,8 +19,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **files**: `lib/Service/ApprovalRouteService.php` (instantiate becomes a run start), `lib/Controller/ApprovalRouteController.php`, `src/dialogs/SendForApprovalDialog.vue` (from routes-send-proposal-along-route)
 - **acceptance_criteria**:
   - one run per send, decision as subject; a second send while open is refused naming the open step
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Service/ApprovalRouteServiceTest.php`
+- Built: `ApprovalRouteFlowStarter` compiles the route, has `ApprovalFlowGateway` store and publish it once per route version (`OpenRegisterApprovalFlowGateway` over OpenRegister's `FlowServiceInterface`, `FlowVersionService` and `FlowRunService::queueRun()`, with the decision as run subject), and records `approvalRun`, `approvalEngine: flow`, `approvalRouteStatus: running` and the first order on the decision. A second send while the route runs is refused naming the open step and its label. `ApprovalRouteController::instantiate()` sends a template route for a decision this way; an ad-hoc route, another subject and a decision that already has stages on the old engine keep the old path. The dialog's request is unchanged (the answer carries `run`). Tests: `ApprovalRouteFlowStarterTest` (5), `ApprovalRouteControllerFlowSendTest` (4).
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Service/ApprovalRouteServiceTest.php`
 
 ### Task 3: Outcomes, return and lapse in the compiled flow
 - **spec_ref**: `openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-003-each-step-is-a-task-and-its-outcome-moves-the-route`, `#requirement-req-arf-004-a-return-re-opens-an-earlier-step-and-keeps-the-earlier-outcome`, `#requirement-req-arf-005-a-steps-silence-has-the-outcome-the-route-declared-applied-once`
