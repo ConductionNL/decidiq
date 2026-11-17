@@ -142,4 +142,77 @@ class GoverningDocumentReleaseTest extends TestCase {
 
 		self::assertSame(['released' => [], 'overdue' => [], 'failed' => ['verordening']], $this->release->sweep());
 	}//end testAFailedSaveIsLoggedAndLeft()
+
+	/**
+	 * A document with no id, neither its own nor in @self, is skipped without a save.
+	 *
+	 * @return void
+	 */
+	public function testADocumentWithoutAnIdIsSkipped(): void {
+		$this->store->method('findAll')->willReturn([
+			['status' => 'adopted', 'plannedEffectiveDate' => '2027-01-01'],
+			['id' => '', '@self' => ['id' => ''], 'status' => 'adopted', 'plannedEffectiveDate' => '2026-12-01'],
+		]);
+		$this->store->expects(self::never())->method('patch');
+
+		self::assertSame(['released' => [], 'overdue' => [], 'failed' => []], $this->release->sweep());
+	}//end testADocumentWithoutAnIdIsSkipped()
+
+	/**
+	 * One run sorts every document into its own outcome, in the order the register returns them.
+	 *
+	 * @return void
+	 */
+	public function testOneRunSortsEachDocumentIntoItsOutcome(): void {
+		$this->store->method('findAll')->willReturn([
+			['id' => 'b', 'status' => 'adopted', 'plannedEffectiveDate' => '2026-11-30T10:00:00+00:00'],
+			['id' => 'future', 'status' => 'adopted', 'plannedEffectiveDate' => '2027-06-01'],
+			['id' => 'late', 'status' => 'in-preparation', 'plannedEffectiveDate' => '2026-10-01'],
+			['id' => 'a', 'status' => 'adopted', 'plannedEffectiveDate' => '2027-01-01'],
+			['id' => 'broken', 'status' => 'adopted', 'plannedEffectiveDate' => '2026-12-15'],
+		]);
+		$saved = [];
+		$this->store->expects(self::exactly(3))->method('patch')->willReturnCallback(
+			static function (string $schema, array $data, string $uuid) use (&$saved): array {
+				if ($uuid === 'broken') {
+					throw new RuntimeException('refused');
+				}
+
+				$saved[$uuid] = [$schema, $data];
+				return [];
+			}
+		);
+
+		self::assertSame(
+			['released' => ['b', 'a'], 'overdue' => ['late'], 'failed' => ['broken']],
+			$this->release->sweep()
+		);
+		self::assertSame(
+			[
+				'b' => ['governing-document', ['effectiveDate' => '2026-11-30']],
+				'a' => ['governing-document', ['effectiveDate' => '2027-01-01']],
+			],
+			$saved,
+			'a planned timestamp is stored as its day'
+		);
+	}//end testOneRunSortsEachDocumentIntoItsOutcome()
+
+	/**
+	 * A document that takes effect is logged as information with the date it got.
+	 *
+	 * @return void
+	 */
+	public function testAReleaseIsLoggedWithItsDate(): void {
+		$this->store->method('findAll')->willReturn([
+			['id' => 'verordening', 'status' => 'adopted', 'plannedEffectiveDate' => '2026-12-31T23:00:00Z'],
+		]);
+		$this->store->method('patch')->willReturn([]);
+		$this->logger->expects(self::never())->method('error');
+		$this->logger->expects(self::once())->method('info')->with(
+			self::stringContains('took effect'),
+			['document' => 'verordening', 'effectiveDate' => '2026-12-31']
+		);
+
+		self::assertSame(['verordening'], $this->release->sweep()['released']);
+	}//end testAReleaseIsLoggedWithItsDate()
 }//end class
