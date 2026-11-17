@@ -23,7 +23,8 @@
 -->
 <template>
 	<!-- Order and names follow board DcMijnInstellingen: Meldingen, Afwezigheid,
-	     Weergave, Contact, Abonnementen. -->
+	     Weergave, Contact, Abonnementen; then the calendar subscription
+	     (platform-microsoft-365-calendar-and-teams, REQ-M365-003). -->
 	<NcAppSettingsSection id="decidiq-notifications" :name="t('decidiq', 'Notices')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<NotificationPreferencesSection
@@ -61,11 +62,18 @@
 	<NcAppSettingsSection id="decidiq-annotations" :name="t('decidiq', 'My notes')">
 		<AnnotationsSection />
 	</NcAppSettingsSection>
+
+	<NcAppSettingsSection
+		id="decidiq-calendar-subscription"
+		:name="t('decidiq', 'Calendar subscription')">
+		<CalendarSubscriptionSection />
+	</NcAppSettingsSection>
 </template>
 
 <script>
 import { NcAppSettingsSection, NcLoadingIcon } from '@nextcloud/vue'
 import AnnotationsSection from '../../components/userSettings/AnnotationsSection.vue'
+import CalendarSubscriptionSection from '../../components/userSettings/CalendarSubscriptionSection.vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
 import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
@@ -78,6 +86,7 @@ export default {
 
 	components: {
 		AnnotationsSection,
+		CalendarSubscriptionSection,
 		CommunicationSection,
 		DelegationSection,
 		DisplayPreferencesSection,
