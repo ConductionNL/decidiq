@@ -35,6 +35,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * The allowed-methods check reads the body and fails closed when it cannot.
@@ -78,6 +79,7 @@ class VotingRoundPreflightTest extends TestCase {
 
 		$this->objects->expects($this->once())->method('find')->willReturnCallback(
 			static function (mixed ...$args) use ($entity): ?ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				self::assertSame('body-1', $args[0]);
 				self::assertContains('governance-body', $args);
 				return $entity;

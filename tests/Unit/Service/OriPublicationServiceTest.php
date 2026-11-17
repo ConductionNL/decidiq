@@ -34,6 +34,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\OriPublicationService
@@ -124,7 +125,11 @@ class OriPublicationServiceTest extends TestCase {
 			return $entity;
 		});
 		$store->method('saveObject')->willReturnCallback(
-			function (mixed $object, mixed $extend=[], mixed $register=null, mixed $schema=null, mixed $uuid=null): ObjectEntity {
+			function (mixed $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved[] = compact('object', 'register', 'schema', 'uuid');
 				return new ObjectEntity();
 			}

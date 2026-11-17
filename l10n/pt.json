@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Quem pode votar",
+        "All members of the body": "Todos os membros do órgão",
+        "Left out because they are no longer active members: {names}": "Excluídos porque já não são membros ativos: {names}",
         "sign-off route": "circuito de aprovação",
         "#": "#",
         "+ Action item": "+ Item de ação",
@@ -2599,7 +2602,6 @@
         "Step {step} of {total}": "Passo {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Ainda por fazer: fase {seq} ({maker})",
         "Stop": "Parar",
-        "Store": "Guardar",
         "Subject description": "Descrição do assunto",
         "Submission phase": "Fase de submissão",
         "Submission window (hours)": "Janela de submissão (horas)",
@@ -3353,7 +3355,8 @@
         "Extraordinary meeting": "Reunião extraordinária",
         "Committee meeting": "Reunião de comissão",
         "Public hearing": "Audição pública",
-        "General assembly": "Assembleia geral"
+        "General assembly": "Assembleia geral",
+        "Members' ancillary positions": "Cargos acessórios dos membros"
     },
     "plurals": null
 }

@@ -31,6 +31,8 @@ use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -259,9 +261,10 @@ class MeetingService implements MeetingServiceInterface {
 		// a generic error response without leaking object details.
 		$updated = $this->objectService->saveObject(
 			object: array_merge($change['meeting'], ['lifecycle' => $toState], $this->buildEfficiencyPatch(meetingId: $meetingId, change: $change)),
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'),
+				uuid: $meetingId
+			)
 		);
 
 		$this->logger->info('Decidiq: meeting lifecycle transitioned', ['id' => $meetingId, 'action' => $change['action'], 'to' => $toState]);

@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Vem som får rösta",
+        "All members of the body": "Alla ledamöter i organet",
+        "Left out because they are no longer active members: {names}": "Utelämnade eftersom de inte längre är aktiva ledamöter: {names}",
         "sign-off route": "godkännandeflöde",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d för, %2$d emot, %3$d avstod",
@@ -2096,7 +2099,6 @@
         "Still to do: stage {seq} ({maker})": "Återstår: fas {seq} ({maker})",
         "Stop": "Stoppa",
         "Stop {name}": "Stoppa {name}",
-        "Store": "Lagra",
         "Sub-item title": "Underpunktens titel",
         "Sub-item: {title}": "Underpunkt: {title}",
         "Sub-items of {title}": "Underpunkter till {title}",
@@ -3323,7 +3325,8 @@
         "Extraordinary meeting": "Extra möte",
         "Committee meeting": "Utskottsmöte",
         "Public hearing": "Offentlig utfrågning",
-        "General assembly": "Stämma"
+        "General assembly": "Stämma",
+        "Members' ancillary positions": "Medlemmarnas bisysslor"
     },
     "plurals": null
 }

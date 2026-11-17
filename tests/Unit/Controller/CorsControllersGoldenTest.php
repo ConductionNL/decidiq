@@ -49,6 +49,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionProperty;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Golden test for ApiController, OriController and HealthController.
@@ -289,7 +291,9 @@ class CorsControllersGoldenTest extends TestCase {
 			 *
 			 * @return ObjectEntity|null The entity.
 			 */
-			public function find(string $id, string $register, string $schema): ?ObjectEntity {
+			public function find(string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?ObjectEntity {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->test->answer(call: ['find' => compact('id', 'register', 'schema')]);
 				return $this->test->entity(id: $id);
 			}//end find()
@@ -304,7 +308,10 @@ class CorsControllersGoldenTest extends TestCase {
 			 *
 			 * @return array<string, mixed> The stored object.
 			 */
-			public function saveObject(array $object, string $register, string $schema, ?string $uuid): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->test->answer(call: ['saveObject' => compact('object', 'register', 'schema', 'uuid')]);
 				return ['id' => ($uuid ?? 'new'), 'stored' => $object];
 			}//end saveObject()

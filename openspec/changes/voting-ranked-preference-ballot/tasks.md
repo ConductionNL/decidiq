@@ -9,8 +9,8 @@
   - GIVEN `vote.value` WHEN read THEN its enum is `for`, `against`, `abstain`, `ranked`
   - GIVEN the association example set WHEN imported THEN the ranked round and its three ballots exist, and recomputing the seed ballots gives the seeded points
   - Verification: `RegisterJsonTest` red first, then green
-- [x] Implement (fragment `93-ranked-preference-ballot.json`; the association example set does not seed the ranked round yet)
-- [x] Test (`RankedPreferenceBallotRegisterTest`, not `RegisterJsonTest`; red first)
+- [x] Implement (fragment `93-ranked-preference-ballot.json`; the association example set seeds the closed round `stemming-voorkeur-clubhuis` and its three ranked ballots)
+- [x] Test (`RankedPreferenceBallotRegisterTest` and `RankedPreferenceBallotExampleSetTest`, which recounts the seed ballots with `BordaCount`; not `RegisterJsonTest`; red first)
 
 ### Task 2: Open a ranked round with options
 

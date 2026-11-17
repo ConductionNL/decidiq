@@ -28,6 +28,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for ParticipantToPersonMembershipResolver.
@@ -88,13 +90,11 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($participant, $throwOnParticipantFind) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($participant, $throwOnParticipantFind) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($throwOnParticipantFind === true) {
 					throw new RuntimeException('Participant lookup failed.');
 				}
@@ -153,13 +153,11 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedPersonsRef = &$savedPersons;
 		$savedMembershipsRef = &$savedMemberships;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedPersonsRef, &$savedMembershipsRef, $throwOnPersonCreateSave, $throwOnPersonBackfillSave, $throwOnMembershipSave) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedPersonsRef, &$savedMembershipsRef, $throwOnPersonCreateSave, $throwOnPersonBackfillSave, $throwOnMembershipSave) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($schema === 'person') {
 					if ($uuid === null && $throwOnPersonCreateSave === true) {
 						throw new RuntimeException('Person create save failed.');
@@ -479,13 +477,11 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($participant) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($participant) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'participant' && ($participant['id'] ?? null) === $id) {
 					return $this->entity($participant);
 				}
@@ -521,13 +517,11 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedMemberships) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedMemberships) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = array_merge(['id' => $uuid ?? ('membership-' . count($savedMemberships))], $object);
 				$savedMemberships[] = $row;
 				return $this->entity($row);
