@@ -331,13 +331,12 @@ class PlannedAgendaReportService {
 	private static function rowsAsArrays(iterable $rows): array {
 		$arrays = [];
 		foreach ($rows as $row) {
-			$data = $row;
 			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$data = $row->jsonSerialize();
+				$row = $row->jsonSerialize();
 			}
 
-			if (is_array($data) === true) {
-				$arrays[] = $data;
+			if (is_array($row) === true) {
+				$arrays[] = $row;
 			}
 		}
 

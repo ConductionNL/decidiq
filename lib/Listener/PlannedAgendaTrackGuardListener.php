@@ -85,7 +85,13 @@ class PlannedAgendaTrackGuardListener implements IEventListener {
 			return;
 		}
 
-		$entity = $this->eventObject(event: $event);
+		// The new object on an update, the object on a create.
+		if ($event instanceof ObjectUpdatingEvent) {
+			$entity = $event->getNewObject();
+		} else {
+			$entity = $event->getObject();
+		}
+
 		if (is_object($entity) === false) {
 			return;
 		}
@@ -198,20 +204,6 @@ class PlannedAgendaTrackGuardListener implements IEventListener {
 		return $rows !== [];
 	}//end hasTracks()
 
-	/**
-	 * The object an event carries: the new object on an update.
-	 *
-	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
-	 *
-	 * @return object|null
-	 */
-	private function eventObject(ObjectCreatingEvent|ObjectUpdatingEvent $event): ?object {
-		if ($event instanceof ObjectUpdatingEvent) {
-			return $event->getNewObject();
-		}
-
-		return $event->getObject();
-	}//end eventObject()
 
 	/**
 	 * Whether the row clearly names a schema other than the planned agenda item.
@@ -259,10 +251,11 @@ class PlannedAgendaTrackGuardListener implements IEventListener {
 			$value = ($value['id'] ?? ($value['uuid'] ?? null));
 		}
 
-		if (is_string($value) === false) {
-			return '';
+		$id = '';
+		if (is_string($value) === true) {
+			$id = trim($value);
 		}
 
-		return trim($value);
+		return $id;
 	}//end reference()
 }//end class

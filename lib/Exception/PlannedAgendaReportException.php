@@ -41,7 +41,8 @@ class PlannedAgendaReportException extends RuntimeException {
 	 *
 	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 */
-	public function __construct(string $message, private readonly int $status=422, ?Throwable $previous=null) {
+	public function __construct(string $message, int $status=422, ?Throwable $previous=null) {
+		// The status is the exception code: getStatus() reads it back.
 		parent::__construct(message: $message, code: $status, previous: $previous);
 	}//end __construct()
 
@@ -53,6 +54,6 @@ class PlannedAgendaReportException extends RuntimeException {
 	 * @return int
 	 */
 	public function getStatus(): int {
-		return $this->status;
+		return (int) $this->getCode();
 	}//end getStatus()
 }//end class
