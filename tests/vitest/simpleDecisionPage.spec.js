@@ -480,6 +480,7 @@ describe('the decision page in the simple structure', () => {
 			'Action items',
 			'Commitments',
 			'Related decisions',
+			'Cited governing documents',
 			'Lifecycle',
 		])
 		expect(
@@ -508,9 +509,10 @@ describe('the decision page in the simple structure', () => {
 			(item) => item.id,
 		)
 		// routes-send-proposal-along-route added the approval route block,
-		// goals-linked-to-decisions the goal block, and
-		// voting-written-resolution the written resolution block.
-		expect(declared).toHaveLength(18)
+		// goals-linked-to-decisions the goal block,
+		// voting-written-resolution the written resolution block, and
+		// governing-documents-register the cited governing documents.
+		expect(declared).toHaveLength(19)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {
