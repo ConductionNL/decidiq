@@ -60,6 +60,7 @@ import {
 	ensureRelationType,
 } from '../components/tabs/useRelationStore.js'
 import { MEMBER_ROLES } from '../utils/memberImport.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 export default {
 	name: 'MemberRoleDialog',
@@ -123,7 +124,8 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('membership')
-				await store.saveObject(
+				await saveOrThrow(
+					store,
 					'membership',
 					buildMembershipPayload({
 						id: this.member.id,

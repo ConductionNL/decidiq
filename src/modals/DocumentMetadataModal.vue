@@ -69,6 +69,7 @@ import {
 	typeFieldInputs,
 } from '../utils/agendaItemTypeFields.js'
 import { detailsPayload } from '../utils/documentMetadata.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 export default {
 	name: 'DocumentMetadataModal',
@@ -123,7 +124,8 @@ export default {
 			}
 			this.saving = true
 			try {
-				await ensureRelationType('digital-document').saveObject(
+				await saveOrThrow(
+					ensureRelationType('digital-document'),
 					'digital-document',
 					detailsPayload({
 						file: this.file,
