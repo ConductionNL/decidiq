@@ -65,4 +65,4 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 
 - Each task has a unit or vitest test that is red before the code and green after, using the real sibling classes and OpenRegister's real flow validator.
 - `composer check:strict`, `npm run lint`, `format`, `test:l10n`, `check:l10n-js`, `check:schema-l10n` and the hydra gates `--scope-to-diff` once before push. Gate 23 no longer matches an approval engine in decidiq.
-- Playwright `tests/e2e/approval-route-flow.spec.ts` tagged with each scenario.
+- Playwright `tests/e2e/approval-route-flow.spec.ts` tagged with each scenario. Written: 5 tests with two real accounts (send, approve to the next step and the route tab, refused second send, reject, refused save of a performer rule); the other scenarios carry a reason-bearing `@e2e exclude` in the spec. Listed by Playwright and lint-clean; not run: needs a live instance.
