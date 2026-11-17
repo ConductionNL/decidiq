@@ -40,6 +40,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Publishing an agenda publishes the papers of its public items and leaves
@@ -169,7 +170,11 @@ class PublicationPapersTest extends TestCase {
 			fn (int|string $id): ?object => isset($this->store[(string)$id]) ? $this->entity($this->store[(string)$id]) : null
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$uuid = ($uuid ?? ('obj-' . (count($this->store) + 1)));
 				$this->store[$uuid] = array_merge(['id' => $uuid, '_schema' => $schema], $object);
 				return $this->entity($this->store[$uuid]);

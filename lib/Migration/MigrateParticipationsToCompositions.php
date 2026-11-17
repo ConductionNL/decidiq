@@ -25,6 +25,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -178,7 +180,10 @@ class MigrateParticipationsToCompositions implements IRepairStep {
 		try {
 			$objectService->setRegister(self::REGISTER);
 			$objectService->setSchema(self::TARGET);
-			$objectService->saveObject(register: self::REGISTER, schema: self::TARGET, object: $composition);
+			$objectService->saveObject(
+				object: $composition,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET))
+			);
 		} catch (Throwable $e) {
 			$output->warning('Failed to migrate a participation: '.$e->getMessage());
 			$this->logger->warning(

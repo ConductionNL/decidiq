@@ -30,6 +30,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -273,8 +276,7 @@ class GovernanceReportingService implements GovernanceReportingServiceInterface 
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $report,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA))
 			);
 			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
 			// never be false, so this always returned here.
@@ -330,7 +332,7 @@ class GovernanceReportingService implements GovernanceReportingServiceInterface 
 	 */
 	private function loadReport(string $reportId): array|string {
 		try {
-			$entity = $this->objectService->find(id: $reportId, register: 'decidiq', schema: self::SCHEMA);
+			$entity = $this->objectService->find(id: $reportId, options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA));
 			if ($entity === null) {
 				return 'Report not found.';
 			}

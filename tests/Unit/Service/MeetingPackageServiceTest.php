@@ -33,6 +33,7 @@ use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for the meeting document package assembly (vergaderstukken).
@@ -80,7 +81,11 @@ class MeetingPackageServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meetings): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($meetings): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (isset($meetings[(string)$id]) === false) {
 					return null;
 				}

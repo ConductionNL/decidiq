@@ -38,6 +38,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Throwable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for StreamingClient and CaseSystemClient.
@@ -192,6 +193,7 @@ class IntegriqClientGoldenTest extends TestCase {
 		);
 		$objects->method('find')->willReturnCallback(
 			function (...$args) {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				$named       = $this->named(method: 'find', args: $args);
 				$this->log[] = ['find' => $named];
 				$entity      = $this->createMock(ObjectEntityInterface::class);
@@ -212,7 +214,7 @@ class IntegriqClientGoldenTest extends TestCase {
 	 */
 	private function named(string $method, array $args): array {
 		$named = [];
-		foreach ((new \ReflectionMethod(ObjectServiceInterface::class, $method))->getParameters() as $i => $parameter) {
+		foreach (LegacyObjectArgs::parameters(ObjectServiceInterface::class, $method) as $i => $parameter) {
 			if (array_key_exists($i, $args) === false) {
 				continue;
 			}

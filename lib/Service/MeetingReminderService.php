@@ -30,6 +30,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -182,9 +184,10 @@ class MeetingReminderService implements MeetingReminderServiceInterface {
 		if ($patch !== []) {
 			$this->objectService->saveObject(
 				object: array_merge($meeting, $patch),
-				register: 'decidiq',
-				schema: 'meeting',
-				uuid: $meetingId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'),
+					uuid: $meetingId
+				)
 			);
 		}
 

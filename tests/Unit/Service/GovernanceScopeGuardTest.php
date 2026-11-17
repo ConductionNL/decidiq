@@ -31,6 +31,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IGroupManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for GovernanceScopeGuard.
@@ -262,7 +263,9 @@ class GovernanceScopeGuardTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $decisionRow, $meetingRow): ?ObjectEntity {
+			function (mixed $id, ?ObjectFindOptions $options = null) use ($minutesRow, $decisionRow, $meetingRow): ?ObjectEntity {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = null;
 				if ((string)$id === 'dec-1') {
 					$row = $decisionRow;

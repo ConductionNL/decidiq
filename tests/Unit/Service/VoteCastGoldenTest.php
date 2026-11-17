@@ -58,6 +58,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use Throwable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Golden test for casting a vote.
@@ -345,7 +347,11 @@ class VoteCastGoldenTest extends TestCase {
 			}
 		);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				$row = ($store[(string)$id] ?? null);
 				if ($row === null || ($schema !== null && $row['schema'] !== $schema)) {
@@ -385,7 +391,10 @@ class VoteCastGoldenTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use ($store): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($store): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->log[] = ['save' => ['register' => $register, 'schema' => $schema, 'object' => $this->masked(value: $object)]];
 				$store['saved-' . count($store)] = ['schema' => (string)$schema, 'object' => $object];
 				return $this->entity(object: $object + ['saved' => true]);

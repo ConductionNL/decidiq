@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
+use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
@@ -35,6 +37,7 @@ use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
+use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -84,11 +87,33 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Confidentiality term (confidentiality-term-and-lapse, REQ-EMB-020):
+		// a restriction's lift-by date is not before the day it was imposed,
+		// on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		// Confidential agenda items (agenda-item-confidential-papers,
+		// REQ-ACP-003): a paper saved onto a non-public item is not public.
+		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Planned-agenda rules (termijnagenda, REQ-LTA-001 and REQ-LTA-003):
+		// a portfolio holder as owner type names a person, and an item
+		// entering lapsed carries its reason, on create and on update.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
+		[
+			'event'    => ObjectUpdatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
 		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
 		// decision carries the clause of its type as it stood when it was
 		// taken. After the competence guard, so a refused save stamps nothing.

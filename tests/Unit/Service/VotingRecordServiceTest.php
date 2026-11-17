@@ -40,6 +40,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for VotingRecordService.
@@ -134,7 +135,11 @@ class VotingRecordServiceTest extends TestCase {
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
 					return null;
