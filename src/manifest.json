@@ -3864,7 +3864,8 @@
 				"widget-decision-route": "DecisionRouteTab",
 				"widget-decision-voting": "DecisionVotingTab",
 				"widget-decision-written-resolution": "WrittenResolutionTab",
-				"widget-decision-publication": "DecisionPublicationTab"
+				"widget-decision-publication": "DecisionPublicationTab",
+				"widget-decision-governing-citations": "GoverningDocumentCitationsTab"
 			},
 			"title": "Decision",
 			"config": {
@@ -3897,7 +3898,8 @@
 								"targetRole",
 								"candidates",
 								"nominatingParty",
-								"appointedMemberships"
+								"appointedMemberships",
+								"contests"
 							]
 						}
 					},
@@ -3923,7 +3925,9 @@
 								"voteThreshold",
 								"adoptionDate",
 								"effectiveDate",
-								"goal"
+								"goal",
+								"receivedAt",
+								"termEndsAt"
 							],
 							"overrides": {
 								"publishedAt": {
@@ -3936,6 +3940,9 @@
 									"editable": false
 								},
 								"submittedAt": {
+									"editable": false
+								},
+								"termEndsAt": {
 									"editable": false
 								}
 							}
@@ -4011,6 +4018,14 @@
 						"component": "DecisionPublicationTab",
 						"title": "Publication",
 						"icon": "Web"
+					},
+					{
+						"id": "decision-governing-citations",
+						"type": "custom",
+						"component": "GoverningDocumentCitationsTab",
+						"title": "Cited governing documents",
+						"icon": "FileDocumentMultipleOutline",
+						"_note": "governing-documents-register REQ-GDR-005: the governing-document articles this decision cites (citesGoverningDocuments), each a link to the governing-document page; add and remove. Assistive only: it gates no workflow."
 					},
 					{
 						"id": "decision-public-consultations",
@@ -4433,6 +4448,14 @@
 						"gridY": 50,
 						"gridWidth": 12,
 						"gridHeight": 6
+					},
+					{
+						"id": "21",
+						"widgetId": "decision-governing-citations",
+						"gridX": 0,
+						"gridY": 56,
+						"gridWidth": 12,
+						"gridHeight": 4
 					}
 				],
 				"sidebar": {

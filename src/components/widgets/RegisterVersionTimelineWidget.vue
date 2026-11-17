@@ -37,6 +37,36 @@
 		</template>
 
 		<div class="cn-version-timeline">
+			<form
+				v-if="inForceControl && resolvedObjectId"
+				class="cn-version-timeline__in-force"
+				data-testid="version-timeline-in-force"
+				@submit.prevent="resolveInForce">
+				<label :for="inForceInputId" class="cn-version-timeline__in-force-label">
+					{{ t('decidiq', 'In force on') }}
+				</label>
+				<input
+					:id="inForceInputId"
+					v-model="inForceDate"
+					type="date"
+					class="cn-version-timeline__in-force-input"
+					data-testid="version-timeline-in-force-date">
+				<NcButton
+					type="submit"
+					variant="secondary"
+					:disabled="inForceLoading || !inForceDate"
+					data-testid="version-timeline-in-force-resolve">
+					{{ t('decidiq', 'Show version') }}
+				</NcButton>
+				<p
+					v-if="inForceMessage"
+					class="cn-version-timeline__in-force-result"
+					role="status"
+					aria-live="polite"
+					data-testid="version-timeline-in-force-result">
+					{{ inForceMessage }}
+				</p>
+			</form>
 			<p v-if="loading && !rows.length" class="cn-version-timeline__loading">
 				{{ t('decidiq', 'Loading versions…') }}
 			</p>
@@ -70,6 +100,8 @@
 					v-for="row in rows"
 					:key="row.id"
 					class="cn-version-timeline__item"
+					:class="{ 'cn-version-timeline__item--in-force': inForceVersionId && row.id === inForceVersionId }"
+					:aria-current="inForceVersionId && row.id === inForceVersionId ? 'true' : null"
 					data-testid="version-timeline-item">
 					<span class="cn-version-timeline__marker" aria-hidden="true" />
 					<div class="cn-version-timeline__body">
@@ -143,7 +175,13 @@ import {
 	CnWidgetWrapper,
 	useObjectStore,
 } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
+import {
+	inForcePath,
+	isCalendarDate,
+} from '../../utils/governingDocumentCitations.js'
 import {
 	contentWithDefaults,
 	detailObjectId,
@@ -195,6 +233,12 @@ export default {
 			error: '',
 			/** Resolved Decision titles, keyed by decision id. */
 			decisionLabels: {},
+			/** The date the "in force on" control asks about (REQ-GDR-004/006). */
+			inForceDate: '',
+			/** The id of the version in force on that date, or null. */
+			inForceVersionId: null,
+			inForceMessage: '',
+			inForceLoading: false,
 		}
 	},
 
@@ -249,6 +293,20 @@ export default {
 			const data = plainObject(this.objectData)
 			const self = data['@self'] || {}
 			return self.slug || data.slug || ''
+		},
+
+		/**
+		 * Whether the page asked for the "in force on" date control.
+		 *
+		 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages
+		 */
+		inForceControl() {
+			return this.content?.inForceControl === true
+		},
+
+		/** @spec exclude element-id plumbing for the date label, no behavioural requirement of its own */
+		inForceInputId() {
+			return `version-timeline-in-force-${this.resolvedObjectId}`
 		},
 
 		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
@@ -326,6 +384,42 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Ask decidiq which version was in force on the chosen date and mark it
+		 * in the timeline (REQ-GDR-004, the "geldend op" control of REQ-GDR-006).
+		 *
+		 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages
+		 */
+		async resolveInForce() {
+			if (!isCalendarDate(this.inForceDate)) {
+				this.inForceVersionId = null
+				this.inForceMessage = t('decidiq', 'Enter a date.')
+				return
+			}
+			this.inForceLoading = true
+			try {
+				const { data } = await axios.get(
+					generateUrl(inForcePath(String(this.resolvedObjectId), this.inForceDate)),
+				)
+				const version = data?.version || null
+				this.inForceVersionId = version?.id || null
+				this.inForceMessage = version
+					? t('decidiq', 'Version {n} was in force on {date}.', {
+						n: version.versionNumber,
+						date: this.formatDate(this.inForceDate),
+					})
+					: t('decidiq', 'No version was in force on {date}.', {
+						date: this.formatDate(this.inForceDate),
+					})
+			} catch (e) {
+				this.inForceVersionId = null
+				this.inForceMessage = e?.response?.data?.message
+					|| t('decidiq', 'The version in force could not be read.')
+			} finally {
+				this.inForceLoading = false
+			}
+		},
 
 		/**
 		 * The object store to query — explicit prop wins, else the library's
@@ -541,6 +635,33 @@ export default {
 .cn-version-timeline__item {
 	display: flex;
 	gap: 10px;
+}
+
+.cn-version-timeline__item--in-force {
+	box-shadow: inset 3px 0 0 0 var(--color-success);
+	padding-inline-start: calc(2 * var(--default-grid-baseline, 4px));
+}
+
+.cn-version-timeline__in-force {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: calc(2 * var(--default-grid-baseline, 4px));
+	padding: calc(2 * var(--default-grid-baseline, 4px));
+}
+
+.cn-version-timeline__in-force-input {
+	min-height: var(--default-clickable-area);
+}
+
+.cn-version-timeline__in-force-input:focus-visible {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.cn-version-timeline__in-force-result {
+	flex-basis: 100%;
+	margin: 0;
 }
 
 .cn-version-timeline__marker {
