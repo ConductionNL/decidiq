@@ -26,6 +26,9 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\GoverningDocumentVersionRefusedException;
 use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Throwable;
 
@@ -120,7 +123,11 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	 */
 	public function readableDocument(string $documentId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $documentId, register: 'decidiq', schema: self::DOCUMENT_SCHEMA, _rbac: true);
+			$entity = $this->objectService->find(
+				id: $documentId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::DOCUMENT_SCHEMA),
+				_rbac: true
+			);
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -506,9 +513,10 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		unset($document['@self']);
 		$this->objectService->saveObject(
 			object: $document,
-			register: 'decidiq',
-			schema: self::DOCUMENT_SCHEMA,
-			uuid: $documentId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: self::DOCUMENT_SCHEMA),
+				uuid: $documentId
+			),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -604,7 +612,12 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $id, files: $files, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $id,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema, files: $files),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (DoesNotExistException) {
 			return null;
 		}

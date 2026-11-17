@@ -27,6 +27,8 @@ use OCA\Decidiq\Exception\GoverningDocumentVersionRefusedException;
 use OCA\Decidiq\Service\GoverningDocumentConsolidationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -162,7 +164,11 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 
 	public function testADocumentTheCallerCannotReadIsNull(): void {
 		$this->objects->expects(self::exactly(2))->method('find')
-			->with(self::DOC, self::anything(), self::anything(), 'decidiq', 'governing-document', true)
+			->with(
+				self::DOC,
+				self::callback(static fn (ObjectFindOptions $options): bool => $options->register === 'decidiq' && $options->schema === 'governing-document'),
+				true
+			)
 			->willThrowException(new DoesNotExistException('nope'));
 
 		self::assertNull($this->service->readableDocument(self::DOC));
@@ -290,8 +296,9 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willReturn(['results' => $versions]);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($document, $versions, &$finds): ?ObjectEntity {
-				$finds[] = [(string)$schema, $files, $_rbac];
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true) use ($document, $versions, &$finds): ?ObjectEntity {
+				$schema = $options?->schema;
+				$finds[] = [(string)$schema, $options?->files ?? false, $_rbac];
 				if ($schema === 'governance-body') {
 					return $this->document(['id' => $id, 'name' => 'Vereniging van Nederlandse Gemeenten']);
 				}
@@ -411,8 +418,8 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		$objects->method('find')->willReturn($this->document(['id' => self::DOC, 'citationTitle' => 'Statuten', 'currentEffectiveDate' => '1990-05-01', '@self' => ['id' => self::DOC]]));
 		$saved = [];
 		$objects->expects(self::once())->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true) use (&$saved): ObjectEntity {
-				$saved = [$object, $register, $schema, $uuid, $_rbac];
+			function (array $object, ObjectSaveOptions $options, bool $_rbac = true, bool $_multitenancy = true) use (&$saved): ObjectEntity {
+				$saved = [$object, $options->target->register, $options->target->schema, $options->uuid, $_rbac];
 				return $this->document([]);
 			}
 		);
