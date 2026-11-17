@@ -34,6 +34,7 @@ use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\Decidiq\Service\PaperStamper;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -158,7 +159,7 @@ class PaperController extends Controller {
 		try {
 			// Under the caller's own rights: a reader who may not see the
 			// item or meeting gets the same 404 as a missing one.
-			$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema);
+			$object = $this->objectService->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable $e) {
 			$this->logger->debug('Decidiq: paper refused, object not readable', ['objectId' => $objectId, 'exception' => $e->getMessage()]);
 			return null;
@@ -188,7 +189,12 @@ class PaperController extends Controller {
 		}
 
 		try {
-			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+			$meeting = $this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: meeting of a paper unreadable; stamping it', ['meetingId' => $meetingId, 'exception' => $e->getMessage()]);
 			return [];

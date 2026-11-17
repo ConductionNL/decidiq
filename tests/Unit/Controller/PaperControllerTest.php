@@ -79,10 +79,11 @@ class PaperControllerTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			static function (...$args) use ($item, $meetingEntity, &$findCalls): ?ObjectEntityInterface {
-				// Positional, as the double receives them: id, _extend, files, register, schema, _rbac.
-				$findCalls[] = [$args[4] ?? null, $args[5] ?? true];
+				// Positional, as the double receives them: id, options, _rbac, _multitenancy.
+				$schema      = ($args[1] ?? null)?->schema;
+				$findCalls[] = [$schema, $args[2] ?? true];
 				// The meeting of an item is a system read; the caller's own read answers $item.
-				if (($args[4] ?? '') === 'meeting' && ($args[5] ?? true) === false) {
+				if ($schema === 'meeting' && ($args[2] ?? true) === false) {
 					return $meetingEntity;
 				}
 
