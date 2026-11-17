@@ -9280,7 +9280,7 @@
           "slug": "annotation-highlight-1"
         },
         "annotationType": "highlight",
-        "fileId": 1,
+        "fileId": 0,
         "page": 1,
         "visibility": "private",
         "quads": [
@@ -9301,7 +9301,7 @@
         "versionLabel": "Versie 1",
         "documentName": "Raadsvoorstel begroting 2027.pdf",
         "fileVersion": "1767258000",
-        "author": "demo-raadslid",
+        "author": "00000000-0000-0000-0000-000000000000",
         "document": "00000000-0000-4000-8000-000000000000",
         "meeting": "00000000-0000-4000-8000-000000000000",
         "agendaItem": "00000000-0000-4000-8000-000000000000"
@@ -9313,7 +9313,7 @@
           "slug": "annotation-sticky-note-2"
         },
         "annotationType": "sticky-note",
-        "fileId": 1,
+        "fileId": 0,
         "page": 2,
         "visibility": "faction",
         "point": {
@@ -9326,7 +9326,7 @@
         "versionLabel": "Versie 1",
         "documentName": "Raadsvoorstel begroting 2027.pdf",
         "fileVersion": "1767258000",
-        "author": "demo-raadslid",
+        "author": "00000000-0000-0000-0000-000000000000",
         "document": "00000000-0000-4000-8000-000000000000",
         "meeting": "00000000-0000-4000-8000-000000000000",
         "agendaItem": "00000000-0000-4000-8000-000000000000"
@@ -9338,7 +9338,7 @@
           "slug": "annotation-drawing-3"
         },
         "annotationType": "drawing",
-        "fileId": 1,
+        "fileId": 0,
         "page": 3,
         "visibility": "body",
         "path": [
@@ -9360,7 +9360,7 @@
         "versionLabel": "Versie 1",
         "documentName": "Raadsvoorstel begroting 2027.pdf",
         "fileVersion": "1767258000",
-        "author": "demo-raadslid",
+        "author": "00000000-0000-0000-0000-000000000000",
         "document": "00000000-0000-4000-8000-000000000000",
         "meeting": "00000000-0000-4000-8000-000000000000",
         "agendaItem": "00000000-0000-4000-8000-000000000000"
