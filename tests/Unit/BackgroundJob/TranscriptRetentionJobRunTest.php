@@ -492,4 +492,30 @@ class TranscriptRetentionJobRunTest extends TestCase {
 		self::assertSame('purged', $this->enforce($this->transcript()));
 		self::assertCount(1, $this->saved);
 	}//end testAFailedAuditIsLogged()
+
+	/**
+	 * A row without an id of its own is saved under its @self id.
+	 *
+	 * @return void
+	 */
+	public function testThePurgeSavesUnderTheSelfId(): void {
+		$transcript = $this->transcript(['@self' => ['id' => 't-self']]);
+		unset($transcript['id']);
+
+		self::assertSame('purged', $this->enforce($transcript));
+		self::assertSame('t-self', $this->saved[0]['uuid']);
+	}//end testThePurgeSavesUnderTheSelfId()
+
+	/**
+	 * A row with no id at all is saved without one.
+	 *
+	 * @return void
+	 */
+	public function testThePurgeOfARowWithoutAnIdNamesNoUuid(): void {
+		$transcript = $this->transcript();
+		unset($transcript['id']);
+
+		self::assertSame('purged', $this->enforce($transcript));
+		self::assertNull($this->saved[0]['uuid']);
+	}//end testThePurgeOfARowWithoutAnIdNamesNoUuid()
 }//end class

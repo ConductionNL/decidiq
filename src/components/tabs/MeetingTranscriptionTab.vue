@@ -326,6 +326,7 @@ import {
 	newMinutesFor,
 } from '../../utils/minutesDraft.js'
 import { isVideoRecording, itemStartTimes } from '../../utils/recordingJump.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -767,7 +768,7 @@ export default {
 			}
 			const target =
 				minutes || newMinutesFor(meetingId, this.t('decidiq', 'Minutes'))
-			await store.saveObject('minutes', minutesFromAiDraft(target, this.draft))
+			await saveOrThrow(store, 'minutes', minutesFromAiDraft(target, this.draft))
 			this.usedNotice = this.t(
 				'decidiq',
 				'The kept sections are in the minutes. Open the minutes to review them.',

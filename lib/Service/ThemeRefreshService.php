@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ThemeRefreshServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
@@ -41,7 +42,7 @@ use Throwable;
  *
  * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
  */
-class ThemeRefreshService {
+class ThemeRefreshService implements ThemeRefreshServiceInterface {
 	/**
 	 * The register.
 	 *

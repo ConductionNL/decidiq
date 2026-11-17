@@ -25,6 +25,7 @@
 		"PlannedAgenda",
 		"PlanningCycles",
 		"ProxyAuthorizations",
+		"TopicThemes",
 		"UrgentDecisions",
 		"WorksCouncilConsultations"
 	],
@@ -267,6 +268,13 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					},
+					{
+						"id": "open-theme-pages",
+						"label": "Theme pages",
+						"icon": "BookOpenVariantOutline",
+						"handler": "navigate",
+						"route": "TopicThemes"
 					}
 				],
 				"columns": [
@@ -888,6 +896,12 @@
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
+					},
+					"decision-governing-citations": {
+						"type": "GoverningDocumentCitationsTab"
+					},
+					"decision-themes": {
+						"type": "DecisionThemesTab"
 					}
 				}
 			},
@@ -1140,6 +1154,10 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "decision-confidentiality"
+								},
+								{
+									"label": "Themes",
+									"widgetId": "decision-themes"
 								}
 							]
 						}
@@ -1251,6 +1269,11 @@
 								{
 									"widgetId": "decision-related",
 									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-governing-citations",
+									"label": "Cited governing documents",
 									"overflow": true
 								},
 								{
@@ -1815,17 +1838,26 @@
 					"meeting-case-system": {
 						"type": "MeetingCaseSystemTab"
 					},
+					"meeting-room-system": {
+						"type": "MeetingRoomSystemTab"
+					},
 					"meeting-broadcast": {
 						"type": "MeetingBroadcastTab"
 					},
 					"meeting-sessions": {
 						"type": "MeetingSessionsTab"
 					},
+					"meeting-speakers": {
+						"type": "MeetingSpeakersTab"
+					},
 					"meeting-stage": {
 						"type": "MeetingStageTab"
 					},
 					"meeting-video-call": {
 						"type": "MeetingVideoCallTab"
+					},
+					"meeting-teams": {
+						"type": "MeetingTeamsTab"
 					},
 					"meeting-participants": {
 						"type": "MeetingParticipantsTab"
@@ -2000,6 +2032,10 @@
 									"widgetId": "meeting-agenda"
 								},
 								{
+									"label": "Public speakers",
+									"widgetId": "meeting-speakers"
+								},
+								{
 									"label": "Incoming documents",
 									"widgetId": "meeting-routed-documents"
 								},
@@ -2032,6 +2068,10 @@
 								{
 									"label": "Video call",
 									"widgetId": "meeting-video-call"
+								},
+								{
+									"label": "Microsoft Teams",
+									"widgetId": "meeting-teams"
 								}
 							]
 						}
@@ -2195,6 +2235,11 @@
 								{
 									"widgetId": "meeting-case-system",
 									"label": "Case system",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-room-system",
+									"label": "Room system",
 									"overflow": true
 								},
 								{
@@ -2639,6 +2684,36 @@
 						"id": "14",
 						"widgetId": "overdue-reviews-kpi",
 						"gridX": 0,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "overdue-planned-agenda",
+						"gridX": 3,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "16",
+						"widgetId": "open-wor-consultations",
+						"gridX": 6,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "17",
+						"widgetId": "wor-response-overdue",
+						"gridX": 9,
 						"gridY": 36,
 						"gridWidth": 3,
 						"gridHeight": 2,
@@ -3153,7 +3228,7 @@
 		},
 		{
 			"id": "AgendaItemDetail",
-			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn: an agenda item has no speakers list outside the live meeting. The full structure keeps the manifest's stack.",
+			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn as a tab: the item's public speakers (inspreekrecht-plenair, approved slots and pending requests) sit in the side column, and the live speaker queue stays on the live meeting screen. The full structure keeps the manifest's stack.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3176,7 +3251,9 @@
 						}
 					},
 					"agenda-conflicts",
-					"agenda-paper-summaries"
+					"agenda-speakers",
+					"agenda-paper-summaries",
+					"agenda-themes"
 				],
 				"layout": [
 					{
@@ -3213,8 +3290,14 @@
 					"agenda-conflicts": {
 						"type": "AgendaItemConflictsTab"
 					},
+					"agenda-speakers": {
+						"type": "AgendaItemSpeakersTab"
+					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
+					},
+					"agenda-themes": {
+						"type": "AgendaItemThemesTab"
 					}
 				}
 			},

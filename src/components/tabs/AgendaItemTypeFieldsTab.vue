@@ -88,6 +88,7 @@ import {
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -185,7 +186,7 @@ export default {
 			this.saving = true
 			try {
 				const store = ensureRelationType('agenda-item')
-				const saved = await store.saveObject('agenda-item', {
+				const saved = await saveOrThrow(store, 'agenda-item', {
 					...this.item,
 					typeFields: this.values,
 				})
