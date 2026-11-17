@@ -24,8 +24,10 @@ Build after `agenda-item-confidential-papers` (it adds `AgendaItem.public`, `aut
   - GIVEN the register WHEN imported THEN `agenda-item` carries `authorisedPersons` (array of person ids) and `person` carries `portalAccountRef`, with a slug on every fragment schema
   - GIVEN the import log WHEN read THEN it has no `PARTIAL IMPORT` line
   - GIVEN the municipality example set WHEN loaded THEN "Grondaankoop Lindelaan" is non-public with two papers and Pieter Bos as authorised person
-- [ ] Implement
-- [ ] Test (register test)
+- [x] Implement
+  - Built in `lib/Settings/register.d/999-portal-confidential-readers.json`, not 126-: fragments merge in sorted name order and `999-ori-adoption` sets agenda-item 1.5.0 and person 0.3.0, so this fragment needs 999-portal- to raise them to 1.6.0 and 0.4.0. Example set: "Grondaankoop Lindelaan" on raadsvergadering-2025-04-10, non-public, two non-public papers, Pieter Bos (person, with a portal account reference) as authorised person; objectCount 261 to 265.
+- [x] Test (register test)
+  - `tests/Unit/Settings/PortalConfidentialReadersRegisterTest.php`. The import log line needs a live import.
 
 ### Task 3: Add and remove a reader from the item page
 - **spec_ref**: `openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item`

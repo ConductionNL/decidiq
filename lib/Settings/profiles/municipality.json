@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 261,
+			"objectCount": 265,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -296,6 +296,19 @@
 						"familyName": "Ouali",
 						"email": "t.ouali@gemeente.example",
 						"biography": "Wethouder mobiliteit en verkeersveiligheid."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "pieter-bos",
+						"name": "Pieter Bos",
+						"givenName": "Pieter",
+						"familyName": "Bos",
+						"biography": "Registeraccountant, extern adviseur van de raad bij de grondaankoop Lindelaan. Leest de besloten stukken via het portaal; heeft geen Nextcloud-account.",
+						"portalAccountRef": "portal-account-pieter-bos"
 					}
 				],
 				"goal": [
@@ -1656,6 +1669,24 @@
 						"estimatedDuration": 45,
 						"description": "Raadsvoorstel voor het voorbereidingskrediet van het nieuwe zwembad De Hoge Dijk.",
 						"meeting": "raadsvergadering-2025-04-10"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-grondaankoop-lindelaan",
+						"title": "Grondaankoop Lindelaan",
+						"itemType": "decision",
+						"orderNumber": 10,
+						"meeting": "raadsvergadering-2025-04-10",
+						"description": "Besloten punt: de onderhandelingsruimte voor de aankoop van de percelen aan de Lindelaan. De stukken zijn niet openbaar.",
+						"public": false,
+						"authorisedReaders": [],
+						"authorisedPersons": [
+							"pieter-bos"
+						]
 					}
 				],
 				"ancillary-position": [
@@ -4880,6 +4911,34 @@
 							"zaaknummer": "Z-2026-00412",
 							"status": "definitief"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"slug": "document-taxatierapport-lindelaan",
+						"name": "Taxatierapport percelen Lindelaan.pdf",
+						"documentType": "Raadsvoorstel",
+						"encodingFormat": "application/pdf",
+						"fileId": 900501,
+						"agendaItem": "agendapunt-grondaankoop-lindelaan",
+						"public": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"slug": "document-onderhandelingsmandaat-lindelaan",
+						"name": "Onderhandelingsmandaat grondaankoop Lindelaan.pdf",
+						"documentType": "Raadsvoorstel",
+						"encodingFormat": "application/pdf",
+						"fileId": 900502,
+						"agendaItem": "agendapunt-grondaankoop-lindelaan",
+						"public": false
 					}
 				],
 				"case-exchange-record": [
