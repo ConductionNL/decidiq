@@ -24,6 +24,7 @@ description:
       formal decisions, meeting agendas, and governance documentation. Built on Open
       Register, it integrates with Nextcloud's collaboration tools and is designed
       to meet Dutch government transparency and governance requirements.
+      Conduction maintains this component within the Nextcloud ISV programme.
     features:
       - Decision recording and tracking
       - Meeting agenda management
@@ -40,6 +41,7 @@ description:
       Gebouwd op Open Register integreert het met de samenwerkingstools van Nextcloud
       en is ontworpen om te voldoen aan de Nederlandse overheidsvereisten voor
       transparantie en bestuur.
+      Conduction onderhoudt dit component binnen het Nextcloud ISV-programma.
     features:
       - Besluiten vastleggen en bijhouden
       - Vergaderagendabeheer
@@ -52,7 +54,12 @@ legal:
   repoOwner: "Conduction B.V."
 
 maintenance:
-  type: community
+  type: contract
+  contractors:
+    - name: Conduction B.V.
+      until: "2028-12-31"
+      email: info@conduction.nl
+      website: https://conduction.nl
   contacts:
     - name: Conduction B.V.
       email: info@conduction.nl

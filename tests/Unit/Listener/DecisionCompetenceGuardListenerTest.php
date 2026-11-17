@@ -42,6 +42,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Listener\DecisionCompetenceGuardListener
  * @covers \OCA\Decidiq\Service\DecisionCompetenceGuard
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
+ * @uses   \OCA\Decidiq\Listener\EntityPayloadReader
  */
 class DecisionCompetenceGuardListenerTest extends TestCase {
 

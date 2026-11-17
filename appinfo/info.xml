@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.6-unstable.20261020200000</version>
+    <version>1.2.6-unstable.20261114145412</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -124,6 +124,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
+        <job>OCA\Decidiq\BackgroundJob\WrittenResolutionDeadlineJob</job>
         <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
         <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
@@ -141,6 +143,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
              run twice; a stage carries the stamp that says it already lapsed.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
+             governing document takes effect on its planned date.
+             @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
+        <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
              out for signature and stores the signed copy on the record.
@@ -151,6 +158,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
              match their subscription, straight away, daily or weekly.
              @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly -->
         <job>OCA\Decidiq\BackgroundJob\PublicationDigestJob</job>
+        <!-- publication-theme-pages REQ-THP-004: nightly, republish every active
+             public theme whose timeline changed since its last version. -->
+        <job>OCA\Decidiq\BackgroundJob\ThemeRefreshJob</job>
     </background-jobs>
 
     <repair-steps>
@@ -407,6 +417,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateMemberOnboarding</step>
             <!--
+                configurable-types-domain-model task 3.5: after InitializeSettings imports the register
+                (99-participations-are-compositions.json must already have added `migratedFromObject`
+                to GovernanceBodyComposition, or every copied row fails validation on it). Copies
+                body-participation rows onto governance-body-composition as `representation`
+                compositions: sharedBody becomes composite, participant becomes component, and the
+                date-times become the calendar dates the composition stores. Both bodies are resolved
+                to uuids first. Counted: the step reports how many it copied and how many named no
+                body. Identity is the SOURCE object's uuid. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateParticipationsToCompositions</step>
+            <!--
                 plain-words-for-groups-and-the-installation-step: swearing-in is a council's
                 ceremony; a board signs a deed instead. The stepType enum now says installation, so
                 stored steps have to follow or they hold a value the schema no longer offers. NOT in
@@ -450,6 +471,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 a fresh install has no stages to repair.
             -->
             <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
+            <!--
+                the-decision-as-a-walked-process task 1.1: the engine now writes a
+                terminal `state` onto every approval action it records. Actions stored
+                before that carry the schema default `open` and would read as approvals
+                still awaited. Backfills the state from the recorded verb; a row with no
+                verb (a real open work item) and a row with a terminal state are left
+                alone. Idempotent. <post-migration> only: a fresh install has no actions.
+            -->
+            <step>OCA\Decidiq\Migration\RepairApprovalActionStates</step>
             <!--
                 Fifth leg of the rename, on the ADMINISTRATORS GROUP. The
                 register's authorization baseline named `decidesk-administrators`
@@ -581,6 +611,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
     <commands>
         <command>OCA\Decidiq\Command\MigrateActionItems</command>
+        <command>OCA\Decidiq\Command\ImportFormResponses</command>
+        <command>OCA\Decidiq\Command\ImportOriCommand</command>
     </commands>
 
     <settings>

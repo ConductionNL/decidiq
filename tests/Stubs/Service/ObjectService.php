@@ -41,6 +41,9 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Register;
 use OCA\OpenRegister\Db\Schema;
 use OCP\IUser;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 
 /**
  * Stub for ObjectService, in signature parity with production.
@@ -89,13 +92,9 @@ abstract class ObjectService {
 	 */
 	abstract public function find(
 		int|string $id,
-		?array $_extend = [],
-		bool $files = false,
-		Register|string|int|null $register = null,
-		Schema|string|int|null $schema = null,
+		?ObjectFindOptions $options = null,
 		bool $_rbac = true,
-		bool $_multitenancy = true,
-		bool $_render = true,
+		bool $_multitenancy = true
 	): ?ObjectEntity;
 
 	/**
@@ -132,16 +131,9 @@ abstract class ObjectService {
 	 */
 	abstract public function saveObject(
 		array|ObjectEntity $object,
-		?array $extend = [],
-		Register|string|int|null $register = null,
-		Schema|string|int|null $schema = null,
-		?string $uuid = null,
+		ObjectSaveOptions $options = new ObjectSaveOptions(),
 		bool $_rbac = true,
-		bool $_multitenancy = true,
-		bool $silent = false,
-		?array $uploadedFiles = null,
-		?IUser $currentUser = null,
-		bool $failIfExists = false,
+		bool $_multitenancy = true
 	): ObjectEntity;
 
 	/**
@@ -161,13 +153,10 @@ abstract class ObjectService {
 	 * @return bool
 	 */
 	abstract public function deleteObject(
-		string $uuid,
-		Register|string|int|null $register = null,
-		Schema|string|int|null $schema = null,
+		ObjectDeletion $deletion,
 		bool $_rbac = true,
 		bool $_multitenancy = true,
-		bool $_retentionSweep = false,
-		?IUser $currentUser = null,
+		bool $_retentionSweep = false
 	): bool;
 
 }//end class

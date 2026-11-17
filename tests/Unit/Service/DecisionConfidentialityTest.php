@@ -43,6 +43,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Confidentiality of a decision lives in confidentiality-restriction objects
@@ -150,7 +151,11 @@ class DecisionConfidentialityTest extends TestCase {
 			fn (int|string $id): ?object => isset($this->store[(string)$id]) === true ? $this->entity($this->store[(string)$id]) : null
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$uuid = ($uuid ?? ('obj-' . (count($this->written) + 1)));
 				$this->written[] = array_merge(['id' => $uuid, '_schema' => $schema], $object);
 				$this->store[$uuid] = end($this->written);

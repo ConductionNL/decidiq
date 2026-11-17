@@ -33,6 +33,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Report rendering, the PDF/markdown fallback and the Files write path.
@@ -165,7 +166,11 @@ class BoardEvaluationReportServiceTest extends TestCase {
 	 */
 	private function seed(array $evaluation, ?array $body = null): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (string|int $id, ?array $extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($evaluation, $body): ?ObjectEntity {
+			function (string|int $id, ?ObjectFindOptions $options = null) use ($evaluation, $body): ?ObjectEntity {
+				$extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'board-evaluation') {
 					return ($id === 'eval-1') ? $this->entity($evaluation) : null;
 				}
@@ -400,7 +405,11 @@ class BoardEvaluationReportServiceTest extends TestCase {
 	public function testBodyLookupFailureFallsBackToGenericName(): void {
 		$evaluation = self::evaluation();
 		$this->objectService->method('find')->willReturnCallback(
-			function (string|int $id, ?array $extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($evaluation): ?ObjectEntity {
+			function (string|int $id, ?ObjectFindOptions $options = null) use ($evaluation): ?ObjectEntity {
+				$extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'governance-body') {
 					throw new RuntimeException('register down');
 				}

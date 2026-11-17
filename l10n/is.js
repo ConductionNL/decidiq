@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Hverjir mega kjósa",
+        "All members of the body": "Allir meðlimir aðilans",
+        "Left out because they are no longer active members: {names}": "Sleppt þar sem þau eru ekki lengur virkir meðlimir: {names}",
         "sign-off route": "samþykktarferli",
         "#": "#",
         "+ Action item": "+ Aðgerðarliður",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Skref {step} af {total}",
         "Still to do: stage {seq} ({maker})": "Enn eftir: áfangi {seq} ({maker})",
         "Stop": "Stöðva",
-        "Store": "Geyma",
         "Subject description": "Lýsing viðfangs",
         "Submission phase": "Innsendingaráfangi",
         "Submission window (hours)": "Innsendingargluggi (klukkustundir)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Aukafundur",
         "Committee meeting": "Nefndarfundur",
         "Public hearing": "Opinber fundur",
-        "General assembly": "Aðalfundur"
+        "General assembly": "Aðalfundur",
+        "Members' ancillary positions": "Aukastörf meðlima"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -44,6 +44,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -451,9 +453,8 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema(self::TARGET_SCHEMA);
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::TARGET_SCHEMA,
 					object: $payload,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
 				);
 				$migrated++;
 				// Record it, so a SECOND legacy row of the same name (a

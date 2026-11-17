@@ -27,6 +27,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Mapping, markers, archive-after-success and delegation folding.
@@ -106,14 +107,29 @@ class ActionItemMigrationServiceTest extends TestCase {
 		$calls = [];
 		$this->objectService->expects(self::once())
 			->method('saveObject')
-			->with(self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-1'), self::anything(), 'decidiq', 'task', 't-1')
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-1'),
+					'extend' => self::anything(),
+					'register' => 'decidiq',
+					'schema' => 'task',
+					'uuid' => 't-1',
+				]))
 			->willReturnCallback(function () use (&$calls): ObjectEntityInterface {
 				$calls[] = 'mark';
 				return $this->createMock(ObjectEntityInterface::class);
 			});
 		$this->objectService->expects(self::once())
 			->method('deleteObject')
-			->with('t-1', 'decidiq', 'task', false, false, false, null, false)
+			->with(...LegacyObjectArgs::with(method: 'deleteObject', expected: [
+					'uuid' => 't-1',
+					'register' => 'decidiq',
+					'schema' => 'task',
+					'_rbac' => false,
+					'_multitenancy' => false,
+					'_retentionSweep' => false,
+					'currentUser' => null,
+					'permanent' => false,
+				]))
 			->willReturnCallback(function () use (&$calls): bool {
 				$calls[] = 'archive';
 				return true;
@@ -154,7 +170,9 @@ class ActionItemMigrationServiceTest extends TestCase {
 		$this->writer->expects(self::never())->method('create');
 		$this->objectService->expects(self::once())
 			->method('saveObject')
-			->with(self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-2'))
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => self::callback(static fn (array $object): bool => $object['_migratedToVtodo'] === 'vtodo-2'),
+				]))
 			->willReturn($this->createMock(ObjectEntityInterface::class));
 
 		self::assertSame(1, $this->service->migrateUser(userId: 'u')['migrated']);

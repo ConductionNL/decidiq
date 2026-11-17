@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Кой може да гласува",
+        "All members of the body": "Всички членове на органа",
+        "Left out because they are no longer active members: {names}": "Изключени, защото вече не са активни членове: {names}",
         "sign-off route": "маршрут за одобрение",
         "#": "#",
         "+ Action item": "+ Действие",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Стъпка {step} от {total}",
         "Still to do: stage {seq} ({maker})": "Предстои: етап {seq} ({maker})",
         "Stop": "Спиране",
-        "Store": "Съхраняване",
         "Subject description": "Описание на предмета",
         "Submission phase": "Фаза на подаване",
         "Submission window (hours)": "Срок за подаване (часове)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Извънредно заседание",
         "Committee meeting": "Заседание на комисия",
         "Public hearing": "Публично изслушване",
-        "General assembly": "Общо събрание"
+        "General assembly": "Общо събрание",
+        "Members' ancillary positions": "Странични длъжности на членовете"
     },
     "nplurals=2; plural=(n != 1);"
 )

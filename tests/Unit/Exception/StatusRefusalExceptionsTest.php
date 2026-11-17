@@ -25,6 +25,7 @@ use OCA\Decidiq\Exception\BroadcastRefusedException;
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
+use OCA\Decidiq\Exception\OnboardingStepRefusedException;
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use PHPUnit\Framework\TestCase;
@@ -37,6 +38,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Exception\CaseSystemException
  * @covers \OCA\Decidiq\Exception\ExportBundleException
  * @covers \OCA\Decidiq\Exception\GuestInvitationRefusedException
+ * @covers \OCA\Decidiq\Exception\OnboardingStepRefusedException
  * @covers \OCA\Decidiq\Exception\PaperSummaryRefusedException
  * @covers \OCA\Decidiq\Exception\SubstitutionRefusedException
  */
@@ -53,6 +55,7 @@ class StatusRefusalExceptionsTest extends TestCase {
 		self::assertSame(422, (new ExportBundleException(message: 'm'))->getStatus());
 		self::assertSame(422, (new GuestInvitationRefusedException(message: 'm'))->getStatus());
 		self::assertSame(403, (new PaperSummaryRefusedException(message: 'm'))->getStatus());
+		self::assertSame(409, (new OnboardingStepRefusedException(message: 'm'))->getStatus());
 	}//end testEachRefusalHasItsDefaultStatus()
 
 	/**
@@ -68,11 +71,12 @@ class StatusRefusalExceptionsTest extends TestCase {
 			new GuestInvitationRefusedException(message: 'Guest', status: 403),
 			new PaperSummaryRefusedException(message: 'Paper', status: 404),
 			new SubstitutionRefusedException(message: 'Substitution', status: 409),
+			new OnboardingStepRefusedException(message: 'Onboarding', status: 403),
 		];
 
-		self::assertSame([404, 502, 404, 403, 404, 409], array_map(static fn ($e): int => $e->getStatus(), $refusals));
+		self::assertSame([404, 502, 404, 403, 404, 409, 403], array_map(static fn ($e): int => $e->getStatus(), $refusals));
 		self::assertSame(
-			['Broadcast', 'Case system', 'Export', 'Guest', 'Paper', 'Substitution'],
+			['Broadcast', 'Case system', 'Export', 'Guest', 'Paper', 'Substitution', 'Onboarding'],
 			array_map(static fn ($e): string => $e->getMessage(), $refusals)
 		);
 		foreach ($refusals as $refusal) {
@@ -109,5 +113,6 @@ class StatusRefusalExceptionsTest extends TestCase {
 		self::assertSame(0, (new GuestInvitationRefusedException(message: 'm'))->getCode());
 		self::assertSame(0, (new PaperSummaryRefusedException(message: 'm'))->getCode());
 		self::assertSame(0, (new SubstitutionRefusedException(message: 'm', status: 409))->getCode());
+		self::assertSame(0, (new OnboardingStepRefusedException(message: 'm', status: 403))->getCode());
 	}//end testTheOtherRefusalsKeepCodeZero()
 }//end class

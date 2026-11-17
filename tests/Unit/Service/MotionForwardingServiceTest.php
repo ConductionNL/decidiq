@@ -31,6 +31,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Forwarding a motion to another governance body.
@@ -91,13 +93,11 @@ class MotionForwardingServiceTest extends TestCase {
 
 		$this->saves = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid];
 				if ($uuid === null) {
 					$object['id'] = 'forwarded-1';
@@ -160,7 +160,9 @@ class MotionForwardingServiceTest extends TestCase {
 	 */
 	private function seed(?array $motion, string $requiresApproval = 'false'): void {
 		$this->userManager->method('get')->with('alice')->willReturn($this->createMock(IUser::class));
-		$this->objectService->method('find')->with('motion-1')->willReturn(
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'motion-1',
+			]))->willReturn(
 			($motion === null) ? null : $this->entity($motion)
 		);
 		$this->appConfig->method('getValueString')

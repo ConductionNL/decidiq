@@ -31,6 +31,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Who may manage transcripts and play recordings.
@@ -224,7 +225,7 @@ class TranscriptionStaffGuardTest extends TestCase {
 	public function testForTranscriptResolvesMeeting(): void {
 		$this->login('alice');
 		$this->objectService->method('find')->willReturnCallback(
-			fn (string|int $id, ?array $extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntity => match ([$id, $register, $schema]) {
+			fn (string|int $id, ?ObjectFindOptions $options = null): ?ObjectEntity => match ([$id, ($options?->register), ($options?->schema)]) {
 				['t-1', 'decidiq', 'transcript'] => $this->entity(['relations' => ['meeting' => 'm-1']]),
 				['t-2', 'decidiq', 'transcript'] => $this->entity(['meeting' => ['id' => 'm-2']]),
 				['t-3', 'decidiq', 'transcript'] => $this->entity(['meeting' => ['m-3']]),

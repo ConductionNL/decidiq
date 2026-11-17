@@ -22,7 +22,7 @@ const STRIP = 'agenda-panels'
 const VISIBLE = ['Overview', 'Papers', 'Motions', 'Case']
 const VISIBLE_NL = ['Overzicht', 'Stukken', 'Moties', 'Zaak']
 const OVERFLOW = []
-const SIDE = ['agenda-side-facts', 'agenda-conflicts', 'agenda-paper-summaries']
+const SIDE = ['agenda-side-facts', 'agenda-conflicts', 'agenda-speakers', 'agenda-paper-summaries']
 const FACTS_LEAD = 'itemType'
 
 const ROOT = path.resolve(__dirname, '../..')
