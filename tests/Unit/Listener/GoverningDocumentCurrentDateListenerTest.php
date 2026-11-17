@@ -37,6 +37,7 @@ use RuntimeException;
 /**
  * @covers \OCA\Decidiq\Listener\GoverningDocumentCurrentDateListener
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
+ * @uses \OCA\Decidiq\Listener\EntityPayloadReader
  */
 class GoverningDocumentCurrentDateListenerTest extends TestCase {
 
