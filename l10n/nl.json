@@ -4169,7 +4169,13 @@
         "This year": "Dit jaar",
         "This quarter": "Dit kwartaal",
         "Custom range": "Aangepaste periode",
-        "By body, all periods": "Per orgaan, alle perioden"
+        "By body, all periods": "Per orgaan, alle perioden",
+        "Embargo until": "Embargo tot",
+        "The moment the wider membership may read the paper. Before it only the entitled audience and staff read it. Released at most 15 minutes after this moment.": "Het moment waarop de bredere ledenkring het stuk mag lezen. Daarvoor lezen alleen de aangewezen kring en de griffie het. Vrijgegeven uiterlijk 15 minuten na dit moment.",
+        "Under embargo": "Onder embargo",
+        "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.": "Of het stuk nog onder embargo valt. De griffie zet dit met Embargo tot; de embargotaak zet het op nee zodra dat moment voorbij is.",
+        "Embargo audience": "Embargokring",
+        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "De groep of rol die het stuk leest zolang het onder embargo valt, bijvoorbeeld fractievoorzitters."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
