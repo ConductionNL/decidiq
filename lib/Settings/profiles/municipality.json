@@ -1770,121 +1770,6 @@
 						]
 					}
 				],
-				"authority-delegation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "delegatie-uitwerkingsplannen",
-						"type": "delegation",
-						"subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:13",
-							"Wro art. 3.6"
-						],
-						"decision": "besluit-delegatie-uitwerkingsplannen",
-						"validFrom": "2026-01-01",
-						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z",
-						"delegatingBody": "gemeenteraad-amsterdam",
-						"delegateBody": "college-van-b-en-w-amsterdam",
-						"restrictions": "Uitsluitend binnen door de raad vastgestelde kaders"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "machtiging-woo-vertegenwoordiging",
-						"type": "authorisation",
-						"delegateRole": "juridisch adviseur team Recht",
-						"subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:3"
-						],
-						"decision": "besluit-algemeen-mandaatbesluit-2026",
-						"validFrom": "2025-01-01",
-						"validTo": "2026-01-01",
-						"status": "withdrawn",
-						"withdrawnBy": "besluit-intrekking-machtiging-woo",
-						"publicationDate": "2025-01-10T09:00:00Z",
-						"delegatingBody": "college-van-b-en-w-amsterdam"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "mandaat-subsidies-secretaris",
-						"type": "mandate",
-						"delegateRole": "gemeentesecretaris",
-						"subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
-						"financialCeiling": 25000,
-						"subMandatePermitted": true,
-						"statutoryBasis": [
-							"Awb art. 10:3",
-							"Asv 2026 art. 4"
-						],
-						"decision": "besluit-algemeen-mandaatbesluit-2026",
-						"validFrom": "2026-01-01",
-						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z",
-						"delegatingBody": "college-van-b-en-w-amsterdam",
-						"restrictions": "Geen subsidies met precedentwerking"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "ondermandaat-subsidies-samenleving",
-						"type": "mandate",
-						"delegateRole": "afdelingshoofd Samenleving",
-						"subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
-						"financialCeiling": 5000,
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:9"
-						],
-						"decision": "besluit-algemeen-mandaatbesluit-2026",
-						"parentAllocation": "mandaat-subsidies-secretaris",
-						"validFrom": "2026-02-01",
-						"validTo": "2026-08-15",
-						"status": "effective",
-						"publicationDate": "2026-02-05T09:00:00Z",
-						"delegatingDescription": "gemeentesecretaris",
-						"restrictions": "Uitsluitend reguliere subsidieregelingen"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "volmacht-inkoop-teamleider",
-						"type": "power-of-attorney",
-						"delegateRole": "teamleider Inkoop",
-						"subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
-						"financialCeiling": 50000,
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"BW art. 3:60",
-							"Gemeentewet art. 171"
-						],
-						"decision": "besluit-algemeen-mandaatbesluit-2026",
-						"validFrom": "2026-03-01",
-						"status": "draft",
-						"delegatingDescription": "burgemeester",
-						"restrictions": "Binnen het vastgestelde inkoopbeleid"
-					}
-				],
 				"body-governance-configuration": [
 					{
 						"@self": {
@@ -2844,6 +2729,121 @@
 						"decisionDate": "2026-01-22T21:00:00Z",
 						"isPublished": "public",
 						"goal": "goal-verlichte-fietsroutes-2027"
+					}
+				],
+				"authority-delegation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "delegatie-uitwerkingsplannen",
+						"type": "delegation",
+						"subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:13",
+							"Wro art. 3.6"
+						],
+						"decision": "besluit-delegatie-uitwerkingsplannen",
+						"validFrom": "2026-01-01",
+						"status": "effective",
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "gemeenteraad-amsterdam",
+						"delegateBody": "college-van-b-en-w-amsterdam",
+						"restrictions": "Uitsluitend binnen door de raad vastgestelde kaders"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "machtiging-woo-vertegenwoordiging",
+						"type": "authorisation",
+						"delegateRole": "juridisch adviseur team Recht",
+						"subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:3"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2025-01-01",
+						"validTo": "2026-01-01",
+						"status": "withdrawn",
+						"withdrawnBy": "besluit-intrekking-machtiging-woo",
+						"publicationDate": "2025-01-10T09:00:00Z",
+						"delegatingBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "mandaat-subsidies-secretaris",
+						"type": "mandate",
+						"delegateRole": "gemeentesecretaris",
+						"subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
+						"financialCeiling": 25000,
+						"subMandatePermitted": true,
+						"statutoryBasis": [
+							"Awb art. 10:3",
+							"Asv 2026 art. 4"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2026-01-01",
+						"status": "effective",
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "college-van-b-en-w-amsterdam",
+						"restrictions": "Geen subsidies met precedentwerking"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "ondermandaat-subsidies-samenleving",
+						"type": "mandate",
+						"delegateRole": "afdelingshoofd Samenleving",
+						"subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
+						"financialCeiling": 5000,
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:9"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"parentAllocation": "mandaat-subsidies-secretaris",
+						"validFrom": "2026-02-01",
+						"validTo": "2026-08-15",
+						"status": "effective",
+						"publicationDate": "2026-02-05T09:00:00Z",
+						"delegatingDescription": "gemeentesecretaris",
+						"restrictions": "Uitsluitend reguliere subsidieregelingen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "volmacht-inkoop-teamleider",
+						"type": "power-of-attorney",
+						"delegateRole": "teamleider Inkoop",
+						"subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
+						"financialCeiling": 50000,
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"BW art. 3:60",
+							"Gemeentewet art. 171"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2026-03-01",
+						"status": "draft",
+						"delegatingDescription": "burgemeester",
+						"restrictions": "Binnen het vastgestelde inkoopbeleid"
 					}
 				],
 				"decision-template": [
