@@ -59,6 +59,8 @@ export function themeUrl(themeId = '') {
  *
  * @param {Array|undefined} value The link array.
  * @return {string[]} The ids.
+ *
+ * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function idsOf(value) {
 	if (!Array.isArray(value)) return []
@@ -72,6 +74,8 @@ export function idsOf(value) {
  *
  * @param {object} theme The theme.
  * @return {string} The id, '' when it has none.
+ *
+ * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function themeIdOf(theme) {
 	return String(theme?.id || theme?.uuid || theme?.['@self']?.id || '')

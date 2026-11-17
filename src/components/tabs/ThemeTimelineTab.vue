@@ -62,6 +62,7 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it */
 		objectId() {
 			this.load()
 		},
@@ -104,6 +105,8 @@ export default {
 		 *
 		 * @param {string} kind The kind.
 		 * @return {string} The label.
+		 *
+		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
 		 */
 		kindLabel(kind) {
 			switch (kind) {

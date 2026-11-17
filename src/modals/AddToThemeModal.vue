@@ -71,6 +71,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		options() {
 			return this.themes
 		},
@@ -89,6 +90,8 @@ export default {
 		 *
 		 * @param {string} message The server's message.
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 		 */
 		setError(message) {
 			this.error = message

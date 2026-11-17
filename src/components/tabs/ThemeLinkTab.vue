@@ -72,10 +72,12 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		holding() {
 			return themesHolding(this.themes, this.kind, String(this.objectId))
 		},
 
+		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		available() {
 			const holding = this.holding.map(themeIdOf)
 			return this.themes.filter((theme) => !holding.includes(themeIdOf(theme)))
@@ -83,6 +85,7 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		objectId() {
 			this.load()
 		},
@@ -93,6 +96,14 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The id of a theme.
+		 *
+		 * @param {object} theme The theme.
+		 * @return {string} The id.
+		 *
+		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+		 */
 		idOf(theme) {
 			return themeIdOf(theme)
 		},
