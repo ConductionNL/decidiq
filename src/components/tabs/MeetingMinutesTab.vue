@@ -65,6 +65,7 @@
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -144,7 +145,7 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('minutes')
-				const created = await store.saveObject('minutes', {
+				const created = await saveOrThrow(store, 'minutes', {
 					title: this.t('decidiq', 'Minutes'),
 					lifecycle: 'draft',
 					version: 1,
