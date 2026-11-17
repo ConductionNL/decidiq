@@ -2100,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Преостаје: фаза {seq} ({maker})",
         "Stop": "Заустави",
         "Stop {name}": "Заустави {name}",
-        "Store": "Сачувај",
         "Sub-item title": "Наслов подтачке",
         "Sub-item: {title}": "Подтачка: {title}",
         "Sub-items of {title}": "Подтачке за {title}",
@@ -3324,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ванредна седница",
         "Committee meeting": "Седница одбора",
         "Public hearing": "Јавна расправа",
-        "General assembly": "Скупштина чланова"
+        "General assembly": "Скупштина чланова",
+        "Members' ancillary positions": "Споредне функције чланова"
     },
     "nplurals=2; plural=(n != 1);"
 )

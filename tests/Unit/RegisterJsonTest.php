@@ -1425,6 +1425,86 @@ class RegisterJsonTest extends TestCase {
 
 
 	/**
+	 * A voting round can be held in writing: the fragment declares the round's
+	 * written-procedure fields, `objection` on a vote and the vote's membership
+	 * (voting-written-resolution, task 1).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	public function testAVotingRoundCanBeHeldInWriting(): void {
+		$json = file_get_contents(filename: __DIR__ . '/../../lib/Settings/register.d/132-written-resolution.json');
+		self::assertNotFalse(condition: $json);
+		$schemas = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR)['components']['schemas'];
+
+		$round = $schemas['VotingRound']['properties'];
+		foreach (['procedure', 'decision', 'governanceBody', 'electorate', 'electorateUserIds', 'writtenRule', 'closedReason'] as $field) {
+			self::assertArrayHasKey(key: $field, array: $round);
+			self::assertNotEmpty(actual: ($round[$field]['title'] ?? ''), message: $field . ' carries a title');
+		}
+
+		self::assertSame(expected: 'in-meeting', actual: $round['procedure']['default'], message: 'every stored round keeps meaning what it meant');
+		self::assertSame(expected: ['in-meeting', 'written'], actual: $round['procedure']['enum']);
+		self::assertSame(expected: 'unanimous', actual: $round['writtenRule']['default'], message: 'silence is not consent by default');
+		self::assertSame(expected: ['all-answered', 'outcome-settled', 'objection', 'deadline'], actual: $round['closedReason']['enum']);
+		self::assertSame(expected: 'governance-body', actual: $round['governanceBody']['$ref']);
+		self::assertSame(expected: ['membership', 'person', 'userId', 'votingWeight'], actual: array_keys($round['electorate']['items']['properties']));
+
+		$vote = $schemas['Vote']['properties'];
+		self::assertContains(needle: 'objection', haystack: $vote['value']['enum']);
+		self::assertSame(expected: 'membership', actual: $vote['membership']['$ref']);
+		self::assertContains(
+			needle: 'objection',
+			haystack: \OCA\Decidiq\Service\SettingsService::shippedRegisterDescriptor()['components']['schemas']['Vote']['properties']['value']['enum'],
+			message: 'the shipped, merged register lets a vote object'
+		);
+		self::assertSame(expected: 'voting-round', actual: $schemas['VotingRound']['slug']);
+		self::assertSame(expected: 'vote', actual: $schemas['Vote']['slug']);
+
+	}//end testAVotingRoundCanBeHeldInWriting()
+
+	/**
+	 * The company board example set holds a decision decided in writing: its
+	 * round, three answers and board members who can answer.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
+	 */
+	public function testTheCompanyBoardSetHoldsAWrittenResolution(): void {
+		$json = file_get_contents(filename: __DIR__ . '/../../lib/Settings/profiles/corporate.json');
+		self::assertNotFalse(condition: $json);
+		$objects = json_decode(json: $json, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR)['x-openregister']['seedData']['objects'];
+
+		$bySlug = static function (array $list): array {
+			return array_column($list, null, 'slug');
+		};
+		$decision = ($bySlug($objects['decision'])['besluit-schriftelijk-accountant-2026'] ?? null);
+		$round    = ($bySlug($objects['voting-round'])['schriftelijke-ronde-accountant-2026'] ?? null);
+		self::assertIsArray(actual: $decision);
+		self::assertIsArray(actual: $round);
+		self::assertSame(expected: ['decided', 'adopted'], actual: [$decision['lifecycle'], $decision['outcome']]);
+		self::assertSame(
+			expected: ['written', 'besluit-schriftelijk-accountant-2026', 'unanimous', 'adopted', 'all-answered'],
+			actual: [$round['procedure'], $round['decision'], $round['writtenRule'], $round['result'], $round['closedReason']]
+		);
+		self::assertCount(expectedCount: 3, haystack: $round['electorate']);
+
+		$answers = array_filter($objects['vote'] ?? [], static fn (array $vote): bool => ($vote['votingRound'] ?? '') === $round['slug']);
+		self::assertCount(expectedCount: 3, haystack: $answers);
+		self::assertSame(expected: array_column($round['electorate'], 'membership'), actual: array_values(array_column($answers, 'membership')));
+		self::assertSame(expected: ['for'], actual: array_values(array_unique(array_column($answers, 'value'))));
+		self::assertSame(expected: $decision['decisionDate'], actual: max(array_column($answers, 'castAt')), message: 'adopted on the last answer');
+
+		$people = $bySlug($objects['person']);
+		foreach (array_column($round['electorate'], 'person') as $person) {
+			self::assertNotEmpty(actual: ($people[$person]['nextcloudUserId'] ?? ''), message: $person . ' can answer');
+		}
+
+	}//end testTheCompanyBoardSetHoldsAWrittenResolution()
+
+	/**
 	 * Recursively collect every `$ref` string value in a decoded register.
 	 *
 	 * @param mixed $node The node to walk.

@@ -2603,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Žingsnis {step} iš {total}",
         "Still to do: stage {seq} ({maker})": "Dar liko: etapas {seq} ({maker})",
         "Stop": "Sustabdyti",
-        "Store": "Saugoti",
         "Subject description": "Objekto aprašymas",
         "Submission phase": "Pateikimo etapas",
         "Submission window (hours)": "Pateikimo laikotarpis (valandomis)",
@@ -3354,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Neeilinis susirinkimas",
         "Committee meeting": "Komiteto posėdis",
         "Public hearing": "Viešasis svarstymas",
-        "General assembly": "Visuotinis susirinkimas"
+        "General assembly": "Visuotinis susirinkimas",
+        "Members' ancillary positions": "Narių papildomos pareigos"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -29,6 +29,8 @@ use DateTimeImmutable;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -166,9 +168,10 @@ class OriPublicationService implements OriPublicationServiceInterface {
 			// Stamp oriPublishedAt to distinguish "published" from merely "closed".
 			$this->objectService->saveObject(
 				object: array_merge($roundData, ['oriPublishedAt' => (new DateTimeImmutable())->format(\DateTimeInterface::ATOM)]),
-				register: 'decidiq',
-				schema: 'voting-round',
-				uuid: $votingRoundId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'),
+					uuid: $votingRoundId
+				)
 			);
 
 			$this->logger->info("Decidiq ORI: VotingRound $votingRoundId published successfully to $endpoint");

@@ -48,6 +48,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 
@@ -214,7 +215,7 @@ class GovernanceScopeGuard implements GovernanceScopeGuardInterface {
 				return false;
 			}
 
-			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meeting = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			if ($meeting === null) {
 				return false;
 			}
@@ -248,7 +249,7 @@ class GovernanceScopeGuard implements GovernanceScopeGuardInterface {
 			return $subjectId;
 		}
 
-		$decision = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: 'decision');
+		$decision = $this->objectService->find(id: $subjectId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($decision === null) {
 			return null;
 		}
@@ -266,7 +267,7 @@ class GovernanceScopeGuard implements GovernanceScopeGuardInterface {
 	 * @return string|null
 	 */
 	private function resolveBodyIdForMinutes(string $minutesId): ?string {
-		$minutesEntity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$minutesEntity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($minutesEntity === null) {
 			return null;
 		}
@@ -276,7 +277,7 @@ class GovernanceScopeGuard implements GovernanceScopeGuardInterface {
 			return null;
 		}
 
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			return null;
 		}

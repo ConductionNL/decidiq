@@ -29,6 +29,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Step generation never breaks the save that created the cycle, and only a
@@ -99,7 +100,13 @@ class PlanningCycleCreatedListenerFailureTest extends TestCase {
 		$template->setObject(['steps' => []]);
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willReturn([]);
-		$objects->expects($this->once())->method('find')->with('tpl-1', [], false, 'decidiq', 'planning-cycle-template')->willReturn($template);
+		$objects->expects($this->once())->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'tpl-1',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'planning-cycle-template',
+			]))->willReturn($template);
 		$objects->method('saveObject')->willThrowException(new RuntimeException('register read-only'));
 		$generator = $this->createMock(PlanningCycleGenerator::class);
 		$generator->expects($this->once())->method('stepsFor')->with('cycle-2027', 2027, $this->callback(static fn (array $template): bool => ($template['steps'] ?? null) === []))->willReturn([['title' => 'Kadernota']]);

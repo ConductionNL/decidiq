@@ -157,13 +157,13 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice', 'publicAncillaryPositions'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts and the motions open for advice, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts, the motions open for advice and the ancillary positions, in order'
 		);
 
 		// The public calendar and broadcasts are read without an account; they are tested on their own.
-		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice']);
+		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice'], $byId['publicAncillaryPositions']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
@@ -310,6 +310,39 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 	}//end testMotionsOpenForAdviceAreAnonymousWithTheirCounts()
+
+	/**
+	 * Residents read members' ancillary positions without an account, with the
+	 * six public fields only; the read rule on the schema admits an anonymous
+	 * caller to a position whose publicationDate has passed and to nothing else.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 */
+	public function testAncillaryPositionsAreAnonymousWithTheSixPublicFields(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'publicAncillaryPositions', array: $byId);
+		$positions = $byId['publicAncillaryPositions'];
+		self::assertSame(expected: 'decidiq', actual: $positions['register']);
+		self::assertSame(expected: 'ancillary-position', actual: $positions['schema']);
+		self::assertTrue(condition: $positions['anonymous']);
+		self::assertTrue(condition: $positions['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $positions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(
+			expected: ['person', 'organisation', 'role', 'remunerated', 'startDate', 'endDate'],
+			actual: $positions['fields']
+		);
+
+		$schema = $this->schemasBySlug()['ancillary-position'];
+		self::assertContains(
+			needle: ['group' => 'public', 'match' => ['publicationDate' => ['$lte' => '$now']], 'crossOrganisation' => true],
+			haystack: $schema['authorization']['read'],
+			message: 'Only a published position is readable without an account'
+		);
+
+	}//end testAncillaryPositionsAreAnonymousWithTheSixPublicFields()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.

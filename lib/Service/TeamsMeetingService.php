@@ -37,6 +37,9 @@ use OCA\Decidiq\Exception\TeamsMeetingRefusedException;
 use OCA\Decidiq\Kernel\Contracts\TeamsMeetingServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
@@ -169,9 +172,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 		$meeting['teamsMeeting'] = $teams;
 		$this->objectService->saveObject(
 			object: $meeting,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $meetingId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $meetingId),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -212,7 +213,12 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	private function meeting(string $meetingId): array {
 		$entity = null;
 		if ($meetingId !== '') {
-			$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+				_rbac: false,
+				_multitenancy: false
+			);
 		}
 
 		if ($entity === null) {

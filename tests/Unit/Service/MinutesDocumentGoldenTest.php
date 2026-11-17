@@ -37,6 +37,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 use OCA\Decidiq\Service\MinutesDocumentService;
 use OCA\Decidiq\Service\MinutesGenerationService;
 use OCA\Decidiq\Support\FilinqPdf;
@@ -217,7 +218,7 @@ class MinutesDocumentGoldenTest extends TestCase {
 	 * @return mixed The answer.
 	 */
 	private function call(string $method, array $args, ObjectServiceInterface $objects): mixed {
-		$named       = $this->named(class: ObjectServiceInterface::class, method: $method, args: $args);
+		$named       = $this->named(class: ObjectServiceInterface::class, method: $method, args: LegacyObjectArgs::positional(method: $method, args: $args));
 		$this->log[] = [$method => $named];
 		if ($method === 'saveObject') {
 			if (($this->case['save'] ?? null) === 'throw') {
@@ -286,7 +287,7 @@ class MinutesDocumentGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $args): array {
 		$out = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $param) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
 				continue;
 			}

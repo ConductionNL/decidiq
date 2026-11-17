@@ -43,6 +43,7 @@ use Psr\Log\AbstractLogger;
 use ReflectionMethod;
 use RuntimeException;
 use Stringable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the series generation of MeetingSeriesService.
@@ -140,6 +141,7 @@ class MeetingSeriesGoldenTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$arguments) use ($case): mixed {
+				$arguments = LegacyObjectArgs::positional(method: 'find', args: $arguments);
 				$this->log[] = ['find' => $this->named(ObjectServiceInterface::class, 'find', $arguments)];
 				if (($case['find'] ?? '') === 'throw') {
 					throw new RuntimeException('lookup down');
@@ -154,6 +156,7 @@ class MeetingSeriesGoldenTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed ...$arguments) use ($case, &$saves): mixed {
+				$arguments = LegacyObjectArgs::positional(method: 'saveObject', args: $arguments);
 				$arguments = $this->named(ObjectServiceInterface::class, 'saveObject', $arguments);
 				$this->log[] = ['saveObject' => $arguments];
 				$saves++;
@@ -223,7 +226,7 @@ class MeetingSeriesGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $arguments): array {
 		$named = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $parameter) {
 			if (array_key_exists($i, $arguments) === false) {
 				break;
 			}

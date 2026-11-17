@@ -2100,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Яшчэ трэба: этап {seq} ({maker})",
         "Stop": "Спыніць",
         "Stop {name}": "Спыніць {name}",
-        "Store": "Захаваць",
         "Sub-item title": "Назва падпункта",
         "Sub-item: {title}": "Падпункт: {title}",
         "Sub-items of {title}": "Падпункты {title}",
@@ -3324,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Пазачарговае пасяджэнне",
         "Committee meeting": "Пасяджэнне камісіі",
         "Public hearing": "Публічныя слуханні",
-        "General assembly": "Агульны сход"
+        "General assembly": "Агульны сход",
+        "Members' ancillary positions": "Пабочныя пасады членаў"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -30,6 +30,9 @@ use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -125,7 +128,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		$body = $this->validBody(body: $body);
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -157,7 +160,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 		$result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
 		return $result;
@@ -190,12 +196,12 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		$body = $this->validBody(body: $body);
 
 		$objectService = $this->objectService();
-		if ($objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation') === null) {
+		if ($objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation')) === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
 
 		$uuid = self::importedReactionId(consultationId: $consultationId, sourceKey: $sourceKey);
-		if ($objectService->find(id: $uuid, register: 'decidiq', schema: 'consultation-reaction') !== null) {
+		if ($objectService->find(id: $uuid, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction')) !== null) {
 			return null;
 		}
 
@@ -210,7 +216,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction, uuid: $uuid);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'), uuid: $uuid)
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end importReaction()
@@ -335,7 +344,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 	 */
 	public function approveReaction(string $reactionId, ?string $reason = null): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -347,7 +356,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 			$reaction['moderationReason'] = $reason;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		// Increment the parent consultation's submissionCount when a reaction is
 		// approved (pre-moderation: reactions start as pending and only count
@@ -387,14 +399,20 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		}
 
 		try {
-			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+			$consultationEntity = $objectService->find(
+				id: $consultationId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation')
+			);
 			if ($consultationEntity === null) {
 				return;
 			}
 
 			$consultation = $consultationEntity->jsonSerialize();
 			$consultation['submissionCount'] = ((int)($consultation['submissionCount'] ?? 0)) + 1;
-			$objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
+			$objectService->saveObject(
+				object: $consultation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'public-consultation'))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'ReactionIntakeService: could not increment consultation submissionCount: ' . $e->getMessage()
@@ -427,7 +445,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -436,7 +454,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		$reaction['moderationStatus'] = 'rejected';
 		$reaction['moderationReason'] = $reason;
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end rejectReaction()

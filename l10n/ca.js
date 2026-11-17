@@ -2100,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Pendent: fase {seq} ({maker})",
         "Stop": "Atura",
         "Stop {name}": "Atura {name}",
-        "Store": "Desa",
         "Sub-item title": "Títol del subpunt",
         "Sub-item: {title}": "Subpunt: {title}",
         "Sub-items of {title}": "Subpunts de {title}",
@@ -3324,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Reunió extraordinària",
         "Committee meeting": "Reunió de comissió",
         "Public hearing": "Audiència pública",
-        "General assembly": "Assemblea general"
+        "General assembly": "Assemblea general",
+        "Members' ancillary positions": "Càrrecs complementaris dels membres"
     },
     "nplurals=2; plural=(n != 1);"
 )
