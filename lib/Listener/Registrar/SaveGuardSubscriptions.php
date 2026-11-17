@@ -41,6 +41,7 @@ use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
+use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -126,6 +127,10 @@ final class SaveGuardSubscriptions {
 			'listener' => PlannedAgendaItemRulesGuardListener::class,
 			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
 		],
+		// Long-term agenda tracks (planning-long-term-agenda-tracks-and-report,
+		// REQ-LTAT-002): a track sits under a topic, one level deep.
+		['event' => ObjectCreatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
 		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
 		// decision carries the clause of its type as it stood when it was
 		// taken. After the competence guard, so a refused save stamps nothing.
