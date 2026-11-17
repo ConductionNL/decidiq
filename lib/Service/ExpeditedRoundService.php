@@ -32,6 +32,8 @@ use DateInterval;
 use DateTimeImmutable;
 use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Lifecycle\UrgencyTriggerGuard;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Utility\ITimeFactory;
 use Psr\Container\ContainerInterface;
@@ -139,13 +141,19 @@ class ExpeditedRoundService {
 				'openedAt'       => $opened->format(DATE_ATOM),
 				'votingDeadline' => $opened->add(new DateInterval('PT' . $hours . 'H'))->format(DATE_ATOM),
 				'decisionStage'  => UrgentRatificationService::idOf(row: $stage),
-			], register: 'decidiq', schema: 'voting-round')->jsonSerialize();
+			], options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round')))->jsonSerialize();
 
 			$linked = $stage;
 			unset($linked['@self']);
 			$linked['method']      = 'vote';
 			$linked['votingRound'] = UrgentRatificationService::idOf(row: $round);
-			$objectService->saveObject(object: $linked, register: 'decidiq', schema: 'decision-stage', uuid: UrgentRatificationService::idOf(row: $stage));
+			$objectService->saveObject(
+				object: $linked,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
+					uuid: UrgentRatificationService::idOf(row: $stage)
+				)
+			);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: opening an expedited round failed', ['decision' => $decisionId, 'reason' => $e->getMessage()]);
 			return self::envelope(status: Http::STATUS_INTERNAL_SERVER_ERROR, message: 'The expedited round could not be opened.');

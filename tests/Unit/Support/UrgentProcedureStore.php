@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Support;
 
 use JsonSerializable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -74,14 +76,14 @@ class UrgentProcedureStore {
 	/**
 	 * Find one object.
 	 *
-	 * @param string      $id       The id.
-	 * @param string|null $register The register.
-	 * @param string|null $schema   The schema.
+	 * @param string|int             $id      The id.
+	 * @param ObjectFindOptions|null $options The register and schema.
 	 *
 	 * @return JsonSerializable|null
 	 */
-	public function find(string $id, ?string $register = null, ?string $schema = null): ?JsonSerializable {
-		$row = ($this->objects[(string)$schema][$id] ?? null);
+	public function find(string|int $id, ?ObjectFindOptions $options = null): ?JsonSerializable {
+		$schema = (string)($options?->schema ?? '');
+		$row    = ($this->objects[$schema][(string)$id] ?? null);
 		if ($row === null) {
 			return null;
 		}
@@ -117,16 +119,17 @@ class UrgentProcedureStore {
 	/**
 	 * Save (create or replace) an object.
 	 *
-	 * @param array<string, mixed> $object   The object.
-	 * @param string|null          $register The register.
-	 * @param string|null          $schema   The schema.
-	 * @param string|null          $uuid     The id to replace, or null to create.
+	 * @param array<string, mixed>   $object  The object.
+	 * @param ObjectSaveOptions|null $options The target and the id to replace (null uuid creates).
+	 * @param bool                   $_rbac   Ignored.
 	 *
 	 * @return JsonSerializable
 	 *
 	 * @throws RuntimeException When the schema's saves are set to fail.
 	 */
-	public function saveObject(array $object, ?string $register = null, ?string $schema = null, ?string $uuid = null): JsonSerializable {
+	public function saveObject(array $object, ?ObjectSaveOptions $options = null, bool $_rbac = true): JsonSerializable {
+		$schema = (string)($options?->target->schema ?? '');
+		$uuid   = $options?->uuid;
 		if (in_array((string)$schema, $this->failingSaves, true) === true) {
 			throw new RuntimeException('save refused');
 		}

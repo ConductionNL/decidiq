@@ -32,6 +32,8 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Lifecycle\UrgencyTriggerGuard;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Utility\ITimeFactory;
 use Psr\Container\ContainerInterface;
@@ -132,7 +134,10 @@ class UrgencyDeclarationService {
 
 		$this->grant->grant(decisionId: $decisionId);
 		try {
-			$saved = $objectService->saveObject(object: $urgent, register: 'decidiq', schema: 'decision', uuid: $decisionId);
+			$saved = $objectService->saveObject(
+				object: $urgent,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
+			);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: declaring a decision urgent failed', ['decision' => $decisionId, 'reason' => $e->getMessage()]);
 			return self::envelope(status: Http::STATUS_INTERNAL_SERVER_ERROR, message: 'The urgency declaration could not be saved.');

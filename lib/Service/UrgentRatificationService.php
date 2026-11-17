@@ -32,6 +32,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use RuntimeException;
 use Throwable;
@@ -291,7 +294,10 @@ class UrgentRatificationService {
 	 */
 	private function save(object $objectService, string $schema, array $object, ?string $uuid=null): array {
 		try {
-			$saved = $objectService->saveObject(object: $object, register: self::REGISTER, schema: $schema, uuid: $uuid);
+			$saved = $objectService->saveObject(
+				object: $object,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $schema), uuid: $uuid)
+			);
 		} catch (Throwable $e) {
 			throw new RuntimeException('The ' . $schema . ' of the ratification could not be saved: ' . $e->getMessage(), 0, $e);
 		}
@@ -310,7 +316,7 @@ class UrgentRatificationService {
 	 */
 	private function find(object $objectService, string $schema, string $id): ?array {
 		try {
-			$found = $objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+			$found = $objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		} catch (Throwable) {
 			return null;
 		}
