@@ -37,8 +37,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **files**: `src/utils/routeFromFlowRun.js` (new), `src/components/tabs/DecisionRouteTab.vue`, `l10n/` (labels "Huidig", "besloten", "actief", "in afwachting", "Vervanger", "Nog te doen")
 - **acceptance_criteria**:
   - the tab matches the board: rows, badges, decided count, substitute line, Nog te doen line
-- [ ] Implement
-- [ ] Test (red first): `tests/unit/utils/routeFromFlowRun.spec.js`
+- Built: `src/utils/routeFromFlowRun.js` turns the route template and the run's tasks (`/apps/openregister/api/flow-tasks?runUuid=`) into the rows the tab already renders. Each row has sequence, label, role and method, status decided/active/pending, outcome, date, a lapse mark and a substitute when someone other than the named approver completed it. A re-opened step keeps its earlier tasks as history. `DecisionRouteTab.vue` reads a decision with `approvalEngine: flow` this way (the starter records `approvalRoute` and `approvalRun`) and keeps the stage rows for the old engine. No new strings: it reuses Approved, Lapsed, Substitute and the existing status and Current / Still to do labels. Not built: the server side of REQ-ARF-006. The compiler does not yet put a recorded substitute in the task's `candidateUsers`, because the absence is known when the step opens, not when the route is compiled, so the tab shows a substitute only after one completed the task. There is also no label yet for the `returned` outcome (needs a new string in every catalogue). Tests: `tests/vitest/routeFromFlowRun.spec.js` (6), `decisionRouteTabGolden.spec.js` (+1).
+- [x] Implement
+- [x] Test (red first): `tests/unit/utils/routeFromFlowRun.spec.js`
 
 ### Task 5: Refuse a route that needs a missing OpenRegister feature
 - **spec_ref**: `openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-009-a-route-that-needs-a-missing-openregister-feature-is-refused-when-saved`

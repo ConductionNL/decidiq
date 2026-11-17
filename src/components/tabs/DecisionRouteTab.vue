@@ -152,7 +152,29 @@
 									class="decidiq-route__stage-label"
 									>{{ stage.label }}</span
 								>
+								<span
+									v-if="stage.lapsed"
+									class="decidiq-route__lapsed"
+									>{{ t('decidiq', 'Lapsed') }}</span
+								>
 							</div>
+							<p
+								v-if="stage.substitute"
+								class="decidiq-route__substitute"
+								:data-testid="'route-substitute-' + stage.sequence">
+								{{ t('decidiq', 'Substitute') }}: {{ stage.substitute }}
+							</p>
+							<ul
+								v-if="stage.history && stage.history.length"
+								class="decidiq-route__history">
+								<li
+									v-for="(entry, h) in stage.history"
+									:key="stage.id + '-history-' + h">
+									{{ outcomeLabel(entry.outcome) }}
+									<span v-if="entry.decidedAt">{{ formatDate(entry.decidedAt) }}</span>
+									<span v-if="entry.comment">· {{ entry.comment }}</span>
+								</li>
+							</ul>
 						</div>
 					</li>
 				</ol>
@@ -183,7 +205,10 @@
 
 <script>
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
+import { routeFromFlowRun } from '../../utils/routeFromFlowRun.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -219,6 +244,20 @@ function fetchDecisionStages(decisionId) {
 		decision: decisionId,
 		_limit: 100,
 	})
+}
+
+/**
+ * The tasks one OpenRegister flow run raised: the steps of a route sent as a flow.
+ *
+ * @param {string} runId The run.
+ * @return {Promise<Array<object>>} The tasks.
+ * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-007-the-route-tab-reads-the-flow-run
+ */
+async function fetchRunTasks(runId) {
+	const res = await axios.get(generateUrl('/apps/openregister/api/flow-tasks'), {
+		params: { runUuid: runId, limit: 200 },
+	})
+	return Array.isArray(res?.data?.results) ? res.data.results : []
 }
 
 /**
@@ -439,6 +478,7 @@ export default {
 				for: this.t('decidiq', 'for'),
 				against: this.t('decidiq', 'against'),
 				adopted: this.t('decidiq', 'adopted'),
+				approved: this.t('decidiq', 'Approved'),
 				rejected: this.t('decidiq', 'rejected'),
 				advised: this.t('decidiq', 'advised'),
 				deferred: this.t('decidiq', 'deferred'),
@@ -524,6 +564,18 @@ export default {
 				this.objectId,
 			)
 			this.lifecycle = decision?.lifecycle || ''
+			if (decision?.approvalEngine === 'flow' && decision?.approvalRun && decision?.approvalRoute) {
+				// A route sent as an OpenRegister flow has no stage rows: its
+				// steps are the run's tasks (approval-routes-on-flow-user-tasks).
+				const [route, tasks] = await Promise.all([
+					ensureRelationType('approval-route').fetchObject('approval-route', decision.approvalRoute),
+					fetchRunTasks(decision.approvalRun),
+				])
+				const read = routeFromFlowRun(route, tasks)
+				this.stages = read.stages
+				this.currentStage = read.current || ''
+				return decision
+			}
 			this.currentStage = decision?.currentStage || ''
 			this.stages = sortedStages(await fetchDecisionStages(this.objectId))
 			return decision

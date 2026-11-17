@@ -11,6 +11,7 @@
  */
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
+import { routeFromFlowRun } from '../../src/utils/routeFromFlowRun.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 const FILE = path.resolve(
@@ -31,7 +32,7 @@ function tab(answers = {}) {
 		async fetchObject(schema, id) {
 			log.push(['fetchObject', type, schema, id])
 			if ('fail' in answers) throw new Error(answers.fail)
-			return answers.decision
+			return schema === 'approval-route' ? answers.route : answers.decision
 		},
 		async fetchCollection(schema, params) {
 			log.push(['fetchCollection', type, schema, params])
@@ -42,6 +43,16 @@ function tab(answers = {}) {
 		'@conduction/nextcloud-vue': { CnNoteCard: {}, CnStatusBadge: {} },
 		'@nextcloud/vue': { NcButton: {} },
 		'./useRelationStore.js': { ensureRelationType: store },
+		'@nextcloud/axios': {
+			default: {
+				async get(url, config) {
+					log.push(['get', url, config.params])
+					return { data: { results: answers.runTasks || [] } }
+				},
+			},
+		},
+		'@nextcloud/router': { generateUrl: (url) => url },
+		'../../utils/routeFromFlowRun.js': { routeFromFlowRun },
 	})
 	const vm = instanceOf(component, { objectId: answers.objectId ?? 'd-1' })
 	return { component, vm, log }
@@ -93,6 +104,25 @@ describe('DecisionRouteTab golden runs', () => {
 			out.push({ label, log, state: state(vm) })
 		}
 		expect(out).toMatchSnapshot()
+	})
+
+	// approval-routes-on-flow-user-tasks, REQ-ARF-007: a route sent as a flow
+	// is read from the run's tasks, not from stage rows.
+	it('reads a route sent as a flow from its run', async () => {
+		const { vm, log } = tab({
+			decision: { id: 'd-1', lifecycle: 'proposed', approvalEngine: 'flow', approvalRun: 'run-1', approvalRoute: 'route-1' },
+			route: { id: 'route-1', steps: [{ order: 1, actorType: 'person', actor: 'wouter', label: 'Ondertekening' }, { order: 2, actorType: 'body', actor: 'raad' }] },
+			runTasks: [{ uuid: 't1', state: 'completed', outcome: 'approved', completedBy: 'lisa', metadata: { flowNode: 'step-1-1' } }],
+		})
+
+		await vm.refresh()
+
+		expect(log).toContainEqual(['get', '/apps/openregister/api/flow-tasks', { runUuid: 'run-1', limit: 200 }])
+		expect(log).toContainEqual(['fetchObject', 'approval-route', 'approval-route', 'route-1'])
+		expect(log.some((entry) => entry[2] === 'decision-stage')).toBe(false)
+		expect(vm.stages.map((s) => s.status)).toEqual(['decided', 'pending'])
+		expect(vm.stages[0].substitute).toBe('lisa')
+		expect(vm.currentStage).toBe('')
 	})
 
 	it('deriveEffectiveStatus', async () => {

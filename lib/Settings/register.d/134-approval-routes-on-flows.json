@@ -15,6 +15,14 @@
 						"nullable": true,
 						"description": "The OpenRegister flow run that carries this decision along its approval route. Set when the proposal is sent for approval; empty when it was never sent, or its route runs on the old engine."
 					},
+					"approvalRoute": {
+						"title": "Approval route",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "approval-route",
+						"nullable": true,
+						"description": "The approval route this decision was sent along as a flow. The route tab reads its steps next to the run's tasks."
+					},
 					"approvalEngine": {
 						"title": "Approval engine",
 						"type": "string",

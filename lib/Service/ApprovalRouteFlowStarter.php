@@ -90,6 +90,7 @@ class ApprovalRouteFlowStarter {
 			schema: 'decision',
 			data: [
 				'approvalRun'          => $runId,
+				'approvalRoute'        => (string)($route['id'] ?? ($route['@self']['id'] ?? '')),
 				'approvalEngine'       => self::ENGINE_FLOW,
 				'approvalRouteStatus'  => ApprovalRouteFlowCompiler::STATUS_RUNNING,
 				'approvalCurrentOrder' => $this->firstOrder(route: $route),

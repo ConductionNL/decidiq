@@ -92,7 +92,7 @@ class ApprovalRouteFlowStarterTest extends TestCase {
 		$this->gateway->expects($this->once())->method('startRun')->with('flow-9', self::DECISION)->willReturn('run-42');
 		$this->store->expects($this->once())->method('patch')->with(
 			'decision',
-			['approvalRun' => 'run-42', 'approvalEngine' => 'flow', 'approvalRouteStatus' => 'running', 'approvalCurrentOrder' => 1],
+			['approvalRun' => 'run-42', 'approvalRoute' => 'route-1', 'approvalEngine' => 'flow', 'approvalRouteStatus' => 'running', 'approvalCurrentOrder' => 1],
 			self::DECISION
 		)->willReturn([]);
 
