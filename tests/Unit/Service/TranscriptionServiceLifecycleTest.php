@@ -40,6 +40,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Lifecycle tests for TranscriptionService.
@@ -119,7 +121,11 @@ class TranscriptionServiceLifecycleTest extends TestCase {
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
 		$this->objectService->method('find')->willReturnCallback(
-			function (string|int $id, ?array $extend = [], bool $files = false, $register = null, $schema = null): object {
+			function (string|int $id, ?ObjectFindOptions $options = null): object {
+				$extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$key = $schema . '/' . $id;
 				if (isset($this->objects[$key]) === false) {
 					throw new DoesNotExistException('absent');
@@ -129,7 +135,11 @@ class TranscriptionServiceLifecycleTest extends TestCase {
 			}
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], $register = null, $schema = null, $uuid = null): object {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): object {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [(string)$schema, $object, $uuid];
 				if ($uuid !== null) {
 					$this->objects[$schema . '/' . $uuid] = $object;

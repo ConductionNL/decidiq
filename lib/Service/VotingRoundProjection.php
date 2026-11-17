@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * The public projection view of a voting round, extracted from VotingService.
@@ -192,7 +193,7 @@ class VotingRoundProjection {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}

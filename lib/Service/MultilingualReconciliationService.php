@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -230,7 +232,10 @@ class MultilingualReconciliationService implements MultilingualReconciliationSer
 	 */
 	private function saveQueueEntry(object $objectService, array $entry): array {
 		try {
-			$saved = $objectService->saveObject(object: $entry, register: 'decidiq', schema: self::SCHEMA);
+			$saved = $objectService->saveObject(
+				object: $entry,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA))
+			);
 			if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
 				$entry = (array)$saved->jsonSerialize();
 			}

@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -184,9 +186,8 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema(self::TARGET_SCHEMA);
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::TARGET_SCHEMA,
 					object: $this->mapStatement(body: $bodyRef, source: $source),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
 				);
 				$existingBodies[$bodyRef . '|' . $year] = true;
 				$migrated++;

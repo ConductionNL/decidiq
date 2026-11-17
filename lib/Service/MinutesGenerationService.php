@@ -26,6 +26,8 @@ use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -328,7 +330,10 @@ class MinutesGenerationService implements MinutesGenerationServiceInterface {
 		// Named arguments: the positional form ($object, 'decidesk', 'minutes', $id)
 		// silently bound the register string to ObjectService::saveObject()'s second
 		// parameter ($extend) — a latent pre-existing defect fixed here.
-		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(
+			object: $updated,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end transition()
@@ -435,7 +440,10 @@ class MinutesGenerationService implements MinutesGenerationServiceInterface {
 			]
 		);
 
-		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(
+			object: $updated,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end reject()

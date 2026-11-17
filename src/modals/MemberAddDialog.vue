@@ -125,7 +125,12 @@ import {
 	resolveOrCreatePerson,
 } from '../components/tabs/useRelationStore.js'
 import { factionsOf, startOfDay } from '../utils/bodyMembership.js'
-import { isSharedBody, onBehalfOfOptions } from '../utils/bodyParticipations.js'
+import {
+	isSharedBody,
+	onBehalfOfOptions,
+	PARTICIPATION_SCHEMA,
+	participationQuery,
+} from '../utils/bodyParticipations.js'
 import { DEFAULT_ROLE, MEMBER_ROLES } from '../utils/memberImport.js'
 import { defaultTermStart, membershipTerm } from '../utils/stepDownSchedule.js'
 
@@ -240,13 +245,10 @@ export default {
 					return
 				}
 				const participations = await ensureRelationType(
-					'body-participation',
-				).fetchCollection('body-participation', {
-					sharedBody: String(this.bodyId),
-					_limit: 200,
-				})
+					PARTICIPATION_SCHEMA,
+				).fetchCollection(PARTICIPATION_SCHEMA, participationQuery(this.bodyId))
 				const ids = [
-					...new Set((participations || []).map((p) => p.participant)),
+					...new Set((participations || []).map((p) => p.component)),
 				].filter(Boolean)
 				const bodies = await Promise.all(
 					ids.map((id) =>
