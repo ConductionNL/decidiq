@@ -32,6 +32,7 @@ use DateTimeImmutable;
 use Generator;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\Contracts\MeetingSeriesServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -382,7 +383,7 @@ class MeetingSeriesService implements MeetingSeriesServiceInterface {
 	private function loadTemplate(string $meetingId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$this->logger->error('Decidiq: MeetingSeriesService::generateSeries lookup failed', ['meetingId' => $meetingId, 'exception' => $e->getMessage()]);
 			return ['failure' => $this->failure(message: 'Failed to load template meeting.')];

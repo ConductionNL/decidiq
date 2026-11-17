@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Wer abstimmen darf",
+        "All members of the body": "Alle Mitglieder des Gremiums",
+        "Left out because they are no longer active members: {names}": "Nicht berücksichtigt, weil sie keine aktiven Mitglieder mehr sind: {names}",
         "sign-off route": "Freigaberoute",
         "#": "#",
         "+ Action item": "+ Aktionspunkt",
@@ -2703,7 +2706,6 @@
         "Step {step} of {total}": "Schritt {step} von {total}",
         "Still to do: stage {seq} ({maker})": "Noch offen: Phase {seq} ({maker})",
         "Stop": "Stoppen",
-        "Store": "Speichern",
         "Subject description": "Beschreibung des Gegenstands",
         "Submission phase": "Einreichungsphase",
         "Submission window (hours)": "Einreichungsfenster (Stunden)",
@@ -3353,7 +3355,8 @@
         "Extraordinary meeting": "Außerordentliche Sitzung",
         "Committee meeting": "Ausschusssitzung",
         "Public hearing": "Öffentliche Anhörung",
-        "General assembly": "Mitgliederversammlung"
+        "General assembly": "Mitgliederversammlung",
+        "Members' ancillary positions": "Nebentätigkeiten der Mitglieder"
     },
     "plurals": null
 }

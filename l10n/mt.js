@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Min jista' jivvota",
+        "All members of the body": "Il-membri kollha tal-korp",
+        "Left out because they are no longer active members: {names}": "Esklużi għax m'għadhomx membri attivi: {names}",
         "sign-off route": "rotta ta' approvazzjoni",
         "#": "#",
         "+ Action item": "+ Punt ta' azzjoni",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Pass {step} minn {total}",
         "Still to do: stage {seq} ({maker})": "Għad irid isir: stadju {seq} ({maker})",
         "Stop": "Waqqaf",
-        "Store": "Aħżen",
         "Subject description": "Deskrizzjoni tas-suġġett",
         "Submission phase": "Fażi tas-sottomissjoni",
         "Submission window (hours)": "Perjodu tas-sottomissjoni (sigħat)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Laqgħa straordinarja",
         "Committee meeting": "Laqgħa tal-kumitat",
         "Public hearing": "Seduta pubblika",
-        "General assembly": "Assemblea ġenerali"
+        "General assembly": "Assemblea ġenerali",
+        "Members' ancillary positions": "Karigi anċillari tal-membri"
     },
     "nplurals=2; plural=(n != 1);"
 )

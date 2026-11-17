@@ -49,6 +49,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Open, cast and close a ranked preference round.
@@ -199,13 +201,11 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -250,13 +250,11 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($store, $saves): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($store, $saves): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saves->append(['schema' => (string)$schema, 'object' => $object]);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
 				$store[$id] = ['schema' => (string)$schema, 'object' => $object];

@@ -26,6 +26,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\OpenCatalogiPublisher
@@ -79,7 +81,9 @@ class OpenCatalogiPublisherTest extends TestCase {
 			 *
 			 * @return mixed The answer.
 			 */
-			public function saveObject(array $object, string $register, string $schema): mixed {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): mixed {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saved[] = compact('object', 'register', 'schema');
 				if ($this->answer instanceof \Throwable) {
 					throw $this->answer;
@@ -97,7 +101,10 @@ class OpenCatalogiPublisherTest extends TestCase {
 			 *
 			 * @return bool True.
 			 */
-			public function deleteObject(string $uuid, string $register, string $schema): bool {
+			public function deleteObject(ObjectDeletion $deletion, bool $_rbac = true, bool $_multitenancy = true, bool $_retentionSweep = false): bool {
+				$uuid = $deletion->uuid;
+				$register = $deletion->target->register;
+				$schema = $deletion->target->schema;
 				$this->deleted[] = compact('uuid', 'register', 'schema');
 				if ($this->answer instanceof \Throwable) {
 					throw $this->answer;

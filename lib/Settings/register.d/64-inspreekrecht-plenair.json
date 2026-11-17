@@ -1,0 +1,482 @@
+{
+	"_note": "inspreekrecht-plenair: one speaking-request schema for every kind of meeting, and a per-body speaking policy. Named in plain words (InspraakAanmelding is a speaking request, InspraakBeleid a speaking policy) because the app declares no schema or property in one country's word for something every organisation does (the-last-two-dutch-names). Numbered 64 as the design says.",
+	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"speaking-request",
+					"speaking-policy"
+				]
+			}
+		},
+		"schemas": {
+			"SpeakingRequest": {
+				"slug": "speaking-request",
+				"icon": "AccountVoice",
+				"version": "0.1.0",
+				"title": "Speaking request",
+				"description": "A member of the public asks to speak at a meeting of a body that allows it, either on one agenda item or on the meeting as a whole, as the body's speaking policy says. The contact details are seen by the secretariat only; the topic and the speaker's name are what may be published. The secretariat approves (giving speaking time and an order), rejects with a reason, or refers the request to another meeting; the chair marks whether the speaker spoke. A written contribution and a transcript segment are attached afterwards. Registration, the deadline and referral run through SpeakingRequestService; the states, the frozen contact and topic after approval and the required rejection reason are declared here (inspreekrecht-plenair, design D3).",
+				"type": "object",
+				"x-schema-org": "schema:RegisterAction",
+				"x-openregister": {
+					"schemaType": "schema:RegisterAction",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true,
+					"mailEnabled": false
+				},
+				"required": [
+					"meeting",
+					"governanceBody",
+					"topic",
+					"lifecycle"
+				],
+				"properties": {
+					"contactDetails": {
+						"title": "Contact details",
+						"type": "object",
+						"description": "How the secretariat reaches the speaker. Never published, and read by the secretariat only.",
+						"properties": {
+							"name": {
+								"title": "Name",
+								"type": "string",
+								"description": "The speaker's full name."
+							},
+							"email": {
+								"title": "Email",
+								"type": "string",
+								"format": "email",
+								"description": "The speaker's email address."
+							},
+							"phone": {
+								"title": "Phone",
+								"type": "string",
+								"description": "The speaker's phone number."
+							},
+							"address": {
+								"title": "Address",
+								"type": "string",
+								"description": "The speaker's postal address."
+							}
+						},
+						"authorization": {
+							"read": [
+								"decidiq-secretariat",
+								"decidiq-administrators",
+								"decidesk-administrators"
+							],
+							"update": [
+								"decidiq-secretariat",
+								"decidiq-administrators",
+								"decidesk-administrators"
+							]
+						}
+					},
+					"topic": {
+						"title": "Topic",
+						"type": "object",
+						"description": "What the speaker wants to talk about and how they want to be named. This part may be published.",
+						"required": [
+							"speakerName",
+							"topicText"
+						],
+						"properties": {
+							"speakerName": {
+								"title": "Speaker name",
+								"type": "string",
+								"minLength": 1,
+								"description": "The name shown for the speaker; a pseudonym is allowed."
+							},
+							"organisation": {
+								"title": "Organisation",
+								"type": "string",
+								"description": "The organisation the speaker speaks for, if any."
+							},
+							"topicText": {
+								"title": "Topic",
+								"type": "string",
+								"minLength": 1,
+								"description": "What the speaker wants to talk about."
+							},
+							"requestedMinutes": {
+								"title": "Requested minutes",
+								"type": "integer",
+								"minimum": 1,
+								"description": "How many minutes the speaker asks for."
+							}
+						}
+					},
+					"meeting": {
+						"title": "Meeting",
+						"type": "string",
+						"description": "The meeting the speaker wants to speak at; any kind of meeting.",
+						"format": "uuid",
+						"$ref": "meeting",
+						"facetable": true
+					},
+					"agendaItem": {
+						"title": "Agenda item",
+						"type": "string",
+						"description": "The agenda item the speaker wants to speak on. Required when the body's policy says per agenda item, absent when it says per meeting.",
+						"format": "uuid",
+						"$ref": "agenda-item",
+						"facetable": true
+					},
+					"governanceBody": {
+						"title": "Body",
+						"type": "string",
+						"description": "The body whose meeting it is, and whose speaking policy applies.",
+						"format": "uuid",
+						"$ref": "governance-body",
+						"facetable": true
+					},
+					"lifecycle": {
+						"title": "Status",
+						"type": "string",
+						"description": "registered until the secretariat approves or rejects it; an approved request ends as spoke or no-show.",
+						"enum": [
+							"registered",
+							"approved",
+							"rejected",
+							"spoke",
+							"no-show"
+						],
+						"default": "registered",
+						"facetable": true
+					},
+					"rejectionReason": {
+						"title": "Rejection reason",
+						"type": "string",
+						"description": "Why the request was rejected. Required when it is rejected."
+					},
+					"allottedMinutes": {
+						"title": "Allotted minutes",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The speaking time given at approval; defaults to the policy's speaking time."
+					},
+					"position": {
+						"title": "Order",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The speaker's place among the speakers on the same item or meeting."
+					},
+					"contribution": {
+						"title": "Written contribution",
+						"type": "string",
+						"description": "The text the speaker handed in, or a summary of what they said. Added after the meeting."
+					},
+					"transcriptSegment": {
+						"title": "Transcript segment",
+						"type": "string",
+						"description": "The identifier of the transcript segment where the speaker spoke, when the meeting has a transcript. Empty when it has none."
+					},
+					"registeredAfterDeadline": {
+						"title": "Registered after the deadline",
+						"type": "boolean",
+						"description": "True when the secretariat registered the request after the deadline on the speaker's behalf. Set by the registration service only."
+					}
+				},
+				"x-openregister-lifecycle": {
+					"field": "lifecycle",
+					"initial": "registered",
+					"states": {
+						"registered": {},
+						"approved": {
+							"fields": {
+								"readOnly": [
+									"contactDetails",
+									"topic"
+								]
+							}
+						},
+						"rejected": {
+							"fields": {
+								"readOnly": [
+									"contactDetails",
+									"topic"
+								],
+								"required": [
+									"rejectionReason"
+								]
+							}
+						},
+						"spoke": {
+							"fields": {
+								"readOnly": [
+									"contactDetails",
+									"topic"
+								]
+							}
+						},
+						"no-show": {
+							"fields": {
+								"readOnly": [
+									"contactDetails",
+									"topic"
+								]
+							}
+						}
+					},
+					"terminal": [
+						"rejected",
+						"spoke",
+						"no-show"
+					],
+					"transitions": [
+						{
+							"from": "registered",
+							"to": "approved"
+						},
+						{
+							"from": "registered",
+							"to": "rejected"
+						},
+						{
+							"from": "approved",
+							"to": "spoke"
+						},
+						{
+							"from": "approved",
+							"to": "no-show"
+						}
+					],
+					"_note": "Declarative transition map (ADR-031, REQ-INS-002). The states are keyed so each can carry its field rules: from approval on, contactDetails and topic are read only for everyone, while status, allottedMinutes, position, contribution and transcriptSegment stay writable. A rejection without rejectionReason is refused by the rejected state's required rule."
+				},
+				"x-openregister-notifications": {
+					"speakingRequestRegistered": {
+						"trigger": {
+							"type": "created"
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							},
+							{
+								"kind": "groups",
+								"groups": [
+									"decidiq-secretariat"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Inspreekverzoek ontvangen: {{topic.topicText}}",
+							"en": "Speaking request received: {{topic.topicText}}"
+						},
+						"_note": "Confirmation to the requester and the secretariat (REQ-INS-004)."
+					},
+					"speakingRequestApproved": {
+						"trigger": {
+							"type": "updated",
+							"condition": {
+								"field": "lifecycle",
+								"operator": "equals",
+								"value": "approved",
+								"from": "registered"
+							}
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							},
+							{
+								"kind": "groups",
+								"groups": [
+									"decidiq-secretariat"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Inspreekverzoek goedgekeurd: {{topic.topicText}} ({{allottedMinutes}} minuten)",
+							"en": "Speaking request approved: {{topic.topicText}} ({{allottedMinutes}} minutes)"
+						},
+						"_note": "Approval with the allotted time (REQ-INS-005)."
+					},
+					"speakingRequestRejected": {
+						"trigger": {
+							"type": "updated",
+							"condition": {
+								"field": "lifecycle",
+								"operator": "equals",
+								"value": "rejected",
+								"from": "registered"
+							}
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							},
+							{
+								"kind": "groups",
+								"groups": [
+									"decidiq-secretariat"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Inspreekverzoek afgewezen: {{rejectionReason}}",
+							"en": "Speaking request rejected: {{rejectionReason}}"
+						},
+						"_note": "Rejection with its reason (REQ-INS-005)."
+					},
+					"speakingRequestReferred": {
+						"trigger": {
+							"type": "updated",
+							"condition": {
+								"field": "meeting",
+								"operator": "changed"
+							}
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							},
+							{
+								"kind": "groups",
+								"groups": [
+									"decidiq-secretariat"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Inspreekverzoek verwezen naar een andere vergadering: {{topic.topicText}}",
+							"en": "Speaking request referred to another meeting: {{topic.topicText}}"
+						},
+						"_note": "Referral notice when the meeting changes (REQ-INS-005)."
+					}
+				},
+				"authorization": {
+					"read": [
+						"authenticated"
+					],
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			},
+			"SpeakingPolicy": {
+				"slug": "speaking-policy",
+				"icon": "AccountVoice",
+				"version": "0.1.0",
+				"title": "Speaking policy",
+				"description": "Whether a body lets the public speak at its meetings, and how: the registration deadline in hours before the meeting, the default speaking time, whether people register per agenda item or per meeting, and how approved speakers appear in public views. One per body; a body without one does not offer speaking rights (inspreekrecht-plenair, REQ-INS-003).",
+				"type": "object",
+				"x-schema-org": "schema:StructuredValue",
+				"x-openregister": {
+					"schemaType": "schema:StructuredValue",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true,
+					"mailEnabled": false
+				},
+				"required": [
+					"governanceBody"
+				],
+				"properties": {
+					"governanceBody": {
+						"title": "Body",
+						"type": "string",
+						"description": "The body this policy belongs to; at most one policy per body.",
+						"format": "uuid",
+						"$ref": "governance-body",
+						"facetable": true
+					},
+					"enabled": {
+						"title": "Public may speak",
+						"type": "boolean",
+						"default": false,
+						"description": "Whether the body takes speaking requests at all."
+					},
+					"registrationDeadlineHours": {
+						"title": "Registration deadline (hours)",
+						"type": "integer",
+						"minimum": 0,
+						"default": 24,
+						"description": "How many hours before the meeting starts registration closes."
+					},
+					"defaultSpeakingMinutes": {
+						"title": "Default speaking time (minutes)",
+						"type": "integer",
+						"minimum": 1,
+						"default": 5,
+						"description": "The speaking time an approved request gets unless the secretariat sets another."
+					},
+					"level": {
+						"title": "Register on",
+						"type": "string",
+						"enum": [
+							"agenda-item",
+							"meeting"
+						],
+						"default": "agenda-item",
+						"description": "Whether people register on one agenda item or on the meeting as a whole."
+					},
+					"publicDisplay": {
+						"title": "Public display",
+						"type": "string",
+						"enum": [
+							"count",
+							"first-name",
+							"speaker-name"
+						],
+						"default": "count",
+						"description": "How approved speakers appear in public views: only how many there are, by first name, or by the name they gave."
+					}
+				},
+				"authorization": {
+					"read": [
+						"authenticated"
+					],
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			}
+		}
+	}
+}

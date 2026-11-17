@@ -30,6 +30,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests the PII-free reaction digest, setting the RBAC published predicate
@@ -172,6 +173,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 		$captured = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$captured) {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				$captured = $args[0] ?? [];
 				return $this->entity($captured);
 			}
@@ -265,6 +267,7 @@ class ParticipationPublicationServiceTest extends TestCase {
 		$captured = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$captured) {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				$captured = $args[0] ?? [];
 				return $this->entity($captured);
 			}

@@ -40,6 +40,7 @@ use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Open-parent guard matrix for the two citizen create actions.
@@ -138,7 +139,9 @@ class PortalCreateOpenParentGuardListenerTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$payload = ($this->store[(string)$id] ?? null);
 				if ($payload === null) {
 					return null;

@@ -45,6 +45,7 @@ use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -52,6 +53,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the audit log.
@@ -183,6 +185,7 @@ class AuditLogGoldenTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$args): ?ObjectEntityInterface {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				$this->log[] = ['find' => $this->named(class: ObjectServiceInterface::class, method: 'find', args: $args)];
 				if ($args[0] === 'o-0') {
 					throw new RuntimeException('register down');
@@ -203,9 +206,12 @@ class AuditLogGoldenTest extends TestCase {
 		);
 
 		$mapper = $this->createMock(AuditTrailMapper::class);
-		$mapper->method('createAuditTrailEntry')->willReturnCallback(
-			function (ObjectEntity $object, string $action, array $context = []): AuditTrail {
-				$this->log[] = ['createAuditTrailEntry' => [$object->getObject(), $action, $context]];
+		$mapper->method('recordObjectEvent')->willReturnCallback(
+			function (ObjectAuditEvent $event): AuditTrail {
+				$object      = $event->object;
+				$action      = $event->action;
+				$context     = $event->context;
+				$this->log[] = ['recordObjectEvent' => [$object->getObject(), $action, $context, $event->options->actor->id, $event->options->ipAddress]];
 				if (($this->case['create'] ?? null) === 'throw') {
 					throw new RuntimeException('trail down');
 				}
@@ -306,7 +312,7 @@ class AuditLogGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $args): array {
 		$out = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $param) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
 				continue;
 			}

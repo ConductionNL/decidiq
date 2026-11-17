@@ -24,6 +24,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The rename of legacy onboarding and offboarding step types.
@@ -78,7 +79,10 @@ final class RenameStepTypesTest extends TestCase {
 				return ($this->rows[$this->schema] ?? []);
 			}
 
-			public function saveObject(array $object, string $register, string $schema, string $uuid): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if (in_array($uuid, $this->failingUuids, true) === true) {
 					throw new RuntimeException("cannot save $uuid");
 				}
