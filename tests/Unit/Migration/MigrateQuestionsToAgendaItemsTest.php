@@ -24,6 +24,7 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The copy from the three question schemas onto `agenda-item`.
@@ -472,11 +473,14 @@ class MigrateQuestionsToAgendaItemsTest extends TestCase {
 			 * @return array<string,mixed> The saved object.
 			 */
 			public function saveObject(
-				string $register,
-				string $schema,
 				array $object,
-				?string $uuid = null,
+				ObjectSaveOptions $options = new ObjectSaveOptions(),
+				bool $_rbac = true,
+				bool $_multitenancy = true
 			): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [$schema, $object, $uuid];
 
 				$saved = ($object + ['id' => ($uuid ?? ($schema . '-' . count($this->saves)))]);

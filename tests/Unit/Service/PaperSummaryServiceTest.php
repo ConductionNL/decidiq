@@ -53,6 +53,7 @@ use OCP\TaskProcessing\TaskTypes\TextToTextSummary;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Service\PaperSummaryService
@@ -168,7 +169,11 @@ class PaperSummaryServiceTest extends TestCase {
 			static fn (array $config=[]): array => ($rows[$config['filters']['schema'] ?? ''] ?? [])
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved[] = [$object, $uuid];
 				$entity = new ObjectEntity();
 				$entity->setUuid($uuid);

@@ -33,7 +33,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\DecisionCompetenceRefusedException;
+use OCA\Decidiq\Kernel\Contracts\DecisionCompetenceGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Throwable;
 
@@ -42,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-004-competence-is-enforced-at-the-write-path-not-merely-declared
  */
-class DecisionCompetenceGuard {
+class DecisionCompetenceGuard implements DecisionCompetenceGuardInterface {
 
 	/**
 	 * Constructor.
@@ -108,7 +110,11 @@ class DecisionCompetenceGuard {
 	 */
 	private function competentBodyOf(string $typeId): string {
 		try {
-			$type = $this->objectService->find(id: $typeId, register: 'decidiq', schema: 'decision-template', _rbac: false);
+			$type = $this->objectService->find(
+				id: $typeId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'decision-template'),
+				_rbac: false
+			);
 		} catch (DoesNotExistException) {
 			$type = null;
 		} catch (Throwable $e) {

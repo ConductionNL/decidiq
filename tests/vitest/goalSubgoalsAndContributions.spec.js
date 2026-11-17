@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The goal page's overview (board DcDoel): the goal, its sub-goals (with
- * "add sub-goal", which fills in the parent) and what contributes to it, the
- * action items and commitments that name the goal.
+ * "add sub-goal", which fills in the parent) and what contributes to it: the
+ * commitments, action items, planned agenda items and decisions that name the
+ * goal (goals-linked-to-decisions REQ-011).
  */
 
 import { buildManifest } from '@conduction/nextcloud-vue/src/utils/buildManifest.js'
 import fs from 'fs'
 import path from 'path'
 import { describe, expect, it } from 'vitest'
+import { CONTRIBUTION_KINDS } from '../../src/utils/goalPage.js'
 import { buildProfiledManifest } from '../../src/utils/structureProfile.js'
 
 const ROOT = path.resolve(__dirname, '../..')
@@ -64,15 +66,15 @@ describe('the goal overview', () => {
 	const strip = widgets.get('goal-panels')
 	const overview = widgets.get(strip.content.tabs[0].widgetId)
 
-	it('shows the goal, its sub-goals and what contributes to it', () => {
+	it('shows the progress, the goal, its sub-goals and what contributes to it', () => {
 		expect(overview.type).toBe('detail-sections')
 		expect(
 			overview.content.sections.map((section) => section.widget.id),
 		).toEqual([
+			'goal-progress',
 			'goal-data',
 			'goal-subgoals',
-			'goal-contributing-actions',
-			'goal-contributing-commitments',
+			'goal-contributions',
 		])
 		for (const section of overview.content.sections) {
 			expect(dutch[section.label], section.label).toBeTruthy()
@@ -88,20 +90,22 @@ describe('the goal overview', () => {
 		expect(dutch['Sub-goals']).toBe('Subdoelen')
 	})
 
-	it('lists the action items and commitments that name the goal', () => {
-		for (const [id, slug] of [
-			['goal-contributing-actions', 'action-item'],
-			['goal-contributing-commitments', 'governance-commitment'],
-		]) {
-			const list = widgets.get(id).content
-			expect(list.schema, id).toBe(slug)
-			expect(list.filter, id).toEqual({ goal: '@objectId' })
-			const properties = propertiesOf(slug)
-			expect(properties.goal, id).toBeDefined()
-			for (const column of list.columns) {
-				expect(properties[column.key], `${id}: ${column.key}`).toBeDefined()
-				expect(dutch[column.label], column.label).toBeTruthy()
+	it('lists the four kinds that name the goal, read off real fields', () => {
+		expect(widgets.get('goal-contributions').type).toBe('GoalContributionsWidget')
+		const pageIds = simple.pages.map((page) => page.id)
+		expect(CONTRIBUTION_KINDS.map((kind) => kind.schema)).toEqual([
+			'governance-commitment',
+			'action-item',
+			'planned-agenda-item',
+			'decision',
+		])
+		for (const kind of CONTRIBUTION_KINDS) {
+			const properties = propertiesOf(kind.schema)
+			for (const field of ['goal', kind.what, kind.term, kind.status]) {
+				expect(properties[field], `${kind.schema}: ${field}`).toBeDefined()
 			}
+			expect(pageIds, kind.route).toContain(kind.route)
+			expect(dutch[kind.label], kind.label).toBeTruthy()
 		}
 	})
 })

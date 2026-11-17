@@ -38,6 +38,7 @@ use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Migrated and unmigrated instances, told apart, on an authorization path.
@@ -189,6 +190,7 @@ class RegisterSlugResolutionTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (...$args) use ($participant, $presentSlugs) {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				// `register` is find()'s fourth positional parameter.
 				$this->readRegister = ($args[3] ?? null);
 

@@ -48,6 +48,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -164,7 +167,10 @@ class ParticipantToPersonMembershipResolver implements ParticipantToPersonMember
 	 */
 	private function loadParticipant(string $participantId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $participantId, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(
+				id: $participantId,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA)
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver could not load the Participant',
@@ -272,7 +278,10 @@ class ParticipantToPersonMembershipResolver implements ParticipantToPersonMember
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::PERSON_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Person',
@@ -305,9 +314,10 @@ class ParticipantToPersonMembershipResolver implements ParticipantToPersonMember
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: self::REGISTER,
-				schema: self::PERSON_SCHEMA,
-				uuid: $personId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA),
+					uuid: $personId
+				)
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
@@ -356,7 +366,10 @@ class ParticipantToPersonMembershipResolver implements ParticipantToPersonMember
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Membership',

@@ -35,6 +35,7 @@ import Api from 'vue-material-design-icons/Api.vue'
 import ArchiveArrowUpOutline from 'vue-material-design-icons/ArchiveArrowUpOutline.vue'
 import ArchiveCheckOutline from 'vue-material-design-icons/ArchiveCheckOutline.vue'
 import ArchiveOutline from 'vue-material-design-icons/ArchiveOutline.vue'
+import ArrowRightCircleOutline from 'vue-material-design-icons/ArrowRightCircleOutline.vue'
 import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
@@ -46,6 +47,7 @@ import Broadcast from 'vue-material-design-icons/Broadcast.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import Calendar from 'vue-material-design-icons/Calendar.vue'
 import CalendarAccountOutline from 'vue-material-design-icons/CalendarAccountOutline.vue'
+import CalendarArrowRight from 'vue-material-design-icons/CalendarArrowRight.vue'
 import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
 import CalendarCheckOutline from 'vue-material-design-icons/CalendarCheckOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
@@ -67,6 +69,7 @@ import ClipboardList from 'vue-material-design-icons/ClipboardList.vue'
 import ClipboardListOutline from 'vue-material-design-icons/ClipboardListOutline.vue'
 import ClipboardTextClockOutline from 'vue-material-design-icons/ClipboardTextClockOutline.vue'
 import ClipboardTextOutline from 'vue-material-design-icons/ClipboardTextOutline.vue'
+import CloseCircleOutline from 'vue-material-design-icons/CloseCircleOutline.vue'
 import CloudUploadOutline from 'vue-material-design-icons/CloudUploadOutline.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
@@ -147,6 +150,7 @@ import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectio
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import TrayFull from 'vue-material-design-icons/TrayFull.vue'
 import Video from 'vue-material-design-icons/Video.vue'
+import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import Web from 'vue-material-design-icons/Web.vue'
@@ -175,6 +179,7 @@ export default {
 	ArchiveArrowUpOutline,
 	ArchiveCheckOutline,
 	ArchiveOutline,
+	ArrowRightCircleOutline,
 	BellCogOutline,
 	BellOutline,
 	BookOpenVariant,
@@ -193,6 +198,8 @@ export default {
 	CalendarMonthOutline,
 	CalendarMultiple,
 	CalendarTextOutline,
+	CalendarArrowRight,
+	ViewColumnOutline,
 	CardAccountDetailsOutline,
 	CartOutline,
 	Cash,
@@ -207,6 +214,7 @@ export default {
 	ClipboardList,
 	ClipboardTextClockOutline,
 	ClipboardTextOutline,
+	CloseCircleOutline,
 	CloudUploadOutline,
 	Cog,
 	CogOutline,

@@ -35,6 +35,10 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\AnnotationRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 
@@ -512,7 +516,7 @@ class AnnotationService {
 	 */
 	private function readable(string $schema, string $id): ?array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -606,7 +610,12 @@ class AnnotationService {
 		$annotation = null;
 		if (trim($id) !== '') {
 			try {
-				$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+				$entity = $this->objectService->find(
+					id: $id,
+					options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+					_rbac: false,
+					_multitenancy: false
+				);
 			} catch (DoesNotExistException) {
 				$entity = null;
 			}
@@ -658,9 +667,7 @@ class AnnotationService {
 	private function save(array $annotation, ?string $uuid): array {
 		$saved = $this->objectService->saveObject(
 			object: $annotation,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $uuid),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -677,9 +684,7 @@ class AnnotationService {
 	 */
 	private function remove(string $id): void {
 		$this->objectService->deleteObject(
-			uuid: $id,
-			register: 'decidiq',
-			schema: self::SCHEMA,
+			new ObjectDeletion(uuid: $id, target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA)),
 			_rbac: false,
 			_multitenancy: false
 		);

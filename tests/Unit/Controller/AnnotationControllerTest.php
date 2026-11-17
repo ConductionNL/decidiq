@@ -36,6 +36,9 @@ use OCA\Decidiq\Service\CsvCell;
 use OCA\Decidiq\Service\DocumentVersionReader;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\File;
@@ -168,8 +171,8 @@ class AnnotationControllerTest extends TestCase {
 	private function controller(?string $uid, array $params = [], bool $readable = true): AnnotationController {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
-				$data = ($this->store[(string)$schema][(string)$id] ?? null);
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$data = ($this->store[(string)$options?->schema][(string)$id] ?? null);
 				return $data === null ? null : $this->entity(id: (string)$id, data: $data);
 			}
 		);
@@ -197,17 +200,17 @@ class AnnotationControllerTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
+			function (array $object, ?ObjectSaveOptions $options = null): ObjectEntity {
 				$this->writes++;
-				$id = $uuid ?? 'a-new-' . $this->writes;
-				$this->store[(string)$schema][$id] = $object;
+				$id = $options?->uuid ?? 'a-new-' . $this->writes;
+				$this->store[(string)$options?->target->schema][$id] = $object;
 				return $this->entity(id: $id, data: $object);
 			}
 		);
 		$objects->method('deleteObject')->willReturnCallback(
-			function (string $uuid, mixed $register = null, mixed $schema = null): bool {
+			function (ObjectDeletion $deletion): bool {
 				$this->writes++;
-				unset($this->store[(string)$schema][$uuid]);
+				unset($this->store[(string)$deletion->target->schema][$deletion->uuid]);
 				return true;
 			}
 		);
