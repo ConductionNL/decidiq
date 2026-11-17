@@ -918,6 +918,7 @@
 			"type": "index",
 			"title": "Agenda items",
 			"config": {
+				"rowRoute": "AgendaItemDetail",
 				"register": "decidiq",
 				"schema": "agenda-item",
 				"sortKey": "@self.created",
@@ -1018,6 +1019,7 @@
 					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "header-actions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
+				"rowRoute": "MotionDetail",
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
@@ -1263,6 +1265,7 @@
 					{ "action": "actions-menu", "items": ["import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
+				"rowRoute": "DecisionDetail",
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
