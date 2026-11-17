@@ -27,6 +27,7 @@ import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemReadersTab from './components/tabs/AgendaItemReadersTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -558,6 +559,7 @@ export default {
 	// the theme page, and Add to theme on agenda item and decision pages.
 	ThemeTimelineTab: page(ThemeTimelineTab),
 	ThemePublicationTab: page(ThemePublicationTab),
+	AgendaItemReadersTab: page(AgendaItemReadersTab),
 	AgendaItemThemesTab: page(AgendaItemThemesTab),
 	DecisionThemesTab: page(DecisionThemesTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),

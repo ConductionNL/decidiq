@@ -35,6 +35,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Portal;
 
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\IL10N;
@@ -157,17 +158,18 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice', 'publicAncillaryPositions'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice', 'publicAncillaryPositions', 'confidentialAgendaItems'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts, the motions open for advice and the ancillary positions, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts, the motions open for advice, the ancillary positions and the confidential papers, in order'
 		);
 
-		// The public calendar and broadcasts are read without an account; they are tested on their own.
-		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice'], $byId['publicAncillaryPositions']);
+		// The public calendar and broadcasts are read without an account, and the
+		// confidential papers need DigiD or eHerkenning; they are tested on their own.
+		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice'], $byId['publicAncillaryPositions'], $byId['confidentialAgendaItems']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
-			self::assertSame(expected: 'low', actual: $collection['minTrust'], message: 'Password edge — DigiD/eHerkenning deferred');
+			self::assertSame(expected: 'low', actual: $collection['minTrust'], message: 'Password edge for the participation collections');
 			self::assertArrayNotHasKey(key: 'scopeClaim', array: $collection, message: 'Citizen scopes by the pseudonymous subjectRef, not a claim');
 			self::assertArrayNotHasKey(key: 'via', array: $collection, message: 'No via joins this wave');
 			self::assertNotSame(expected: '', actual: $collection['scopeField'], message: 'Every citizen collection is per-subject scoped');
@@ -952,4 +954,78 @@ final class PortalContributionProviderTest extends TestCase {
 
 		return $factory;
 	}//end factoryFor()
+	/**
+	 * The confidential papers collection with the setting unset: substantial, scoped by the claim (REQ-PSH-003).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function testConfidentialPapersNeedTheDeclaredTrustAndANamedReader(): void {
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->method('minTrust')->willReturn('substantial');
+		$manifest = (new PortalContributionProvider(confidentialPapers: $papers))->getContribution(subject: ['audience' => 'citizen']);
+		$byId = array_column($manifest['collections'], null, 'id');
+		$collection = $byId['confidentialAgendaItems'];
+
+		self::assertSame('agenda-item', $collection['schema']);
+		self::assertSame('substantial', $collection['minTrust']);
+		self::assertSame('decidiq.personId', $collection['scopeClaim']);
+		self::assertSame('authorisedPersons', $collection['scopeField']);
+		self::assertSame(['public' => false], $collection['defaultFilters']);
+		self::assertSame(
+			['label' => 'Papers', 'provider' => 'confidentialPapers', 'opened' => 'confidentialPaperOpened'],
+			$collection['documents']
+		);
+	}//end testConfidentialPapersNeedTheDeclaredTrustAndANamedReader()
+
+	/**
+	 * The setting `high` raises the collection's trust; without the service it is high too.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function testAHighSettingRaisesTheConfidentialTrust(): void {
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->method('minTrust')->willReturn('high');
+		$withHigh = (new PortalContributionProvider(confidentialPapers: $papers))->getContribution(subject: ['audience' => 'citizen']);
+		$withoutService = $this->provider->getContribution(subject: ['audience' => 'citizen']);
+
+		self::assertSame('high', array_column($withHigh['collections'], null, 'id')['confidentialAgendaItems']['minTrust']);
+		self::assertSame('high', array_column($withoutService['collections'], null, 'id')['confidentialAgendaItems']['minTrust']);
+	}//end testAHighSettingRaisesTheConfidentialTrust()
+
+	/**
+	 * The documents provider and the opened hook hand over to the service, and answer safely without it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first
+	 */
+	public function testTheConfidentialPaperMethodsHandOverToTheService(): void {
+		$subject = ['subjectRef' => 'portal-1', 'trust' => 'substantial', 'identityType' => 'digid', 'audience' => 'citizen'];
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->expects(self::once())->method('papers')->with('item-1')->willReturn([['id' => 'doc-1']]);
+		$papers->expects(self::once())->method('opened')->with('item-1', 'doc-1', $subject)->willReturn(true);
+		$provider = new PortalContributionProvider(confidentialPapers: $papers);
+
+		self::assertSame([['id' => 'doc-1']], $provider->confidentialPapers(itemId: 'item-1'));
+		self::assertTrue($provider->confidentialPaperOpened(itemId: 'item-1', documentId: 'doc-1', subject: $subject));
+		self::assertSame([], $this->provider->confidentialPapers(itemId: 'item-1'));
+		self::assertFalse($this->provider->confidentialPaperOpened(itemId: 'item-1', documentId: 'doc-1', subject: $subject));
+	}//end testTheConfidentialPaperMethodsHandOverToTheService()
+
+	/**
+	 * The provider docblock no longer calls DigiD and eHerkenning deferred.
+	 *
+	 * @return void
+	 */
+	public function testTheDocblockNoLongerDefersDigid(): void {
+		$doc = (string)file_get_contents((string)(new ReflectionClass(PortalContributionProvider::class))->getFileName());
+
+		self::assertDoesNotMatchRegularExpression('/DigiD\/eHerkenning is DEFERRED/i', $doc);
+		self::assertStringContainsString('confidentialAgendaItems', $doc);
+	}//end testTheDocblockNoLongerDefersDigid()
+
 }//end class

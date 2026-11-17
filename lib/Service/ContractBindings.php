@@ -48,6 +48,7 @@ use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ChangeRecommendationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
@@ -289,6 +290,7 @@ final class ContractBindings {
 		ProxyVoteServiceInterface::class => ProxyVoteService::class,
 		PublicMeetingRecordsInterface::class => PublicMeetingRecords::class,
 		PublicVotingRecordsInterface::class => PublicVotingRecords::class,
+		ConfidentialPapersInterface::class => ConfidentialPapers::class,
 		PublicationConfigServiceInterface::class => PublicationConfigService::class,
 		PublicationDigestServiceInterface::class => PublicationDigestService::class,
 		PublicationEventRecorderInterface::class => PublicationEventRecorder::class,

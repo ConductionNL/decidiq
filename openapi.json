@@ -8167,6 +8167,118 @@
                     }
                 }
             }
+        },
+        "/agenda-items/{id}/readers": {
+            "post": {
+                "operationId": "confidential-reader-create",
+                "summary": "Add a portal reader to a confidential agenda item",
+                "description": "Add a person without a Nextcloud account as a portal reader of a non-public agenda item by BSN or KvK number. POST /api/agenda-items/{id}/readers Body: { person, identityType: bsn|kvk, number, organisation? }. Portaliq provisions the account and writes the claim decidiq.personId; decidiq keeps only the portal reference, never the number. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting; 409 for a public item or without portaliq's answer; 422 for an invalid number.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "person": {
+                                        "description": "The person id."
+                                    },
+                                    "identityType": {
+                                        "description": "bsn or kvk."
+                                    },
+                                    "number": {
+                                        "description": "The BSN or KvK number; not stored."
+                                    },
+                                    "organisation": {
+                                        "description": "The portal tenant."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The reader was added.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/agenda-items/{id}/readers/{personId}": {
+            "delete": {
+                "operationId": "confidential-reader-destroy",
+                "summary": "Remove a portal reader from a confidential agenda item",
+                "description": "Remove a person from the portal readers of an agenda item. DELETE /api/agenda-items/{id}/readers/{personId}. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The reader.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The reader was removed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

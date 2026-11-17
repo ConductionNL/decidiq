@@ -39,8 +39,10 @@ Build after `agenda-item-confidential-papers` (it adds `AgendaItem.public`, `aut
   - GIVEN a caller without the secretariat group or a chair or secretary role WHEN she adds a reader THEN 403
   - GIVEN no listener answers the events WHEN a reader is added THEN 409 naming portaliq and nothing is written
   - GIVEN the route gates WHEN run THEN route-auth, route-reachability, no-admin-idor and semantic-auth pass
-- [ ] Implement
-- [ ] Test (the real portaliq event classes when present, a stub dispatcher answering the result slot otherwise)
+- [x] Implement
+  - `lib/Service/ConfidentialReaders.php` (the caller check first: the secretariat groups, an administrator, or a chair or secretary role on the item's meeting through `ParticipantResolverInterface::hasRole`; then 409 for a public item, 422 for a BSN failing the elfproef or a KvK number that is not eight digits, and portaliq's `PortalAccountProvisionRequestedEvent` and `PortalAccountClaimRequestedEvent` sent by class name behind `class_exists`, claim `personId` read as `decidiq.personId`; only then `portalAccountRef` and `authorisedPersons` are saved), `lib/Controller/ConfidentialReaderController.php`, routes `POST /api/agenda-items/{id}/readers` and `DELETE /api/agenda-items/{id}/readers/{personId}` (documented in `openapi.json`), and the item page widget `AgendaItemReadersTab` ("Lezers toevoegen", `agenda-readers` on `AgendaItemDetail` in `src/manifest.json` and the simple structure). The number goes only into the event; it is in no decidiq object, answer or log line.
+- [x] Test (the real portaliq event classes when present, a stub dispatcher answering the result slot otherwise)
+  - `tests/Unit/Service/ConfidentialReadersTest.php` (stub event classes in `tests/Stubs/Portaliq/Event/`, loaded only without portaliq), `tests/Unit/Controller/ConfidentialReaderControllerTest.php`, `tests/vitest/confidentialReaders.spec.js`. The route-auth, route-reachability, no-admin-idor and semantic-auth gates run in CI, not here.
 
 ### Task 4: Offer the papers at the declared trust level, with the audit entry
 - **spec_ref**: `openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level`, `openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first`
@@ -53,8 +55,10 @@ Build after `agenda-item-confidential-papers` (it adds `AgendaItem.public`, `aut
   - GIVEN the append fails WHEN it runs THEN it returns false
   - GIVEN portaliq with a stub DigiD envelope at substantial WHEN Pieter Bos opens a paper THEN he receives it and the entry exists; at trust low THEN the collection is absent
   - GIVEN the provider docblock WHEN read THEN it no longer calls DigiD and eHerkenning deferred
-- [ ] Implement
+- [x] Implement
+  - `confidentialAgendaItems` in `PortalContributionProvider` (scoped by `decidiq.personId` against `authorisedPersons`, `defaultFilters: {public: false}`, `minTrust` from the setting, documents through `confidentialPapers` with the `opened` hook `confidentialPaperOpened`), backed by `lib/Service/ConfidentialPapers.php` (papers only while the item is non-public; one `material-access` entry with channel portal and the trust before a paper streams, false when it was not written). The setting `portal_confidential_min_trust` is in `SettingsService` and on the admin page (`ConfidentialPapersSettings.vue`); `trustOf` reads unset as substantial and anything else as high. The provider docblock no longer calls DigiD and eHerkenning deferred.
 - [ ] Test (Newman with portaliq and a stub envelope; the live DigiD run waits on decision D1, integriq#1495)
+  - Unit: `tests/Unit/Service/ConfidentialPapersTest.php` and the confidential tests in `tests/Unit/Portal/PortalContributionProviderTest.php` (golden updated). Newman: `tests/newman/portal-voting-record-and-confidential-papers.json` is written (who may add a reader, the refusals before portaliq is asked, add and remove with no number kept, the setting). Open: a run against a live instance with portaliq and a stub envelope; the opening of a paper through the portal is portaliq's `tests/e2e/confidential-papers.spec.ts`.
 
 ## Verification
 

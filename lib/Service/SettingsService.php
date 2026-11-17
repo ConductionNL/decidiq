@@ -93,6 +93,10 @@ class SettingsService implements SettingsServiceInterface {
 		// 'true' makes a motion forwarded to another body wait for that body's
 		// chair (MotionForwardingService).
 		'motion_forwarding_requires_approval',
+		// @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+		// The trust a portal reader needs for confidential papers: substantial
+		// (the default) or high; ConfidentialPapers reads any other value as high.
+		'portal_confidential_min_trust',
 		// Which structure the app shows (simple-structure-profile). A key that
 		// is not on this list is dropped by updateSettings() while the write
 		// still answers success.
@@ -132,6 +136,7 @@ class SettingsService implements SettingsServiceInterface {
 		'organisatie_modus' => 'gov',
 		'convert_office_papers' => 'true',
 		'motion_forwarding_requires_approval' => 'false',
+		'portal_confidential_min_trust' => 'substantial',
 	];
 
 	/**

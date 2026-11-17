@@ -15,9 +15,12 @@
  * It declares — for the `citizen` audience (a resident participating in a
  * consultation, participatory-budget round or advisory vote WITHOUT a Nextcloud
  * account) — the OpenRegister collections that subject may read and the field
- * whitelists projected onto each. DigiD/eHerkenning is DEFERRED: citizens log
- * in through portaliq's ordinary password/`portalAccount` edge at trust `low`,
- * exactly like pipelinq's `client` / `customer` audiences.
+ * whitelists projected onto each. Most collections are read at trust `low`,
+ * through portaliq's ordinary password/`portalAccount` edge, exactly like
+ * pipelinq's `client` / `customer` audiences. The confidential papers of a
+ * non-public agenda item (`confidentialAgendaItems`) need a DigiD or
+ * eHerkenning session at the trust `portal_confidential_min_trust` names, and
+ * reach only a reader the griffie named (REQ-PSH-003).
  *
  * Decidiq's citizen data is ALREADY portal-shaped: the scope fields
  * `submitterId` / `voterId` / `submitter` / `recipientId` each hold a Nextcloud
@@ -51,6 +54,7 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
 use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
 use OCP\L10N\IFactory;
@@ -361,6 +365,7 @@ class PortalContributionProvider {
 	 * @param IFactory|null             $l10nFactory    Puts the labels in the reader's language (PortalLabelTranslator).
 	 * @param PublicVotingRecordsInterface|null  $votingRecords  The public members and their votes (memberVotingRecords).
 	 * @param PublicMeetingRecordsInterface|null $meetingRecords The published meetings and decisions.
+	 * @param ConfidentialPapersInterface|null   $confidentialPapers The papers of non-public items for a named reader.
 	 *
 	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-contribution/spec.md
@@ -369,6 +374,7 @@ class PortalContributionProvider {
 		private readonly ?IFactory $l10nFactory=null,
 		private readonly ?PublicVotingRecordsInterface $votingRecords=null,
 		private readonly ?PublicMeetingRecordsInterface $meetingRecords=null,
+		private readonly ?ConfidentialPapersInterface $confidentialPapers=null,
 	) {
 	}//end __construct()
 
@@ -397,6 +403,36 @@ class PortalContributionProvider {
 	public function publicVotingRecord(string $personId): ?array {
 		return $this->votingRecords?->record(personId: $personId);
 	}//end publicVotingRecord()
+
+	/**
+	 * The papers of one non-public agenda item (confidentialAgendaItems documents provider).
+	 *
+	 * Empty once the item is public again, and without decidiq's services.
+	 *
+	 * @param string $itemId The agenda item id.
+	 *
+	 * @return list<array<string, mixed>> Portal document entries.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function confidentialPapers(string $itemId): array {
+		return ($this->confidentialPapers?->papers(itemId: $itemId) ?? []);
+	}//end confidentialPapers()
+
+	/**
+	 * Log one portal opening of a confidential paper; the portal streams it only on true.
+	 *
+	 * @param string               $itemId     The agenda item id.
+	 * @param string               $documentId The paper id.
+	 * @param array<string, mixed> $subject    The portal session: subjectRef, trust, identityType, audience.
+	 *
+	 * @return bool True only when the audit entry was written.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first
+	 */
+	public function confidentialPaperOpened(string $itemId, string $documentId, array $subject): bool {
+		return ($this->confidentialPapers?->opened(itemId: $itemId, documentId: $documentId, subject: $subject) ?? false);
+	}//end confidentialPaperOpened()
 
 	/**
 	 * The published meetings (publicMeetings list).
@@ -621,9 +657,42 @@ class PortalContributionProvider {
 			$this->publicBroadcastsCollection(),
 			$this->motionsOpenForAdviceCollection(),
 			$this->publicAncillaryPositionsCollection(),
+			$this->confidentialAgendaItemsCollection(),
 		];
 
 	}//end citizenCollections()
+
+	/**
+	 * The non-public agenda items a named reader may read through the portal
+	 * (REQ-PSH-003): scoped by the reader's `decidiq.personId` claim against
+	 * the item's `authorisedPersons`, at the trust `portal_confidential_min_trust`
+	 * names, with the item's papers through `confidentialPapers` and every
+	 * opening logged first by `confidentialPaperOpened` (REQ-PSH-004).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	private function confidentialAgendaItemsCollection(): array {
+		return [
+			'id' => 'confidentialAgendaItems',
+			'register' => self::REGISTER,
+			'schema' => 'agenda-item',
+			'scopeClaim' => 'decidiq.personId',
+			'scopeField' => 'authorisedPersons',
+			'label' => 'Confidential papers',
+			'listable' => true,
+			'minTrust' => ($this->confidentialPapers?->minTrust() ?? 'high'),
+			'defaultFilters' => ['public' => false],
+			'fields' => ['title', 'description', 'meeting'],
+			'documents' => [
+				'label' => 'Papers',
+				'provider' => 'confidentialPapers',
+				'opened' => 'confidentialPaperOpened',
+			],
+		];
+
+	}//end confidentialAgendaItemsCollection()
 
 	/**
 	 * The resident's own consultation reactions, without the staff-set

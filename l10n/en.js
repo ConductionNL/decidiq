@@ -3761,7 +3761,22 @@ OC.L10N.register(
         "This year": "This year",
         "This quarter": "This quarter",
         "Custom range": "Custom range",
-        "By body, all periods": "By body, all periods"
+        "By body, all periods": "By body, all periods",
+        "A reader the secretariat names on a confidential agenda item reads its papers on the portal after signing in with DigiD or eHerkenning at this level.": "A reader the secretariat names on a confidential agenda item reads its papers on the portal after signing in with DigiD or eHerkenning at this level.",
+        "Add reader": "Add reader",
+        "Add readers": "Add readers",
+        "BSN": "BSN",
+        "Confidential papers": "Confidential papers",
+        "Confidential papers on the portal": "Confidential papers on the portal",
+        "High (DigiD Hoog, eHerkenning EH4)": "High (DigiD Hoog, eHerkenning EH4)",
+        "KvK number": "KvK number",
+        "No one reads this item on the portal.": "No one reads this item on the portal.",
+        "Portal readers": "Portal readers",
+        "Remove {name}": "Remove {name}",
+        "Substantial (DigiD Substantieel, eHerkenning EH3)": "Substantial (DigiD Substantieel, eHerkenning EH3)",
+        "The number goes to the portal to set up the account and is not kept here.": "The number goes to the portal to set up the account and is not kept here.",
+        "The readers could not be loaded.": "The readers could not be loaded.",
+        "This item is public. Make it confidential to give people without an account its papers on the portal.": "This item is public. Make it confidential to give people without an account its papers on the portal."
     },
     "nplurals=2; plural=(n != 1);"
 )
