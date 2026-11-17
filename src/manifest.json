@@ -231,6 +231,20 @@
 						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "variant": "warning", "route": { "name": "Commitments", "query": { "lifecycle": ["open", "in-execution"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "governance-commitment", "metric": "count", "filter": { "lifecycle": { "in": ["open", "in-execution"] } } } }
 					},
 					{
+						"id": "open-wor-consultations",
+						"type": "stat",
+						"title": "Open WOR cases",
+						"_note": "works-council-consultation task 4 (REQ-WCC-008): the WOR-trajecten that are neither completed nor withdrawn. The filter holds a list of states, which the aggregation endpoint cannot count (see open-commitments-overdue), so `via: list` counts it through the list endpoint's total, the same query the pre-filtered index runs.",
+						"content": { "label": "Open WOR cases", "icon": "HandshakeOutline", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } } }
+					},
+					{
+						"id": "wor-response-overdue",
+						"type": "stat",
+						"title": "Reply overdue",
+						"_note": "works-council-consultation task 4 (REQ-WCC-008, design D5): open WOR-trajecten whose response has not been sent and whose requestedResponseDate lies before today. `@today` is resolved by the widget when it fetches, so the count follows the calendar without a stored flag; `via: list` counts through the list endpoint, which understands the state list and the date operator.",
+						"content": { "label": "Reply overdue", "icon": "AlertOutline", "variant": "warning", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate[lt]": "@today" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate": { "lt": "@today" } } } }
+					},
+					{
 						"_note": "termijnagenda REQ-LTA-010 / design D6. Counts long-term agenda items whose planned period's last day has passed while they are planned or postponed and nothing realised them. The aggregation endpoint has no relative-today token and honours scalar-equality filters only (see open-commitments-overdue), so this is a custom widget that fetches the open items and applies the period rule client-side (src/utils/plannedAgenda.js), never a silently wrong declarative count. It deep-links to the long-term agenda filtered to the open states. Placed in its own band below the spec'd rows.",
 						"id": "overdue-planned-agenda",
 						"type": "custom",
@@ -443,6 +457,26 @@
 						"id": "15",
 						"widgetId": "overdue-planned-agenda",
 						"gridX": 3,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "16",
+						"widgetId": "open-wor-consultations",
+						"gridX": 6,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "17",
+						"widgetId": "wor-response-overdue",
+						"gridX": 9,
 						"gridY": 24,
 						"gridWidth": 3,
 						"gridHeight": 2,
@@ -921,6 +955,7 @@
 			"type": "index",
 			"title": "Agenda items",
 			"config": {
+				"rowRoute": "AgendaItemDetail",
 				"register": "decidiq",
 				"schema": "agenda-item",
 				"sortKey": "@self.created",
@@ -1021,6 +1056,7 @@
 					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "header-actions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
+				"rowRoute": "MotionDetail",
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
@@ -1266,6 +1302,7 @@
 					{ "action": "actions-menu", "items": ["import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
+				"rowRoute": "DecisionDetail",
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
@@ -1800,8 +1837,59 @@
 			"route": "/reports/decisions",
 			"type": "dashboard",
 			"title": "Decisions",
-			"_note": "Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate. A multi-value or relative-date filter is accepted and then silently not applied — which is how this app's own KPI cards came to show wrong numbers before they were rewritten as custom widgets.",
+			"_note": "The period and body cut is declarative. OpenRegister's aggregation endpoint evaluates scalar equality and the in / notIn / gt / gte / lt / lte / ne operators (openregister lib/Service/Aggregation/AggregationQuery.php), so every stat counts with decisionDate gte / lte the dashboard's date range (@workspace.dateFrom? / @workspace.dateTo?) and decidingBody equal to the body picker (@workspace.decidingBody?); an open bound or no body drops that clause. The By outcome / type / stage donuts read the grouped aggregation through endpointSource, because CnChartWidget's dataSource.aggregate path neither re-resolves workspace tokens when the range changes nor drops an unset optional one. By body keeps dataSource.aggregate for its labelResolve (body names instead of uuids), so it counts every period. The report counts on decisionDate: a decision without one is in no period. There is no calendar last-year preset in CnDateRangePicker (its period presets are the current week / month / quarter / year to date); last year is picked as a custom range.",
 			"config": {
+				"dateRange": {
+					"enabled": true,
+					"persistKey": "decidiq.reports.decisions.range",
+					"default": {
+						"preset": "this-year"
+					},
+					"presets": [
+						{
+							"id": "this-year",
+							"label": "This year",
+							"period": "year"
+						},
+						{
+							"id": "this-quarter",
+							"label": "This quarter",
+							"period": "quarter"
+						},
+						{
+							"id": "all",
+							"label": "All",
+							"days": null
+						},
+						{
+							"id": "custom",
+							"label": "Custom range",
+							"days": null
+						}
+					]
+				},
+				"pageFilters": [
+					{
+						"key": "decidingBody",
+						"label": "Body",
+						"optionsFrom": {
+							"register": "decidiq",
+							"schema": "governance-body",
+							"labelField": "name"
+						},
+						"clearable": true,
+						"placeholder": "All bodies"
+					}
+				],
+				"headerActions": [
+					{
+						"id": "dec-report-show-list",
+						"type": "navigate",
+						"label": "Show these decisions",
+						"icon": "FormatListBulleted",
+						"target": "/decisions?decidingBody=@workspace.decidingBody&decisionDate[gte]=@workspace.dateFrom&decisionDate[lte]=@workspace.dateTo"
+					}
+				],
 				"widgets": [
 					{
 						"id": "dec-adopted",
@@ -1822,7 +1910,12 @@
 								"schema": "decision",
 								"metric": "count",
 								"filter": {
-									"outcome": "adopted"
+									"outcome": "adopted",
+									"decisionDate": {
+										"gte": "@workspace.dateFrom?",
+										"lte": "@workspace.dateTo?"
+									},
+									"decidingBody": "@workspace.decidingBody?"
 								}
 							}
 						}
@@ -1846,7 +1939,12 @@
 								"schema": "decision",
 								"metric": "count",
 								"filter": {
-									"outcome": "rejected"
+									"outcome": "rejected",
+									"decisionDate": {
+										"gte": "@workspace.dateFrom?",
+										"lte": "@workspace.dateTo?"
+									},
+									"decidingBody": "@workspace.decidingBody?"
 								}
 							}
 						}
@@ -1870,7 +1968,12 @@
 								"schema": "decision",
 								"metric": "count",
 								"filter": {
-									"isPublished": "public"
+									"isPublished": "public",
+									"decisionDate": {
+										"gte": "@workspace.dateFrom?",
+										"lte": "@workspace.dateTo?"
+									},
+									"decidingBody": "@workspace.decidingBody?"
 								}
 							}
 						}
@@ -1883,13 +1986,23 @@
 							"chartKind": "donut",
 							"legendPosition": "bottom",
 							"emptyLabel": "No decisions yet",
-							"dataSource": {
-								"register": "decidiq",
-								"schema": "decision",
-								"aggregate": {
+							"endpointSource": {
+								"url": "/apps/openregister/api/objects/aggregations/decidiq/decision/grouped",
+								"params": {
 									"groupBy": "outcome",
-									"metric": "count"
-								}
+									"metric": "count",
+									"filter[decisionDate][gte]": "@workspace.dateFrom?",
+									"filter[decisionDate][lte]": "@workspace.dateTo?",
+									"filter[decidingBody]": "@workspace.decidingBody?"
+								},
+								"responsePath": "groups",
+								"labelsPath": "key",
+								"series": [
+									{
+										"name": "Decisions",
+										"path": "value"
+									}
+								]
 							}
 						}
 					},
@@ -1901,13 +2014,23 @@
 							"chartKind": "donut",
 							"legendPosition": "bottom",
 							"emptyLabel": "No decisions yet",
-							"dataSource": {
-								"register": "decidiq",
-								"schema": "decision",
-								"aggregate": {
+							"endpointSource": {
+								"url": "/apps/openregister/api/objects/aggregations/decidiq/decision/grouped",
+								"params": {
 									"groupBy": "decisionType",
-									"metric": "count"
-								}
+									"metric": "count",
+									"filter[decisionDate][gte]": "@workspace.dateFrom?",
+									"filter[decisionDate][lte]": "@workspace.dateTo?",
+									"filter[decidingBody]": "@workspace.decidingBody?"
+								},
+								"responsePath": "groups",
+								"labelsPath": "key",
+								"series": [
+									{
+										"name": "Decisions",
+										"path": "value"
+									}
+								]
 							}
 						}
 					},
@@ -1919,12 +2042,45 @@
 							"chartKind": "donut",
 							"legendPosition": "bottom",
 							"emptyLabel": "No decisions yet",
+							"endpointSource": {
+								"url": "/apps/openregister/api/objects/aggregations/decidiq/decision/grouped",
+								"params": {
+									"groupBy": "lifecycle",
+									"metric": "count",
+									"filter[decisionDate][gte]": "@workspace.dateFrom?",
+									"filter[decisionDate][lte]": "@workspace.dateTo?",
+									"filter[decidingBody]": "@workspace.decidingBody?"
+								},
+								"responsePath": "groups",
+								"labelsPath": "key",
+								"series": [
+									{
+										"name": "Decisions",
+										"path": "value"
+									}
+								]
+							}
+						}
+					},
+					{
+						"id": "dec-by-body",
+						"title": "By body, all periods",
+						"type": "chart",
+						"content": {
+							"chartKind": "donut",
+							"legendPosition": "bottom",
+							"emptyLabel": "No decisions yet",
 							"dataSource": {
 								"register": "decidiq",
 								"schema": "decision",
 								"aggregate": {
-									"groupBy": "lifecycle",
-									"metric": "count"
+									"groupBy": "decidingBody",
+									"metric": "count",
+									"labelResolve": {
+										"register": "decidiq",
+										"schema": "governance-body",
+										"labelField": "name"
+									}
 								}
 							}
 						}
@@ -1936,7 +2092,13 @@
 						"content": {
 							"register": "decidiq",
 							"schema": "decision",
-							"filter": {},
+							"filter": {
+								"decisionDate": {
+									"gte": "@workspace.dateFrom?",
+									"lte": "@workspace.dateTo?"
+								},
+								"decidingBody": "@workspace.decidingBody?"
+							},
 							"sort": {
 								"field": "decisionDate",
 								"dir": "desc"
@@ -1998,30 +2160,39 @@
 						"widgetId": "dec-by-outcome",
 						"gridX": 0,
 						"gridY": 2,
-						"gridWidth": 4,
+						"gridWidth": 3,
 						"gridHeight": 4,
 						"showTitle": true
 					},
 					{
 						"id": "5",
 						"widgetId": "dec-by-type",
-						"gridX": 4,
+						"gridX": 3,
 						"gridY": 2,
-						"gridWidth": 4,
+						"gridWidth": 3,
 						"gridHeight": 4,
 						"showTitle": true
 					},
 					{
 						"id": "6",
 						"widgetId": "dec-by-lifecycle",
-						"gridX": 8,
+						"gridX": 6,
 						"gridY": 2,
-						"gridWidth": 4,
+						"gridWidth": 3,
 						"gridHeight": 4,
 						"showTitle": true
 					},
 					{
 						"id": "7",
+						"widgetId": "dec-by-body",
+						"gridX": 9,
+						"gridY": 2,
+						"gridWidth": 3,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "8",
 						"widgetId": "dec-recent",
 						"gridX": 0,
 						"gridY": 6,

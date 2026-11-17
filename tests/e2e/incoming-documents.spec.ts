@@ -17,6 +17,7 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 // @e2e agenda-management::putting-a-letter-on-the-agenda
 test('IncomingDocumentsWidget: a waiting letter put on a meeting leaves the list and shows on the meeting', async ({
@@ -53,7 +54,7 @@ test('IncomingDocumentsWidget: a waiting letter put on a meeting leaves the list
 	).toHaveCount(0)
 
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
-	await page.getByText(meetingLabel).first().click()
+	await openRow(page, meetingLabel)
 	const widget = page.getByTestId('meeting-routed-documents-tab')
 	await expect(
 		widget.getByText('Brief inzake verkeersveiligheid schoolzone Lindelaan'),

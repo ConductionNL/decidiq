@@ -41,7 +41,7 @@
 - [x] Test: failure leaves legacy intact; success soft-archives + marks.
 
 ## Verification
-- [ ] `openspec validate action-item-vtodo-migration --strict` passes.
+- [x] `openspec validate action-item-vtodo-migration --strict` passes.
 - [ ] Live on :8080: seed legacy `task`/`delegation`/`ActionItem` for a test user → run `occ decidiq:migrate-action-items` → they appear as that user's VTODOs in the projection; legacy archived+marked; re-run is a no-op; empty instance is a clean no-op.
 - [ ] `composer check:strict` green; Hydra gates (no app-local write store post-migration; admin-only trigger; no hard delete).
 

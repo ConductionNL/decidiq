@@ -104,6 +104,7 @@ import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
 import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
@@ -548,6 +549,7 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
 	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---
