@@ -616,8 +616,8 @@
                 "exec": [
                   "pm.test('Setup: meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
                   "const b = pm.response.json();",
-                  "pm.collectionVariables.set('a11yOffMeetingId', b.id || (b['@self'] || {}).id || '');",
-                  "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('a11yOffMeetingId')).to.have.length.above(0));"
+                  "pm.collectionVariables.set('a11yOffMeeting', b.id || (b['@self'] || {}).id || '');",
+                  "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('a11yOffMeeting')).to.have.length.above(0));"
                 ]
               }
             }
@@ -673,7 +673,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"A11Y Newman kaart Lindelaan\",\n  \"itemType\": \"decision\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{a11yOffMeetingId}}\"\n}"
+              "raw": "{\n  \"title\": \"A11Y Newman kaart Lindelaan\",\n  \"itemType\": \"decision\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{a11yOffMeeting}}\"\n}"
             }
           },
           "event": [
@@ -1613,7 +1613,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yOffMeetingId}}/publish",
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agendas/{{a11yOffMeeting}}/publish",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1623,7 +1623,7 @@
                 "decidiq",
                 "api",
                 "agendas",
-                "{{a11yOffMeetingId}}",
+                "{{a11yOffMeeting}}",
                 "publish"
               ]
             },
@@ -1917,7 +1917,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{a11yOffMeetingId}}",
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{a11yOffMeeting}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1929,7 +1929,7 @@
                 "objects",
                 "decidiq",
                 "meeting",
-                "{{a11yOffMeetingId}}"
+                "{{a11yOffMeeting}}"
               ]
             },
             "auth": {
@@ -2140,7 +2140,7 @@
       "value": ""
     },
     {
-      "key": "a11yOffMeetingId",
+      "key": "a11yOffMeeting",
       "value": ""
     },
     {
