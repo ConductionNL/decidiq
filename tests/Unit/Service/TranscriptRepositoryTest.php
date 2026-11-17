@@ -31,6 +31,8 @@ use OCP\Files\Folder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * OpenRegister and Files access for transcripts.
@@ -103,8 +105,8 @@ class TranscriptRepositoryTest extends TestCase {
 		$this->objectService->expects($this->exactly(2))
 			->method('find')
 			->willReturnCallback(
-				fn (string|int $id, ?array $extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ObjectEntity => $this->entity(
-					['id' => $id, 'register' => $register, 'schema' => $schema]
+				fn (string|int $id, ?ObjectFindOptions $options = null): ObjectEntity => $this->entity(
+					['id' => $id, 'register' => ($options?->register), 'schema' => ($options?->schema)]
 				)
 			);
 
@@ -192,7 +194,13 @@ class TranscriptRepositoryTest extends TestCase {
 	public function testSaveTranscriptUpsertsById(): void {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(['@self' => ['id' => 't-1'], 'text' => 'x'], [], 'decidiq', 'transcript', 't-1')
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => ['@self' => ['id' => 't-1'], 'text' => 'x'],
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'transcript',
+					'uuid' => 't-1',
+				]))
 			->willReturn($this->entity(['id' => 't-1', 'text' => 'x', 'saved' => true]));
 
 		$this->assertSame(
@@ -210,7 +218,13 @@ class TranscriptRepositoryTest extends TestCase {
 	public function testSaveNewTranscriptPassesNullUuid(): void {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(['id' => '', 'text' => 'x'], [], 'decidiq', 'transcript', null)
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => ['id' => '', 'text' => 'x'],
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'transcript',
+					'uuid' => null,
+				]))
 			->willReturn($this->entity(['id' => 'new']));
 
 		$this->assertSame(['id' => 'new'], $this->repository()->saveTranscript(['id' => '', 'text' => 'x']));
@@ -224,17 +238,23 @@ class TranscriptRepositoryTest extends TestCase {
 	 */
 	public function testSaveRetentionPolicyUpdatesBody(): void {
 		$this->objectService->method('find')
-			->with('body-1', [], false, 'decidiq', 'governance-body')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'body-1',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'governance-body',
+			]))
 			->willReturn($this->entity(['id' => 'body-1', 'name' => 'Raad']));
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->with(
-				['id' => 'body-1', 'name' => 'Raad', 'transcriptRetentionPolicy' => 'delete', 'transcriptRetentionDays' => 30],
-				[],
-				'decidiq',
-				'governance-body',
-				'body-1'
-			)
+			->with(...LegacyObjectArgs::with(method: 'saveObject', expected: [
+					'object' => ['id' => 'body-1', 'name' => 'Raad', 'transcriptRetentionPolicy' => 'delete', 'transcriptRetentionDays' => 30],
+					'extend' => [],
+					'register' => 'decidiq',
+					'schema' => 'governance-body',
+					'uuid' => 'body-1',
+				]))
 			->willReturn($this->entity([]));
 
 		$this->repository()->saveRetentionPolicy('body-1', 'delete', 30);

@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Tests\Unit\Flow;
 
 use OCA\Decidiq\Flow\DecidiqRequestDecisionNode;
 use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\OpenRegister\Service\Flow\FlowNodeCall;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
@@ -128,7 +129,7 @@ class DecidiqRequestDecisionNodeBranchesTest extends TestCase {
 	 */
 	private function firstPass(array $items, array $config, array $context): FlowSuspension {
 		try {
-			$this->node()->execute($items, $config, $context);
+			$this->node()->execute(new FlowNodeCall(items: $items, config: $config, context: $context));
 		} catch (FlowSuspension $suspension) {
 			return $suspension;
 		}
@@ -246,9 +247,11 @@ class DecidiqRequestDecisionNodeBranchesTest extends TestCase {
 		$resume = self::slot(['decisionRef' => 'decision-9', 'raisedBy' => 'alice']);
 
 		$out = $this->node()->execute(
-			[['json' => ['id' => 'lead-1']], 'raw', ['other' => 1]],
-			['question' => 'Q', 'signalKey' => ' verdict '],
-			[FlowNodeResumeState::CONTEXT_KEY => $resume, FlowRunService::SIGNAL_CONTEXT_KEY => 'not-a-signal']
+			new FlowNodeCall(
+				items: [['json' => ['id' => 'lead-1']], 'raw', ['other' => 1]],
+				config: ['question' => 'Q', 'signalKey' => ' verdict '],
+				context: [FlowNodeResumeState::CONTEXT_KEY => $resume, FlowRunService::SIGNAL_CONTEXT_KEY => 'not-a-signal']
+			)
 		);
 
 		self::assertSame(

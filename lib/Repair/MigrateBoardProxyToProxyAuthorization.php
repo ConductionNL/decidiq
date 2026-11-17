@@ -45,6 +45,9 @@ namespace OCA\Decidiq\Repair;
 use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\Decidiq\Service\ObjectResultNormaliser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -88,6 +91,13 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 * @var string
 	 */
 	private const MEETING_SCHEMA = 'meeting';
+
+	/**
+	 * Grantor|holder|meeting keys already migrated during the current run.
+	 *
+	 * @var array<string, bool>
+	 */
+	private array $migratedKeys = [];
 
 	/**
 	 * Constructor.
@@ -143,40 +153,50 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 			return;
 		}
 
-		$alreadyMigratedIndex = $this->buildTargetIndex();
+		$this->migratedKeys = $this->buildTargetIndex();
 
-		$migrated = 0;
-		$alreadyMigrated = 0;
-		$skipped = 0;
+		$counts = ['migrated' => 0, 'alreadyMigrated' => 0, 'skipped' => 0];
 
 		foreach ($sourceRows as $entity) {
-			$resolved = $this->resolveRow(entity: $entity);
-			if ($resolved === null) {
-				$skipped++;
-				continue;
-			}
-
-			$key = $resolved['grantor'] . '|' . $resolved['holder'] . '|' . $resolved['meeting'];
-			if (($alreadyMigratedIndex[$key] ?? false) === true) {
-				$alreadyMigrated++;
-				continue;
-			}
-
-			if ($this->saveMigratedRow(resolved: $resolved, output: $output) === false) {
-				$skipped++;
-				continue;
-			}
-
-			$migrated++;
-			$alreadyMigratedIndex[$key] = true;
-		}//end foreach
+			$counts[$this->migrateRow(entity: $entity, output: $output)]++;
+		}
 
 		$output->info(
-			'MigrateBoardProxyToProxyAuthorization: ' . $migrated . ' migrated, '
-			. $alreadyMigrated . ' already migrated, ' . $skipped . ' skipped.'
+			'MigrateBoardProxyToProxyAuthorization: ' . $counts['migrated'] . ' migrated, '
+			. $counts['alreadyMigrated'] . ' already migrated, ' . $counts['skipped'] . ' skipped.'
 		);
 
 	}//end run()
+
+	/**
+	 * Migrate one legacy board-proxy row unless it was migrated before.
+	 *
+	 * @param mixed   $entity One row as returned by ObjectService::findAll().
+	 * @param IOutput $output Repair output.
+	 *
+	 * @return string Which counter the row lands in: migrated, alreadyMigrated or skipped.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
+	 */
+	private function migrateRow(mixed $entity, IOutput $output): string {
+		$resolved = $this->resolveRow(entity: $entity);
+		if ($resolved === null) {
+			return 'skipped';
+		}
+
+		$key = $resolved['grantor'] . '|' . $resolved['holder'] . '|' . $resolved['meeting'];
+		if (($this->migratedKeys[$key] ?? false) === true) {
+			return 'alreadyMigrated';
+		}
+
+		if ($this->saveMigratedRow(resolved: $resolved, output: $output) === false) {
+			return 'skipped';
+		}
+
+		$this->migratedKeys[$key] = true;
+		return 'migrated';
+
+	}//end migrateRow()
 
 	/**
 	 * Resolve one legacy board-proxy row to its proxy-authorization shape.
@@ -193,29 +213,16 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 * @return array{sourceId: string, grantor: string, holder: string, meeting: string, proxyStatus: string}|null Resolved row, or null to skip.
 	 */
 	private function resolveRow(mixed $entity): ?array {
-		$source = $this->toArray(entity: $entity);
-		if ($source === null) {
+		$identified = $this->identify(entity: $entity);
+		if ($identified === null) {
 			return null;
 		}
 
-		$sourceId = (string)($source['id'] ?? $source['uuid'] ?? '');
-		if ($sourceId === '') {
-			return null;
-		}
+		[$source, $sourceId] = $identified;
 
-		$grantorParticipant = (string)($source['grantorIntegration'] ?? '');
-		$holderParticipant = (string)($source['holderIntegration'] ?? '');
 		$meetingId = (string)($source['meetingIntegration'] ?? '');
-
-		$grantor = null;
-		if ($grantorParticipant !== '') {
-			$grantor = $this->resolver->resolve(participantId: $grantorParticipant);
-		}
-
-		$holder = null;
-		if ($holderParticipant !== '') {
-			$holder = $this->resolver->resolve(participantId: $holderParticipant);
-		}
+		$grantor   = $this->resolveParticipant(participantId: (string)($source['grantorIntegration'] ?? ''));
+		$holder    = $this->resolveParticipant(participantId: (string)($source['holderIntegration'] ?? ''));
 
 		$meetingExists = ($meetingId !== '' && $this->exists(id: $meetingId, schema: self::MEETING_SCHEMA));
 
@@ -243,6 +250,48 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	}//end resolveRow()
 
 	/**
+	 * Normalise one legacy row and read its identifier.
+	 *
+	 * @param mixed $entity One row as returned by ObjectService::findAll().
+	 *
+	 * @return array{0: array<string, mixed>, 1: string}|null [row, identifier], or null when the row is unusable.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
+	 */
+	private function identify(mixed $entity): ?array {
+		$source = $this->toArray(entity: $entity);
+		if ($source === null) {
+			return null;
+		}
+
+		$sourceId = (string)($source['id'] ?? $source['uuid'] ?? '');
+		if ($sourceId === '') {
+			return null;
+		}
+
+		return [$source, $sourceId];
+
+	}//end identify()
+
+	/**
+	 * Resolve a participant reference to its person and membership.
+	 *
+	 * @param string $participantId The participant reference; empty when the row has none.
+	 *
+	 * @return array|null The resolution, or null when the reference is empty or does not resolve.
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/migration.md#ocadecideskrepairmigrateboardproxytoproxyauthorization
+	 */
+	private function resolveParticipant(string $participantId): ?array {
+		if ($participantId === '') {
+			return null;
+		}
+
+		return $this->resolver->resolve(participantId: $participantId);
+
+	}//end resolveParticipant()
+
+	/**
 	 * Persist one resolved row as a proxy-authorization object.
 	 *
 	 * @param array $resolved The resolved row from resolveRow().
@@ -265,7 +314,10 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		];
 
 		try {
-			$this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::TARGET_SCHEMA);
+			$this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
+			);
 			$this->logger->info(
 				'Decidiq: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
 				[
@@ -338,7 +390,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 */
 	private function exists(string $id, string $schema): bool {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		} catch (Throwable $e) {
 			return false;
 		}

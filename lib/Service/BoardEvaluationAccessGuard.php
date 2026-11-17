@@ -49,6 +49,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -240,8 +241,7 @@ class BoardEvaluationAccessGuard implements BoardEvaluationAccessGuardInterface 
 		try {
 			$entity = $this->objectService->find(
 				id: $evaluationId,
-				register: 'decidiq',
-				schema: 'board-evaluation'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation')
 			);
 		} catch (DoesNotExistException) {
 			return null;

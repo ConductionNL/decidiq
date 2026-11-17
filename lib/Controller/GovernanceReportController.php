@@ -181,10 +181,7 @@ class GovernanceReportController extends Controller {
 
 		$result = $this->reportingService->exportReport($id, $format);
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		$extension = 'json';

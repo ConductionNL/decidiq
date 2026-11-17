@@ -30,6 +30,9 @@ use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -125,7 +128,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		$body = $this->validBody(body: $body);
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -157,11 +160,124 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 		$result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
 		return $result;
 	}//end submitReaction()
+
+	/**
+	 * Import one response of the consultation's intake form as a reaction.
+	 *
+	 * An imported response always starts as `pending`, whatever the
+	 * consultation's moderation policy: it enters the moderation queue like an
+	 * anonymous reaction and is never public before a moderator approves it.
+	 * The reaction's id is derived from the source key, so importing the same
+	 * response again finds it and creates nothing.
+	 *
+	 * @param string      $consultationId The consultation UUID.
+	 * @param string      $body           The response text.
+	 * @param string      $sourceKey      A key unique to the response, e.g. `forms:<formId>:<submissionId>`.
+	 * @param string|null $submitter      The Nextcloud UID of a named respondent; null, empty or an
+	 *                                    `anon-` id for an anonymous one (then stored pseudonymously).
+	 * @param int         $submittedAt    When the response was given, epoch seconds (0: now).
+	 *
+	 * @return array<string, mixed>|null The created reaction, or null when it was imported before.
+	 *
+	 * @throws RuntimeException When the consultation is not found.
+	 * @throws InvalidArgumentException When the body is empty or too long.
+	 *
+	 * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
+	 */
+	public function importReaction(string $consultationId, string $body, string $sourceKey, ?string $submitter, int $submittedAt): ?array {
+		$body = $this->validBody(body: $body);
+
+		$objectService = $this->objectService();
+		if ($objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation')) === null) {
+			throw new RuntimeException("PublicConsultation {$consultationId} not found");
+		}
+
+		$uuid = self::importedReactionId(consultationId: $consultationId, sourceKey: $sourceKey);
+		if ($objectService->find(id: $uuid, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction')) !== null) {
+			return null;
+		}
+
+		$reaction = [
+			'body' => $body,
+			'moderationStatus' => 'pending',
+			'submitterId' => $this->importedSubmitterId(consultationId: $consultationId, submitter: $submitter, sourceKey: $sourceKey),
+			'submittedAt' => self::atomOf(epoch: $submittedAt),
+			'consultation' => $consultationId,
+			'relations' => [
+				['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => $consultationId],
+			],
+		];
+
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'), uuid: $uuid)
+		);
+
+		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
+	}//end importReaction()
+
+	/**
+	 * The stable reaction id of an imported response: a UUID derived from the consultation and the source key.
+	 *
+	 * @param string $consultationId The consultation UUID.
+	 * @param string $sourceKey      The response's source key.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
+	 */
+	public static function importedReactionId(string $consultationId, string $sourceKey): string {
+		$hex = sha1('decidiq:consultation-reaction:' . $consultationId . ':' . $sourceKey);
+		$hex = substr($hex, 0, 12) . '5' . substr($hex, 13, 3) . dechex((hexdec($hex[16]) & 0x3) | 0x8) . substr($hex, 17, 15);
+
+		return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20, 12);
+	}//end importedReactionId()
+
+	/**
+	 * The submitter id of an imported response: the UID of a named respondent, else a pseudonym.
+	 *
+	 * @param string      $consultationId The consultation UUID.
+	 * @param string|null $submitter      The respondent as the source names them.
+	 * @param string      $sourceKey      The response's source key, the pseudonym seed of an unnamed respondent.
+	 *
+	 * @return string
+	 */
+	private function importedSubmitterId(string $consultationId, ?string $submitter, string $sourceKey): string {
+		$submitter = (string)$submitter;
+		if ($submitter !== '' && str_starts_with($submitter, 'anon-') === false) {
+			return $submitter;
+		}
+
+		$seed = $submitter;
+		if ($seed === '') {
+			$seed = $sourceKey;
+		}
+
+		return $this->pseudonymousId(consultationId: $consultationId, seed: 'import:' . $seed);
+	}//end importedSubmitterId()
+
+	/**
+	 * An epoch as an ATOM date, now for 0 or less.
+	 *
+	 * @param int $epoch Epoch seconds.
+	 *
+	 * @return string
+	 */
+	private static function atomOf(int $epoch): string {
+		if ($epoch <= 0) {
+			return (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+		}
+
+		return (new DateTimeImmutable('@' . $epoch))->format(\DateTimeInterface::ATOM);
+	}//end atomOf()
 
 	/**
 	 * The trimmed reaction body; refused when empty or longer than MAX_BODY_BYTES.
@@ -228,7 +344,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 	 */
 	public function approveReaction(string $reactionId, ?string $reason = null): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -240,7 +356,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 			$reaction['moderationReason'] = $reason;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		// Increment the parent consultation's submissionCount when a reaction is
 		// approved (pre-moderation: reactions start as pending and only count
@@ -280,14 +399,20 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		}
 
 		try {
-			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+			$consultationEntity = $objectService->find(
+				id: $consultationId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation')
+			);
 			if ($consultationEntity === null) {
 				return;
 			}
 
 			$consultation = $consultationEntity->jsonSerialize();
 			$consultation['submissionCount'] = ((int)($consultation['submissionCount'] ?? 0)) + 1;
-			$objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
+			$objectService->saveObject(
+				object: $consultation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'public-consultation'))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'ReactionIntakeService: could not increment consultation submissionCount: ' . $e->getMessage()
@@ -320,7 +445,7 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -329,7 +454,10 @@ class ReactionIntakeService implements ReactionIntakeServiceInterface {
 		$reaction['moderationStatus'] = 'rejected';
 		$reaction['moderationReason'] = $reason;
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end rejectReaction()

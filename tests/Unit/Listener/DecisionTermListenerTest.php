@@ -27,6 +27,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
@@ -72,7 +73,9 @@ class DecisionTermListenerTest extends TestCase {
 	private function listener(bool $broken = false): DecisionTermListener {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, $register = null, $schema = null, bool $_rbac = true) use ($broken): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true) use ($broken): ?ObjectEntity {
+				$register = $options?->register;
+				$schema   = $options?->schema;
 				$this->reads[] = [(string)$schema, (string)$id];
 				self::assertSame('decidiq', $register);
 				self::assertFalse($_rbac);

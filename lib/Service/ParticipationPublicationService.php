@@ -31,6 +31,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -135,7 +138,7 @@ class ParticipationPublicationService implements ParticipationPublicationService
 	 */
 	public function publishConsultationResults(string $consultationId, string $staffResponse = ''): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -181,7 +184,7 @@ class ParticipationPublicationService implements ParticipationPublicationService
 	 */
 	public function publishBudgetResults(string $budgetId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -237,7 +240,7 @@ class ParticipationPublicationService implements ParticipationPublicationService
 	 */
 	public function publishEvaluationResults(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity === null) {
 			throw new RuntimeException("BoardEvaluation {$evaluationId} not found");
 		}
@@ -424,7 +427,10 @@ class ParticipationPublicationService implements ParticipationPublicationService
 		$predicateSet = false;
 		$persistError = null;
 		try {
-			$saved = $objectService->saveObject(register: 'decidiq', schema: $sourceSchema, object: $sourceObject);
+			$saved = $objectService->saveObject(
+				object: $sourceObject,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $sourceSchema))
+			);
 			$summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
 			$predicateSet = true;
 		} catch (\Throwable $e) {
@@ -475,7 +481,7 @@ class ParticipationPublicationService implements ParticipationPublicationService
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function loadSource(string $sourceSchema, string $sourceId): array {
-		$entity = $this->objectService()->find(id: $sourceId, register: 'decidiq', schema: $sourceSchema);
+		$entity = $this->objectService()->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: $sourceSchema));
 		if ($entity !== null) {
 			return $entity->jsonSerialize();
 		}
@@ -534,7 +540,7 @@ class ParticipationPublicationService implements ParticipationPublicationService
 	 */
 	public function publishReaction(string $reactionId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -546,7 +552,10 @@ class ParticipationPublicationService implements ParticipationPublicationService
 
 		$reaction['publicationDate'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$reaction['depublicationDate'] = null;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end publishReaction()
@@ -608,7 +617,10 @@ class ParticipationPublicationService implements ParticipationPublicationService
 				'publishedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 				'publicationDate' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			];
-			$objectService->saveObject(register: 'opencatalogi', schema: 'publication', object: $publication);
+			$objectService->saveObject(
+				object: $publication,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
+			);
 			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning(

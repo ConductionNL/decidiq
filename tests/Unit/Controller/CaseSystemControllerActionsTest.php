@@ -35,6 +35,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * The connected case system: send, resend, the item actions on success and
@@ -122,7 +123,13 @@ class CaseSystemControllerActionsTest extends TestCase {
 		$item = $this->createMock(ObjectEntity::class);
 		$item->method('getObject')->willReturn(['meeting' => 'meeting-12-maart']);
 		$this->objects->expects($this->once())->method('find')
-			->with('item-1', $this->anything(), $this->anything(), 'decidiq', 'agenda-item')
+			->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'item-1',
+				'_extend' => $this->anything(),
+				'files' => $this->anything(),
+				'register' => 'decidiq',
+				'schema' => 'agenda-item',
+			]))
 			->willReturn($item);
 	}//end itemInMeeting()
 

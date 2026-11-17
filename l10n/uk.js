@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Хто може голосувати",
+        "All members of the body": "Усі члени органу",
+        "Left out because they are no longer active members: {names}": "Не включені, бо більше не є чинними членами: {names}",
         "sign-off route": "маршрут погодження",
         "#": "№",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d проти, %3$d утрималися",
@@ -2097,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Ще потрібно: етап {seq} ({maker})",
         "Stop": "Зупинити",
         "Stop {name}": "Зупинити {name}",
-        "Store": "Зберегти",
         "Sub-item title": "Назва підпункту",
         "Sub-item: {title}": "Підпункт: {title}",
         "Sub-items of {title}": "Підпункти {title}",
@@ -3321,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Позачергове засідання",
         "Committee meeting": "Засідання комісії",
         "Public hearing": "Громадські слухання",
-        "General assembly": "Загальні збори"
+        "General assembly": "Загальні збори",
+        "Members' ancillary positions": "Побічні посади членів"
     },
     "nplurals=2; plural=(n != 1);"
 )

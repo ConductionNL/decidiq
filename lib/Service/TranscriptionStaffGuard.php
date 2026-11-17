@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -257,7 +258,7 @@ class TranscriptionStaffGuard implements TranscriptionStaffGuardInterface {
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	private function meetingsOfTranscript(string $transcriptId): ?array {
-		$entity = $this->objectService->find(id: $transcriptId, register: 'decidiq', schema: 'transcript');
+		$entity = $this->objectService->find(id: $transcriptId, options: new ObjectFindOptions(register: 'decidiq', schema: 'transcript'));
 		if ($entity === null) {
 			// Fail closed: do not leak existence to non-staff.
 			return null;

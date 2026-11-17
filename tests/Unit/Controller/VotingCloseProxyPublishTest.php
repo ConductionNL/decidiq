@@ -137,6 +137,7 @@ class VotingCloseProxyPublishTest extends TestCase {
 			openHandler: $this->createMock(VotingOpenRequestHandler::class),
 			proxyService: $this->proxyService,
 			errors: new VotingErrorResponder($this->logger),
+			written: $this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 
 	}//end controller()

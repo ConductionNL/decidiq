@@ -61,6 +61,8 @@ final class VotingOpenRequestParserGoldenTest extends TestCase {
 			'bad tie rule' => $base + ['tieBreakRule' => 'coin'],
 			'bad subject' => $base + ['subjectType' => 'budget'],
 			'bad rule beats bad subject' => $base + ['subjectType' => 'budget', 'abstentionHandling' => 'x'],
+			'voting group' => $base + ['votingGroup' => 'group-1'],
+			'voting group and presets' => $base + ['votingGroup' => 'group-1', 'presetParticipantIds' => ['p1']],
 		];
 		$runs = [];
 		foreach ($cases as $name => $params) {

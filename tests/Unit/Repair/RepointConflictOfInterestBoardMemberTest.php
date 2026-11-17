@@ -29,6 +29,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for RepointConflictOfInterestBoardMember.
@@ -72,7 +74,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				// Participant-1 still exists as a live Participant — not yet migrated.
 				if ($schema === 'participant' && $id === 'participant-1') {
 					return $this->entity(data: ['id' => 'participant-1']);
@@ -83,13 +89,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		);
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid, 'schema' => $schema];
 				return $this->entity(data: $object);
 			}
@@ -138,13 +142,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		$objectService->method('find')->willReturn(null);
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$savedRef[] = $object;
 				return $this->entity(data: $object);
 			}
@@ -182,7 +184,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			fn (array $config): array => array_map(fn (array $r) => $this->entity(data: $r), $rows)
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'participant' && $id === 'participant-orphan') {
 					return $this->entity(data: ['id' => 'participant-orphan']);
 				}
@@ -346,7 +352,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			[['id' => 'coi-plain', 'boardMember' => 'participant-plain']]
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'participant' && $id === 'participant-plain') {
 					return $this->entity(data: ['id' => 'participant-plain']);
 				}
@@ -356,13 +366,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		);
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);
 			}
@@ -415,7 +423,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturn([$entity]);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'participant' && $id === 'participant-fallback') {
 					return $this->entity(data: ['id' => 'participant-fallback']);
 				}
@@ -425,13 +437,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		);
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use (&$savedRef) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);
 			}
@@ -516,7 +526,11 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			fn (array $config): array => array_map(fn (array $r) => $this->entity(data: $r), $rows)
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'participant' && $id === 'participant-save-fails') {
 					return $this->entity(data: ['id' => 'participant-save-fails']);
 				}

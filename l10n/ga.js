@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Cé atá i dteideal vótáil",
+        "All members of the body": "Baill uile an chomhlachta",
+        "Left out because they are no longer active members: {names}": "Fágtha amach toisc nach baill ghníomhacha iad a thuilleadh: {names}",
         "sign-off route": "bealach faofa",
         "#": "#",
         "+ Action item": "+ Mír gníomhaíochta",
@@ -2600,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Céim {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Fós le déanamh: stáitse {seq} ({maker})",
         "Stop": "Stad",
-        "Store": "Stóráil",
         "Subject description": "Cur síos ar an ábhar",
         "Submission phase": "Céim an chur isteach",
         "Submission window (hours)": "Fuinneog chur isteach (uaireanta)",
@@ -3351,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Cruinniú urghnách",
         "Committee meeting": "Cruinniú coiste",
         "Public hearing": "Éisteacht phoiblí",
-        "General assembly": "Comhthionól ginearálta"
+        "General assembly": "Comhthionól ginearálta",
+        "Members' ancillary positions": "Poist choimhdeacha na gcomhaltaí"
     },
     "nplurals=2; plural=(n != 1);"
 )

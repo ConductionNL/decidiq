@@ -26,6 +26,7 @@ use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
 use Throwable;
 
@@ -111,7 +112,12 @@ class MeetingFileService {
 	 */
 	public function assemble(string $meetingId): array {
 		$minutes = $this->approvedMinutes(meetingId: $meetingId);
-		$entity  = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+		$entity  = $this->objectService->find(
+			id: $meetingId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Meeting not found', status: 404);
 		}
@@ -369,7 +375,12 @@ class MeetingFileService {
 
 		$documentId = (string)($restriction['targetDocument'] ?? '');
 		if ($documentId !== '') {
-			$document = $this->objectService->find(id: $documentId, register: 'decidiq', schema: 'digital-document', _rbac: false, _multitenancy: false);
+			$document = $this->objectService->find(
+				id: $documentId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'digital-document'),
+				_rbac: false,
+				_multitenancy: false
+			);
 			$fileId   = (string)(((array)$document?->getObject())['fileId'] ?? '');
 			if ($fileId !== '') {
 				$keys[] = 'file:' . $fileId;
@@ -393,7 +404,12 @@ class MeetingFileService {
 			return '';
 		}
 
-		$ground = $this->objectService->find(id: $groundId, register: 'decidiq', schema: 'confidentiality-ground', _rbac: false, _multitenancy: false);
+		$ground = $this->objectService->find(
+			id: $groundId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'confidentiality-ground'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		$data   = (array)$ground?->getObject();
 		return (string)($data['citation'] ?? ($data['name'] ?? $groundId));
 	}//end groundName()

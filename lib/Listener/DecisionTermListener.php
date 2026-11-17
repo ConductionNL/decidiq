@@ -31,6 +31,7 @@ use OCA\Decidiq\Service\DecisionTermCalculator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -118,7 +119,11 @@ class DecisionTermListener implements IEventListener {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false);
+			$entity = $this->objectService->find(
+				id: $id,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false
+			);
 		} catch (Throwable) {
 			// Not there, or not readable: the term counts as not known.
 			return null;
