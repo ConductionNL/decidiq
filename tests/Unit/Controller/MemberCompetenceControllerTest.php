@@ -37,12 +37,15 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * @covers \OCA\Decidiq\Controller\MemberCompetenceController
  * @uses   \OCA\Decidiq\Service\CompetenceConfirmationGuard
  * @uses   \OCA\Decidiq\Service\GovernanceScopeGuard
  * @uses   \OCA\Decidiq\Service\MemberCompetenceService
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class MemberCompetenceControllerTest extends TestCase {
 
@@ -101,7 +104,11 @@ class MemberCompetenceControllerTest extends TestCase {
 	private function controller(?string $uid, array $params = []): MemberCompetenceController {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
 					return null;
@@ -114,7 +121,11 @@ class MemberCompetenceControllerTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($this->broken === true) {
 					throw new RuntimeException('database down');
 				}

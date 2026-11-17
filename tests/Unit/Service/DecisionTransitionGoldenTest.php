@@ -54,6 +54,8 @@ use Psr\Log\AbstractLogger;
 use ReflectionObject;
 use RuntimeException;
 use Stringable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Golden test for a decision lifecycle transition.
@@ -235,7 +237,11 @@ class DecisionTransitionGoldenTest extends TestCase {
 		$store   = new ArrayObject($this->store());
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				if ($id === 'd-dne' || $id === 'gone-p') {
 					throw new DoesNotExistException('gone');
@@ -249,7 +255,11 @@ class DecisionTransitionGoldenTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array|ObjectEntity $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntity {
+			function (array|ObjectEntity $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]];
 				if ($uuid === 'd-readonly') {
 					throw new RuntimeException('no write access');

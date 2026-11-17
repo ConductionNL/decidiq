@@ -31,6 +31,9 @@ use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Kernel\Contracts\BudgetVotingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -124,7 +127,7 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 		}
 
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($roundEntity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -167,7 +170,10 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 			$proposal['category'] = $category;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(
+			object: $proposal,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end submitProposal()
@@ -189,7 +195,7 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 	 */
 	public function validateProposal(string $proposalId, bool $approve): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
+		$entity = $objectService->find(id: $proposalId, options: new ObjectFindOptions(register: 'decidiq', schema: 'budget-proposal'));
 		if ($entity === null) {
 			throw new RuntimeException("BudgetProposal {$proposalId} not found");
 		}
@@ -204,7 +210,10 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 			$proposal['status'] = 'validated';
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(
+			object: $proposal,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end validateProposal()
@@ -235,7 +244,7 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
+		$entity = $objectService->find(id: $proposalId, options: new ObjectFindOptions(register: 'decidiq', schema: 'budget-proposal'));
 		if ($entity === null) {
 			throw new RuntimeException("BudgetProposal {$proposalId} not found");
 		}
@@ -258,7 +267,7 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($roundEntity === null) {
 			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
@@ -290,7 +299,7 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 	 */
 	public function calculateAllocation(string $budgetId): array {
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$roundEntity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($roundEntity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -379,7 +388,10 @@ class BudgetVotingService implements BudgetVotingServiceInterface {
 		}
 
 		$proposal['status'] = 'awarded';
-		$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+		$objectService->saveObject(
+			object: $proposal,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+		);
 	}//end persistAward()
 
 	/**

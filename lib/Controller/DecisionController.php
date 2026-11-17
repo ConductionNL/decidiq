@@ -48,6 +48,7 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  */
 class DecisionController extends Controller {
+	use GovernanceControllerTrait;
 
 	/**
 	 * Owns the server-side publication pipeline (load, validate, persist, activity).
@@ -141,10 +142,7 @@ class DecisionController extends Controller {
 		);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse($result);
@@ -209,10 +207,7 @@ class DecisionController extends Controller {
 		$result = $this->lifecycleService->getAvailableTransitions(decisionId: $decisionId);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_NOT_FOUND
-			);
+			return $this->refused(result: $result, status: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse($result);

@@ -386,18 +386,7 @@ class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 	 * @return array<string, mixed>|null
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['id'], $data['@self']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 
 	/**
@@ -412,17 +401,6 @@ class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 	private function write(array $broadcast): array {
 		$uuid = (string)$broadcast['id'];
 		unset($broadcast['id'], $broadcast['@self']);
-		$saved = $this->objectService->saveObject(
-			object: $broadcast,
-			register: 'decidiq',
-			schema: 'meeting-broadcast',
-			uuid: $uuid,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: 'meeting-broadcast', object: $broadcast, uuid: $uuid);
 	}//end write()
 }//end class

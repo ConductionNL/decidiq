@@ -42,6 +42,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -623,9 +626,10 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		$this->objectService->saveObject(
 			object: array_merge($current, $patch),
-			register: 'decidiq',
-			schema: 'decision-stage',
-			uuid: $stageId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
+				uuid: $stageId
+			)
 		);
 
 		$this->auditLogService->append(
@@ -769,8 +773,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		try {
 			$entity = $this->objectService->find(
 				id: $minutesId,
-				register: 'decidiq',
-				schema: 'minutes'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes')
 			);
 			if ($entity === null) {
 				return;
@@ -778,9 +781,10 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 			$this->objectService->saveObject(
 				object: array_merge($this->toObjectArray(entity: $entity), $patch),
-				register: 'decidiq',
-				schema: 'minutes',
-				uuid: $minutesId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
+					uuid: $minutesId
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

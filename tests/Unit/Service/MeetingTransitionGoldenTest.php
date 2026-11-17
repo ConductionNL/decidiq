@@ -54,6 +54,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the meeting lifecycle.
@@ -207,6 +208,7 @@ class MeetingTransitionGoldenTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed $object, mixed ...$rest) use ($case): ObjectEntity {
+				$rest = array_slice(LegacyObjectArgs::positional(method: 'saveObject', args: [$object, ...$rest]), 1, 11);
 				$this->log[] = ['saveObject' => [$object, $rest]];
 				if (($case['save'] ?? null) === 'throw') {
 					throw new RuntimeException('no write access');

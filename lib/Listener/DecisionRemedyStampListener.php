@@ -25,10 +25,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\LegalRemedyResolver;
+use OCA\Decidiq\Kernel\Contracts\LegalRemedyResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -59,14 +60,14 @@ class DecisionRemedyStampListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param LegalRemedyResolver    $remedies      Resolves and stamps the clause.
-	 * @param ObjectServiceInterface $objectService Reads the decision type.
-	 * @param LoggerInterface        $logger        Logs a type that could not be read.
+	 * @param LegalRemedyResolverInterface $remedies      Resolves and stamps the clause.
+	 * @param ObjectServiceInterface       $objectService Reads the decision type.
+	 * @param LoggerInterface              $logger        Logs a type that could not be read.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/tasks.md
 	 */
 	public function __construct(
-		private readonly LegalRemedyResolver $remedies,
+		private readonly LegalRemedyResolverInterface $remedies,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly LoggerInterface $logger,
 	) {
@@ -205,7 +206,7 @@ class DecisionRemedyStampListener implements IEventListener {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $typeId, register: 'decidiq', schema: 'decision-template');
+			$found = $this->objectService->find(id: $typeId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision-template'));
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				message: 'Decidiq: the decision type could not be read, so no remedy clause was stamped',

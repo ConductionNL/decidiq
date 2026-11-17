@@ -22,10 +22,12 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ActionItemAnalyticsServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ActionItemMigrationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ALVMinutesServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalActionStateRepairInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
@@ -52,6 +54,7 @@ use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\DashboardWidgetServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\DecisionAuthorityInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionCompetenceGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
@@ -65,19 +68,23 @@ use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ExportBundleServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\GoverningDocumentReleaseInterface;
 use OCA\Decidiq\Kernel\Contracts\GuestInvitationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\LegalRemedyResolverInterface;
 use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
 use OCA\Decidiq\Kernel\Contracts\MailVoteSignerInterface;
 use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingBroadcastServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SpeakingRequestServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingFolderServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
@@ -131,6 +138,7 @@ use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
+use OCA\Decidiq\Kernel\Contracts\ThemeRefreshServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionQueueInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
@@ -143,7 +151,11 @@ use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRecordServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundCloserInterface;
 use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundStoreInterface;
+use OCA\Decidiq\Service\Forms\FormResponseImportService;
+use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentRelease;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
 use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
@@ -175,9 +187,11 @@ final class ContractBindings {
 	private const BINDINGS = [
 		ALVMinutesServiceInterface::class => ALVMinutesService::class,
 		ActionItemAnalyticsServiceInterface::class => ActionItemAnalyticsService::class,
+		ActionItemMigrationServiceInterface::class => ActionItemMigrationService::class,
 		ActionItemWriterInterface::class => ActionItemWriter::class,
 		AgendaAuthorizationGuardInterface::class => AgendaAuthorizationGuard::class,
 		AgendaServiceInterface::class => AgendaService::class,
+		ApprovalActionStateRepairInterface::class => ApprovalActionStateRepair::class,
 		ApprovalRouteCommandServiceInterface::class => ApprovalRouteCommandService::class,
 		ApprovalRouteConclusionAnnouncerInterface::class => ApprovalRouteConclusionAnnouncer::class,
 		ApprovalRouteServiceInterface::class => ApprovalRouteService::class,
@@ -204,6 +218,7 @@ final class ContractBindings {
 		CurrentAgendaItemServiceInterface::class => CurrentAgendaItemService::class,
 		DashboardWidgetServiceInterface::class => DashboardWidgetService::class,
 		DecisionAuthorityInterface::class => DecisionAuthority::class,
+		DecisionCompetenceGuardInterface::class => DecisionCompetenceGuard::class,
 		DecisionIntegrationAuthorizationGuardInterface::class => DecisionIntegrationAuthorizationGuard::class,
 		DecisionIntegrationServiceInterface::class => DecisionIntegrationService::class,
 		DecisionLifecycleServiceInterface::class => DecisionLifecycleService::class,
@@ -217,19 +232,23 @@ final class ContractBindings {
 		ExportBundleServiceInterface::class => ExportBundleService::class,
 		ExportBundleWriterInterface::class => ExportBundleWriter::class,
 		FlowDecisionServiceInterface::class => FlowDecisionService::class,
+		FormResponseImportServiceInterface::class => FormResponseImportService::class,
 		FullExportServiceInterface::class => FullExportService::class,
 		GovernanceBodyCommandServiceInterface::class => GovernanceBodyCommandService::class,
 		GovernanceBodyQueryServiceInterface::class => GovernanceBodyQueryService::class,
 		GovernanceReportingServiceInterface::class => GovernanceReportingService::class,
 		GovernanceRoleScopeProjectorInterface::class => GovernanceRoleScopeProjector::class,
 		GovernanceScopeGuardInterface::class => GovernanceScopeGuard::class,
+		GoverningDocumentReleaseInterface::class => GoverningDocumentRelease::class,
 		GuestInvitationServiceInterface::class => GuestInvitationService::class,
+		LegalRemedyResolverInterface::class => LegalRemedyResolver::class,
 		ListenerSchemaResolverInterface::class => ListenerSchemaResolver::class,
 		LiveDecisionServiceInterface::class => LiveDecisionService::class,
 		MailVoteReplyProcessorInterface::class => MailVoteReplyProcessor::class,
 		MailVoteSignerInterface::class => MailVoteSigner::class,
 		MandateSubstitutionServiceInterface::class => MandateSubstitutionService::class,
 		MeetingBroadcastServiceInterface::class => MeetingBroadcastService::class,
+		SpeakingRequestServiceInterface::class => SpeakingRequestService::class,
 		MeetingFolderServiceInterface::class => MeetingFolderService::class,
 		MeetingPackageServiceInterface::class => MeetingPackageService::class,
 		MeetingReminderServiceInterface::class => MeetingReminderService::class,
@@ -283,6 +302,7 @@ final class ContractBindings {
 		SigningRoundServiceInterface::class => SigningRoundService::class,
 		SubjectClearanceServiceInterface::class => SubjectClearanceService::class,
 		SystemWhenNobodySignedInInterface::class => SystemWhenNobodySignedIn::class,
+		ThemeRefreshServiceInterface::class => ThemeRefreshService::class,
 		TranscriptRepositoryInterface::class => TranscriptRepository::class,
 		TranscriptionQueueInterface::class => TranscriptionQueue::class,
 		TranscriptionServiceInterface::class => TranscriptionService::class,
@@ -295,7 +315,9 @@ final class ContractBindings {
 		VotingRecordServiceInterface::class => VotingRecordService::class,
 		VotingRoundGuardInterface::class => VotingRoundGuard::class,
 		VotingServiceInterface::class => VotingService::class,
+		WrittenRoundCloserInterface::class => WrittenRoundCloser::class,
 		WrittenRoundServiceInterface::class => WrittenRoundService::class,
+		WrittenRoundStoreInterface::class => WrittenRoundStore::class,
 	];
 
 	/**

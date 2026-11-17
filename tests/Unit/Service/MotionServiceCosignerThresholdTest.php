@@ -43,6 +43,7 @@ use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Co-signer threshold enforcement matrix for the proposed -> deliberating edge.
@@ -248,13 +249,11 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			static function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($backend): ObjectEntityInterface {
+			static function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($backend): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
 			}
 		);

@@ -22,6 +22,8 @@ use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * REQ-GBE-007: a consumer reads back the governance body it raised.
@@ -48,7 +50,11 @@ class GovernanceBodyQueryServiceTest extends TestCase {
 
 		$facade = $this->createMock(ObjectServiceInterface::class);
 		$facade->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$schema = (string)$schema;
 				if ($uuid === null) {
 					$this->counter++;
@@ -80,7 +86,11 @@ class GovernanceBodyQueryServiceTest extends TestCase {
 			}
 		);
 		$facade->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($this->rows[(string)$schema][(string)$id] ?? null);
 
 				return ($row === null) ? null : $this->entity($row);

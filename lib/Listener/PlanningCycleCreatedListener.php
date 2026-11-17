@@ -34,6 +34,9 @@ use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\Decidiq\Kernel\Contracts\PlanningCycleGeneratorInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -102,7 +105,10 @@ class PlanningCycleCreatedListener implements IEventListener {
 			}
 
 			foreach ($this->generator->stepsFor(cycleId: $cycleId, year: $year, template: $template) as $step) {
-				$this->objectService->saveObject(object: $step, register: 'decidiq', schema: 'planning-cycle-step');
+				$this->objectService->saveObject(
+					object: $step,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'planning-cycle-step'))
+				);
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: generating the planning cycle steps failed', ['exception' => $e->getMessage()]);
@@ -124,7 +130,10 @@ class PlanningCycleCreatedListener implements IEventListener {
 			return null;
 		}
 
-		$template = $this->objectService->find(id: $templateId, register: 'decidiq', schema: 'planning-cycle-template');
+		$template = $this->objectService->find(
+			id: $templateId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'planning-cycle-template')
+		);
 		if ($template === null) {
 			return null;
 		}

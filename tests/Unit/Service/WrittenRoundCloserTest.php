@@ -28,6 +28,9 @@ use OCA\Decidiq\Tests\Unit\Support\WrittenRoundWorld;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Settling, the deadline close, and what a close writes.
@@ -224,16 +227,20 @@ class WrittenRoundCloserTest extends TestCase {
 		$world   = $this->world;
 		$failing = $this->getMockBuilder(\OCA\OpenRegister\Contract\ObjectServiceInterface::class)->getMock();
 		$failing->method('find')->willReturnCallback(
-			static function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null) use ($objects) {
+			static function (int|string $id, ?ObjectFindOptions $options = null) use ($objects) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'decision') {
 					throw new \RuntimeException('register offline');
 				}
 
-				return $objects->find(id: $id, register: $register, schema: $schema);
+				return $objects->find(id: $id, options: new ObjectFindOptions(register: $register, schema: $schema));
 			}
 		);
 		$failing->method('findAll')->willReturnCallback(static fn (array $config=[]): array => $objects->findAll(config: $config));
-		$failing->method('saveObject')->willReturnCallback(static fn (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null) => $objects->saveObject(object: $object, register: $register, schema: $schema));
+		$failing->method('saveObject')->willReturnCallback(static fn (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) => $objects->saveObject(object: $object, options: new ObjectSaveOptions(target: new ObjectFindTarget(register: ($options->target->register), schema: ($options->target->schema)))));
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())->method('error')->with('Decidiq: written round closed but the decision could not be marked decided');
 

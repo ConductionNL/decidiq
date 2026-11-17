@@ -79,6 +79,16 @@ final class ApprovalRouteAdvancer {
 	];
 
 	/**
+	 * Refuses to close a step while an open approval waits on somebody else.
+	 *
+	 * Built here, not injected: a pure rule with no dependency, so neither
+	 * this class's callers nor ApprovalRouteService's have to change.
+	 *
+	 * @var OpenApprovalGuard
+	 */
+	private readonly OpenApprovalGuard $openGuard;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the stage rows.
@@ -92,7 +102,63 @@ final class ApprovalRouteAdvancer {
 		private readonly RegisterObjectStore $store,
 		private readonly ?ApprovalStageActivator $activator = null,
 	) {
+		$this->openGuard = new OpenApprovalGuard();
 	}//end __construct()
+
+	/**
+	 * Refuse the completion that would close a step on which a mandatory open
+	 * approval still waits on somebody other than the actor (REQ-DWP-001).
+	 *
+	 * Asked only when this completion ends the step: while a parallel sibling
+	 * is still signing, the step stays where it is and nothing walks past the
+	 * open approval. Validated BEFORE any write, so a refusal leaves no stage
+	 * change and no action row, as every other refusal here does.
+	 *
+	 * @param string                           $subject The subject's uuid.
+	 * @param array<int, array<string, mixed>> $stages  The subject's stages.
+	 * @param array<string, mixed>             $active  The stage being completed.
+	 * @param string                           $actor   Who is acting.
+	 *
+	 * @return array<int, array<string, mixed>> The subject's actions, read once for the close that follows.
+	 *
+	 * @throws RuntimeException Naming each open approval and its assignee.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function assertNoOpenApprovalHoldsTheStep(string $subject, array $stages, array $active, string $actor): array {
+		$trail = $this->store->findAll(schema: 'approval-action', filters: ['subject' => $subject]);
+		if ($this->groupStillSigning(stages: $stages, active: $active) === false) {
+			$this->openGuard->assertStepMayClose(stage: $active, actions: $trail, actor: $actor);
+		}
+
+		return $trail;
+	}//end assertNoOpenApprovalHoldsTheStep()
+
+	/**
+	 * End the actor's own open approvals on the step they just acted on.
+	 *
+	 * The act IS the approval the work item was waiting for, so it leaves the
+	 * item in the state the act leaves its own row in, and the item drops off
+	 * the actor's task list.
+	 *
+	 * @param array<int, array<string, mixed>> $trail  The subject's actions, read before the act.
+	 * @param array<string, mixed>             $active The stage acted on.
+	 * @param string                           $actor  Who acted.
+	 * @param string                           $verb   What they did.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function closeOwnOpenApprovals(array $trail, array $active, string $actor, string $verb): void {
+		foreach ($this->openGuard->ownOpenOnStep(stage: $active, actions: $trail, actor: $actor) as $item) {
+			$this->store->patch(
+				schema: 'approval-action',
+				data: ['state' => $this->openGuard->stateForVerb(verb: $verb)],
+				uuid: (string)($item['id'] ?? ''),
+			);
+		}
+	}//end closeOwnOpenApprovals()
 
 	/**
 	 * Every active stage — one ordinarily, several in a parallel group.

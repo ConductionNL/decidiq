@@ -44,6 +44,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use RuntimeException;
 use Stringable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the meeting cost.
@@ -225,7 +226,8 @@ class MeetingCostGoldenTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$all) use ($case): ?ObjectEntity {
-				$names       = array_map(static fn (\ReflectionParameter $p): string => $p->getName(), (new \ReflectionMethod(ObjectServiceInterface::class, 'find'))->getParameters());
+				$all = LegacyObjectArgs::positional(method: 'find', args: $all);
+				$names       = array_map(static fn (\ReflectionParameter $p): string => $p->getName(), LegacyObjectArgs::parameters(ObjectServiceInterface::class, 'find'));
 				$args        = array_combine(array_slice($names, 0, count($all)), $all);
 				$schema      = ($args['schema'] ?? null);
 				$this->log[] = ['find' => [$args['id'], ($args['register'] ?? null), $schema]];

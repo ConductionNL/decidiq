@@ -22,7 +22,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundStoreInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The OpenRegister reads and writes of a written round, as plain arrays.
@@ -32,7 +36,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
  */
-class WrittenRoundStore {
+class WrittenRoundStore implements WrittenRoundStoreInterface {
 
 	/**
 	 * The register slug.
@@ -73,7 +77,12 @@ class WrittenRoundStore {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 
 		return self::arrayOf(row: $entity);
 	}//end find()
@@ -126,7 +135,12 @@ class WrittenRoundStore {
 	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public function save(string $schema, array $object): array {
-		$saved = $this->objectService->saveObject(object: $object, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
+		$saved = $this->objectService->saveObject(
+			object: $object,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $schema)),
+			_rbac: false,
+			_multitenancy: false
+		);
 
 		return (self::arrayOf(row: $saved) ?? $object);
 	}//end save()
