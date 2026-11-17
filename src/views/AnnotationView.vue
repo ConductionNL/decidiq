@@ -259,29 +259,44 @@ export default {
 	},
 
 	computed: {
-		/** @return {object} The annotation store. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {object} The annotation store.
+		 */
 		store() {
 			return useAnnotationStore()
 		},
 
-		/** @return {number} The file being annotated. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {number} The file being annotated.
+		 */
 		fileId() {
 			return Number(this.$route?.params?.fileId || 0)
 		},
 
-		/** @return {string} The signed-in user. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {string} The signed-in user.
+		 */
 		userId() {
 			return getCurrentUser()?.uid || ''
 		},
 
-		/** @return {string} The version on screen: the one asked for, else the current one. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
+		 * @return {string} The version on screen: the one asked for, else the current one.
+		 */
 		shownVersion() {
 			return String(
 				this.$route?.query?.version || this.store.fileVersion || '',
 			)
 		},
 
-		/** @return {boolean} Whether an earlier version is on screen. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
+		 * @return {boolean} Whether an earlier version is on screen.
+		 */
 		viewingOtherVersion() {
 			return (
 				this.store.fileVersion !== ''
@@ -289,7 +304,10 @@ export default {
 			)
 		},
 
-		/** @return {string} The label of the version on screen. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
+		 * @return {string} The label of the version on screen.
+		 */
 		shownLabel() {
 			if (!this.viewingOtherVersion) return this.store.versionLabel
 			const made = this.store.annotations.find(
@@ -298,7 +316,10 @@ export default {
 			return made?.versionLabel || ''
 		},
 
-		/** @return {object} The meeting and agenda item the annotator was opened from. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {object} The meeting and agenda item the annotator was opened from.
+		 */
 		context() {
 			const context = {}
 			for (const key of ['meeting', 'agendaItem']) {
@@ -322,7 +343,10 @@ export default {
 			)
 		},
 
-		/** @return {Array<object>} The colours. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {Array<object>} The colours.
+		 */
 		colorChoices() {
 			return [
 				{ id: 'yellow', label: this.t('decidiq', 'Yellow') },
@@ -332,7 +356,10 @@ export default {
 			]
 		},
 
-		/** @return {Array<object>} The tool buttons. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {Array<object>} The tool buttons.
+		 */
 		tools() {
 			return [
 				{ mode: 'select', label: this.t('decidiq', 'Select text') },
@@ -341,7 +368,10 @@ export default {
 			]
 		},
 
-		/** @return {string} The kind of the annotation being made. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {string} The kind of the annotation being made.
+		 */
 		draftTypeLabel() {
 			if (this.draft?.annotationType === 'highlight')
 				return this.t('decidiq', 'highlight')
@@ -350,7 +380,10 @@ export default {
 			return this.t('decidiq', 'sticky note')
 		},
 
-		/** @return {string} The load or render failure. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * @return {string} The load or render failure.
+		 */
 		error() {
 			return this.store.error || this.renderError
 		},
@@ -359,7 +392,10 @@ export default {
 	watch: {
 		fileId: {
 			immediate: true,
-			/** Load the annotations and render the current version. */
+			/**
+			 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+			 * Load the annotations and render the current version.
+			 */
 			async handler() {
 				if (!this.fileId) return
 				await this.store.load(this.fileId)
@@ -454,6 +490,7 @@ export default {
 		 * @param {number} number The page number.
 		 * @param {object} page The pdf.js page.
 		 * @param {object} viewport Its viewport.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		async drawPage(pdfjs, number, page, viewport) {
 			const canvas = this.refOf(`canvas-${number}`)
@@ -475,6 +512,7 @@ export default {
 		/**
 		 * @param {string} name A template ref.
 		 * @return {HTMLElement|null} The element.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		refOf(name) {
 			const ref = this.$refs[name]
@@ -483,6 +521,7 @@ export default {
 
 		/**
 		 * @param {string} mode select, note or draw.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		setMode(mode) {
 			this.mode = mode
@@ -519,6 +558,7 @@ export default {
 		/**
 		 * @param {number} page The page.
 		 * @param {{x: number, y: number}} point Where the note goes.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		startNote(page, point) {
 			this.openDraft({ annotationType: 'sticky-note', page, point })
@@ -527,6 +567,7 @@ export default {
 		/**
 		 * @param {number} page The page.
 		 * @param {Array<Array<number>>} path The stroke.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		startDrawing(page, path) {
 			const thinned = thinStroke(path)
@@ -536,6 +577,7 @@ export default {
 
 		/**
 		 * @param {object} draft The anchor of the annotation to make.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		openDraft(draft) {
 			this.draft = draft
@@ -545,7 +587,10 @@ export default {
 			this.color = this.colorChoices[0]
 		},
 
-		/** Drop the annotation being made. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * Drop the annotation being made.
+		 */
 		cancelDraft() {
 			this.draft = null
 			window.getSelection?.()?.removeAllRanges?.()
@@ -599,6 +644,7 @@ export default {
 
 		/**
 		 * @param {string} version The version to show; empty for the current one.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
 		 */
 		showVersion(version) {
 			const query = { ...(this.$route?.query || {}) }
@@ -610,7 +656,10 @@ export default {
 			this.$router.replace({ query })
 		},
 
-		/** Delete the annotation the panel asked for. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 * Delete the annotation the panel asked for.
+		 */
 		async confirmDelete() {
 			this.deleting = true
 			this.deleteError = ''

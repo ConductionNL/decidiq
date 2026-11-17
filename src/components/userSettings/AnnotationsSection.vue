@@ -79,12 +79,18 @@ export default {
 	},
 
 	computed: {
-		/** @return {string} The JSON download. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-006-author-can-delete-and-export-their-own-annotations-gdpr
+		 * @return {string} The JSON download.
+		 */
 		exportJson() {
 			return exportUrl('json')
 		},
 
-		/** @return {string} The CSV download. */
+		/**
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-006-author-can-delete-and-export-their-own-annotations-gdpr
+		 * @return {string} The CSV download.
+		 */
 		exportCsv() {
 			return exportUrl('csv')
 		},

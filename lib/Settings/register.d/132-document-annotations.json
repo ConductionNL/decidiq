@@ -98,11 +98,15 @@
 						"properties": {
 							"x": {
 								"type": "number",
+								"title": "Horizontal position",
+								"description": "How far from the left edge of the page the note sits, as a fraction of the page width (0 to 1).",
 								"minimum": 0,
 								"maximum": 1
 							},
 							"y": {
 								"type": "number",
+								"title": "Vertical position",
+								"description": "How far from the top edge of the page the note sits, as a fraction of the page height (0 to 1).",
 								"minimum": 0,
 								"maximum": 1
 							}

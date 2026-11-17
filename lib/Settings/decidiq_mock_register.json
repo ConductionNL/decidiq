@@ -9272,6 +9272,98 @@
         "contribution": "Voorbeeld Contribution 3",
         "transcriptSegment": "Voorbeeld Transcriptsegment 3",
         "registeredAfterDeadline": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-highlight-1"
+        },
+        "annotationType": "highlight",
+        "fileId": 1,
+        "page": 1,
+        "visibility": "private",
+        "quads": [
+          [
+            0.1,
+            0.2,
+            0.6,
+            0.2,
+            0.1,
+            0.23,
+            0.6,
+            0.23
+          ]
+        ],
+        "quote": "De reserve wordt met 2 miljoen verlaagd",
+        "color": "yellow",
+        "createdAt": "2026-03-01T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "demo-raadslid",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-sticky-note-2"
+        },
+        "annotationType": "sticky-note",
+        "fileId": 1,
+        "page": 2,
+        "visibility": "faction",
+        "point": {
+          "x": 0.8,
+          "y": 0.35
+        },
+        "bodyText": "Vragen in de fractie: waarom nu?",
+        "color": "blue",
+        "createdAt": "2026-03-02T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "demo-raadslid",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-drawing-3"
+        },
+        "annotationType": "drawing",
+        "fileId": 1,
+        "page": 3,
+        "visibility": "body",
+        "path": [
+          [
+            0.2,
+            0.5
+          ],
+          [
+            0.3,
+            0.52
+          ],
+          [
+            0.4,
+            0.5
+          ]
+        ],
+        "color": "red",
+        "createdAt": "2026-03-03T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "demo-raadslid",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
       }
     ]
   }

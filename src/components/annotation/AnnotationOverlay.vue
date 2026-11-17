@@ -105,6 +105,7 @@ export default {
 		/**
 		 * @param {object} annotation The annotation.
 		 * @return {string} Its colour variable.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		colorOf(annotation) {
 			return COLORS[annotation.color] || COLORS.yellow
@@ -113,6 +114,7 @@ export default {
 		/**
 		 * @param {Array<number>} quad A quad.
 		 * @return {object} The SVG rectangle attributes.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		rectOf(quad) {
 			return quadRect(quad, this.width, this.height)
@@ -121,6 +123,7 @@ export default {
 		/**
 		 * @param {Array<Array<number>>} path A stroke.
 		 * @return {string} The SVG path data.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		pathOf(path) {
 			return strokePath(path, this.width, this.height)
@@ -129,6 +132,7 @@ export default {
 		/**
 		 * @param {PointerEvent|MouseEvent} event The event.
 		 * @return {{x: number, y: number}} The point relative to the page.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		pointOf(event) {
 			return relativePoint(

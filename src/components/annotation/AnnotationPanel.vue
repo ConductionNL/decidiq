@@ -156,6 +156,7 @@ export default {
 		/**
 		 * @param {string} type The annotation type.
 		 * @return {string} Its name.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		typeLabel(type) {
 			if (type === 'highlight') return this.t('decidiq', 'Highlight')
@@ -166,6 +167,7 @@ export default {
 		/**
 		 * @param {string} visibility The visibility.
 		 * @return {string} Its name.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		visibilityLabel(visibility) {
 			const option = this.visibilityChoices.find(
@@ -177,6 +179,7 @@ export default {
 		/**
 		 * @param {object} annotation The annotation.
 		 * @return {string|null} The label of its version when it is not the one shown.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
 		 */
 		versionOf(annotation) {
 			return otherVersionLabel(annotation, this.fileVersion)
@@ -185,6 +188,7 @@ export default {
 		/**
 		 * @param {object} annotation The annotation.
 		 * @return {string} What a screen reader announces.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
 		entryLabel(annotation) {
 			return this.t('decidiq', '{type} by {author} on page {page}', {
