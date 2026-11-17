@@ -32,6 +32,9 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\ConsultationResponseRefusedException;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use OCP\IL10N;
 use Psr\Log\LoggerInterface;
@@ -116,7 +119,7 @@ class ConsultationResponseDocumentService {
 	 */
 	public function traject(string $id): array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: self::SCHEMA);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: self::SCHEMA));
 		} catch (Throwable) {
 			$entity = null;
 		}
@@ -287,7 +290,10 @@ class ConsultationResponseDocumentService {
 			$document['fileId'] = (int)$file['fileId'];
 		}
 
-		$saved = $this->objectService->saveObject(object: $document, register: self::REGISTER, schema: 'digital-document');
+		$saved = $this->objectService->saveObject(
+			object: $document,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'digital-document'))
+		);
 
 		return (string)$saved->getUuid();
 	}//end record()
@@ -304,7 +310,10 @@ class ConsultationResponseDocumentService {
 	private function link(string $id, array $traject, string $documentId): void {
 		unset($traject['@self'], $traject['id']);
 		$traject['responseDocument'] = $documentId;
-		$this->objectService->saveObject(object: $traject, register: self::REGISTER, schema: self::SCHEMA, uuid: $id);
+		$this->objectService->saveObject(
+			object: $traject,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA), uuid: $id)
+		);
 	}//end link()
 
 	/**

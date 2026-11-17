@@ -21,6 +21,8 @@ use OCA\Decidiq\Support\FilinqPdf;
 use OCA\Decidiq\Tests\Unit\Support\MergedRegisterSchema;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use OCP\Files\File;
 use OCP\IGroupManager;
@@ -211,8 +213,8 @@ final class ConsultationResponseDocumentServiceTest extends TestCase {
 	private function service(): ConsultationResponseDocumentService {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, $register = null, $schema = null): ?ObjectEntityInterface {
-				if ($this->traject === null || $id !== self::ID || $schema !== 'consultation-request') {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntityInterface {
+				if ($this->traject === null || $id !== self::ID || $options?->register !== 'decidiq' || $options?->schema !== 'consultation-request') {
 					return null;
 				}
 
@@ -220,9 +222,10 @@ final class ConsultationResponseDocumentServiceTest extends TestCase {
 			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], $register = null, $schema = null, ?string $uuid = null): ObjectEntityInterface {
-				$this->assertSame('decidiq', $register);
-				$this->saved[] = ['schema' => (string)$schema, 'uuid' => $uuid, 'object' => $object];
+			function (array $object, ObjectSaveOptions $options): ObjectEntityInterface {
+				$this->assertSame('decidiq', $options->target->register);
+				$uuid = $options->uuid;
+				$this->saved[] = ['schema' => (string)$options->target->schema, 'uuid' => $uuid, 'object' => $object];
 				return $this->entity(object: $object, uuid: $uuid ?? ('doc-' . count($this->saved)));
 			}
 		);
