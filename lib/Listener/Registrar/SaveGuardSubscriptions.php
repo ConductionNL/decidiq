@@ -32,6 +32,7 @@ use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
+use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
@@ -59,6 +60,11 @@ final class SaveGuardSubscriptions {
 	 * @var list<array{event: string, listener: string, schemas: list<string>}>
 	 */
 	public const ALL = [
+		// Deciding body (insight-decisions-report-by-period-and-body,
+		// REQ-DRP-001): a decision saved with a meeting and no deciding body
+		// gets the meeting's governance body, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
 		// Submission deadline gate (motion-amendment spec). ADR-005 retired
 		// the `motion` and `amendment` schemas into `decision`; the
 		// motion/amendment narrowing happens inside the handler on the

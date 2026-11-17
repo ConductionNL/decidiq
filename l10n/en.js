@@ -1855,6 +1855,8 @@ OC.L10N.register(
         "Previous month": "Previous month",
         "Private": "Private",
         "Process template": "Process template",
+        "Deciding body": "Deciding body",
+        "The governance body that took the decision.": "The governance body that took the decision.",
         "Process templates": "Process templates",
         "Processed": "Processed",
         "Processing": "Processing",
@@ -3695,7 +3697,12 @@ OC.L10N.register(
         "This item has been realised.": "This item has been realised.",
         "This item lapsed: {reason}": "This item lapsed: {reason}",
         "Shifts: {count}": "Shifts: {count}",
-        "Board view": "Board view"
+        "Board view": "Board view",
+        "Show these decisions": "Show these decisions",
+        "This year": "This year",
+        "This quarter": "This quarter",
+        "Custom range": "Custom range",
+        "By body, all periods": "By body, all periods"
     },
     "nplurals=2; plural=(n != 1);"
 )

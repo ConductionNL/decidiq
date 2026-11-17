@@ -2008,6 +2008,8 @@ OC.L10N.register(
         "Previous month": "Vorige maand",
         "Private": "Privé",
         "Process template": "Processjabloon",
+        "Deciding body": "Besluitvormend orgaan",
+        "The governance body that took the decision.": "Het bestuursorgaan dat het besluit heeft genomen.",
         "Process templates": "Processjablonen",
         "Members' ancillary positions": "Nevenfuncties van leden",
         "Processed": "Verwerkt",
@@ -4099,7 +4101,12 @@ OC.L10N.register(
         "This item has been realised.": "Dit onderwerp is gerealiseerd.",
         "This item lapsed: {reason}": "Dit onderwerp is vervallen: {reason}",
         "Shifts: {count}": "Verschuivingen: {count}",
-        "Board view": "Bordweergave"
+        "Board view": "Bordweergave",
+        "Show these decisions": "Toon deze besluiten",
+        "This year": "Dit jaar",
+        "This quarter": "Dit kwartaal",
+        "Custom range": "Aangepaste periode",
+        "By body, all periods": "Per orgaan, alle perioden"
     },
     "nplurals=2; plural=(n != 1);"
 )
