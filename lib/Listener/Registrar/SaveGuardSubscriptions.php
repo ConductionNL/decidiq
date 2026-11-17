@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
+use OCA\Decidiq\Listener\ApprovalRouteSavedListener;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
@@ -154,5 +155,10 @@ final class SaveGuardSubscriptions {
 			'listener' => ImplementationUpdateListener::class,
 			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
 		],
+		// Approval routes on flows (approval-routes-on-flow-user-tasks,
+		// REQ-ARF-009): an active route that needs a feature the installed
+		// OpenRegister does not offer is refused, naming the feature and step.
+		['event' => ObjectCreatingEvent::class, 'listener' => ApprovalRouteSavedListener::class, 'schemas' => [ApprovalRouteSavedListener::SCHEMA]],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ApprovalRouteSavedListener::class, 'schemas' => [ApprovalRouteSavedListener::SCHEMA]],
 	];
 }//end class

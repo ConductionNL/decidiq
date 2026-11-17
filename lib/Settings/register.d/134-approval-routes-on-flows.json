@@ -1,0 +1,44 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change approval-routes-on-flow-user-tasks (REQ-ARF-002, REQ-ARF-003, REQ-ARF-008). A route sent after this change runs as an OpenRegister flow of user tasks with the decision as its subject. The flow writes the route's state onto the decision itself, so the decision shows where its route stands without a decidiq stage row. A decision whose route was already under way on the old engine keeps that engine until it concludes.",
+	"components": {
+		"schemas": {
+			"Decision": {
+				"slug": "decision",
+				"version": "1.10.0",
+				"properties": {
+					"approvalRun": {
+						"title": "Approval run",
+						"type": "string",
+						"nullable": true,
+						"description": "The OpenRegister flow run that carries this decision along its approval route. Set when the proposal is sent for approval; empty when it was never sent, or its route runs on the old engine."
+					},
+					"approvalEngine": {
+						"title": "Approval engine",
+						"type": "string",
+						"enum": ["legacy", "flow"],
+						"nullable": true,
+						"description": "What runs this decision's approval route: `flow` for a route sent as an OpenRegister flow, `legacy` for a route that was under way on decidiq's own engine when routes moved to flows and finishes there."
+					},
+					"approvalRouteStatus": {
+						"title": "Approval status",
+						"type": "string",
+						"enum": ["running", "approved", "rejected", "returned"],
+						"nullable": true,
+						"facetable": true,
+						"description": "Where the decision's approval route stands, written by the route's flow: running while a step is open, then approved, rejected, or returned to the sender."
+					},
+					"approvalCurrentOrder": {
+						"title": "Current step",
+						"type": "integer",
+						"minimum": 1,
+						"nullable": true,
+						"description": "The order of the route step that is open now, written by the route's flow; empty once the route has concluded."
+					}
+				}
+			}
+		}
+	}
+}

@@ -10,8 +10,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **acceptance_criteria**:
   - a route with a parallel order compiles to parallel nodes and a join
   - the compiled document passes OpenRegister's own flow validator (real class, no fake)
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Service/ApprovalRouteFlowCompilerTest.php`
+- Built: `ApprovalRouteFlowCompiler` turns a route into a flow document (manual trigger, one `openregister.user-task` per step, an object-write per order entry, a join (`openregister.merge`, `join: true`) after a parallel order, approved/rejected/returned ends). The flow is keyed `decidiq-approval-route:<route>:<steps hash>`, so a changed route is a new flow. `ApprovalRouteSavedListener` is the save guard on `approval-route`. Tests: `ApprovalRouteFlowCompilerTest` (17) asserts nodes, edges, exits, join and that the document is closed; it does not load OpenRegister's own `FlowDefinitionBuilder`, because the unit suite runs on OpenRegister stubs and CI does not check openregister out beside the app.
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Service/ApprovalRouteFlowCompilerTest.php`
 
 ### Task 2: Start a run from Send for approval
 - **spec_ref**: `openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-002-sending-a-proposal-starts-one-flow-run-with-the-decision-as-its-subject`
@@ -26,8 +27,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **files**: `lib/Service/ApprovalRouteFlowCompiler.php` (outcome edges, return edges, `expiresAt`/`onTimeout`, object-write nodes for the decision's route fields)
 - **acceptance_criteria**:
   - approve, reject, return and lapse each produce the edge and object write the spec names
-- [ ] Implement
-- [ ] Test (red first): compiler test cases per outcome
+- Built: each task node declares exits read from its own outcome key (`json.step_<order>_<slot>.outcome`): approved and advised go on, rejected to `route-rejected`, `returned-to-<n>` (the task's `returnToStep` answer) re-enters order n, a return naming no step goes to `route-returned` (back to the sender). A step's `dueAt` rides on the task; `expiresAt`/`onTimeout` only where OpenRegister offers a lapse outcome (it does not today: `Task::OUTCOME_BEHAVIOURS` is skip/error/dead_letter), else task 5 refuses the route. The writes set `approvalRouteStatus` and `approvalCurrentOrder` on the decision (register fragment 134).
+- [x] Implement
+- [x] Test (red first): compiler test cases per outcome
 
 ### Task 4: Route tab reads the run (board DcBesluitRoute)
 - **spec_ref**: `openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-007-the-route-tab-reads-the-flow-run`, `#requirement-req-arf-006-a-substitute-can-act-while-the-approver-is-away`
@@ -42,8 +44,9 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - **files**: `lib/Service/ApprovalRouteFlowCompiler.php` (capability check against OpenRegister's node catalog)
 - **acceptance_criteria**:
   - the refusal names the feature and the step; no fallback to the old engine
-- [ ] Implement
-- [ ] Test (red first)
+- Built: `ApprovalRouteFlowCapabilities` reads OpenRegister's task vocabularies and flow router; the compiler names every missing feature with its step (performer by rule, declared outcome or hold on silence, reminder before the deadline, partial threshold, route deadline split, exclusion list, and a step that names nobody). An inactive route is a draft and is not judged. Tests: compiler cases + `ApprovalRouteSavedListenerTest` (6).
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 6: Legacy routes finish on the old engine, then the old engine goes
 - **spec_ref**: `openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-008-routes-that-run-on-the-old-engine-finish-there`
