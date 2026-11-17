@@ -17,7 +17,7 @@
   - payload valid against agenda-item
 - [x] Implement
 - [x] Test (red first)
-- [ ] Playwright `tests/e2e/incoming-documents.spec.ts` green on the municipality example set (owed live)
+- [x] Playwright `tests/e2e/incoming-documents.spec.ts` green on the municipality example set (owed live) (passed live 2026-11-17 on a clean install with the municipality set, after the seed type references resolved)
 
 ## Verification
 
