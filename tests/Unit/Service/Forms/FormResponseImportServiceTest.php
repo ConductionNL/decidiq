@@ -192,4 +192,83 @@ final class FormResponseImportServiceTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$service->import(consultationId: 'missing');
 	}//end testAnUnknownConsultationStopsTheImport()
+	/**
+	 * A service over the given reader and logger, sharing the in-memory intake of setUp.
+	 *
+	 * @param FormResponseReader $reader The reader.
+	 * @param LoggerInterface    $logger The logger.
+	 *
+	 * @return FormResponseImportService
+	 */
+	private function serviceWith(FormResponseReader $reader, LoggerInterface $logger): FormResponseImportService {
+		return new FormResponseImportService(
+			reader: $reader,
+			intake: (new \ReflectionProperty(FormResponseImportService::class, 'intake'))->getValue($this->service),
+			logger: $logger
+		);
+	}//end serviceWith()
+
+	/**
+	 * Every linked form is read and counted, and equal submission ids of two forms stay two reactions.
+	 *
+	 * @return void
+	 */
+	public function testEachLinkedFormIsImportedUnderItsOwnSourceKey(): void {
+		$reader = $this->createMock(FormResponseReader::class);
+		$reader->expects(self::once())->method('linkedFormIds')->with(self::CONSULTATION)->willReturn([4, 7]);
+		$asked = [];
+		$reader->expects(self::exactly(2))->method('responses')->willReturnCallback(
+			static function (int $formId) use (&$asked): array {
+				$asked[] = $formId;
+				return [['formId' => $formId, 'submissionId' => 1, 'userId' => 'alice', 'timestamp' => 1700000000, 'body' => 'Form ' . $formId]];
+			}
+		);
+
+		$counts = $this->serviceWith(reader: $reader, logger: $this->createMock(LoggerInterface::class))->import(consultationId: self::CONSULTATION);
+
+		self::assertSame(['forms' => 2, 'imported' => 2, 'skipped' => 0, 'refused' => 0], $counts);
+		self::assertSame([4, 7], $asked);
+		$forms4 = ReactionIntakeService::importedReactionId(consultationId: self::CONSULTATION, sourceKey: 'forms:4:1');
+		$forms7 = ReactionIntakeService::importedReactionId(consultationId: self::CONSULTATION, sourceKey: 'forms:7:1');
+		self::assertSame([$forms4, $forms7], array_keys($this->saved));
+		self::assertSame('Form 4', $this->saved[$forms4]['body']);
+		self::assertSame('Form 7', $this->saved[$forms7]['body']);
+	}//end testEachLinkedFormIsImportedUnderItsOwnSourceKey()
+
+	/**
+	 * A consultation without linked forms imports nothing and reads no responses.
+	 *
+	 * @return void
+	 */
+	public function testNoLinkedFormsImportsNothing(): void {
+		$reader = $this->createMock(FormResponseReader::class);
+		$reader->method('linkedFormIds')->willReturn([]);
+		$reader->expects(self::never())->method('responses');
+
+		$counts = $this->serviceWith(reader: $reader, logger: $this->createMock(LoggerInterface::class))->import(consultationId: self::CONSULTATION);
+
+		self::assertSame(['forms' => 0, 'imported' => 0, 'skipped' => 0, 'refused' => 0], $counts);
+		self::assertSame([], $this->saved);
+	}//end testNoLinkedFormsImportsNothing()
+
+	/**
+	 * A refused response is logged once with its source key and the intake's reason.
+	 *
+	 * @return void
+	 */
+	public function testARefusedResponseIsLoggedWithItsSourceKey(): void {
+		$reader = $this->createMock(FormResponseReader::class);
+		$reader->method('linkedFormIds')->willReturn([4]);
+		$reader->method('responses')->willReturn([self::response(9, '   ')]);
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())->method('info')->with(
+			'Decidiq: a form response was not imported as a reaction',
+			self::callback(static fn (array $context): bool => $context['source'] === 'forms:4:9' && $context['reason'] === 'Reaction body must not be empty')
+		);
+
+		$counts = $this->serviceWith(reader: $reader, logger: $logger)->import(consultationId: self::CONSULTATION);
+
+		self::assertSame(['forms' => 1, 'imported' => 0, 'skipped' => 0, 'refused' => 1], $counts);
+		self::assertSame([], $this->saved);
+	}//end testARefusedResponseIsLoggedWithItsSourceKey()
 }//end class
