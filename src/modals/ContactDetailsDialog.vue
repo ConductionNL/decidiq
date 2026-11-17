@@ -82,6 +82,7 @@
 import { NcButton, NcDialog, NcSelect, NcTextField } from '@nextcloud/vue'
 import { ensureRelationType } from '../components/tabs/useRelationStore.js'
 import { contactDetailPayload } from '../utils/bodyMembership.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 export default {
 	name: 'ContactDetailsDialog',
@@ -168,7 +169,8 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await ensureRelationType('contact-detail').saveObject(
+				await saveOrThrow(
+					ensureRelationType('contact-detail'),
 					'contact-detail',
 					contactDetailPayload({
 						type: this.selectedType?.id || 'phone',

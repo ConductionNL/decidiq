@@ -139,6 +139,7 @@
 <script>
 import { NcButton, NcLoadingIcon, NcTextArea } from '@nextcloud/vue'
 import ActionItemCaptureModal from '../../modals/ActionItemCaptureModal.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from '../tabs/useRelationStore.js'
 import {
 	createAutosaver,
@@ -260,7 +261,7 @@ export default {
 			this.error = ''
 			try {
 				const store = ensureRelationType('minutes')
-				await store.saveObject('minutes', {
+				await saveOrThrow(store, 'minutes', {
 					title: this.t('decidiq', 'Minutes'),
 					lifecycle: 'draft',
 					version: 1,
@@ -312,11 +313,12 @@ export default {
 		async persist(itemNotes) {
 			if (!this.minutes) return
 			const store = ensureRelationType('minutes')
-			const saved = await store.saveObject('minutes', {
+			// A refused save throws, so the autosaver shows its error state
+			// instead of "saved".
+			this.minutes = await saveOrThrow(store, 'minutes', {
 				...this.minutes,
 				itemNotes,
 			})
-			if (saved) this.minutes = saved
 		},
 	},
 }
