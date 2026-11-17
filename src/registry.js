@@ -75,6 +75,7 @@ import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
 import MeetingSpeakersTab from './components/tabs/MeetingSpeakersTab.vue'
 import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
+import MeetingTeamsTab from './components/tabs/MeetingTeamsTab.vue'
 import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
 import MeetingVideoCallTab from './components/tabs/MeetingVideoCallTab.vue'
@@ -364,6 +365,8 @@ export default {
 	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
 	MeetingRoomSystemTab: page(MeetingRoomSystemTab),
 	MeetingBroadcastTab: page(MeetingBroadcastTab),
+	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
+	MeetingTeamsTab: page(MeetingTeamsTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
