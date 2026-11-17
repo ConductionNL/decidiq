@@ -1692,7 +1692,7 @@
 						"estimatedDuration": 20,
 						"description": "Het college legt het spoedbesluit noodopvang sporthal De Vliet ter bekrachtiging voor aan de raad.",
 						"meeting": "raadsvergadering-2026-06-18",
-						"ratifiesDecision": "spoedbesluit-noodopvang-2026"
+						"ratifiesDecision": "a1d10000-0000-4000-a000-000000000201"
 					}
 				],
 				"ancillary-position": [
@@ -2900,6 +2900,8 @@
 							"schema": "decision"
 						},
 						"slug": "spoedbesluit-noodopvang-2026",
+						"id": "a1d10000-0000-4000-a000-000000000201",
+						"uuid": "a1d10000-0000-4000-a000-000000000201",
 						"decisionType": "resolution",
 						"title": "Noodopvang statushouders sporthal De Vliet",
 						"text": "Het college besluit sporthal De Vliet per direct als noodopvang voor 120 statushouders in te richten, voor ten hoogste drie maanden.",
