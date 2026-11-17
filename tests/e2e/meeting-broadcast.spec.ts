@@ -18,6 +18,7 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 /**
  * Open a seeded meeting and wait for the Broadcast widget.
@@ -28,7 +29,7 @@ import { BASE_URL as BASE } from './base-url.ts'
  */
 async function openMeeting(page, title: string) {
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
-	await page.getByText(title).first().click()
+	await openRow(page, title)
 	const widget = page.getByTestId('meeting-broadcast')
 	await expect(widget).toBeVisible()
 	return widget

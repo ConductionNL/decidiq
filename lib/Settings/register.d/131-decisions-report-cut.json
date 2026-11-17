@@ -1,0 +1,25 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change insight-decisions-report-by-period-and-body (ins-02). A decision names the governance body that took it, so the Decisions report can be cut per body. Filled from the meeting's body on save (DecisionDecidingBodyListener) and once for existing decisions (FillDecisionDecidingBody); a body set by hand is never overwritten. governingBody stays the free-text BRC bestuursorgaan.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "properties": {
+          "decidingBody": {
+            "title": "Deciding body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "facetable": true,
+            "description": "The governance body that took the decision.",
+            "x-notes": "REQ-DRP-001. Set from the meeting's governance body when a decision is saved with a meeting and without a deciding body; editable otherwise. Decisions without a meeting stay empty and count under No body on the Decisions report."
+          }
+        }
+      }
+    }
+  }
+}
