@@ -50,6 +50,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ProxyVoteServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -321,8 +324,7 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 		try {
 			$entity = $this->objectService->find(
 				id: $proxyId,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA)
 			);
 			if ($entity === null) {
 				return $this->transitionFailure(message: 'Proxy not found.');
@@ -352,9 +354,10 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 			// REQ-BPV-002; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $merged,
-				register: 'decidiq',
-				schema: self::SCHEMA,
-				uuid: $proxyId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
+					uuid: $proxyId
+				),
 				_rbac: false
 			);
 		} catch (\Throwable $e) {

@@ -42,6 +42,7 @@ use ReflectionMethod;
 use RuntimeException;
 use Stringable;
 use Throwable;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Golden test for the engagement records.
@@ -152,6 +153,7 @@ class EngagementGoldenTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed ...$arguments): ObjectEntity {
+				$arguments = LegacyObjectArgs::positional(method: 'saveObject', args: $arguments);
 				$arguments = $this->named(ObjectServiceInterface::class, 'saveObject', $arguments);
 				$this->log[] = ['saveObject' => $arguments];
 				return $this->entity(row: ['id' => ($arguments['uuid'] ?? 'e-new')] + $arguments['object']);
@@ -172,7 +174,7 @@ class EngagementGoldenTest extends TestCase {
 	 */
 	private function everyArgument(string $class, string $method, array $arguments): array {
 		$named = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $parameter) {
 			$named[$parameter->getName()] = array_key_exists($i, $arguments) === true ? $arguments[$i] : $parameter->getDefaultValue();
 		}
 
@@ -191,7 +193,7 @@ class EngagementGoldenTest extends TestCase {
 	 */
 	private function named(string $class, string $method, array $arguments): array {
 		$named = [];
-		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
+		foreach (LegacyObjectArgs::parameters($class, $method) as $i => $parameter) {
 			if (array_key_exists($i, $arguments) === false) {
 				break;
 			}

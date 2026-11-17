@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use Psr\Container\ContainerInterface;
@@ -94,7 +96,10 @@ class DecisionWithdrawalRecorder {
 		}
 
 		try {
-			$saved = $objectService->saveObject(object: $withdrawn, register: 'decidiq', schema: 'decision', uuid: $decisionId);
+			$saved = $objectService->saveObject(
+				object: $withdrawn,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
+			);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: withdrawing a decision failed', ['decision' => $decisionId, 'reason' => $e->getMessage()]);
 			return self::envelope(status: Http::STATUS_INTERNAL_SERVER_ERROR, message: 'The withdrawal could not be saved.');

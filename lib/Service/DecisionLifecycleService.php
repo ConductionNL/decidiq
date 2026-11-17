@@ -32,6 +32,8 @@ use OCA\Decidiq\Event\DecisionConcludedEvent;
 use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
@@ -282,9 +284,10 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		// write access on this specific object (caught below, generic error).
 		$updated = $this->objectService->saveObject(
 			object: array_merge($decision, $patch),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $decisionId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $decisionId
+			)
 		);
 
 		$this->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
@@ -718,8 +721,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 
 			$this->objectService->saveObject(
 				object: $resolution,
-				register: 'decidiq',
-				schema: 'decision'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -807,8 +809,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 
 				$created = $this->objectService->saveObject(
 					object: $membership,
-					register: 'decidiq',
-					schema: 'membership'
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'membership'))
 				);
 
 				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
@@ -816,9 +817,10 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 
 			$this->objectService->saveObject(
 				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+					uuid: $decisionId
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(

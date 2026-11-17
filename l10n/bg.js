@@ -2603,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Стъпка {step} от {total}",
         "Still to do: stage {seq} ({maker})": "Предстои: етап {seq} ({maker})",
         "Stop": "Спиране",
-        "Store": "Съхраняване",
         "Subject description": "Описание на предмета",
         "Submission phase": "Фаза на подаване",
         "Submission window (hours)": "Срок за подаване (часове)",
@@ -3354,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Извънредно заседание",
         "Committee meeting": "Заседание на комисия",
         "Public hearing": "Публично изслушване",
-        "General assembly": "Общо събрание"
+        "General assembly": "Общо събрание",
+        "Members' ancillary positions": "Странични длъжности на членовете"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -53,6 +53,9 @@ $extra = [
         ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
         ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
         ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
+        // The room's conference and voting system through integriq (live-room-conference-system-link, REQ-RCSL-001, REQ-RCSL-006).
+        ['name' => 'roomSystem#meeting',        'url' => '/api/meetings/{id}/room-system',              'verb' => 'GET'],
+        ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         // The long-term agenda as a formatted report (planning-long-term-agenda-tracks-and-report, REQ-LTAT-004).
@@ -199,6 +202,16 @@ $extra = [
         ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
         ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
 
+        // inspreekrecht-plenair (REQ-INS-004/005): register to speak, and the secretariat's moderation.
+        ['name' => 'speakingRequest#create',  'url' => '/api/speaking-requests',               'verb' => 'POST'],
+        ['name' => 'speakingRequest#approve', 'url' => '/api/speaking-requests/{id}/approve',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#reject',  'url' => '/api/speaking-requests/{id}/reject',   'verb' => 'POST'],
+        ['name' => 'speakingRequest#refer',   'url' => '/api/speaking-requests/{id}/refer',    'verb' => 'POST'],
+        ['name' => 'speakingRequest#outcome', 'url' => '/api/speaking-requests/{id}/outcome',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#agenda',  'url' => '/api/meetings/{meetingId}/speaking-slots',        'verb' => 'GET'],
+        ['name' => 'speakingRequest#publicAgenda', 'url' => '/api/meetings/{meetingId}/speaking-slots/public', 'verb' => 'GET'],
+        ['name' => 'speakingRequest#queue',   'url' => '/api/meetings/{meetingId}/speaking-queue',        'verb' => 'GET'],
+
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
         ['name' => 'agenda#revise',              'url' => '/api/agendas/{meetingId}/revise',       'verb' => 'PUT'],
@@ -294,6 +307,8 @@ $extra = [
 
         // Send minutes, a meeting's decision list or a motion for signature in order,
         // and collect the signed copy (signing-external-service-with-order, min-17).
+        // bodies-onboarding-checklist-walkthrough: mark one checklist step completed or skipped (secretariat or admin).
+        ['name' => 'onboarding#updateStep', 'url' => '/api/onboarding/{kind}/{id}/steps/{index}', 'verb' => 'PUT', 'requirements' => ['kind' => 'onboarding|offboarding', 'index' => '\\d+']],
         ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
         ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
@@ -361,6 +376,12 @@ $extra = [
         ['name' => 'ori#preflightItem', 'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'OPTIONS', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#index',         'url' => '/api/ori/v1/{resource}',      'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
+
+        // Public ORI RSS feeds (ori-adoption REQ-ORIA-004).
+        // @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+        ['name' => 'oriFeed#meetings',    'url' => '/feed/ori/meetings.rss',     'verb' => 'GET'],
+        ['name' => 'oriFeed#agendaItems', 'url' => '/feed/ori/agenda-items.rss', 'verb' => 'GET'],
+        ['name' => 'oriFeed#documents',   'url' => '/feed/ori/documents.rss',    'verb' => 'GET'],
 
         // Notification preference endpoints (own preferences).
         ['name' => 'notificationPreference#show',   'url' => '/api/notification-preference', 'verb' => 'GET'],

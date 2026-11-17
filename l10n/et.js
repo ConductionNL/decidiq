@@ -2603,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Samm {step}/{total}",
         "Still to do: stage {seq} ({maker})": "Veel teha: etapp {seq} ({maker})",
         "Stop": "Peata",
-        "Store": "Salvesta",
         "Subject description": "Teema kirjeldus",
         "Submission phase": "Esitamise faas",
         "Submission window (hours)": "Esitamise aken (tundides)",
@@ -3354,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Erakorraline koosolek",
         "Committee meeting": "Komisjoni koosolek",
         "Public hearing": "Avalik arutelu",
-        "General assembly": "Üldkoosolek"
+        "General assembly": "Üldkoosolek",
+        "Members' ancillary positions": "Liikmete kõrvaltegevused"
     },
     "nplurals=2; plural=(n != 1);"
 )

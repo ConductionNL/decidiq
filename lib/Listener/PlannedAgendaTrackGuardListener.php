@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -163,7 +164,11 @@ class PlannedAgendaTrackGuardListener implements IEventListener {
 	 */
 	private function parent(string $parentId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $parentId, register: 'decidiq', schema: self::SCHEMA, _rbac: false);
+			$entity = $this->objectService->find(
+				id: $parentId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+				_rbac: false
+			);
 		} catch (DoesNotExistException) {
 			return null;
 		}

@@ -30,6 +30,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -262,8 +265,7 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 		try {
 			$saved = $objectService->saveObject(
 				object: $object,
-				register: 'decidiq',
-				schema: 'decision'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 
 			$savedArr = $this->toArray(value: $saved);
@@ -340,7 +342,7 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 		}
 
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable $e) {
 			return null;
 		}
@@ -465,7 +467,7 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 
 		// Load and guard the target Decision.
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable $e) {
 			$entity = null;
 		}
@@ -483,9 +485,10 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 		try {
 			$objectService->saveObject(
 				object: $updated,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+					uuid: $decisionId
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(

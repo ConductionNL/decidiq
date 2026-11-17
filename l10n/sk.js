@@ -2100,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Zostáva urobiť: fáza {seq} ({maker})",
         "Stop": "Zastaviť",
         "Stop {name}": "Zastaviť {name}",
-        "Store": "Uložiť",
         "Sub-item title": "Názov podbodu",
         "Sub-item: {title}": "Podbod: {title}",
         "Sub-items of {title}": "Podbody {title}",
@@ -3324,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Mimoriadne zasadnutie",
         "Committee meeting": "Zasadnutie výboru",
         "Public hearing": "Verejné vypočutie",
-        "General assembly": "Valné zhromaždenie"
+        "General assembly": "Valné zhromaždenie",
+        "Members' ancillary positions": "Vedľajšie funkcie členov"
     },
     "nplurals=2; plural=(n != 1);"
 )

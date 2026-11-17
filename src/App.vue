@@ -17,6 +17,7 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
+		:cellWidgets="cellWidgets"
 		:customComponents="headerActionHandlers"
 		appId="decidiq"
 		data-testid="app-root"
@@ -69,6 +70,7 @@ import { showError, showSuccess, showWarning } from '@nextcloud/dialogs'
 import { translate as ncT } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
+import SpeakingRequestDeadlineCell from './components/cells/SpeakingRequestDeadlineCell.vue'
 import ExportBundleModal from './modals/ExportBundleModal.vue'
 import UserSettings from './views/settings/UserSettings.vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
@@ -182,6 +184,15 @@ export default {
 			 * CnAppRoot merges under this registry.
 			 */
 			cellFormatters,
+			/**
+			 * Cell-widget registry passed to CnAppRoot's `cellWidgets` prop: a
+			 * column's `widget` id names one. `speaking-deadline` is the
+			 * registration deadline warning on the speaking requests overview
+			 * (inspreekrecht-plenair REQ-INS-010).
+			 */
+			cellWidgets: {
+				'speaking-deadline': SpeakingRequestDeadlineCell,
+			},
 
 			/**
 			 * Header-action handlers resolved by name. CnIndexPage looks a

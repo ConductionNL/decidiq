@@ -382,8 +382,14 @@ describe('the other entries', () => {
 			allowedSlots: ['dashboard', 'kpi'],
 			propsSchema: {},
 		})
+		// A modal (an `open-modal` action's target) carries the props it takes.
+		expect(registry.SpeakingRequestRejectDialog).toEqual({
+			kind: 'modal',
+			component: expect.any(Object),
+			propsSchema: { object: { type: 'object' }, objectId: { type: 'string' } },
+		})
 		for (const entry of Object.values(registry)) {
-			expect(['page', 'widget']).toContain(entry.kind)
+			expect(['page', 'widget', 'modal']).toContain(entry.kind)
 		}
 	})
 })

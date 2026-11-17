@@ -36,6 +36,9 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\MinutesWorkflowServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -125,9 +128,8 @@ class MinutesWorkflowService implements MinutesWorkflowServiceInterface {
 
 		$minutes['lifecycle'] = 'review';
 		$this->objectService->saveObject(
-			register: 'decidiq',
-			schema: 'minutes',
-			object: $minutes
+			object: $minutes,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'))
 		);
 
 		$notified = $this->minutesService->notifyApproversOnSubmit(minutesId: $minutesId);
@@ -151,7 +153,7 @@ class MinutesWorkflowService implements MinutesWorkflowServiceInterface {
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	private function requireMinutes(string $minutesId): array {
-		$entity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$entity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Minutes not found.');
 		}

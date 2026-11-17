@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -355,7 +356,10 @@ class PublicationPayloadService {
 		}
 
 		try {
-			$entity = $this->container->get('OCA\OpenRegister\Service\ObjectService')->find(id: $typeId, register: 'decidiq', schema: 'meeting-type');
+			$entity = $this->container->get('OCA\OpenRegister\Service\ObjectService')->find(
+				id: $typeId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting-type')
+			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: the meeting type could not be read', ['type' => $typeId, 'error' => $e->getMessage()]);
 			return [];

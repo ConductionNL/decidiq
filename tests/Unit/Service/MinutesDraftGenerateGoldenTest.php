@@ -40,6 +40,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\AbstractLogger;
 use RuntimeException;
 use Stringable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Golden test for MinutesDraftService::generate().
@@ -229,7 +231,9 @@ class MinutesDraftGenerateGoldenTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, mixed $register = null, mixed $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				($this->log)(['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]]);
 				$data = ($this->case['objects'][$id] ?? null);
 				if ($data === null) {
@@ -274,7 +278,10 @@ class MinutesDraftGenerateGoldenTest extends TestCase {
 			 *
 			 * @return array<string, mixed>
 			 */
-			public function saveObject(array $object, mixed $register = null, mixed $schema = null, ?string $uuid = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				($this->log)(['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]]);
 				return $object;
 			}

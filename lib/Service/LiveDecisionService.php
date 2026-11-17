@@ -25,6 +25,9 @@ use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -73,7 +76,7 @@ class LiveDecisionService implements LiveDecisionServiceInterface {
 	public function recordDecision(string $meetingId, array $decisionData): string {
 		try {
 			// Fetch Meeting.
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -95,9 +98,8 @@ class LiveDecisionService implements LiveDecisionServiceInterface {
 			$decisionToSave = $this->decisionFor(meetingId: $meetingId, decisionData: $decisionData);
 
 			$decisionEntity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'decision',
-				object: $decisionToSave
+				object: $decisionToSave,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 			$decision = $decisionEntity->jsonSerialize();
 
@@ -258,7 +260,7 @@ class LiveDecisionService implements LiveDecisionServiceInterface {
 	 * @spec {tag}
 	 */
 	private function createDraftMinutes(string $meetingId): string {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		$meeting = null;
 		if ($meetingEntity !== null) {
 			$meeting = $meetingEntity->jsonSerialize();
@@ -279,9 +281,8 @@ class LiveDecisionService implements LiveDecisionServiceInterface {
 		];
 
 		$minutesEntity = $this->objectService->saveObject(
-			register: 'decidiq',
-			schema: 'Minutes',
-			object: $minutesToCreate
+			object: $minutesToCreate,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'Minutes'))
 		);
 		$minutes = $minutesEntity->jsonSerialize();
 

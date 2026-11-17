@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service\Forms;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use OCA\Decidiq\Service\ReactionIntakeService;
 use Psr\Log\LoggerInterface;
 
@@ -36,7 +37,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
  */
-class FormResponseImportService {
+class FormResponseImportService implements FormResponseImportServiceInterface {
 
 	/**
 	 * Constructor.

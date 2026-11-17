@@ -2603,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Céim {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Fós le déanamh: stáitse {seq} ({maker})",
         "Stop": "Stad",
-        "Store": "Stóráil",
         "Subject description": "Cur síos ar an ábhar",
         "Submission phase": "Céim an chur isteach",
         "Submission window (hours)": "Fuinneog chur isteach (uaireanta)",
@@ -3354,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Cruinniú urghnách",
         "Committee meeting": "Cruinniú coiste",
         "Public hearing": "Éisteacht phoiblí",
-        "General assembly": "Comhthionól ginearálta"
+        "General assembly": "Comhthionól ginearálta",
+        "Members' ancillary positions": "Poist choimhdeacha na gcomhaltaí"
     },
     "nplurals=2; plural=(n != 1);"
 )

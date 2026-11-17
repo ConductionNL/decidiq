@@ -2100,7 +2100,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Anc da far: fasa {seq} ({maker})",
         "Stop": "Fermar",
         "Stop {name}": "Fermar {name}",
-        "Store": "Memorisar",
         "Sub-item title": "Titel dal sutpunct",
         "Sub-item: {title}": "Sutpunct: {title}",
         "Sub-items of {title}": "Sutpuncts da {title}",
@@ -3324,7 +3323,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Radunanza extraordinara",
         "Committee meeting": "Radunanza da la cumissiun",
         "Public hearing": "Audiziun publica",
-        "General assembly": "Radunanza generala"
+        "General assembly": "Radunanza generala",
+        "Members' ancillary positions": "Funcziuns accessoricas dals commembers"
     },
     "nplurals=2; plural=(n != 1);"
 )

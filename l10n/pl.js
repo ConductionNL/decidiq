@@ -2603,7 +2603,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Krok {step} z {total}",
         "Still to do: stage {seq} ({maker})": "Pozostało: etap {seq} ({maker})",
         "Stop": "Zatrzymaj",
-        "Store": "Zapisz",
         "Subject description": "Opis przedmiotu",
         "Submission phase": "Faza zgłoszeń",
         "Submission window (hours)": "Okno zgłoszeń (godziny)",
@@ -3354,7 +3353,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Spotkanie nadzwyczajne",
         "Committee meeting": "Posiedzenie komisji",
         "Public hearing": "Wysłuchanie publiczne",
-        "General assembly": "Walne zgromadzenie"
+        "General assembly": "Walne zgromadzenie",
+        "Members' ancillary positions": "Dodatkowe funkcje członków"
     },
     "nplurals=2; plural=(n != 1);"
 )
