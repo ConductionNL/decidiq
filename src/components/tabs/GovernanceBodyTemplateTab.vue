@@ -81,6 +81,7 @@
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { NcButton, NcSelect } from '@nextcloud/vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { getProcessTemplates } from './processTemplates.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -169,7 +170,7 @@ export default {
 			this.savedMessage = ''
 			try {
 				const store = ensureRelationType('governance-body')
-				await store.saveObject('governance-body', {
+				await saveOrThrow(store, 'governance-body', {
 					...(this.body || {}),
 					id: this.objectId,
 					processTemplate: this.defaultTemplate?.id || '',

@@ -159,6 +159,7 @@ import {
 	participationQuery,
 	participationRows,
 } from '../../utils/bodyParticipations.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -302,7 +303,8 @@ export default {
 			this.busy = true
 			this.error = ''
 			try {
-				await ensureRelationType(PARTICIPATION_SCHEMA).saveObject(
+				await saveOrThrow(
+					ensureRelationType(PARTICIPATION_SCHEMA),
 					PARTICIPATION_SCHEMA,
 					endParticipationPayload(participation, new Date()),
 				)

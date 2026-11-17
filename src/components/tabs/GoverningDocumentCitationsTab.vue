@@ -87,6 +87,7 @@ import {
 	withCitation,
 	withoutCitation,
 } from '../../utils/governingDocumentCitations.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -202,7 +203,7 @@ export default {
 			this.saving = true
 			this.saveError = ''
 			try {
-				const saved = await ensureRelationType('decision').saveObject('decision', {
+				const saved = await saveOrThrow(ensureRelationType('decision'), 'decision', {
 					...this.decision,
 					citesGoverningDocuments: citations,
 				})
