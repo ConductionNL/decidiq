@@ -29,6 +29,7 @@ import AccountRemoveOutline from 'vue-material-design-icons/AccountRemoveOutline
 import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
 import AccountTieOutline from 'vue-material-design-icons/AccountTieOutline.vue'
 import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
+import AlertDecagramOutline from 'vue-material-design-icons/AlertDecagramOutline.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import Api from 'vue-material-design-icons/Api.vue'
@@ -172,6 +173,7 @@ export default {
 	AccountSwitch,
 	AccountTieOutline,
 	AccountVoice,
+	AlertDecagramOutline,
 	AlertOctagonOutline,
 	AlertOutline,
 	Api,

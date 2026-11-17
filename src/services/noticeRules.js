@@ -61,6 +61,8 @@ export function getNoticeDeadlineInfo(meeting, now = new Date()) {
  * @param {object} meeting Meeting payload.
  *
  * @return {boolean} True for a recorded deviation.
+ *
+ * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 export function isRecordedShortenedNotice(meeting) {
 	return meeting?.meetingType === 'extraordinary' && meeting?.shortenedNotice === true
