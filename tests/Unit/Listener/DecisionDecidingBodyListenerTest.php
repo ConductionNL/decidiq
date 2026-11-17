@@ -35,6 +35,8 @@ use Psr\Log\NullLogger;
 /**
  * @covers \OCA\Decidiq\Listener\DecisionDecidingBodyListener
  * @covers \OCA\Decidiq\Repair\FillDecisionDecidingBody
+ * @uses \OCA\Decidiq\Service\SettingsService
+ * @uses \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  *
  * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
  */

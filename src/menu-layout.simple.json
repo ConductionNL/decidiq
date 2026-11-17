@@ -25,6 +25,7 @@
 		"PlannedAgenda",
 		"PlanningCycles",
 		"ProxyAuthorizations",
+		"TopicThemes",
 		"UrgentDecisions",
 		"WorksCouncilConsultations"
 	],
@@ -267,6 +268,13 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					},
+					{
+						"id": "open-theme-pages",
+						"label": "Theme pages",
+						"icon": "BookOpenVariantOutline",
+						"handler": "navigate",
+						"route": "TopicThemes"
 					}
 				],
 				"columns": [
@@ -888,6 +896,12 @@
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
+					},
+					"decision-governing-citations": {
+						"type": "GoverningDocumentCitationsTab"
+					},
+					"decision-themes": {
+						"type": "DecisionThemesTab"
 					}
 				}
 			},
@@ -1140,6 +1154,10 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "decision-confidentiality"
+								},
+								{
+									"label": "Themes",
+									"widgetId": "decision-themes"
 								}
 							]
 						}
@@ -1251,6 +1269,11 @@
 								{
 									"widgetId": "decision-related",
 									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-governing-citations",
+									"label": "Cited governing documents",
 									"overflow": true
 								},
 								{
@@ -3222,7 +3245,8 @@
 					},
 					"agenda-conflicts",
 					"agenda-speakers",
-					"agenda-paper-summaries"
+					"agenda-paper-summaries",
+					"agenda-themes"
 				],
 				"layout": [
 					{
@@ -3261,6 +3285,9 @@
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
+					},
+					"agenda-themes": {
+						"type": "AgendaItemThemesTab"
 					}
 				}
 			},

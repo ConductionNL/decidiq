@@ -172,6 +172,7 @@ import {
 	publishEvaluation,
 	respondToEvaluation,
 } from '../../services/boardEvaluationApi.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -372,7 +373,7 @@ export default {
 
 			try {
 				const store = ensureRelationType('board-evaluation')
-				await store.saveObject('board-evaluation', {
+				await saveOrThrow(store, 'board-evaluation', {
 					governanceBody: this.resolvedObjectId,
 					template: template.id,
 					cycleLabel: String(new Date().getFullYear()),
@@ -399,7 +400,7 @@ export default {
 		async openEvaluation(evaluation) {
 			try {
 				const store = ensureRelationType('board-evaluation')
-				await store.saveObject('board-evaluation', {
+				await saveOrThrow(store, 'board-evaluation', {
 					...evaluation,
 					lifecycle: 'open',
 					openedAt: new Date().toISOString(),
