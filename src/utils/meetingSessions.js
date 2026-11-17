@@ -12,7 +12,7 @@
 const EVENING_DATE =
 	/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/
 const ENTERED_TIME = /^\d{2}:\d{2}$/
-const INHERITED_FIELDS = ['governanceBody', 'meetingMode', 'isPublic']
+const INHERITED_FIELDS = ['governanceBody', 'meetingType', 'meetingMode', 'isPublic']
 const ABSENT_VALUES = new Set([undefined, null, ''])
 
 /**
@@ -341,7 +341,7 @@ function firstItems(items) {
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 export function newSession(evening, entered) {
-	const session = { title: textOf(entered?.title).trim() }
+	const session = { title: textOf(entered?.title).trim(), lifecycle: 'scheduled' }
 	if (entered?.room) {
 		session.room = String(entered.room).trim()
 	}
@@ -355,7 +355,7 @@ export function newSession(evening, entered) {
 }
 
 /**
- * Give a new session the body, mode and publicity its evening has.
+ * Give a new session the body, meeting type, mode and publicity its evening has.
  *
  * @param {object} session The new session, changed in place.
  * @param {object} evening The evening.
