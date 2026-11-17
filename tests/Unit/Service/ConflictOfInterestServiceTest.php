@@ -32,6 +32,8 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for ConflictOfInterestService.
@@ -106,7 +108,11 @@ class ConflictOfInterestServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$rows): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$rows): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = array_merge(['id' => $uuid ?? ('decl-' . count($rows))], $object);
 				$rows[] = $row;
 				$entity = $this->createMock(ObjectEntity::class);
@@ -116,7 +122,11 @@ class ConflictOfInterestServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rows, $agendaItems): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use (&$rows, $agendaItems): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				foreach ($rows as $row) {
 					if (is_array($row) === true && ($row['id'] ?? null) === $id) {
 						$entity = $this->createMock(ObjectEntity::class);

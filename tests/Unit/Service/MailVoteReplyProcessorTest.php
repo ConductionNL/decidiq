@@ -41,6 +41,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Behaviour of the email vote reply processor.
@@ -190,7 +192,13 @@ class MailVoteReplyProcessorTest extends TestCase {
 			$entity->method('jsonSerialize')->willReturn($participant);
 		}
 
-		$this->objectService->method('find')->with('p-1', [], false, 'decidiq', 'participant')->willReturn($entity);
+		$this->objectService->method('find')->with(...LegacyObjectArgs::with(method: 'find', expected: [
+				'id' => 'p-1',
+				'_extend' => [],
+				'files' => false,
+				'register' => 'decidiq',
+				'schema' => 'participant',
+			]))->willReturn($entity);
 	}//end participant()
 
 	/**
@@ -204,7 +212,10 @@ class MailVoteReplyProcessorTest extends TestCase {
 	private function processEntry(array $entry, bool $isSecret = false): ?array {
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				self::assertSame(['decidiq', 'voting-round'], [$register, $schema]);
 				$saved = $object['_mail'];
 

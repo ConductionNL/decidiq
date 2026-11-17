@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -334,7 +335,7 @@ class VotingRoundGuard implements VotingRoundGuardInterface {
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
 		// OpenRegister reports a missing object by returning null or by throwing; both are a miss.
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (DoesNotExistException) {
 			return null;
 		}

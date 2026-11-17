@@ -35,6 +35,10 @@ use InvalidArgumentException;
 use OCA\Decidiq\Kernel\Contracts\ProcessTemplatePolicyResolverInterface;
 use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use Psr\Container\ContainerExceptionInterface;
@@ -162,7 +166,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 * @return array<string, mixed>|null The template object, or null when not found
 	 */
 	public function get(string $templateId): ?array {
-		$entity = $this->objectService()->find(id: $templateId, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $templateId, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}
@@ -188,7 +192,10 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end create()
 
@@ -224,7 +231,10 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		$template['id'] = $templateId;
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end update()
 
@@ -254,7 +264,10 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		$copy['builtIn'] = false;
 		$copy['name'] = ($newName ?? (($source['name'] ?? 'Template') . ' (copy)'));
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $copy);
+		$saved = $this->objectService()->saveObject(
+			object: $copy,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end duplicate()
 
@@ -279,7 +292,9 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 			throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
 		}
 
-		$this->objectService()->deleteObject(uuid: $templateId, register: 'decidiq', schema: 'process-template');
+		$this->objectService()->deleteObject(
+			new ObjectDeletion(uuid: $templateId, target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 
 	}//end delete()
 
@@ -434,7 +449,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 */
 	private function governanceBodyExists(string $ref): bool {
 		try {
-			return $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'governance-body') !== null;
+			return $this->objectService()->find(id: $ref, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body')) !== null;
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: ratifying body lookup failed; the urgency policy is refused', ['ref' => $ref, 'error' => $e->getMessage()]);
 			return false;
@@ -514,7 +529,10 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		}
 
 		try {
-			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
+			$bodyEntity = $this->objectService()->find(
+				id: $governanceBodyId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body')
+			);
 			if ($bodyEntity === null) {
 				return null;
 			}
@@ -562,7 +580,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		}
 
 		// Fall back to a direct UUID lookup.
-		$entity = $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $ref, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}

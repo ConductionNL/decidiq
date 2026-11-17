@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * `GET /api/v1/{resource}` and `GET /api/v1/{resource}/{id}`: unknown
@@ -124,7 +125,9 @@ class ApiControllerReadTest extends TestCase {
 			 *
 			 * @return object|null The entity.
 			 */
-			public function find(string $id, string $register, string $schema): ?object {
+			public function find(string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->finds[] = ['id' => $id, 'register' => $register, 'schema' => $schema];
 				if ($this->entity === null) {
 					return null;

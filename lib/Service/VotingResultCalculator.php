@@ -96,6 +96,163 @@ class VotingResultCalculator {
 	}//end compute()
 
 	/**
+	 * The result of a written round, counted against its whole electorate
+	 * (REQ-WRS-003), and whether it closes now (REQ-WRS-004).
+	 *
+	 * Silence is not consent: the base is every entitled member, not the
+	 * answers received. Under `unanimous` the round is adopted only when every
+	 * member answered for; under `threshold` when the for weight meets the
+	 * round's `voteThreshold` of the whole electorate's weight. An objection
+	 * rejects the round under either rule. An answer from outside the
+	 * electorate is not counted.
+	 *
+	 * `closeReason` is why the round closes now: `objection`, `all-answered`,
+	 * or `outcome-settled` when no remaining answer can change the result;
+	 * null while it stays open. `result` is the result if it closed now, so the
+	 * deadline close reads it with the missing answers as not agreeing.
+	 *
+	 * @param array<string, mixed>  $round   The round: `electorate`, `writtenRule`, `voteThreshold`.
+	 * @param array<string, string> $answers The answers, membership uuid => value.
+	 *
+	 * @return array{result: string, closeReason: string|null, answered: int, electorate: int, forWeight: float, base: float}
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
+	 */
+	public function computeWritten(array $round, array $answers): array {
+		$weights = $this->electorateWeights(round: $round);
+		$given = array_intersect_key($answers, $weights);
+		$tally = $this->writtenTally(weights: $weights, given: $given);
+
+		$summary = ['answered' => count($given), 'electorate' => count($weights), 'forWeight' => $tally['forWeight'], 'base' => $tally['base']];
+		if (in_array('objection', $given, true) === true) {
+			return ['result' => 'rejected', 'closeReason' => 'objection'] + $summary;
+		}
+
+		$outlook = $this->writtenOutlook(round: $round, tally: $tally);
+
+		$result = 'rejected';
+		if ($outlook['adopted'] === true) {
+			$result = 'adopted';
+		}
+
+		return ['result' => $result, 'closeReason' => $this->writtenCloseReason(tally: $tally, canStillAdopt: $outlook['canStillAdopt'])] + $summary;
+	}//end computeWritten()
+
+	/**
+	 * The counts and weights of a written round's answers.
+	 *
+	 * @param array<string, float>  $weights The electorate's weights, membership uuid => weight.
+	 * @param array<string, string> $given   The answers from the electorate, membership uuid => value.
+	 *
+	 * @return array{members: int, answered: int, forCount: int, forWeight: float, unanswered: float, base: float}
+	 */
+	private function writtenTally(array $weights, array $given): array {
+		$for = array_filter($given, static fn ($value): bool => $value === 'for');
+
+		return [
+			'members' => count($weights),
+			'answered' => count($given),
+			'forCount' => count($for),
+			'forWeight' => (float)array_sum(array_intersect_key($weights, $for)),
+			'unanswered' => (float)array_sum(array_diff_key($weights, $given)),
+			'base' => (float)array_sum($weights),
+		];
+	}//end writtenTally()
+
+	/**
+	 * Whether a written round is adopted now, and whether it still can be.
+	 *
+	 * @param array<string, mixed> $round The round: `writtenRule`, `voteThreshold`.
+	 * @param array<string, mixed> $tally The tally from writtenTally().
+	 *
+	 * @return array{adopted: bool, canStillAdopt: bool}
+	 */
+	private function writtenOutlook(array $round, array $tally): array {
+		if (($round['writtenRule'] ?? 'unanimous') === 'threshold') {
+			$threshold = $this->rule(round: $round, name: 'voteThreshold');
+			return [
+				'adopted' => $this->meetsWrittenThreshold(weight: ['for' => $tally['forWeight'], 'base' => $tally['base']], threshold: $threshold),
+				'canStillAdopt' => $this->meetsWrittenThreshold(
+					weight: ['for' => ($tally['forWeight'] + $tally['unanswered']), 'base' => $tally['base']],
+					threshold: $threshold
+				),
+			];
+		}
+
+		return [
+			'adopted' => $tally['members'] > 0 && $tally['forCount'] === $tally['members'],
+			'canStillAdopt' => $tally['members'] > 0 && $tally['forCount'] === $tally['answered'],
+		];
+	}//end writtenOutlook()
+
+	/**
+	 * Why a written round closes now, or null while it stays open.
+	 *
+	 * @param array<string, mixed> $tally         The tally from writtenTally().
+	 * @param bool                 $canStillAdopt Whether the remaining answers can still adopt it.
+	 *
+	 * @return string|null
+	 */
+	private function writtenCloseReason(array $tally, bool $canStillAdopt): ?string {
+		if ($tally['answered'] === $tally['members'] && $tally['members'] > 0) {
+			return 'all-answered';
+		}
+
+		if ($canStillAdopt === false) {
+			return 'outcome-settled';
+		}
+
+		return null;
+	}//end writtenCloseReason()
+
+	/**
+	 * The voting weight of each entitled member, by membership uuid.
+	 *
+	 * @param array<string, mixed> $round The round.
+	 *
+	 * @return array<string, float>
+	 */
+	private function electorateWeights(array $round): array {
+		$weights = [];
+		foreach ((array)($round['electorate'] ?? []) as $member) {
+			if (is_array($member) === false) {
+				continue;
+			}
+
+			$membership = (string)($member['membership'] ?? '');
+			if ($membership !== '') {
+				$weights[$membership] = max(0.0, (float)($member['votingWeight'] ?? 1));
+			}
+		}
+
+		return $weights;
+	}//end electorateWeights()
+
+	/**
+	 * Whether a for weight meets a threshold of the whole electorate's weight.
+	 *
+	 * @param array{for: float, base: float} $weight    The weight of the for answers and of the whole electorate.
+	 * @param string                         $threshold The round's vote threshold.
+	 *
+	 * @return bool
+	 */
+	private function meetsWrittenThreshold(array $weight, string $threshold): bool {
+		$forWeight = (float)$weight['for'];
+		$base = (float)$weight['base'];
+		if ($base <= 0.0) {
+			return false;
+		}
+
+		return match ($threshold) {
+			'qualified-majority-two-thirds' => (3 * $forWeight) >= (2 * $base),
+			'qualified-majority-three-quarters' => (4 * $forWeight) >= (3 * $base),
+			'unanimous' => $forWeight >= $base,
+			default => (2 * $forWeight) > $base,
+		};
+	}//end meetsWrittenThreshold()
+
+	/**
 	 * The effective rules of a round.
 	 *
 	 * Fail closed: unknown stored values fall back to the strictest sane default.

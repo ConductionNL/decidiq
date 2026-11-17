@@ -295,47 +295,95 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 			return;
 		}
 
-		$renamed = 0;
-		$copied = 0;
+		$counts = ['renamed' => 0, 'copied' => 0, 'none' => 0];
 
 		foreach ($tables as $table) {
-			$columns = $this->columnsOf(table: $table);
-			$qTable = $this->quote(identifier: $table);
-
-			foreach (self::COLUMN_MAP as $old => $new) {
-				if (in_array($old, $columns, true) === false) {
-					// Already migrated, or this schema never had the property.
-					continue;
-				}
-
-				$qOld = $this->quote(identifier: $old);
-				$qNew = $this->quote(identifier: $new);
-
-				if (in_array($new, $columns, true) === false) {
-					$sql = 'ALTER TABLE ' . $qTable . ' RENAME COLUMN ' . $qOld . ' TO ' . $qNew;
-					if ($this->exec(sql: $sql) === true) {
-						$renamed++;
-					}
-
-					continue;
-				}
-
-				// The mapper already added an empty English column: back-fill and
-				// leave the Dutch one, so this stays reversible.
-				$sql = 'UPDATE ' . $qTable . ' SET ' . $qNew . ' = ' . $qOld
-					. ' WHERE ' . $qNew . ' IS NULL AND ' . $qOld . ' IS NOT NULL';
-				if ($this->exec(sql: $sql) === true) {
-					$copied++;
-				}
-			}//end foreach
-		}//end foreach
+			foreach ($this->migrateTable(table: $table) as $outcome) {
+				$counts[$outcome]++;
+			}
+		}
 
 		$output->info(
-			'RenameDutchVocabularyColumns: ' . $renamed . ' column(s) renamed, '
-			. $copied . ' column(s) back-filled, across ' . count($tables) . ' decidesk shard table(s).'
+			'RenameDutchVocabularyColumns: ' . $counts['renamed'] . ' column(s) renamed, '
+			. $counts['copied'] . ' column(s) back-filled, across ' . count($tables) . ' decidesk shard table(s).'
 		);
 
 	}//end run()
+
+	/**
+	 * Migrate every mapped Dutch column one shard table still carries.
+	 *
+	 * @param string $table The shard table.
+	 *
+	 * @return array<int, string> One outcome per migrated column: renamed, copied or none (the statement failed).
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md
+	 */
+	private function migrateTable(string $table): array {
+		$columns  = $this->columnsOf(table: $table);
+		$qTable   = $this->quote(identifier: $table);
+		$outcomes = [];
+
+		foreach (self::COLUMN_MAP as $old => $new) {
+			if (in_array($old, $columns, true) === false) {
+				// Already migrated, or this schema never had the property.
+				continue;
+			}
+
+			$pair = [$this->quote(identifier: $old), $this->quote(identifier: $new)];
+
+			// When the mapper already added an empty English column: back-fill and
+			// leave the Dutch one, so this stays reversible.
+			$outcomes[] = in_array($new, $columns, true) === false
+				? $this->renameColumn(qTable: $qTable, pair: $pair)
+				: $this->backFillColumn(qTable: $qTable, pair: $pair);
+		}
+
+		return $outcomes;
+
+	}//end migrateTable()
+
+	/**
+	 * Rename a Dutch column to its English name.
+	 *
+	 * @param string                    $qTable The quoted table.
+	 * @param array{0: string, 1: string} $pair The quoted old and new column.
+	 *
+	 * @return string renamed, or none when the statement failed.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md
+	 */
+	private function renameColumn(string $qTable, array $pair): string {
+		[$qOld, $qNew] = $pair;
+		if ($this->exec(sql: 'ALTER TABLE ' . $qTable . ' RENAME COLUMN ' . $qOld . ' TO ' . $qNew) === true) {
+			return 'renamed';
+		}
+
+		return 'none';
+
+	}//end renameColumn()
+
+	/**
+	 * Copy a Dutch column's values into the English column the mapper already added.
+	 *
+	 * @param string                    $qTable The quoted table.
+	 * @param array{0: string, 1: string} $pair The quoted old and new column.
+	 *
+	 * @return string copied, or none when the statement failed.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md
+	 */
+	private function backFillColumn(string $qTable, array $pair): string {
+		[$qOld, $qNew] = $pair;
+		$sql = 'UPDATE ' . $qTable . ' SET ' . $qNew . ' = ' . $qOld
+			. ' WHERE ' . $qNew . ' IS NULL AND ' . $qOld . ' IS NOT NULL';
+		if ($this->exec(sql: $sql) === true) {
+			return 'copied';
+		}
+
+		return 'none';
+
+	}//end backFillColumn()
 
 	/**
 	 * Resolve the shard tables belonging to the decidesk register.
@@ -346,44 +394,17 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 	 * @return array<int, string>
 	 */
 	private function decideskShardTables(): array {
-		try {
-			$registerId = $this->db->executeQuery(
-				'SELECT id FROM `*PREFIX*openregister_registers` WHERE slug = ?',
-				[self::REGISTER_SLUG]
-			)->fetchOne();
-		} catch (Exception $e) {
-			$this->logger->warning(
-				'RenameDutchVocabularyColumns: could not resolve the decidesk register; skipping.',
-				['exception' => $e->getMessage()]
-			);
+		$registerId = $this->decideskRegisterId();
+		if ($registerId === null) {
 			return [];
 		}
 
-		if ($registerId === false || $registerId === null) {
+		$result = $this->openRegisterTables();
+		if ($result === null) {
 			return [];
 		}
 
-		// Table discovery goes through information_schema, NOT IDBConnection.
-		// OCP\IDBConnection exposes neither getSchema() nor getPrefix(); both
-		// exist only on the concrete OC\DB\Connection. Calling them is a runtime
-		// fatal that `php -l` and phpcs both report as clean — only phpstan
-		// catches it. Pattern follows openregister's own RegisterService: anchor
-		// on the `openregister_table_` MARKER, never on a computed prefix.
-		try {
-			$stmt = $this->db->prepare(
-				'SELECT table_name FROM information_schema.tables WHERE table_name LIKE :pattern'
-			);
-			$stmt->bindValue('pattern', '%openregister\_table\_%');
-			$result = $stmt->execute();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'RenameDutchVocabularyColumns: could not list tables; skipping.',
-				['exception' => $e->getMessage()]
-			);
-			return [];
-		}
-
-		$marker = 'openregister_table_' . ((int)$registerId) . '_';
+		$marker = 'openregister_table_' . $registerId . '_';
 
 		$tables = [];
 		while (($row = $result->fetch(\PDO::FETCH_ASSOC)) !== false) {
@@ -397,6 +418,66 @@ class RenameDutchVocabularyColumns implements IRepairStep {
 
 		return $tables;
 	}//end decideskShardTables()
+
+	/**
+	 * The decidesk register's id on this install.
+	 *
+	 * @return integer|null The id, or null when the register is absent or the lookup failed.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md
+	 */
+	private function decideskRegisterId(): ?int {
+		try {
+			$registerId = $this->db->executeQuery(
+				'SELECT id FROM `*PREFIX*openregister_registers` WHERE slug = ?',
+				[self::REGISTER_SLUG]
+			)->fetchOne();
+		} catch (Exception $e) {
+			$this->logger->warning(
+				'RenameDutchVocabularyColumns: could not resolve the decidesk register; skipping.',
+				['exception' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		if ($registerId === false || $registerId === null) {
+			return null;
+		}
+
+		return (int)$registerId;
+
+	}//end decideskRegisterId()
+
+	/**
+	 * List every OpenRegister shard table on this install.
+	 *
+	 * Table discovery goes through information_schema, NOT IDBConnection.
+	 * OCP\IDBConnection exposes neither getSchema() nor getPrefix(); both
+	 * exist only on the concrete OC\DB\Connection. Calling them is a runtime
+	 * fatal that `php -l` and phpcs both report as clean — only phpstan
+	 * catches it. Pattern follows openregister's own RegisterService: anchor
+	 * on the `openregister_table_` MARKER, never on a computed prefix.
+	 *
+	 * @return \OCP\DB\IResult|null The rows (table_name), or null when the listing failed.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md
+	 */
+	private function openRegisterTables(): ?\OCP\DB\IResult {
+		try {
+			$stmt = $this->db->prepare(
+				'SELECT table_name FROM information_schema.tables WHERE table_name LIKE :pattern'
+			);
+			$stmt->bindValue('pattern', '%openregister\_table\_%');
+			return $stmt->execute();
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'RenameDutchVocabularyColumns: could not list tables; skipping.',
+				['exception' => $e->getMessage()]
+			);
+			return null;
+		}
+
+	}//end openRegisterTables()
 
 	/**
 	 * Whether a table is a shard of the decidesk register.
