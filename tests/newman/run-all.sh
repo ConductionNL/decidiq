@@ -18,6 +18,9 @@
 #                                             once publicationDate <= now, NOT before,
 #                                             and gone after depublicationDate —
 #                                             publish-decisions-via-opencatalogi 5.2)
+#   - decidiq-named-paper-vote.postman_collection.json
+#                                             (roll-call votes recorded by name:
+#                                             voting-named-paper-vote-entry)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /
 #                                             Resolution / BoardVote / RegulatorExport /
@@ -79,6 +82,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-minutes.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-user-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-voting-rules.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-named-paper-vote.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-admin-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-process-config.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-motion-amendment.postman_collection.json"

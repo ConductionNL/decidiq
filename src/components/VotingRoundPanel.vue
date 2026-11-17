@@ -1042,11 +1042,7 @@ export default {
 						...relationFilterFor(this.motionId),
 						_limit: 100,
 					}),
-					this.meetingId
-						? this.objectStore.fetchCollection('participant', {
-								'relations.meeting': this.meetingId,
-							})
-						: Promise.resolve(null),
+					this.meetingParticipants(),
 				])
 				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
@@ -1124,6 +1120,39 @@ export default {
 			const data = await resp.json()
 			this.castVoteError =
 				data.message || this.t('decidiq', 'Failed to cast vote')
+		},
+
+		/**
+		 * The participants of the meeting: the members of its governance body,
+		 * as the server counts them when a list is recorded by name.
+		 *
+		 * Participant carries no meeting property, so a meeting filter on it
+		 * matches nothing and the list came back empty on a healthy 200: the
+		 * entry sheet listed nobody and the not-voted count read zero. The body
+		 * is the link the server resolves (ParticipantResolver), so read that,
+		 * narrow by its property and keep only rows that reference the body.
+		 *
+		 * @return {Promise<Array<object>|null>} The participants, or null without a meeting.
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		async meetingParticipants() {
+			if (!this.meetingId) {
+				return null
+			}
+			const resp = await fetch(
+				generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId }),
+				{ headers: { Accept: 'application/json' } },
+			)
+			const bodyId = meetingBodyId(resp.ok ? await resp.json() : null)
+			if (!bodyId) {
+				return []
+			}
+			const participants = await this.objectStore.fetchCollection('participant', {
+				governanceBody: bodyId,
+				_limit: 500,
+			})
+			// A participant names its body the way a meeting does.
+			return (participants || []).filter((participant) => meetingBodyId(participant) === bodyId)
 		},
 
 		/**
