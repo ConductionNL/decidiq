@@ -29,6 +29,7 @@ use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwaySteps;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\IAppConfig;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -92,6 +93,13 @@ class OnboardingProvisioningServiceTest extends TestCase {
 	private array $records = [];
 
 	/**
+	 * The admin setting listing the groups a body may map.
+	 *
+	 * @var string
+	 */
+	private string $allowedGroups = 'council, readers,presidium,ghost';
+
+	/**
 	 * Build the service with a fixed clock.
 	 *
 	 * @return void
@@ -111,14 +119,115 @@ class OnboardingProvisioningServiceTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-11-14T10:00:00+00:00'));
 
+		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig->method('getValueString')->willReturnCallback(
+			fn (string $app, string $key, string $default = ''): string => ($app === 'decidiq' && $key === 'member_provisioning_groups') ? $this->allowedGroups : $default
+		);
+
 		$this->service = new OnboardingProvisioningService(
 			store: $this->store,
 			groupManager: $this->groupManager,
 			userManager: $this->userManager,
 			time: $time,
 			logger: $this->createMock(LoggerInterface::class),
+			appConfig: $appConfig,
 		);
 	}//end setUp()
+
+	/**
+	 * A group the body maps but an administrator did not allow is refused by
+	 * name before any group is looked up or written.
+	 *
+	 * @return void
+	 */
+	public function testProvisionRefusesAGroupTheAdministratorDidNotAllow(): void {
+		$this->givenOnboarding();
+		$this->givenBody(mapping: ['member' => ['council', 'finance-approvers']]);
+		$this->groupManager->expects($this->never())->method('get');
+		$this->store->expects($this->never())->method('patch');
+
+		$result = $this->service->provision(onboardingId: 'onb-1', actor: 'griffier');
+
+		$this->assertSame('refused', $result->outcome);
+		$this->assertSame(
+			'These groups are not allowed for member provisioning: finance-approvers. An administrator lists the allowed groups in the Decidiq admin settings. No group was assigned.',
+			$result->message
+		);
+	}//end testProvisionRefusesAGroupTheAdministratorDidNotAllow()
+
+	/**
+	 * The admin group is never provisioned, even when the setting lists it.
+	 *
+	 * @return void
+	 */
+	public function testProvisionNeverAssignsTheAdminGroup(): void {
+		$this->allowedGroups = 'council,admin,Admin';
+		$this->givenOnboarding();
+		$this->givenBody(mapping: ['member' => ['admin']]);
+		$this->groupManager->expects($this->never())->method('get');
+		$this->store->expects($this->never())->method('patch');
+
+		$result = $this->service->provision(onboardingId: 'onb-1', actor: 'griffier');
+
+		$this->assertSame('refused', $result->outcome);
+		$this->assertStringStartsWith('These groups are not allowed for member provisioning: admin.', $result->message);
+		$this->assertSame(['council'], $this->service->allowedGroups());
+	}//end testProvisionNeverAssignsTheAdminGroup()
+
+	/**
+	 * Without the setting nothing is allowed, so nothing is provisioned.
+	 *
+	 * @return void
+	 */
+	public function testProvisionRefusesEveryGroupWithoutTheSetting(): void {
+		$this->allowedGroups = '';
+		$this->givenOnboarding();
+		$this->givenBody(mapping: ['member' => ['council']]);
+		$this->groupManager->expects($this->never())->method('get');
+
+		$result = $this->service->provision(onboardingId: 'onb-1', actor: 'griffier');
+
+		$this->assertSame('refused', $result->outcome);
+		$this->assertStringStartsWith('These groups are not allowed for member provisioning: council.', $result->message);
+	}//end testProvisionRefusesEveryGroupWithoutTheSetting()
+
+	/**
+	 * A service built without app config allows no group at all.
+	 *
+	 * @return void
+	 */
+	public function testAServiceWithoutAppConfigAllowsNoGroup(): void {
+		$service = new OnboardingProvisioningService(
+			store: $this->store,
+			groupManager: $this->groupManager,
+			userManager: $this->userManager,
+			time: $this->createMock(ITimeFactory::class),
+			logger: $this->createMock(LoggerInterface::class),
+		);
+
+		$this->assertSame([], $service->allowedGroups());
+	}//end testAServiceWithoutAppConfigAllowsNoGroup()
+
+	/**
+	 * Revocation refuses a group the administrator did not allow, and removes
+	 * the member from no group and ends no membership.
+	 *
+	 * @return void
+	 */
+	public function testRevokeRefusesAGroupTheAdministratorDidNotAllow(): void {
+		$this->givenOffboarding();
+		$this->givenBody(mapping: ['member' => ['council', 'admin']]);
+		$this->groupManager->expects($this->never())->method('get');
+		$this->store->expects($this->never())->method('patch');
+
+		$result = $this->service->revoke(offboardingId: 'off-1', actor: 'griffier');
+
+		$this->assertSame('refused', $result->outcome);
+		$this->assertSame(
+			'These groups are not allowed for member provisioning: admin. An administrator lists the allowed groups in the Decidiq admin settings. No group was revoked.',
+			$result->message
+		);
+	}//end testRevokeRefusesAGroupTheAdministratorDidNotAllow()
 
 	/**
 	 * A joining member is added to their role's groups, and the step records

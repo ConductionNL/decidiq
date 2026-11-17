@@ -25,9 +25,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwaySteps;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\IAppConfig;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -76,6 +78,26 @@ class OnboardingProvisioningService {
 	public const STEP_REVOKE = 'revoke-groups';
 
 	/**
+	 * The admin setting listing the groups a body may map: comma separated group ids.
+	 *
+	 * A governance body record is edited by staff, not by an administrator, so
+	 * the groups it maps are only provisioned or revoked when an administrator
+	 * listed them here. Nothing listed means nothing is provisioned.
+	 */
+	public const ALLOWED_GROUPS_KEY = 'member_provisioning_groups';
+
+	/**
+	 * Groups that are never provisioned or revoked, whatever the setting says.
+	 */
+	public const PROTECTED_GROUPS = ['admin'];
+
+	/**
+	 * The refusal naming the groups an administrator did not allow.
+	 */
+	private const NOT_ALLOWED = 'These groups are not allowed for member provisioning: %s.'
+		. ' An administrator lists the allowed groups in the Decidiq admin settings.';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store        The register's objects.
@@ -83,6 +105,7 @@ class OnboardingProvisioningService {
 	 * @param IUserManager        $userManager  The Nextcloud user manager.
 	 * @param ITimeFactory        $time         The clock.
 	 * @param LoggerInterface     $logger       The logger.
+	 * @param IAppConfig|null     $appConfig    Holds the groups an administrator allows; null allows none.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -90,6 +113,7 @@ class OnboardingProvisioningService {
 		private readonly IUserManager $userManager,
 		private readonly ITimeFactory $time,
 		private readonly LoggerInterface $logger,
+		private readonly ?IAppConfig $appConfig = null,
 	) {
 	}//end __construct()
 
@@ -154,6 +178,13 @@ class OnboardingProvisioningService {
 		$names  = ($mapped[$role] ?? []);
 		if ($names === []) {
 			return PathwayResult::refused(message: sprintf('No groups are mapped for the role "%s" on this body.', $role));
+		}
+
+		$notAllowed = $this->notAllowed(names: $names);
+		if ($notAllowed !== []) {
+			return PathwayResult::refused(
+				message: sprintf(self::NOT_ALLOWED . ' No group was assigned.', implode(', ', $notAllowed))
+			);
 		}
 
 		$resolved = $this->resolve(names: $names);
@@ -257,6 +288,13 @@ class OnboardingProvisioningService {
 		$names = $this->allMappedGroups(bodyId: PathwaySteps::relationId(value: ($record['body'] ?? null)));
 		if ($names === []) {
 			return PathwayResult::refused(message: 'No groups are mapped on this body, so access cannot be revoked and checked.');
+		}
+
+		$notAllowed = $this->notAllowed(names: $names);
+		if ($notAllowed !== []) {
+			return PathwayResult::refused(
+				message: sprintf(self::NOT_ALLOWED . ' No group was revoked.', implode(', ', $notAllowed))
+			);
 		}
 
 		$uid     = $user->getUID();
@@ -380,6 +418,51 @@ class OnboardingProvisioningService {
 
 		return array_values(array_unique($all));
 	}//end allMappedGroups()
+
+	/**
+	 * The groups an administrator allows a body to map, without the protected ones.
+	 *
+	 * @return list<string> The group ids; empty without a setting or app config.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	public function allowedGroups(): array {
+		if ($this->appConfig === null) {
+			return [];
+		}
+
+		$raw     = $this->appConfig->getValueString(AppIdentity::APP_ID, self::ALLOWED_GROUPS_KEY, '');
+		$allowed = [];
+		foreach (explode(',', $raw) as $name) {
+			$name = trim($name);
+			if ($name === '' || in_array(strtolower($name), self::PROTECTED_GROUPS, true) === true || in_array($name, $allowed, true) === true) {
+				continue;
+			}
+
+			$allowed[] = $name;
+		}
+
+		return $allowed;
+	}//end allowedGroups()
+
+	/**
+	 * The mapped groups an administrator did not allow, or that are protected.
+	 *
+	 * @param list<string> $names The group ids the body maps.
+	 *
+	 * @return list<string> The refused group ids, in the order given.
+	 */
+	private function notAllowed(array $names): array {
+		$allowed = $this->allowedGroups();
+		$refused = [];
+		foreach ($names as $name) {
+			if (in_array($name, $allowed, true) === false && in_array($name, $refused, true) === false) {
+				$refused[] = $name;
+			}
+		}
+
+		return $refused;
+	}//end notAllowed()
 
 	/**
 	 * Look every group up; the missing ones are named.

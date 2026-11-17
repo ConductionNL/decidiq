@@ -3721,7 +3721,10 @@ OC.L10N.register(
         "This year": "This year",
         "This quarter": "This quarter",
         "Custom range": "Custom range",
-        "By body, all periods": "By body, all periods"
+        "By body, all periods": "By body, all periods",
+        "Member provisioning": "Member provisioning",
+        "The groups a governance body may assign to its members when they join, and take away when they leave. Separate groups with commas. The admin group is never assigned.": "The groups a governance body may assign to its members when they join, and take away when they leave. Separate groups with commas. The admin group is never assigned.",
+        "Allowed groups": "Allowed groups"
     },
     "nplurals=2; plural=(n != 1);"
 )

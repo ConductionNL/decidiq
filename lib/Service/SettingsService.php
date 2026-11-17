@@ -93,6 +93,10 @@ class SettingsService implements SettingsServiceInterface {
 		// 'true' makes a motion forwarded to another body wait for that body's
 		// chair (MotionForwardingService).
 		'motion_forwarding_requires_approval',
+		// @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		// Comma-separated groups a governance body may map for member
+		// provisioning (OnboardingProvisioningService). Admin-written only.
+		'member_provisioning_groups',
 		// Which structure the app shows (simple-structure-profile). A key that
 		// is not on this list is dropped by updateSettings() while the write
 		// still answers success.

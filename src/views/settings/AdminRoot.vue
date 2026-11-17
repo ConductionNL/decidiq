@@ -16,6 +16,7 @@
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />
 		<MotionForwardingSettings v-if="storesReady" />
+		<MemberProvisioningSettings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
@@ -37,6 +38,7 @@ import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
+import MemberProvisioningSettings from './MemberProvisioningSettings.vue'
 import MotionForwardingSettings from './MotionForwardingSettings.vue'
 import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
@@ -55,6 +57,7 @@ export default {
 		CaseSystemSettings,
 		DecisionTypeSettings,
 		MenuStructureTab,
+		MemberProvisioningSettings,
 		MotionForwardingSettings,
 		Settings,
 		FullExportSettings,

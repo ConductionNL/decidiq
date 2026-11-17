@@ -4133,7 +4133,10 @@ OC.L10N.register(
         "This year": "Dit jaar",
         "This quarter": "Dit kwartaal",
         "Custom range": "Aangepaste periode",
-        "By body, all periods": "Per orgaan, alle perioden"
+        "By body, all periods": "Per orgaan, alle perioden",
+        "Member provisioning": "Groepstoegang van leden",
+        "The groups a governance body may assign to its members when they join, and take away when they leave. Separate groups with commas. The admin group is never assigned.": "De groepen die een bestuursorgaan aan zijn leden mag toekennen wanneer zij toetreden, en mag afnemen wanneer zij vertrekken. Scheid groepen met komma's. De admin-groep wordt nooit toegekend.",
+        "Allowed groups": "Toegestane groepen"
     },
     "nplurals=2; plural=(n != 1);"
 )
