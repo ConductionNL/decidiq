@@ -14,7 +14,7 @@
  * @param {string} type The registered type slug.
  * @param {object} data The object to save.
  * @return {Promise<object>} The saved object.
- * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ * @spec openspec/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 export async function saveOrThrow(store, type, data) {
 	const saved = await store.saveObject(type, data)

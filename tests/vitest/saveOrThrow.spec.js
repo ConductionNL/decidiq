@@ -6,7 +6,7 @@
  * `saveObject` returns null on a refusal rather than throwing, so the sessions
  * widget's "the evening runs 18:00 to 23:00" refusal used to disappear.
  *
- * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ * @spec openspec/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 
 import { readFileSync } from 'node:fs'
