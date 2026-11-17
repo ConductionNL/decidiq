@@ -1139,4 +1139,137 @@ class ApprovalRouteServiceTest extends TestCase {
 		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
 		$this->assertSame(['decided', 'decided', 'skipped'], $this->statuses());
 	}
+
+	/**
+	 * A route opening with an intake step, on a decision.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function intakeRoute(): array {
+		return [
+			'name' => 'Intake route',
+			'steps' => [
+				['order' => 1, 'stageType' => 'decisive', 'stepKind' => 'intake', 'actorType' => 'person', 'actor' => 'alice', 'label' => 'Ontvankelijkheid'],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict closes the route at intake and no later step becomes live.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnInadmissibleRequestEndsTheRouteAtIntake(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => 'Artikel 4:5 Awb']);
+
+		$this->assertSame(['decided', 'pending'], $this->statuses());
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('outcome', $this->stages()[1]);
+		$this->assertSame('niet-ontvankelijk', $recorded['action']);
+		$this->assertSame('refused', $recorded['state']);
+		$this->assertSame('Artikel 4:5 Awb', $recorded['comment']);
+		$this->assertSame(
+			['ontvankelijkheid' => 'niet-ontvankelijk', 'ontvankelijkheidGround' => 'Artikel 4:5 Awb', 'ontvankelijkheidDecidedBy' => 'alice', 'id' => 'dec-1'],
+			$this->objectService->rows['decision']['dec-1']
+		);
+	}
+
+	/**
+	 * An ontvankelijk verdict completes the intake step and the route walks on.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnAdmissibleRequestWalksOn(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'ontvankelijk']);
+
+		$this->assertSame(['decided', 'active'], $this->statuses());
+		$this->assertSame('ontvankelijk', $this->stages()[0]['outcome']);
+		$this->assertSame('granted', $recorded['state']);
+		$this->assertSame('ontvankelijk', $this->objectService->rows['decision']['dec-1']['ontvankelijkheid']);
+	}
+
+	/**
+	 * The verdict is written onto the subject only when the subject is a decision.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnotherSubjectStaysOnTheRoute(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'case-1', subjectSchema: 'proposal');
+
+		$service->record(['subject' => 'case-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'comment' => 'Te laat ingediend']);
+
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict without a ground is refused and leaves no trace.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictWithoutAGroundIsRefusedAndWritesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		try {
+			$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => '  ']);
+			$this->fail('A verdict without a ground was accepted.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('needs the ground it rests on', $e->getMessage());
+		}
+
+		$this->assertSame(['active', 'pending'], $this->statuses());
+		$this->assertSame([], $this->objectService->rows['approval-action']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * An intake step takes a verdict, not a sign-off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testASignOffOnAnIntakeStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown verdict "approved"');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'approved']);
+	}
+
+	/**
+	 * A verdict on an approval step is no action that step knows.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnApprovalStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown action: ontvankelijk');
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'ontvankelijk']);
+	}
 }
