@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Nefndarfundur",
         "Public hearing": "Opinber fundur",
         "General assembly": "Aðalfundur",
-        "Members' ancillary positions": "Aukastörf meðlima"
+        "Members' ancillary positions": "Aukastörf meðlima",
+        "Return to step": "Senda aftur á skref",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Skrefið sem tillaga sem var send til baka fer aftur á. Autt sendir hana aftur til sendanda.",
+        "returned": "sent til baka"
     },
     "nplurals=2; plural=(n != 1);"
 )

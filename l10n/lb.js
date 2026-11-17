@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Kommissiounssëtzung",
         "Public hearing": "Ëffentlech Hearing",
         "General assembly": "Generalversammlung",
-        "Members' ancillary positions": "Niewefunktioune vun de Memberen"
+        "Members' ancillary positions": "Niewefunktioune vun de Memberen",
+        "Return to step": "Zréck op de Schrëtt",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "De Schrëtt, op deen eng zréckgeschéckte Propos zréckgeet. Eidel geet se zréck un deen, deen se geschéckt huet.",
+        "returned": "zréckgeschéckt"
     },
     "nplurals=2; plural=(n != 1);"
 )

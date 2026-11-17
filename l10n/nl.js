@@ -4164,7 +4164,10 @@ OC.L10N.register(
         "This year": "Dit jaar",
         "This quarter": "Dit kwartaal",
         "Custom range": "Aangepaste periode",
-        "By body, all periods": "Per orgaan, alle perioden"
+        "By body, all periods": "Per orgaan, alle perioden",
+        "Return to step": "Terug naar fase",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "De fase waarnaar een teruggestuurd voorstel teruggaat. Leeg stuurt het terug naar de indiener.",
+        "returned": "teruggestuurd"
     },
     "nplurals=2; plural=(n != 1);"
 )

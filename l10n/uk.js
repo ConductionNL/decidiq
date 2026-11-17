@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Засідання комісії",
         "Public hearing": "Громадські слухання",
         "General assembly": "Загальні збори",
-        "Members' ancillary positions": "Побічні посади членів"
+        "Members' ancillary positions": "Побічні посади членів",
+        "Return to step": "Повернути на етап",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Етап, на який повертається повернута пропозиція. Порожньо — пропозиція повертається відправникові.",
+        "returned": "повернуто"
     },
     "nplurals=2; plural=(n != 1);"
 )

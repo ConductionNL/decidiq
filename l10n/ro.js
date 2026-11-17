@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Ședința comisiei",
         "Public hearing": "Audiere publică",
         "General assembly": "Adunare generală",
-        "Members' ancillary positions": "Funcțiile auxiliare ale membrilor"
+        "Members' ancillary positions": "Funcțiile auxiliare ale membrilor",
+        "Return to step": "Returnează la pasul",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Pasul la care revine o propunere returnată. Necompletat, o returnează expeditorului.",
+        "returned": "returnat"
     },
     "nplurals=2; plural=(n != 1);"
 )

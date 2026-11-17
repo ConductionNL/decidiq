@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Reunió de comissió",
         "Public hearing": "Audiència pública",
         "General assembly": "Assemblea general",
-        "Members' ancillary positions": "Càrrecs complementaris dels membres"
+        "Members' ancillary positions": "Càrrecs complementaris dels membres",
+        "Return to step": "Retorna al pas",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "El pas al qual torna una proposta retornada. Buit la retorna a qui l'ha enviada.",
+        "returned": "retornat"
     },
     "nplurals=2; plural=(n != 1);"
 )

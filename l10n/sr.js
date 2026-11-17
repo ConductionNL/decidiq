@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Седница одбора",
         "Public hearing": "Јавна расправа",
         "General assembly": "Скупштина чланова",
-        "Members' ancillary positions": "Споредне функције чланова"
+        "Members' ancillary positions": "Споредне функције чланова",
+        "Return to step": "Врати на корак",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Корак на који се враћени предлог враћа. Празно га враћа пошиљаоцу.",
+        "returned": "враћено"
     },
     "nplurals=2; plural=(n != 1);"
 )

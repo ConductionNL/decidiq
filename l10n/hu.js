@@ -3355,7 +3355,10 @@ OC.L10N.register(
         "Committee meeting": "Bizottsági ülés",
         "Public hearing": "Közmeghallgatás",
         "General assembly": "Közgyűlés",
-        "Members' ancillary positions": "A tagok mellékfoglalkozásai"
+        "Members' ancillary positions": "A tagok mellékfoglalkozásai",
+        "Return to step": "Visszaküldés a lépéshez",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "A lépés, amelyhez a visszaküldött javaslat visszakerül. Üresen a beküldőhöz kerül vissza.",
+        "returned": "visszaküldve"
     },
     "nplurals=2; plural=(n != 1);"
 )

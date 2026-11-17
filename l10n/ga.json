@@ -3356,7 +3356,10 @@
         "Committee meeting": "Cruinniú coiste",
         "Public hearing": "Éisteacht phoiblí",
         "General assembly": "Comhthionól ginearálta",
-        "Members' ancillary positions": "Poist choimhdeacha na gcomhaltaí"
+        "Members' ancillary positions": "Poist choimhdeacha na gcomhaltaí",
+        "Return to step": "Ar ais go dtí an chéim",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "An chéim a dtéann togra a seoladh ar ais chuici. Má fhágtar folamh é, téann sé ar ais chuig an seoltóir.",
+        "returned": "seolta ar ais"
     },
     "plurals": null
 }

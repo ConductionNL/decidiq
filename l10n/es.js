@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Reunión de comisión",
         "Public hearing": "Audiencia pública",
         "General assembly": "Asamblea general",
-        "Members' ancillary positions": "Cargos complementarios de los miembros"
+        "Members' ancillary positions": "Cargos complementarios de los miembros",
+        "Return to step": "Devolver al paso",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "El paso al que vuelve una propuesta devuelta. Si se deja vacío, vuelve a quien la envió.",
+        "returned": "devuelto"
     },
     "nplurals=2; plural=(n != 1);"
 )

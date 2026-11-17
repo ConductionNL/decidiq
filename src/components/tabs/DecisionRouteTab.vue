@@ -482,6 +482,7 @@ export default {
 				rejected: this.t('decidiq', 'rejected'),
 				advised: this.t('decidiq', 'advised'),
 				deferred: this.t('decidiq', 'deferred'),
+				returned: this.t('decidiq', 'returned'),
 			}
 			return labels[outcome] || outcome || ''
 		},

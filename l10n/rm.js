@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Radunanza da la cumissiun",
         "Public hearing": "Audiziun publica",
         "General assembly": "Radunanza generala",
-        "Members' ancillary positions": "Funcziuns accessoricas dals commembers"
+        "Members' ancillary positions": "Funcziuns accessoricas dals commembers",
+        "Return to step": "Returnar al pass",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Il pass al qual returna ina proposta returnada. Vid la returna a quel che l'ha tramessa.",
+        "returned": "returnà"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1823,7 +1823,6 @@
         "View": "View",
         "Speaking request": "Speaking request",
         "Contribution files": "Contribution files",
-        "Related": "Related",
         "Speaking policies": "Speaking policies",
         "Speaking rights": "Speaking rights",
         "Deadline (hours)": "Deadline (hours)",
@@ -3767,7 +3766,10 @@
         "This year": "This year",
         "This quarter": "This quarter",
         "Custom range": "Custom range",
-        "By body, all periods": "By body, all periods"
+        "By body, all periods": "By body, all periods",
+        "Return to step": "Return to step",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "The step a returned proposal goes back to. Empty sends it back to the sender.",
+        "returned": "returned"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

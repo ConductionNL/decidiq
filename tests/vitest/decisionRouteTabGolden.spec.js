@@ -125,6 +125,16 @@ describe('DecisionRouteTab golden runs', () => {
 		expect(vm.currentStage).toBe('')
 	})
 
+	// REQ-ARF-004: a step sent back shows its return as an outcome of its own.
+	it('labels a returned step', () => {
+		const { vm } = tab()
+		vm.t = (app, text) => `${app}:${text}`
+
+		expect(vm.outcomeLabel('returned')).toBe('decidiq:returned')
+		expect(vm.outcomeLabel('approved')).toBe('decidiq:Approved')
+		expect(vm.outcomeLabel('something-else')).toBe('something-else')
+	})
+
 	it('deriveEffectiveStatus', async () => {
 		const out = []
 		for (const [label, decision, candidates] of [

@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Komiteto posėdis",
         "Public hearing": "Viešasis svarstymas",
         "General assembly": "Visuotinis susirinkimas",
-        "Members' ancillary positions": "Narių papildomos pareigos"
+        "Members' ancillary positions": "Narių papildomos pareigos",
+        "Return to step": "Grąžinti į žingsnį",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Žingsnis, į kurį grįžta grąžintas pasiūlymas. Jei tuščia, jis grąžinamas siuntėjui.",
+        "returned": "grąžinta"
     },
     "nplurals=2; plural=(n != 1);"
 )

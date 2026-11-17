@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Заседание комитета",
         "Public hearing": "Публичные слушания",
         "General assembly": "Общее собрание",
-        "Members' ancillary positions": "Побочные должности членов"
+        "Members' ancillary positions": "Побочные должности членов",
+        "Return to step": "Вернуть на этап",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Этап, на который возвращается возвращённое предложение. Пусто — предложение возвращается отправителю.",
+        "returned": "возвращено"
     },
     "nplurals=2; plural=(n != 1);"
 )

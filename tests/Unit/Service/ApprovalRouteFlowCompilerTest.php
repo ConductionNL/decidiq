@@ -236,6 +236,49 @@ class ApprovalRouteFlowCompilerTest extends TestCase {
 	}//end testAReturnReopensTheStepTheApproverNames()
 
 	/**
+	 * Scenario: the committee sends the proposal back to the officials. A later
+	 * step's task offers the decision's returnToStep field; the first step's does not.
+	 */
+	public function testALaterStepsTaskAsksWhichStepToReturnTo(): void {
+		$flow = $this->compiler->compile(self::raadscyclus());
+
+		$config = self::node($flow, 'step-3-1')['config'];
+		$this->assertSame('fields', $config['formKind']);
+		$this->assertSame('decision', $config['formSchema']);
+		$this->assertSame([['field' => 'returnToStep', 'required' => false]], $config['formFields']);
+		$this->assertArrayNotHasKey('formKind', self::node($flow, 'step-1-1')['config'], 'the first step can only return to the sender');
+	}//end testALaterStepsTaskAsksWhichStepToReturnTo()
+
+	/**
+	 * Scenario: Lisa signs for Wouter. An away person's step is a pool of the person and the substitute.
+	 */
+	public function testAnAwayPersonsStepIsOfferedToThePersonAndTheSubstitute(): void {
+		$route = self::raadscyclus();
+		$route['steps'][3]['substitute'] = 'lisa';
+
+		$config = self::node($this->compiler->compile($route), 'step-4-1')['config'];
+
+		$this->assertSame(['wouter', 'lisa'], $config['candidateUsers']);
+		$this->assertArrayNotHasKey('assignee', $config, 'an assigned task could only be completed by the assignee');
+	}//end testAnAwayPersonsStepIsOfferedToThePersonAndTheSubstitute()
+
+	/**
+	 * A substitute that is the person, or one on a body step, changes nothing.
+	 */
+	public function testASubstituteOnlyAppliesToAnotherPersonOnAPersonStep(): void {
+		$route = self::raadscyclus();
+		$route['steps'][3]['substitute'] = 'wouter';
+		$route['steps'][1]['substitute'] = 'lisa';
+
+		$flow = $this->compiler->compile($route);
+
+		$this->assertSame('wouter', self::node($flow, 'step-4-1')['config']['assignee']);
+		$this->assertArrayNotHasKey('candidateUsers', self::node($flow, 'step-4-1')['config']);
+		$this->assertSame('college', self::node($flow, 'step-2-1')['config']['candidateRole']);
+		$this->assertArrayNotHasKey('candidateUsers', self::node($flow, 'step-2-1')['config']);
+	}//end testASubstituteOnlyAppliesToAnotherPersonOnAPersonStep()
+
+	/**
 	 * The first step has no earlier step, so its only return is to the sender.
 	 */
 	public function testTheFirstStepReturnsOnlyToTheSender(): void {

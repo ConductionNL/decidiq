@@ -72,8 +72,6 @@ Completing a task with outcome returned MUST create a new task on the step the a
 
 #### Scenario: the committee sends the proposal back to the officials
 
-@e2e exclude naming the step to return to needs a returnToStep answer on the task form, which the compiled task does not offer yet; the return exits are asserted by ApprovalRouteFlowCompilerTest
-
 - GIVEN step 3, Commissie Ruimte, is open
 - WHEN the committee returns the proposal to step 1 with the reason "kostenraming ontbreekt"
 - THEN step 1 has a new open task for Team Mobiliteit
@@ -97,8 +95,6 @@ When a step declares what silence means, its task MUST carry the deadline and th
 While an absence that a member recorded in My settings covers a step, the step's task MUST list both the approver and the named substitute as candidates. The first to complete the task MUST close the step. The route tab MUST show the substitute line from the board.
 
 #### Scenario: Lisa signs for Wouter
-
-@e2e exclude putting a recorded substitute in the task's candidates is not built yet; the route tab's substitute line is asserted by routeFromFlowRun.spec.js
 
 - GIVEN Wouter Bakker recorded an absence from 5 to 16 October with Lisa de Groot as substitute
 - AND step 4 opens on 7 October

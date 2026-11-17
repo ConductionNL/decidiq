@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Laqgħa tal-kumitat",
         "Public hearing": "Seduta pubblika",
         "General assembly": "Assemblea ġenerali",
-        "Members' ancillary positions": "Karigi anċillari tal-membri"
+        "Members' ancillary positions": "Karigi anċillari tal-membri",
+        "Return to step": "Ibgħat lura għall-pass",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Il-pass li għalih tmur lura proposta mibgħuta lura. Jekk vojt, tmur lura għand min bagħatha.",
+        "returned": "mibgħut lura"
     },
     "nplurals=2; plural=(n != 1);"
 )

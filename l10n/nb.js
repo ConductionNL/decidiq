@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Komitémøte",
         "Public hearing": "Offentlig høring",
         "General assembly": "Generalforsamling",
-        "Members' ancillary positions": "Medlemmenes bierverv"
+        "Members' ancillary positions": "Medlemmenes bierverv",
+        "Return to step": "Send tilbake til trinn",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Trinnet et returnert forslag går tilbake til. Tomt sender det tilbake til avsenderen.",
+        "returned": "sendt tilbake"
     },
     "nplurals=2; plural=(n != 1);"
 )

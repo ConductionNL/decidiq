@@ -3761,7 +3761,10 @@ OC.L10N.register(
         "This year": "This year",
         "This quarter": "This quarter",
         "Custom range": "Custom range",
-        "By body, all periods": "By body, all periods"
+        "By body, all periods": "By body, all periods",
+        "Return to step": "Return to step",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "The step a returned proposal goes back to. Empty sends it back to the sender.",
+        "returned": "returned"
     },
     "nplurals=2; plural=(n != 1);"
 )

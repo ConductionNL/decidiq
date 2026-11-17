@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Mbledhje komisioni",
         "Public hearing": "Dëgjesë publike",
         "General assembly": "Asambleja e përgjithshme",
-        "Members' ancillary positions": "Funksionet dytësore të anëtarëve"
+        "Members' ancillary positions": "Funksionet dytësore të anëtarëve",
+        "Return to step": "Kthe te hapi",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Hapi te i cili kthehet një propozim i kthyer. Bosh, kthehet te dërguesi.",
+        "returned": "kthyer"
     },
     "nplurals=2; plural=(n != 1);"
 )

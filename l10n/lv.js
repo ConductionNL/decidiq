@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Komitejas sanāksme",
         "Public hearing": "Publiskā uzklausīšana",
         "General assembly": "Kopsapulce",
-        "Members' ancillary positions": "Locekļu blakus amati"
+        "Members' ancillary positions": "Locekļu blakus amati",
+        "Return to step": "Atgriezt uz soli",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Solis, uz kuru atgriežas atgrieztais priekšlikums. Ja tukšs, tas tiek atgriezts sūtītājam.",
+        "returned": "atgriezts"
     },
     "nplurals=2; plural=(n != 1);"
 )

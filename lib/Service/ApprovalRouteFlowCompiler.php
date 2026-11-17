@@ -78,6 +78,13 @@ class ApprovalRouteFlowCompiler {
 	public const RETURN_TO_ANSWER = 'returnToStep';
 
 	/**
+	 * The step key that names who stands in for the step's person while they are away.
+	 *
+	 * Set by the starter from the absence the person recorded, not by the route's author.
+	 */
+	public const SUBSTITUTE_KEY = 'substitute';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ApprovalRouteFlowCapabilities $capabilities What the installed OpenRegister offers.
@@ -291,6 +298,8 @@ class ApprovalRouteFlowCompiler {
 			$config['expiresAt'] = $dueAt;
 			$config['onTimeout'] = $onSilence;
 		}
+
+		$config = array_merge($config, self::returnFormOf(earlier: $order->earlier));
 
 		return [
 			'id'     => self::stepNode(order: $order->number, slot: $slot),
@@ -617,19 +626,53 @@ class ApprovalRouteFlowCompiler {
 	 *
 	 * A person is the assignee. A body or a role is a candidate role, which
 	 * OpenRegister's performer resolver expands to the people who hold it.
+	 * A person who is away with a substitute is a pool of the two of them.
 	 *
 	 * @param array<string, mixed> $step The step.
 	 *
-	 * @return array<string, string> The performer keys of the task node.
+	 * @return array<string, string|list<string>> The performer keys of the task node.
+	 *
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-006-a-substitute-can-act-while-the-approver-is-away
 	 */
 	private static function performerOf(array $step): array {
 		$actor = trim((string)($step['actor'] ?? ''));
 		if ((string)($step['actorType'] ?? 'role') === 'person') {
+			$substitute = trim((string)($step[self::SUBSTITUTE_KEY] ?? ''));
+			if ($substitute !== '' && $substitute !== $actor) {
+				// Both may act; whoever claims and completes the task first closes the step.
+				return ['candidateUsers' => [$actor, $substitute]];
+			}
+
 			return ['assignee' => $actor];
 		}
 
 		return ['candidateRole' => $actor];
 	}//end performerOf()
+
+	/**
+	 * The form a step's task offers to name the step a return goes to.
+	 *
+	 * Only a step with earlier steps gets one: the first step's only return is
+	 * to the sender. The field is the decision's own `returnToStep` property,
+	 * because OpenRegister validates a task form against its subject schema.
+	 *
+	 * @param list<int> $earlier The orders before the step.
+	 *
+	 * @return array<string, mixed> The form keys of the task node; empty for the first step.
+	 *
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-004-a-return-re-opens-an-earlier-step-and-keeps-the-earlier-outcome
+	 */
+	private static function returnFormOf(array $earlier): array {
+		if ($earlier === []) {
+			return [];
+		}
+
+		return [
+			'formKind'   => 'fields',
+			'formSchema' => self::SCHEMA,
+			'formFields' => [['field' => self::RETURN_TO_ANSWER, 'required' => false]],
+		];
+	}//end returnFormOf()
 
 	/**
 	 * The route's id.

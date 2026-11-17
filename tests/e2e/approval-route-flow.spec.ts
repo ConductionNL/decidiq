@@ -35,6 +35,9 @@ const ledger = newLedger()
 const tag = `e2e-${ledger.runId}`
 const sanne = `${tag}-sanne`.slice(0, 60)
 const wouter = `${tag}-wouter`.slice(0, 60)
+const bram = `${tag}-bram`.slice(0, 60)
+const lisa = `${tag}-lisa`.slice(0, 60)
+const ACCOUNTS = [sanne, wouter, bram, lisa]
 const password = `Dq-${randomBytes(12).toString('hex')}-Pw1!`
 let route: Record<string, unknown> = {}
 
@@ -104,7 +107,7 @@ async function send(page: any, decision: string) {
 
 test.beforeAll(async ({ browser }) => {
 	const page = await browser.newPage()
-	for (const user of [sanne, wouter]) {
+	for (const user of ACCOUNTS) {
 		const created = await page.request.post(`${BASE}/ocs/v2.php/cloud/users?format=json`, {
 			headers: basic(ADMIN_USER, ADMIN_PASS),
 			data: { userid: user, password },
@@ -126,7 +129,7 @@ test.beforeAll(async ({ browser }) => {
 test.afterAll(async ({ browser }) => {
 	const page = await browser.newPage()
 	await cleanupAll(page, ledger)
-	for (const user of [sanne, wouter]) {
+	for (const user of ACCOUNTS) {
 		await page.request
 			.delete(`${BASE}/ocs/v2.php/cloud/users/${user}?format=json`, { headers: basic(ADMIN_USER, ADMIN_PASS) })
 			.catch(() => undefined)
@@ -234,4 +237,81 @@ test('a route whose step asks for the manager rule is refused when saved, naming
 	})
 	expect(refused.status()).toBeGreaterThanOrEqual(400)
 	expect(await refused.text()).toContain('Step 2 uses performer by rule')
+})
+
+// @e2e approval-routes::the-committee-sends-the-proposal-back-to-the-officials
+test('returning a step to an earlier one opens a new task there and keeps the earlier outcome', async ({ page, playwright }) => {
+	const decision = await createObject(page, ledger, 'decision', { title: `${tag} Mobiliteitsplan` })
+	const id = decision.id ?? decision['@self']?.id
+	const run = (await (await send(page, id)).json()).run
+
+	const asSanne = await as(playwright, sanne)
+	const first = await openTaskOf(asSanne, run)
+	const advised = await asSanne.post(`${BASE}/index.php/apps/openregister/api/flow-tasks/${first.uuid}/complete`, {
+		data: { outcome: 'advised', comment: 'akkoord' },
+	})
+	expect(advised.status(), await advised.text()).toBeLessThan(300)
+
+	// Step 2 names step 1 on its task's form and sends the proposal back.
+	const asWouter = await as(playwright, wouter)
+	const second = await openTaskOf(asWouter, run)
+	expect(second.metadata.flowNode).toBe('step-2-1')
+	const returned = await asWouter.post(`${BASE}/index.php/apps/openregister/api/flow-tasks/${second.uuid}/complete`, {
+		data: { outcome: 'returned', comment: 'kostenraming ontbreekt', data: { returnToStep: 1 } },
+	})
+	expect(returned.status(), await returned.text()).toBeLessThan(300)
+	await asWouter.dispose()
+
+	// Step 1 has a new open task; its first task and outcome stay in the run.
+	const reopened = await openTaskOf(asSanne, run)
+	expect(reopened.metadata.flowNode).toBe('step-1-1')
+	expect(reopened.uuid).not.toBe(first.uuid)
+	const all = await asSanne.get(`${BASE}/index.php/apps/openregister/api/flow-tasks`, { params: { runUuid: run } })
+	const earlier = ((await all.json())?.results ?? []).find((t: Record<string, any>) => t.uuid === first.uuid)
+	expect(earlier?.outcome).toBe('advised')
+	await asSanne.dispose()
+
+	await expect.poll(async () => (await getObject(page, 'decision', id))?.approvalCurrentOrder, { timeout: 60_000 }).toBe(1)
+})
+
+// @e2e approval-routes::lisa-signs-for-wouter
+test('a substitute named in an absence can complete the away person\'s step', async ({ page, playwright }) => {
+	// Bram records an absence covering today, with Lisa as his substitute.
+	const asBram = await as(playwright, bram)
+	const today = new Date()
+	const until = new Date(today.getTime() + 10 * 24 * 3600 * 1000)
+	const away = await asBram.put(`${BASE}/index.php/apps/decidiq/api/notification-preference`, {
+		data: { delegate: lisa, delegationFrom: today.toISOString().slice(0, 10), delegationUntil: until.toISOString().slice(0, 10) },
+	})
+	expect(away.status(), await away.text()).toBeLessThan(300)
+	await asBram.dispose()
+
+	const signing = await createObject(page, ledger, 'approval-route', {
+		name: `${tag} Ondertekening Bram`,
+		subjectType: 'decision',
+		active: true,
+		steps: [{ order: 1, stageType: 'decisive', actorType: 'person', actor: bram, label: 'Ondertekening' }],
+	})
+	const decision = await createObject(page, ledger, 'decision', { title: `${tag} Mandaatbesluit` })
+	const id = decision.id ?? decision['@self']?.id
+	const sent = await page.request.post(`${BASE}/index.php/apps/decidiq/api/approval-routes/instantiate`, {
+		headers: await writeHeaders(page),
+		data: { route: signing, subject: id, subjectSchema: 'decision' },
+	})
+	expect(sent.status(), await sent.text()).toBe(201)
+	const run = (await sent.json()).run
+
+	// Lisa sees the task, claims it and approves; that closes the step.
+	const asLisa = await as(playwright, lisa)
+	const task = await openTaskOf(asLisa, run)
+	expect(task.candidateUsers).toEqual(expect.arrayContaining([bram, lisa]))
+	const claimed = await asLisa.post(`${BASE}/index.php/apps/openregister/api/flow-tasks/${task.uuid}/claim`)
+	expect(claimed.status(), await claimed.text()).toBeLessThan(300)
+	const approved = await asLisa.post(`${BASE}/index.php/apps/openregister/api/flow-tasks/${task.uuid}/complete`, {
+		data: { outcome: 'approved', comment: 'namens Bram' },
+	})
+	expect(approved.status(), await approved.text()).toBeLessThan(300)
+	await asLisa.dispose()
+
+	await expect.poll(async () => (await getObject(page, 'decision', id))?.approvalRouteStatus, { timeout: 60_000 }).toBe('approved')
 })

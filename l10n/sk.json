@@ -3326,7 +3326,10 @@
         "Committee meeting": "Zasadnutie výboru",
         "Public hearing": "Verejné vypočutie",
         "General assembly": "Valné zhromaždenie",
-        "Members' ancillary positions": "Vedľajšie funkcie členov"
+        "Members' ancillary positions": "Vedľajšie funkcie členov",
+        "Return to step": "Vrátiť do kroku",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Krok, do ktorého sa vrátený návrh vracia. Prázdne pole ho vráti odosielateľovi.",
+        "returned": "vrátené"
     },
     "plurals": null
 }

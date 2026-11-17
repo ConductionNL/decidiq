@@ -38,6 +38,13 @@
 						"facetable": true,
 						"description": "Where the decision's approval route stands, written by the route's flow: running while a step is open, then approved, rejected, or returned to the sender."
 					},
+					"returnToStep": {
+						"title": "Return to step",
+						"type": "integer",
+						"minimum": 1,
+						"nullable": true,
+						"description": "The step a returned proposal goes back to. Empty sends it back to the sender."
+					},
 					"approvalCurrentOrder": {
 						"title": "Current step",
 						"type": "integer",

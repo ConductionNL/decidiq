@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Valiokunnan kokous",
         "Public hearing": "Julkinen kuulemistilaisuus",
         "General assembly": "Yleiskokous",
-        "Members' ancillary positions": "Jäsenten sivutoimet"
+        "Members' ancillary positions": "Jäsenten sivutoimet",
+        "Return to step": "Palauta vaiheeseen",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Vaihe, johon palautettu ehdotus palaa. Tyhjänä se palaa lähettäjälle.",
+        "returned": "palautettu"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -24,6 +24,8 @@ use OCA\Decidiq\Service\ApprovalFlowGateway;
 use OCA\Decidiq\Service\ApprovalRouteFlowCapabilities;
 use OCA\Decidiq\Service\ApprovalRouteFlowCompiler;
 use OCA\Decidiq\Service\ApprovalRouteFlowStarter;
+use OCA\Decidiq\Service\NotificationPreferenceService;
+use DateTimeImmutable;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -53,6 +55,11 @@ class ApprovalRouteFlowStarterTest extends TestCase {
 
 	private ApprovalRouteFlowStarter $starter;
 
+	/**
+	 * @var NotificationPreferenceService&MockObject
+	 */
+	private $preferences;
+
 	protected function setUp(): void {
 		$this->gateway = $this->createMock(ApprovalFlowGateway::class);
 		$this->store   = $this->createMock(RegisterObjectStore::class);
@@ -61,7 +68,104 @@ class ApprovalRouteFlowStarterTest extends TestCase {
 			$this->gateway,
 			$this->store
 		);
+		$this->preferences = $this->createMock(NotificationPreferenceService::class);
 	}//end setUp()
+
+	/**
+	 * A starter that reads absences.
+	 *
+	 * @return ApprovalRouteFlowStarter
+	 */
+	private function starterWithAbsences(): ApprovalRouteFlowStarter {
+		return new ApprovalRouteFlowStarter(
+			new ApprovalRouteFlowCompiler(new ApprovalRouteFlowCapabilities([ApprovalRouteFlowCapabilities::RETURN_EDGE])),
+			$this->gateway,
+			$this->store,
+			$this->preferences
+		);
+	}//end starterWithAbsences()
+
+	/**
+	 * A route whose last step is Wouter Bakker himself.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function routeWithPerson(): array {
+		$route = self::route();
+		$route['steps'][] = ['order' => 3, 'stageType' => 'decisive', 'actorType' => 'person', 'actor' => 'wouter', 'label' => 'Wouter Bakker'];
+
+		return $route;
+	}//end routeWithPerson()
+
+	/**
+	 * The task node of one step in a published document.
+	 *
+	 * @param array<string, mixed> $doc The flow document.
+	 * @param string               $id  The node id.
+	 *
+	 * @return array<string, mixed> The node's config.
+	 */
+	private static function configOf(array $doc, string $id): array {
+		foreach ($doc['nodes'] as $node) {
+			if ($node['id'] === $id) {
+				return $node['config'];
+			}
+		}
+
+		self::fail('No node ' . $id);
+	}//end configOf()
+
+	/**
+	 * Scenario: Lisa signs for Wouter. Wouter is away when the proposal is sent,
+	 * so his step's task is offered to him and to Lisa, in a flow of its own.
+	 */
+	public function testAnAbsenceInForceMakesTheSubstituteACandidate(): void {
+		$now = new DateTimeImmutable('2026-10-07T09:00:00+02:00');
+		$this->store->method('find')->willReturn(['id' => self::DECISION]);
+		$this->store->method('patch')->willReturn([]);
+		$this->preferences->expects($this->once())->method('getActiveDelegate')->with('wouter', $now)->willReturn('lisa');
+
+		$published = [];
+		$this->gateway->method('publishedFlowFor')->willReturnCallback(static function (array $doc) use (&$published): string {
+			$published[] = $doc;
+			return 'flow-' . count($published);
+		});
+		$this->gateway->method('startRun')->willReturn('run-1');
+
+		$this->starterWithAbsences()->start(self::routeWithPerson(), self::DECISION, $now);
+		$this->starter->start(self::routeWithPerson(), self::DECISION);
+
+		$this->assertSame(['wouter', 'lisa'], self::configOf($published[0], 'step-3-1')['candidateUsers']);
+		$this->assertSame('wouter', self::configOf($published[1], 'step-3-1')['assignee']);
+		$this->assertNotSame($published[0]['name'], $published[1]['name'], 'a send during an absence is its own flow version');
+	}//end testAnAbsenceInForceMakesTheSubstituteACandidate()
+
+	/**
+	 * Nobody away, or an unreadable absence: the step stays with the person.
+	 */
+	public function testNoAbsenceOrAnUnreadableOneLeavesTheStepWithThePerson(): void {
+		$this->store->method('find')->willReturn(['id' => self::DECISION]);
+		$this->store->method('patch')->willReturn([]);
+		$this->preferences->method('getActiveDelegate')->willReturnOnConsecutiveCalls(null, $this->throwException(new RuntimeException('store down')));
+
+		$published = [];
+		$this->gateway->method('publishedFlowFor')->willReturnCallback(static function (array $doc) use (&$published): string {
+			$published[] = $doc;
+			return 'flow-x';
+		});
+		$this->gateway->method('startRun')->willReturn('run-1');
+
+		$starter = $this->starterWithAbsences();
+		$starter->start(self::routeWithPerson(), self::DECISION);
+		$starter->start(self::routeWithPerson(), self::DECISION);
+
+		foreach ($published as $doc) {
+			$this->assertSame('wouter', self::configOf($doc, 'step-3-1')['assignee']);
+			$this->assertArrayNotHasKey('candidateUsers', self::configOf($doc, 'step-3-1'));
+		}
+
+		$this->assertCount(2, $published);
+	}//end testNoAbsenceOrAnUnreadableOneLeavesTheStepWithThePerson()
 
 	/**
 	 * "Raadscyclus Zuiddrecht".

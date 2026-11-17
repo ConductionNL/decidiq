@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Komisjoni koosolek",
         "Public hearing": "Avalik arutelu",
         "General assembly": "Üldkoosolek",
-        "Members' ancillary positions": "Liikmete kõrvaltegevused"
+        "Members' ancillary positions": "Liikmete kõrvaltegevused",
+        "Return to step": "Tagasi sammule",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Samm, millele tagasi saadetud ettepanek naaseb. Tühjana läheb see tagasi saatjale.",
+        "returned": "tagasi saadetud"
     },
     "nplurals=2; plural=(n != 1);"
 )

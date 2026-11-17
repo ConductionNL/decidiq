@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Συνεδρίαση επιτροπής",
         "Public hearing": "Δημόσια ακρόαση",
         "General assembly": "Γενική συνέλευση",
-        "Members' ancillary positions": "Παρεπόμενες θέσεις των μελών"
+        "Members' ancillary positions": "Παρεπόμενες θέσεις των μελών",
+        "Return to step": "Επιστροφή στο βήμα",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Το βήμα στο οποίο επιστρέφει μια πρόταση που επιστράφηκε. Αν μείνει κενό, επιστρέφει στον αποστολέα.",
+        "returned": "επεστράφη"
     },
     "nplurals=2; plural=(n != 1);"
 )

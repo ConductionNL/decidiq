@@ -3354,7 +3354,10 @@ OC.L10N.register(
         "Committee meeting": "Komite toplantısı",
         "Public hearing": "Kamuya açık oturum",
         "General assembly": "Genel kurul",
-        "Members' ancillary positions": "Üyelerin yan görevleri"
+        "Members' ancillary positions": "Üyelerin yan görevleri",
+        "Return to step": "Adıma iade et",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "İade edilen önerinin geri döndüğü adım. Boş bırakılırsa gönderene geri döner.",
+        "returned": "iade edildi"
     },
     "nplurals=2; plural=(n != 1);"
 )
