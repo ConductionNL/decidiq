@@ -92,6 +92,24 @@ class OnboardingProvisioningService {
 	public const PROTECTED_GROUPS = ['admin'];
 
 	/**
+	 * Per pathway schema: its groups step and the refusals when it is missing or done.
+	 */
+	private const STEP_TEXTS = [
+		self::ONBOARDING  => [
+			'step'     => self::STEP_ASSIGN,
+			'notFound' => 'Onboarding not found.',
+			'noStep'   => 'This onboarding has no step that assigns groups.',
+			'done'     => 'The groups have already been assigned.',
+		],
+		self::OFFBOARDING => [
+			'step'     => self::STEP_REVOKE,
+			'notFound' => 'Offboarding not found.',
+			'noStep'   => 'This offboarding has no step that revokes groups.',
+			'done'     => 'The groups have already been revoked.',
+		],
+	];
+
+	/**
 	 * The refusal naming the groups an administrator did not allow.
 	 */
 	private const NOT_ALLOWED = 'These groups are not allowed for member provisioning: %s.'
@@ -153,69 +171,23 @@ class OnboardingProvisioningService {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function provision(string $onboardingId, string $actor): PathwayResult {
-		$record = $this->store->find(schema: self::ONBOARDING, uuid: $onboardingId);
-		if ($record === null) {
-			return PathwayResult::notFound(message: 'Onboarding not found.');
+		$open = $this->openStep(schema: self::ONBOARDING, uuid: $onboardingId);
+		if ($open instanceof PathwayResult) {
+			return $open;
 		}
 
-		$steps = PathwaySteps::of(record: $record);
-		$index = PathwaySteps::indexOf(steps: $steps, stepType: self::STEP_ASSIGN);
-		if ($index === null) {
-			return PathwayResult::refused(message: 'This onboarding has no step that assigns groups.');
-		}
-
-		if (PathwaySteps::isCompleted(steps: $steps, index: $index) === true) {
-			return PathwayResult::refused(message: 'The groups have already been assigned.');
-		}
-
-		$user = $this->linkedUser(uid: (string) ($record['ncAccount'] ?? ''));
+		$user = $this->linkedUser(uid: (string) ($open['record']['ncAccount'] ?? ''));
 		if ($user === null) {
 			return PathwayResult::refused(message: 'Link the member to a Nextcloud account first.');
 		}
 
-		$role   = (string) ($record['targetRole'] ?? '');
-		$mapped = $this->mappedGroups(bodyId: PathwaySteps::relationId(value: ($record['targetBody'] ?? null)));
-		$names  = ($mapped[$role] ?? []);
-		if ($names === []) {
-			return PathwayResult::refused(message: sprintf('No groups are mapped for the role "%s" on this body.', $role));
+		$groups = $this->provisionGroups(record: $open['record']);
+		if ($groups instanceof PathwayResult) {
+			return $groups;
 		}
 
-		$notAllowed = $this->notAllowed(names: $names);
-		if ($notAllowed !== []) {
-			return PathwayResult::refused(
-				message: sprintf(self::NOT_ALLOWED . ' No group was assigned.', implode(', ', $notAllowed))
-			);
-		}
-
-		$resolved = $this->resolve(names: $names);
-		if ($resolved['missing'] !== []) {
-			return PathwayResult::refused(
-				message: sprintf('These groups do not exist: %s. No group was assigned.', implode(', ', $resolved['missing']))
-			);
-		}
-
-		$uid   = $user->getUID();
-		$added = [];
-		foreach ($resolved['groups'] as $group) {
-			if ($group->inGroup($user) === true) {
-				continue;
-			}
-
-			try {
-				$group->addUser($user);
-				$added[] = $group;
-			} catch (\Throwable $e) {
-				$this->logger->warning('Decidiq: adding a member to a group failed', ['exception' => $e, 'group' => $group->getGID()]);
-			}
-		}
-
-		$unverified = [];
-		foreach ($resolved['groups'] as $group) {
-			if ($this->groupManager->isInGroup($uid, $group->getGID()) === false) {
-				$unverified[] = $group->getGID();
-			}
-		}
-
+		$added      = $this->addToGroups(user: $user, groups: $groups);
+		$unverified = $this->unverified(uid: $user->getUID(), groups: $groups);
 		if ($unverified !== []) {
 			$this->undo(user: $user, groups: $added);
 			return PathwayResult::failed(
@@ -223,20 +195,10 @@ class OnboardingProvisioningService {
 			);
 		}
 
-		$granted = array_map(static fn (IGroup $group): string => $group->getGID(), $resolved['groups']);
-		$this->store->patch(
-			schema: self::ONBOARDING,
-			data: [
-				'steps' => PathwaySteps::complete(
-					steps: $steps,
-					index: $index,
-					completedBy: $actor,
-					completedAt: $this->now(),
-					note: 'Groups: ' . implode(', ', $granted),
-					reference: implode(',', $granted)
-				),
-			],
-			uuid: $onboardingId
+		$granted = array_map(static fn (IGroup $group): string => $group->getGID(), $groups);
+		$this->completeStep(
+			open: $open,
+			done: ['by' => $actor, 'note' => 'Groups: ' . implode(', ', $granted), 'reference' => implode(',', $granted)]
 		);
 
 		return PathwayResult::done(message: 'The groups have been assigned.', details: ['groups' => $granted]);
@@ -255,21 +217,142 @@ class OnboardingProvisioningService {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
 	 */
 	public function revoke(string $offboardingId, string $actor): PathwayResult {
-		$record = $this->store->find(schema: self::OFFBOARDING, uuid: $offboardingId);
+		$open = $this->openStep(schema: self::OFFBOARDING, uuid: $offboardingId);
+		if ($open instanceof PathwayResult) {
+			return $open;
+		}
+
+		$plan = $this->revokePlan(record: $open['record']);
+		if ($plan instanceof PathwayResult) {
+			return $plan;
+		}
+
+		$removed   = $this->removeFromGroups(user: $plan['user'], names: $plan['names']);
+		$remaining = $this->stillIn(uid: $plan['user']->getUID(), names: $plan['names']);
+		if ($remaining !== []) {
+			return PathwayResult::failed(
+				message: sprintf('The member is still in: %s. The step stays open.', implode(', ', $remaining))
+			);
+		}
+
+		if ($this->endMembership(membershipId: $plan['membershipId'], endDate: $plan['endDate']) === false) {
+			return PathwayResult::failed(
+				message: 'The groups were revoked, but the membership could not be ended. The step stays open.'
+			);
+		}
+
+		$note = 'Not in any group of this body any more.';
+		if ($removed !== []) {
+			$note = 'Removed from: ' . implode(', ', $removed) . '. ' . $note;
+		}
+
+		$this->completeStep(open: $open, done: ['by' => $actor, 'note' => $note]);
+
+		return PathwayResult::done(
+			message: 'The groups have been revoked and the membership ended.',
+			details: ['removed' => $removed, 'endDate' => $plan['endDate']]
+		);
+	}//end revoke()
+
+	/**
+	 * The pathway record and its open groups step, or why there is none.
+	 *
+	 * @param string $schema The pathway schema: onboarding or offboarding.
+	 * @param string $uuid   The pathway uuid.
+	 *
+	 * @return array{schema: string, uuid: string, record: array<string,mixed>, steps: list<array<string,mixed>>, index: int}|PathwayResult
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 */
+	private function openStep(string $schema, string $uuid): array|PathwayResult {
+		$texts  = self::STEP_TEXTS[$schema];
+		$record = $this->store->find(schema: $schema, uuid: $uuid);
 		if ($record === null) {
-			return PathwayResult::notFound(message: 'Offboarding not found.');
+			return PathwayResult::notFound(message: $texts['notFound']);
 		}
 
 		$steps = PathwaySteps::of(record: $record);
-		$index = PathwaySteps::indexOf(steps: $steps, stepType: self::STEP_REVOKE);
+		$index = PathwaySteps::indexOf(steps: $steps, stepType: $texts['step']);
 		if ($index === null) {
-			return PathwayResult::refused(message: 'This offboarding has no step that revokes groups.');
+			return PathwayResult::refused(message: $texts['noStep']);
 		}
 
 		if (PathwaySteps::isCompleted(steps: $steps, index: $index) === true) {
-			return PathwayResult::refused(message: 'The groups have already been revoked.');
+			return PathwayResult::refused(message: $texts['done']);
 		}
 
+		return ['schema' => $schema, 'uuid' => $uuid, 'record' => $record, 'steps' => $steps, 'index' => $index];
+	}//end openStep()
+
+	/**
+	 * Complete the open groups step of a pathway.
+	 *
+	 * @param array{schema: string, uuid: string, steps: list<array<string,mixed>>, index: int} $open The open step.
+	 * @param array{by: string, note: string, reference?: string}                             $done Who completed it, and the note.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 */
+	private function completeStep(array $open, array $done): void {
+		$this->store->patch(
+			schema: $open['schema'],
+			data: [
+				'steps' => PathwaySteps::complete(
+					steps: $open['steps'],
+					index: $open['index'],
+					completedBy: $done['by'],
+					completedAt: $this->now(),
+					note: $done['note'],
+					reference: ($done['reference'] ?? null)
+				),
+			],
+			uuid: $open['uuid']
+		);
+	}//end completeStep()
+
+	/**
+	 * The groups an onboarding's role maps to, all allowed and existing, or why not.
+	 *
+	 * @param array<string,mixed> $record The onboarding.
+	 *
+	 * @return list<IGroup>|PathwayResult
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	private function provisionGroups(array $record): array|PathwayResult {
+		$role   = (string) ($record['targetRole'] ?? '');
+		$mapped = $this->mappedGroups(bodyId: PathwaySteps::relationId(value: ($record['targetBody'] ?? null)));
+		$names  = ($mapped[$role] ?? []);
+		if ($names === []) {
+			return PathwayResult::refused(message: sprintf('No groups are mapped for the role "%s" on this body.', $role));
+		}
+
+		$refused = $this->refuseNotAllowed(names: $names, what: 'assigned');
+		if ($refused !== null) {
+			return $refused;
+		}
+
+		$resolved = $this->resolve(names: $names);
+		if ($resolved['missing'] !== []) {
+			return PathwayResult::refused(
+				message: sprintf('These groups do not exist: %s. No group was assigned.', implode(', ', $resolved['missing']))
+			);
+		}
+
+		return $resolved['groups'];
+	}//end provisionGroups()
+
+	/**
+	 * What an offboarding revokes: its end date, membership, account and the body's groups, or why it cannot.
+	 *
+	 * @param array<string,mixed> $record The offboarding.
+	 *
+	 * @return array{endDate: string, membershipId: string, user: IUser, names: list<string>}|PathwayResult
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 */
+	private function revokePlan(array $record): array|PathwayResult {
 		$endDate = trim((string) ($record['endDate'] ?? ''));
 		if ($endDate === '') {
 			return PathwayResult::refused(message: 'Set the end date of the offboarding first.');
@@ -290,14 +373,95 @@ class OnboardingProvisioningService {
 			return PathwayResult::refused(message: 'No groups are mapped on this body, so access cannot be revoked and checked.');
 		}
 
+		return ($this->refuseNotAllowed(names: $names, what: 'revoked') ?? [
+			'endDate'      => $endDate,
+			'membershipId' => $membershipId,
+			'user'         => $user,
+			'names'        => $names,
+		]);
+	}//end revokePlan()
+
+	/**
+	 * The refusal for mapped groups an administrator did not allow, or null when all are allowed.
+	 *
+	 * @param list<string> $names The group ids.
+	 * @param string       $what  What would have happened to them: assigned or revoked.
+	 *
+	 * @return PathwayResult|null
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	private function refuseNotAllowed(array $names, string $what): ?PathwayResult {
 		$notAllowed = $this->notAllowed(names: $names);
-		if ($notAllowed !== []) {
-			return PathwayResult::refused(
-				message: sprintf(self::NOT_ALLOWED . ' No group was revoked.', implode(', ', $notAllowed))
-			);
+		if ($notAllowed === []) {
+			return null;
 		}
 
-		$uid     = $user->getUID();
+		return PathwayResult::refused(
+			message: sprintf(self::NOT_ALLOWED . ' No group was ' . $what . '.', implode(', ', $notAllowed))
+		);
+	}//end refuseNotAllowed()
+
+	/**
+	 * Add the member to each group they are not in yet.
+	 *
+	 * @param IUser        $user   The member.
+	 * @param list<IGroup> $groups The groups.
+	 *
+	 * @return list<IGroup> The groups this run added.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	private function addToGroups(IUser $user, array $groups): array {
+		$added = [];
+		foreach ($groups as $group) {
+			if ($group->inGroup($user) === true) {
+				continue;
+			}
+
+			try {
+				$group->addUser($user);
+				$added[] = $group;
+			} catch (\Throwable $e) {
+				$this->logger->warning('Decidiq: adding a member to a group failed', ['exception' => $e, 'group' => $group->getGID()]);
+			}
+		}
+
+		return $added;
+	}//end addToGroups()
+
+	/**
+	 * The groups the member is not in after all, read back from the group manager.
+	 *
+	 * @param string       $uid    The member's uid.
+	 * @param list<IGroup> $groups The groups.
+	 *
+	 * @return list<string> The group ids.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	private function unverified(string $uid, array $groups): array {
+		$unverified = [];
+		foreach ($groups as $group) {
+			if ($this->groupManager->isInGroup($uid, $group->getGID()) === false) {
+				$unverified[] = $group->getGID();
+			}
+		}
+
+		return $unverified;
+	}//end unverified()
+
+	/**
+	 * Remove the member from each named group they are in.
+	 *
+	 * @param IUser        $user  The member.
+	 * @param list<string> $names The group ids.
+	 *
+	 * @return list<string> The group ids this run removed them from.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 */
+	private function removeFromGroups(IUser $user, array $names): array {
 		$removed = [];
 		foreach ($names as $name) {
 			$group = $this->groupManager->get($name);
@@ -313,52 +477,44 @@ class OnboardingProvisioningService {
 			}
 		}
 
-		$remaining = [];
-		foreach ($names as $name) {
-			if ($this->groupManager->isInGroup($uid, $name) === true) {
-				$remaining[] = $name;
-			}
-		}
+		return $removed;
+	}//end removeFromGroups()
 
-		if ($remaining !== []) {
-			return PathwayResult::failed(
-				message: sprintf('The member is still in: %s. The step stays open.', implode(', ', $remaining))
-			);
-		}
+	/**
+	 * The named groups the member is still in, read back from the group manager.
+	 *
+	 * @param string       $uid   The member's uid.
+	 * @param list<string> $names The group ids.
+	 *
+	 * @return list<string>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 */
+	private function stillIn(string $uid, array $names): array {
+		return array_values(
+			array_filter($names, fn (string $name): bool => $this->groupManager->isInGroup($uid, $name) === true)
+		);
+	}//end stillIn()
 
+	/**
+	 * End the membership on the given date.
+	 *
+	 * @param string $membershipId The membership uuid.
+	 * @param string $endDate      The end date.
+	 *
+	 * @return bool Whether the write held.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 */
+	private function endMembership(string $membershipId, string $endDate): bool {
 		try {
 			$this->store->patch(schema: 'membership', data: ['endDate' => $endDate], uuid: $membershipId);
+			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: ending a membership on offboarding failed', ['exception' => $e]);
-			return PathwayResult::failed(
-				message: 'The groups were revoked, but the membership could not be ended. The step stays open.'
-			);
+			return false;
 		}
-
-		$note = 'Not in any group of this body any more.';
-		if ($removed !== []) {
-			$note = 'Removed from: ' . implode(', ', $removed) . '. ' . $note;
-		}
-
-		$this->store->patch(
-			schema: self::OFFBOARDING,
-			data: [
-				'steps' => PathwaySteps::complete(
-					steps: $steps,
-					index: $index,
-					completedBy: $actor,
-					completedAt: $this->now(),
-					note: $note
-				),
-			],
-			uuid: $offboardingId
-		);
-
-		return PathwayResult::done(
-			message: 'The groups have been revoked and the membership ended.',
-			details: ['removed' => $removed, 'endDate' => $endDate]
-		);
-	}//end revoke()
+	}//end endMembership()
 
 	/**
 	 * The body's role to groups mapping, cleaned.
@@ -386,20 +542,34 @@ class OnboardingProvisioningService {
 				continue;
 			}
 
-			$names = [];
-			foreach ($groups as $group) {
-				if (is_string($group) === true && trim($group) !== '') {
-					$names[] = trim($group);
-				}
-			}
-
+			$names = $this->groupNames(groups: $groups);
 			if ($names !== []) {
-				$clean[$role] = array_values(array_unique($names));
+				$clean[$role] = $names;
 			}
 		}
 
 		return $clean;
 	}//end mappedGroups()
+
+	/**
+	 * The non-empty group names of one role's mapping, trimmed and unique.
+	 *
+	 * @param array<mixed> $groups The mapped values.
+	 *
+	 * @return list<string>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 */
+	private function groupNames(array $groups): array {
+		$names = [];
+		foreach ($groups as $group) {
+			if (is_string($group) === true && trim($group) !== '') {
+				$names[] = trim($group);
+			}
+		}
+
+		return array_values(array_unique($names));
+	}//end groupNames()
 
 	/**
 	 * Every group the body maps, for any role.

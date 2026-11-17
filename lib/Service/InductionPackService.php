@@ -90,6 +90,96 @@ class InductionPackService {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	public function deliver(string $onboardingId, string $actor): PathwayResult {
+		$open = $this->openStep(onboardingId: $onboardingId);
+		if ($open instanceof PathwayResult) {
+			return $open;
+		}
+
+		$pack = $this->packFor(record: $open['record']);
+		if ($pack instanceof PathwayResult) {
+			return $pack;
+		}
+
+		try {
+			$folder = $this->folderFor(uid: $pack['uid'], name: $this->folderName(body: $pack['body']));
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: could not create the induction folder', ['exception' => $e]);
+			return PathwayResult::failed(message: 'The folder could not be created in the member\'s Files.');
+		}
+
+		$tally = $this->copyAll(target: ['folder' => $folder, 'actor' => $actor], items: $pack['items']);
+		if ($tally['delivered'] === []) {
+			return PathwayResult::failed(
+				message: 'Nothing could be delivered. Skipped: ' . implode('; ', $tally['skipped']) . '.'
+			);
+		}
+
+		$path = '/' . $folder->getName();
+		$note = $this->noteFor(path: $path, tally: $tally);
+		$this->completeStep(open: $open, done: ['by' => $actor, 'note' => $note, 'reference' => $path]);
+
+		return PathwayResult::done(
+			message: $note,
+			details: ['folder' => $path, 'delivered' => $tally['delivered'], 'skipped' => $tally['skipped']]
+		);
+	}//end deliver()
+
+	/**
+	 * The step note: how many items went where, and what was skipped.
+	 *
+	 * @param string                                                $path  The folder path in the member's Files.
+	 * @param array{delivered: list<string>, skipped: list<string>} $tally The tally.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function noteFor(string $path, array $tally): string {
+		$note = sprintf('Delivered %d item(s) to %s.', count($tally['delivered']), $path);
+		if ($tally['skipped'] !== []) {
+			$note .= ' Skipped: ' . implode('; ', $tally['skipped']) . '.';
+		}
+
+		return $note;
+	}//end noteFor()
+
+	/**
+	 * Complete the induction pack step.
+	 *
+	 * @param array{uuid: string, steps: list<array<string,mixed>>, index: int} $open The open step.
+	 * @param array{by: string, note: string, reference: string}              $done Who completed it, the note and the folder.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function completeStep(array $open, array $done): void {
+		$this->store->patch(
+			schema: OnboardingProvisioningService::ONBOARDING,
+			data: [
+				'steps' => PathwaySteps::complete(
+					steps: $open['steps'],
+					index: $open['index'],
+					completedBy: $done['by'],
+					completedAt: $this->time->getDateTime()->format(DateTimeInterface::ATOM),
+					note: $done['note'],
+					reference: $done['reference']
+				),
+			],
+			uuid: $open['uuid']
+		);
+	}//end completeStep()
+
+	/**
+	 * The onboarding and its open induction pack step, or why there is none.
+	 *
+	 * @param string $onboardingId The onboarding uuid.
+	 *
+	 * @return array{uuid: string, record: array<string,mixed>, steps: list<array<string,mixed>>, index: int}|PathwayResult
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function openStep(string $onboardingId): array|PathwayResult {
 		$record = $this->store->find(schema: OnboardingProvisioningService::ONBOARDING, uuid: $onboardingId);
 		if ($record === null) {
 			return PathwayResult::notFound(message: 'Onboarding not found.');
@@ -105,6 +195,19 @@ class InductionPackService {
 			return PathwayResult::refused(message: 'The induction pack has already been delivered.');
 		}
 
+		return ['uuid' => $onboardingId, 'record' => $record, 'steps' => $steps, 'index' => $index];
+	}//end openStep()
+
+	/**
+	 * The member's account, the body and its induction items, or why the pack cannot go.
+	 *
+	 * @param array<string,mixed> $record The onboarding.
+	 *
+	 * @return array{uid: string, body: array<string,mixed>, items: list<array{title: string, fileId: int|null, url: string|null}>}|PathwayResult
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function packFor(array $record): array|PathwayResult {
 		$uid = trim((string) ($record['ncAccount'] ?? ''));
 		if ($uid === '' || $this->userManager->get($uid) === null) {
 			return PathwayResult::refused(
@@ -112,52 +215,14 @@ class InductionPackService {
 			);
 		}
 
-		$body  = $this->store->find(schema: 'governance-body', uuid: PathwaySteps::relationId(value: ($record['targetBody'] ?? null)));
-		$items = $this->items(body: ($body ?? []));
+		$body  = ($this->store->find(schema: 'governance-body', uuid: PathwaySteps::relationId(value: ($record['targetBody'] ?? null))) ?? []);
+		$items = $this->items(body: $body);
 		if ($items === []) {
 			return PathwayResult::refused(message: 'No induction documents are configured for this body.');
 		}
 
-		try {
-			$folder = $this->folderFor(uid: $uid, name: $this->folderName(body: ($body ?? [])));
-		} catch (\Throwable $e) {
-			$this->logger->warning('Decidiq: could not create the induction folder', ['exception' => $e]);
-			return PathwayResult::failed(message: 'The folder could not be created in the member\'s Files.');
-		}
-
-		$tally = $this->copyAll(folder: $folder, items: $items, actor: $actor);
-		if ($tally['delivered'] === []) {
-			return PathwayResult::failed(
-				message: 'Nothing could be delivered. Skipped: ' . implode('; ', $tally['skipped']) . '.'
-			);
-		}
-
-		$path = '/' . $folder->getName();
-		$note = sprintf('Delivered %d item(s) to %s.', count($tally['delivered']), $path);
-		if ($tally['skipped'] !== []) {
-			$note .= ' Skipped: ' . implode('; ', $tally['skipped']) . '.';
-		}
-
-		$this->store->patch(
-			schema: OnboardingProvisioningService::ONBOARDING,
-			data: [
-				'steps' => PathwaySteps::complete(
-					steps: $steps,
-					index: $index,
-					completedBy: $actor,
-					completedAt: $this->time->getDateTime()->format(DateTimeInterface::ATOM),
-					note: $note,
-					reference: $path
-				),
-			],
-			uuid: $onboardingId
-		);
-
-		return PathwayResult::done(
-			message: $note,
-			details: ['folder' => $path, 'delivered' => $tally['delivered'], 'skipped' => $tally['skipped']]
-		);
-	}//end deliver()
+		return ['uid' => $uid, 'body' => $body, 'items' => $items];
+	}//end packFor()
 
 	/**
 	 * The body's induction items with a title and a file or a link.
@@ -180,84 +245,109 @@ class InductionPackService {
 				continue;
 			}
 
-			$fileId = null;
-			if (is_numeric($item['fileId'] ?? null) === true) {
-				$fileId = (int) $item['fileId'];
-			}
-
-			$url = null;
-			if (is_string($item['url'] ?? null) === true && trim($item['url']) !== '') {
-				$url = trim($item['url']);
-			}
-
-			$items[] = ['title' => trim((string) ($item['title'] ?? '')), 'fileId' => $fileId, 'url' => $url];
+			$items[] = $this->item(item: $item);
 		}
 
 		return $items;
 	}//end items()
 
 	/**
+	 * One induction item with its title, file id and link, each cleaned.
+	 *
+	 * @param array<string,mixed> $item The configured item.
+	 *
+	 * @return array{title: string, fileId: int|null, url: string|null}
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function item(array $item): array {
+		$fileId = null;
+		if (is_numeric($item['fileId'] ?? null) === true) {
+			$fileId = (int) $item['fileId'];
+		}
+
+		$url = null;
+		if (is_string($item['url'] ?? null) === true && trim($item['url']) !== '') {
+			$url = trim($item['url']);
+		}
+
+		return ['title' => trim((string) ($item['title'] ?? '')), 'fileId' => $fileId, 'url' => $url];
+	}//end item()
+
+	/**
 	 * Copy every file, write the links, and tally what went and what was skipped.
 	 *
-	 * @param Folder                                                         $folder The member's induction folder.
+	 * @param array{folder: Folder, actor: string}                            $target The induction folder and the reading user.
 	 * @param list<array{title: string, fileId: int|null, url: string|null}> $items  The items.
-	 * @param string                                                         $actor  Whose Files the files are read from.
 	 *
 	 * @return array{delivered: list<string>, skipped: list<string>}
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
-	private function copyAll(Folder $folder, array $items, string $actor): array {
-		$delivered = [];
-		$skipped   = [];
-		$links     = [];
+	private function copyAll(array $target, array $items): array {
+		$tally = ['delivered' => [], 'skipped' => []];
+		$links = [];
 		foreach ($items as $item) {
-			$label = $item['title'];
-			if ($item['fileId'] !== null) {
-				$copied = $this->copyFile(folder: $folder, fileId: $item['fileId'], actor: $actor);
-				if ($copied === null) {
-					$delivered[] = $this->labelOr(label: $label, fallback: (string) $item['fileId']);
-					continue;
-				}
-
-				$skipped[] = $this->labelOr(label: $label, fallback: (string) $item['fileId']) . ' (' . $copied . ')';
+			if ($item['fileId'] === null && $item['url'] !== null) {
+				$links[] = '- [' . $this->labelOr(label: $item['title'], fallback: $item['url']) . '](' . $item['url'] . ')';
 				continue;
 			}
 
-			if ($item['url'] !== null) {
-				$links[] = '- [' . $this->labelOr(label: $label, fallback: $item['url']) . '](' . $item['url'] . ')';
-				continue;
-			}
-
-			$skipped[] = $this->labelOr(label: $label, fallback: 'untitled item') . ' (no file or link)';
-		}//end foreach
-
-		if ($links !== []) {
-			try {
-				$this->writeFile(folder: $folder, name: self::LINKS_FILE, content: "# Links\n\n" . implode("\n", $links) . "\n");
-				$delivered[] = self::LINKS_FILE;
-			} catch (\Throwable $e) {
-				$skipped[] = self::LINKS_FILE . ' (' . $e->getMessage() . ')';
-			}
+			[$outcome, $label] = $this->copyItem(target: $target, item: $item);
+			$tally[$outcome][] = $label;
 		}
 
-		return ['delivered' => $delivered, 'skipped' => $skipped];
+		if ($links === []) {
+			return $tally;
+		}
+
+		try {
+			$this->writeFile(folder: $target['folder'], name: self::LINKS_FILE, content: "# Links\n\n" . implode("\n", $links) . "\n");
+			$tally['delivered'][] = self::LINKS_FILE;
+		} catch (\Throwable $e) {
+			$tally['skipped'][] = self::LINKS_FILE . ' (' . $e->getMessage() . ')';
+		}
+
+		return $tally;
 	}//end copyAll()
+
+	/**
+	 * Copy one item that is not a link, and say whether it went.
+	 *
+	 * @param array{folder: Folder, actor: string}                     $target The member's induction folder, and whose Files the file is read from.
+	 * @param array{title: string, fileId: int|null, url: string|null} $item   The item.
+	 *
+	 * @return array{0: 'delivered'|'skipped', 1: string} The outcome and the label to tally.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	private function copyItem(array $target, array $item): array {
+		if ($item['fileId'] === null) {
+			return ['skipped', $this->labelOr(label: $item['title'], fallback: 'untitled item') . ' (no file or link)'];
+		}
+
+		$label  = $this->labelOr(label: $item['title'], fallback: (string) $item['fileId']);
+		$copied = $this->copyFile(target: $target, fileId: $item['fileId']);
+		if ($copied === null) {
+			return ['delivered', $label];
+		}
+
+		return ['skipped', $label . ' (' . $copied . ')'];
+	}//end copyItem()
 
 	/**
 	 * Copy one file into the folder.
 	 *
-	 * @param Folder $folder The member's induction folder.
-	 * @param int    $fileId The source file id.
-	 * @param string $actor  Whose Files the source is read from.
+	 * @param array{folder: Folder, actor: string} $target The member's induction folder, and whose Files the source is read from.
+	 * @param int                                  $fileId The source file id.
 	 *
 	 * @return string|null Null when copied, else why it was skipped.
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
-	private function copyFile(Folder $folder, int $fileId, string $actor): ?string {
+	private function copyFile(array $target, int $fileId): ?string {
 		try {
-			$nodes = $this->rootFolder->getUserFolder($actor)->getById($fileId);
+			$nodes = $this->rootFolder->getUserFolder($target['actor'])->getById($fileId);
 		} catch (\Throwable $e) {
 			return 'not readable';
 		}
@@ -268,7 +358,7 @@ class InductionPackService {
 			}
 
 			try {
-				$this->writeFile(folder: $folder, name: $node->getName(), content: $node->getContent());
+				$this->writeFile(folder: $target['folder'], name: $node->getName(), content: $node->getContent());
 				return null;
 			} catch (\Throwable $e) {
 				return $e->getMessage();

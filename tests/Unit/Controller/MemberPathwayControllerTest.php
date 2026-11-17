@@ -233,7 +233,10 @@ class MemberPathwayControllerTest extends TestCase {
 		$params = ['rows' => [], 'joining' => ['email:eva@example.org', 7], 'leaving' => [], 'batch' => 'intake', 'endDate' => '', 'endReason' => ''];
 		$this->request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default=null): mixed => ($params[$key] ?? $default));
 		$this->turnover->expects($this->exactly(2))->method('confirm')
-			->with('body-1', [], ['email:eva@example.org'], [], 'intake', '', '')
+			->with(
+				'body-1',
+				['rows' => [], 'joining' => ['email:eva@example.org'], 'leaving' => [], 'batch' => 'intake', 'endDate' => '', 'endReason' => '']
+			)
 			->willReturnOnConsecutiveCalls(
 				['onboardings' => ['o-1'], 'offboardings' => [], 'rejected' => []],
 				$this->throwException(new \InvalidArgumentException('A batch label is required.'))

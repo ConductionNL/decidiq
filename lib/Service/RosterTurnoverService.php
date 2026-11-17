@@ -93,6 +93,16 @@ class RosterTurnoverService {
 	];
 
 	/**
+	 * Why a confirmed joining suggestion was not created.
+	 */
+	private const NO_LONGER_JOINING = 'no longer a joining member (a membership or an open onboarding exists now)';
+
+	/**
+	 * Why a confirmed leaving suggestion was not created.
+	 */
+	private const NO_LONGER_LEAVING = 'no longer a leaving member (the membership ended, or an open offboarding exists now)';
+
+	/**
 	 * The steps a new offboarding starts with.
 	 *
 	 * @var list<array{stepType: string, title: string, mandatory: bool}>
@@ -151,23 +161,140 @@ class RosterTurnoverService {
 		$roster  = $this->roster(rows: $rows);
 		$members = $this->activeMembers(bodyId: $bodyId);
 		$open    = $this->openPathways(bodyId: $bodyId);
-		$persons = $this->personsFor(roster: $roster['people']);
 
-		$memberKeys = [];
-		foreach ($members as $member) {
-			foreach ($member['keys'] as $key) {
-				$memberKeys[$key] = true;
-			}
-		}
+		$joining = $this->joiningOf(
+			people: $roster['people'],
+			context: [
+				'memberKeys' => $this->keySet(items: $members),
+				'open'       => $open['onboarding'],
+				'persons'    => $this->personsFor(roster: $roster['people']),
+			]
+		);
+		$leaving = $this->leavingOf(
+			members: $members,
+			context: ['rosterKeys' => $this->keySet(items: $roster['people']), 'open' => $open['offboarding']]
+		);
 
-		$joining = [];
-		foreach ($roster['people'] as $key => $person) {
-			if ($this->anyKey(keys: $person['keys'], set: $memberKeys) === true) {
+		return ['joining' => $joining, 'leaving' => $leaving, 'ignored' => $roster['ignored']];
+	}//end suggest()
+
+	/**
+	 * Create the confirmed suggestions that still hold, under one batch label.
+	 *
+	 * The request holds `rows` (the same incoming roster), `joining` (the
+	 * confirmed joining keys), `leaving` (the confirmed leaving membership
+	 * uuids), `batch` (the batch label), `endDate` (Y-m-d, for the leaving
+	 * members) and `endReason` (why their membership ends).
+	 *
+	 * @param string              $bodyId  The governance body uuid.
+	 * @param array<string,mixed> $request The confirmation.
+	 *
+	 * @return array{onboardings: list<string>, offboardings: list<string>, rejected: list<array{suggestion: string, reason: string}>}
+	 *
+	 * @throws \InvalidArgumentException When the batch label is empty, or leaving members are confirmed without a valid end date.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	public function confirm(string $bodyId, array $request): array {
+		$batch = $this->batchOf(request: $request);
+		$fresh = $this->suggest(bodyId: $bodyId, rows: (array) ($request['rows'] ?? []));
+		$result = ['onboardings' => [], 'offboardings' => [], 'rejected' => []];
+
+		$joiningNow = array_column($fresh['joining'], null, 'key');
+		foreach (array_values(array_unique((array) ($request['joining'] ?? []))) as $key) {
+			if (isset($joiningNow[$key]) === false) {
+				$result['rejected'][] = ['suggestion' => $key, 'reason' => self::NO_LONGER_JOINING];
 				continue;
 			}
 
-			$personId = $this->personIdFor(keys: $person['keys'], persons: $persons);
-			if ($personId !== '' && isset($open['onboarding'][$personId]) === true) {
+			$result['onboardings'][] = $this->createOnboarding(bodyId: $bodyId, suggestion: $joiningNow[$key] + $batch);
+		}
+
+		$leavingNow = array_column($fresh['leaving'], null, 'membershipId');
+		foreach (array_values(array_unique((array) ($request['leaving'] ?? []))) as $membershipId) {
+			if (isset($leavingNow[$membershipId]) === false) {
+				$result['rejected'][] = ['suggestion' => $membershipId, 'reason' => self::NO_LONGER_LEAVING];
+				continue;
+			}
+
+			$result['offboardings'][] = $this->createOffboarding(
+				bodyId: $bodyId,
+				suggestion: $leavingNow[$membershipId] + $batch
+			);
+		}
+
+		return $result;
+	}//end confirm()
+
+	/**
+	 * The checked batch label, end date and end reason of a confirmation.
+	 *
+	 * @param array<string,mixed> $request The confirmation.
+	 *
+	 * @return array{batch: string, endDate: string, endReason: string}
+	 *
+	 * @throws \InvalidArgumentException When the batch label is empty, or leaving members are confirmed without a valid end date.
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function batchOf(array $request): array {
+		$batch = trim((string) ($request['batch'] ?? ''));
+		if ($batch === '') {
+			throw new \InvalidArgumentException('A batch label is required.');
+		}
+
+		$endDate = (string) ($request['endDate'] ?? '');
+		if (($request['leaving'] ?? []) !== [] && $this->isDate(value: $endDate) === false) {
+			throw new \InvalidArgumentException('An end date (YYYY-MM-DD) is required for leaving members.');
+		}
+
+		$endReason = trim((string) ($request['endReason'] ?? ''));
+		if ($endReason === '') {
+			$endReason = 'end-of-term';
+		}
+
+		return ['batch' => $batch, 'endDate' => $endDate, 'endReason' => $endReason];
+	}//end batchOf()
+
+	/**
+	 * Every match key of a list of people or members, as a set.
+	 *
+	 * @param iterable<array{keys: list<string>}> $items The people or members.
+	 *
+	 * @return array<string, true>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function keySet(iterable $items): array {
+		$set = [];
+		foreach ($items as $item) {
+			foreach ($item['keys'] as $key) {
+				$set[$key] = true;
+			}
+		}
+
+		return $set;
+	}//end keySet()
+
+	/**
+	 * The roster people who are no member yet and have no open onboarding.
+	 *
+	 * @param array<string, array<string,mixed>> $people  The roster people.
+	 * @param array<string, mixed>              $context The members' keys (memberKeys), open onboardings (open), matched persons (persons).
+	 *
+	 * @return list<array<string,mixed>>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function joiningOf(array $people, array $context): array {
+		$joining = [];
+		foreach ($people as $key => $person) {
+			if ($this->anyKey(keys: $person['keys'], set: $context['memberKeys']) === true) {
+				continue;
+			}
+
+			$personId = $this->personIdFor(keys: $person['keys'], persons: $context['persons']);
+			if ($personId !== '' && isset($context['open'][$personId]) === true) {
 				continue;
 			}
 
@@ -181,17 +308,24 @@ class RosterTurnoverService {
 			];
 		}
 
-		$rosterKeys = [];
-		foreach ($roster['people'] as $person) {
-			foreach ($person['keys'] as $key) {
-				$rosterKeys[$key] = true;
-			}
-		}
+		return $joining;
+	}//end joiningOf()
 
+	/**
+	 * The members who are not on the roster and have no open offboarding.
+	 *
+	 * @param list<array<string,mixed>>                                         $members The active members.
+	 * @param array{rosterKeys: array<string,true>, open: array<string,true>} $context The roster's keys and the open offboardings.
+	 *
+	 * @return list<array<string,mixed>>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function leavingOf(array $members, array $context): array {
 		$leaving = [];
 		foreach ($members as $member) {
-			if ($this->anyKey(keys: $member['keys'], set: $rosterKeys) === true
-				|| isset($open['offboarding'][$member['membershipId']]) === true
+			if ($this->anyKey(keys: $member['keys'], set: $context['rosterKeys']) === true
+				|| isset($context['open'][$member['membershipId']]) === true
 			) {
 				continue;
 			}
@@ -204,94 +338,8 @@ class RosterTurnoverService {
 			];
 		}
 
-		return ['joining' => $joining, 'leaving' => $leaving, 'ignored' => $roster['ignored']];
-	}//end suggest()
-
-	/**
-	 * Create the confirmed suggestions that still hold, under one batch label.
-	 *
-	 * @param string            $bodyId   The governance body uuid.
-	 * @param array<int, mixed> $rows     The same incoming roster.
-	 * @param list<string>      $joining  The confirmed joining keys.
-	 * @param list<string>      $leaving  The confirmed leaving membership uuids.
-	 * @param string            $batch    The batch label.
-	 * @param string            $endDate  The end date for the leaving members (Y-m-d).
-	 * @param string            $endReason Why their membership ends.
-	 *
-	 * @return array{onboardings: list<string>, offboardings: list<string>, rejected: list<array{suggestion: string, reason: string}>}
-	 *
-	 * @throws \InvalidArgumentException When the batch label is empty, or leaving members are confirmed without a valid end date.
-	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
-	 */
-	public function confirm(
-		string $bodyId,
-		array $rows,
-		array $joining,
-		array $leaving,
-		string $batch,
-		string $endDate,
-		string $endReason
-	): array {
-		$batch = trim($batch);
-		if ($batch === '') {
-			throw new \InvalidArgumentException('A batch label is required.');
-		}
-
-		if ($leaving !== [] && $this->isDate(value: $endDate) === false) {
-			throw new \InvalidArgumentException('An end date (YYYY-MM-DD) is required for leaving members.');
-		}
-
-		$endReason = trim($endReason);
-		if ($endReason === '') {
-			$endReason = 'end-of-term';
-		}
-
-		$fresh = $this->suggest(bodyId: $bodyId, rows: $rows);
-		$result = ['onboardings' => [], 'offboardings' => [], 'rejected' => []];
-
-		$joiningNow = [];
-		foreach ($fresh['joining'] as $suggestion) {
-			$joiningNow[$suggestion['key']] = $suggestion;
-		}
-
-		foreach (array_values(array_unique($joining)) as $key) {
-			if (isset($joiningNow[$key]) === false) {
-				$result['rejected'][] = [
-					'suggestion' => $key,
-					'reason'     => 'no longer a joining member (a membership or an open onboarding exists now)',
-				];
-				continue;
-			}
-
-			$result['onboardings'][] = $this->createOnboarding(bodyId: $bodyId, suggestion: $joiningNow[$key], batch: $batch);
-		}
-
-		$leavingNow = [];
-		foreach ($fresh['leaving'] as $suggestion) {
-			$leavingNow[$suggestion['membershipId']] = $suggestion;
-		}
-
-		foreach (array_values(array_unique($leaving)) as $membershipId) {
-			if (isset($leavingNow[$membershipId]) === false) {
-				$result['rejected'][] = [
-					'suggestion' => $membershipId,
-					'reason'     => 'no longer a leaving member (the membership ended, or an open offboarding exists now)',
-				];
-				continue;
-			}
-
-			$result['offboardings'][] = $this->createOffboarding(
-				bodyId: $bodyId,
-				suggestion: $leavingNow[$membershipId],
-				batch: $batch,
-				endDate: $endDate,
-				endReason: $endReason
-			);
-		}
-
-		return $result;
-	}//end confirm()
+		return $leaving;
+	}//end leavingOf()
 
 	/**
 	 * The roster rows as people keyed by account or email; rows without either are ignored.
@@ -345,6 +393,36 @@ class RosterTurnoverService {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function activeMembers(string $bodyId): array {
+		$memberships = $this->currentMemberships(bodyId: $bodyId);
+		$personIds   = array_map(static fn (array $row): string => PathwaySteps::relationId(value: ($row['person'] ?? null)), $memberships);
+		$persons     = $this->byId(rows: $this->rows(schema: 'person', filters: [], ids: array_values(array_filter(array_unique($personIds)))));
+
+		$members = [];
+		foreach ($memberships as $row) {
+			$personId  = PathwaySteps::relationId(value: ($row['person'] ?? null));
+			$person    = ($persons[$personId] ?? []);
+			$members[] = [
+				'membershipId' => (string) ($row['id'] ?? ''),
+				'personId'     => $personId,
+				'name'         => (string) ($person['name'] ?? ''),
+				'role'         => (string) ($row['role'] ?? ''),
+				'keys'         => $this->personKeys(person: $person),
+			];
+		}
+
+		return $members;
+	}//end activeMembers()
+
+	/**
+	 * The body's memberships that have not ended by today.
+	 *
+	 * @param string $bodyId The governance body uuid.
+	 *
+	 * @return list<array<string,mixed>>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function currentMemberships(string $bodyId): array {
 		$today       = $this->time->getDateTime()->format('Y-m-d');
 		$memberships = [];
 		foreach ($this->rows(schema: 'membership', filters: ['governanceBody' => $bodyId]) as $row) {
@@ -353,38 +431,13 @@ class RosterTurnoverService {
 			}
 
 			$end = substr(trim((string) ($row['endDate'] ?? '')), 0, 10);
-			if ($end !== '' && $end <= $today) {
-				continue;
+			if ($end === '' || $end > $today) {
+				$memberships[] = $row;
 			}
-
-			$memberships[] = $row;
 		}
 
-		$personIds = [];
-		foreach ($memberships as $row) {
-			$personIds[] = PathwaySteps::relationId(value: ($row['person'] ?? null));
-		}
-
-		$persons = $this->byId(rows: $this->rows(schema: 'person', filters: [], ids: array_values(array_filter(array_unique($personIds)))));
-
-		$members = [];
-		foreach ($memberships as $row) {
-			$personId = PathwaySteps::relationId(value: ($row['person'] ?? null));
-			$person   = ($persons[$personId] ?? []);
-			$members[] = [
-				'membershipId' => (string) ($row['id'] ?? ''),
-				'personId'     => $personId,
-				'name'         => (string) ($person['name'] ?? ''),
-				'role'         => (string) ($row['role'] ?? ''),
-				'keys'         => $this->keys(
-					uid: trim((string) ($person['nextcloudUserId'] ?? '')),
-					email: strtolower(trim((string) ($person['email'] ?? '')))
-				),
-			];
-		}
-
-		return $members;
-	}//end activeMembers()
+		return $memberships;
+	}//end currentMemberships()
 
 	/**
 	 * The people with an unfinished onboarding (by person) or offboarding (by membership) of the body.
@@ -422,38 +475,23 @@ class RosterTurnoverService {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function personsFor(array $roster): array {
-		$emails = [];
-		$uids   = [];
-		foreach ($roster as $person) {
-			if ($person['email'] !== '') {
-				$emails[] = $person['email'];
-			}
-
-			if ($person['nextcloudUserId'] !== '') {
-				$uids[] = $person['nextcloudUserId'];
-			}
-		}
-
 		$found = [];
-		if ($uids !== []) {
-			$found = array_merge($found, $this->rows(schema: 'person', filters: ['nextcloudUserId' => $uids]));
-		}
-
-		if ($emails !== []) {
-			$found = array_merge($found, $this->rows(schema: 'person', filters: ['email' => $emails]));
+		foreach (['nextcloudUserId', 'email'] as $field) {
+			$values = array_values(array_filter(array_column($roster, $field), static fn (string $value): bool => $value !== ''));
+			if ($values !== []) {
+				$found = array_merge($found, $this->rows(schema: 'person', filters: [$field => $values]));
+			}
 		}
 
 		$byKey = [];
 		foreach ($found as $row) {
 			$id = (string) ($row['id'] ?? '');
-			$keys = $this->keys(
-				uid: trim((string) ($row['nextcloudUserId'] ?? '')),
-				email: strtolower(trim((string) ($row['email'] ?? '')))
-			);
-			foreach ($keys as $key) {
-				if ($id !== '' && isset($byKey[$key]) === false) {
-					$byKey[$key] = $id;
-				}
+			if ($id === '') {
+				continue;
+			}
+
+			foreach ($this->personKeys(person: $row) as $key) {
+				$byKey[$key] = ($byKey[$key] ?? $id);
 			}
 		}
 
@@ -461,17 +499,32 @@ class RosterTurnoverService {
 	}//end personsFor()
 
 	/**
+	 * A Person record's match keys.
+	 *
+	 * @param array<string,mixed> $person The person.
+	 *
+	 * @return list<string>
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function personKeys(array $person): array {
+		return $this->keys(
+			uid: trim((string) ($person['nextcloudUserId'] ?? '')),
+			email: strtolower(trim((string) ($person['email'] ?? '')))
+		);
+	}//end personKeys()
+
+	/**
 	 * Create one onboarding, and the Person when there is none yet.
 	 *
 	 * @param string              $bodyId     The governance body uuid.
-	 * @param array<string,mixed> $suggestion The joining suggestion.
-	 * @param string              $batch      The batch label.
+	 * @param array<string,mixed> $suggestion The joining suggestion, with its batch label.
 	 *
 	 * @return string The new onboarding uuid.
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
-	private function createOnboarding(string $bodyId, array $suggestion, string $batch): string {
+	private function createOnboarding(string $bodyId, array $suggestion): string {
 		$personId = (string) $suggestion['personId'];
 		if ($personId === '') {
 			$person = array_filter(
@@ -490,7 +543,7 @@ class RosterTurnoverService {
 			'targetBody' => $bodyId,
 			'targetRole' => $suggestion['role'],
 			'trigger'    => self::TRIGGER,
-			'batch'      => $batch,
+			'batch'      => $suggestion['batch'],
 			'lifecycle'  => 'started',
 			'steps'      => $this->openSteps(steps: self::ONBOARDING_STEPS),
 		];
@@ -507,24 +560,21 @@ class RosterTurnoverService {
 	 * Create one offboarding. The membership itself is left as it is.
 	 *
 	 * @param string              $bodyId     The governance body uuid.
-	 * @param array<string,mixed> $suggestion The leaving suggestion.
-	 * @param string              $batch      The batch label.
-	 * @param string              $endDate    The end date.
-	 * @param string              $endReason  The end reason.
+	 * @param array<string,mixed> $suggestion The leaving suggestion, with its batch label, end date and end reason.
 	 *
 	 * @return string The new offboarding uuid.
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
-	private function createOffboarding(string $bodyId, array $suggestion, string $batch, string $endDate, string $endReason): string {
+	private function createOffboarding(string $bodyId, array $suggestion): string {
 		$record = [
 			'person'     => $suggestion['personId'],
 			'body'       => $bodyId,
 			'membership' => $suggestion['membershipId'],
 			'trigger'    => self::TRIGGER,
-			'batch'      => $batch,
-			'endDate'    => $endDate,
-			'endReason'  => $endReason,
+			'batch'      => $suggestion['batch'],
+			'endDate'    => $suggestion['endDate'],
+			'endReason'  => $suggestion['endReason'],
 			'lifecycle'  => 'started',
 			'steps'      => $this->openSteps(steps: self::OFFBOARDING_STEPS),
 		];

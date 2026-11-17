@@ -180,12 +180,14 @@ class MemberPathwayController extends Controller {
 		try {
 			$result = $this->turnover->confirm(
 				bodyId: $bodyId,
-				rows: $rows,
-				joining: array_values(array_filter($joining, 'is_string')),
-				leaving: array_values(array_filter($leaving, 'is_string')),
-				batch: (string) $this->request->getParam('batch', ''),
-				endDate: (string) $this->request->getParam('endDate', ''),
-				endReason: (string) $this->request->getParam('endReason', '')
+				request: [
+					'rows'      => $rows,
+					'joining'   => array_values(array_filter($joining, 'is_string')),
+					'leaving'   => array_values(array_filter($leaving, 'is_string')),
+					'batch'     => (string) $this->request->getParam('batch', ''),
+					'endDate'   => (string) $this->request->getParam('endDate', ''),
+					'endReason' => (string) $this->request->getParam('endReason', ''),
+				]
 			);
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);

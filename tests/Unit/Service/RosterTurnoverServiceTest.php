@@ -189,12 +189,14 @@ class RosterTurnoverServiceTest extends TestCase {
 
 		$result = $this->service->confirm(
 			bodyId: 'body-1',
-			rows: $this->roster(),
-			joining: ['email:eva@example.org'],
-			leaving: ['m-dirk'],
-			batch: 'intake-2026',
-			endDate: '2026-11-30',
-			endReason: ''
+			request: [
+				'rows'      => $this->roster(),
+				'joining'   => ['email:eva@example.org'],
+				'leaving'   => ['m-dirk'],
+				'batch'     => 'intake-2026',
+				'endDate'   => '2026-11-30',
+				'endReason' => '',
+			]
 		);
 
 		$this->assertSame(['member-onboarding-2'], $result['onboardings']);
@@ -231,12 +233,14 @@ class RosterTurnoverServiceTest extends TestCase {
 
 		$result = $this->service->confirm(
 			bodyId: 'body-1',
-			rows: $this->roster(),
-			joining: ['email:eva@example.org'],
-			leaving: ['m-dirk'],
-			batch: 'intake-2026',
-			endDate: '2026-11-30',
-			endReason: 'end-of-term'
+			request: [
+				'rows'      => $this->roster(),
+				'joining'   => ['email:eva@example.org'],
+				'leaving'   => ['m-dirk'],
+				'batch'     => 'intake-2026',
+				'endDate'   => '2026-11-30',
+				'endReason' => 'end-of-term',
+			]
 		);
 
 		$this->assertSame([], $this->saved);
@@ -250,7 +254,17 @@ class RosterTurnoverServiceTest extends TestCase {
 	 */
 	public function testConfirmValidatesTheBatchAndTheEndDate(): void {
 		try {
-			$this->service->confirm(bodyId: 'body-1', rows: [], joining: [], leaving: [], batch: ' ', endDate: '', endReason: '');
+			$this->service->confirm(
+				bodyId: 'body-1',
+				request: [
+					'rows'      => [],
+					'joining'   => [],
+					'leaving'   => [],
+					'batch'     => ' ',
+					'endDate'   => '',
+					'endReason' => '',
+				]
+			);
 			$this->fail('An empty batch was accepted.');
 		} catch (\InvalidArgumentException $e) {
 			$this->assertSame('A batch label is required.', $e->getMessage());
@@ -258,7 +272,17 @@ class RosterTurnoverServiceTest extends TestCase {
 
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage('An end date (YYYY-MM-DD) is required for leaving members.');
-		$this->service->confirm(bodyId: 'body-1', rows: [], joining: [], leaving: ['m-dirk'], batch: 'b', endDate: '2026-02-30', endReason: '');
+		$this->service->confirm(
+			bodyId: 'body-1',
+			request: [
+				'rows'      => [],
+				'joining'   => [],
+				'leaving'   => ['m-dirk'],
+				'batch'     => 'b',
+				'endDate'   => '2026-02-30',
+				'endReason' => '',
+			]
+		);
 	}//end testConfirmValidatesTheBatchAndTheEndDate()
 
 	/**
