@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
+use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
@@ -101,6 +102,10 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Agenda placement waits for approval (routes-send-proposal-along-route,
+		// REQ-RSPR-001): a decision whose approval route has an open step is
+		// not placed on an agenda item.
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionAgendaClearanceGuard::class, 'schemas' => ['decision']],
 		// Planned-agenda rules (termijnagenda, REQ-LTA-001 and REQ-LTA-003):
 		// a portfolio holder as owner type names a person, and an item
 		// entering lapsed carries its reason, on create and on update.
