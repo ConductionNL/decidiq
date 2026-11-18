@@ -80,6 +80,7 @@ class VotingService implements VotingServiceInterface {
 	 * @param VotingRoundResults $results Tally + rule-aware result computation
 	 * @param VotingRoundProjection $projection Public projection state
 	 * @param ParticipantUuidLookup $participants Nextcloud UID -> participant UUID
+	 * @param RecordedVoteWriter|null $recordedVotes Records the members' choices on a roll call round.
 	 *
 	 * @return void
 	 *
@@ -92,6 +93,7 @@ class VotingService implements VotingServiceInterface {
 		private readonly VotingRoundResults $results,
 		private readonly VotingRoundProjection $projection,
 		private readonly ParticipantUuidLookup $participants,
+		private readonly ?RecordedVoteWriter $recordedVotes = null,
 	) {
 
 	}//end __construct()
@@ -288,6 +290,28 @@ class VotingService implements VotingServiceInterface {
 		);
 
 	}//end saveShowOfHandsTally()
+
+	/**
+	 * Record the members' choices on an open roll call round, or refuse the list as a whole.
+	 *
+	 * @param string                           $votingRoundId The round.
+	 * @param array<int, array<string, mixed>> $entries       `{participantId, value}` per member.
+	 * @param string|null                      $heldAt        When the vote was held, ISO 8601.
+	 * @param string                           $recordedBy    The caller's user id.
+	 *
+	 * @return array{votingRoundId: string, recorded: int}
+	 *
+	 * @throws RuntimeException When no writer is wired.
+	 *
+	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+	 */
+	public function recordNamedVotes(string $votingRoundId, array $entries, ?string $heldAt, string $recordedBy): array {
+		if ($this->recordedVotes === null) {
+			throw new RuntimeException('Recording votes by name is not available.');
+		}
+
+		return $this->recordedVotes->record(votingRoundId: $votingRoundId, entries: $entries, heldAt: $heldAt, recordedBy: $recordedBy);
+	}//end recordNamedVotes()
 
 	/**
 	 * Get public-state for a VotingRound for projection display.
