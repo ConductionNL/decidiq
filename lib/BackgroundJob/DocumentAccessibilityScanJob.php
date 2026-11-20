@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * breaks off is logged; the paper then stays `not-scanned` until it is
  * scanned on demand or at publication.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 class DocumentAccessibilityScanJob extends QueuedJob {
 
@@ -48,7 +48,7 @@ class DocumentAccessibilityScanJob extends QueuedJob {
 	 * @param ObjectServiceInterface           $objectService Reads the meeting, for its body.
 	 * @param LoggerInterface                  $logger        The logger.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 	 */
 	public function __construct(
 		ITimeFactory $time,
@@ -66,7 +66,7 @@ class DocumentAccessibilityScanJob extends QueuedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	protected function run($argument): void {
 		if (is_array($argument) === false) {
@@ -83,7 +83,7 @@ class DocumentAccessibilityScanJob extends QueuedJob {
 	 *
 	 * @return array<string, mixed>|null The report, or null when nothing was scanned.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	public function scan(array $argument): ?array {
 		$fileId   = (int)($argument['fileId'] ?? 0);

@@ -6,7 +6,7 @@
 // two guarded action endpoints. The server decides who may act; these calls
 // only report what it answered.
 //
-// @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+// @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
 
 import { generateUrl } from '@nextcloud/router'
 
@@ -25,7 +25,7 @@ const TERMINAL_STAGE_STATES = ['decided', 'skipped']
  * @param {object|null} decision The decision.
  * @param {Array<object>} stages Its route stages.
  * @return {{urgent: boolean, awaiting: boolean, stage: object|null, placementPending: boolean}} The state.
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
  */
 export function urgencyState(decision, stages = []) {
 	const urgent = decision?.isUrgent === true
@@ -49,7 +49,7 @@ export function urgencyState(decision, stages = []) {
  * @param {string} action `urgency` or `expedited-round`.
  * @param {object} body The JSON body.
  * @return {Promise<{ok: boolean, data: object}>} Whether it succeeded, and the answer.
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
  */
 export async function postUrgentAction(decisionId, action, body) {
 	const res = await fetch(

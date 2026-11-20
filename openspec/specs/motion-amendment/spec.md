@@ -217,6 +217,17 @@ Built after the fact (spec written 2026-10-07, matrix row mot-20, #1394): `lib/S
 - AND no entry is added to `amendmentHistory`
 - @e2e exclude proven by PHPUnit testApplyAmendmentRefusesAPassageThatIsNotInTheText
 
+### Requirement: An amendment can target a proposal as well as a motion
+
+A member SHALL be able to submit an amendment against a proposal on the agenda, a decision that is not a motion, in the same way as against a motion. The amendment SHALL be stored with a reference to that proposal and SHALL be listed on the proposal's page.
+
+#### Scenario: A member amends a proposal
+
+- **GIVEN** the proposal "Parking policy 2027" on the agenda of the council
+- **WHEN** a member submits an amendment with new text for one of its paragraphs
+- **THEN** the amendment is stored with a reference to that proposal and starts as a draft
+- **AND** the proposal's page lists the amendment with the difference against the proposal text
+
 ## User Stories
 
 1. **Member submitting a motion**: As a member, I want to submit a motion or proposal for the ALV agenda with supporting arguments so that my topic is formally discussed and voted on. (Source: intelligence DB #54)

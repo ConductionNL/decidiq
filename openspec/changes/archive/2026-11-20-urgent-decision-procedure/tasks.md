@@ -3,7 +3,7 @@
 ## Implementation Tasks
 
 ### Task 1: Register — Decision urgency fields, awaitingRatification calculation, Meeting deviation fields, notification rules
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/decision-management/spec.md#requirement-decision-urgency-fields`, `openspec/changes/urgent-decision-procedure/specs/decidesk-notifications/spec.md#requirement-urgency-notification-rules-in-the-verified-dialect`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/decision-management/spec.md#requirement-decision-urgency-fields`, `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/decidesk-notifications/spec.md#requirement-urgency-notification-rules-in-the-verified-dialect`
 - **files**: `lib/Settings/decidesk_register.json`
 - **acceptance_criteria**:
   - GIVEN the register after import WHEN the `decision` schema is inspected THEN `isUrgent`, `urgencyReason`, `urgencyDeclaredBy`, `urgencyDeclaredAt`, and the `awaitingRatification` calculation exist and the `x-openregister-lifecycle` block is unchanged
@@ -13,7 +13,7 @@
 - [x] Test (UrgencyRegisterFragmentTest; MaterialisedCalculationTest covers the calculation wiring)
 
 ### Task 2: ProcessTemplate urgencyPolicy fragment + fail-closed validation
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy`
 - **files**: `lib/Settings/register.d/46-urgency-policy.json`, `lib/Service/ProcessTemplateService.php`
 - **acceptance_criteria**:
   - GIVEN a template save with `responseDeadlineHours={min:96,max:12}` WHEN validated THEN HTTP 400 naming the inverted bounds
@@ -23,7 +23,7 @@
 - [x] Test (UrgencyPolicyValidatorTest, ProcessTemplateServiceTest)
 
 ### Task 3: Urgency trigger — guard, endpoint, field guard, audit
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration`
 - **files**: `lib/Lifecycle/UrgencyTriggerGuard.php`, `lib/Controller/DecisionController.php`, `appinfo/routes.php`
 - **acceptance_criteria**:
   - GIVEN an authorised chair WHEN POST `/api/decisions/{id}/urgency` with a reason THEN urgency fields are stored, the audit trail records the declaration, and lifecycle is unchanged
@@ -34,7 +34,7 @@
 - [x] Test (UrgencyTriggerGuardTest, UrgencyDeclarationServiceTest, UrgencyFieldGuardListenerTest, UrgentProcedureControllerTest)
 
 ### Task 4: Ratification orchestration — stage auto-append + agenda placement + reversal linking
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended`, `…#req-005-ratification-outcome-confirms-or-reverses`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended`, `…#req-005-ratification-outcome-confirms-or-reverses`
 - **files**: `lib/Service/UrgentRatificationService.php`
 - **acceptance_criteria**:
   - GIVEN a completed urgency declaration WHEN `ratificationRequired=true` THEN a `stageType=ratifying` stage assigned to the configured (or overridden) ratifying body is appended with the next sequence and counted by route progress
@@ -44,7 +44,7 @@
 - [x] Test (UrgentRatificationServiceTest, RatificationPlacementListenerTest)
 
 ### Task 5: Expedited written round with bounded hours deadline
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline`
 - **files**: `lib/Controller/DecisionController.php`, `lib/Service/UrgentRatificationService.php`, `appinfo/routes.php`
 - **acceptance_criteria**:
   - GIVEN bounds `{min:4,max:72}` WHEN POST `/api/decisions/{id}/expedited-round` with 24 THEN a VotingRound with `votingDeadline` = open+24h is created linked to the decisive stage, outcome derivation unchanged
@@ -53,7 +53,7 @@
 - [x] Test (ExpeditedRoundServiceTest)
 
 ### Task 6: Emergency convocation — shortened-notice deviation recording + floor enforcement
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations`
 - **files**: `lib/Service/BoardMeetingService.php`, `src/services/noticeRules.js`
 - **acceptance_criteria**:
   - GIVEN an `extraordinary` meeting 72h out with floor 48h WHEN the convocation is sent confirming shortened notice THEN per-recipient deliveries are recorded plus `shortenedNotice=true`, `actualNoticeHours=72`, and the deviation reason
@@ -63,7 +63,7 @@
 - [x] Test (ShortenedNoticeServiceTest, AgendaShortenedNoticeTest, AgendaPublishShortenedNoticeTest, tests/vitest/noticeShortenedNotice.spec.js)
 
 ### Task 7: UI — declare-urgency dialog, banner, list badge/filter, dashboard KPI
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi`
 - **files**: `src/dialogs/DeclareUrgencyDialog.vue`, `src/dialogs/ExpeditedRoundDialog.vue`, `src/components/decision/UrgencyBanner.vue`, decision list + dashboard views
 - **acceptance_criteria**:
   - GIVEN an urgent decision awaiting ratification WHEN its detail opens THEN the "urgent — awaiting ratification" banner (icon + text, CSS variables, lifecycle badge still visible) names the ratifying body
@@ -73,7 +73,7 @@
 - [x] Test (tests/vitest/urgencyState.spec.js; simpleDecisionPage/simpleListAndDashboard specs cover the new block, tile and filter; e2e `tests/e2e/urgent-decision-procedure.spec.ts`; API contract `tests/integration/decidiq-urgent-decision-procedure.postman_collection.json` (401/403/409/422, direct-write refusal, PUT carry-forward, hour bounds))
 
 ### Task 8: Seed data — municipal + corporate urgent procedures end-to-end
-- **spec_ref**: `openspec/changes/urgent-decision-procedure/design.md#seed-data`
+- **spec_ref**: `openspec/changes/archive/2026-11-20-urgent-decision-procedure/design.md#seed-data`
 - **files**: `lib/Settings/decidesk_register.json` (x-openregister-seeds), `lib/Settings/register.d/46-urgency-policy.json`
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN the register is listed THEN the municipal spoedbesluit (awaiting ratification, emergency `extraordinary` meeting with recorded deviation, ratification AgendaItem on the `regular` raadsvergadering) and the corporate urgent resolution (expedited 24h written round, ratified by RvC) exist per the design tables

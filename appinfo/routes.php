@@ -79,7 +79,7 @@ $extra = [
         ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
         // On-demand accessibility scan of one paper (document-accessibility-check REQ-001); reports stay on the OR object API.
-        // @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+        // @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
         ['name' => 'accessibility#scan', 'url' => '/api/accessibility/scan', 'verb' => 'POST'],
 
         // Approval routes (approval-routes) — instantiate a sign-off route against
@@ -186,7 +186,7 @@ $extra = [
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
         // Urgent decision procedure: declare urgency, open the expedited written round.
-        // @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+        // @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
         ['name' => 'urgentProcedure#declareUrgency',       'url' => '/api/decisions/{decisionId}/urgency',          'verb' => 'POST'],
         ['name' => 'urgentProcedure#expeditedRound', 'url' => '/api/decisions/{decisionId}/expedited-round', 'verb' => 'POST'],
 

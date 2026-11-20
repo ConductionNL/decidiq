@@ -117,7 +117,7 @@ class PublicationControllerResponsesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function testPublishPassesTheAccessibilityAnswerAndAnswers409(): void {
 		$passed = function ($mock): void {

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -46,7 +46,7 @@ use OCP\IUserSession;
  * meeting or role resolves. Chairs and secretaries are not Nextcloud
  * administrators, hence NoAdminRequired with the guard in the services.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
  */
 class UrgentProcedureController extends Controller {
 
@@ -79,7 +79,7 @@ class UrgentProcedureController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	#[NoAdminRequired]
 	public function declareUrgency(string $decisionId): JSONResponse {
@@ -115,7 +115,7 @@ class UrgentProcedureController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
 	 */
 	#[NoAdminRequired]
 	public function expeditedRound(string $decisionId): JSONResponse {

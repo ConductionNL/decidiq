@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Throwable;
  * remediation guidance, and the checks evaluated. A file that is too large,
  * not a PDF or not readable is `not-scanned`, never `pass`.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
  */
 class DocumentAccessibilityScanService {
 
@@ -136,7 +136,7 @@ class DocumentAccessibilityScanService {
 	 * @param ITimeFactory           $time          The clock.
 	 * @param LoggerInterface        $logger        The logger.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
 	 */
 	public function __construct(
 		private readonly PdfStructureInspector $inspector,
@@ -158,7 +158,7 @@ class DocumentAccessibilityScanService {
 	 *
 	 * @return array<string, mixed> The stored report.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
 	 */
 	public function scanFile(int $fileId, string $sourceObject, string $sourceSchema, ?string $governanceBody=null): array {
 		$node   = $this->fileNode(fileId: $fileId);
@@ -198,7 +198,7 @@ class DocumentAccessibilityScanService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
 	 */
 	public function evaluate(string $fileName, ?string $mimeType, int $size, callable $content): array {
 		$file = ['fileName' => $fileName, 'mimeType' => $mimeType, 'fileSize' => $size];
@@ -242,7 +242,7 @@ class DocumentAccessibilityScanService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
 	 */
 	public function latestReport(int $fileId): ?array {
 		$latest = null;
@@ -262,7 +262,7 @@ class DocumentAccessibilityScanService {
 	 *
 	 * @return string `pass`, `warnings` or `fail`.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
 	 */
 	public static function statusOf(array $findings): string {
 		$severities = array_column($findings, 'severity');
@@ -284,7 +284,7 @@ class DocumentAccessibilityScanService {
 	 *
 	 * @return string The guidance, in the user's language.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding
 	 */
 	public function guidance(string $code): string {
 		if (isset(self::GUIDANCE[$code]) === false) {

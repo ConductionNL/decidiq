@@ -208,7 +208,7 @@ class ProofPackageService implements ProofPackageServiceInterface {
 	 *
 	 * @return array<string, mixed> The minutes member.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
 	 */
 	private function buildMinutes(?array $minutes): array {
 		if ($minutes === null) {
@@ -251,7 +251,7 @@ class ProofPackageService implements ProofPackageServiceInterface {
 	 *
 	 * @return array{signed: bool, signedBy: array<int, string>} Whether they are signed, and by whom.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
 	 */
 	private function buildSignatures(?array $minutes): array {
 		$signers = [];

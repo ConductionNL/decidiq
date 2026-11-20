@@ -8,7 +8,7 @@
  chosen, and starts the picked one on the decision. The engine decides
  whether the caller may; its refusal is shown in the dialog.
 
- @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
 -->
 <template>
 	<NcDialog
@@ -92,7 +92,7 @@ export default {
 		/**
 		 * Start the chosen route and hand the stages to the page.
 		 *
-		 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+		 * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
 		 */
 		async send() {
 			if (!this.chosen) return

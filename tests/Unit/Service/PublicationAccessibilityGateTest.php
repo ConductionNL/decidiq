@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\PublicationRun
  * @uses   \OCA\Decidiq\Exception\AccessibilityGateException
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 class PublicationAccessibilityGateTest extends TestCase {
 
@@ -155,7 +155,7 @@ class PublicationAccessibilityGateTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function testARefusalPublishesNothing(): void {
 		$service = $this->service();
@@ -200,7 +200,7 @@ class PublicationAccessibilityGateTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function testAnOverrideIsRecordedOnThePublicationRecord(): void {
 		$service  = $this->service();

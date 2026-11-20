@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Throwable;
 /**
  * Checks and builds the shortened-notice deviation of an emergency convocation.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 class ShortenedNoticeService {
 
@@ -67,7 +67,7 @@ class ShortenedNoticeService {
 	 *
 	 * @throws InvalidArgumentException When the deviation is not allowed; nothing is sent then.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
 	 */
 	public function deviationFor(string $meetingId, array $meeting, string $reason): array {
 		if (($meeting['meetingType'] ?? '') !== 'extraordinary') {

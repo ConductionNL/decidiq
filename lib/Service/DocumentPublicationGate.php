@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use OCP\IUserSession;
 /**
  * The accessibility gate both publication paths consult, server-side.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 class DocumentPublicationGate {
 
@@ -70,7 +70,7 @@ class DocumentPublicationGate {
 	 * @param ITimeFactory                     $time        The clock.
 	 * @param AccessibilityOverrideLog|null    $overrideLog Keeps the countable record of each override for the aggregate report.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function __construct(
 		private readonly DocumentAccessibilityScanService $scanner,
@@ -86,7 +86,7 @@ class DocumentPublicationGate {
 	 *
 	 * @return string `off`, `warn` or `block`.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 	 */
 	public function mode(): string {
 		$mode = $this->appConfig->getValueString(AppIdentity::APP_ID, self::MODE_KEY, self::DEFAULT_MODE);
@@ -110,7 +110,7 @@ class DocumentPublicationGate {
 	 *
 	 * @throws AccessibilityGateException When the publication is held back.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function check(array $documents, array $consent=[]): ?array {
 		$mode    = $this->mode();

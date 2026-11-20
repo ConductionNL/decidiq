@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\IUserSession;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  */
 class UrgencyFieldGuardListener implements IEventListener {
 
@@ -74,7 +74,7 @@ class UrgencyFieldGuardListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
@@ -106,7 +106,7 @@ class UrgencyFieldGuardListener implements IEventListener {
 	 *
 	 * @return array{0: object, 1: array<string, mixed>}
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	private function entityAndOld(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
 		if ($event instanceof ObjectCreatingEvent) {
@@ -133,7 +133,7 @@ class UrgencyFieldGuardListener implements IEventListener {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	private function carried(array $new, array $old): ?array {
 		$carry = [];

@@ -282,7 +282,7 @@ class VotingBodyRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 	 */
 	public function testAMethodTheBodyDoesNotAllowIsRefusedBeforeAnythingIsWritten(): void {
 		$opener = $this->opener(meeting: [], body: ['allowedVotingMethods' => ['for-against-abstain', 'weighted']], present: 9, absent: 0);
@@ -306,7 +306,7 @@ class VotingBodyRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 	 */
 	public function testABodyWithoutAllowedMethodsAllowsEveryMethod(): void {
 		$this->open($this->opener(meeting: [], body: ['allowedVotingMethods' => []], present: 9, absent: 0), 'show-of-hands');

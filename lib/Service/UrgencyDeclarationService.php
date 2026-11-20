@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -43,7 +43,7 @@ use Throwable;
 /**
  * Runs the guarded urgency declaration.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  */
 class UrgencyDeclarationService {
 
@@ -88,7 +88,7 @@ class UrgencyDeclarationService {
 	 *
 	 * @return array{status: int, data: array<string, mixed>} The HTTP status and the body to answer with.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	public function declare(string $decisionId, string $userId, string $reason, ?string $bodyOverride=null): array {
 		try {
@@ -164,7 +164,7 @@ class UrgencyDeclarationService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	private function withRatification(object $objectService, string $decisionId, array $saved, array $policy, ?string $bodyOverride): array {
 		$override = null;

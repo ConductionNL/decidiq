@@ -178,7 +178,7 @@ class PublicationController extends Controller {
 	 *
 	 * @return array{acknowledged: bool, overrideReason: string|null}
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function accessibilityConsent(): array {
 		return (new AccessibilityConsent())->fromRequest(request: $this->request);

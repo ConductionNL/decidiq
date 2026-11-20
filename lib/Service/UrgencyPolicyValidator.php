@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ namespace OCA\Decidiq\Service;
  * cannot be honoured is refused at save rather than read loosely later, the
  * same fail-closed posture as the transition-graph validation.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
  */
 final class UrgencyPolicyValidator {
 
@@ -52,7 +52,7 @@ final class UrgencyPolicyValidator {
 	 *
 	 * @return string[] Human-readable errors.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 */
 	public function errors(mixed $policy, callable $bodyExists): array {
 		if (is_array($policy) === false || ($policy !== [] && array_is_list($policy) === true)) {

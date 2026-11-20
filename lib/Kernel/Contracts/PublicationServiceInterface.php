@@ -56,7 +56,7 @@ interface PublicationServiceInterface {
 	 *                                            `acknowledged` (bool) and `overrideReason` (string|null).
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 *

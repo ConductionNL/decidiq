@@ -36,7 +36,7 @@ use RuntimeException;
 /**
  * A proposal with an open approval step is not placed on the agenda.
  *
- * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
  */
 class DecisionAgendaClearanceGuardTest extends TestCase {
 

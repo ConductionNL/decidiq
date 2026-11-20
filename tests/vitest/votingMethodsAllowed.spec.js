@@ -6,7 +6,7 @@
  * offers only the methods the meeting's body allows. The helpers run for
  * real; the panel's stores are doubles that record what was read.
  *
- * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+ * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
  */
 
 import * as path from 'path'

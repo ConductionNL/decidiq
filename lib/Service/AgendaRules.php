@@ -95,7 +95,7 @@ final class AgendaRules {
 	 * @throws InvalidArgumentException When the item is informational or already at the final phase
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function bobTransition(array $itemData): array {
 		// Guard: informational items have no BOB phase.
@@ -123,7 +123,7 @@ final class AgendaRules {
 	 *
 	 * @return string The phase
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function phaseOf(array $itemData): string {
 		foreach (['phase', 'status'] as $key) {

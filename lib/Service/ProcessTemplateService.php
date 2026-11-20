@@ -406,7 +406,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When the policy cannot be honoured (HTTP 400 at the controller)
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return void
 	 */
@@ -427,7 +427,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 *
 	 * @param mixed $policy The `urgencyPolicy` value
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return string[] Human-readable errors
 	 */
@@ -443,7 +443,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 *
 	 * @param string $ref The governance body uuid
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return bool
 	 */
@@ -466,7 +466,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 *
 	 * @param string|null $governanceBodyId The governance body UUID, or null
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return array<string, mixed>|null The policy, or null when the procedure is unavailable
 	 */

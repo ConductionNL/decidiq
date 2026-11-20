@@ -1735,7 +1735,7 @@
 				"change": "2026-09-29-meeting-rules-from-body-and-type",
 				"readOn": "2026-09-29",
 				"requirement": [
-					"openspec/changes/capability-rows-get-requirements/specs/meeting-management :: A body limits which voting methods its meetings may use",
+					"openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management :: A body limits which voting methods its meetings may use",
 					"openspec/specs/meeting-management :: REQ-MRB-002 Votes follow the body rules"
 				],
 				"plan": "openspec/changes/capability-rows-get-requirements"
@@ -1779,7 +1779,7 @@
 				"evidence": "src/manifest.json setup wizard steps 'example-set' (optionsSource profiles) and 'load-example-set'; lib/Controller/SetupController.php:114-122 status lists profiles, :301-330 loadExampleSet() calls SeedProfileService::install(); lib/Settings/profiles/{municipality,association,corporate,works-council}.json",
 				"owner": "ConductionNL/decidiq",
 				"change": "seed-profiles",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/example-set-cards :: The setup wizard offers a ready set for each kind of organisation"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/example-set-cards :: The setup wizard offers a ready set for each kind of organisation"
 			},
 			"reachedOn": "First-run setup wizard, step 'Which kind of organisation is this for?' then 'Load the example data'",
 			"provider": "decidiq",
@@ -2398,7 +2398,7 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-templates-and-copy",
 				"readOn": "2026-09-29",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/agenda-builder :: Copy the whole agenda of an earlier meeting"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/agenda-builder :: Copy the whole agenda of an earlier meeting"
 			},
 			"reachedOn": "MeetingDetail Agenda widget -> Add from template or meeting -> From an earlier meeting; meeting series generation",
 			"provider": "decidiq",
@@ -2750,8 +2750,8 @@
 				"change": "agenda-item-phase-is-declared",
 				"requirement": [
 					"openspec/specs/agenda-live-management :: REQ-LIV-002 BOB phase is tracked per agenda item during the meeting",
-					"openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-010 The agenda item declares its phase",
-					"openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-011 The agenda item page shows the phase"
+					"openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-010 The agenda item declares its phase",
+					"openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-011 The agenda item page shows the phase"
 				],
 				"plan": "openspec/changes/agenda-item-phase-is-declared",
 				"readOn": "2026-10-30"
@@ -3001,12 +3001,12 @@
 			"decidiq": "no",
 			"built": {
 				"state": "specified",
-				"evidence": "openspec/changes/document-accessibility-check/ (proposal, design, tasks, specs) describes a PDF accessibility scan and publication gate; no code in lib/ or src/ (grep 'accessibility-check', 'pdf/ua')",
+				"evidence": "openspec/changes/archive/2026-11-20-document-accessibility-check/ (proposal, design, tasks, specs) describes a PDF accessibility scan and publication gate; no code in lib/ or src/ (grep 'accessibility-check', 'pdf/ua')",
 				"owner": "ConductionNL/decidiq",
 				"change": "document-accessibility-check",
 				"requirement": [
-					"openspec/changes/document-accessibility-check/specs/document-accessibility-check :: REQ-001 Heuristic accessibility scan of uploaded PDF documents",
-					"openspec/changes/document-accessibility-check/specs/document-accessibility-check :: REQ-003 Publication gate on failing documents with recorded override"
+					"openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check :: REQ-001 Heuristic accessibility scan of uploaded PDF documents",
+					"openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check :: REQ-003 Publication gate on failing documents with recorded override"
 				]
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
@@ -3643,7 +3643,7 @@
 				"evidence": "src/components/tabs/MotionAmendmentsTab.vue:210 creates decisionType 'amendment' with amends = the motion; widget motion-amendments on MotionDetail (src/manifest.json:899); AmendmentDetail page src/manifest.json:961 Missing (12 Nov 2026): MotionAmendmentsTab keys amendments on parentMotion and sits only on MotionDetail, so a proposal that is not a motion cannot be amended; planned in capability-rows-get-requirements task 4.",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/amendment-workflow",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/motion-amendment :: An amendment can target a proposal as well as a motion",
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/motion-amendment :: An amendment can target a proposal as well as a motion",
 				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), Amendments widget 'Submit amendment'; AmendmentDetail (/amendments/:id)",
@@ -5257,7 +5257,7 @@
 				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 POST /meetings/{meetingId}/proof-package -> lib/Service/ProofPackageService.php:91 assemble(): convocation, quorum snapshot with participants, vote tally and decision texts, SHA-256 over canonical JSON (:125), stored in the meeting folder. Missing (12 Nov 2026): ProofPackageService::assemble() bundles convocation, quorum snapshot, vote tally and decision texts, but not the minutes or the signatures; planned in capability-rows-get-requirements task 2.",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-06-12-minutes-ui-v1",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/resolution-minutes :: A meeting's evidence is bundled into one proof package",
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes :: A meeting's evidence is bundled into one proof package",
 				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget, proof package button (data-testid minutes-proof-package)",
@@ -5742,7 +5742,7 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "approval-routes-on-flow-user-tasks",
 				"requirement": [
-					"openspec/changes/routes-send-proposal-along-route/specs/approval-routes :: REQ-RSPR-001 A proposal is sent along a route from its page",
+					"openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes :: REQ-RSPR-001 A proposal is sent along a route from its page",
 					"openspec/specs/approval-routes :: REQ-AR-005 Recording an action advances the route"
 				]
 			},
@@ -5924,7 +5924,7 @@
 				"change": "urgent-decisions-register",
 				"requirement": [
 					"openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure :: REQ-020 The declaration records the declaring body or office",
-					"openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure :: REQ-005 Ratification outcome confirms or reverses"
+					"openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure :: REQ-005 Ratification outcome confirms or reverses"
 				]
 			},
 			"reachedOn": "Urgent decisions index (/urgent-decisions); setting a decision urgent only through the generic decision form, if at all",
@@ -7061,7 +7061,7 @@
 				"evidence": "lib/Settings/decidesk_register.json:553 GovernanceBody.bodyType enum includes 'citizen-panel', :618/:624 termStart/termEnd; Participant joinedAt/leftAt; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate; src/manifest.json GovernanceBodies /governance-bodies index + detail",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/p3-citizen-participation",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/p3-citizen-participation :: Staff set up a citizen panel with fixed members and a term"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/p3-citizen-participation :: Staff set up a citizen panel with fixed members and a term"
 			},
 			"reachedOn": "GovernanceBodies (/governance-bodies) index and detail, body type citizen-panel",
 			"provider": "decidiq",
@@ -8213,7 +8213,7 @@
 				"evidence": "lib/Controller/ApiController.php:64 RESOURCE_MAP (governance-bodies, persons, meetings, motions, voting-rounds, votes, agenda-items, minutes, decisions, action-items), :168 index(), :246 show(), :103 RESOURCE_WRITABLE (one writable resource), scope map :120; appinfo/routes.php:263-264,314-315; full CRUD also through OpenRegister's /apps/openregister/api/objects/decidiq/<schema>",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-05-11-p4-integration",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/p4-integration :: Records can be created and changed through the REST API"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/p4-integration :: Records can be created and changed through the REST API"
 			},
 			"reachedOn": "API only: /apps/decidiq/api/v1/{resource} and OpenRegister's objects API",
 			"provider": "decidiq",
@@ -8364,7 +8364,7 @@
 				"owner": "nextcloud/server",
 				"readOn": "2026-09-28",
 				"change": "2026-06-12-nc-platform-integration-v1",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/nextcloud-integration :: Meetings appear in Nextcloud's unified search"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/nextcloud-integration :: Meetings appear in Nextcloud's unified search"
 			},
 			"reachedOn": "Nextcloud unified search bar",
 			"provider": "nextcloud",
@@ -8437,7 +8437,7 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "seed-profiles",
 				"requirement": [
-					"openspec/changes/capability-rows-get-requirements/specs/first-time-setup :: The setup wizard guides an administrator through a fresh installation",
+					"openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/first-time-setup :: The setup wizard guides an administrator through a fresh installation",
 					"openspec/specs/first-time-setup :: Each example data card loads itself",
 					"openspec/specs/first-time-setup :: Setup status reports every manifest step"
 				]
@@ -10381,7 +10381,7 @@
 				"evidence": "src/manifest.json:714 DecisionIntegrations widget di-email (type integration, integrationId email) on the decision's integrations page; the registry hides it when the Mail app is absent (src/manifest.json:731 _note); legacy EmailLink objects migrated by 2026-06-10-migrate-email-links-to-email-leaf",
 				"change": "2026-06-10-migrate-email-links-to-email-leaf",
 				"spec": "openspec/specs/email-linking-via-email-leaf",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/email-linking-via-email-leaf :: A linked email can be read on the decision"
+				"requirement": "openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/email-linking-via-email-leaf :: A linked email can be read on the decision"
 			},
 			"feature": "app-integrations",
 			"notubiz": "unknown",

@@ -8,7 +8,7 @@
   Icon and text, CSS variables only. It also offers the two guarded actions:
   declare urgent, and open the expedited written round.
 
-  @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
+  @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
 -->
 <template>
 	<div class="urgency-banner" data-testid="urgency-banner">
@@ -113,7 +113,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi */
+		/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi */
 		state() {
 			return urgencyState(this.decision, this.stages)
 		},
@@ -122,7 +122,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi */
+			/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi */
 			handler() {
 				this.load()
 			},
@@ -134,7 +134,7 @@ export default {
 		 * Read the decision, its route and the ratification's body and meeting.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
 		 */
 		async load() {
 			if (!this.objectId) return
@@ -153,7 +153,7 @@ export default {
 		 * The ratifying body's name and the meeting the ratification is on.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+		 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
 		 */
 		async loadPlacement() {
 			const stage = this.state.stage
@@ -181,7 +181,7 @@ export default {
 
 		/**
 		 * @param {string} name `declare` or `round`.
-		 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+		 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
 		 */
 		openDialog(name) {
 			this.error = ''
@@ -189,7 +189,7 @@ export default {
 			this.dialog = name
 		},
 
-		/** @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md */
+		/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md */
 		closeDialog() {
 			this.dialog = ''
 			this.error = ''
@@ -201,7 +201,7 @@ export default {
 		 * @param {string} action `urgency` or `expedited-round`.
 		 * @param {object} body The request body.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+		 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
 		 */
 		async submit(action, body) {
 			this.saving = true

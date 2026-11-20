@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -42,7 +42,7 @@ use Throwable;
 /**
  * Appends and places the ratification of an urgent decision.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
  */
 class UrgentRatificationService {
 
@@ -87,7 +87,7 @@ class UrgentRatificationService {
 	 *
 	 * @throws RuntimeException When no ratifying body is known or a write fails.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
 	 */
 	public function appendRatification(object $objectService, array $decision, array $policy, ?string $bodyOverride=null): ?array {
 		if (($policy['ratificationRequired'] ?? true) === false) {
@@ -143,7 +143,7 @@ class UrgentRatificationService {
 	 *
 	 * @return int The number of ratifications placed.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
 	 */
 	public function placePending(object $objectService, array $meeting): int {
 		$body = self::refOf(value: ($meeting['governanceBody'] ?? null));
@@ -189,7 +189,7 @@ class UrgentRatificationService {
 	 *
 	 * @return array<string, mixed>|null The meeting.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
 	 */
 	public function nextRegularMeeting(object $objectService, string $bodyId): ?array {
 		$meetings = $this->rows(result: $objectService->findAll(['filters' => [
@@ -382,7 +382,7 @@ class UrgentRatificationService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended
 	 */
 	public static function idOf(array $row): string {
 		foreach ([($row['@self']['id'] ?? null), ($row['id'] ?? null), ($row['uuid'] ?? null)] as $candidate) {

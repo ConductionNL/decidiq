@@ -6,7 +6,7 @@
 // detail-page widgets, this one sits on a report dashboard. Dynamic imports,
 // for the same reason as there: Vitest has no SFC transform.
 //
-// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period
+// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period
 
 /**
  * Register the report widgets. Resolve before mount: the dashboard looks a

@@ -6,7 +6,7 @@
  * publication gate reads and the scan-on-upload switch the upload listener
  * reads, as the section shows and writes them.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 
 import fs from 'fs'

@@ -501,7 +501,7 @@ class ProcessTemplateServiceTest extends TestCase {
 	/**
 	 * create() refuses an urgency policy with inverted bounds, naming them, and persists nothing.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return void
 	 */
@@ -522,7 +522,7 @@ class ProcessTemplateServiceTest extends TestCase {
 	/**
 	 * create() refuses a ratifying body the register does not hold, and one whose lookup fails.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return void
 	 */
@@ -552,7 +552,7 @@ class ProcessTemplateServiceTest extends TestCase {
 	/**
 	 * update() checks the urgency policy too; a valid one, or none, saves.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return void
 	 */
@@ -579,7 +579,7 @@ class ProcessTemplateServiceTest extends TestCase {
 	/**
 	 * A body's urgency policy resolves only when its template carries a valid one (fail closed).
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 *
 	 * @return void
 	 */

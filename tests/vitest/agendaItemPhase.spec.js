@@ -7,7 +7,7 @@
  * shows it as a stage line, as DcAgendapunt draws it. This repo's vitest
  * cannot mount a `.vue` file, so the wiring is asserted against the sources.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md
  */
 
 import { readFileSync } from 'node:fs'

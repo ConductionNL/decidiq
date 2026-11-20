@@ -22,7 +22,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,7 +45,7 @@ use Throwable;
 /**
  * Copies an agenda item's phase from the undeclared `status` to `phase`, once.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
  */
 class MoveAgendaItemStatusToPhase implements IRepairStep {
 
@@ -84,7 +84,7 @@ class MoveAgendaItemStatusToPhase implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function getName(): string {
 		return 'Move the agenda item phase from status to phase';
@@ -97,7 +97,7 @@ class MoveAgendaItemStatusToPhase implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function run(IOutput $output): void {
 		$moved = 0;

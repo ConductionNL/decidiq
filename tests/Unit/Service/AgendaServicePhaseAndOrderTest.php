@@ -116,7 +116,7 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function testTheDeclaredPhaseWinsOverALegacyStatus(): void {
 		$item = $this->createMock(ObjectEntity::class);
@@ -138,7 +138,7 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function testALegacyStatusPhaseStillAdvances(): void {
 		$item = $this->createMock(ObjectEntity::class);

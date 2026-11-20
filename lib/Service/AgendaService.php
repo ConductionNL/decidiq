@@ -149,7 +149,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * (see AgendaServiceInterface::publishAgenda()); nothing is written then.
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function publishAgenda(string $meetingId, ?string $noticeReason=null, array $accessibility=[]): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
@@ -254,7 +254,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @throws InvalidArgumentException When item is informational or already at final phase
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function advanceBobPhase(string $agendaItemId): void {
 		$item = $this->objectService->find($agendaItemId);

@@ -321,7 +321,7 @@ class RegisterDescriptorTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function testTheAgendaItemDeclaresItsPhase(): void {
 		$agendaItem = ($this->descriptor['components']['schemas']['AgendaItem'] ?? []);

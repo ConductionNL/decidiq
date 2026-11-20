@@ -7,7 +7,7 @@
  and how to fix it in the source document; a file not checked yet can be
  checked now (POST /api/accessibility/scan).
 
- @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding
+ @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding
 -->
 <template>
 	<div class="decidiq-document-accessibility" data-testid="document-accessibility">

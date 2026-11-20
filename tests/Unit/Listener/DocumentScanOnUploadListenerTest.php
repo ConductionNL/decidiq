@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -56,7 +56,7 @@ use Psr\Log\NullLogger;
  * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
  * @uses   \OCA\Decidiq\Listener\Registrar\TaskProcessingEventRegistrar
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
  */
 class DocumentScanOnUploadListenerTest extends TestCase {
 
@@ -157,7 +157,7 @@ class DocumentScanOnUploadListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	public function testAPdfOnAnAgendaItemQueuesAScan(): void {
 		$this->listener()->handle(event: new NodeCreatedEvent($this->file(name: 'Raadsvoorstel.PDF', folder: self::ITEM)));
@@ -183,7 +183,7 @@ class DocumentScanOnUploadListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 	 */
 	public function testSwitchedOffQueuesNothing(): void {
 		foreach (['false', '0', 'off'] as $stored) {

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 /**
  * Authorises an urgency declaration against the body's urgency policy.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
  */
 class UrgencyTriggerGuard {
 
@@ -68,7 +68,7 @@ class UrgencyTriggerGuard {
 	 *
 	 * @return array{status: int, message: string}|null The refusal, or null.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	public function refusal(?array $policy, ?string $meetingId, ?string $chairUserId, string $userId, string $reason): ?array {
 		if ($policy === null) {
@@ -101,7 +101,7 @@ class UrgencyTriggerGuard {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 	 */
 	public function mayTrigger(array $policy, ?string $meetingId, ?string $chairUserId, string $userId): bool {
 		if ($userId === '' || $meetingId === null || $meetingId === '') {
