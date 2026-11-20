@@ -2,6 +2,10 @@
 kind: code
 ---
 
+> **Superseded in part (20 Nov).** Before this change was built, `AuditLogService` was repointed at
+> OpenRegister's audit trail, which chains rows platform-side; `append()` now reads nothing back.
+> The requirement was restated to that stronger invariant and pinned with tests. See `tasks.md`.
+
 ## Why
 
 `AuditLogService::append()` — the write path invoked for **every** governance action logged to
