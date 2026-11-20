@@ -38,8 +38,8 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\DestructionCertificateRendererInterface;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Service\SystemObjectStore;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IL10N;
@@ -289,22 +289,6 @@ class DestructionCertificateRenderer implements DestructionCertificateRendererIn
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(
-			id: $id,
-			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
-			_rbac: false,
-			_multitenancy: false
-		);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['id'], $data['@self']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 }//end class

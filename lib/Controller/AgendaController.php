@@ -114,7 +114,14 @@ class AgendaController extends Controller {
 		}
 
 		try {
-			$this->agendaService->publishAgenda($meetingId);
+			// An emergency convocation below the regular notice period records its
+			// deviation (urgent-decision-procedure, meeting-management delta).
+			$reason = null;
+			if (filter_var($this->request->getParam('shortenedNotice', false), FILTER_VALIDATE_BOOLEAN) === true) {
+				$reason = (string)$this->request->getParam('noticeDeviationReason', '');
+			}
+
+			$this->agendaService->publishAgenda($meetingId, $reason);
 			return new JSONResponse(['success' => true]);
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);

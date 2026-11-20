@@ -10,7 +10,7 @@
   - GIVEN a member WHEN he lists paper summaries THEN only `shown` ones return
   - GIVEN a `draft` summary WHEN someone saves it as `requested` THEN OpenRegister rejects the transition
 - [x] Implement (fragment 119, not 92: 92 was taken; seeds on the existing budget item `begroting-2026-bespreking` and its papers, not a new Begroting 2027 item; `reviewedBy` holds the clerk's display name)
-- [ ] Test (Newman: member and clerk read the same collection and get different counts) (code exists, test missing: no Newman collection for paper summaries in tests/integration; live pass, decision 139)
+- [ ] Test (Newman: member and clerk read the same collection and get different counts; `tests/integration/decidiq-paper-summaries.postman_collection.json`, written, not run: needs the live instance. It seeds a `decidesk-members` probe user, an agenda item and two summaries, asserts the clerk lists 2 and the member only the shown one, and that a draft cannot be saved back to requested)
 
 ### Task 2: Request a summary or a comparison
 - **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper`

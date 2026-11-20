@@ -187,6 +187,20 @@
 				<span @dragover.prevent @drop.prevent="onDrop(row)">{{
 					value
 				}}</span>
+				<span
+					v-if="annotationCount(row.id) > 0"
+					class="decidiq-tab__annotation-badge"
+					:data-testid="`agenda-annotation-count-${row.id}`">
+					{{
+						n(
+							'decidiq',
+							'{count} note',
+							'{count} notes',
+							annotationCount(row.id),
+							{ count: annotationCount(row.id) },
+						)
+					}}
+				</span>
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -275,6 +289,7 @@ import {
 	missingStatutoryItems,
 	moveAgendaItem,
 } from '../../services/agendaRules.js'
+import { useAnnotationStore } from '../../store/annotation.js'
 import {
 	itemsFromMeeting,
 	itemsFromTemplate,
@@ -288,7 +303,9 @@ import {
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
+import { countOf } from '../../utils/annotations.js'
 import { formalityUrl } from '../../utils/formalities.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -419,6 +436,9 @@ export default {
 			loading: false,
 			error: '',
 			rawRows: [],
+			// Agenda item id → annotations the caller may see on its papers
+			// (document-annotations, REQ-ANN-005), one request per meeting.
+			annotationCounts: {},
 			meeting: null,
 			agendaSchema: null,
 			// uuid → name for the agenda-item types this instance has configured.
@@ -629,6 +649,8 @@ export default {
 			this.error = ''
 			try {
 				this.rawRows = agendaRows(await this.fetchAgendaItems())
+				// Not awaited: the badges are a hint, the agenda is the page.
+				this.loadAnnotationCounts()
 				await this.loadMeeting()
 			} catch (e) {
 				this.error =
@@ -661,6 +683,26 @@ export default {
 			// they arrive and the agenda never waits for them.
 			this.loadItemTypes()
 			return items
+		},
+
+		/**
+		 * Read the annotation counts of this meeting's agenda items in one
+		 * request. The server counts only what the caller may see; a failure
+		 * leaves no badges.
+		 *
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-005-annotation-counts-on-agenda-item-rows
+		 */
+		async loadAnnotationCounts() {
+			this.annotationCounts = { ...(await useAnnotationStore().loadCounts(this.objectId)) }
+		},
+
+		/**
+		 * @param {string} itemId The agenda item.
+		 * @return {number} Its annotation count, 0 for none.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-005-annotation-counts-on-agenda-item-rows
+		 */
+		annotationCount(itemId) {
+			return countOf(this.annotationCounts, itemId)
 		},
 
 		/**
@@ -808,7 +850,7 @@ export default {
 			try {
 				const store = ensureRelationType('agenda-item')
 				for (const item of items) {
-					await store.saveObject('agenda-item', item)
+					await saveOrThrow(store, 'agenda-item', item)
 				}
 				this.copyOpen = false
 				this.copyNotice = this.t('decidiq', 'Agenda items added: {count}.', {
@@ -836,7 +878,8 @@ export default {
 			try {
 				const name =
 					this.meeting?.title || this.t('decidiq', 'Agenda template')
-				await ensureRelationType('agenda-template').saveObject(
+				await saveOrThrow(
+					ensureRelationType('agenda-template'),
 					'agenda-template',
 					templateFromItems(name, this.rawRows),
 				)
@@ -1120,7 +1163,7 @@ export default {
 			}
 			const store = ensureRelationType('agenda-item')
 			try {
-				await store.saveObject('agenda-item', {
+				await saveOrThrow(store, 'agenda-item', {
 					...formData,
 					typeFields: this.formTypeFields,
 					meeting: this.objectId,
@@ -1158,6 +1201,16 @@ export default {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
+}
+
+.decidiq-tab__annotation-badge {
+	margin-inline-start: var(--default-grid-baseline);
+	padding: 0 var(--default-grid-baseline);
+	border-radius: var(--border-radius-pill);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text, var(--color-main-text));
+	font-size: var(--font-size-small, 13px);
+	white-space: nowrap;
 }
 
 .decidiq-tab__order {

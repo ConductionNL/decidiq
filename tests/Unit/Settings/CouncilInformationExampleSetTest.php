@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Settings;
 
+use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 
@@ -66,13 +67,17 @@ class CouncilInformationExampleSetTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private function mergedSchema(string $slug): array {
-		$files  = array_merge([self::SETTINGS . 'decidesk_register.json'], (glob(self::SETTINGS . 'register.d/*.json') ?: []));
+		$fragments = (glob(self::SETTINGS . 'register.d/*.json') ?: []);
+		sort($fragments);
+		$files  = array_merge([self::SETTINGS . 'decidesk_register.json'], $fragments);
 		$schema = [];
 		foreach ($files as $file) {
 			$doc = json_decode((string)file_get_contents($file), true);
 			foreach (($doc['components']['schemas'] ?? []) as $name => $fragment) {
 				if (($fragment['slug'] ?? $name) === $slug) {
-					$schema = array_replace_recursive($schema, $fragment);
+					// Merged as the app merges fragments: lists concatenate, so an enum widened
+					// by a later fragment keeps the values an earlier one declared.
+					$schema = RegisterFragmentMerger::deepMerge(base: $schema, overlay: $fragment);
 				}
 			}
 		}

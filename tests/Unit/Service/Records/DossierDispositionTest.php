@@ -68,6 +68,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @covers \OCA\Decidiq\Service\Records\DossierCategory
  * @covers \OCA\Decidiq\Service\Records\ArchivistGuard
  * @covers \OCA\Decidiq\Exception\DossierRefusedException
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class DossierDispositionTest extends TestCase {
 

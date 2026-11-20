@@ -45,6 +45,7 @@ class GovernanceControllerTraitTest extends TestCase {
 				requireUserOr401 as public;
 				bodyParams as public;
 				respondFromResult as public;
+				refused as public;
 			}
 		};
 
@@ -125,4 +126,20 @@ class GovernanceControllerTraitTest extends TestCase {
 		$this->assertSame(['message' => 'Operation failed.'], $response->getData());
 
 	}//end testRespondFromResultTreatsAMissingSuccessFlagAsFailure()
+
+	public function testRefusedAnswersTheResultMessageAs422ByDefault(): void {
+		$response = $this->host->refused(['success' => false, 'message' => 'Not allowed now.']);
+
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+		$this->assertSame(['message' => 'Not allowed now.'], $response->getData());
+
+	}//end testRefusedAnswersTheResultMessageAs422ByDefault()
+
+	public function testRefusedAnswersTheGivenStatus(): void {
+		$response = $this->host->refused(['success' => false, 'message' => 'Decision not found.'], Http::STATUS_NOT_FOUND);
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertSame(['message' => 'Decision not found.'], $response->getData());
+
+	}//end testRefusedAnswersTheGivenStatus()
 }//end class

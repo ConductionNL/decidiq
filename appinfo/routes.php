@@ -53,8 +53,13 @@ $extra = [
         ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
         ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
         ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
+        // The room's conference and voting system through integriq (live-room-conference-system-link, REQ-RCSL-001, REQ-RCSL-006).
+        ['name' => 'roomSystem#meeting',        'url' => '/api/meetings/{id}/room-system',              'verb' => 'GET'],
+        ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
+        // The long-term agenda as a formatted report (planning-long-term-agenda-tracks-and-report, REQ-LTAT-004).
+        ['name' => 'plannedAgendaReport#create', 'url' => '/api/planned-agenda/report', 'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
         // The decision type vocabulary, edited from the admin settings page (decision-types-as-configuration 4.2).
@@ -68,6 +73,10 @@ $extra = [
         ['name' => 'publication#publish',  'url' => '/api/publications',                     'verb' => 'POST'],
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
+        // Theme pages (publication-theme-pages, REQ-THP-002): the staff timeline of a theme.
+        // Theme CRUD and its links stay on the OpenRegister object API (ADR-022).
+        // @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+        ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
         // Approval routes (approval-routes) — instantiate a sign-off route against
         // a subject, and record an action on it. Two DISTINCT route names: a
@@ -137,6 +146,8 @@ $extra = [
         ['name' => 'minutesCorrection#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}', 'verb' => 'PUT'],
         ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
         ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
+        // works-council-consultation (REQ-WCC-005): the formal advice or consent document of a WOR traject (works council chair, secretary or admin).
+        ['name' => 'worksCouncilConsultation#generateResponseDocument', 'url' => '/api/works-council-consultations/{id}/response-document', 'verb' => 'POST'],
 
         // Notarial proof package (minutes-ui-v1) — chair/secretary gated.
         // @spec openspec/specs/resolution-minutes/spec.md
@@ -162,6 +173,10 @@ $extra = [
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+        // Urgent decision procedure: declare urgency, open the expedited written round.
+        // @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+        ['name' => 'urgentProcedure#declareUrgency',       'url' => '/api/decisions/{decisionId}/urgency',          'verb' => 'POST'],
+        ['name' => 'urgentProcedure#expeditedRound', 'url' => '/api/decisions/{decisionId}/expedited-round', 'verb' => 'POST'],
 
         // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
         // @spec openspec/specs/decidesk-contract-decision-hub/spec.md
@@ -175,17 +190,34 @@ $extra = [
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
+        // Meeting pack (board book): compile is chair/secretary gated, status is for the meeting's participants.
+        ['name' => 'boardBook#compile', 'url' => '/api/meetings/{id}/board-book', 'verb' => 'POST'],
+        ['name' => 'boardBook#status', 'url' => '/api/meetings/{id}/board-book/status', 'verb' => 'GET'],
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
         ['name' => 'guestInvitation#invite',  'url' => '/api/meetings/{id}/guests',  'verb' => 'POST'],
         // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.
+        // governing-documents-register (REQ-GDR-004): the version of a governing document in force on a date.
+        ['name' => 'governingDocument#inForce', 'url' => '/api/governing-documents/{id}/in-force', 'verb' => 'GET'],
+        // governing-documents-register (REQ-GDR-005): the decisions citing a governing document.
+        ['name' => 'governingDocument#citedBy', 'url' => '/api/governing-documents/{id}/cited-by', 'verb' => 'GET'],
+        // governing-documents-register (REQ-GDR-007): the public view of a document marked public.
+        ['name' => 'governingDocument#publicView', 'url' => '/api/public/governing-documents/{id}', 'verb' => 'GET'],
         ['name' => 'mandateSubstitution#seats',           'url' => '/api/meetings/{meetingId}/seats', 'verb' => 'GET'],
         ['name' => 'mandateSubstitution#substitute',      'url' => '/api/meetings/{meetingId}/substitutions', 'verb' => 'POST'],
         ['name' => 'mandateSubstitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
         // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
         ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
+        // agenda-paper-watermark REQ-WMK-002: open a paper, stamped with the reader's name when the meeting asks for it.
+        ['name' => 'paper#view', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/view', 'verb' => 'GET'],
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
+        // Named portal readers of a confidential item (portal-voting-record-and-confidential-papers REQ-PSH-002).
+        ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
+        ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
+        // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.
+        ['name' => 'teams_meeting#status', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'GET'],
+        ['name' => 'teams_meeting#create', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'POST'],
         // live-public-livestream (REQ-LSTR-002 to REQ-LSTR-004): test, go live, pause, resume and stop a meeting's broadcast.
         ['name' => 'broadcast#status',     'url' => '/api/meetings/{meetingId}/broadcast',       'verb' => 'GET'],
         ['name' => 'broadcast#test',       'url' => '/api/meetings/{meetingId}/broadcast/test',  'verb' => 'POST'],
@@ -196,6 +228,16 @@ $extra = [
         ['name' => 'broadcast#stop',       'url' => '/api/meeting-broadcasts/{id}/stop',         'verb' => 'POST'],
         ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
         ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
+
+        // inspreekrecht-plenair (REQ-INS-004/005): register to speak, and the secretariat's moderation.
+        ['name' => 'speakingRequest#create',  'url' => '/api/speaking-requests',               'verb' => 'POST'],
+        ['name' => 'speakingRequest#approve', 'url' => '/api/speaking-requests/{id}/approve',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#reject',  'url' => '/api/speaking-requests/{id}/reject',   'verb' => 'POST'],
+        ['name' => 'speakingRequest#refer',   'url' => '/api/speaking-requests/{id}/refer',    'verb' => 'POST'],
+        ['name' => 'speakingRequest#outcome', 'url' => '/api/speaking-requests/{id}/outcome',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#agenda',  'url' => '/api/meetings/{meetingId}/speaking-slots',        'verb' => 'GET'],
+        ['name' => 'speakingRequest#publicAgenda', 'url' => '/api/meetings/{meetingId}/speaking-slots/public', 'verb' => 'GET'],
+        ['name' => 'speakingRequest#queue',   'url' => '/api/meetings/{meetingId}/speaking-queue',        'verb' => 'GET'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
@@ -234,6 +276,9 @@ $extra = [
         ['name' => 'changeRecommendation#reject', 'url' => '/api/change-recommendations/{id}/reject', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // voting-named-paper-vote-entry: the chair or secretary records a roll call by name.
+        // Its own path: recorded-votes is the paper-vote entry of any public round (paperVote#record).
+        ['name' => 'namedVotes#record', 'url' => '/api/voting-rounds/{id}/named-votes',    'verb' => 'POST'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
@@ -428,6 +473,17 @@ $extra = [
         ['name' => 'participationBudget#publishBudgetResults',  'url' => '/api/participation/budgets/{budgetId}/publish',                     'verb' => 'POST'],
         ['name' => 'participationBudget#validateProposal',      'url' => '/api/participation/proposals/{proposalId}/validate',                'verb' => 'POST'],
         ['name' => 'participationBudget#castAdvisoryVote',      'url' => '/api/participation/proposals/{proposalId}/vote',                    'verb' => 'POST'],
+        // Document annotations: every read filtered by who may see each one,
+        // every change the author's alone (AnnotationVisibilityService). The
+        // literal `export` and `own` routes come before `{id}` so they win.
+        // @spec openspec/changes/document-annotations/specs/document-annotations/spec.md
+        ['name' => 'annotation#index',      'url' => '/api/documents/{fileId}/annotations',         'verb' => 'GET',    'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#create',     'url' => '/api/documents/{fileId}/annotations',         'verb' => 'POST',   'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#counts',     'url' => '/api/meetings/{meetingId}/annotation-counts', 'verb' => 'GET'],
+        ['name' => 'annotation#export',     'url' => '/api/annotations/export',                    'verb' => 'GET'],
+        ['name' => 'annotation#destroyOwn', 'url' => '/api/annotations/own',                       'verb' => 'DELETE'],
+        ['name' => 'annotation#update',     'url' => '/api/annotations/{id}',                      'verb' => 'PUT'],
+        ['name' => 'annotation#destroy',    'url' => '/api/annotations/{id}',                      'verb' => 'DELETE'],
 ];
 
 // Preferred path: the OpenRegister AppHost owns the canonical route table.

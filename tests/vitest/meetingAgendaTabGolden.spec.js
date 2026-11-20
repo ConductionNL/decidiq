@@ -19,6 +19,7 @@ import * as agendaCopy from '../../src/utils/agendaCopy.js'
 import * as agendaItemTypeFields from '../../src/utils/agendaItemTypeFields.js'
 import * as agendaPublication from '../../src/utils/agendaPublication.js'
 import * as formalities from '../../src/utils/formalities.js'
+import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 const FILE = path.resolve(
@@ -106,6 +107,11 @@ function tab(answers) {
 		'../../utils/agendaItemTypeFields.js': agendaItemTypeFields,
 		'../../utils/agendaPublication.js': agendaPublication,
 		'../../utils/formalities.js': formalities,
+		'../../utils/annotations.js': { countOf: () => 0 },
+		'../../store/annotation.js': {
+			useAnnotationStore: () => ({ loadCounts: async () => ({}) }),
+		},
+		'../../utils/saveOrThrow.js': saveOrThrowModule,
 		'./jsonRequests.js': jsonRequests,
 		'./useRelationStore.js': { ensureRelationType: store },
 	}

@@ -35,6 +35,9 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @covers \OCA\Decidiq\Service\OnboardingStepEffects
  * @covers \OCA\Decidiq\Service\OnboardingStepRules
  * @covers \OCA\Decidiq\Controller\OnboardingController
+ * @uses   \OCA\Decidiq\Exception\OnboardingStepRefusedException
+ * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  */
 final class OnboardingChecklistServiceTest extends TestCase {
 

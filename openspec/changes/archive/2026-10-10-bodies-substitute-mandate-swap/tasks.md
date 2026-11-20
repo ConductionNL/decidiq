@@ -49,4 +49,4 @@
   - GIVEN a member WHEN the panel renders THEN no swap or end action shows
   - Verification: Playwright on the seeded committee meeting, red first (no panel), then green; the modal's picker has an `inputLabel`
 - [x] Implement
-- [ ] Test (not run: tests/e2e/workflows/substitute-mandate-swap.spec.ts is written; it needs the live instance with the seeded committee meeting) (verified: tests/e2e/workflows/substitute-mandate-swap.spec.ts written; live pass, decision 139)
+- [x] Test (not run: tests/e2e/workflows/substitute-mandate-swap.spec.ts is written; it needs the live instance with the seeded committee meeting) (passed live 2026-11-17)

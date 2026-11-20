@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Command;
 
-use OCA\Decidiq\Service\Forms\FormResponseImportService;
+use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,12 +42,12 @@ class ImportFormResponses extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param FormResponseImportService $import The form response import.
+	 * @param FormResponseImportServiceInterface $import The form response import.
 	 *
 	 * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
 	 */
 	public function __construct(
-		private readonly FormResponseImportService $import,
+		private readonly FormResponseImportServiceInterface $import,
 	) {
 		parent::__construct();
 	}//end __construct()

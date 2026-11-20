@@ -42,6 +42,13 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 class OriFeedService implements OriFeedServiceInterface {
 
 	/**
+	 * Confidentiality restriction states that keep their target out of public view.
+	 *
+	 * @var list<string>
+	 */
+	private const RESTRICTION_ACTIVE = ['imposed', 'ratified'];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService Reads decidiq's objects.
@@ -115,9 +122,11 @@ class OriFeedService implements OriFeedServiceInterface {
 			}
 		}
 
+		$withheld = $this->withheldDocuments();
+
 		$items = [];
 		foreach ($this->objects(schema: 'digital-document') as $document) {
-			if (isset($attached[(string)$document['id']]) === false) {
+			if (isset($attached[(string)$document['id']]) === false || $this->isWithheld(document: $document, withheld: $withheld) === true) {
 				continue;
 			}
 
@@ -132,6 +141,73 @@ class OriFeedService implements OriFeedServiceInterface {
 
 		return $this->rss->render(title: 'Documents', description: 'Documents of public meetings', items: $items);
 	}//end documents()
+
+	/**
+	 * The documents an imposed or ratified confidentiality restriction keeps out:
+	 * its own target, and the papers of a restricted agenda item.
+	 *
+	 * Read on every render, so a restriction imposed a minute ago already holds.
+	 * A read that fails throws, and the controller then answers 500 with an
+	 * empty body: the feed fails closed, it never lists a document unchecked.
+	 *
+	 * @return array<string, true> The withheld document ids.
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release
+	 */
+	private function withheldDocuments(): array {
+		$documents = [];
+		$items     = [];
+		foreach ($this->objects(schema: 'confidentiality-restriction') as $restriction) {
+			if (in_array((string)($restriction['lifecycle'] ?? ''), self::RESTRICTION_ACTIVE, true) === false) {
+				continue;
+			}
+
+			$document = (string)($restriction['targetDocument'] ?? '');
+			if ($document !== '') {
+				$documents[$document] = true;
+			}
+
+			$item = (string)($restriction['targetAgendaItem'] ?? '');
+			if ($item !== '') {
+				$items[$item] = true;
+			}
+		}
+
+		if ($items === []) {
+			return $documents;
+		}
+
+		foreach ($this->objects(schema: 'agenda-item') as $item) {
+			if (isset($items[(string)$item['id']]) === false) {
+				continue;
+			}
+
+			foreach ((array)($item['documents'] ?? []) as $uuid) {
+				$documents[(string)$uuid] = true;
+			}
+		}
+
+		return $documents;
+	}//end withheldDocuments()
+
+	/**
+	 * Whether a document stays out of the public feed: under a restriction, or under an embargo not yet released.
+	 *
+	 * @param array<string,mixed> $document The stored DigitalDocument.
+	 * @param array<string, true> $withheld The document ids the restrictions keep out.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release
+	 */
+	private function isWithheld(array $document, array $withheld): bool {
+		if (isset($withheld[(string)$document['id']]) === true) {
+			return true;
+		}
+
+		// An embargoed document is for its audience only until the release job clears the flag.
+		return in_array(($document['embargoActive'] ?? false), [true, 'true', 1, '1'], true);
+	}//end isWithheld()
 
 	/**
 	 * Meetings marked public.

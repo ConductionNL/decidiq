@@ -16,6 +16,7 @@
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />
 		<MotionForwardingSettings v-if="storesReady" />
+		<ConfidentialPapersSettings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
@@ -35,6 +36,7 @@ import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
+import ConfidentialPapersSettings from './ConfidentialPapersSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
 import MotionForwardingSettings from './MotionForwardingSettings.vue'
@@ -55,6 +57,7 @@ export default {
 		CaseSystemSettings,
 		DecisionTypeSettings,
 		MenuStructureTab,
+		ConfidentialPapersSettings,
 		MotionForwardingSettings,
 		Settings,
 		FullExportSettings,

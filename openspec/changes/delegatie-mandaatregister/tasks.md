@@ -9,8 +9,9 @@
   - GIVEN a clean instance WHEN the register is imported THEN schema `bevoegdheidstoedeling` exists with `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys; `concept → van-kracht → ingetrokken | vervallen`), relations (delegans/delegatarisBody→governance-body, delegatarisPersoon→person, besluit/ingetrokkenDoor→decision, parentToedeling→self), the `authorization.read` public predicate on `publicatiedatum <= $now`, and ADR-031-dialect expiry notifications (60d/14d before geldigTot, REQ-DMR-007)
   - GIVEN a toedeling without `besluit`, without any delegataris field, or without any delegans field WHEN saved THEN OR schema validation rejects it (REQ-DMR-001)
   - GIVEN a toedeling in `ingetrokken` WHEN a transition back to `van-kracht` is attempted THEN OR rejects it (undeclared transition, REQ-DMR-002)
-- [x] Implement (verified: lib/Settings/register.d/54-delegatie-mandaatregister.json Bevoegdheidstoedeling)
-- [ ] Test
+- [x] Implement
+- [x] Test
+- State: the schema, lifecycle, public predicate and both expiry notifications exist on `authority-delegation`. "No delegans or no delegataris is refused" (REQ-DMR-001) is a save guard beside the ondermandaat guard: OpenRegister's `anyOf` composes schemas by reference and cannot express "at least one of these fields", so `AnyOfFieldsGuard` checks the `OndermandaatGuardService::PARTY_GROUPS` in `OndermandaatGuardListener` on create and update (current and old Dutch field names). The `besluit` requirement and the undeclared transition stay with OpenRegister's schema validation and lifecycle.
 
 ### Task 2: Seed data — delegatie, mandaat + published ondermandaat chain, concept volmacht, ingetrokken machtiging
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-001-bevoegdheidstoedeling-schema`
@@ -18,8 +19,9 @@
 - **acceptance_criteria**:
   - GIVEN a clean install WHEN seed data is planted THEN the 5 objects from the design Seed Data table exist: a raad→college delegatie, a mandaat with `ondermandaatToegestaan: true`, its published ondermandaat (parentToedeling set, depth 1), a `concept` volmacht, and an `ingetrokken` machtiging whose `ingetrokkenDoor` resolves to a seed decision
   - GIVEN the seeded ondermandaat WHEN the register imports THEN its `geldigTot` lies inside the rappel window so the expiry notification path is demonstrable (ADR-016)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- The five seed toedelingen live in the municipality example set (`lib/Settings/profiles/municipality.json`; a register.d fragment declares schemas only). Their `decision`, `withdrawnBy`, `delegatingBody` and `delegateBody` now name seed objects instead of the zero uuid: a delegatiebesluit, the algemeen mandaatbesluit and the intrekkingsbesluit of the machtiging are seeded beside them. `AuthorityDelegationRegisterTest::testTheExampleSeedsAChainAndATracedWithdrawal` asserts the table. The ondermandaat's fixed `validTo` (2026-08-15) cannot stay inside a moving rappel window; demonstrating the rappel live is left to the live pass.
 
 ### Task 3: OndermandaatGuardService — parent permission + acyclic chain, fail closed
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-003-ondermandaat-chains-are-permitted-displayed-and-cycle-free`
@@ -30,6 +32,7 @@
   - GIVEN the parent lookup throws WHEN the guard runs THEN the save is rejected (fail closed, never null-swallow)
 - [x] Implement
 - [x] Test
+- The schema is now `authority-delegation` (renamed from `bevoegdheidstoedeling` by `86-the-last-two-dutch-names`, rows moved by `MigrateTheLastTwoDutchNames`). The guard is subscribed to, and reads parents on, the renamed schema, and still guards the old slug.
 
 ### Task 4: Register views — index/detail manifest pages, filters, "geldig op", search, CSV export
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export`
@@ -38,8 +41,9 @@
   - GIVEN seeded toedelingen WHEN filtering per delegans, per delegataris, per type, or per status THEN only matches list; full-text search hits onderwerp/beperkingen/delegataris description
   - GIVEN the "geldig op" date filter set to a boundary date (day of geldigVanaf, day of geldigTot) WHEN applied THEN exactly the in-force set is returned as a pure query (no per-row N+1)
   - GIVEN a filtered list WHEN exported via `CnMassExportDialog` THEN the CSV contains type, delegans, delegataris, onderwerp, financieelPlafond, grondslag, besluit, geldigheid, status; manifest refs use the slug `bevoegdheidstoedeling`, never PascalCase; detail page shows the ondermandaat chain with depth, keyboard-navigable (WCAG 2.1 AA)
-- [x] Implement (verified: src/manifest.d/delegatie-mandaatregister.json pages AuthorityDelegations, AuthorityDelegationDetail)
+- [x] Implement
 - [ ] Test
+- Index: quick filter "In force today" is the in-force query as one OR list request (`status=effective`, `validFrom[lte]=@today`, `validTo[gte]=@today`, `validTo[orNull]=true`); per-delegans, per-delegataris (body, role, person), type, status and validity-date filters are the sidebar facets of the facetable schema properties (`delegatePerson` made facetable); full-text search is OpenRegister's `_search`; CSV export is the index's mass export. Asserted in `AuthorityDelegationRegisterTest`. Left for the live/browser pass: boundary-date runs on a real instance and the exported CSV's columns.
 
 ### Task 5: Public register via the published predicate — live intrekking
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-005-public-register-via-the-or-published-predicate-on-the-live-object`
@@ -48,8 +52,9 @@
   - GIVEN a published toedeling WHEN an unauthenticated client reads the OR predicate surface THEN it is returned; GIVEN an unpublished one THEN it is not (negative test)
   - GIVEN a published `van-kracht` toedeling WHEN staff revoke it THEN the next anonymous read shows `ingetrokken` without any republish step
   - GIVEN the schema WHEN reviewed THEN it carries no internal-only or writeOnly fields and its `description` records the publishable-by-construction constraint (D4)
-- [ ] Implement
+- [x] Implement
 - [ ] Test
+- The public read predicate now also honours withdrawal: public read holds while `publicationDate <= $now` and `depublicationDate` is empty or still ahead (two public rules), on `authority-delegation` and on the old slug alike, and the schema description records the publishable-by-construction constraint. The detail page's Publish / Withdraw header actions PATCH only `publicationDate` / `depublicationDate` on the live object, confirm-gated. Asserted in `AuthorityDelegationRegisterTest`. Left for the API pass: the anonymous read and its negative case on a live instance.
 
 ### Task 6: Assistive bevoegdheidsgrondslag on Decision — display only, never enforcement
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-006-assistive-bevoegdheidsgrondslag-link-on-decision-never-enforcement`
@@ -58,8 +63,9 @@
   - GIVEN a Decision with bevoegdheidsgrondslag set WHEN its detail renders THEN "genomen krachtens" links to the toedeling detail; the toedeling detail lists referencing decisions via reverse lookup
   - GIVEN a Decision without bevoegdheidsgrondslag, and one referencing an `ingetrokken` toedeling WHEN created/transitioned/enacted THEN no block, error, or warning is raised (negative test — assistive only)
   - GIVEN the base-register edit WHEN diffed THEN only the one property is added; no existing Decision schema content is modified or removed
-- [ ] Implement
+- [x] Implement
 - [ ] Test
+- Fragment `134-decision-authority-basis.json` adds the one nullable `authorityBasis` reference to `decision` (English name, as the rest of the renamed schema; spec name `bevoegdheidsgrondslag`); nothing in a decision flow reads it. Decision detail shows it in Content and as a "Taken under" list linking to the toedeling (shown only when set); the toedeling detail lists the decisions taken under it. Asserted in `AuthorityDelegationRegisterTest`. Left for the browser pass: the rendered link and the no-block negative run.
 
 ## Verification
 
