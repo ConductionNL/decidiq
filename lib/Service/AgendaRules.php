@@ -35,6 +35,13 @@ use InvalidArgumentException;
 final class AgendaRules {
 
 	/**
+	 * Every value AgendaItem.phase declares, in order.
+	 *
+	 * @var list<string>
+	 */
+	public const PHASES = ['voorstel', 'beeldvorming', 'oordeelsvorming', 'besluitvorming', 'completed'];
+
+	/**
 	 * BOB phase transition map: current status → next status.
 	 *
 	 * @var array<string,string>
@@ -88,6 +95,7 @@ final class AgendaRules {
 	 * @throws InvalidArgumentException When the item is informational or already at the final phase
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function bobTransition(array $itemData): array {
 		// Guard: informational items have no BOB phase.
@@ -95,7 +103,7 @@ final class AgendaRules {
 			throw new InvalidArgumentException('Informational agenda items do not have a BOB phase.');
 		}
 
-		$currentStatus = $itemData['status'] ?? 'beeldvorming';
+		$currentStatus = $this->phaseOf(itemData: $itemData);
 		$nextStatus = self::BOB_PHASE_TRANSITIONS[$currentStatus] ?? null;
 		if ($nextStatus === null) {
 			throw new InvalidArgumentException(
@@ -105,6 +113,28 @@ final class AgendaRules {
 
 		return [$currentStatus, $nextStatus];
 	}//end bobTransition()
+
+	/**
+	 * The phase an agenda item is in: the declared `phase`, else a phase still
+	 * held in the undeclared `status` an item from before the upgrade carries,
+	 * else `beeldvorming`.
+	 *
+	 * @param array<string, mixed> $itemData The agenda item
+	 *
+	 * @return string The phase
+	 *
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 */
+	public function phaseOf(array $itemData): string {
+		foreach (['phase', 'status'] as $key) {
+			$value = ($itemData[$key] ?? null);
+			if (is_string($value) === true && in_array($value, self::PHASES, true) === true) {
+				return $value;
+			}
+		}
+
+		return 'beeldvorming';
+	}//end phaseOf()
 
 	/**
 	 * The id of an agenda item: its `id`, its `@self.id` or its `uuid`.

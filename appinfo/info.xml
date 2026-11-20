@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.7-unstable.20261119124854</version>
+    <version>1.2.7-unstable.20261120070000</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -148,7 +148,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
              @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
-        <job>OCA\Decidiq\BackgroundJob\DocumentEmbargoReleaseJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
              out for signature and stores the signed copy on the record.
@@ -511,6 +510,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 emptied, so an admin with automation pointing at one keeps a working group.
             -->
             <step>OCA\Decidiq\Repair\MigrateGovernanceGroupNames</step>
+            <!--
+                After InitializeSettings imports the register (129-agenda-item-phase.json must
+                already have declared AgendaItem.phase). Copies a phase still held in the
+                undeclared `status` into `phase` with a phase-only patch; an item that already has
+                a phase is skipped, so a second run changes nothing. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Repair\MoveAgendaItemStatusToPhase</step>
         </post-migration>
         <install>
             <!--

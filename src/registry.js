@@ -27,6 +27,7 @@ import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -358,6 +359,7 @@ export default {
 	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
 	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	AgendaItemPhaseTab: page(AgendaItemPhaseTab),
 	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
 	// pending requests on the agenda item, and the meeting-level ones.
 	AgendaItemSpeakersTab: page(AgendaItemSpeakersTab),

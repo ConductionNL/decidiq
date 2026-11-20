@@ -3336,6 +3336,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"agenda-phase": {
+						"type": "AgendaItemPhaseTab"
+					},
 					"agenda-case": {
 						"type": "AgendaItemCaseTab"
 					},
@@ -3374,6 +3377,10 @@
 						"icon": "ClipboardList",
 						"content": {
 							"sections": [
+								{
+									"label": "Phase",
+									"widgetId": "agenda-phase"
+								},
 								{
 									"label": "Agenda item",
 									"widgetId": "agenda-data"
