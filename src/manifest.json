@@ -1069,12 +1069,22 @@
 				"filter": {
 					"decisionType": "motion"
 				},
+				"quickFilters": [
+					{ "label": "All proposals", "filter": {}, "default": true },
+					{ "label": "Not started", "filter": { "implementationStatus": "not-started" } },
+					{ "label": "On track", "filter": { "implementationStatus": "on-track" } },
+					{ "label": "Delayed", "filter": { "implementationStatus": "delayed" } },
+					{ "label": "Implemented", "filter": { "implementationStatus": "completed" } },
+					{ "label": "Not implemented", "filter": { "implementationStatus": "will-not-be-implemented" } }
+				],
+				"_implementationFilterNote": "followup-implementation-progress REQ-FUP-003: implementationStatus is a stored field the server sets from the newest implementation update, so it filters server-side like decisionType. The page filter (decisionType motion) still applies, as it does for the simple structure's Motions views.",
 				"columns": [
 					"title",
 					"motionType",
 					"proposer",
 					"lifecycle",
 					"outcome",
+					"implementationStatus",
 					"themes",
 					"submittedAt"
 				],
@@ -1126,7 +1136,7 @@
 				"schema": "decision",
 				"_note": "Motion — a deliberative proposal (a Decision of decisionType=motion): proposer, motion type, proposed text, lifecycle, co-signers, submission date. The decision schema is a 42-field polymorphic supertype shared with Decision/Amendment; the data widget scopes to `content.include` of the 9 motion-relevant fields (ADR-062 rule 3) so decision-only fields (legalBasis, publishedAt, resolutionNumber, contract offer/order/product, etc.) that never apply to decisionType=motion don't clip the cell. Bespoke deliberation layout: motion details/text lead 8-wide with a Documents leaf right for the tabled text and annexes; the Amendments proposed against it (MotionAmendmentsTab — decisions keyed on `parentMotion`) render full-width because processing amendments is the core motion workflow; the Votes result (MotionVotesTab, read-only post-ballot aggregate) sits below, followed by the chair's amendment Voting order and the Voting round mechanics (procedural, so placed lowest). Discussion/Talk lives on the dedicated MotionIntegrations surface. Sidebar is audit-trail only.",
 				"widgets": [
-					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "themes", "submittedAt", "votingOrder"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false } } } },
+					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "themes", "submittedAt", "votingOrder", "implementationStatus", "implementationStatusDate"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false }, "implementationStatus": { "editable": false }, "implementationStatusDate": { "editable": false } } } },
 					{ "id": "motion-stage", "type": "custom", "component": "MotionStageTab", "title": "Stage", "icon": "Timeline", "_note": "motions-stages-and-themes (mot-08): the motion's stage and result, and one button per step the server offers the caller: every step of the motion lifecycle for the chair or secretary of its meeting, Withdraw for the member who submitted it (GET /api/motions/{id}/transitions, POST /api/motions/{id}/transition)." },
 					{ "id": "motion-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "motion-text-lines", "type": "custom", "component": "MotionTextLinesTab", "title": "Motion text", "icon": "FormatListNumbered", "_note": "motion-change-recommendations (REQ-MCR-001/002): the motion text with stable line numbers, and Recommend a change for the chair or secretary." },
@@ -1137,7 +1147,8 @@
 					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },
 					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" },
 					{ "id": "motion-signers", "type": "custom", "component": "MotionSignersTab", "title": "Signers", "icon": "FileSign" },
-					{ "id": "motion-conflicts", "type": "custom", "component": "MotionConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this motion and on its agenda item; a member declares here and may keep herself out of the vote." }
+					{ "id": "motion-conflicts", "type": "custom", "component": "MotionConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this motion and on its agenda item; a member declares here and may keep herself out of the vote." },
+					{ "id": "motion-implementation", "type": "object-list", "title": "Implementation", "icon": "ProgressCheck", "_note": "followup-implementation-progress REQ-FUP-001: the dated progress updates of this adopted decision, newest first. The schema grants create to the secretariat and administrators only, so a council member reads the list without Add update; the server refuses an update on a decision that is not adopted.", "content": { "register": "decidiq", "schema": "implementation-update", "filter": { "decision": "@objectId" }, "sort": { "field": "reportedOn", "dir": "desc" }, "columns": [{ "key": "reportedOn", "label": "Date", "widget": "date" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "percentComplete", "label": "Percent complete" }, { "key": "text", "label": "Progress" }], "limit": 25, "allowCreate": true, "emptyText": "No progress reported yet." }}
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
@@ -1151,7 +1162,8 @@
 					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 29, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 34, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 34, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 38, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 38, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "13", "widgetId": "motion-implementation", "gridX": 0, "gridY": 42, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1328,6 +1340,36 @@
 						},
 						"page": "Motions",
 						"route": "Motions"
+					},
+					{
+						"label": "Not started",
+						"filter": {
+							"implementationStatus": "not-started"
+						}
+					},
+					{
+						"label": "On track",
+						"filter": {
+							"implementationStatus": "on-track"
+						}
+					},
+					{
+						"label": "Delayed",
+						"filter": {
+							"implementationStatus": "delayed"
+						}
+					},
+					{
+						"label": "Implemented",
+						"filter": {
+							"implementationStatus": "completed"
+						}
+					},
+					{
+						"label": "Not implemented",
+						"filter": {
+							"implementationStatus": "will-not-be-implemented"
+						}
 					}
 				],
 				"_motionsFilterNote": "REQ-RMN-003 — Motions is one decisionType of the unified Decision supertype (ADR-005), not a sibling concept. This quick-filter surfaces Motions AS a filtered view of Decisions (decisionType=motion, a STORED/queryable field merged server-side into the OpenRegister fetch — no client-side derivation, unlike effectiveStatus per the _inForceFilterNote). The retained Motions index page (pages[] id `Motions`, route /motions) carries the same filter plus motion-specific columns/tabs; the `page`/`route` hints let the strip deep-link there. The standalone top-level Motions menu leaf was retired (REQ-RMN-001) so Motions is reachable through its parent Decisions surface rather than as a peer top-level item.",
@@ -1345,6 +1387,11 @@
 					{
 						"key": "outcome",
 						"label": "Outcome",
+						"widget": "badge"
+					},
+					{
+						"key": "implementationStatus",
+						"label": "Implementation",
 						"widget": "badge"
 					},
 					{
@@ -1418,6 +1465,7 @@
 				"widget-decision-voting": "DecisionVotingTab",
 				"widget-decision-written-resolution": "WrittenResolutionTab",
 				"widget-decision-publication": "DecisionPublicationTab",
+				"widget-decision-amendments": "MotionAmendmentsTab",
 				"widget-decision-governing-citations": "GoverningDocumentCitationsTab",
 				"widget-decision-themes": "DecisionThemesTab"
 			},
@@ -1429,11 +1477,12 @@
 				"widgets": [
 					{ "id": "decision-content", "type": "data", "title": "Content", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["decisionType", "title", "text", "proposedText", "fullText", "background", "motionType", "proposer", "coSigners", "resolutionNumber", "resolutionType", "legalBasis", "targetBody", "targetPosts", "targetRole", "candidates", "nominatingParty", "appointedMemberships", "contests", "authorityBasis"] } },
 					{ "id": "decision-authority-basis", "type": "object-list", "title": "Taken under", "icon": "ShieldCheckOutline", "_note": "delegatie-mandaatregister REQ-DMR-006: the delegation or mandate this decision was taken under ('genomen krachtens'), linking to its detail page. Shown only when the decision names one; documentation only, it gates nothing.", "visibleWhen": { "field": "authorityBasis", "op": "notEmpty" }, "content": { "register": "decidiq", "schema": "authority-delegation", "filter": { "id": "@object.authorityBasis" }, "columns": [ { "key": "subject", "label": "Subject", "widget": "link" }, { "key": "type", "label": "Type", "widget": "badge" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "validTo", "label": "Valid until", "widget": "date" } ], "limit": 1, "emptyText": "The delegation or mandate this decision names could not be found.", "rowRoute": "AuthorityDelegationDetail" } },
-					{ "id": "decision-governance", "type": "data", "title": "Governance", "icon": "ScaleBalance", "content": { "columns": 2, "include": ["decisionDate", "outcome", "isPublished", "publishedAt", "lifecycle", "enactedAt", "submittedAt", "citizenVotingAllowed", "citizenVotingMethod", "votingOrder", "voteType", "voteThreshold", "adoptionDate", "effectiveDate", "goal", "receivedAt", "termEndsAt"], "overrides": { "publishedAt": { "editable": false }, "lifecycle": { "editable": false }, "enactedAt": { "editable": false }, "submittedAt": { "editable": false }, "termEndsAt": { "editable": false } } } },
+					{ "id": "decision-governance", "type": "data", "title": "Governance", "icon": "ScaleBalance", "content": { "columns": 2, "include": ["decisionDate", "outcome", "isPublished", "publishedAt", "lifecycle", "enactedAt", "submittedAt", "citizenVotingAllowed", "citizenVotingMethod", "votingOrder", "voteType", "voteThreshold", "adoptionDate", "effectiveDate", "implementationStatus", "implementationStatusDate", "goal", "receivedAt", "termEndsAt"], "overrides": { "publishedAt": { "editable": false }, "lifecycle": { "editable": false }, "enactedAt": { "editable": false }, "submittedAt": { "editable": false }, "implementationStatus": { "editable": false }, "implementationStatusDate": { "editable": false }, "termEndsAt": { "editable": false } } } },
 					{ "id": "decision-lifecycle", "type": "custom", "component": "DecisionLifecycleTab", "title": "Lifecycle", "icon": "Timeline" },
 					{ "id": "decision-goal", "type": "custom", "component": "DecisionGoalWidget", "title": "Goal", "icon": "TargetVariant", "_note": "goals-linked-to-decisions REQ-010: the goal this decision serves, as a link to /goals/:id. Picked in the decision form and in the Governance widget (goal, scoped by x-relation-filter to draft, active and at-risk goals)." },
 					{ "id": "decision-actions", "type": "custom", "component": "ActionItemsSurface", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "decision-related", "type": "custom", "component": "RelatedDecisionsTab", "title": "Related decisions", "icon": "LinkVariant" },
+					{ "id": "decision-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
 					{ "id": "decision-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "decision-approval", "type": "custom", "component": "DecisionApprovalTab", "title": "Approval route", "icon": "AccountCheckOutline" },
 					{ "id": "decision-route", "type": "custom", "component": "DecisionRouteTab", "title": "Route", "icon": "Sitemap" },
@@ -1447,7 +1496,8 @@
 					{ "id": "decision-consultation-responses", "type": "object-list", "title": "Consultation responses", "icon": "CommentCheckOutline", "content": { "register": "decidiq", "schema": "governance-consultation-response", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "position", "label": "Position", "widget": "badge" }, { "key": "text", "label": "Response" }, { "key": "processing", "label": "Processing", "widget": "badge" }, { "key": "status", "label": "Status", "widget": "badge" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "GovernanceConsultationResponses", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No responses were recorded for this decision." } },
 					{ "id": "decision-commitments", "type": "object-list", "title": "Commitments", "icon": "ClipboardCheckOutline", "content": { "register": "decidiq", "schema": "governance-commitment", "filter": { "relatedMotion": "@objectId" }, "sort": { "field": "deadline", "dir": "desc" }, "columns": [ { "key": "text", "label": "Commitment", "widget": "link" }, { "key": "madeBy", "label": "Made by" }, { "key": "deadline", "label": "Deadline", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "viewAllRoute": "Commitments", "viewAllQuery": { "relatedMotion": "@objectId" }, "emptyText": "This motion has produced no commitments yet.", "rowRoute": "CommitmentDetail" } },
 					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } },
-					{ "id": "decision-themes", "type": "custom", "component": "DecisionThemesTab", "title": "Themes", "icon": "BookOpenVariantOutline", "_note": "publication-theme-pages (REQ-THP-001): the theme pages this decision belongs to, and Add to theme." }
+					{ "id": "decision-themes", "type": "custom", "component": "DecisionThemesTab", "title": "Themes", "icon": "BookOpenVariantOutline", "_note": "publication-theme-pages (REQ-THP-001): the theme pages this decision belongs to, and Add to theme." },
+					{ "id": "decision-implementation", "type": "object-list", "title": "Implementation", "icon": "ProgressCheck", "_note": "followup-implementation-progress REQ-FUP-001: the dated progress updates of this adopted decision, newest first. The schema grants create to the secretariat and administrators only, so a council member reads the list without Add update; the server refuses an update on a decision that is not adopted.", "content": { "register": "decidiq", "schema": "implementation-update", "filter": { "decision": "@objectId" }, "sort": { "field": "reportedOn", "dir": "desc" }, "columns": [{ "key": "reportedOn", "label": "Date", "widget": "date" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "percentComplete", "label": "Percent complete" }, { "key": "text", "label": "Progress" }], "limit": 25, "allowCreate": true, "emptyText": "No progress reported yet." }}
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -1470,7 +1520,9 @@
 					{ "id": "19", "widgetId": "decision-written-resolution", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "21", "widgetId": "decision-governing-citations", "gridX": 0, "gridY": 56, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "22", "widgetId": "decision-themes", "gridX": 0, "gridY": 60, "gridWidth": 12, "gridHeight": 3 },
-					{ "id": "23", "widgetId": "decision-authority-basis", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "23", "widgetId": "decision-authority-basis", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "24", "widgetId": "decision-amendments", "gridX": 0, "gridY": 66, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "25", "widgetId": "decision-implementation", "gridX": 0, "gridY": 72, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

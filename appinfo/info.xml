@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.6-unstable.20261114145412</version>
+    <version>1.2.7-unstable.20261119124854</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -148,6 +148,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
+        <job>OCA\Decidiq\BackgroundJob\DocumentEmbargoReleaseJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
              out for signature and stores the signed copy on the record.

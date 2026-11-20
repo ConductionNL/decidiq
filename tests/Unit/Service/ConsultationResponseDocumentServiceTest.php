@@ -41,6 +41,8 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\ConsultationResponseDocumentService
  * @covers \OCA\Decidiq\Controller\WorksCouncilConsultationController
  * @covers \OCA\Decidiq\Exception\ConsultationResponseRefusedException
+ * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  */
 final class ConsultationResponseDocumentServiceTest extends TestCase {
 
