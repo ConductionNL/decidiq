@@ -59,6 +59,8 @@ interface PublicationServiceInterface {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
+	 *
+	 * @throws \OCA\Decidiq\Exception\AccessibilityGateException When the accessibility gate holds the publication back; nothing is written.
 	 */
 	public function publish(string $sourceType, string $sourceId, string $actorId, array $accessibility=[]): array;
 

@@ -129,7 +129,14 @@ class PdfStructureInspector {
 				continue;
 			}
 
-			$decoded = @gzuncompress($raw, $budget);
+			// A corrupt stream makes gzuncompress() warn and return false; it is skipped.
+			set_error_handler(static fn (): bool => true);
+			try {
+				$decoded = gzuncompress($raw, $budget);
+			} finally {
+				restore_error_handler();
+			}
+
 			if ($decoded === false) {
 				continue;
 			}

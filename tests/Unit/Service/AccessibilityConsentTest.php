@@ -56,7 +56,7 @@ class AccessibilityConsentTest extends TestCase {
 	public function testAnEmptyRequestConsentsToNothing(): void {
 		self::assertSame(
 			['acknowledged' => false, 'overrideReason' => null],
-			AccessibilityConsent::fromRequest(request: $this->request(params: []))
+			(new AccessibilityConsent())->fromRequest(request: $this->request(params: []))
 		);
 	}//end testAnEmptyRequestConsentsToNothing()
 
@@ -69,12 +69,12 @@ class AccessibilityConsentTest extends TestCase {
 		foreach (['true' => true, '1' => true, 'on' => true, 'false' => false, '0' => false, 'maybe' => false] as $value => $expected) {
 			self::assertSame(
 				$expected,
-				AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityAcknowledged' => (string)$value]))['acknowledged'],
+				(new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityAcknowledged' => (string)$value]))['acknowledged'],
 				(string)$value
 			);
 		}
 
-		self::assertTrue(AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityAcknowledged' => true]))['acknowledged']);
+		self::assertTrue((new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityAcknowledged' => true]))['acknowledged']);
 	}//end testTheAcknowledgementIsABoolean()
 
 	/**
@@ -83,13 +83,13 @@ class AccessibilityConsentTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheOverrideReasonIsReadBareOrNested(): void {
-		$bare   = AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityOverride' => 'Scanned copy of a signed letter']));
-		$nested = AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityOverride' => ['reason' => 'Map without text alternative']]));
+		$bare   = (new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityOverride' => 'Scanned copy of a signed letter']));
+		$nested = (new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityOverride' => ['reason' => 'Map without text alternative']]));
 
 		self::assertSame('Scanned copy of a signed letter', $bare['overrideReason']);
 		self::assertSame('Map without text alternative', $nested['overrideReason']);
-		self::assertNull(AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityOverride' => ['why' => 'x']]))['overrideReason']);
-		self::assertNull(AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityOverride' => 42]))['overrideReason']);
-		self::assertNull(AccessibilityConsent::fromRequest(request: $this->request(params: ['accessibilityOverride' => ['reason' => 7]]))['overrideReason']);
+		self::assertNull((new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityOverride' => ['why' => 'x']]))['overrideReason']);
+		self::assertNull((new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityOverride' => 42]))['overrideReason']);
+		self::assertNull((new AccessibilityConsent())->fromRequest(request: $this->request(params: ['accessibilityOverride' => ['reason' => 7]]))['overrideReason']);
 	}//end testTheOverrideReasonIsReadBareOrNested()
 }//end class

@@ -154,7 +154,8 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 	 */
 	private function switchedOn(): bool {
-		return OfficePaperAddedListener::isSwitchedOn(value: $this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, 'true'));
+		$value = strtolower(trim($this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, 'true')));
+		return in_array($value, ['false', '0', 'no', 'off'], true) === false;
 	}//end switchedOn()
 
 	/**

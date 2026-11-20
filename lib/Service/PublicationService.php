@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
@@ -108,7 +107,8 @@ class PublicationService implements PublicationServiceInterface {
 	 * @spec openspec/specs/public-publication/spec.md
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 *
-	 * @throws \OCA\Decidiq\Exception\AccessibilityGateException When the accessibility gate holds the publication back; nothing is written.
+	 * The accessibility gate's exception passes through when the gate holds the publication back;
+	 * nothing is written then (see PublicationServiceInterface::publish()).
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
@@ -118,7 +118,7 @@ class PublicationService implements PublicationServiceInterface {
 		$this->loadEligibleSource(run: $run);
 		$this->buildPublicPayload(run: $run);
 		// The accessibility gate runs on the papers the payload makes public, before anything is written.
-		$run->accessibilityOverride = $this->documentGate?->check(
+		$run->gateOverride = $this->documentGate?->check(
 			documents: $this->paperDocuments(run: $run),
 			consent: $accessibility
 		);
@@ -309,11 +309,11 @@ class PublicationService implements PublicationServiceInterface {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function accessibilityOverrideOf(PublicationRun $run): array {
-		if ($run->accessibilityOverride === null) {
+		if ($run->gateOverride === null) {
 			return [];
 		}
 
-		return ['accessibilityOverride' => $run->accessibilityOverride];
+		return ['accessibilityOverride' => $run->gateOverride];
 	}//end accessibilityOverrideOf()
 
 	/**
@@ -632,6 +632,6 @@ class PublicationService implements PublicationServiceInterface {
 	 * @return string
 	 */
 	private function now(): string {
-		return (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		return date(DATE_ATOM);
 	}//end now()
 }//end class

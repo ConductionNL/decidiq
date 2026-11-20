@@ -79,7 +79,7 @@ final class PublicationRun {
 	 *
 	 * @var array<string, mixed>|null
 	 */
-	public ?array $accessibilityOverride = null;
+	public ?array $gateOverride = null;
 
 	/**
 	 * The persisted payload's id.

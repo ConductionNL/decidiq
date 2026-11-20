@@ -45,7 +45,7 @@ final class AccessibilityConsent {
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public static function fromRequest(IRequest $request): array {
+	public function fromRequest(IRequest $request): array {
 		$override = $request->getParam('accessibilityOverride');
 		if (is_array($override) === true) {
 			$override = ($override['reason'] ?? null);

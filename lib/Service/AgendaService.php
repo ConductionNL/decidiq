@@ -29,7 +29,6 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
-use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
@@ -87,8 +86,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
-	 * @param DocumentPublicationGate|null $documentGate The document accessibility gate on publication
-	 * @param OpenRegisterFiles|null $files OpenRegister's files, read for the gate
+	 * @param AgendaAccessibilityCheck|null $accessibilityCheck The document accessibility gate on publication
 	 * @param ShortenedNoticeService|null $shortenedNotice Checks an emergency convocation's shortened notice
 	 *
 	 * @return void
@@ -101,8 +99,7 @@ class AgendaService implements AgendaServiceInterface {
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly PublicationEventRecorder $eventRecorder,
-		private readonly ?DocumentPublicationGate $documentGate=null,
-		private readonly ?OpenRegisterFiles $files=null,
+		private readonly ?AgendaAccessibilityCheck $accessibilityCheck=null,
 		private readonly ?ShortenedNoticeService $shortenedNotice=null,
 	) {
 		$this->rules   = new AgendaRules();
@@ -147,7 +144,9 @@ class AgendaService implements AgendaServiceInterface {
 	 * @return void
 	 *
 	 * @throws InvalidArgumentException When no agenda items exist for the meeting, or the shortened notice is refused
-	 * @throws \OCA\Decidiq\Exception\AccessibilityGateException When the accessibility gate holds the publication back
+	 *
+	 * The accessibility gate's exception passes through unchanged when the gate holds the publication back
+	 * (see AgendaServiceInterface::publishAgenda()); nothing is written then.
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
@@ -159,8 +158,8 @@ class AgendaService implements AgendaServiceInterface {
 		// silently wipe required fields that are not included in the update.
 		$meeting = $this->readMeeting(meetingId: $meetingId);
 		// The accessibility gate runs before anything is written; an override is kept on the meeting.
-		$override = $this->documentGate?->check(
-			documents: $this->agendaDocuments(publication: ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items]),
+		$override = $this->accessibilityCheck?->overrideFor(
+			publication: ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items],
 			consent: $accessibility
 		);
 		if ($override !== null) {
@@ -184,76 +183,6 @@ class AgendaService implements AgendaServiceInterface {
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
 	}//end publishAgenda()
-
-	/**
-	 * The files on a meeting and its agenda items, as documents for the accessibility gate.
-	 *
-	 * Without OpenRegister no papers are published with the agenda, so there are none to check.
-	 *
-	 * @param array<string, mixed> $publication meetingId, meeting and items, as publishAgenda() collects them
-	 *
-	 * @return list<array{fileId: int, fileName: string, sourceObject: string, sourceSchema: string, governanceBody: string|null}>
-	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
-	 */
-	private function agendaDocuments(array $publication): array {
-		if ($this->files === null || $this->files->installed() === false) {
-			return [];
-		}
-
-		$body = ((string)($publication['meeting']['governanceBody'] ?? '') ?: null);
-
-		$documents = [];
-		foreach ($this->documentSources(meetingId: $publication['meetingId'], items: $publication['items']) as [$sourceId, $schema]) {
-			foreach ((array)$this->files->fileService()->getFiles($sourceId) as $node) {
-				$documents[] = [
-					'fileId' => (int)$node->getId(),
-					'fileName' => (string)$node->getName(),
-					'sourceObject' => $sourceId,
-					'sourceSchema' => $schema,
-					'governanceBody' => $body,
-				];
-			}
-		}
-
-		return $documents;
-	}//end agendaDocuments()
-
-	/**
-	 * The meeting and each of its agenda items, as `[id, schema]` pairs whose files are published.
-	 *
-	 * @param string   $meetingId UUID of the Meeting
-	 * @param iterable $items     Its agenda items
-	 *
-	 * @return list<array{0: string, 1: string}>
-	 */
-	private function documentSources(string $meetingId, iterable $items): array {
-		$sources = [[$meetingId, 'meeting']];
-		foreach ($items as $item) {
-			$itemId = $this->itemId(item: $item);
-			if ($itemId !== '') {
-				$sources[] = [$itemId, 'agenda-item'];
-			}
-		}
-
-		return $sources;
-	}//end documentSources()
-
-	/**
-	 * An agenda item's id, from its data or else its entity uuid.
-	 *
-	 * @param mixed $item The agenda item.
-	 *
-	 * @return string The id, or '' when it has none.
-	 */
-	private function itemId(mixed $item): string {
-		$itemId = (string)($this->rules->toArray(item: $item)['id'] ?? '');
-		if ($itemId === '' && is_object($item) === true && method_exists($item, 'getUuid') === true) {
-			$itemId = (string)$item->getUuid();
-		}
-
-		return $itemId;
-	}//end itemId()
 
 	/**
 	 * The agenda items of a meeting about to be published; at least one must exist.

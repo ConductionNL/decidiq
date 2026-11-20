@@ -181,7 +181,7 @@ class PublicationController extends Controller {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function accessibilityConsent(): array {
-		return AccessibilityConsent::fromRequest(request: $this->request);
+		return (new AccessibilityConsent())->fromRequest(request: $this->request);
 	}//end accessibilityConsent()
 
 	/**

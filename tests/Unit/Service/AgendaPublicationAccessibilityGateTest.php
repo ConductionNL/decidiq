@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Exception\AccessibilityGateException;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\AgendaAccessibilityCheck;
 use OCA\Decidiq\Service\DocumentPublicationGate;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -43,6 +44,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\AgendaRules
  * @uses   \OCA\Decidiq\Service\AgendaNotices
  * @uses   \OCA\Decidiq\Exception\AccessibilityGateException
+ * @uses   \OCA\Decidiq\Service\AgendaAccessibilityCheck
  *
  * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
@@ -106,8 +108,7 @@ class AgendaPublicationAccessibilityGateTest extends TestCase {
 			logger: $this->createMock(LoggerInterface::class),
 			participantResolver: $this->createMock(ParticipantResolver::class),
 			eventRecorder: $this->createMock(PublicationEventRecorder::class),
-			documentGate: $this->gate,
-			files: $files
+			accessibilityCheck: new AgendaAccessibilityCheck(documentGate: $this->gate, files: $files)
 		);
 	}//end setUp()
 
