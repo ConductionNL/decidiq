@@ -311,8 +311,8 @@ import {
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
-import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { countOf } from '../../utils/annotations.js'
+import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { formalityUrl } from '../../utils/formalities.js'
 import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
