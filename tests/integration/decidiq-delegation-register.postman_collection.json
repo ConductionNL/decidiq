@@ -1,0 +1,1142 @@
+{
+  "info": {
+    "name": "Decidiq Delegation and Mandate Register Anon-Read Contract Suite",
+    "description": "Newman contract tests for change delegatie-mandaatregister (REQ-DMR-002, REQ-DMR-005). The authority-delegation schema grants the public group read access while publicationDate <= now and no depublicationDate has passed, on the live object. Asserts: a published delegation is anonymously readable with its public fields; an unpublished one is not returned; anonymous writes are refused; a withdrawal shows on the next anonymous read with no republish step; withdrawn is terminal; depublication removes it from the anonymous list.\n\nAUTH MODEL (same as decidiq-publication-anon-read): collection auth is noauth; every admin request carries an explicit basic-auth block plus 'OCS-APIRequest: true'; anonymous requests go to {{noAuthBase}}, a different host alias, so no session cookie reaches them.\n\nSpec: openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "Seed governance body (admin)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const tag = 'newman-dmr-' + Date.now();",
+                  "pm.collectionVariables.set('runTag', tag);",
+                  "pm.collectionVariables.set('validFrom', new Date(Date.now() - 30*86400000).toISOString().slice(0,10));",
+                  "pm.collectionVariables.set('pastDate', new Date(Date.now() - 86400000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('body created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'councilId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('councilId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "governance-body"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{runTag}} council\",\n  \"bodyType\": \"legislative\",\n  \"domain\": \"municipality\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Seed mandate decision (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('decision created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'decisionId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('decisionId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "decision"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{runTag}} mandate decision\",\n  \"text\": \"The board grants the mandates in the register.\",\n  \"decisionType\": \"motion\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Seed unpublished draft delegation (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('draft created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'draftId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('draftId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mandate\",\n  \"delegatingBody\": \"{{councilId}}\",\n  \"delegateRole\": \"town clerk\",\n  \"financialCeiling\": 50000,\n  \"decision\": \"{{decisionId}}\",\n  \"validFrom\": \"{{validFrom}}\",\n  \"subject\": \"{{runTag}} unpublished\",\n  \"status\": \"draft\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Seed delegation to publish (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('delegation created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'delegationId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('delegationId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mandate\",\n  \"delegatingBody\": \"{{councilId}}\",\n  \"delegateRole\": \"town clerk\",\n  \"financialCeiling\": 50000,\n  \"decision\": \"{{decisionId}}\",\n  \"validFrom\": \"{{validFrom}}\",\n  \"subject\": \"{{runTag}} subsidy applications\",\n  \"status\": \"draft\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Bring it into force and publish it (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('in force and published', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.expect(pm.response.json().status).to.eql('effective');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"effective\",\n  \"publicationDate\": \"{{pastDate}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Published is public, unpublished is not",
+      "item": [
+        {
+          "name": "Anon reads the published delegation (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('published delegation is anonymously readable', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.expect(b.type).to.eql('mandate');",
+                  "pm.expect(b.delegateRole).to.eql('town clerk');",
+                  "pm.expect(b.financialCeiling).to.eql(50000);",
+                  "pm.expect(b.status).to.eql('effective');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Anon list shows the published one only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('list call succeeds', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const ids = (b.results || b.items || []).map(o => (o['@self'] && o['@self'].id) || o.id);",
+                  "pm.expect(ids).to.include(pm.collectionVariables.get('delegationId'));",
+                  "pm.expect(ids).to.not.include(pm.collectionVariables.get('draftId'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation?_search={{runTag}}&_limit=50",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation?_search={{runTag}}&_limit=50"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Anon cannot read the unpublished draft",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('unpublished delegation is not returned', () => pm.expect(pm.response.code).to.not.eql(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{draftId}}",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{draftId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Anonymous writes are refused",
+      "item": [
+        {
+          "name": "Anon PATCH is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('anonymous write refused', () => pm.expect(pm.response.code).to.be.at.least(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"lapsed\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Withdrawal is live",
+      "item": [
+        {
+          "name": "Withdraw it (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('withdrawn', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"withdrawn\",\n  \"withdrawnBy\": \"{{decisionId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Anon read shows withdrawn without republishing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('still public', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.expect(b.status).to.eql('withdrawn');",
+                  "pm.expect(b.withdrawnBy).to.eql(pm.collectionVariables.get('decisionId'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Undeclared transition back to effective is refused (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('withdrawn is terminal', () => pm.expect(pm.response.code).to.be.at.least(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"effective\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Depublication",
+      "item": [
+        {
+          "name": "Depublish it (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('depublished', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"depublicationDate\": \"{{pastDate}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Anon list no longer shows it",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('list call succeeds', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const ids = (b.results || b.items || []).map(o => (o['@self'] && o['@self'].id) || o.id);",
+                  "pm.expect(ids).to.not.include(pm.collectionVariables.get('delegationId'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{noAuthBase}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation?_search={{runTag}}&_limit=50",
+              "host": [
+                "{{noAuthBase}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation?_search={{runTag}}&_limit=50"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Teardown",
+      "item": [
+        {
+          "name": "Delete the published delegation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{delegationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{delegationId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete the draft delegation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/authority-delegation/{{draftId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "authority-delegation",
+                "{{draftId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete the decision",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decisionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "decision",
+                "{{decisionId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete the governance body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{councilId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "index.php",
+                "apps",
+                "openregister",
+                "api",
+                "objects",
+                "decidiq",
+                "governance-body",
+                "{{councilId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "runTag",
+      "value": ""
+    },
+    {
+      "key": "validFrom",
+      "value": ""
+    },
+    {
+      "key": "pastDate",
+      "value": ""
+    },
+    {
+      "key": "councilId",
+      "value": ""
+    },
+    {
+      "key": "decisionId",
+      "value": ""
+    },
+    {
+      "key": "draftId",
+      "value": ""
+    },
+    {
+      "key": "delegationId",
+      "value": ""
+    }
+  ]
+}
