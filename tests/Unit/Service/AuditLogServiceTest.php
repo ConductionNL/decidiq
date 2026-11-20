@@ -520,12 +520,13 @@ class AuditLogServiceTest extends TestCase {
 		$this->reads = [];
 
 		for ($i = 0; $i < 3; $i++) {
-			self::assertTrue($service->append(actor: 'bob', action: 'signature', objectUids: ['dec-1'])['success']);
+			self::assertTrue(condition: $service->append(actor: 'bob', action: 'signature', objectUids: ['dec-1'])['success']);
 		}
 
-		self::assertSame([], $this->reads, 'append() must not read the audit trail');
-		self::assertCount(8, $this->trail);
-		self::assertSame(['trail-6', 'trail-7', 'trail-8'], array_map(static fn (AuditTrail $row): string => (string)$row->getUuid(), array_slice($this->trail, 5)));
+		self::assertSame(expected: [], actual: $this->reads, message: 'append() must not read the audit trail');
+		self::assertCount(expectedCount: 8, haystack: $this->trail);
+		$appended = array_map(static fn (AuditTrail $row): string => (string)$row->getUuid(), array_slice($this->trail, 5));
+		self::assertSame(expected: ['trail-6', 'trail-7', 'trail-8'], actual: $appended);
 
 	}//end testAppendNeverReadsTheTrailHowLongItIs()
 
@@ -540,12 +541,12 @@ class AuditLogServiceTest extends TestCase {
 	public function testRefusedAppendReadsNothing(): void {
 		$service = $this->makeService(resolvableUids: ['dec-1']);
 
-		self::assertFalse($service->append(actor: 'alice', action: 'not-an-action', objectUids: ['dec-1'])['success']);
-		self::assertFalse($service->append(actor: 'alice', action: 'vote', objectUids: [])['success']);
-		self::assertFalse($service->append(actor: 'alice', action: 'vote', objectUids: ['missing'])['success']);
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'not-an-action', objectUids: ['dec-1'])['success']);
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'vote', objectUids: [])['success']);
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'vote', objectUids: ['missing'])['success']);
 
-		self::assertSame([], $this->reads);
-		self::assertSame([], $this->trail);
+		self::assertSame(expected: [], actual: $this->reads);
+		self::assertSame(expected: [], actual: $this->trail);
 
 	}//end testRefusedAppendReadsNothing()
 
@@ -565,9 +566,9 @@ class AuditLogServiceTest extends TestCase {
 
 		$result = $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z');
 
-		self::assertTrue($result['success']);
-		self::assertSame(5, $result['count']);
-		self::assertSame([['limit' => 10000, 'sort' => ['created' => 'ASC']]], $this->reads);
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: 5, actual: $result['count']);
+		self::assertSame(expected: [['limit' => 10000, 'sort' => ['created' => 'ASC']]], actual: $this->reads);
 
 	}//end testExportReadsTheWholeSliceOldestFirst()
 
@@ -589,8 +590,8 @@ class AuditLogServiceTest extends TestCase {
 		}
 
 		$this->reads = [];
-		self::assertSame(3, $service->verify()['checked']);
-		self::assertSame([], $this->reads);
+		self::assertSame(expected: 3, actual: $service->verify()['checked']);
+		self::assertSame(expected: [], actual: $this->reads);
 
 	}//end testWholeChainVerifyReadsNoRows()
 
