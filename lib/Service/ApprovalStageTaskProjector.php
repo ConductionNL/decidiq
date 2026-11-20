@@ -47,6 +47,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
+use OCA\OpenRegister\Service\Task\TaskTrigger;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -274,8 +275,10 @@ class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface 
 			try {
 				$tasks->consume(
 					uuid: $taskUuid,
-					source: self::TEMPLATE_ID,
-					reason: 'The approval stage this task asked about is no longer awaiting an answer.'
+					trigger: new TaskTrigger(
+						source: self::TEMPLATE_ID,
+						reason: 'The approval stage this task asked about is no longer awaiting an answer.'
+					)
 				);
 			} catch (Throwable $e) {
 				$this->logger->info(

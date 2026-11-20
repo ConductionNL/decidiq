@@ -127,6 +127,7 @@ import OfficeBuildingOutline from 'vue-material-design-icons/OfficeBuildingOutli
 import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
 import PowerPlugOutline from 'vue-material-design-icons/PowerPlugOutline.vue'
+import ProgressCheck from 'vue-material-design-icons/ProgressCheck.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
 import SeatOutline from 'vue-material-design-icons/SeatOutline.vue'
@@ -271,6 +272,7 @@ export default {
 	Package,
 	PackageVariantClosed,
 	PowerPlugOutline,
+	ProgressCheck,
 	ReceiptOutline,
 	ScaleBalance,
 	SeatOutline,
