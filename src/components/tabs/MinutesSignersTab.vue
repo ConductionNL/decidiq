@@ -128,6 +128,7 @@ import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import {
 	addSigner,
 	moveSigner,
@@ -389,7 +390,7 @@ export default {
 		async saveSigners(signers, rethrow = false) {
 			const store = ensureRelationType(this.schema)
 			try {
-				const updated = await store.saveObject(this.schema, {
+				const updated = await saveOrThrow(store, this.schema, {
 					...this.record,
 					signers,
 				})
@@ -466,7 +467,7 @@ export default {
 			)
 			const store = ensureRelationType(this.schema)
 			try {
-				const updated = await store.saveObject(this.schema, {
+				const updated = await saveOrThrow(store, this.schema, {
 					...this.record,
 					signers: next,
 				})
