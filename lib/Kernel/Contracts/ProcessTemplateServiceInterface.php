@@ -139,4 +139,15 @@ interface ProcessTemplateServiceInterface {
 	 * @return array{valid: bool, errors: string[]} Validation result with human-readable errors
 	 */
 	public function validateStateMachine(array $template): array;
+
+	/**
+	 * The urgency policy a governance body runs the urgent procedure under, or null when it is unavailable.
+	 *
+	 * @param string|null $governanceBodyId The governance body UUID, or null.
+	 *
+	 * @return array<string, mixed>|null The policy, or null.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 */
+	public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array;
 }//end interface

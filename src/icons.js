@@ -29,6 +29,7 @@ import AccountRemoveOutline from 'vue-material-design-icons/AccountRemoveOutline
 import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
 import AccountTieOutline from 'vue-material-design-icons/AccountTieOutline.vue'
 import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
+import AlertDecagramOutline from 'vue-material-design-icons/AlertDecagramOutline.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import Api from 'vue-material-design-icons/Api.vue'
@@ -118,6 +119,7 @@ import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
 import LightbulbOnOutline from 'vue-material-design-icons/LightbulbOnOutline.vue'
 import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
+import Marker from 'vue-material-design-icons/Marker.vue'
 import MessageTextOutline from 'vue-material-design-icons/MessageTextOutline.vue'
 import Microphone from 'vue-material-design-icons/Microphone.vue'
 import NotebookOutline from 'vue-material-design-icons/NotebookOutline.vue'
@@ -127,6 +129,7 @@ import OfficeBuildingOutline from 'vue-material-design-icons/OfficeBuildingOutli
 import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
 import PowerPlugOutline from 'vue-material-design-icons/PowerPlugOutline.vue'
+import ProgressCheck from 'vue-material-design-icons/ProgressCheck.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
 import SeatOutline from 'vue-material-design-icons/SeatOutline.vue'
@@ -172,6 +175,7 @@ export default {
 	AccountSwitch,
 	AccountTieOutline,
 	AccountVoice,
+	AlertDecagramOutline,
 	AlertOctagonOutline,
 	AlertOutline,
 	Api,
@@ -262,6 +266,7 @@ export default {
 	LightbulbOnOutline,
 	LinkVariant,
 	MapMarkerPath,
+	Marker,
 	MessageTextOutline,
 	Microphone,
 	NoteTextOutline,
@@ -271,6 +276,7 @@ export default {
 	Package,
 	PackageVariantClosed,
 	PowerPlugOutline,
+	ProgressCheck,
 	ReceiptOutline,
 	ScaleBalance,
 	SeatOutline,

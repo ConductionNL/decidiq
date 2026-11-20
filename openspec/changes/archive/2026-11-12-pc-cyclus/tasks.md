@@ -28,8 +28,8 @@
   - GIVEN a template and a year WHEN generate runs THEN one CyclusStap per template step is created in order, all `gepland`, with concrete dates resolved from month/day defaults and `betreftJaar = year + subjectYearOffset` (jaarrekening −1, berap 0, kadernota/begroting +1 verified)
   - GIVEN a customised 2026 cyclus WHEN next-year generation runs THEN a 2027 cyclus is created with the source's actual dates shifted +1 year, document slots reset, all steps `gepland`, source unchanged; a duplicate body+year is refused server-side
   - GIVEN a built-in template WHEN edit/delete is attempted THEN it is refused while duplicate yields an editable copy with `builtIn` cleared; generation endpoints carry `#[NoAdminRequired]` plus a per-object governance guard (no-admin-idor/semantic-auth gates pass) and saves are PUT-semantic (all fields carried forward)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (superseded, decision 138: next-year generation from a template is `lib/Service/PlanningCycleGenerator.php` with `PlanningCycleCreatedListener`, built and archived by planning-cycle-generate-from-template, pla-12; no second generator)
+- [x] Test (superseded: `tests/Unit/Listener/PlanningCycleCreatedListenerTest.php` drives PlanningCycleGenerator)
 
 ### Task 4: Manifest fragment — cycli index, cyclus detail, step detail, menu
 - **spec_ref**: `openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md#requirement-req-pcc-009-year-view-timeline-per-governance-body`

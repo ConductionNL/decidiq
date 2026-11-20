@@ -9,7 +9,7 @@
   - GIVEN a topic with two open tracks WHEN read THEN `openTrackCount` is 2 (Newman against the seeded profile)
   - GIVEN a track realised WHEN the topic is read THEN `openTrackCount` is 1
 - [x] Implement
-- [ ] Test (Newman against the seeded profile: needs a live instance; the profile seed for the topic and tracks is not added yet)
+- [ ] Test (Newman `tests/integration/decidiq-long-term-agenda-tracks.postman_collection.json`, wired into `tests/newman/run-all.sh`, and the municipality profile now seeds the topic "Energietransitie" with its two tracks; running it needs a live instance)
 
 ### Task 2: One level, on save
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-002-tracks-are-one-level-deep`
@@ -27,7 +27,7 @@
   - GIVEN the seeded topic WHEN its page opens THEN the Tracks widget lists both tracks and adds a third in place (Playwright)
   - GIVEN hydra gate `dashboard-antipattern` and the manifest validator WHEN they run THEN they pass
 - [x] Implement
-- [ ] Test (Playwright against a live instance with the seeded topic; the manifest validator, run on the assembled manifest, and hydra gate `dashboard-antipattern` pass)
+- [ ] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` written; running it needs a live instance. The manifest validator, run on the assembled manifest, and hydra gate `dashboard-antipattern` pass)
 
 ### Task 4: Portfolio holder and author
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-003-the-list-filters-by-portfolio-holder-and-by-author`
@@ -36,7 +36,7 @@
   - GIVEN the facet "Portfolio holder" WHEN De Boer is picked THEN only her items list (Playwright)
   - GIVEN the facet "Author" WHEN S. Visser is picked THEN two items list (Playwright)
 - [x] Implement
-- [ ] Test (Playwright against a live instance with seeded people)
+- [ ] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` covers both facets with seeded people; running it needs a live instance)
 
 ### Task 5: The formatted report
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report`

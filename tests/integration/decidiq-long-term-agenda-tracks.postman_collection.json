@@ -1,0 +1,824 @@
+{
+	"info": {
+		"name": "decidiq-long-term-agenda-tracks",
+		"description": "planning-long-term-agenda-tracks-and-report, task 1 (REQ-LTAT-001): a planned agenda item can be a track under a topic, and the topic counts its tracks through declared aggregations. Seeds one governance body, the topic \"Energietransitie\" and its two tracks (mirroring the municipality profile seed), reads openTrackCount 2, lists the body's topics only, realises one track, reads openTrackCount 1, and tears everything down. baseUrl, adminUser and adminPass come from the environment (tests/newman/run-all.sh passes them); there is no default instance.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Seed governance body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'governance body id captured').to.be.a('string');",
+							"pm.collectionVariables.set('bodyId', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"governance-body"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Newman Long-term Agenda Tracks Body\",\n  \"bodyType\": \"council\",\n  \"domain\": \"newman-long-term-agenda-tracks\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed topic Energietransitie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: topic created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'topic id captured').to.be.a('string');",
+							"pm.collectionVariables.set('topicId', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"subject\": \"Newman Energietransitie\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"plannedPeriod\": \"2026-Q4\",\n  \"expectedType\": \"council-proposal\",\n  \"ownerType\": \"council-registry\",\n  \"lifecycle\": \"planned\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed track Warmtevisie 2.0 (2026-Q4)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: track 1 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'track 1 id captured').to.be.a('string');",
+							"pm.collectionVariables.set('track1Id', id);",
+							"pm.test('The track names its topic', () => pm.expect(b.parentItem).to.eql(pm.collectionVariables.get('topicId')));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"subject\": \"Newman Warmtevisie 2.0\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"plannedPeriod\": \"2026-Q4\",\n  \"expectedType\": \"council-proposal\",\n  \"ownerType\": \"council-registry\",\n  \"lifecycle\": \"planned\",\n  \"parentItem\": \"{{topicId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed track Regionale energiestrategie 2.0 (2027-Q1)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: track 2 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'track 2 id captured').to.be.a('string');",
+							"pm.collectionVariables.set('track2Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"subject\": \"Newman Regionale energiestrategie 2.0\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"plannedPeriod\": \"2027-Q1\",\n  \"expectedType\": \"council-proposal\",\n  \"ownerType\": \"council-registry\",\n  \"lifecycle\": \"planned\",\n  \"parentItem\": \"{{topicId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "A topic with two open tracks reads openTrackCount 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Topic read (200)', () => pm.response.to.have.status(200));",
+							"const t = pm.response.json();",
+							"pm.test('openTrackCount is 2 with both tracks open', () => pm.expect(t.openTrackCount).to.eql(2));",
+							"pm.test('trackCount counts every track, open or not', () => pm.expect(t.trackCount).to.eql(2));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{topicId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{topicId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Topics only: the body's items without a topic",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('List read (200)', () => pm.response.to.have.status(200));",
+							"const rows = pm.response.json().results || [];",
+							"const ids = rows.map(r => (r['@self'] && r['@self'].id) || r.id);",
+							"pm.test('The topic is listed', () => pm.expect(ids).to.include(pm.collectionVariables.get('topicId')));",
+							"pm.test('Its tracks are not', () => { pm.expect(ids).to.not.include(pm.collectionVariables.get('track1Id')); pm.expect(ids).to.not.include(pm.collectionVariables.get('track2Id')); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item?governanceBody={{bodyId}}&parentItem=IS NULL",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item"
+					],
+					"query": [
+						{
+							"key": "governanceBody",
+							"value": "{{bodyId}}"
+						},
+						{
+							"key": "parentItem",
+							"value": "IS NULL"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Realise track Warmtevisie 2.0",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Track realised (200)', () => pm.response.to.have.status(200));",
+							"pm.test('Lifecycle is realised', () => pm.expect(pm.response.json().lifecycle).to.eql('realised'));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{track1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{track1Id}}"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"subject\": \"Newman Warmtevisie 2.0\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"plannedPeriod\": \"2026-Q4\",\n  \"expectedType\": \"council-proposal\",\n  \"ownerType\": \"council-registry\",\n  \"lifecycle\": \"realised\",\n  \"parentItem\": \"{{topicId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "A realised track leaves openTrackCount 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Topic read (200)', () => pm.response.to.have.status(200));",
+							"const t = pm.response.json();",
+							"pm.test('openTrackCount is 1 once a track is realised', () => pm.expect(t.openTrackCount).to.eql(1));",
+							"pm.test('trackCount counts every track, open or not', () => pm.expect(t.trackCount).to.eql(2));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{topicId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{topicId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown track 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: track 1 deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{track1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{track1Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown track 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: track 2 deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{track2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{track2Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown topic",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: topic deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/planned-agenda-item/{{topicId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"planned-agenda-item",
+						"{{topicId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown governance body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: governance body deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{bodyId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"governance-body",
+						"{{bodyId}}"
+					]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "bodyId",
+			"value": ""
+		},
+		{
+			"key": "topicId",
+			"value": ""
+		},
+		{
+			"key": "track1Id",
+			"value": ""
+		},
+		{
+			"key": "track2Id",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,1164 @@
+{
+    "info": {
+        "_postman_id": "d3c1d100-0000-4000-9000-202611170001",
+        "name": "Decidiq portal voting record and confidential papers",
+        "description": "Contract tests for portal-voting-record-and-confidential-papers: who may name a portal reader on a confidential agenda item, what is refused before portaliq is asked, the reader added and removed with no number kept, and the trust setting. The DigiD opening of a paper through portaliq on a stub envelope is portaliq's e2e (tests/e2e/confidential-papers.spec.ts); the live DigiD run waits on decision D1. SPDX-License-Identifier: EUPL-1.2",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "noauth"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080"
+        },
+        {
+            "key": "adminUser",
+            "value": "admin"
+        },
+        {
+            "key": "adminPass",
+            "value": "admin"
+        },
+        {
+            "key": "memberUser",
+            "value": "decidiq-psh-member"
+        },
+        {
+            "key": "memberPass",
+            "value": "Decidiq-Member!42x"
+        },
+        {
+            "key": "confidentialItem",
+            "value": ""
+        },
+        {
+            "key": "publicItem",
+            "value": ""
+        },
+        {
+            "key": "personId",
+            "value": ""
+        },
+        {
+            "key": "readerAdded",
+            "value": "no"
+        }
+    ],
+    "item": [
+        {
+            "name": "0. Setup",
+            "item": [
+                {
+                    "name": "Create member probe user",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/x-www-form-urlencoded"
+                            }
+                        ],
+                        "body": {
+                            "mode": "urlencoded",
+                            "urlencoded": [
+                                {
+                                    "key": "userid",
+                                    "value": "{{memberUser}}"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{memberPass}}"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "ocs",
+                                "v2.php",
+                                "cloud",
+                                "users"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Setup: member probe user available', () => {",
+                                    "    if (pm.response.code === 200) { return; }",
+                                    "    pm.expect(pm.response.json()?.ocs?.meta?.statuscode, 'already exists is acceptable').to.eql(102);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Seed a confidential agenda item",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "agenda-item"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"title\": \"Newman Grondaankoop\", \"itemType\": \"decision\", \"public\": false, \"authorisedPersons\": []}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Setup: confidential item created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                                    "pm.collectionVariables.set('confidentialItem', pm.response.json().id || pm.response.json().uuid);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Seed a public agenda item",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "agenda-item"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"title\": \"Newman Openbaar\", \"itemType\": \"decision\", \"public\": true}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Setup: public item created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                                    "pm.collectionVariables.set('publicItem', pm.response.json().id || pm.response.json().uuid);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Seed a person without an account",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "person"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\": \"Newman Bos\", \"givenName\": \"Newman\", \"familyName\": \"Bos\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Setup: person created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                                    "pm.collectionVariables.set('personId', pm.response.json().id || pm.response.json().uuid);"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "1. Who may add a reader (REQ-PSH-002)",
+            "item": [
+                {
+                    "name": "Anonymous is refused",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"bsn\", \"number\": \"111222333\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('anonymous: 401', () => pm.expect(pm.response.code).to.eql(401));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "A member without the secretariat or a meeting role is refused",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{memberUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{memberPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"bsn\", \"number\": \"111222333\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('member: 403', () => pm.expect(pm.response.code).to.eql(403));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "2. What is refused before portaliq is asked",
+            "item": [
+                {
+                    "name": "An invalid BSN is 422 with the reason",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"bsn\", \"number\": \"111222334\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('invalid BSN: 422', () => pm.expect(pm.response.code).to.eql(422));",
+                                    "pm.test('names the reason', () => pm.expect(pm.response.json().message).to.include('BSN'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "An invalid KvK number is 422",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"kvk\", \"number\": \"1234567\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('invalid KvK: 422', () => pm.expect(pm.response.code).to.eql(422));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "A public item takes no reader",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{publicItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{publicItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"bsn\", \"number\": \"111222333\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('public item: 409', () => pm.expect(pm.response.code).to.eql(409));",
+                                    "pm.test('says to make it confidential', () => pm.expect(pm.response.json().message).to.eql('Make the item confidential first.'));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "3. The griffie adds a reader",
+            "item": [
+                {
+                    "name": "Add the reader",
+                    "request": {
+                        "method": "POST",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"person\": \"{{personId}}\", \"identityType\": \"bsn\", \"number\": \"111222333\"}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// With portaliq the account is provisioned and the claim written (201);",
+                                    "// without it the answer names portaliq and nothing is written (409).",
+                                    "pm.test('201 with the reader, or 409 naming portaliq', () => {",
+                                    "    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                                    "    if (pm.response.code === 201) {",
+                                    "        pm.expect(pm.response.json().authorisedPersons).to.include(pm.collectionVariables.get('personId'));",
+                                    "    } else {",
+                                    "        pm.expect(pm.response.json().message.toLowerCase()).to.include('portaliq');",
+                                    "    }",
+                                    "});",
+                                    "pm.test('the number is not in the answer', () => pm.expect(pm.response.text()).to.not.include('111222333'));",
+                                    "pm.collectionVariables.set('readerAdded', pm.response.code === 201 ? 'yes' : 'no');"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "The person keeps no number",
+                    "request": {
+                        "method": "GET",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person/{{personId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "person",
+                                "{{personId}}"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('no BSN on the person', () => pm.expect(pm.response.text()).to.not.include('111222333'));",
+                                    "if (pm.collectionVariables.get('readerAdded') === 'yes') {",
+                                    "    pm.test('the person carries the portal reference', () => pm.expect(pm.response.json().portalAccountRef).to.be.a('string').and.not.empty);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Remove the reader",
+                    "request": {
+                        "method": "DELETE",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/agenda-items/{{confidentialItem}}/readers/{{personId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "agenda-items",
+                                "{{confidentialItem}}",
+                                "readers",
+                                "{{personId}}"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('removed: 200 without the reader', () => {",
+                                    "    pm.expect(pm.response.code).to.eql(200);",
+                                    "    pm.expect(pm.response.json().authorisedPersons).to.not.include(pm.collectionVariables.get('personId'));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "4. The trust setting (REQ-PSH-003)",
+            "item": [
+                {
+                    "name": "Unset reads substantial",
+                    "request": {
+                        "method": "GET",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "decidiq",
+                                "api",
+                                "settings"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('portal_confidential_min_trust defaults to substantial', () => pm.expect(pm.response.json().portal_confidential_min_trust).to.be.oneOf(['substantial', 'high']));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "9. Teardown",
+            "item": [
+                {
+                    "name": "Delete the confidential item",
+                    "request": {
+                        "method": "DELETE",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{confidentialItem}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "agenda-item",
+                                "{{confidentialItem}}"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Teardown: item deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete the public item",
+                    "request": {
+                        "method": "DELETE",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{publicItem}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "agenda-item",
+                                "{{publicItem}}"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Teardown: item deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete the person",
+                    "request": {
+                        "method": "DELETE",
+                        "auth": {
+                            "type": "basic",
+                            "basic": [
+                                {
+                                    "key": "username",
+                                    "value": "{{adminUser}}",
+                                    "type": "string"
+                                },
+                                {
+                                    "key": "password",
+                                    "value": "{{adminPass}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "OCS-APIRequest",
+                                "value": "true"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person/{{personId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "index.php",
+                                "apps",
+                                "openregister",
+                                "api",
+                                "objects",
+                                "decidiq",
+                                "person",
+                                "{{personId}}"
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Teardown: person deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

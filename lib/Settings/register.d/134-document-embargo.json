@@ -1,0 +1,66 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change embargo-geheimhouding (REQ-EMB-005, REQ-EMB-008 trigger 2). A paper can carry an embargo: the entitled audience reads it at once and the wider membership from embargoUntil. Group read rules cannot compare a moment per object, so DocumentEmbargoReleaseJob writes embargoActive false once embargoUntil has passed (every 15 minutes, the release granularity) and the release notification rides that write. The read rules that key off embargoActive are not in this fragment yet: DigitalDocument declares no authorization today, so adding one changes who reads every paper, and like agenda-item-confidential-papers it waits for a test through OpenRegister's own evaluator. The public side keeps the publicatiedatum predicate unchanged.",
+	"components": {
+		"schemas": {
+			"DigitalDocument": {
+				"slug": "digital-document",
+				"version": "0.5.0",
+				"properties": {
+					"embargoUntil": {
+						"title": "Embargo until",
+						"type": "string",
+						"format": "date-time",
+						"description": "The moment the wider membership may read the paper. Before it only the entitled audience and staff read it. Released at most 15 minutes after this moment."
+					},
+					"embargoActive": {
+						"title": "Under embargo",
+						"type": "boolean",
+						"default": false,
+						"description": "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed."
+					},
+					"embargoAudience": {
+						"title": "Embargo audience",
+						"type": "string",
+						"description": "The group or role that reads the paper while it is under embargo, for example fractievoorzitters."
+					}
+				},
+				"x-openregister-notifications": {
+					"embargoReleased": {
+						"trigger": {
+							"type": "updated",
+							"condition": {
+								"field": "embargoActive",
+								"operator": "equals",
+								"value": false
+							}
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							},
+							{
+								"kind": "groups",
+								"groups": [
+									"decidesk-members"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Embargo opgeheven: {{name}} is nu te lezen",
+							"en": "Embargo released: {{name}} can now be read"
+						},
+						"_note": "REQ-EMB-008 trigger 2: fires on the write that releases the embargo, so no release notice exists before the job has run for that paper. Declarative only (gate-18). Recipients follow the confidentiality-restriction notifications: object-acl(read) plus decidesk-members."
+					}
+				}
+			}
+		}
+	}
+}
