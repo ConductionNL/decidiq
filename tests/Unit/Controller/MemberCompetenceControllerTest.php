@@ -45,6 +45,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Service\CompetenceConfirmationGuard
  * @uses   \OCA\Decidiq\Service\GovernanceScopeGuard
  * @uses   \OCA\Decidiq\Service\MemberCompetenceService
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class MemberCompetenceControllerTest extends TestCase {
 

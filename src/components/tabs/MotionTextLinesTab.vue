@@ -83,6 +83,7 @@ import { NcButton, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import ChangeRecommendationDialog from '../../dialogs/ChangeRecommendationDialog.vue'
 import { newRecommendation } from '../../utils/changeRecommendations.js'
 import { numberLines } from '../../utils/lineNumbering.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { motionRecommendationContext } from './motionRecommendationContext.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -152,7 +153,8 @@ export default {
 			this.saving = true
 			this.saveError = ''
 			try {
-				await ensureRelationType('change-recommendation').saveObject(
+				await saveOrThrow(
+					ensureRelationType('change-recommendation'),
 					'change-recommendation',
 					newRecommendation(this.motionId, answer),
 				)

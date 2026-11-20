@@ -64,6 +64,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
  * @uses   \OCA\Decidiq\Exception\DossierRefusedException
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class DestructionCertificateRendererTest extends TestCase {
 

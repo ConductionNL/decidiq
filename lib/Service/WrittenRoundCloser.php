@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundCloserInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -37,7 +38,7 @@ use Throwable;
  *
  * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
  */
-class WrittenRoundCloser {
+class WrittenRoundCloser implements WrittenRoundCloserInterface {
 
 	/**
 	 * Constructor.

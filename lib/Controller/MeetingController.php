@@ -69,6 +69,8 @@ use OCP\IUserSession;
  * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-2.1
  */
 class MeetingController extends Controller {
+	use GovernanceControllerTrait;
+
 	/**
 	 * Constructor for MeetingController.
 	 *
@@ -142,10 +144,7 @@ class MeetingController extends Controller {
 		$result = $this->meetingService->transition(meetingId: $id, action: $action, currentUserId: $userId);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse($result);
@@ -295,10 +294,7 @@ class MeetingController extends Controller {
 		);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse($result);
@@ -334,10 +330,7 @@ class MeetingController extends Controller {
 		$result = $this->packageService->assemble(meetingId: $id, userId: $user->getUID());
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse($result);

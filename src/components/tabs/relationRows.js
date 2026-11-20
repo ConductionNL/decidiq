@@ -15,6 +15,7 @@
  */
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -81,7 +82,7 @@ export async function saveRelationRow(vm, formData) {
 	const listing = vm.relationListing()
 	const store = ensureRelationType(listing.type)
 	try {
-		await store.saveObject(listing.type, { ...formData, ...listing.filter })
+		await saveOrThrow(store, listing.type, { ...formData, ...listing.filter })
 		vm.$refs.formDialog?.setResult({ success: true })
 		vm.refresh()
 	} catch (e) {
