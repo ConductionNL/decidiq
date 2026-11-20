@@ -29,6 +29,7 @@ import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
+import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
@@ -50,6 +51,7 @@ import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue'
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
+import DecisionThemesTab from './components/tabs/DecisionThemesTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
@@ -59,6 +61,8 @@ import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvalua
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
+import GoverningDocumentCitationsTab from './components/tabs/GoverningDocumentCitationsTab.vue'
+import GoverningDocumentCitedByTab from './components/tabs/GoverningDocumentCitedByTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 // Meeting-scoped facet composition (meeting-facet-composition): kascommissie
 // verklaringen (VvE mode-gated) and incoming documents routed onto this
@@ -76,6 +80,7 @@ import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
 import MeetingSpeakersTab from './components/tabs/MeetingSpeakersTab.vue'
 import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
+import MeetingTeamsTab from './components/tabs/MeetingTeamsTab.vue'
 import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
 import MeetingVideoCallTab from './components/tabs/MeetingVideoCallTab.vue'
@@ -103,6 +108,9 @@ import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import ThemePublicationTab from './components/tabs/ThemePublicationTab.vue'
+import ThemeTimelineTab from './components/tabs/ThemeTimelineTab.vue'
+import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
 import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
@@ -366,6 +374,8 @@ export default {
 	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
 	MeetingRoomSystemTab: page(MeetingRoomSystemTab),
 	MeetingBroadcastTab: page(MeetingBroadcastTab),
+	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
+	MeetingTeamsTab: page(MeetingTeamsTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
@@ -540,11 +550,21 @@ export default {
 	// Document details on meeting and agenda item pages
 	// (platform-document-metadata-fields).
 	DocumentMetadataTab: page(DocumentMetadataTab),
+	// governing-documents-register (REQ-GDR-005): a decision's citations and a document's citing decisions.
+	GoverningDocumentCitationsTab: page(GoverningDocumentCitationsTab),
+	GoverningDocumentCitedByTab: page(GoverningDocumentCitedByTab),
 	// Office papers as PDF on meeting and agenda item pages
 	// (agenda-office-files-to-pdf).
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
+	// Theme pages (publication-theme-pages): the staff timeline and Publish on
+	// the theme page, and Add to theme on agenda item and decision pages.
+	ThemeTimelineTab: page(ThemeTimelineTab),
+	ThemePublicationTab: page(ThemePublicationTab),
+	AgendaItemThemesTab: page(AgendaItemThemesTab),
+	DecisionThemesTab: page(DecisionThemesTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
 	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---

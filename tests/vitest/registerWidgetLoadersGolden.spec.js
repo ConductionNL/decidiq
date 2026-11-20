@@ -119,6 +119,9 @@ const CONFIG_HELPERS = { contentWithDefaults, detailObjectId, plainObject }
 
 const BASE_MODULES = {
 	'@nextcloud/vue': { NcButton: {} },
+	'@nextcloud/axios': { default: { get: async () => ({ data: {} }) } },
+	'@nextcloud/router': { generateUrl: (path) => path },
+	'../../utils/governingDocumentCitations.js': { inForcePath: () => '', isCalendarDate: () => false },
 }
 
 const CONFIDENTIALITY = {

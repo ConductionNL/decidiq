@@ -17,6 +17,7 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 /**
  * Open the seeded budget item and wait for the summaries widget.
@@ -26,7 +27,7 @@ import { BASE_URL as BASE } from './base-url.ts'
  */
 async function openBudgetItem(page) {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Kadernota begroting 2026').first().click()
+	await openRow(page, 'Kadernota begroting 2026')
 	const widget = page.getByTestId('paper-summaries')
 	await expect(widget).toBeVisible()
 	return widget

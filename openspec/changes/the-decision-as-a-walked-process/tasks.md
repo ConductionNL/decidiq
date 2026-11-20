@@ -79,15 +79,33 @@ them reachable is in reachability-scope.md beside this file.
 ## 4. Admissibility
 
 - [x] 4.1 Add an `intake` step kind yielding `ontvankelijkheid`, `ground` and `decidedBy`.
-- [ ] 4.2 Close the route with `ended-at-intake` on `niet-ontvankelijk`.
-      <!-- NOT DELIVERED: `ended-at-intake` exists only as a constant on
-      AdmissibilityVerdictService. No route is closed with it, because nothing
-      calls the service. -->
-- [ ] 4.3 Refuse a verdict with no ground.
-      <!-- NOT DELIVERED: the refusal is real and unreachable. No caller. -->
+- [x] 4.2 Close the route with `ended-at-intake` on `niet-ontvankelijk`.
+      <!-- REACHABLE (2026-11-17): on a stage whose `stepKind` is `intake`,
+      ApprovalRouteService::record() hands the act to IntakeVerdictRecorder,
+      which validates it through AdmissibilityVerdictService::record(). A
+      `niet-ontvankelijk` verdict closes the route at that stage with outcome
+      `ended-at-intake` (ApprovalRouteAdvancer::concludeWithOutcome(), the walk a
+      return to the sender already used): no later stage becomes live. An
+      `ontvankelijk` verdict completes the stage and the route walks on. The
+      action row keeps the verdict as its verb (register fragment
+      89-an-intake-step-ends-with-a-verdict widens the action enum) and the
+      ground as its comment; on a decision the verdict, ground and who gave it
+      are written to `ontvankelijkheid*`. Proven by
+      ApprovalRouteServiceTest::testAnInadmissibleRequestEndsTheRouteAtIntake,
+      testAnAdmissibleRequestWalksOn, testAVerdictOnAnotherSubjectStaysOnTheRoute
+      and IntakeVerdictRecorderTest. -->
+- [x] 4.3 Refuse a verdict with no ground.
+      <!-- REACHABLE (2026-11-17): the refusal runs before any write, so a
+      `niet-ontvankelijk` verdict without a ground leaves no action row and no
+      stage change. A sign-off verb on an intake step, and a verdict on an
+      approval step, are refused too. Proven by
+      ApprovalRouteServiceTest::testAVerdictWithoutAGroundIsRefusedAndWritesNothing,
+      testASignOffOnAnIntakeStepIsRefused and testAVerdictOnAnApprovalStepIsRefused. -->
 - [ ] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
-      <!-- HALF: the PHPUnit is there. The read seam is not: no controller,
-      route or projection exposes `ontvankelijkheid` to dossiq. -->
+      <!-- HALF: the PHPUnit is there, on the service and on both engine paths.
+      The verdict now lands on the decision (`ontvankelijkheid*`) and on the
+      action trail, but no controller, route or projection exposes it to
+      dossiq yet: that consumer contract is the dossiq lane's (11.1). -->
 
 ## 5. Withdrawal
 

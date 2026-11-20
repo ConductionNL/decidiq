@@ -35,6 +35,35 @@
 						"isRecurring": true
 					}
 				],
+				"governance-body": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "ledenraad-vng",
+						"name": "Ledenraad VNG",
+						"bodyType": "association",
+						"domain": "association",
+						"votingDefault": "for-against-abstain",
+						"termStart": "2024-01-01T00:00:00Z",
+						"termEnd": "2025-12-31T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "vve-parkstaete",
+						"name": "VvE Parkstaete",
+						"bodyType": "association",
+						"domain": "association",
+						"workflowTemplate": "association",
+						"votingDefault": "for-against-abstain"
+					}
+				],
 				"audit-statement": [
 					{
 						"@self": {
@@ -565,35 +594,6 @@
 						"status": "draft"
 					}
 				],
-				"governance-body": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-body"
-						},
-						"slug": "ledenraad-vng",
-						"name": "Ledenraad VNG",
-						"bodyType": "association",
-						"domain": "association",
-						"votingDefault": "for-against-abstain",
-						"termStart": "2024-01-01T00:00:00Z",
-						"termEnd": "2025-12-31T00:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-body"
-						},
-						"slug": "vve-parkstaete",
-						"name": "VvE Parkstaete",
-						"bodyType": "association",
-						"domain": "association",
-						"workflowTemplate": "association",
-						"votingDefault": "for-against-abstain"
-					}
-				],
 				"governance-consultation": [
 					{
 						"@self": {
@@ -730,6 +730,79 @@
 						"status": "draft"
 					}
 				],
+				"person": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "jan-de-vries",
+						"name": "Jan de Vries",
+						"givenName": "Jan",
+						"familyName": "de Vries",
+						"gender": "male",
+						"email": "j.devries@waterschap.example",
+						"biography": "Secretaris / griffier."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "marie-janssen",
+						"name": "Marie Janssen",
+						"givenName": "Marie",
+						"familyName": "Janssen",
+						"gender": "female",
+						"email": "m.janssen@gemeente.example",
+						"biography": "Raadslid en lid van de VNG-ledenraad."
+					}
+				],
+				"membership": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"slug": "m-marie-vng",
+						"role": "member",
+						"label": "Lid ledenraad",
+						"votingWeight": 1,
+						"startDate": "2024-01-01T00:00:00Z",
+						"person": "marie-janssen",
+						"governanceBody": "ledenraad-vng"
+					}
+				],
+				"position-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-vng-treasurer",
+						"name": "Treasurer",
+						"governanceBody": "ledenraad-vng"
+					}
+				],
+				"position-hold": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-marie-vng-treasurer",
+						"membership": "m-marie-vng",
+						"position": "position-vng-treasurer",
+						"governanceBody": "ledenraad-vng",
+						"holdType": "regular",
+						"startDate": "2024-01-01"
+					}
+				],
 				"mandate-remuneration": [
 					{
 						"@self": {
@@ -766,22 +839,6 @@
 						"meetingMode": "in-person",
 						"lifecycle": "scheduled",
 						"quorumRequired": 50
-					}
-				],
-				"membership": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "membership"
-						},
-						"slug": "m-marie-vng",
-						"role": "member",
-						"label": "Lid ledenraad",
-						"votingWeight": 1,
-						"startDate": "2024-01-01T00:00:00Z",
-						"person": "marie-janssen",
-						"governanceBody": "ledenraad-vng"
 					}
 				],
 				"participant": [
@@ -826,34 +883,86 @@
 						"votingWeight": 1
 					}
 				],
-				"person": [
+				"planning-cycle-template": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "person"
+							"schema": "planning-cycle-template"
 						},
-						"slug": "jan-de-vries",
-						"name": "Jan de Vries",
-						"givenName": "Jan",
-						"familyName": "de Vries",
-						"gender": "male",
-						"email": "j.devries@waterschap.example",
-						"biography": "Secretaris / griffier."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "marie-janssen",
-						"name": "Marie Janssen",
-						"givenName": "Marie",
-						"familyName": "Janssen",
-						"gender": "female",
-						"email": "m.janssen@gemeente.example",
-						"biography": "Raadslid en lid van de VNG-ledenraad."
+						"slug": "association-jaarstukken",
+						"name": "Verenigings-/jaarstukkencyclus",
+						"context": "association",
+						"builtIn": true,
+						"steps": [
+							{
+								"stepType": "jaarstukken",
+								"label": "Jaarstukken",
+								"subjectYearOffset": -1,
+								"deliveryDeadline": "03-01",
+								"handlingDate": "04-15",
+								"documentSlots": [
+									{
+										"name": "Jaarrekening",
+										"required": true
+									},
+									{
+										"name": "Bestuursverslag",
+										"required": true
+									},
+									{
+										"name": "Kascommissieverslag",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "decharge",
+								"label": "Decharge bestuur",
+								"subjectYearOffset": -1,
+								"handlingDate": "04-15",
+								"documentSlots": []
+							},
+							{
+								"stepType": "berap",
+								"label": "Tussenrapportage",
+								"subjectYearOffset": 0,
+								"deliveryDeadline": "05-15",
+								"handlingDate": "06-20",
+								"documentSlots": [
+									{
+										"name": "Tussenrapportage",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "jaarplan",
+								"label": "Jaarplan",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Jaarplan",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "begroting",
+								"label": "Begroting",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Begroting",
+										"required": true
+									}
+								]
+							}
+						]
 					}
 				],
 				"planning-cycle": [
@@ -993,115 +1102,6 @@
 						"cycle": "jaarcyclus-2026-vereniging"
 					}
 				],
-				"planning-cycle-template": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "planning-cycle-template"
-						},
-						"slug": "association-jaarstukken",
-						"name": "Verenigings-/jaarstukkencyclus",
-						"context": "association",
-						"builtIn": true,
-						"steps": [
-							{
-								"stepType": "jaarstukken",
-								"label": "Jaarstukken",
-								"subjectYearOffset": -1,
-								"deliveryDeadline": "03-01",
-								"handlingDate": "04-15",
-								"documentSlots": [
-									{
-										"name": "Jaarrekening",
-										"required": true
-									},
-									{
-										"name": "Bestuursverslag",
-										"required": true
-									},
-									{
-										"name": "Kascommissieverslag",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "decharge",
-								"label": "Decharge bestuur",
-								"subjectYearOffset": -1,
-								"handlingDate": "04-15",
-								"documentSlots": []
-							},
-							{
-								"stepType": "berap",
-								"label": "Tussenrapportage",
-								"subjectYearOffset": 0,
-								"deliveryDeadline": "05-15",
-								"handlingDate": "06-20",
-								"documentSlots": [
-									{
-										"name": "Tussenrapportage",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "jaarplan",
-								"label": "Jaarplan",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Jaarplan",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "begroting",
-								"label": "Begroting",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Begroting",
-										"required": true
-									}
-								]
-							}
-						]
-					}
-				],
-				"position-hold": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "position-hold"
-						},
-						"slug": "ph-marie-vng-treasurer",
-						"membership": "m-marie-vng",
-						"position": "position-vng-treasurer",
-						"governanceBody": "ledenraad-vng",
-						"holdType": "regular",
-						"startDate": "2024-01-01"
-					}
-				],
-				"position-type": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "position-type"
-						},
-						"slug": "position-vng-treasurer",
-						"name": "Treasurer",
-						"governanceBody": "ledenraad-vng"
-					}
-				],
 				"proxy-authorization": [
 					{
 						"@self": {
@@ -1172,6 +1172,58 @@
 						"rejectionReason": "Onderwerp staat niet op de agenda van deze vergadering"
 					}
 				],
+				"voting-round": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"slug": "stemming-voorkeur-clubhuis",
+						"votingMethod": "ranked-choice",
+						"isSecret": false,
+						"openedAt": "2025-06-18T15:10:00Z",
+						"closedAt": "2025-06-18T15:25:00Z",
+						"quorumWith": true,
+						"options": [
+							{
+								"key": "renoveren",
+								"label": "Renovate the clubhouse"
+							},
+							{
+								"key": "nieuwbouw",
+								"label": "Build a new clubhouse"
+							},
+							{
+								"key": "huren",
+								"label": "Rent a hall"
+							}
+						],
+						"rankingResult": [
+							{
+								"key": "renoveren",
+								"label": "Renovate the clubhouse",
+								"points": 5,
+								"rank": 1
+							},
+							{
+								"key": "nieuwbouw",
+								"label": "Build a new clubhouse",
+								"points": 3,
+								"rank": 2
+							},
+							{
+								"key": "huren",
+								"label": "Rent a hall",
+								"points": 1,
+								"rank": 3
+							}
+						],
+						"winningOption": "renoveren",
+						"result": "adopted",
+						"tieBreakRule": "revote"
+					}
+				],
 				"vote": [
 					{
 						"@self": {
@@ -1232,58 +1284,6 @@
 						"castAs": "in-person",
 						"votingRound": "stemming-voorkeur-clubhuis",
 						"participant": "marie-janssen"
-					}
-				],
-				"voting-round": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "voting-round"
-						},
-						"slug": "stemming-voorkeur-clubhuis",
-						"votingMethod": "ranked-choice",
-						"isSecret": false,
-						"openedAt": "2025-06-18T15:10:00Z",
-						"closedAt": "2025-06-18T15:25:00Z",
-						"quorumWith": true,
-						"options": [
-							{
-								"key": "renoveren",
-								"label": "Renovate the clubhouse"
-							},
-							{
-								"key": "nieuwbouw",
-								"label": "Build a new clubhouse"
-							},
-							{
-								"key": "huren",
-								"label": "Rent a hall"
-							}
-						],
-						"rankingResult": [
-							{
-								"key": "renoveren",
-								"label": "Renovate the clubhouse",
-								"points": 5,
-								"rank": 1
-							},
-							{
-								"key": "nieuwbouw",
-								"label": "Build a new clubhouse",
-								"points": 3,
-								"rank": 2
-							},
-							{
-								"key": "huren",
-								"label": "Rent a hall",
-								"points": 1,
-								"rank": 3
-							}
-						],
-						"winningOption": "renoveren",
-						"result": "adopted",
-						"tieBreakRule": "revote"
 					}
 				]
 			}
