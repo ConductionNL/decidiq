@@ -220,7 +220,7 @@ class AnnotationService {
 		$stored = $this->visibleOrMissing(id: $id, userId: $userId);
 		$this->visibility->assertAuthor(annotation: $stored, userId: $userId);
 
-		$this->store->remove(id: $id);
+		$this->store->removeAll(ids: [$id]);
 	}//end delete()
 
 	/**
@@ -323,13 +323,7 @@ class AnnotationService {
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-006-author-can-delete-and-export-their-own-annotations-gdpr
 	 */
 	public function deleteOwn(string $userId): int {
-		$deleted = 0;
-		foreach ($this->own(userId: $userId) as $annotation) {
-			$this->store->remove(id: (string)$annotation['id']);
-			$deleted++;
-		}
-
-		return $deleted;
+		return $this->store->removeAll(ids: array_map(static fn (array $annotation): string => (string)$annotation['id'], $this->own(userId: $userId)));
 	}//end deleteOwn()
 
 	/**

@@ -136,19 +136,23 @@ class AnnotationStore {
 	}//end save()
 
 	/**
-	 * Delete in system context, after the checks above.
+	 * Delete annotations in system context, after the caller's checks.
 	 *
-	 * @param string $id The annotation
+	 * @param list<string> $ids The annotations
 	 *
-	 * @return void
+	 * @return int How many were deleted.
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-002-visibility-is-private-by-default-and-enforced-server-side
 	 */
-	public function remove(string $id): void {
-		$this->objectService->deleteObject(
-			new ObjectDeletion(uuid: $id, target: new ObjectFindTarget(register: 'decidiq', schema: AnnotationService::SCHEMA)),
-			_rbac: false,
-			_multitenancy: false
-		);
-	}//end remove()
+	public function removeAll(array $ids): int {
+		foreach ($ids as $id) {
+			$this->objectService->deleteObject(
+				new ObjectDeletion(uuid: $id, target: new ObjectFindTarget(register: 'decidiq', schema: AnnotationService::SCHEMA)),
+				_rbac: false,
+				_multitenancy: false
+			);
+		}
+
+		return count($ids);
+	}//end removeAll()
 }//end class
