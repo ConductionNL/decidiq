@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Refuses a bevoegdheidstoedeling whose ondermandaat chain is not allowed, before it is saved.
+ * Refuses a bevoegdheidstoedeling that names no delegans or no delegataris, or whose
+ * ondermandaat chain is not allowed, before it is saved.
  *
  * @category Listener
  * @package  OCA\Decidiq\Listener
@@ -23,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Exception\OndermandaatRefusedException;
+use OCA\Decidiq\Service\AnyOfFieldsGuard;
 use OCA\Decidiq\Service\OndermandaatGuardService;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -45,10 +47,12 @@ class OndermandaatGuardListener implements IEventListener {
 	 *
 	 * @param OndermandaatGuardService $guard  The chain check.
 	 * @param LoggerInterface          $logger The log.
+	 * @param AnyOfFieldsGuard         $fields The check that a delegans and a delegataris are named.
 	 */
 	public function __construct(
 		private readonly OndermandaatGuardService $guard,
 		private readonly LoggerInterface $logger,
+		private readonly AnyOfFieldsGuard $fields=new AnyOfFieldsGuard(),
 	) {
 	}//end __construct()
 
@@ -84,6 +88,12 @@ class OndermandaatGuardListener implements IEventListener {
 
 		if (isset($row['id']) === false && method_exists($entity, 'getUuid') === true && is_string($entity->getUuid()) === true) {
 			$row['id'] = $entity->getUuid();
+		}
+
+		$empty = $this->fields->emptyGroups(row: $row, groups: OndermandaatGuardService::PARTY_GROUPS);
+		if ($empty !== []) {
+			$this->refuse(event: $event, message: 'The toedeling was not saved: name ' . implode(' and ', $empty) . '.');
+			return;
 		}
 
 		try {
@@ -123,7 +133,7 @@ class OndermandaatGuardListener implements IEventListener {
 		foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
 			$candidate = ($row[$key] ?? null);
 			if (is_string($candidate) === true && $candidate !== '' && ctype_digit($candidate) === false) {
-				return strtolower($candidate) !== OndermandaatGuardService::SCHEMA;
+				return in_array(strtolower($candidate), OndermandaatGuardService::SCHEMAS, true) === false;
 			}
 		}
 
