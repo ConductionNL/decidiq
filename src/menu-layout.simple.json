@@ -3327,7 +3327,8 @@
 					"agenda-conflicts",
 					"agenda-speakers",
 					"agenda-paper-summaries",
-					"agenda-themes"
+					"agenda-themes",
+					"agenda-readers"
 				],
 				"layout": [
 					{
@@ -3375,6 +3376,9 @@
 					},
 					"agenda-themes": {
 						"type": "AgendaItemThemesTab"
+					},
+					"agenda-readers": {
+						"type": "AgendaItemReadersTab"
 					}
 				}
 			},

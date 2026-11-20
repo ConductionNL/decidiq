@@ -206,6 +206,9 @@ $extra = [
         // agenda-paper-watermark REQ-WMK-002: open a paper, stamped with the reader's name when the meeting asks for it.
         ['name' => 'paper#view', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/view', 'verb' => 'GET'],
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
+        // Named portal readers of a confidential item (portal-voting-record-and-confidential-papers REQ-PSH-002).
+        ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
+        ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
         // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.

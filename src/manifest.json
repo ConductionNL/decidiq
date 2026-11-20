@@ -1036,6 +1036,7 @@
 					{ "id": "agenda-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "agenda-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
 					{ "id": "agenda-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this agenda item, each with Annotate, which opens the annotator." },
+					{ "id": "agenda-readers", "type": "custom", "component": "AgendaItemReadersTab", "title": "Portal readers", "icon": "AccountKeyOutline", "_note": "portal-voting-record-and-confidential-papers (REQ-PSH-002): Lezers toevoegen — the secretariat, or the meeting's chair or secretary, names a person without a Nextcloud account as a portal reader of a non-public item by BSN or KvK number; decidiq keeps only the portal reference." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-speakers", "type": "custom", "component": "AgendaItemSpeakersTab", "title": "Public speakers", "icon": "AccountVoice", "_note": "inspreekrecht-plenair (REQ-INS-007): the approved public speakers of this item as speaking slots in their order with their minutes, and the pending requests after them, marked pending in text. Rejected requests are left out by the server." },
@@ -1056,7 +1057,8 @@
 					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 36, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "11", "widgetId": "agenda-speakers", "gridX": 0, "gridY": 42, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "12", "widgetId": "agenda-themes", "gridX": 0, "gridY": 46, "gridWidth": 12, "gridHeight": 3 },
-					{ "id": "13", "widgetId": "agenda-annotations", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "13", "widgetId": "agenda-annotations", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "14", "widgetId": "agenda-readers", "gridX": 0, "gridY": 52, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
