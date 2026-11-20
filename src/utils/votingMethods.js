@@ -16,6 +16,7 @@ export const VOTING_METHODS = Object.freeze([
 	'for-against-abstain',
 	'show-of-hands',
 	'weighted',
+	'roll-call',
 	'ranked-choice',
 ])
 

@@ -285,6 +285,7 @@
 				v-if="
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !isRollCallRound
 					&& !isRankedRound
 					&& !voteCast
 				"
@@ -322,6 +323,29 @@
 					{{ castVoteError }}
 				</p>
 			</div>
+
+			<!-- A roll call: members do not cast, the chair or secretary records each choice by name -->
+			<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+			<p
+				v-if="isRoundOpen && isRollCallRound"
+				class="decidiq-roll-call-notice"
+				role="status"
+				data-testid="roll-call-notice">
+				{{ t('decidiq', 'A roll call is in progress. The chair or the secretary records each vote by name.') }}
+			</p>
+			<NcButton
+				v-if="isRoundOpen && isRollCallRound && permissions.canEnterTally"
+				variant="primary"
+				data-testid="recorded-votes-open"
+				@click="showRecordedVotes = true">
+				{{ t('decidiq', 'Record votes by name') }}
+			</NcButton>
+			<RecordedVotesModal
+				v-if="showRecordedVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordedVotes = false" />
 
 			<!-- Vote confirmation message -->
 			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
@@ -592,10 +616,12 @@ import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import RecordVotesDialog from '../dialogs/RecordVotesDialog.vue'
+import RecordedVotesModal from '../modals/RecordedVotesModal.vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
+import { isRollCall } from '../utils/namedVotes.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
 import { excludedMemberNames, meetingBodyId, votingGroupChoices } from '../utils/votingGroups.js'
@@ -651,6 +677,7 @@ export default {
 		RankedBallot,
 		RankedResultsCard,
 		RecordVotesDialog,
+		RecordedVotesModal,
 	},
 
 	props: {
@@ -720,6 +747,7 @@ export default {
 			participantCount: 0,
 			participants: [],
 			showRecordVotes: false,
+			showRecordedVotes: false,
 			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
@@ -739,6 +767,7 @@ export default {
 				'for-against-abstain': this.t('decidiq', 'For / Against / Abstain'),
 				'show-of-hands': this.t('decidiq', 'Show of hands'),
 				weighted: this.t('decidiq', 'Weighted vote'),
+				'roll-call': this.t('decidiq', 'Roll call, recorded by name'),
 				'ranked-choice': this.t('decidiq', 'Ranked preference (Borda count)'),
 			}
 		},
@@ -768,14 +797,27 @@ export default {
 		 * round, not a show of hands, a ranked or a secret one.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		canEnterPaperVotes() {
 			const round = this.currentRound || {}
 			return (
 				round.votingMethod !== 'show-of-hands'
+				&& !isRollCall(round)
 				&& !this.isRankedRound
 				&& round.isSecret !== true
 			)
+		},
+
+		/**
+		 * Whether the current round is a roll call, whose votes the chair or
+		 * the secretary records by name.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		isRollCallRound() {
+			return isRollCall(this.currentRound)
 		},
 
 		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
@@ -1042,11 +1084,7 @@ export default {
 						...relationFilterFor(this.motionId),
 						_limit: 100,
 					}),
-					this.meetingId
-						? this.objectStore.fetchCollection('participant', {
-								'relations.meeting': this.meetingId,
-							})
-						: Promise.resolve(null),
+					this.meetingParticipants(),
 				])
 				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
@@ -1063,6 +1101,7 @@ export default {
 					id: member.id || member.uuid,
 					displayName: member.displayName || '',
 					party: member.party || '',
+					leftAt: member.leftAt || '',
 				}))
 				await this.loadDeclarations()
 			} catch {
@@ -1123,6 +1162,39 @@ export default {
 			const data = await resp.json()
 			this.castVoteError =
 				data.message || this.t('decidiq', 'Failed to cast vote')
+		},
+
+		/**
+		 * The participants of the meeting: the members of its governance body,
+		 * as the server counts them when a list is recorded by name.
+		 *
+		 * Participant carries no meeting property, so a meeting filter on it
+		 * matches nothing and the list came back empty on a healthy 200: the
+		 * entry sheet listed nobody and the not-voted count read zero. The body
+		 * is the link the server resolves (ParticipantResolver), so read that,
+		 * narrow by its property and keep only rows that reference the body.
+		 *
+		 * @return {Promise<Array<object>|null>} The participants, or null without a meeting.
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		async meetingParticipants() {
+			if (!this.meetingId) {
+				return null
+			}
+			const resp = await fetch(
+				generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId }),
+				{ headers: { Accept: 'application/json' } },
+			)
+			const bodyId = meetingBodyId(resp.ok ? await resp.json() : null)
+			if (!bodyId) {
+				return []
+			}
+			const participants = await this.objectStore.fetchCollection('participant', {
+				governanceBody: bodyId,
+				_limit: 500,
+			})
+			// A participant names its body the way a meeting does.
+			return (participants || []).filter((participant) => meetingBodyId(participant) === bodyId)
 		},
 
 		/**
@@ -1530,6 +1602,10 @@ export default {
 .decidiq-ori-status {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
+}
+
+.decidiq-roll-call-notice {
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-show-of-hands {
