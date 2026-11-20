@@ -80,7 +80,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-declarative-lifecycle
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
 	 */
 	public function testTheLifecycleIsDeclaredInTheCanonicalDialect(): void {
 		$schema    = MergedRegisterSchema::forSlug(slug: self::SLUG);
@@ -110,7 +110,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-004-declarative-reminders
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-004-deadline-rappels-are-declarative-notifications
 	 */
 	public function testTheNotificationsAreDeclared(): void {
 		$rules = MergedRegisterSchema::forSlug(slug: self::SLUG)['x-openregister-notifications'];
