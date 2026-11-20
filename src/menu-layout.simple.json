@@ -1957,6 +1957,9 @@
 					"meeting-annotations": {
 						"type": "DocumentAnnotationsTab"
 					},
+					"meeting-document-accessibility": {
+						"type": "DocumentAccessibilityTab"
+					},
 					"meeting-votes": {
 						"type": "MeetingVotesTab"
 					},
@@ -2179,6 +2182,10 @@
 								{
 									"label": "Annotate",
 									"widgetId": "meeting-annotations"
+								},
+								{
+									"label": "Accessibility",
+									"widgetId": "meeting-document-accessibility"
 								}
 							]
 						}
@@ -3405,6 +3412,9 @@
 					"agenda-annotations": {
 						"type": "DocumentAnnotationsTab"
 					},
+					"agenda-document-accessibility": {
+						"type": "DocumentAccessibilityTab"
+					},
 					"agenda-type-fields": {
 						"type": "AgendaItemTypeFieldsTab"
 					},
@@ -3474,6 +3484,10 @@
 								{
 									"label": "Annotate",
 									"widgetId": "agenda-annotations"
+								},
+								{
+									"label": "Accessibility",
+									"widgetId": "agenda-document-accessibility"
 								}
 							]
 						}

@@ -78,6 +78,10 @@ $extra = [
         // @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
         ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
+        // On-demand accessibility scan of one paper (document-accessibility-check REQ-001); reports stay on the OR object API.
+        // @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+        ['name' => 'accessibility#scan', 'url' => '/api/accessibility/scan', 'verb' => 'POST'],
+
         // Approval routes (approval-routes) — instantiate a sign-off route against
         // a subject, and record an action on it. Two DISTINCT route names: a
         // duplicate name is the route identifier colliding, which throws while

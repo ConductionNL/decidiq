@@ -23,6 +23,7 @@
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
 		<AccessibilitySettings />
+		<DocumentScanSettings v-if="storesReady" />
 		<RoleRightsSettings v-if="storesReady" />
 		<VotingGroupsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
@@ -39,6 +40,7 @@ import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import ConfidentialPapersSettings from './ConfidentialPapersSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
+import DocumentScanSettings from './DocumentScanSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
 import MemberProvisioningSettings from './MemberProvisioningSettings.vue'
 import MotionForwardingSettings from './MotionForwardingSettings.vue'
@@ -58,6 +60,7 @@ export default {
 		CnAdminSettingsShell,
 		CaseSystemSettings,
 		DecisionTypeSettings,
+		DocumentScanSettings,
 		MenuStructureTab,
 		MemberProvisioningSettings,
 		ConfidentialPapersSettings,

@@ -24,6 +24,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { registerDetailWidgets } from './components/widgets/registerDetailWidgets.js'
+import { registerReportWidgets } from './components/widgets/registerReportWidgets.js'
 import appIcons from './icons.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
@@ -312,6 +313,16 @@ setActivePinia(pinia)
 		// pages; every other page is unaffected.
 		// eslint-disable-next-line no-console
 		console.error('Boot: registerDetailWidgets() failed', e)
+	}
+
+	try {
+		// The report dashboards' own widgets (document-accessibility-check:
+		// the accessibility report's CSV export). Same timing as above.
+		await registerReportWidgets()
+	} catch (e) {
+		// Non-fatal: only the export button is missing from its report.
+		// eslint-disable-next-line no-console
+		console.error('Boot: registerReportWidgets() failed', e)
 	}
 
 	// Vue 3 (ADR-066): mount App as the root component directly and pass the

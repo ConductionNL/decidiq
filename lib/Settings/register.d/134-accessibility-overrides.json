@@ -1,0 +1,97 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/ and lib/Settings/example-sets/."
+  },
+  "_comment": "ADR-037 register fragment, change document-accessibility-check task 9 (REQ-005). One accessibility-override record per publication that went ahead past the document accessibility gate, written by DocumentPublicationGate through AccessibilityOverrideLog. The override itself stays where task 6 put it (the meeting's accessibilityOverrides, the publication record's accessibilityOverride); this record only makes the overrides countable per body and period by OpenRegister's aggregation endpoint, which the meeting's array and the publication record's object are not.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "accessibility-override"
+        ]
+      }
+    },
+    "schemas": {
+      "AccessibilityOverride": {
+        "slug": "accessibility-override",
+        "icon": "ShieldAlertOutline",
+        "version": "0.1.0",
+        "title": "Accessibility override",
+        "description": "A publication that went ahead past the document accessibility check: who, why, when, for which body, and the scan reports concerned. Written by the system on publication; counted by the accessibility report.",
+        "type": "object",
+        "required": [
+          "reason",
+          "overriddenAt"
+        ],
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string",
+            "description": "Why the publication went ahead past the accessibility check."
+          },
+          "actor": {
+            "title": "By",
+            "type": "string",
+            "description": "The user who published past the check."
+          },
+          "overriddenAt": {
+            "title": "At",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the publication went ahead past the check."
+          },
+          "governanceBody": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "description": "The body whose meeting the published documents belong to, for the per-body report."
+          },
+          "sourceObject": {
+            "title": "Source object",
+            "type": "string",
+            "format": "uuid",
+            "description": "The meeting, agenda item or decision whose documents were published."
+          },
+          "sourceSchema": {
+            "title": "Source type",
+            "type": "string",
+            "description": "The kind of record the documents are attached to."
+          },
+          "reports": {
+            "title": "Reports",
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "accessibility-scan-report"
+            },
+            "description": "The scan reports of the documents published past the check."
+          },
+          "documentCount": {
+            "title": "Documents",
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many documents were published past the check."
+          }
+        },
+        "x-openregister-aggregations": {
+          "overrideCount": {
+            "metric": "count",
+            "schema": "AccessibilityOverride",
+            "filter": {
+              "governanceBody": "@self.governanceBody"
+            }
+          }
+        },
+        "authorization": {
+          "read": ["authenticated"],
+          "list": ["authenticated"]
+        },
+        "_authorizationNote": "Written only by AccessibilityOverrideLog (through DocumentPublicationGate, when a publication goes ahead past the gate) with _rbac false. No write verb on the object API, so nobody can add or remove an override the report counts; a reason and an actor are for signed-in users only."
+      }
+    }
+  }
+}

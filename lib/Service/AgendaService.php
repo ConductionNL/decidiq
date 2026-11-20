@@ -86,6 +86,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
+	 * @param AgendaAccessibilityCheck|null $accessibilityCheck The document accessibility gate on publication
 	 * @param ShortenedNoticeService|null $shortenedNotice Checks an emergency convocation's shortened notice
 	 *
 	 * @return void
@@ -98,6 +99,7 @@ class AgendaService implements AgendaServiceInterface {
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly PublicationEventRecorder $eventRecorder,
+		private readonly ?AgendaAccessibilityCheck $accessibilityCheck=null,
 		private readonly ?ShortenedNoticeService $shortenedNotice=null,
 	) {
 		$this->rules   = new AgendaRules();
@@ -130,24 +132,41 @@ class AgendaService implements AgendaServiceInterface {
 	 * Validates that at least one AgendaItem exists for the meeting, records
 	 * the publication (agendaPublishedAt, agendaVersion and a snapshot in
 	 * agendaVersions) and notifies all active participants. The Meeting
-	 * lifecycle is left alone (#1396).
+	 * lifecycle is left alone (#1396). The accessibility gate checks the
+	 * meeting's and items' files first; an override is kept on the meeting.
 	 *
-	 * @param string      $meetingId             UUID of the Meeting to publish
-	 * @param string|null $noticeReason          Null for a regular convocation; a string (empty for the
-	 *                                           urgency reason) for an emergency convocation at shortened notice
+	 * @param string               $meetingId     UUID of the Meeting to publish
+	 * @param string|null          $noticeReason  Null for a regular convocation; a string (empty for the
+	 *                                            urgency reason) for an emergency convocation at shortened notice
+	 * @param array<string, mixed> $accessibility `acknowledged`: the publisher acknowledged the documents the gate lists;
+	 *                                            `overrideReason`: the reason for publishing past the gate, when given
 	 *
 	 * @return void
 	 *
 	 * @throws InvalidArgumentException When no agenda items exist for the meeting, or the shortened notice is refused
 	 *
+	 * The accessibility gate's exception passes through unchanged when the gate holds the publication back
+	 * (see AgendaServiceInterface::publishAgenda()); nothing is written then.
+	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public function publishAgenda(string $meetingId, ?string $noticeReason=null): void {
+	public function publishAgenda(string $meetingId, ?string $noticeReason=null, array $accessibility=[]): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
-		$meeting   = $this->readMeeting(meetingId: $meetingId);
+		$meeting = $this->readMeeting(meetingId: $meetingId);
+		// The accessibility gate runs before anything is written; an override is kept on the meeting.
+		$override = $this->accessibilityCheck?->overrideFor(
+			publication: ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items],
+			consent: $accessibility
+		);
+		if ($override !== null) {
+			$meeting['accessibilityOverrides']   = (array)($meeting['accessibilityOverrides'] ?? []);
+			$meeting['accessibilityOverrides'][] = $override;
+		}
+
 		$deviation = [];
 		if ($noticeReason !== null) {
 			// Checked before anything is saved or sent: a refused deviation records nothing.

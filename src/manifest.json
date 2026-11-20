@@ -893,6 +893,7 @@
 					{ "id": "meeting-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "meeting-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
 					{ "id": "meeting-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this meeting, each with Annotate, which opens the annotator. The Documents leaf offers no per-row action, so the papers are listed here (design.md fallback)." },
+					{ "id": "meeting-document-accessibility", "type": "custom", "component": "DocumentAccessibilityTab", "title": "Accessibility", "icon": "FileDocumentCheckOutline", "_note": "document-accessibility-check (REQ-002/004): each file with its accessibility badge, the findings with how to fix them, and Check now for a file not checked yet." },
 					{ "id": "meeting-votes", "type": "custom", "component": "MeetingVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "meeting-publication", "type": "custom", "component": "AgendaPublicationTab", "title": "Publication", "icon": "Web" },
 					{ "id": "meeting-series", "type": "custom", "component": "MeetingSeriesTab", "title": "Series", "icon": "Timeline" },
@@ -913,6 +914,7 @@
 					{ "id": "30", "widgetId": "meeting-room-system", "gridX": 0, "gridY": 91, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "31", "widgetId": "meeting-teams", "gridX": 8, "gridY": 15, "gridWidth": 4, "gridHeight": 3 },
 					{ "id": "32", "widgetId": "meeting-pack", "gridX": 0, "gridY": 96, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "33", "widgetId": "meeting-document-accessibility", "gridX": 0, "gridY": 102, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "13", "widgetId": "meeting-stats-agenda-items", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "14", "widgetId": "meeting-stats-action-items", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "12", "widgetId": "meeting-participants", "gridX": 8, "gridY": 4, "gridWidth": 4, "gridHeight": 8 },
@@ -1205,6 +1207,7 @@
 					{ "id": "agenda-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
 					{ "id": "agenda-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this agenda item, each with Annotate, which opens the annotator." },
 					{ "id": "agenda-readers", "type": "custom", "component": "AgendaItemReadersTab", "title": "Portal readers", "icon": "AccountKeyOutline", "_note": "portal-voting-record-and-confidential-papers (REQ-PSH-002): Lezers toevoegen — the secretariat, or the meeting's chair or secretary, names a person without a Nextcloud account as a portal reader of a non-public item by BSN or KvK number; decidiq keeps only the portal reference." },
+					{ "id": "agenda-document-accessibility", "type": "custom", "component": "DocumentAccessibilityTab", "title": "Accessibility", "icon": "FileDocumentCheckOutline", "_note": "document-accessibility-check (REQ-002/004): each file with its accessibility badge, the findings with how to fix them, and Check now for a file not checked yet." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-speakers", "type": "custom", "component": "AgendaItemSpeakersTab", "title": "Public speakers", "icon": "AccountVoice", "_note": "inspreekrecht-plenair (REQ-INS-007): the approved public speakers of this item as speaking slots in their order with their minutes, and the pending requests after them, marked pending in text. Rejected requests are left out by the server." },
@@ -1226,7 +1229,8 @@
 					{ "id": "11", "widgetId": "agenda-speakers", "gridX": 0, "gridY": 42, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "12", "widgetId": "agenda-themes", "gridX": 0, "gridY": 46, "gridWidth": 12, "gridHeight": 3 },
 					{ "id": "13", "widgetId": "agenda-annotations", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 3 },
-					{ "id": "14", "widgetId": "agenda-readers", "gridX": 0, "gridY": 52, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "14", "widgetId": "agenda-readers", "gridX": 0, "gridY": 52, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "15", "widgetId": "agenda-document-accessibility", "gridX": 0, "gridY": 57, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -2093,6 +2097,14 @@
 						"icon": "CalendarCheckOutline",
 						"category": "meetings",
 						"route": "MeetingsReport"
+					},
+					{
+						"id": "AccessibilityReport",
+						"label": "Document accessibility",
+						"description": "Which published papers passed the heuristic accessibility check.",
+						"icon": "FileDocumentCheckOutline",
+						"category": "meetings",
+						"route": "AccessibilityReport"
 					},
 					{
 						"id": "Engagement",

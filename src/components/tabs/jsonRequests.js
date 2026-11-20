@@ -21,13 +21,21 @@ function jsonHeaders() {
 }
 
 /**
- * POST to an app path, without a body.
+ * POST to an app path, without a body unless one is given.
  *
  * @param {string} path The app path, before generateUrl.
+ * @param {object} [body] The body, serialised as JSON.
  * @return {Promise<Response>} The response.
  */
-export function postJson(path) {
-	return fetch(generateUrl(path), { method: 'POST', headers: jsonHeaders() })
+export function postJson(path, body) {
+	if (body === undefined) {
+		return fetch(generateUrl(path), { method: 'POST', headers: jsonHeaders() })
+	}
+	return fetch(generateUrl(path), {
+		method: 'POST',
+		headers: jsonHeaders(),
+		body: JSON.stringify(body),
+	})
 }
 
 /**
