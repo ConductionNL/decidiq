@@ -2667,7 +2667,7 @@
 						"method": "chair-register",
 						"decisionMakerType": "body",
 						"label": "Spoedbesluit",
-						"decision": "spoedbesluit-noodverordening-havenfestival-2026",
+						"decision": "spoed-noodverordening-havenfestival",
 						"assignedBody": "college-van-b-en-w-amsterdam"
 					},
 					{
@@ -2684,7 +2684,7 @@
 						"method": "vote",
 						"decisionMakerType": "body",
 						"label": "Ratification",
-						"decision": "spoedbesluit-noodverordening-havenfestival-2026",
+						"decision": "spoed-noodverordening-havenfestival",
 						"assignedBody": "gemeenteraad-amsterdam",
 						"placementPending": false
 					},
@@ -2704,7 +2704,7 @@
 						"method": "chair-register",
 						"decisionMakerType": "body",
 						"label": "Spoedbesluit",
-						"decision": "spoedbesluit-opvang-sporthal-de-linde",
+						"decision": "spoed-opvang-sporthal-de-linde",
 						"assignedBody": "college-van-b-en-w-amsterdam"
 					},
 					{
@@ -2721,7 +2721,7 @@
 						"method": "vote",
 						"decisionMakerType": "body",
 						"label": "Ratification",
-						"decision": "spoedbesluit-opvang-sporthal-de-linde",
+						"decision": "spoed-opvang-sporthal-de-linde",
 						"assignedBody": "gemeenteraad-amsterdam",
 						"placementPending": true
 					},
@@ -2741,7 +2741,7 @@
 						"method": "chair-register",
 						"decisionMakerType": "body",
 						"label": "Spoedbesluit",
-						"decision": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"decision": "spoed-noodlocatie-hoogwater-2026",
 						"assignedBody": "college-van-b-en-w-amsterdam"
 					},
 					{
@@ -2758,7 +2758,7 @@
 						"method": "vote",
 						"decisionMakerType": "body",
 						"label": "Ratification",
-						"decision": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"decision": "spoed-noodlocatie-hoogwater-2026",
 						"assignedBody": "gemeenteraad-amsterdam",
 						"placementPending": false,
 						"outcome": "adopted",
@@ -2780,7 +2780,7 @@
 						"method": "chair-register",
 						"decisionMakerType": "body",
 						"label": "Spoedbesluit",
-						"decision": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"decision": "spoed-herstel-brug-lindengracht",
 						"assignedBody": "college-van-b-en-w-amsterdam"
 					},
 					{
@@ -2797,7 +2797,7 @@
 						"method": "vote",
 						"decisionMakerType": "body",
 						"label": "Ratification",
-						"decision": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"decision": "spoed-herstel-brug-lindengracht",
 						"assignedBody": "gemeenteraad-amsterdam",
 						"placementPending": false,
 						"outcome": "adopted",
@@ -3200,7 +3200,7 @@
 							"register": "decidiq",
 							"schema": "decision"
 						},
-						"slug": "spoedbesluit-noodverordening-havenfestival-2026",
+						"slug": "spoed-noodverordening-havenfestival",
 						"id": "a1d10000-0000-4000-a000-000000000211",
 						"uuid": "a1d10000-0000-4000-a000-000000000211",
 						"decisionType": "resolution",
@@ -3225,7 +3225,7 @@
 							"register": "decidiq",
 							"schema": "decision"
 						},
-						"slug": "spoedbesluit-opvang-sporthal-de-linde",
+						"slug": "spoed-opvang-sporthal-de-linde",
 						"id": "a1d10000-0000-4000-a000-000000000212",
 						"uuid": "a1d10000-0000-4000-a000-000000000212",
 						"decisionType": "resolution",
@@ -3248,7 +3248,7 @@
 							"register": "decidiq",
 							"schema": "decision"
 						},
-						"slug": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"slug": "spoed-noodlocatie-hoogwater-2026",
 						"id": "a1d10000-0000-4000-a000-000000000213",
 						"uuid": "a1d10000-0000-4000-a000-000000000213",
 						"decisionType": "resolution",
@@ -3273,7 +3273,7 @@
 							"register": "decidiq",
 							"schema": "decision"
 						},
-						"slug": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"slug": "spoed-herstel-brug-lindengracht",
 						"id": "a1d10000-0000-4000-a000-000000000214",
 						"uuid": "a1d10000-0000-4000-a000-000000000214",
 						"decisionType": "resolution",

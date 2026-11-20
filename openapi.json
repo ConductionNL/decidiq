@@ -1744,7 +1744,7 @@
             "post": {
                 "operationId": "urgentProcedure-declareUrgency",
                 "summary": "Declare a decision urgent",
-                "description": "Declare a decision urgent. POST /api/decisions/{decisionId}/urgency with reason and an optional ratifyingBody. Reads the decision with the caller's object rights, then authorises the caller against the body's urgency policy (the resolved meeting chair or an allowed role; fails closed). Stores isUrgent, urgencyReason, urgencyDeclaredBy and urgencyDeclaredAt without changing the lifecycle, and appends the ratifying stage. Returns 200 with the decision and its ratification, 403 for another caller, 404, 409 when already urgent, 422 without a policy or a reason. Needs a signed-in Nextcloud user.",
+                "description": "Declare a decision urgent. POST /api/decisions/{decisionId}/urgency with reason, urgencyDeclaredByBody (the governance body on whose behalf it is declared), an optional urgencyDeclaredInOffice (the office, when the power is one person's) and an optional ratifyingBody. Reads the decision with the caller's object rights, then authorises the caller against the body's urgency policy (the resolved meeting chair or an allowed role; fails closed). Stores isUrgent, urgencyReason, urgencyDeclaredBy, urgencyDeclaredAt, urgencyDeclaredByBody and urgencyDeclaredInOffice without changing the lifecycle, and appends the ratifying stage. Returns 200 with the decision and its ratification, 403 for another caller, 404, 409 when already urgent, 422 without a policy, a reason or a declaring body. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "decision"
                 ],
@@ -1771,6 +1771,12 @@
                                     },
                                     "ratifyingBody": {
                                         "description": "A ratifying body other than the policy's (optional)."
+                                    },
+                                    "urgencyDeclaredByBody": {
+                                        "description": "UUID of the governance body on whose behalf the decision is declared urgent (required)."
+                                    },
+                                    "urgencyDeclaredInOffice": {
+                                        "description": "The office that holds the urgency power when it is one person's, such as the mayor (optional)."
                                     }
                                 },
                                 "additionalProperties": false
@@ -1778,6 +1784,63 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
+        "/decisions/{decisionId}/urgency/reported": {
+            "post": {
+                "operationId": "urgentProcedure-reported",
+                "summary": "Record that an urgent decision was reported to its ratifying body",
+                "description": "Record that an urgent decision was reported to its ratifying body. POST /api/decisions/{decisionId}/urgency/reported, no body. Reads the decision with the caller's object rights, then lets only the roles the body's urgency policy allows to declare urgency run it (fails closed, checked before the decision's state). Sets reportedToRatifyingBodyAt to today when it is empty; a later call keeps the first date and answers alreadyReported. Returns 200 with the decision and alreadyReported, 403 for another caller, 404, 409 when the decision is not urgent, 422 without a policy. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "The request succeeded.",
