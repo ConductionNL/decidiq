@@ -882,6 +882,9 @@
 					"decision-related": {
 						"type": "RelatedDecisionsTab"
 					},
+					"decision-amendments": {
+						"type": "MotionAmendmentsTab"
+					},
 					"decision-approval": {
 						"type": "DecisionApprovalTab"
 					},
@@ -1273,6 +1276,11 @@
 								{
 									"widgetId": "decision-related",
 									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-amendments",
+									"label": "Amendments",
 									"overflow": true
 								},
 								{
