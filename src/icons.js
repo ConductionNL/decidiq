@@ -14,6 +14,7 @@
 
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountArrowRightOutline from 'vue-material-design-icons/AccountArrowRightOutline.vue'
+import AccountBox from 'vue-material-design-icons/AccountBox.vue'
 import AccountBoxOutline from 'vue-material-design-icons/AccountBoxOutline.vue'
 import AccountCheckOutline from 'vue-material-design-icons/AccountCheckOutline.vue'
 import AccountClockOutline from 'vue-material-design-icons/AccountClockOutline.vue'
@@ -69,6 +70,7 @@ import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue
 import ClipboardCheckOutline from 'vue-material-design-icons/ClipboardCheckOutline.vue'
 import ClipboardList from 'vue-material-design-icons/ClipboardList.vue'
 import ClipboardListOutline from 'vue-material-design-icons/ClipboardListOutline.vue'
+import ClipboardText from 'vue-material-design-icons/ClipboardText.vue'
 import ClipboardTextClockOutline from 'vue-material-design-icons/ClipboardTextClockOutline.vue'
 import ClipboardTextOutline from 'vue-material-design-icons/ClipboardTextOutline.vue'
 import CloseCircleOutline from 'vue-material-design-icons/CloseCircleOutline.vue'
@@ -86,6 +88,7 @@ import DatabaseOutline from 'vue-material-design-icons/DatabaseOutline.vue'
 import DeleteClockOutline from 'vue-material-design-icons/DeleteClockOutline.vue'
 import Domain from 'vue-material-design-icons/Domain.vue'
 import Earth from 'vue-material-design-icons/Earth.vue'
+import EarthOff from 'vue-material-design-icons/EarthOff.vue'
 import Email from 'vue-material-design-icons/Email.vue'
 import EmailArrowLeftOutline from 'vue-material-design-icons/EmailArrowLeftOutline.vue'
 import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOutline.vue'
@@ -129,12 +132,14 @@ import OfficeBuilding from 'vue-material-design-icons/OfficeBuilding.vue'
 import OfficeBuildingOutline from 'vue-material-design-icons/OfficeBuildingOutline.vue'
 import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
+import Poll from 'vue-material-design-icons/Poll.vue'
 import PowerPlugOutline from 'vue-material-design-icons/PowerPlugOutline.vue'
 import ProgressCheck from 'vue-material-design-icons/ProgressCheck.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
 import SeatOutline from 'vue-material-design-icons/SeatOutline.vue'
 import SetMerge from 'vue-material-design-icons/SetMerge.vue'
+import ShieldAlertOutline from 'vue-material-design-icons/ShieldAlertOutline.vue'
 import ShieldCheckOutline from 'vue-material-design-icons/ShieldCheckOutline.vue'
 import ShieldKeyOutline from 'vue-material-design-icons/ShieldKeyOutline.vue'
 import ShieldLockOutline from 'vue-material-design-icons/ShieldLockOutline.vue'
@@ -161,6 +166,7 @@ import Web from 'vue-material-design-icons/Web.vue'
 export default {
 	Account,
 	AccountArrowRightOutline,
+	AccountBox,
 	AccountBoxOutline,
 	AccountCheckOutline,
 	AccountClockOutline,
@@ -196,6 +202,7 @@ export default {
 	BullhornOutline,
 	Calendar,
 	CalendarAccountOutline,
+	CalendarArrowRight,
 	CalendarBlankOutline,
 	CalendarCheckOutline,
 	CalendarClock,
@@ -203,8 +210,6 @@ export default {
 	CalendarMonthOutline,
 	CalendarMultiple,
 	CalendarTextOutline,
-	CalendarArrowRight,
-	ViewColumnOutline,
 	CardAccountDetailsOutline,
 	CartOutline,
 	Cash,
@@ -215,8 +220,9 @@ export default {
 	CheckCircleOutline,
 	CheckboxMarkedOutline,
 	ClipboardCheckOutline,
-	ClipboardListOutline,
 	ClipboardList,
+	ClipboardListOutline,
+	ClipboardText,
 	ClipboardTextClockOutline,
 	ClipboardTextOutline,
 	CloseCircleOutline,
@@ -224,8 +230,8 @@ export default {
 	Cog,
 	CogOutline,
 	CommentAccountOutline,
-	CommentOutline,
 	CommentCheckOutline,
+	CommentOutline,
 	CommentQuestionOutline,
 	CommentQuoteOutline,
 	CommentTextOutline,
@@ -234,6 +240,7 @@ export default {
 	DeleteClockOutline,
 	Domain,
 	Earth,
+	EarthOff,
 	Email,
 	EmailArrowLeftOutline,
 	EmailArrowRightOutline,
@@ -241,18 +248,18 @@ export default {
 	Export,
 	EyeOutline,
 	FileChartOutline,
+	FileCogOutline,
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
-	FileCogOutline,
 	FileDocumentOutline,
 	FileLockOutline,
 	FilePdfBox,
 	FileReplaceOutline,
 	FileSign,
 	FolderOutline,
-	FormatListChecks,
 	FormatListBulleted,
+	FormatListChecks,
 	FormatListNumbered,
 	ForumOutline,
 	Gauge,
@@ -277,12 +284,14 @@ export default {
 	OfficeBuildingOutline,
 	Package,
 	PackageVariantClosed,
+	Poll,
 	PowerPlugOutline,
 	ProgressCheck,
 	ReceiptOutline,
 	ScaleBalance,
 	SeatOutline,
 	SetMerge,
+	ShieldAlertOutline,
 	ShieldCheckOutline,
 	ShieldKeyOutline,
 	ShieldLockOutline,
@@ -301,6 +310,7 @@ export default {
 	TrashCanOutline,
 	TrayFull,
 	Video,
+	ViewColumnOutline,
 	ViewDashboardOutline,
 	VoteOutline,
 	Web,
