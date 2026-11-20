@@ -167,7 +167,10 @@ final class MemberGroupPolicy {
 		$allowed = [];
 		foreach (explode(',', $raw) as $name) {
 			$name = trim($name);
-			if ($name === '' || in_array(strtolower($name), OnboardingProvisioningService::PROTECTED_GROUPS, true) === true || in_array($name, $allowed, true) === true) {
+			if ($name === ''
+				|| in_array(strtolower($name), OnboardingProvisioningService::PROTECTED_GROUPS, true) === true
+				|| in_array($name, $allowed, true) === true
+			) {
 				continue;
 			}
 
