@@ -85,7 +85,8 @@ for (const manifestPage of staticPages) {
 		await page.goto(
 			`${BASE}/index.php/apps/decidiq${manifestPage.route === '/' ? '/' : manifestPage.route}`,
 		)
-		await page.waitForLoadState('networkidle')
+		await page.waitForLoadState('domcontentloaded')
+		await expect(page.locator('main').first()).toBeVisible()
 
 		expect(
 			await sidewaysOverflow(page),
@@ -115,7 +116,8 @@ test(`MeetingDetail: the agenda reads in one column and its actions are reachabl
 	const firstRow = page.locator('tbody tr').first()
 	await expect(firstRow).toBeVisible()
 	await openRow(page, (await firstRow.innerText()).split('\n')[0].trim())
-	await page.waitForLoadState('networkidle')
+	await page.waitForLoadState('domcontentloaded')
+	await expect(page.locator('main').first()).toBeVisible()
 
 	expect(await sidewaysOverflow(page), 'the meeting page scrolls sideways').toBe(0)
 	for (const action of await page.locator('main button').all()) {
