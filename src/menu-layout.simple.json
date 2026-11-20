@@ -905,6 +905,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"decision-urgency": {
+						"type": "UrgencyBanner"
+					},
 					"decision-lifecycle": {
 						"type": "DecisionLifecycleTab"
 					},
@@ -1111,6 +1114,10 @@
 						"icon": "NoteTextOutline",
 						"content": {
 							"sections": [
+								{
+									"label": "Urgency",
+									"widgetId": "decision-urgency"
+								},
 								{
 									"label": "Content",
 									"widgetId": "decision-content"
@@ -2789,6 +2796,16 @@
 						"widgetId": "wor-response-overdue",
 						"gridX": 9,
 						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "urgency-kpi",
+						"widgetId": "awaiting-ratification-kpi",
+						"gridX": 0,
+						"gridY": 38,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,

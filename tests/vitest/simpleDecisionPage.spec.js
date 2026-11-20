@@ -518,9 +518,10 @@ describe('the decision page in the simple structure', () => {
 		// governing-documents-register the cited governing documents,
 		// publication-theme-pages the themes block,
 		// delegatie-mandaatregister the authority basis block,
-		// capability-rows-get-requirements the amendments (mot-02), and
-		// followup-implementation-progress the Implementation block.
-		expect(declared).toHaveLength(23)
+		// capability-rows-get-requirements the amendments (mot-02),
+		// followup-implementation-progress the Implementation block, and
+		// urgent-decision-procedure the urgency block.
+		expect(declared).toHaveLength(24)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {
