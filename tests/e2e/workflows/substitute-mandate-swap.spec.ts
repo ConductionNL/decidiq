@@ -33,12 +33,15 @@ test('the secretary swaps seat 3 for the substitute and ends the swap', async ({
 }) => {
 	const body = await createObject(page, ledger, 'governance-body', {
 		name: `${tag}-Auditcommissie`,
-		bodyType: 'committee',
+		bodyType: 'advisory-body',
+		domain: 'municipal',
 	})
 	const meeting = await createObject(page, ledger, 'meeting', {
 		title: `${tag} Auditcommissie 4 maart`,
 		governanceBody: idOf(body),
 		scheduledDate: '2026-03-04T19:30:00Z',
+		meetingType: 'committee',
+		meetingMode: 'in-person',
 		lifecycle: 'opened',
 	})
 	await createObject(page, ledger, 'participant', {
@@ -75,8 +78,7 @@ test('the secretary swaps seat 3 for the substitute and ends the swap', async ({
 	await modal.getByTestId('mandate-swap-substitute').click()
 	await page.getByRole('option', { name: new RegExp(`${tag} De Wit`) }).click()
 	await modal
-		.getByTestId('mandate-swap-reason')
-		.locator('input')
+		.getByLabel('Reason')
 		.fill('Mr Bos left for another appointment')
 	await modal.getByTestId('mandate-swap-confirm').click()
 

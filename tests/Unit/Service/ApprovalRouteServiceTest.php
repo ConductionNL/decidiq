@@ -1029,4 +1029,247 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('approvalBasis', $this->stages()[0]);
 	}
 
+
+	/**
+	 * Seed an approval action row straight into the fake, as a stored row.
+	 *
+	 * @param string               $uuid The row's uuid.
+	 * @param array<string, mixed> $row  The row.
+	 *
+	 * @return void
+	 */
+	private function seedAction(string $uuid, array $row): void {
+		$this->objectService->rows['approval-action'][$uuid] = ($row + ['id' => $uuid]);
+	}
+
+	/**
+	 * Every recorded act carries the state it ends in, so none reads as open.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testARecordedActCarriesItsTerminalState(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
+
+		$states = array_map(
+			static fn (array $a): string => (string)$a['action'] . ':' . (string)$a['state'],
+			array_values($this->objectService->rows['approval-action'])
+		);
+		$this->assertSame(['advised:granted', 'endorsed:granted', 'returned:refused'], $states);
+	}
+
+	/**
+	 * An open mandatory approval assigned to somebody else holds the step, and
+	 * the refusal names it; nothing is written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$before = $this->statuses();
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+			$this->fail('An open mandatory approval must hold the step.');
+		} catch (RuntimeException $e) {
+			$this->assertSame('This subject is waiting on an approval: j.jansen at step 1.', $e->getMessage());
+		}
+
+		$this->assertSame($before, $this->statuses(), 'A refused advance changes no stage.');
+		$this->assertSame(['open-1'], array_keys($this->objectService->rows['approval-action']), 'A refused advance records no action.');
+	}
+
+	/**
+	 * The actor's own open approval does not hold them up; their act ends it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testTheActorsOwnOpenApprovalIsEndedByTheirAct(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'bob']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+		$this->assertSame('granted', $this->objectService->rows['approval-action']['open-1']['state']);
+	}
+
+	/**
+	 * Open approvals on another step, on an optional step, or rows that record
+	 * an act but still read `open` (stored before the state was written) never
+	 * hold the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(thirdMandatory: false), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'legacy', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => 'x', 'action' => 'advised', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'other-subject', row: ['subject' => 'subj-2', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+			$this->fail('The open approval on step 2 must hold step 2.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('j.jansen at step 2', $e->getMessage());
+		}
+
+		// An optional step is never held: skipping it is already allowed.
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => 'alice', 'action' => 'endorsed', 'state' => 'granted']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$this->seedAction(uuid: 'optional', row: ['subject' => 'subj-1', 'step' => 3, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
+		$this->assertSame(['decided', 'decided', 'skipped'], $this->statuses());
+	}
+
+	/**
+	 * A route opening with an intake step, on a decision.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function intakeRoute(): array {
+		return [
+			'name' => 'Intake route',
+			'steps' => [
+				['order' => 1, 'stageType' => 'decisive', 'stepKind' => 'intake', 'actorType' => 'person', 'actor' => 'alice', 'label' => 'Ontvankelijkheid'],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict closes the route at intake and no later step becomes live.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnInadmissibleRequestEndsTheRouteAtIntake(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => 'Artikel 4:5 Awb']);
+
+		$this->assertSame(['decided', 'pending'], $this->statuses());
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('outcome', $this->stages()[1]);
+		$this->assertSame('niet-ontvankelijk', $recorded['action']);
+		$this->assertSame('refused', $recorded['state']);
+		$this->assertSame('Artikel 4:5 Awb', $recorded['comment']);
+		$this->assertSame(
+			['ontvankelijkheid' => 'niet-ontvankelijk', 'ontvankelijkheidGround' => 'Artikel 4:5 Awb', 'ontvankelijkheidDecidedBy' => 'alice', 'id' => 'dec-1'],
+			$this->objectService->rows['decision']['dec-1']
+		);
+	}
+
+	/**
+	 * An ontvankelijk verdict completes the intake step and the route walks on.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnAdmissibleRequestWalksOn(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'ontvankelijk']);
+
+		$this->assertSame(['decided', 'active'], $this->statuses());
+		$this->assertSame('ontvankelijk', $this->stages()[0]['outcome']);
+		$this->assertSame('granted', $recorded['state']);
+		$this->assertSame('ontvankelijk', $this->objectService->rows['decision']['dec-1']['ontvankelijkheid']);
+	}
+
+	/**
+	 * The verdict is written onto the subject only when the subject is a decision.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnotherSubjectStaysOnTheRoute(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'case-1', subjectSchema: 'proposal');
+
+		$service->record(['subject' => 'case-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'comment' => 'Te laat ingediend']);
+
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict without a ground is refused and leaves no trace.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictWithoutAGroundIsRefusedAndWritesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		try {
+			$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => '  ']);
+			$this->fail('A verdict without a ground was accepted.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('needs the ground it rests on', $e->getMessage());
+		}
+
+		$this->assertSame(['active', 'pending'], $this->statuses());
+		$this->assertSame([], $this->objectService->rows['approval-action']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * An intake step takes a verdict, not a sign-off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testASignOffOnAnIntakeStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown verdict "approved"');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'approved']);
+	}
+
+	/**
+	 * A verdict on an approval step is no action that step knows.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnApprovalStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown action: ontvankelijk');
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'ontvankelijk']);
+	}
 }

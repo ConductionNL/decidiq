@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundStoreInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
@@ -35,7 +36,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  *
  * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
  */
-class WrittenRoundStore {
+class WrittenRoundStore implements WrittenRoundStoreInterface {
 
 	/**
 	 * The register slug.

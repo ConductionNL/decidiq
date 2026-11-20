@@ -43,9 +43,6 @@ use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\IUserSession;
@@ -324,21 +321,7 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(
-			id: $id,
-			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
-			_rbac: false,
-			_multitenancy: false
-		);
-		if ($entity === null) {
-			return null;
-		}
-
-		return $entity->jsonSerialize();
+		return SystemObjectStore::read(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 
 	/**
@@ -352,18 +335,6 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
 	private function write(array $dossier, ?string $uuid): array {
-		$saved = $this->objectService->saveObject(
-			object: $dossier,
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
-				uuid: $uuid
-			),
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: self::SCHEMA, object: $dossier, uuid: $uuid);
 	}//end write()
 }//end class

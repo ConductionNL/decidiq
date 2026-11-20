@@ -131,6 +131,7 @@ import {
 	everyonePresent,
 	refId,
 } from '../../utils/meetingAttendance.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 const ATTENDANCE = 'meeting-attendance'
@@ -331,7 +332,7 @@ export default {
 		 */
 		async saveRecord(payload) {
 			const store = ensureRelationType(ATTENDANCE)
-			return store.saveObject(ATTENDANCE, payload)
+			return saveOrThrow(store, ATTENDANCE, payload)
 		},
 
 		/**

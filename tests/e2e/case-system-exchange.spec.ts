@@ -18,6 +18,7 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 /**
  * Open the agenda item "Vaststelling omgevingsvisie".
@@ -26,7 +27,7 @@ import { BASE_URL as BASE } from './base-url.ts'
  */
 async function openItem(page) {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Vaststelling omgevingsvisie').first().click()
+	await openRow(page, 'Vaststelling omgevingsvisie')
 }
 
 // @e2e case-system-exchange::the-griffier-links-a-raadsvoorstel-to-its-case
@@ -63,7 +64,7 @@ test('the griffier sends the meeting file from the minutes page', async ({
 	page,
 }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/minutes`)
-	await page.getByText('Notulen').first().click()
+	await openRow(page, 'Notulen')
 	const send = page.getByTestId('minutes-case-system-send')
 	await expect(send).toBeVisible()
 	await send.click()
@@ -73,7 +74,7 @@ test('the griffier sends the meeting file from the minutes page', async ({
 // @e2e case-system-exchange::one-document-failed
 test('Send again sends the failed document', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
-	await page.getByText('Raadsvergadering 15 januari 2025').first().click()
+	await openRow(page, 'Raadsvergadering 15 januari 2025')
 	const widget = page.getByTestId('meeting-case-system')
 	await expect(widget).toContainText('informatieobjecttype not configured')
 	await widget.getByTestId('meeting-case-system-resend').first().click()

@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.6-unstable.20261114145412</version>
+    <version>1.2.7-unstable.20261120070000</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -143,6 +143,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
              run twice; a stage carries the stamp that says it already lapsed.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
+             governing document takes effect on its planned date.
+             @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
@@ -239,6 +243,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
+            <!--
+                insight-decisions-report-by-period-and-body (REQ-DRP-001): after
+                InitializeSettings imports the decidingBody property, existing decisions
+                with a meeting get that meeting's body once. Idempotent: a decision that
+                already names a body is left alone. A fresh install has no decisions.
+            -->
+            <step>OCA\Decidiq\Repair\FillDecisionDecidingBody</step>
             <!--
                 After InitializeSettings imports the register. The schema edit
                 changes the DECLARATION; every row already written still holds
@@ -468,6 +479,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
             <!--
+                the-decision-as-a-walked-process task 1.1: the engine now writes a
+                terminal `state` onto every approval action it records. Actions stored
+                before that carry the schema default `open` and would read as approvals
+                still awaited. Backfills the state from the recorded verb; a row with no
+                verb (a real open work item) and a row with a terminal state are left
+                alone. Idempotent. <post-migration> only: a fresh install has no actions.
+            -->
+            <step>OCA\Decidiq\Migration\RepairApprovalActionStates</step>
+            <!--
                 Fifth leg of the rename, on the ADMINISTRATORS GROUP. The
                 register's authorization baseline named `decidesk-administrators`
                 and OpenRegister's GroupProvisioner creates every group an
@@ -490,6 +510,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 emptied, so an admin with automation pointing at one keeps a working group.
             -->
             <step>OCA\Decidiq\Repair\MigrateGovernanceGroupNames</step>
+            <!--
+                After InitializeSettings imports the register (129-agenda-item-phase.json must
+                already have declared AgendaItem.phase). Copies a phase still held in the
+                undeclared `status` into `phase` with a phase-only patch; an item that already has
+                a phase is skipped, so a second run changes nothing. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Repair\MoveAgendaItemStatusToPhase</step>
         </post-migration>
         <install>
             <!--

@@ -65,6 +65,7 @@ import {
 	putOnAgendaPayload,
 	waitingItems,
 } from '../../../utils/incomingDocuments.js'
+import { saveOrThrow } from '../../../utils/saveOrThrow.js'
 
 export default {
 	name: 'IncomingDocumentsWidget',
@@ -175,7 +176,7 @@ export default {
 					meeting: meetingId,
 					_limit: 500,
 				})
-				await store.saveObject('agenda-item', {
+				await saveOrThrow(store, 'agenda-item', {
 					...putOnAgendaPayload(this.chosen, meetingId, onMeeting),
 					id: this.chosen.id,
 				})
