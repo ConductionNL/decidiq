@@ -94,6 +94,7 @@ import {
 	buildParticipationPayload,
 	PARTICIPATION_SCHEMA,
 } from '../utils/bodyParticipations.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 export default {
 	name: 'BodyParticipationDialog',
@@ -151,7 +152,8 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await ensureRelationType(PARTICIPATION_SCHEMA).saveObject(
+				await saveOrThrow(
+					ensureRelationType(PARTICIPATION_SCHEMA),
 					PARTICIPATION_SCHEMA,
 					buildParticipationPayload({
 						id: this.participation?.id || '',

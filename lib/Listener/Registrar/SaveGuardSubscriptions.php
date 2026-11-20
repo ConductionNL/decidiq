@@ -34,15 +34,19 @@ use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
+use OCA\Decidiq\Listener\DecisionTermListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\GoverningDocumentVersionGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
+use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\Decidiq\Service\OndermandaatGuardService;
 
 /**
  * The before-save listener subscriptions.
@@ -86,9 +90,10 @@ final class SaveGuardSubscriptions {
 		['event' => ObjectUpdatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
 		// Ondermandaat chains (delegatie-mandaatregister, REQ-DMR-003): a
 		// toedeling's parent must exist and permit ondermandaat, and the
-		// chain may not loop, on create and on update.
-		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
-		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
+		// chain may not loop, on create and on update. The schema is now
+		// authority-delegation; the old Dutch slug stays guarded too.
+		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
+		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
 		// Document details (platform-document-metadata-fields, REQ-DMF-002
 		// and REQ-DMF-004): a record keeps its type's required fields and
 		// one record describes one file, on create and on update.
@@ -106,6 +111,11 @@ final class SaveGuardSubscriptions {
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.
+		// Governing-document versions (governing-documents-register, REQ-GDR-002/004):
+		// an amendment names its enacting decision, numbers are unique per
+		// document, and a version is put in effect only after the latest one.
+		['event' => ObjectCreatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		// Agenda placement waits for approval (routes-send-proposal-along-route,
@@ -125,11 +135,20 @@ final class SaveGuardSubscriptions {
 			'listener' => PlannedAgendaItemRulesGuardListener::class,
 			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
 		],
+		// Long-term agenda tracks (planning-long-term-agenda-tracks-and-report,
+		// REQ-LTAT-002): a track sits under a topic, one level deep.
+		['event' => ObjectCreatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
 		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
 		// decision carries the clause of its type as it stood when it was
 		// taken. After the competence guard, so a refused save stamps nothing.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
+		// Decision term (objection-advisory-committee, REQ-OAC-008): a decision
+		// whose type declares a term gets the day it has to be taken by, from
+		// the moment the type counts it from, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[

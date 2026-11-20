@@ -130,6 +130,7 @@ import {
 	resumeTimer,
 	startTimer,
 } from '../../utils/meetingTimer.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 
 /**
  * @spec openspec/specs/meeting-efficiency/spec.md
@@ -275,7 +276,7 @@ export default {
 			)
 			this.closing = true
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					...this.item,
 					actualDuration,
 					pausedDuration,
