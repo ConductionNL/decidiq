@@ -43,3 +43,4 @@
   - GIVEN the full run WHEN finished THEN no page scrolls sideways
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/phone-width.spec.ts` reads every page from `src/manifest.json` and the fragments at run time, opens each route without a parameter at 360 by 740, asserts no sideways scroll and that a declared primary header action is in view, and opens a meeting from the list to check its actions stay on screen. Left: running it on an instance and fixing the pages it lists.

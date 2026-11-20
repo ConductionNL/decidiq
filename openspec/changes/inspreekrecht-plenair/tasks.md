@@ -79,6 +79,7 @@
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → moderate (approve with spreektijd / reject with reason / refer) → agenda slot renders → queue preload → mark gesproken → status flows back → attach bijdrage passes end-to-end, plus the ALV meeting-level path and the deadline-refusal path
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/inspreekrecht-plenair.spec.ts` (15 scenarios tagged across inspraak-register and inspraak-agenda-live: register, refusals, override, approve, reject with reason, refer, written contribution, slots, meeting-level block, public count, queue preload, spoke, no-show, pending approvals). `transcript-segment-linked` has no UI (the agenda slot shows no transcript link) and stays uncovered. Running it needs a live instance.
 
 ## Verification
 
