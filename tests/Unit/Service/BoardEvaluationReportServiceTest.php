@@ -39,6 +39,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
  * Report rendering, the PDF/markdown fallback and the Files write path.
  *
  * @covers \OCA\Decidiq\Service\BoardEvaluationReportService
+ * @uses   \OCA\Decidiq\Service\MeetingFileTree
  */
 class BoardEvaluationReportServiceTest extends TestCase {
 

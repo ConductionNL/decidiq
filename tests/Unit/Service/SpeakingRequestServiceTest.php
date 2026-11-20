@@ -35,6 +35,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \OCA\Decidiq\Service\SpeakingRequestService
  * @uses   \OCA\Decidiq\Exception\SpeakingRequestRefusedException
+ * @uses   \OCA\Decidiq\Service\SpeakingSlots
  */
 final class SpeakingRequestServiceTest extends TestCase {
 

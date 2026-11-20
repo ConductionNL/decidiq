@@ -10,6 +10,7 @@
   - GIVEN a moved meeting WHEN the feed is read again THEN only the new date is present (Newman)
 - [x] Implement
 - [ ] Test
+  - Newman written: `tests/integration/decidiq-microsoft-365.postman_collection.json` folder 1 (feed holds the meeting with start, end and location; after a move only the new date). Not run live from the build session.
 
 ### Task 2: Remove the dead calendar call
 - **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-002-publishing-an-agenda-makes-no-calendar-call`
@@ -29,6 +30,7 @@
   - GIVEN one subscription WHEN they stop it THEN the list is empty and the address answers 404 (Playwright plus a request)
 - [x] Implement
 - [ ] Test
+  - Playwright written: `tests/e2e/calendar-subscription.spec.ts` (subscribe, the address answers without a session, stop, the address answers 404), as a member the spec creates. Not run live from the build session.
 
 ### Task 4: The Teams field and the create action
 - **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting`
@@ -40,6 +42,7 @@
   - GIVEN hydra gates `connections-declaration`, `route-auth`, `no-admin-idor` WHEN they run THEN they pass
 - [x] Implement
 - [ ] Test
+  - PHPUnit `tests/Unit/Service/TeamsMeetingServiceTest.php` (join address, id, author and time stored; in-person, second, non-Teams answer and no connection refused). Newman folder 2 of `decidiq-microsoft-365.postman_collection.json` (403 for a non-staff member, a non-Teams address refused). Not run live from the build session.
 
 ### Task 5: Join from the meeting and the live meeting page
 - **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq`
@@ -48,6 +51,7 @@
   - GIVEN the seeded digital meeting WHEN the live page opens THEN "Join in Microsoft Teams" links to the join address in a new tab (Playwright)
 - [x] Implement
 - [ ] Test
+  - Playwright written: the join scenario of `tests/e2e/calendar-subscription.spec.ts`. Not run live from the build session.
 
 ### Task 6: Strings and docs
 - Dutch and English strings for the section, the button and the refusals (`test:l10n`, `check:schema-l10n` green).
