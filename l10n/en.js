@@ -3776,7 +3776,13 @@ OC.L10N.register(
         "This year": "This year",
         "This quarter": "This quarter",
         "Custom range": "Custom range",
-        "By body, all periods": "By body, all periods"
+        "By body, all periods": "By body, all periods",
+        "Embargo until": "Embargo until",
+        "The moment the wider membership may read the paper. Before it only the entitled audience and staff read it. Released at most 15 minutes after this moment.": "The moment the wider membership may read the paper. Before it only the entitled audience and staff read it. Released at most 15 minutes after this moment.",
+        "Under embargo": "Under embargo",
+        "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.": "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.",
+        "Embargo audience": "Embargo audience",
+        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "The group or role that reads the paper while it is under embargo, for example fractievoorzitters."
     },
     "nplurals=2; plural=(n != 1);"
 )
