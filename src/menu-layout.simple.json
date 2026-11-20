@@ -1954,6 +1954,9 @@
 					"meeting-pack": {
 						"type": "MeetingPackTab"
 					},
+					"meeting-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
 					"meeting-votes": {
 						"type": "MeetingVotesTab"
 					},
@@ -2172,6 +2175,10 @@
 								{
 									"label": "Meeting pack",
 									"widgetId": "meeting-pack"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "meeting-annotations"
 								}
 							]
 						}
@@ -3337,7 +3344,8 @@
 					"agenda-conflicts",
 					"agenda-speakers",
 					"agenda-paper-summaries",
-					"agenda-themes"
+					"agenda-themes",
+					"agenda-readers"
 				],
 				"layout": [
 					{
@@ -3365,6 +3373,9 @@
 					"agenda-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"agenda-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
 					"agenda-type-fields": {
 						"type": "AgendaItemTypeFieldsTab"
 					},
@@ -3382,6 +3393,9 @@
 					},
 					"agenda-themes": {
 						"type": "AgendaItemThemesTab"
+					},
+					"agenda-readers": {
+						"type": "AgendaItemReadersTab"
 					}
 				}
 			},
@@ -3427,6 +3441,10 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "agenda-paper-renditions"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "agenda-annotations"
 								}
 							]
 						}

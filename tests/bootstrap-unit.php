@@ -248,6 +248,16 @@ foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as
 	}
 }
 
+// portaliq's account events (portal-voting-record-and-confidential-papers).
+// ConfidentialReaders sends them by string class name behind class_exists, so
+// decidiq stays installable without portaliq; the stubs mirror portaliq's
+// classes and load only when its real classes are absent.
+foreach (['PortalAccountProvisionRequestedEvent', 'PortalAccountClaimRequestedEvent'] as $portaliqStubEvent) {
+	if (class_exists('\\OCA\\Portaliq\\Event\\' . $portaliqStubEvent) === false) {
+		require_once __DIR__ . '/Stubs/Portaliq/Event/' . $portaliqStubEvent . '.php';
+	}
+}
+
 // filinq's ConversionFailedException (agenda-office-files-to-pdf). decidiq
 // recognises it by string class name through FleetAppId, so it stays
 // installable without filinq; the stub loads only when filinq is absent.

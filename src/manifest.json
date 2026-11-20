@@ -741,6 +741,7 @@
 					{ "id": "meeting-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "meeting-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "meeting-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
+					{ "id": "meeting-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this meeting, each with Annotate, which opens the annotator. The Documents leaf offers no per-row action, so the papers are listed here (design.md fallback)." },
 					{ "id": "meeting-votes", "type": "custom", "component": "MeetingVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "meeting-publication", "type": "custom", "component": "AgendaPublicationTab", "title": "Publication", "icon": "Web" },
 					{ "id": "meeting-series", "type": "custom", "component": "MeetingSeriesTab", "title": "Series", "icon": "Timeline" },
@@ -781,7 +782,8 @@
 					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 48, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "21", "widgetId": "meeting-decision-list-signers", "gridX": 0, "gridY": 53, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "24", "widgetId": "meeting-document-details", "gridX": 0, "gridY": 58, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "25", "widgetId": "meeting-paper-renditions", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "25", "widgetId": "meeting-paper-renditions", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "29", "widgetId": "meeting-annotations", "gridX": 0, "gridY": 67, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -910,6 +912,14 @@
 				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the agenda-item object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
+		},
+		{
+			"id": "AnnotateDocument",
+			"route": "/annotate/:fileId",
+			"type": "custom",
+			"title": "Annotate document",
+			"component": "AnnotationView",
+			"_note": "document-annotations (REQ-ANN-003): the annotator, a PDF rendered with pdf.js and decidiq's own overlay and panel. Opened from the Annotate widget of a meeting or agenda item (query meeting / agendaItem); query version shows an earlier version. No menu entry. Not a typed page: no manifest primitive renders a PDF canvas with an editable overlay."
 		},
 		{
 			"id": "LiveMeeting",
@@ -1042,6 +1052,8 @@
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "agenda-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "agenda-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
+					{ "id": "agenda-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this agenda item, each with Annotate, which opens the annotator." },
+					{ "id": "agenda-readers", "type": "custom", "component": "AgendaItemReadersTab", "title": "Portal readers", "icon": "AccountKeyOutline", "_note": "portal-voting-record-and-confidential-papers (REQ-PSH-002): Lezers toevoegen — the secretariat, or the meeting's chair or secretary, names a person without a Nextcloud account as a portal reader of a non-public item by BSN or KvK number; decidiq keeps only the portal reference." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-speakers", "type": "custom", "component": "AgendaItemSpeakersTab", "title": "Public speakers", "icon": "AccountVoice", "_note": "inspreekrecht-plenair (REQ-INS-007): the approved public speakers of this item as speaking slots in their order with their minutes, and the pending requests after them, marked pending in text. Rejected requests are left out by the server." },
@@ -1061,7 +1073,9 @@
 					{ "id": "7", "widgetId": "agenda-paper-renditions", "gridX": 0, "gridY": 28, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 36, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "11", "widgetId": "agenda-speakers", "gridX": 0, "gridY": 42, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "12", "widgetId": "agenda-themes", "gridX": 0, "gridY": 46, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "12", "widgetId": "agenda-themes", "gridX": 0, "gridY": 46, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "13", "widgetId": "agenda-annotations", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "14", "widgetId": "agenda-readers", "gridX": 0, "gridY": 52, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

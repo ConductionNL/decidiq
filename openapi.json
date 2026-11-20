@@ -44,6 +44,10 @@
             "description": "Controller for the personal action-item list endpoint."
         },
         {
+            "name": "annotation",
+            "description": "Annotations on meeting documents, filtered by who may see each one."
+        },
+        {
             "name": "api",
             "description": "Public REST API for Decidiq governance entities."
         },
@@ -178,6 +182,10 @@
         {
             "name": "open-api",
             "description": "The OpenAPI document that describes this API."
+        },
+        {
+            "name": "paper",
+            "description": "Papers of meetings and agenda items, opened with the reader's watermark when the meeting asks for it."
         },
         {
             "name": "paper-conversion",
@@ -1992,6 +2000,97 @@
                 }
             }
         },
+        "/documents/{fileId}/annotations": {
+            "get": {
+                "operationId": "annotation-index",
+                "summary": "List a document's annotations",
+                "description": "The annotations on a document that the caller may see, on every version, by page. Private ones only to their author, faction ones to the author's faction, body ones to the meeting's participants. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "annotation-create",
+                "summary": "Annotate a document",
+                "description": "Save a highlight, sticky note or drawing on a document. The author and the document version are set by the server; visibility is private unless asked otherwise. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
         "/dossiers/{id}/assemble": {
             "post": {
                 "operationId": "archival-dossier-assemble",
@@ -3459,6 +3558,48 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/annotation-counts": {
+            "get": {
+                "operationId": "annotation-counts",
+                "summary": "Count annotations per agenda item",
+                "description": "Per agenda item of a meeting, the number of annotations the caller may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
                     }
                 }
             }
@@ -5801,6 +5942,84 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/papers/{schema}/{objectId}/{fileId}/view": {
+            "get": {
+                "operationId": "paper-view",
+                "summary": "Open one paper of a meeting or an agenda item",
+                "description": "Open one paper of a meeting or an agenda item. The caller must be able to read the meeting or the agenda item, and the file must be one of its papers. When the meeting's watermark policy applies, the paper is served only as a PDF stamped with the reader's name, the date and time and the meeting's watermark text; when it cannot be stamped the request is refused and no file is sent. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "paper"
+                ],
+                "parameters": [
+                    {
+                        "name": "schema",
+                        "in": "path",
+                        "required": true,
+                        "description": "`agenda-item` or `meeting`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "objectId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The object uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The paper's file id: its PDF, or its original when it has none.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The paper, shown in the browser; stamped when the meeting asks for it.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }
@@ -8422,6 +8641,118 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/agenda-items/{id}/readers": {
+            "post": {
+                "operationId": "confidential-reader-create",
+                "summary": "Add a portal reader to a confidential agenda item",
+                "description": "Add a person without a Nextcloud account as a portal reader of a non-public agenda item by BSN or KvK number. POST /api/agenda-items/{id}/readers Body: { person, identityType: bsn|kvk, number, organisation? }. Portaliq provisions the account and writes the claim decidiq.personId; decidiq keeps only the portal reference, never the number. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting; 409 for a public item or without portaliq's answer; 422 for an invalid number.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "person": {
+                                        "description": "The person id."
+                                    },
+                                    "identityType": {
+                                        "description": "bsn or kvk."
+                                    },
+                                    "number": {
+                                        "description": "The BSN or KvK number; not stored."
+                                    },
+                                    "organisation": {
+                                        "description": "The portal tenant."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The reader was added.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/agenda-items/{id}/readers/{personId}": {
+            "delete": {
+                "operationId": "confidential-reader-destroy",
+                "summary": "Remove a portal reader from a confidential agenda item",
+                "description": "Remove a person from the portal readers of an agenda item. DELETE /api/agenda-items/{id}/readers/{personId}. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The reader.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The reader was removed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

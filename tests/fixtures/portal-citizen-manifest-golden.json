@@ -238,6 +238,29 @@
                 "field": "startDate",
                 "direction": "desc"
             }
+        },
+        {
+            "id": "confidentialAgendaItems",
+            "register": "decidiq",
+            "schema": "agenda-item",
+            "scopeClaim": "decidiq.personId",
+            "scopeField": "authorisedPersons",
+            "label": "Confidential papers",
+            "listable": true,
+            "minTrust": "high",
+            "defaultFilters": {
+                "public": false
+            },
+            "fields": [
+                "title",
+                "description",
+                "meeting"
+            ],
+            "documents": {
+                "label": "Papers",
+                "provider": "confidentialPapers",
+                "opened": "confidentialPaperOpened"
+            }
         }
     ],
     "actions": [
