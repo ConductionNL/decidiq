@@ -57,6 +57,6 @@
   - GIVEN the existing `proxyVote#*` Newman requests THEN they still pass authenticated as the
     grantor/chair fixture user
   - GIVEN a new negative-path request as an unrelated authenticated user THEN it asserts `403`
-- [ ] Add/extend the Newman collection with the unrelated-user 403 case for all three mutating
+- [ ] Add/extend the Newman collection with the unrelated-user 403 case for all three mutating (code exists, test missing: tests/integration/decidiq-security-flow-e2e.postman_collection.json covers register and revoke 403, no unrelated-user suspend case)
       endpoints.
-- [ ] Run `composer check:strict` + PHPUnit for `ProxyVoteService`/`ProxyVoteController`.
+- [ ] Run `composer check:strict` + PHPUnit for `ProxyVoteService`/`ProxyVoteController`. (gate run, owed once before push, not a code check)

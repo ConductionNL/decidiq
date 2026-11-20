@@ -11,7 +11,7 @@
   - GIVEN a record disclosed with a past publication date WHEN an anonymous caller reads it THEN it is returned
   - GIVEN a secretariat member WHEN she lists remuneration THEN every record of her installation returns
 - [x] Implement
-- [ ] Test (Newman with three users: secretariat, member, anonymous) (not run: needs the live instance; tests/newman/mandate-remuneration.json is still to write with it)
+- [ ] Test (Newman with three users: secretariat, member, anonymous) (not run: needs the live instance; tests/newman/mandate-remuneration.json is still to write with it) (code exists, test missing: tests/newman/mandate-remuneration.json not written; live pass, decision 139)
 
 ### Task 2: Remuneration on the body page
 - **spec_ref**: `openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-002-the-body-page-shows-this-years-remuneration-and-its-total`
@@ -21,7 +21,7 @@
   - GIVEN a member without the secretariat group WHEN he opens it THEN the widget is empty
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
 - [x] Implement
-- [ ] Test (Playwright as secretary and as member) (not run: needs the live instance)
+- [ ] Test (Playwright as secretary and as member) (not run: needs the live instance) (code exists, test missing: no Playwright spec for remuneration; live pass, decision 139)
 
 ### Task 3: Remuneration on the position hold page
 - **spec_ref**: `openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-003-a-position-hold-lists-its-remuneration-over-the-years`
@@ -29,7 +29,7 @@
 - **acceptance_criteria**:
   - GIVEN a hold with records for 2025 and 2026 WHEN the secretary opens the hold THEN both years are listed, newest first
 - [x] Implement
-- [ ] Test (Playwright) (not run: needs the live instance)
+- [ ] Test (Playwright) (not run: needs the live instance) (code exists, test missing: no Playwright spec for remuneration; live pass, decision 139)
 
 ## Verification
 

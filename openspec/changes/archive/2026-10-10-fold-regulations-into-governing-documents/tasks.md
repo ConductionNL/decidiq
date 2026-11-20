@@ -27,4 +27,4 @@
 ## 5. Prove it
 
 - [x] 5.1 Unit tests: mapping, the rename, idempotency, ordering, an orphan version. (tests/Unit/Migration/MigrateRegulationsToGoverningDocumentsTest.php)
-- [ ] 5.2 E2E: the regulations still render, under the generic surface. (not run: needs the live instance)
+- [ ] 5.2 E2E: the regulations still render, under the generic surface. (not run: needs the live instance) (live pass, decision 139)
