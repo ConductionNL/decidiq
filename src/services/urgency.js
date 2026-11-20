@@ -72,3 +72,46 @@ export async function postUrgentAction(decisionId, action, body) {
 	}
 	return { ok: res.ok, data: data || {} }
 }
+
+/**
+ * The declaration's request body: the reason, the body on whose behalf it is
+ * declared and, when the power belongs to one person, the office.
+ *
+ * @param {{reason?: string, body?: string|{id?: string}|null, office?: string}} form The dialog's fields.
+ * @return {{reason: string, urgencyDeclaredByBody: string, urgencyDeclaredInOffice: string|null}} The body to post.
+ * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+ */
+export function declarationBody(form = {}) {
+	const body = typeof form.body === 'object' && form.body !== null ? form.body.id : form.body
+	const office = String(form.office || '').trim()
+	return {
+		reason: String(form.reason || '').trim(),
+		urgencyDeclaredByBody: String(body || '').trim(),
+		urgencyDeclaredInOffice: office === '' ? null : office,
+	}
+}
+
+/**
+ * Whether the declaration can be sent: a reason and a declaring body.
+ *
+ * @param {object} form The dialog's fields.
+ * @return {boolean}
+ * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+ */
+export function canDeclare(form = {}) {
+	const body = declarationBody(form)
+	return body.reason !== '' && body.urgencyDeclaredByBody !== ''
+}
+
+/**
+ * Whether the report to the ratifying body can still be recorded: the
+ * decision is urgent, waits for ratification and has no report date yet.
+ *
+ * @param {object|null} decision The decision.
+ * @param {{awaiting: boolean}} state Its banner state.
+ * @return {boolean}
+ * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+ */
+export function canReport(decision, state) {
+	return state?.awaiting === true && String(decision?.reportedToRatifyingBodyAt || '') === ''
+}

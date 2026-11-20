@@ -4075,7 +4075,18 @@ OC.L10N.register(
         "Under embargo": "Under embargo",
         "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.": "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.",
         "Embargo audience": "Embargo audience",
-        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "The group or role that reads the paper while it is under embargo, for example fractievoorzitters."
+        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.",
+        "Declared on behalf of": "Declared on behalf of",
+        "Office, when the power belongs to one person": "Office, when the power belongs to one person",
+        "Mark as reported to the ratifying body": "Mark as reported to the ratifying body",
+        "Reported to the ratifying body on {date}": "Reported to the ratifying body on {date}",
+        "The report to the ratifying body is recorded.": "The report to the ratifying body is recorded.",
+        "Urgency declared by body": "Urgency declared by body",
+        "Urgency declared in office": "Urgency declared in office",
+        "Reported to the ratifying body on": "Reported to the ratifying body on",
+        "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there.": "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there.",
+        "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only.": "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only.",
+        "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.": "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared."
     },
     "nplurals=2; plural=(n != 1);"
 )

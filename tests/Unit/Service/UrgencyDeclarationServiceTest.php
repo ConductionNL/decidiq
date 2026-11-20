@@ -55,6 +55,13 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	private const POLICY = ['allowedTriggerRoles' => ['chair'], 'ratificationRequired' => true, 'ratifyingBody' => 'body-raad', 'minimumNoticeFloorHours' => 24, 'responseDeadlineHours' => ['min' => 12, 'max' => 96]];
 
 	/**
+	 * The mayor declares for the college, in her office.
+	 *
+	 * @var array<string, string>
+	 */
+	private const DECLARER = ['body' => 'body-college', 'office' => ' Burgemeester '];
+
+	/**
 	 * The register: a proposed decision of the college meeting chaired by the burgemeester.
 	 *
 	 * @var UrgentProcedureStore
@@ -119,7 +126,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheChairDeclaresAndTheRatificationFollows(): void {
-		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: '  Acute opvangcrisis; eerstvolgende raadsvergadering is pas over drie weken ');
+		$reason = '  Acute opvangcrisis; eerstvolgende raadsvergadering is pas over drie weken ';
+		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: $reason, declarer: self::DECLARER);
 
 		$this->assertSame(200, $result['status']);
 		$this->assertSame(['decision', 'dec-1'], [$this->store->saves[0][0], $this->store->saves[0][1]]);
@@ -128,6 +136,7 @@ class UrgencyDeclarationServiceTest extends TestCase {
 				'id' => 'dec-1', 'title' => 'Noodopvang statushouders', 'lifecycle' => 'proposed', 'meeting' => 'meet-college',
 				'isUrgent' => true, 'urgencyReason' => 'Acute opvangcrisis; eerstvolgende raadsvergadering is pas over drie weken',
 				'urgencyDeclaredBy' => 'burgemeester', 'urgencyDeclaredAt' => '2026-06-02T09:15:00+02:00',
+				'urgencyDeclaredByBody' => 'body-college', 'urgencyDeclaredInOffice' => 'Burgemeester',
 			],
 			$this->store->saves[0][2]
 		);
@@ -180,7 +189,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	public function testAnAllowedRoleDeclaresWithABodyOverride(): void {
 		$policy = array_merge(self::POLICY, ['allowedTriggerRoles' => ['chair', 'secretary']]);
 
-		$result = $this->service(policy: $policy, roles: ['secretaris' => true])->declare(decisionId: 'dec-1', userId: 'secretaris', reason: 'Spoed', bodyOverride: ' body-rvc ');
+		$result = $this->service(policy: $policy, roles: ['secretaris' => true])
+			->declare(decisionId: 'dec-1', userId: 'secretaris', reason: 'Spoed', bodyOverride: ' body-rvc ', declarer: self::DECLARER);
 
 		$this->assertSame(200, $result['status']);
 		$this->assertSame('body-rvc', $result['data']['ratification']['stage']['assignedBody']);
@@ -195,7 +205,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 		$this->assertSame(404, $this->service()->declare(decisionId: 'nope', userId: 'burgemeester', reason: 'x')['status']);
 
 		$this->store->put(schema: 'decision', object: ['id' => 'dec-1', 'meeting' => 'meet-college', 'isUrgent' => true]);
-		$this->assertSame(409, $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'x')['status']);
+		$again = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'x', declarer: self::DECLARER);
+		$this->assertSame(expected: 409, actual: $again['status']);
 		$this->assertSame([], $this->store->saves);
 	}//end testUnknownAndAlreadyUrgentDecisions()
 
@@ -207,7 +218,7 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	public function testAFailedSaveRevokesTheGrant(): void {
 		$this->store->failingSaves = ['decision'];
 
-		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed');
+		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: self::DECLARER);
 
 		$this->assertSame(500, $result['status']);
 		$this->assertFalse($this->grant->isGranted(decisionId: 'dec-1'));
@@ -221,10 +232,63 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	public function testAFailedRatificationIsReportedNotHidden(): void {
 		$this->store->failingSaves = ['decision-stage'];
 
-		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed');
+		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: self::DECLARER);
 
 		$this->assertSame(200, $result['status']);
 		$this->assertNull($result['data']['ratification']);
 		$this->assertStringStartsWith('The decision is urgent, but its ratification stage could not be added', $result['data']['warning']);
 	}//end testAFailedRatificationIsReportedNotHidden()
+
+	/**
+	 * A declaration without a declaring body is refused with the field named,
+	 * and nothing is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+	 */
+	public function testADeclarationWithoutABodyIsRefused(): void {
+		foreach ([[], ['body' => ''], ['body' => '   '], ['body' => ['x']]] as $declarer) {
+			$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $declarer);
+
+			$this->assertSame(expected: 422, actual: $result['status']);
+			$this->assertStringStartsWith(prefix: 'urgencyDeclaredByBody is required', string: $result['data']['message']);
+		}
+
+		$this->assertSame(expected: [], actual: $this->store->saves);
+	}//end testADeclarationWithoutABodyIsRefused()
+
+	/**
+	 * The role is checked before the body: a caller without the role is told
+	 * 403, not what a valid declaration holds.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+	 */
+	public function testTheRoleIsCheckedBeforeTheBody(): void {
+		$this->assertSame(expected: 403, actual: $this->service()->declare(decisionId: 'dec-1', userId: 'raadslid', reason: 'Spoed')['status']);
+	}//end testTheRoleIsCheckedBeforeTheBody()
+
+	/**
+	 * A body without an office stores the body and no office; an over-long
+	 * office is refused.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+	 */
+	public function testTheCollegeDeclaresWithoutAnOffice(): void {
+		$tooLong = ['body' => 'body-college', 'office' => str_repeat('x', 256)];
+		$long    = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $tooLong);
+		$this->assertSame(expected: 422, actual: $long['status']);
+		$this->assertStringStartsWith(prefix: 'urgencyDeclaredInOffice is longer than', string: $long['data']['message']);
+
+		$noOffice = ['body' => 'body-college', 'office' => ''];
+		$result   = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $noOffice);
+
+		$this->assertSame(expected: 200, actual: $result['status']);
+		$this->assertSame(expected: 'body-college', actual: $this->store->saves[0][2]['urgencyDeclaredByBody']);
+		$this->assertNull(actual: $this->store->saves[0][2]['urgencyDeclaredInOffice']);
+	}//end testTheCollegeDeclaresWithoutAnOffice()
 }//end class

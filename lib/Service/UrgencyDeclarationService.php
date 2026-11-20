@@ -48,11 +48,29 @@ use Throwable;
 class UrgencyDeclarationService {
 
 	/**
-	 * The urgency fields only this flow writes.
+	 * The urgency fields only the urgency flows write: the declaration, and
+	 * the report to the ratifying body (UrgentReportService).
 	 *
 	 * @var list<string>
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/tasks.md#task-1-fields
 	 */
-	public const URGENCY_FIELDS = ['isUrgent', 'urgencyReason', 'urgencyDeclaredBy', 'urgencyDeclaredAt'];
+	public const URGENCY_FIELDS = [
+		'isUrgent',
+		'urgencyReason',
+		'urgencyDeclaredBy',
+		'urgencyDeclaredAt',
+		'urgencyDeclaredByBody',
+		'urgencyDeclaredInOffice',
+		'reportedToRatifyingBodyAt',
+	];
+
+	/**
+	 * The longest office name accepted, as the schema declares it.
+	 *
+	 * @var int
+	 */
+	public const MAX_OFFICE_LENGTH = 255;
 
 	/**
 	 * Constructor.
@@ -81,16 +99,23 @@ class UrgencyDeclarationService {
 	/**
 	 * Declare a decision urgent.
 	 *
-	 * @param string      $decisionId   The decision.
-	 * @param string      $userId       The acting user.
-	 * @param string      $reason       Why it is urgent.
-	 * @param string|null $bodyOverride A ratifying body other than the policy's, or null.
+	 * The declaration names the body on whose behalf it is made and, when the
+	 * power belongs to one office, that office. A declaration without a body
+	 * is refused after the role check, so an unauthorised caller learns
+	 * nothing about what a valid request holds.
+	 *
+	 * @param string             $decisionId   The decision.
+	 * @param string             $userId       The acting user.
+	 * @param string             $reason       Why it is urgent.
+	 * @param string|null        $bodyOverride A ratifying body other than the policy's, or null.
+	 * @param array<string, mixed> $declarer   `body` (governance body uuid, required) and `office` (optional).
 	 *
 	 * @return array{status: int, data: array<string, mixed>} The HTTP status and the body to answer with.
 	 *
 	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
 	 */
-	public function declare(string $decisionId, string $userId, string $reason, ?string $bodyOverride=null): array {
+	public function declare(string $decisionId, string $userId, string $reason, ?string $bodyOverride=null, array $declarer=[]): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (Throwable) {
@@ -116,6 +141,11 @@ class UrgencyDeclarationService {
 			return self::envelope(status: $refusal['status'], message: $refusal['message']);
 		}
 
+		$declaredBy = self::declaredBy(declarer: $declarer);
+		if (is_string($declaredBy) === true) {
+			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: $declaredBy);
+		}
+
 		if (($decision['isUrgent'] ?? false) === true) {
 			return self::envelope(status: Http::STATUS_CONFLICT, message: 'This decision has already been declared urgent.');
 		}
@@ -126,6 +156,7 @@ class UrgencyDeclarationService {
 		$urgent['urgencyReason']     = trim($reason);
 		$urgent['urgencyDeclaredBy'] = $userId;
 		$urgent['urgencyDeclaredAt'] = $this->timeFactory->getDateTime()->format(DATE_ATOM);
+		$urgent = array_merge($urgent, $declaredBy);
 
 		$this->grant->grant(decisionId: $decisionId);
 		try {
@@ -190,6 +221,37 @@ class UrgencyDeclarationService {
 
 		return ['decision' => $saved, 'ratification' => $ratification];
 	}//end withRatification()
+
+	/**
+	 * The declaring body and office as decision fields, or why they are refused.
+	 *
+	 * @param array<string, mixed> $declarer `body` and `office` as posted.
+	 *
+	 * @return array<string, string|null>|string The fields, or the refusal message naming the field.
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+	 */
+	private static function declaredBy(array $declarer): array|string {
+		$body = $declarer['body'] ?? null;
+		if (is_string($body) === false || trim($body) === '') {
+			return 'urgencyDeclaredByBody is required: name the body on whose behalf the decision is declared urgent.';
+		}
+
+		$office = $declarer['office'] ?? null;
+		if (is_string($office) === false || trim($office) === '') {
+			$office = null;
+		}
+
+		if ($office !== null && mb_strlen(trim($office)) > self::MAX_OFFICE_LENGTH) {
+			return 'urgencyDeclaredInOffice is longer than ' . self::MAX_OFFICE_LENGTH . ' characters.';
+		}
+
+		if ($office !== null) {
+			$office = trim($office);
+		}
+
+		return ['urgencyDeclaredByBody' => trim($body), 'urgencyDeclaredInOffice' => $office];
+	}//end declaredBy()
 
 	/**
 	 * A refusal with its message.

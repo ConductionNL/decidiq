@@ -46,6 +46,7 @@ use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
 use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
+use OCA\Decidiq\Listener\RatificationPlacedReportListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -194,6 +195,7 @@ class ObjectListenerRegistrar {
 		}
 
 		$this->subscribeConfidentiality(dispatcher: $dispatcher);
+		$this->subscribeUrgentReport(dispatcher: $dispatcher);
 
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
@@ -330,6 +332,28 @@ class ObjectListenerRegistrar {
 			);
 		}
 	}//end subscribeConfidentiality()
+
+	/**
+	 * A ratification item placed on a meeting sets the urgent decision's
+	 * report date, once (urgent-decisions-register REQ-021).
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	private function subscribeUrgentReport(IEventDispatcher $dispatcher): void {
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $placedEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $placedEvent,
+				listener: RatificationPlacedReportListener::class,
+				registers: null,
+				schemas: [RatificationPlacedReportListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+	}//end subscribeUrgentReport()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.

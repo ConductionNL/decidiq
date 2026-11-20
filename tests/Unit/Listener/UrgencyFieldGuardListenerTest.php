@@ -183,4 +183,56 @@ class UrgencyFieldGuardListenerTest extends TestCase {
 
 		$this->assertFalse($event->isPropagationStopped());
 	}//end testASaveWithoutAUserPasses()
+
+	/**
+	 * The declaring body, the office and the report date are guarded like the
+	 * other urgency fields: a direct edit that changes one is refused, and a
+	 * save that leaves them out has them carried forward.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/tasks.md#task-1-fields
+	 */
+	public function testTheRegisterFieldsAreGuardedAndCarriedForward(): void {
+		$stored = array_merge(
+			self::URGENT,
+			['urgencyDeclaredByBody' => 'body-college', 'urgencyDeclaredInOffice' => 'Burgemeester', 'reportedToRatifyingBodyAt' => '2026-10-06']
+		);
+
+		$changes = ['urgencyDeclaredByBody' => 'body-raad', 'urgencyDeclaredInOffice' => 'Wethouder', 'reportedToRatifyingBodyAt' => '2026-10-15'];
+		foreach ($changes as $field => $changed) {
+			$event = new ObjectUpdatingEvent($this->entity(row: array_merge($stored, [$field => $changed])), $this->entity(row: $stored));
+			$this->listener(grant: new UrgencyWriteGrant())->handle($event);
+			$this->assertTrue(condition: $event->isPropagationStopped(), message: $field . ' could be changed directly');
+		}
+
+		$cleared = new ObjectUpdatingEvent($this->entity(row: array_merge($stored, ['reportedToRatifyingBodyAt' => null])), $this->entity(row: $stored));
+		$this->listener(grant: new UrgencyWriteGrant())->handle($cleared);
+		$this->assertTrue(condition: $cleared->isPropagationStopped(), message: 'the report date could be cleared directly');
+
+		$edit = new ObjectUpdatingEvent($this->entity(row: ['title' => 'Noodopvang statushouders (herzien)']), $this->entity(row: $stored));
+		$this->listener(grant: new UrgencyWriteGrant())->handle($edit);
+		$this->assertFalse(condition: $edit->isPropagationStopped());
+		$this->assertSame(expected: '2026-10-06', actual: $edit->getModifiedData()['reportedToRatifyingBodyAt']);
+		$this->assertSame(expected: 'body-college', actual: $edit->getModifiedData()['urgencyDeclaredByBody']);
+		$this->assertSame(expected: 'Burgemeester', actual: $edit->getModifiedData()['urgencyDeclaredInOffice']);
+	}//end testTheRegisterFieldsAreGuardedAndCarriedForward()
+
+	/**
+	 * Under the grant, the report flow sets the report date.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/tasks.md#task-1-fields
+	 */
+	public function testTheGrantedReportSetsTheDate(): void {
+		$grant = new UrgencyWriteGrant();
+		$grant->grant(decisionId: 'dec-1');
+		$reported = $this->entity(row: array_merge(self::URGENT, ['reportedToRatifyingBodyAt' => '2026-10-06']));
+		$event    = new ObjectUpdatingEvent($reported, $this->entity(row: self::URGENT));
+
+		$this->listener(grant: $grant)->handle($event);
+
+		$this->assertFalse(condition: $event->isPropagationStopped());
+	}//end testTheGrantedReportSetsTheDate()
 }//end class

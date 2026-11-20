@@ -4503,7 +4503,18 @@
         "Under embargo": "Onder embargo",
         "Whether the paper is still under embargo. Set by staff with embargoUntil and written false by the embargo release job once embargoUntil has passed.": "Of het stuk nog onder embargo valt. De griffie zet dit met Embargo tot; de embargotaak zet het op nee zodra dat moment voorbij is.",
         "Embargo audience": "Embargokring",
-        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "De groep of rol die het stuk leest zolang het onder embargo valt, bijvoorbeeld fractievoorzitters."
+        "The group or role that reads the paper while it is under embargo, for example fractievoorzitters.": "De groep of rol die het stuk leest zolang het onder embargo valt, bijvoorbeeld fractievoorzitters.",
+        "Declared on behalf of": "Verklaard namens",
+        "Office, when the power belongs to one person": "Ambt, als de bevoegdheid bij één persoon ligt",
+        "Mark as reported to the ratifying body": "Markeren als gemeld aan het bekrachtigende orgaan",
+        "Reported to the ratifying body on {date}": "Gemeld aan het bekrachtigende orgaan op {date}",
+        "The report to the ratifying body is recorded.": "De melding aan het bekrachtigende orgaan is vastgelegd.",
+        "Urgency declared by body": "Spoed verklaard door orgaan",
+        "Urgency declared in office": "Spoed verklaard in ambt",
+        "Reported to the ratifying body on": "Gemeld aan het bekrachtigende orgaan op",
+        "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there.": "Het bestuursorgaan namens wie het besluit spoedeisend is verklaard (het college, of het orgaan waartoe een eenhoofdig ambt behoort). Wordt alleen door de spoedverklaring gezet en is daar verplicht.",
+        "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only.": "Het ambt dat de spoedbevoegdheid heeft als die bij één persoon ligt, zoals de burgemeester. De lijst met spoedbesluiten toont het in plaats van de naam van het orgaan. Wordt alleen door de spoedverklaring gezet.",
+        "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.": "De dag waarop het spoedbesluit voor het eerst is gemeld aan het orgaan dat het bekrachtigt: door de meldactie, of toen het bekrachtigingsagendapunt op een vergadering werd geplaatst, wat het eerst gebeurde. Wordt één keer gezet en nooit gewist."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
