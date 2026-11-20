@@ -226,4 +226,74 @@ class FilinqPdfTest extends TestCase {
 		$this->assertStringContainsString('the minutes document', $logged[0]);
 	}//end testEveryFallbackIsLoggedWithItsContext()
 
+	/**
+	 * A merger that records what it was given and answers a canned PDF.
+	 *
+	 * @param string $answer What mergePdfs returns.
+	 *
+	 * @return object The double.
+	 */
+	private function merger(string $answer): object {
+		return new class($answer) {
+
+			/**
+			 * @var array<int, array<int, mixed>> The calls.
+			 */
+			public array $calls = [];
+
+			/**
+			 * @param string $answer What to answer with.
+			 */
+			public function __construct(private readonly string $answer) {
+			}//end __construct()
+
+			/**
+			 * @param array<int,string> $pdfs      The streams.
+			 * @param array<int,string> $bookmarks The bookmarks.
+			 *
+			 * @return string The canned answer.
+			 */
+			public function mergePdfs(array $pdfs, array $bookmarks = []): string {
+				$this->calls[] = [$pdfs, $bookmarks];
+				return $this->answer;
+			}//end mergePdfs()
+		};
+	}//end merger()
+
+	/**
+	 * Filinq's PdfMerger merges the streams with their bookmarks.
+	 *
+	 * @return void
+	 */
+	public function testItMergesThroughFilinqsPdfMerger(): void {
+		$merger    = $this->merger('%PDF-1.4 merged');
+		$container = $this->container('OCA\Filinq\Service\PdfMerger', $merger);
+
+		$merged = $this->subject($container)->merge(['%PDF-a', '%PDF-b'], [0 => 'Agenda'], 'a test');
+
+		$this->assertSame('%PDF-1.4 merged', $merged);
+		$this->assertSame([[['%PDF-a', '%PDF-b'], [0 => 'Agenda']]], $merger->calls);
+	}//end testItMergesThroughFilinqsPdfMerger()
+
+	/**
+	 * A PdfService that carries mergePdfs() itself is asked when there is no PdfMerger.
+	 *
+	 * @return void
+	 */
+	public function testAPdfServiceWithMergePdfsIsAskedToo(): void {
+		$container = $this->container('OCA\Filinq\Service\PdfService', $this->merger('%PDF-1.4 from the service'));
+
+		$this->assertSame('%PDF-1.4 from the service', $this->subject($container)->merge(['%PDF-a'], [], 'a test'));
+	}//end testAPdfServiceWithMergePdfsIsAskedToo()
+
+	/**
+	 * A filinq that only renders cannot merge: null, so the pack uses placeholders.
+	 *
+	 * @return void
+	 */
+	public function testAFilinqThatOnlyRendersCannotMerge(): void {
+		$container = $this->container('OCA\Filinq\Service\PdfService', $this->renderer('%PDF-1.4 real'));
+
+		$this->assertNull($this->subject($container)->merge(['%PDF-a'], [], 'a test'));
+	}//end testAFilinqThatOnlyRendersCannotMerge()
 }//end class
