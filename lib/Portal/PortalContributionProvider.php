@@ -100,263 +100,6 @@ class PortalContributionProvider {
 	private const LABEL = 'Council and participation';
 
 	/**
-	 * What a resident reads of their own consultation reactions.
-	 *
-	 * @var list<string>
-	 */
-	private const REACTION_READ_FIELDS = [
-		'body',
-		'submittedAt',
-		'moderationStatus',
-		'voteCount',
-		'proposalTitle',
-		'proposalAmount',
-	];
-
-	/**
-	 * What a resident reads of their own advisory votes.
-	 *
-	 * @var list<string>
-	 */
-	private const VOTE_READ_FIELDS = [
-		'voteValue',
-		'motionId',
-		'proposalId',
-		'citizenPanelId',
-		'weight',
-		'isProxy',
-		'castAt',
-		'notes',
-	];
-
-	/**
-	 * What a resident reads of their own budget proposals.
-	 *
-	 * @var list<string>
-	 */
-	private const BUDGET_PROPOSAL_READ_FIELDS = [
-		'title',
-		'description',
-		'requestedAmount',
-		'category',
-		'status',
-		'votesFor',
-		'votesAgainst',
-	];
-
-	/**
-	 * What a resident reads of their own notifications.
-	 *
-	 * @var list<string>
-	 */
-	private const NOTIFICATION_READ_FIELDS = [
-		'type',
-		'subject',
-		'content',
-		'channel',
-		'status',
-		'sentAt',
-		'readAt',
-	];
-
-	/**
-	 * What the council calendar shows of a publication payload.
-	 *
-	 * @var list<string>
-	 */
-	private const CALENDAR_FIELDS = [
-		'title',
-		'bodyName',
-		'meetingDate',
-		'meetingType',
-		'location',
-		'audiences',
-		'oriType',
-	];
-
-	/**
-	 * The calendar's declared labels, so the reader's language applies;
-	 * without them portaliq heads the table with the schema's English titles.
-	 *
-	 * @var array<string, array<string, mixed>>
-	 */
-	private const CALENDAR_FIELD_CONFIGS = [
-		'title' => ['label' => 'Meeting'],
-		'meetingDate' => ['label' => 'Date'],
-		'bodyName' => ['label' => 'Body'],
-		'meetingType' => [
-			'label' => 'Meeting type',
-			'valueLabels' => [
-				'regular' => 'Regular meeting',
-				'extraordinary' => 'Extraordinary meeting',
-				'committee' => 'Committee meeting',
-				'public hearing' => 'Public hearing',
-				'general_assembly' => 'General assembly',
-			],
-		],
-		'location' => ['label' => 'Location'],
-		'oriType' => [
-			'label' => 'Kind',
-			'valueLabels' => [
-				'Vergadering' => 'Meeting',
-				'Besluit' => 'Decision',
-				'Verslag' => 'Minutes',
-			],
-		],
-	];
-
-	/**
-	 * The calendar's table columns.
-	 *
-	 * @var list<array<string, string>>
-	 */
-	private const CALENDAR_COLUMNS = [
-		['field' => 'meetingDate', 'render' => 'datetime'],
-		['field' => 'title'],
-		['field' => 'bodyName'],
-		['field' => 'meetingType'],
-	];
-
-	/**
-	 * What the public broadcasts list shows; never a staff field.
-	 *
-	 * @var list<string>
-	 */
-	private const BROADCAST_FIELDS = [
-		'title',
-		'eveningTitle',
-		'bodyName',
-		'scheduledDate',
-		'lifecycle',
-		'playerUrl',
-		'recordingUrl',
-		'captionTracks',
-	];
-
-	/**
-	 * What a resident reads of a member's ancillary position (REQ-PLB-007).
-	 *
-	 * @var list<string>
-	 */
-	private const ANCILLARY_POSITION_FIELDS = [
-		'person',
-		'organisation',
-		'role',
-		'remunerated',
-		'startDate',
-		'endDate',
-	];
-
-	/**
-	 * What the list of motions open for advice shows; who voted is never listed.
-	 *
-	 * @var list<string>
-	 */
-	private const ADVICE_MOTION_FIELDS = [
-		'title',
-		'text',
-		'motionType',
-		'citizenVotingStatus',
-		'citizenAdviceFor',
-		'citizenAdviceAgainst',
-		'citizenAdviceAbstain',
-	];
-
-	/**
-	 * What a resident reads of their own publication subscriptions.
-	 *
-	 * @var list<string>
-	 */
-	private const SUBSCRIPTION_READ_FIELDS = [
-		'governanceBodies',
-		'kinds',
-		'frequency',
-		'active',
-		'lastSentAt',
-	];
-
-	/**
-	 * What a resident sends to react to a consultation; never the scope
-	 * field or a staff-only field.
-	 *
-	 * @var list<string>
-	 */
-	private const REACTION_CREATE_FIELDS = [
-		'consultation',
-		'body',
-	];
-
-	/**
-	 * What a resident sends to submit a budget proposal.
-	 *
-	 * @var list<string>
-	 */
-	private const BUDGET_PROPOSAL_CREATE_FIELDS = [
-		'participatoryBudget',
-		'title',
-		'description',
-		'requestedAmount',
-		'category',
-	];
-
-	/**
-	 * What a resident sends to give advice on a motion.
-	 *
-	 * @var list<string>
-	 */
-	private const ADVICE_CREATE_FIELDS = [
-		'motionId',
-		'voteValue',
-	];
-
-	/**
-	 * What a resident sends to follow publications.
-	 *
-	 * @var list<string>
-	 */
-	private const SUBSCRIBE_FIELDS = [
-		'governanceBodies',
-		'kinds',
-		'frequency',
-	];
-
-	/**
-	 * A reaction may only be created on a consultation that is open.
-	 *
-	 * @var array<string, string>
-	 */
-	private const OPEN_CONSULTATION = [
-		'field' => 'consultation',
-		'parentSchema' => 'public-consultation',
-		'statusField' => 'status',
-		'statusValue' => 'open',
-	];
-
-	/**
-	 * A budget proposal may only be submitted while its budget takes submissions.
-	 *
-	 * @var array<string, string>
-	 */
-	private const BUDGET_IN_SUBMISSION = [
-		'field' => 'participatoryBudget',
-		'parentSchema' => 'participatory-budget',
-		'statusField' => 'status',
-		'statusValue' => 'submission',
-	];
-
-	/**
-	 * Advice may only be given on a motion whose advisory vote is open.
-	 *
-	 * @var array<string, string>
-	 */
-	private const MOTION_OPEN_FOR_ADVICE = [
-		'field' => 'motionId',
-		'parentSchema' => 'decision',
-		'statusField' => 'citizenVotingStatus',
-		'statusValue' => 'open',
-	];
-
-	/**
 	 * Constructor; the container hands in the factory, `new` with no arguments answers in English.
 	 *
 	 * The only dependency is optional, so the class still resolves without
@@ -711,7 +454,7 @@ class PortalContributionProvider {
 			'label' => 'My consultation reactions',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::REACTION_READ_FIELDS,
+			'fields' => PortalFieldSets::REACTION_READ_FIELDS,
 		];
 
 	}//end citizenReactionsCollection()
@@ -732,7 +475,7 @@ class PortalContributionProvider {
 			'label' => 'My votes',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::VOTE_READ_FIELDS,
+			'fields' => PortalFieldSets::VOTE_READ_FIELDS,
 		];
 
 	}//end citizenVotesCollection()
@@ -753,7 +496,7 @@ class PortalContributionProvider {
 			'label' => 'My budget proposals',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::BUDGET_PROPOSAL_READ_FIELDS,
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_READ_FIELDS,
 		];
 
 	}//end citizenBudgetProposalsCollection()
@@ -775,7 +518,7 @@ class PortalContributionProvider {
 			'label' => 'My notifications',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::NOTIFICATION_READ_FIELDS,
+			'fields' => PortalFieldSets::NOTIFICATION_READ_FIELDS,
 		];
 
 	}//end citizenNotificationsCollection()
@@ -799,14 +542,14 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Council calendar',
 			'listable' => true,
-			'fields' => self::CALENDAR_FIELDS,
+			'fields' => PortalFieldSets::CALENDAR_FIELDS,
 			// The calendar lists meetings only: `filter` narrows the read,
 			// `defaultFilters` only presets what the list shows.
 			'filter' => ['oriType' => 'Vergadering'],
 			'defaultFilters' => ['oriType' => 'Vergadering'],
 			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
-			'fieldConfigs' => self::CALENDAR_FIELD_CONFIGS,
-			'columns' => self::CALENDAR_COLUMNS,
+			'fieldConfigs' => PortalFieldSets::CALENDAR_FIELD_CONFIGS,
+			'columns' => PortalFieldSets::CALENDAR_COLUMNS,
 			'detail' => ['layout' => 'card', 'fields' => ['title', 'meetingDate', 'bodyName', 'meetingType', 'location']],
 		];
 
@@ -834,7 +577,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Live and recent meetings',
 			'listable' => true,
-			'fields' => self::BROADCAST_FIELDS,
+			'fields' => PortalFieldSets::BROADCAST_FIELDS,
 			'defaultSort' => ['field' => 'scheduledDate', 'direction' => 'desc'],
 		];
 
@@ -862,7 +605,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Motions open for your advice',
 			'listable' => true,
-			'fields' => self::ADVICE_MOTION_FIELDS,
+			'fields' => PortalFieldSets::ADVICE_MOTION_FIELDS,
 			// Only the motions the griffie opened for advice are read.
 			'filter' => ['citizenVotingAllowed' => true],
 			'defaultFilters' => ['citizenVotingAllowed' => true],
@@ -893,7 +636,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => "Members' ancillary positions",
 			'listable' => true,
-			'fields' => self::ANCILLARY_POSITION_FIELDS,
+			'fields' => PortalFieldSets::ANCILLARY_POSITION_FIELDS,
 			'defaultSort' => ['field' => 'startDate', 'direction' => 'desc'],
 		];
 
@@ -944,12 +687,12 @@ class PortalContributionProvider {
 			'schema' => 'consultation-reaction',
 			'scopeField' => 'submitterId',
 			'minTrust' => 'low',
-			'fields' => self::REACTION_CREATE_FIELDS,
+			'fields' => PortalFieldSets::REACTION_CREATE_FIELDS,
 			'defaults' => [
 				'moderationStatus' => 'pending',
 				'submittedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			],
-			'parentConstraint' => self::OPEN_CONSULTATION,
+			'parentConstraint' => PortalFieldSets::OPEN_CONSULTATION,
 		];
 
 	}//end createReactionAction()
@@ -970,11 +713,11 @@ class PortalContributionProvider {
 			'schema' => 'budget-proposal',
 			'scopeField' => 'submitter',
 			'minTrust' => 'low',
-			'fields' => self::BUDGET_PROPOSAL_CREATE_FIELDS,
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_CREATE_FIELDS,
 			'defaults' => [
 				'status' => 'submitted',
 			],
-			'parentConstraint' => self::BUDGET_IN_SUBMISSION,
+			'parentConstraint' => PortalFieldSets::BUDGET_IN_SUBMISSION,
 		];
 
 	}//end createBudgetProposalAction()
@@ -996,13 +739,13 @@ class PortalContributionProvider {
 			'schema' => 'citizen-vote',
 			'scopeField' => 'voterId',
 			'minTrust' => 'substantial',
-			'fields' => self::ADVICE_CREATE_FIELDS,
+			'fields' => PortalFieldSets::ADVICE_CREATE_FIELDS,
 			'defaults' => [
 				'weight' => 1,
 				'isProxy' => false,
 				'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			],
-			'parentConstraint' => self::MOTION_OPEN_FOR_ADVICE,
+			'parentConstraint' => PortalFieldSets::MOTION_OPEN_FOR_ADVICE,
 		];
 
 	}//end castMotionAdviceAction()
@@ -1025,7 +768,7 @@ class PortalContributionProvider {
 			'label' => 'My subscriptions',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::SUBSCRIPTION_READ_FIELDS,
+			'fields' => PortalFieldSets::SUBSCRIPTION_READ_FIELDS,
 		];
 
 	}//end subscriptionsCollection()
@@ -1065,7 +808,7 @@ class PortalContributionProvider {
 			'schema' => 'publication-subscription',
 			'scopeField' => 'subscriberRef',
 			'minTrust' => 'low',
-			'fields' => self::SUBSCRIBE_FIELDS,
+			'fields' => PortalFieldSets::SUBSCRIBE_FIELDS,
 			'defaults' => [
 				'active' => true,
 			],
