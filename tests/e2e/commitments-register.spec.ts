@@ -44,11 +44,17 @@ test('Commitments: the Over the deadline lens lists the overdue open commitment 
 // @e2e toezeggingen-register::export-toezeggingenlijst-to-csv
 test('Commitments: the list exports to CSV', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/commitments`)
-	await page.getByRole('button', { name: /Export/ }).first().click()
+	await page
+		.getByRole('button', { name: /Export/ })
+		.first()
+		.click()
 	const dialog = page.getByRole('dialog')
 	await expect(dialog).toBeVisible()
 	const download = page.waitForEvent('download')
-	await dialog.getByRole('button', { name: /Export/ }).last().click()
+	await dialog
+		.getByRole('button', { name: /Export/ })
+		.last()
+		.click()
 	expect((await download).suggestedFilename()).toMatch(/\.csv$/)
 })
 
@@ -66,7 +72,9 @@ test('Dashboard: the Commitments over deadline tile counts what the lens lists, 
 		.locator('.cn-stats-block, .cn-kpi-card')
 		.filter({ hasText: 'Commitments over deadline' })
 	await expect(tile).toBeVisible()
-	await expect(tile.locator('.cn-stats-block__count-value')).toHaveText(String(listed))
+	await expect(tile.locator('.cn-stats-block__count-value')).toHaveText(
+		String(listed),
+	)
 
 	await tile.click()
 	await expect(page).toHaveURL(/\/commitments/)
@@ -85,24 +93,40 @@ test('CommitmentDetail: recording a settlement disposes a commitment in executio
 	await tab.getByTestId('commitment-settle').click()
 	const dialog = page.getByTestId('commitment-settlement-dialog')
 	await expect(dialog).toBeVisible()
-	await dialog.getByTestId('commitment-settlement-note').locator('textarea, input').first().fill('Schouw gehouden op 12 mei; verslag naar de raad.')
+	await dialog
+		.getByTestId('commitment-settlement-note')
+		.locator('textarea, input')
+		.first()
+		.fill('Schouw gehouden op 12 mei; verslag naar de raad.')
 	await dialog.getByTestId('commitment-settlement-confirm').click()
 
 	await expect(dialog).toBeHidden()
-	await expect(tab.getByTestId('commitment-settlement-note-shown')).toContainText('Schouw gehouden op 12 mei')
+	await expect(tab.getByTestId('commitment-settlement-note-shown')).toContainText(
+		'Schouw gehouden op 12 mei',
+	)
 })
 
 // @e2e toezeggingen-register::published-commitment-is-anonymously-readable
 // @e2e toezeggingen-register::unpublished-commitment-is-not-public
 test('Public read: a published commitment is readable without signing in, an unpublished one is not', async () => {
-	const anonymous = await request.newContext({ baseURL: BASE, storageState: { cookies: [], origins: [] } })
-	const response = await anonymous.get('/index.php/apps/openregister/api/objects/decidiq/governance-commitment?_limit=100', {
-		headers: { 'OCS-APIRequest': 'true' },
+	const anonymous = await request.newContext({
+		baseURL: BASE,
+		storageState: { cookies: [], origins: [] },
 	})
+	const response = await anonymous.get(
+		'/index.php/apps/openregister/api/objects/decidiq/governance-commitment?_limit=100',
+		{
+			headers: { 'OCS-APIRequest': 'true' },
+		},
+	)
 	expect(response.ok()).toBe(true)
-	const texts: string[] = ((await response.json()).results ?? []).map((row: { text?: string }) => String(row.text ?? ''))
+	const texts: string[] = ((await response.json()).results ?? []).map(
+		(row: { text?: string }) => String(row.text ?? ''),
+	)
 
 	expect(texts.some((text) => text.includes(OVERDUE))).toBe(true)
-	expect(texts.some((text) => text.includes('energieplan voor zwembad De Hoge Dijk'))).toBe(false)
+	expect(
+		texts.some((text) => text.includes('energieplan voor zwembad De Hoge Dijk')),
+	).toBe(false)
 	await anonymous.dispose()
 })

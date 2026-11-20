@@ -31,12 +31,19 @@ import { openRow } from './support/open-row.ts'
  * @return {Promise<string[]>} The organisation names.
  */
 async function anonymousPositions(): Promise<string[]> {
-	const anonymous = await request.newContext({ baseURL: BASE, storageState: { cookies: [], origins: [] } })
-	const response = await anonymous.get('/index.php/apps/openregister/api/objects/decidiq/ancillary-position?_limit=100', {
-		headers: { 'OCS-APIRequest': 'true' },
+	const anonymous = await request.newContext({
+		baseURL: BASE,
+		storageState: { cookies: [], origins: [] },
 	})
+	const response = await anonymous.get(
+		'/index.php/apps/openregister/api/objects/decidiq/ancillary-position?_limit=100',
+		{
+			headers: { 'OCS-APIRequest': 'true' },
+		},
+	)
 	expect(response.ok()).toBe(true)
-	const rows: Array<{ organisation?: string, lifecycle?: string }> = (await response.json()).results ?? []
+	const rows: Array<{ organisation?: string; lifecycle?: string }> =
+		(await response.json()).results ?? []
 	await anonymous.dispose()
 	return rows.map((row) => `${row.organisation ?? ''}|${row.lifecycle ?? ''}`)
 }
@@ -55,7 +62,9 @@ test('Public read: published positions, ended ones included, are readable withou
 })
 
 // @e2e interests-and-integrity::griffie-filters-the-per-body-register-and-exports
-test('AncillaryPositions: the lenses narrow the register and the list exports', async ({ page }) => {
+test('AncillaryPositions: the lenses narrow the register and the list exports', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/ancillary-positions`)
 	await expect(page.locator('tbody tr').first()).toBeVisible()
 	const all = await page.locator('tbody tr').count()
@@ -65,15 +74,23 @@ test('AncillaryPositions: the lenses narrow the register and the list exports', 
 	expect(publicRows).toBeLessThan(all)
 
 	await page.getByRole('button', { name: /^All/ }).click()
-	await page.getByRole('button', { name: /Export/ }).first().click()
+	await page
+		.getByRole('button', { name: /Export/ })
+		.first()
+		.click()
 	const dialog = page.getByRole('dialog')
 	const download = page.waitForEvent('download')
-	await dialog.getByRole('button', { name: /Export/ }).last().click()
+	await dialog
+		.getByRole('button', { name: /Export/ })
+		.last()
+		.click()
 	expect((await download).suggestedFilename()).toMatch(/\.csv$/)
 })
 
 // @e2e interests-and-integrity::q.q.-functie-flagged-as-held-ex-officio
-test('AncillaryPositionDetail: a position held ex officio says so', async ({ page }) => {
+test('AncillaryPositionDetail: a position held ex officio says so', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/ancillary-positions`)
 	await openRow(page, 'Afvalschap')
 	await expect(page.getByText(/Ex officio/)).toBeVisible()
@@ -81,7 +98,9 @@ test('AncillaryPositionDetail: a position held ex officio says so', async ({ pag
 
 // @e2e interests-and-integrity::member-registers-a-received-gift
 // @e2e interests-and-integrity::invitation-registered-and-handed-over
-test('DeclaredGifts: the lenses split gifts from invitations and by decision', async ({ page }) => {
+test('DeclaredGifts: the lenses split gifts from invitations and by decision', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/declared-gifts`)
 	await page.getByRole('button', { name: /^Invitations/ }).click()
 	await expect(page.locator('tbody tr', { hasText: /diner/i })).toBeVisible()
@@ -90,9 +109,14 @@ test('DeclaredGifts: the lenses split gifts from invitations and by decision', a
 })
 
 // @e2e interests-and-integrity::dashboard-kpi-counts-overdue-reviews
-test('Dashboard: the overdue-review tile is not zero on the example set', async ({ page }) => {
+test('Dashboard: the overdue-review tile is not zero on the example set', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/`)
-	const tile = page.locator('.cn-stats-block, .cn-kpi-card').filter({ hasText: /review/i }).first()
+	const tile = page
+		.locator('.cn-stats-block, .cn-kpi-card')
+		.filter({ hasText: /review/i })
+		.first()
 	await expect(tile).toBeVisible()
 	await expect(tile.locator('.cn-stats-block__count-value')).not.toHaveText('0')
 })

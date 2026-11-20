@@ -98,6 +98,7 @@
   - Newman covers POST compile (202 + 403) and GET status
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/meeting-pack-board-book.spec.ts` (14 of 15 scenarios: compile happy path with placeholders and skip report, delivery and notification, confidential exclusion read from the PDF, outdated badge, recompile with change note, empty agenda, participant read-only, no access) and `tests/integration/decidiq-meeting-pack-board-book.postman_collection.json` (POST compile 202, 401, 403, 422; GET status 200, 401, 403, 404). The stranger test asserts the spec (403 or 404 on the pack object) while `meeting-pack` reads are granted to `authenticated` in 132-meeting-pack, so it is expected to fail until that rule narrows. Running it needs a live instance.
 
 ## Quality checklist
 

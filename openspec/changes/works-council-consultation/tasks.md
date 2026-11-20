@@ -67,6 +67,7 @@
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → behandel → agendeer op overlegvergadering → stel advies vast → genereer document → verzend → registreer afwijkend besluit (opschorting zichtbaar) → afgerond passes end-to-end, and the KPI deep-links land on correctly pre-filtered indexes
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/works-council-consultation.spec.ts` (17 scenarios tagged: the statutory walk register → in progress → consultation meeting → adopted → document → sent → dissenting decision with suspension → completed, the KPI tiles and their lists, links, conform and consent paths; the two reminder scenarios and the additive-fragment one are register contracts covered by `WorksCouncilConsultationRegisterTest`). State moves go through the object API because the detail page declares no lifecycle buttons. Running it needs a live instance.
 
 ## Quality checklist
 

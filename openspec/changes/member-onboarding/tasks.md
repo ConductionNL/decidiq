@@ -85,6 +85,7 @@
   - GIVEN the seeded environment WHEN the e2e suite runs THEN create → beediging → provision → pack → afgerond (onboarding), end-date → revoke → exit-confirm (offboarding, incl. the completion block while revocation is open), and diff → deselect → confirm (batch) pass end-to-end through the UI
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/member-onboarding.spec.ts` (onboarding, offboarding with the completion block, batch diff and confirm, dashboard). Provisioning, pack delivery and revocation are called through their routes because the detail page has no buttons for them yet. Two tests assert the spec where the build has no guard yet: completing a traject with open mandatory steps by a plain save, and leaving a terminal state. Running it needs a live instance.
 
 ## Quality checklist
 

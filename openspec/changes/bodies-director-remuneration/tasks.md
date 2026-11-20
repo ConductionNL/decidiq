@@ -12,6 +12,7 @@
   - GIVEN a secretariat member WHEN she lists remuneration THEN every record of her installation returns
 - [x] Implement
 - [ ] Test (Newman with three users: secretariat, member, anonymous) (not run: needs the live instance; tests/newman/mandate-remuneration.json is still to write with it) (code exists, test missing: tests/newman/mandate-remuneration.json not written; live pass, decision 139)
+- Written, not run (20 Nov): `tests/integration/decidiq-mandate-remuneration.postman_collection.json` (the repository keeps its collections in `tests/integration/`, which `run-newman.sh` globs; `tests/newman/` does not exist). A secretariat probe user records an undisclosed, a disclosed-and-published and a disclosed-but-future record; the secretariat lists all three, a member sees neither the undisclosed nor the future one and cannot record one, an anonymous caller reads only the disclosed, published one.
 
 ### Task 2: Remuneration on the body page
 - **spec_ref**: `openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-002-the-body-page-shows-this-years-remuneration-and-its-total`
