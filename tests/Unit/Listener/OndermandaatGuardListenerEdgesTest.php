@@ -39,6 +39,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Listener\OndermandaatGuardListener
  * @uses   \OCA\Decidiq\Listener\EntityPayloadReader
+ * @uses   \OCA\Decidiq\Service\AnyOfFieldsGuard
  */
 class OndermandaatGuardListenerEdgesTest extends TestCase {
 
@@ -93,12 +94,12 @@ class OndermandaatGuardListenerEdgesTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnAllowedToedelingIsCheckedWithItsUuidAndPasses(): void {
-		$event = new ObjectCreatingEvent($this->entity(row: ['_schemaSlug' => 'bevoegdheidstoedeling', 'mandaathouder' => 'u-1'], uuid: 'td-1'));
+		$event = new ObjectCreatingEvent($this->entity(row: ['_schemaSlug' => 'bevoegdheidstoedeling', 'mandaathouder' => 'u-1', 'delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris'], uuid: 'td-1'));
 
 		$this->listener()->handle(event: $event);
 
 		$this->assertSame(
-			expected: [['_schemaSlug' => 'bevoegdheidstoedeling', 'mandaathouder' => 'u-1', 'id' => 'td-1']],
+			expected: [['_schemaSlug' => 'bevoegdheidstoedeling', 'mandaathouder' => 'u-1', 'delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris', 'id' => 'td-1']],
 			actual: $this->checked
 		);
 		$this->assertFalse(condition: $event->isPropagationStopped());
@@ -111,7 +112,7 @@ class OndermandaatGuardListenerEdgesTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnIdInTheRowIsKept(): void {
-		$this->listener()->handle(event: new ObjectCreatingEvent($this->entity(row: ['id' => 'td-own'], uuid: 'td-uuid')));
+		$this->listener()->handle(event: new ObjectCreatingEvent($this->entity(row: ['id' => 'td-own', 'delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris'], uuid: 'td-uuid')));
 
 		$this->assertSame(expected: 'td-own', actual: $this->checked[0]['id']);
 	}//end testAnIdInTheRowIsKept()
@@ -123,7 +124,7 @@ class OndermandaatGuardListenerEdgesTest extends TestCase {
 	 */
 	public function testAnUpdateIsCheckedOnTheNewObject(): void {
 		$event = new ObjectUpdatingEvent(
-			$this->entity(row: ['id' => 'td-1', 'mandaathouder' => 'u-new']),
+			$this->entity(row: ['id' => 'td-1', 'mandaathouder' => 'u-new', 'delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris']),
 			$this->entity(row: ['id' => 'td-1', 'mandaathouder' => 'u-old'])
 		);
 
@@ -143,7 +144,7 @@ class OndermandaatGuardListenerEdgesTest extends TestCase {
 			'Decidiq: the ondermandaat chain could not be checked',
 			['error' => 'register offline'],
 		);
-		$event = new ObjectCreatingEvent($this->entity(row: ['schema' => '17']));
+		$event = new ObjectCreatingEvent($this->entity(row: ['schema' => '17', 'delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris']));
 
 		$this->listener(failure: new RuntimeException(message: 'register offline'), logger: $logger)->handle(event: $event);
 
