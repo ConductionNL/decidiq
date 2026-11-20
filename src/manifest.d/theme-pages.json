@@ -1,0 +1,76 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Theme pages (publication-theme-pages, REQ-THP-001..003, matrix row pub-20) — appended onto src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail over the governance-theme schema (slug, never PascalCase). Ids and route are TopicThemes and /topic-themes because Themes and /themes belong to the motion themes (motion-themes.json). The detail page has the theme's data, the staff timeline (ThemeTimelineTab: every linked item, oldest first, the unpublished ones marked), Publish (ThemePublicationTab, sourceType theme) and the resolved links. Agenda item and decision pages carry Add to theme (AgendaItemThemesTab / DecisionThemesTab, src/manifest.json).",
+	"menu": [
+		{
+			"id": "TopicThemes",
+			"label": "Theme pages",
+			"icon": "BookOpenVariantOutline",
+			"route": "TopicThemes",
+			"order": 46
+		}
+	],
+	"pages": [
+		{
+			"id": "TopicThemes",
+			"route": "/topic-themes",
+			"type": "index",
+			"title": "Theme pages",
+			"_note": "spec: openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme",
+			"config": {
+				"register": "decidiq",
+				"schema": "governance-theme",
+				"sortKey": "title",
+				"sortOrder": "asc",
+				"quickFilterMode": "dropdown",
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Active", "filter": { "status": "active" } },
+					{ "label": "Concluded", "filter": { "status": "concluded" } }
+				],
+				"columns": [
+					{ "key": "title", "label": "Title", "widget": "link" },
+					{ "key": "governanceBody", "label": "Responsible body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "status", "label": "Status", "widget": "badge" },
+					{ "key": "isPublic", "label": "Public" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "TopicThemeDetail", "primary": true }
+				],
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "TopicThemeDetail",
+			"route": "/topic-themes/:id",
+			"type": "detail",
+			"title": "Theme",
+			"_note": "spec: openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it",
+			"config": {
+				"register": "decidiq",
+				"schema": "governance-theme",
+				"widgets": [
+					{ "id": "theme-data", "type": "data", "title": "Theme", "icon": "BookOpenVariantOutline", "content": { "columns": 2 } },
+					{ "id": "theme-timeline", "type": "custom", "component": "ThemeTimelineTab", "title": "Timeline", "icon": "Timeline" },
+					{ "id": "theme-publication", "type": "custom", "component": "ThemePublicationTab", "title": "Publication", "icon": "Web" },
+					{ "id": "theme-related", "type": "related", "title": "Linked items", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "theme-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "theme-timeline", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "theme-publication", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "4", "widgetId": "theme-related", "gridX": 0, "gridY": 12, "gridWidth": 12, "gridHeight": 4 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

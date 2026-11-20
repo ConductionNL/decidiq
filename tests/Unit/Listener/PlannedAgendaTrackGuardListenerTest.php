@@ -37,6 +37,7 @@ use Psr\Log\NullLogger;
  *
  * @covers \OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
+ * @uses \OCA\Decidiq\Listener\EntityPayloadReader
  */
 class PlannedAgendaTrackGuardListenerTest extends TestCase {
 

@@ -50,10 +50,10 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\RoomSystemRefusal
  * @covers \OCA\Decidiq\Listener\RoomSystemMessageListener
  * @uses   \OCA\Decidiq\Service\IntegriqConnection
- * @uses   \OCA\Decidiq\Service\ObjectRows
- * @uses   \OCA\Decidiq\Service\VoteCast
- * @uses   \OCA\Decidiq\Listener\EntityPayloadReader
- * @uses   \OCA\Decidiq\Service\ListenerSchemaResolver
+ * @uses \OCA\Decidiq\Listener\EntityPayloadReader
+ * @uses \OCA\Decidiq\Service\ListenerSchemaResolver
+ * @uses \OCA\Decidiq\Service\ObjectRows
+ * @uses \OCA\Decidiq\Service\VoteCast
  */
 final class RoomSystemMessageServiceTest extends TestCase {
 
