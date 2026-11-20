@@ -29,9 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Throwable;
 
 /**
  * Starts the flow run of a route for one decision.
@@ -55,16 +53,14 @@ class ApprovalRouteFlowStarter {
 	 * @param ApprovalRouteFlowCompiler $compiler Turns the route into a flow.
 	 * @param ApprovalFlowGateway       $gateway  Stores the flow and queues the run.
 	 * @param RegisterObjectStore       $store    Reads and writes the decision.
-	 * @param NotificationPreferenceService|null $preferences Answers who stands in for a person who
+	 * @param ApprovalStageActivator|null $absences Answers who stands in for a person who
 	 *        recorded an absence; without it nobody is treated as away.
-	 * @param LoggerInterface|null      $logger   Logs an absence that could not be read.
 	 */
 	public function __construct(
 		private readonly ApprovalRouteFlowCompiler $compiler,
 		private readonly ApprovalFlowGateway $gateway,
 		private readonly RegisterObjectStore $store,
-		private readonly ?NotificationPreferenceService $preferences = null,
-		private readonly ?LoggerInterface $logger = null,
+		private readonly ?ApprovalStageActivator $absences = null,
 	) {
 	}//end __construct()
 
@@ -128,7 +124,7 @@ class ApprovalRouteFlowStarter {
 	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-006-a-substitute-can-act-while-the-approver-is-away
 	 */
 	private function withSubstitutes(array $route, DateTimeImmutable $now): array {
-		if ($this->preferences === null || is_array($route['steps'] ?? null) === false) {
+		if ($this->absences === null || is_array($route['steps'] ?? null) === false) {
 			return $route;
 		}
 
@@ -137,8 +133,7 @@ class ApprovalRouteFlowStarter {
 				continue;
 			}
 
-			$person   = trim((string)($step['actor'] ?? ''));
-			$delegate = $this->delegateOf(person: $person, now: $now);
+			$delegate = $this->absences->absenceDelegateOf(person: (string)($step['actor'] ?? ''), now: $now);
 			if ($delegate !== null) {
 				$route['steps'][$index][ApprovalRouteFlowCompiler::SUBSTITUTE_KEY] = $delegate;
 			}
@@ -146,39 +141,6 @@ class ApprovalRouteFlowStarter {
 
 		return $route;
 	}//end withSubstitutes()
-
-	/**
-	 * Who stands in for a person who is away now, or null.
-	 *
-	 * An unreadable preference is not an absence: the step waits on the person it names.
-	 *
-	 * @param string            $person The person the step names.
-	 * @param DateTimeImmutable $now    The send moment.
-	 *
-	 * @return string|null The delegate; null when the person is not away or names nobody else.
-	 */
-	private function delegateOf(string $person, DateTimeImmutable $now): ?string {
-		if ($person === '' || $this->preferences === null) {
-			return null;
-		}
-
-		try {
-			$delegate = $this->preferences->getActiveDelegate(personId: $person, today: $now);
-		} catch (Throwable $e) {
-			$this->logger?->warning(
-				'Decidiq: could not read the absence of an approval route step person',
-				['person' => $person, 'reason' => $e->getMessage()]
-			);
-			return null;
-		}
-
-		$delegate = trim((string)$delegate);
-		if ($delegate === '' || $delegate === $person) {
-			return null;
-		}
-
-		return $delegate;
-	}//end delegateOf()
 
 	/**
 	 * Refuse a second send while the decision's route is still open.

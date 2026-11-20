@@ -23,7 +23,9 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\ApprovalFlowGateway;
 use OCA\Decidiq\Service\ApprovalRouteFlowCapabilities;
 use OCA\Decidiq\Service\ApprovalRouteFlowCompiler;
+use OCA\Decidiq\Service\ApprovalActorResolver;
 use OCA\Decidiq\Service\ApprovalRouteFlowStarter;
+use OCA\Decidiq\Service\ApprovalStageActivator;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use DateTimeImmutable;
 use OCA\Decidiq\Service\RegisterObjectStore;
@@ -81,7 +83,7 @@ class ApprovalRouteFlowStarterTest extends TestCase {
 			new ApprovalRouteFlowCompiler(new ApprovalRouteFlowCapabilities([ApprovalRouteFlowCapabilities::RETURN_EDGE])),
 			$this->gateway,
 			$this->store,
-			$this->preferences
+			new ApprovalStageActivator(store: $this->store, resolver: new ApprovalActorResolver(), preferences: $this->preferences)
 		);
 	}//end starterWithAbsences()
 

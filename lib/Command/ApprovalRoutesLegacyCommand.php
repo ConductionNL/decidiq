@@ -67,6 +67,8 @@ class ApprovalRoutesLegacyCommand extends Command {
 	 *
 	 * @return int 0, also when nothing is left.
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The Command contract fixes this signature.
+	 *
 	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-008-routes-that-run-on-the-old-engine-finish-there
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {

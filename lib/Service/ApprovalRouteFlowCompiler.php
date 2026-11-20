@@ -156,12 +156,13 @@ class ApprovalRouteFlowCompiler {
 			return ['This route declares no steps, so there is nothing to send it along.'];
 		}
 
-		$refusals = $this->routeRefusals(route: $route);
+		$refusals = new ApprovalRouteRefusals(capabilities: $this->capabilities);
+		$found    = $refusals->ofRoute(route: $route);
 		foreach ($steps as $index => $step) {
-			$refusals = array_merge($refusals, $this->stepRefusals(step: $step, number: self::orderOf(step: $step, index: $index)));
+			$found = array_merge($found, $refusals->ofStep(step: $step, number: self::orderOf(step: $step, index: $index)));
 		}
 
-		return $refusals;
+		return $found;
 	}//end refusals()
 
 	/**
@@ -436,79 +437,6 @@ class ApprovalRouteFlowCompiler {
 
 		$edges[] = ['id' => $id, 'from' => $target, 'to' => $end];
 	}//end linkEnd()
-
-	/**
-	 * Refusals that concern the route as a whole.
-	 *
-	 * @param array<string, mixed> $route The route.
-	 *
-	 * @return list<string> The refusals.
-	 */
-	private function routeRefusals(array $route): array {
-		$refusals = [];
-		if (trim((string)($route['deadline'] ?? '')) !== '') {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::DEADLINE_SPLIT, where: 'The route');
-		}
-
-		$excluded = ($route['excluded'] ?? null);
-		if (is_array($excluded) === true && $excluded !== []) {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::EXCLUSION_LIST, where: 'The route');
-		}
-
-		return array_values(array_filter($refusals));
-	}//end routeRefusals()
-
-	/**
-	 * Refusals that concern one step.
-	 *
-	 * @param array<string, mixed> $step   The step.
-	 * @param int                  $number The step's order, as the secretary numbered it.
-	 *
-	 * @return list<string> The refusals.
-	 */
-	private function stepRefusals(array $step, int $number): array {
-		$where    = sprintf('Step %d', $number);
-		$refusals = [];
-
-		if (trim((string)($step['actorRule'] ?? '')) !== '') {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::PERFORMER_RULE, where: $where);
-		} else if (trim((string)($step['actor'] ?? '')) === '') {
-			$refusals[] = sprintf('%s names nobody who acts on it; a step that runs as a task needs a person, a body or a role.', $where);
-		}
-
-		$onSilence = trim((string)($step['onSilence'] ?? ''));
-		if ($onSilence === 'hold') {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::HOLD, where: $where);
-		} else if ($onSilence !== '') {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::LAPSE_OUTCOME, where: $where);
-		}
-
-		if (is_numeric($step['askSubstituteAfter'] ?? null) === true) {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::REMINDER, where: $where);
-		}
-
-		if (in_array((string)($step['thresholdKind'] ?? 'all'), ['count', 'share'], true) === true) {
-			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::PARTIAL_THRESHOLD, where: $where);
-		}
-
-		return array_values(array_filter($refusals));
-	}//end stepRefusals()
-
-	/**
-	 * The refusal for a feature this OpenRegister lacks, or null when it has it.
-	 *
-	 * @param string $feature The feature.
-	 * @param string $where   The route or the step that uses it.
-	 *
-	 * @return string|null The refusal.
-	 */
-	private function missing(string $feature, string $where): ?string {
-		if ($this->capabilities->offers(feature: $feature) === true) {
-			return null;
-		}
-
-		return sprintf('%s uses %s, which the installed OpenRegister does not offer, so the route cannot be saved.', $where, $feature);
-	}//end missing()
 
 	/**
 	 * The route's steps grouped by order, orders ascending.

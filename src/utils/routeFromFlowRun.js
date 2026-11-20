@@ -102,6 +102,83 @@ function methodOf(step) {
 }
 
 /**
+ * The fields of a route row that come from the compiled step itself.
+ *
+ * @param {object} step The compiled step.
+ * @return {object} The step's own fields.
+ */
+function stepFields(step) {
+	return {
+		id: step.node,
+		sequence: step.order,
+		label: step.label || '',
+		stageType: step.stageType || '',
+		method: methodOf(step),
+		decisionMakerType: step.actorType === 'body' ? 'body' : 'person',
+		actor: step.actor || '',
+	}
+}
+
+/**
+ * The row's status from its latest task.
+ *
+ * @param {object|null} latest The step's latest task.
+ * @param {boolean} done Whether that task is finished.
+ * @return {string} pending, active or decided.
+ */
+function stageStatus(latest, done) {
+	if (latest === null) return 'pending'
+	return done ? 'decided' : 'active'
+}
+
+/**
+ * The outcome fields of a finished task, empty for an unfinished one.
+ *
+ * @param {object|null} latest The step's latest task.
+ * @param {boolean} done Whether that task is finished.
+ * @return {{outcome: string, decidedAt: string, lapsed: boolean}} The outcome fields.
+ */
+function outcomeFields(latest, done) {
+	if (!done) return { outcome: '', decidedAt: '', lapsed: false }
+	return { outcome: latest.outcome || '', decidedAt: latest.completedAt || '', lapsed: lapsed(latest) }
+}
+
+/**
+ * Who finished the step in place of the person it names, or '' when nobody did.
+ *
+ * @param {object} step The compiled step.
+ * @param {object|null} latest The step's latest task.
+ * @param {boolean} done Whether that task is finished.
+ * @return {string} The substitute's user id.
+ */
+function substituteOf(step, latest, done) {
+	const actor = step.actorType === 'person' ? String(step.actor || '') : ''
+	const by = done ? String(latest.completedBy || '') : ''
+	return actor !== '' && by !== '' && by !== actor ? by : ''
+}
+
+/**
+ * One route row from a compiled step and the run's tasks.
+ *
+ * @param {object} step The compiled step.
+ * @param {Array<object>} all The run's tasks.
+ * @return {object} The row.
+ */
+function stageRow(step, all) {
+	const own = all.filter((t) => nodeOf(t) === step.node).sort((a, b) => createdOf(a) - createdOf(b))
+	const latest = own.length ? own[own.length - 1] : null
+	const done = latest !== null && TERMINAL_TASK_STATES.includes(latest.state)
+	return {
+		...stepFields(step),
+		status: stageStatus(latest, done),
+		...outcomeFields(latest, done),
+		substitute: substituteOf(step, latest, done),
+		history: own.slice(0, -1).filter((t) => TERMINAL_TASK_STATES.includes(t.state)).map(entryOf),
+		task: latest ? latest.uuid || latest.id || null : null,
+	}
+}
+
+/**
  * The route rows, the current row and the decided count, from a flow run.
  *
  * @param {object} route The ApprovalRoute the run was started from.
@@ -112,29 +189,7 @@ function methodOf(step) {
  */
 export function routeFromFlowRun(route, tasks) {
 	const all = Array.isArray(tasks) ? tasks : []
-	const stages = compiledSteps(route).map((step) => {
-		const own = all.filter((t) => nodeOf(t) === step.node).sort((a, b) => createdOf(a) - createdOf(b))
-		const latest = own.length ? own[own.length - 1] : null
-		const done = !!latest && TERMINAL_TASK_STATES.includes(latest.state)
-		const actor = step.actorType === 'person' ? String(step.actor || '') : ''
-		const by = done ? String(latest.completedBy || '') : ''
-		return {
-			id: step.node,
-			sequence: step.order,
-			label: step.label || '',
-			stageType: step.stageType || '',
-			method: methodOf(step),
-			decisionMakerType: step.actorType === 'body' ? 'body' : 'person',
-			actor: step.actor || '',
-			status: latest === null ? 'pending' : (done ? 'decided' : 'active'),
-			outcome: done ? latest.outcome || '' : '',
-			decidedAt: done ? latest.completedAt || '' : '',
-			lapsed: done && lapsed(latest),
-			substitute: actor !== '' && by !== '' && by !== actor ? by : '',
-			history: own.slice(0, -1).filter((t) => TERMINAL_TASK_STATES.includes(t.state)).map(entryOf),
-			task: latest ? latest.uuid || latest.id || null : null,
-		}
-	})
+	const stages = compiledSteps(route).map((step) => stageRow(step, all))
 	const currentRow = stages.find((s) => s.status === 'active') || null
 	return {
 		stages,

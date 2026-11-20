@@ -37,6 +37,8 @@ use OCP\EventDispatcher\IEventListener;
  *
  * @template-implements IEventListener<Event>
  *
+ * @SuppressWarnings(PHPMD.StaticAccess) SaveGuardEvent is the shared, stateless read and refusal of a save-guard event.
+ *
  * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-009-a-route-that-needs-a-missing-openregister-feature-is-refused-when-saved
  */
 class ApprovalRouteSavedListener implements IEventListener {
@@ -65,21 +67,31 @@ class ApprovalRouteSavedListener implements IEventListener {
 	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-009-a-route-that-needs-a-missing-openregister-feature-is-refused-when-saved
 	 */
 	public function handle(Event $event): void {
-		$entity = SaveGuardEvent::entityOf(event: $event);
-		if ($entity === null || method_exists($entity, 'getObject') === false) {
-			return;
-		}
-
-		$row = (array)$entity->getObject();
-		if ($this->isRoute(row: $row) === false) {
-			return;
-		}
-
-		$message = $this->refusal(row: $row);
+		$message = $this->refusalFor(entity: SaveGuardEvent::entityOf(event: $event));
 		if ($message !== null) {
 			SaveGuardEvent::refuse(event: $event, message: $message);
 		}
 	}//end handle()
+
+	/**
+	 * Why the entity about to be saved is refused, or null when it saves or is no route.
+	 *
+	 * @param object|null $entity The entity the event carries.
+	 *
+	 * @return string|null The refusal.
+	 */
+	private function refusalFor(?object $entity): ?string {
+		if ($entity === null || method_exists($entity, 'getObject') === false) {
+			return null;
+		}
+
+		$row = (array)$entity->getObject();
+		if ($this->isRoute(row: $row) === false) {
+			return null;
+		}
+
+		return $this->refusal(row: $row);
+	}//end refusalFor()
 
 	/**
 	 * Why a route is refused, or null when it saves.
