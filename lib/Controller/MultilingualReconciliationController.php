@@ -94,10 +94,7 @@ class MultilingualReconciliationController extends Controller {
 
 		$result = $this->reconciler->queue($minutesId, $sourceLocale, $targetLocales);
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse(

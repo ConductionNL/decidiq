@@ -72,6 +72,26 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	private readonly ApprovalRouteAdvancer $advancer;
 
 	/**
+	 * Says which terminal state each recorded verb leaves its action in.
+	 *
+	 * Built here for the same reason as the advancer: it is a pure rule with no
+	 * dependency, so no caller of the constructor has to change.
+	 *
+	 * @var OpenApprovalGuard
+	 */
+	private readonly OpenApprovalGuard $openGuard;
+
+	/**
+	 * Applies an admissibility verdict on an intake stage.
+	 *
+	 * Built here for the same reason as the advancer: it needs only the store
+	 * and the advancer this class already holds.
+	 *
+	 * @var IntakeVerdictRecorder
+	 */
+	private readonly IntakeVerdictRecorder $intake;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
@@ -109,6 +129,8 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
 	) {
 		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
+		$this->openGuard = new OpenApprovalGuard();
+		$this->intake    = new IntakeVerdictRecorder(store: $store, advancer: $this->advancer);
 	}//end __construct()
 
 	/**
@@ -580,6 +602,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 			return $recorded;
 		}
 
+		if (IntakeVerdictRecorder::isIntakeStage(stage: $active) === true) {
+			return $this->recordVerdict(action: $action, stages: $stages, active: $active);
+		}
+
 		if (isset(ApprovalRouteAdvancer::COMPLETING_ACTIONS[$verb]) === false) {
 			throw new RuntimeException('Unknown action: ' . $verb);
 		}
@@ -591,12 +617,46 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		$this->guard->assertVerbFitsStage(stage: $active, verb: $verb);
 		$this->guard->assertRequiredFields(verb: $verb, action: $action);
 
+		$trail = $this->advancer->assertNoOpenApprovalHoldsTheStep(subject: $subject, stages: $stages, active: $active, actor: $actor);
+
 		$this->advancer->completeAndAdvance(stages: $stages, active: $active, verb: $verb);
 		$recorded = $this->appendAction(action: $action, stage: $active);
+		$this->advancer->closeOwnOpenApprovals(trail: $trail, active: $active, actor: $actor, verb: $verb);
 		$this->projectTasks(subject: $subject);
 
 		return $recorded;
 	}//end record()
+
+	/**
+	 * Record an admissibility verdict on an intake stage (REQ-DWP-004).
+	 *
+	 * The verdict is validated before any write. `ontvankelijk` completes the
+	 * stage and the route walks on; `niet-ontvankelijk` closes the route with
+	 * `ended-at-intake`. The action row keeps the verdict as its verb and the
+	 * ground as its comment.
+	 *
+	 * @param array<string, mixed>             $action The action.
+	 * @param array<int, array<string, mixed>> $stages The subject's stages.
+	 * @param array<string, mixed>             $active The intake stage.
+	 *
+	 * @return array<string, mixed> The recorded action.
+	 *
+	 * @throws RuntimeException When the verdict is refused.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	private function recordVerdict(array $action, array $stages, array $active): array {
+		$verdict  = $this->intake->conclude(action: $action, stages: $stages, active: $active);
+		if (trim((string)($action['comment'] ?? '')) === '') {
+			$action['comment'] = $verdict['ground'];
+		}
+
+		$recorded = $this->appendAction(action: $action, stage: $active);
+		$this->projectTasks(subject: (string)$action['subject']);
+
+		return $recorded;
+	}//end recordVerdict()
+
 
 	/**
 	 * Append the action as a new object.
@@ -618,6 +678,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 				'onBehalfOf' => (string)($action['onBehalfOf'] ?? ''),
 				'mandate' => (string)($action['mandate'] ?? ''),
 				'action' => (string)$action['action'],
+				// A recorded act is never an open work item. Without this the
+				// schema default `open` made every sign-off read as an approval
+				// still awaited (REQ-DWP-001).
+				'state' => $this->openGuard->stateForVerb(verb: (string)$action['action']),
 				'returnToStep' => ($action['returnToStep'] ?? null),
 				'comment' => (string)($action['comment'] ?? ''),
 				'advice' => (string)($action['advice'] ?? ''),

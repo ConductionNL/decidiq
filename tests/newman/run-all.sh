@@ -18,6 +18,11 @@
 #                                             once publicationDate <= now, NOT before,
 #                                             and gone after depublicationDate —
 #                                             publish-decisions-via-opencatalogi 5.2)
+#   - decidiq-delegation-register.postman_collection.json
+#                                             (delegation and mandate register: anon
+#                                             read of a published delegation, not of an
+#                                             unpublished one, live withdrawal —
+#                                             delegatie-mandaatregister REQ-DMR-005)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /
 #                                             Resolution / BoardVote / RegulatorExport /
@@ -83,6 +88,8 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-process-config.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-motion-amendment.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-publication-anon-read.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-decisions-report-cut.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-delegation-register.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 

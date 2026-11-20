@@ -138,12 +138,13 @@ describe('the full profile', () => {
 		}
 	})
 
-	it('still counts 43 entries: 24 main, 3 footer, 16 settings', () => {
+	// publication-theme-pages added Theme pages, nested under Decisions.
+	it('still counts 44 entries: 25 main, 3 footer, 16 settings', () => {
 		const menu = build(fullFile).menu
 		const count = (name) =>
 			flat(menu.filter((entry) => (entry.section || 'main') === name)).length
-		expect(flat(menu)).toHaveLength(43)
-		expect(count('main')).toBe(24)
+		expect(flat(menu)).toHaveLength(44)
+		expect(count('main')).toBe(25)
 		expect(count('footer')).toBe(3)
 		expect(count('settings')).toBe(16)
 	})
@@ -424,12 +425,12 @@ describe('the simple profile', () => {
 			.map((entry) => entry.id)
 		expect(lost).toEqual([])
 
-		// The control: the seventeen entries this profile takes out are really
+		// The control: the eighteen entries this profile takes out are really
 		// out, so the check above passes on the links and not on the menu.
 		for (const id of simpleFile.removals) {
 			expect(shown.has(id), id).toBe(false)
 		}
-		expect(simpleFile.removals).toHaveLength(17)
+		expect(simpleFile.removals).toHaveLength(18)
 	})
 
 	it('reaches the consultation lists and the urgent decisions from Proposals', () => {
@@ -439,6 +440,7 @@ describe('the simple profile', () => {
 			'WorksCouncilConsultations',
 			'Consultations',
 			'UrgentDecisions',
+			'TopicThemes',
 		])
 		// Board DcVergaderingen opens its Ga naar group with the meeting
 		// calendar, before the long-term agenda and the P&C cycles.

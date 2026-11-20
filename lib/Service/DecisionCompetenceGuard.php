@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\DecisionCompetenceRefusedException;
+use OCA\Decidiq\Kernel\Contracts\DecisionCompetenceGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-004-competence-is-enforced-at-the-write-path-not-merely-declared
  */
-class DecisionCompetenceGuard {
+class DecisionCompetenceGuard implements DecisionCompetenceGuardInterface {
 
 	/**
 	 * Constructor.

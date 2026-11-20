@@ -12,6 +12,7 @@
  */
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
+import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
 import { instanceOf, loadSfcScript, recordingStores } from './helpers/sfcScript.js'
 
 const TABS = path.resolve(__dirname, '../../src/components/tabs')
@@ -28,6 +29,7 @@ async function runRefresh(tab, answer) {
 	const stores = recordingStores(answer)
 	const component = loadSfcScript(path.join(TABS, tab.file), {
 		...tab.modules,
+		'../../utils/saveOrThrow.js': saveOrThrowModule,
 		'./useRelationStore.js': { ensureRelationType: stores.ensureRelationType },
 	})
 	const vm = instanceOf(component, tab.props)

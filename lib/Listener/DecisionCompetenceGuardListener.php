@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Exception\DecisionCompetenceRefusedException;
-use OCA\Decidiq\Service\DecisionCompetenceGuard;
+use OCA\Decidiq\Kernel\Contracts\DecisionCompetenceGuardInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
@@ -50,11 +50,11 @@ class DecisionCompetenceGuardListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param DecisionCompetenceGuard $guard  The competence check.
-	 * @param LoggerInterface         $logger The log.
+	 * @param DecisionCompetenceGuardInterface $guard  The competence check.
+	 * @param LoggerInterface                  $logger The log.
 	 */
 	public function __construct(
-		private readonly DecisionCompetenceGuard $guard,
+		private readonly DecisionCompetenceGuardInterface $guard,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

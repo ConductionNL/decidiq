@@ -37,10 +37,9 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\DossierDispositionInterface;
+use OCA\Decidiq\Service\SystemObjectStore;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 
@@ -419,18 +418,6 @@ class DossierDisposition implements DossierDispositionInterface {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot
 	 */
 	private function write(array $dossier, string $uuid): array {
-		$saved = $this->objectService->saveObject(
-			object: $dossier,
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
-				uuid: $uuid
-			),
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: self::SCHEMA, object: $dossier, uuid: $uuid);
 	}//end write()
 }//end class

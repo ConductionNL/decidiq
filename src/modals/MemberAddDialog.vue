@@ -132,6 +132,7 @@ import {
 	participationQuery,
 } from '../utils/bodyParticipations.js'
 import { DEFAULT_ROLE, MEMBER_ROLES } from '../utils/memberImport.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 import { defaultTermStart, membershipTerm } from '../utils/stepDownSchedule.js'
 
 export default {
@@ -304,7 +305,8 @@ export default {
 						this.t('decidiq', 'Could not create or match a person.'),
 					)
 				}
-				await membershipStore.saveObject(
+				await saveOrThrow(
+					membershipStore,
 					'membership',
 					buildMembershipPayload({
 						personId,
