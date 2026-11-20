@@ -163,24 +163,40 @@ export default {
 	},
 
 	computed: {
-		/** @return {boolean} Whether readers can be added. */
+		/**
+		 * @return {boolean} Whether readers can be added.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
+		 */
 		open() {
 			return readersOpen(this.item)
 		},
 
-		/** @return {Array<{id: string, name: string}>} The readers with names. */
+		/**
+		 * @return {Array<{id: string, name: string}>} The readers with names.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
+		 */
 		readers() {
 			return readerRows(this.item, this.persons)
 		},
 
-		/** @return {Array<{id: string, label: string}>} The people to pick from. */
+		/**
+		 * @return {Array<{id: string, label: string}>} The people to pick from.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
+		 */
 		options() {
 			return personOptions(this.item, this.persons)
 		},
 	},
 
 	methods: {
-		/** Read the item and the people. */
+		/**
+		 * Read the item and the people.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
+		 */
 		async load() {
 			if (!this.objectId) return
 			this.loading = true
@@ -199,7 +215,11 @@ export default {
 			}
 		},
 
-		/** Add the picked person as a reader. */
+		/**
+		 * Add the picked person as a reader.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
+		 */
 		async add() {
 			await this.send(() =>
 				axios.post(
@@ -217,6 +237,8 @@ export default {
 		 * Remove one reader.
 		 *
 		 * @param {string} personId The reader.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
 		 */
 		async remove(personId) {
 			await this.send(() => axios.delete(readersUrl(this.objectId, personId)))
@@ -226,6 +248,8 @@ export default {
 		 * Run one change and show the item as the server left it.
 		 *
 		 * @param {() => Promise<{data: object}>} request The request.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-002-the-griffie-names-a-reader-without-a-nextcloud-account-on-a-confidential-item
 		 */
 		async send(request) {
 			this.busy = true

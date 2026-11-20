@@ -83,6 +83,8 @@ export default {
 		 *
 		 * @param {string} level `substantial` or `high`.
 		 * @return {string}
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
 		 */
 		labelOf(level) {
 			return level === 'high'
@@ -90,7 +92,11 @@ export default {
 				: this.t('decidiq', 'Substantial (DigiD Substantieel, eHerkenning EH3)')
 		},
 
-		/** Read the level from the app settings. */
+		/**
+		 * Read the level from the app settings.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+		 */
 		async load() {
 			try {
 				const { data } = await axios.get(
@@ -106,6 +112,8 @@ export default {
 		 * Show the level as the settings hold it.
 		 *
 		 * @param {object} settings The settings.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
 		 */
 		apply(settings) {
 			this.trust = confidentialTrust(settings)
@@ -116,6 +124,8 @@ export default {
 		 * Write the level.
 		 *
 		 * @param {string} level The new level.
+		 *
+		 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
 		 */
 		async save(level) {
 			this.saving = true
