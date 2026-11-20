@@ -122,3 +122,82 @@ test('configuration: an agenda item type created over the API appears on its pag
 		await api.dispose()
 	}
 })
+
+// @e2e openspec/changes/retire-the-unbuilt-rooster/specs
+test('configuration: a position holder seeded over the API appears on Position holders, whose term ends first on top', async ({
+	page,
+	playwright,
+}) => {
+	// retire-the-unbuilt-rooster 4.2. The heading test above proves the route
+	// resolves; this proves the page reads `position-hold` and sorts by whose
+	// term ends next. The two holds end in 1901 and 1902, so no real hold on
+	// the instance sorts before them and both are on the first page.
+	test.setTimeout(120_000)
+
+	const api = await playwright.request.newContext({
+		baseURL: BASE,
+		extraHTTPHeaders: {
+			Authorization: `Basic ${Buffer.from('admin:admin').toString('base64')}`,
+			Accept: 'application/json',
+			'OCS-APIRequest': 'true',
+		},
+	})
+	const objects = '/index.php/apps/openregister/api/objects/decidiq'
+	const created: Array<{ schema: string; id: string }> = []
+	const seed = async (schema: string, data: Record<string, unknown>): Promise<string> => {
+		const res = await api.post(`${objects}/${schema}`, { data })
+		expect(res.ok(), `could not seed ${schema}: HTTP ${res.status()} ${(await res.text()).slice(0, 200)}`).toBe(true)
+		const body = await res.json()
+		const id = String(body?.id ?? body?.['@self']?.id ?? '')
+		expect(id, `seeded ${schema} has an id`).not.toBe('')
+		created.push({ schema, id })
+		return id
+	}
+
+	try {
+		const stamp = `e2e-hold-${Date.now()}`
+		const body = await seed('governance-body', { name: `E2E body ${stamp}`, bodyType: 'legislative', domain: 'municipal' })
+		const position = await seed('position-type', {
+			name: `E2E position ${stamp}`,
+			governanceBody: body,
+			allowedHoldTypes: [stamp],
+			termDurationMonths: 12,
+		})
+		const membership = await seed('membership', { role: 'member', governanceBody: body })
+		const later = await seed('position-hold', {
+			membership,
+			position,
+			governanceBody: body,
+			holdType: stamp,
+			startDate: '1900-01-01',
+			endDate: '1902-01-01',
+			termNumber: 2,
+		})
+		const sooner = await seed('position-hold', {
+			membership,
+			position,
+			governanceBody: body,
+			holdType: stamp,
+			startDate: '1900-01-01',
+			endDate: '1901-01-01',
+			termNumber: 1,
+		})
+
+		await page.goto(`${BASE}/apps/decidiq/position-holds`)
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
+		const rows = page.getByRole('row').filter({ hasText: stamp })
+		await expect(rows).toHaveCount(2, { timeout: 45_000 })
+		await expect(rows.nth(0)).toContainText('1901')
+		await expect(rows.nth(1)).toContainText('1902')
+
+		await page.goto(`${BASE}/apps/decidiq/position-holds/${sooner}`)
+		await page.waitForSelector('[data-testid="app-root"]', { timeout: 30_000 })
+		await expect(page.getByText(stamp).first()).toBeVisible({ timeout: 45_000 })
+		expect(later).not.toBe(sooner)
+	} finally {
+		for (const row of created.reverse()) {
+			await api.delete(`${objects}/${row.schema}/${row.id}`).catch(() => null)
+		}
+		await api.dispose()
+	}
+})
