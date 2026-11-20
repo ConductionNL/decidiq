@@ -90,6 +90,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-publication-anon-read.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-decisions-report-cut.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-microsoft-365.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-long-term-agenda-tracks.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-delegation-register.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
