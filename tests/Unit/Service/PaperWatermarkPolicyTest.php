@@ -149,4 +149,31 @@ final class PaperWatermarkPolicyTest extends TestCase {
 		self::assertContains('watermarkPapers', $include);
 		self::assertContains('watermarkText', $include);
 	}//end testTheMeetingCarriesTheWatermarkSettings()
+
+	/**
+	 * The closed session of the example set has its papers stamped, with
+	 * "Vertrouwelijk", and is a valid meeting.
+	 *
+	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
+	 */
+	public function testTheExampleClosedSessionStampsItsPapers(): void {
+		$profile = json_decode((string)file_get_contents(__DIR__ . '/../../../lib/Settings/profiles/municipality.json'), true);
+		$closed  = null;
+		foreach ($profile['x-openregister']['seedData']['objects']['meeting'] as $meeting) {
+			if (($meeting['title'] ?? '') === 'Besloten vergadering grondzaken') {
+				$closed = $meeting;
+			}
+		}
+
+		self::assertIsArray($closed);
+		self::assertFalse($closed['isPublic']);
+		self::assertSame('on', $closed['watermarkPapers']);
+		self::assertSame('Vertrouwelijk', $closed['watermarkText']);
+		self::assertTrue($this->policy()->mustStamp(meeting: $closed));
+
+		$payload = $closed;
+		// @self and slug are seed keys every example meeting carries.
+		unset($payload['@self'], $payload['slug']);
+		self::assertSame([], MergedRegisterSchema::violations(slug: 'meeting', payload: $payload));
+	}//end testTheExampleClosedSessionStampsItsPapers()
 }//end class
