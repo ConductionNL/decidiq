@@ -85,6 +85,8 @@ class DocumentEmbargoSweep {
 	 * @return array{released: int, failed: int} How many were released, and how many writes were refused.
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) SystemObjectRows::read is the shared stateless system read the other sweeps use.
 	 */
 	public function sweep(DateTimeImmutable $now): array {
 		$result = ['released' => 0, 'failed' => 0];
