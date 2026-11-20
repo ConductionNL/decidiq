@@ -20,16 +20,16 @@
 - **files**: `lib/Settings/decidesk_register.json` (GovernanceBody `allowedVotingMethods`), `lib/Service/VotingRoundPreflight.php`, `src/components/VotingRoundPanel.vue`, `tests/Unit/Service/VotingRoundPreflightTest.php`
 - [x] 3.1 Add the allowed methods to the body schema, empty meaning all.
 - [x] 3.2 Refuse a round whose method the body does not allow, with a message naming the allowed ones.
-- [ ] 3.3 Offer only the allowed methods in the voting round panel.
+- [x] 3.3 Offer only the allowed methods in the voting round panel.
 - [x] 3.4 Unit tests.
 
 ## 4. Amendments on proposals (mot-02)
 
 - **spec_ref**: `openspec/changes/capability-rows-get-requirements/specs/motion-amendment/spec.md#requirement-an-amendment-can-target-a-proposal-as-well-as-a-motion`
 - **files**: `src/components/tabs/MotionAmendmentsTab.vue`, `src/manifest.json` (DecisionDetail amendments widget)
-- [ ] 4.1 Let the amendments widget key on any decision, not only a motion.
-- [ ] 4.2 Place the widget on the proposal's detail page.
-- [ ] 4.3 Test the proposal case.
+- [x] 4.1 Let the amendments widget key on any decision, not only a motion.
+- [x] 4.2 Place the widget on the proposal's detail page.
+- [x] 4.3 Test the proposal case.
 
 ## Verification
 

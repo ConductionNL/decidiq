@@ -344,6 +344,41 @@
 							"isUrgent": true
 						},
 						"showCount": true
+					},
+					{
+						"label": "Not started",
+						"filter": {
+							"implementationStatus": "not-started"
+						},
+						"showCount": true
+					},
+					{
+						"label": "On track",
+						"filter": {
+							"implementationStatus": "on-track"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Delayed",
+						"filter": {
+							"implementationStatus": "delayed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Implemented",
+						"filter": {
+							"implementationStatus": "completed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Not implemented",
+						"filter": {
+							"implementationStatus": "will-not-be-implemented"
+						},
+						"showCount": true
 					}
 				]
 			},
@@ -882,6 +917,9 @@
 					"decision-related": {
 						"type": "RelatedDecisionsTab"
 					},
+					"decision-amendments": {
+						"type": "MotionAmendmentsTab"
+					},
 					"decision-approval": {
 						"type": "DecisionApprovalTab"
 					},
@@ -1276,6 +1314,11 @@
 									"overflow": true
 								},
 								{
+									"widgetId": "decision-amendments",
+									"label": "Amendments",
+									"overflow": true
+								},
+								{
 									"widgetId": "decision-governing-citations",
 									"label": "Cited governing documents",
 									"overflow": true
@@ -1283,6 +1326,16 @@
 								{
 									"widgetId": "decision-lifecycle",
 									"label": "Lifecycle",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
 									"overflow": true
 								}
 							]
@@ -1656,6 +1709,16 @@
 									"widgetId": "motion-stage",
 									"label": "Stage",
 									"overflow": true
+								},
+								{
+									"widgetId": "motion-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
+									"overflow": true
 								}
 							]
 						}
@@ -1881,6 +1944,9 @@
 					"meeting-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"meeting-pack": {
+						"type": "MeetingPackTab"
+					},
 					"meeting-annotations": {
 						"type": "DocumentAnnotationsTab"
 					},
@@ -2098,6 +2164,10 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "meeting-paper-renditions"
+								},
+								{
+									"label": "Meeting pack",
+									"widgetId": "meeting-pack"
 								},
 								{
 									"label": "Annotate",
@@ -3273,6 +3343,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"agenda-phase": {
+						"type": "AgendaItemPhaseTab"
+					},
 					"agenda-case": {
 						"type": "AgendaItemCaseTab"
 					},
@@ -3314,6 +3387,10 @@
 						"icon": "ClipboardList",
 						"content": {
 							"sections": [
+								{
+									"label": "Phase",
+									"widgetId": "agenda-phase"
+								},
 								{
 									"label": "Agenda item",
 									"widgetId": "agenda-data"

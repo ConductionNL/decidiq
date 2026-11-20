@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 268,
+			"objectCount": 275,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -296,6 +296,48 @@
 						"familyName": "Ouali",
 						"email": "t.ouali@gemeente.example",
 						"biography": "Wethouder mobiliteit en verkeersveiligheid."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-wethouder-de-boer",
+						"name": "Wethouder De Boer",
+						"givenName": "Sanne",
+						"familyName": "de Boer",
+						"gender": "female",
+						"email": "s.deboer@gemeente.example",
+						"biography": "Wethouder energie en duurzaamheid; portefeuillehouder van de energietransitie."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-wethouder-yilmaz",
+						"name": "Wethouder Yilmaz",
+						"givenName": "Emre",
+						"familyName": "Yilmaz",
+						"gender": "male",
+						"email": "e.yilmaz@gemeente.example",
+						"biography": "Wethouder mobiliteit en openbare ruimte."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-s-visser",
+						"name": "S. Visser",
+						"givenName": "Sophie",
+						"familyName": "Visser",
+						"gender": "female",
+						"email": "s.visser@gemeente.example",
+						"biography": "Beleidsadviseur energie; steller van de raadsvoorstellen over de energietransitie."
 					}
 				],
 				"goal": [
@@ -4426,6 +4468,80 @@
 						"expectedType": "council-proposal",
 						"ownerType": "executive-board",
 						"notes": "Volgt op het voorbereidingskrediet en de motie duurzaam zwembad.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-energietransitie",
+						"subject": "Energietransitie",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q4",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"notes": "Onderwerp op de termijnagenda; de uitwerking loopt in afzonderlijke sporen.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-warmtevisie-2-0",
+						"subject": "Warmtevisie 2.0",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q4",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"parentItem": "lta-energietransitie",
+						"notes": "Spoor van de energietransitie: de herziene warmtevisie per wijk.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-regionale-energiestrategie-2-0",
+						"subject": "Regionale energiestrategie 2.0",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q1",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"parentItem": "lta-energietransitie",
+						"notes": "Spoor van de energietransitie: de regionale energiestrategie met de buurgemeenten.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-mobiliteitsplan-2027",
+						"subject": "Mobiliteitsplan 2027",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q2",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-yilmaz",
+						"author": "persoon-a-terpstra",
+						"notes": "Herijking van het mobiliteitsplan na de evaluatie van de autoluwe binnenstad.",
 						"lifecycle": "planned",
 						"shiftHistory": []
 					}
