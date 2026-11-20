@@ -29,18 +29,17 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\Exception\PaperStampRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
-use OCA\Decidiq\Service\PaperLocator;
-use OCA\Decidiq\Service\PaperStamper;
+use OCA\Decidiq\Service\PaperDelivery;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\Files\File;
 use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -56,21 +55,21 @@ class PaperController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest                          $request     The request
-	 * @param AgendaAuthorizationGuardInterface $guard       Requires a signed-in user
-	 * @param PaperStamper                      $stamper     The watermark policy and stamp
-	 * @param PaperLocator                      $locator     Finds the paper and its meeting
-	 * @param IUserSession                      $userSession The reader
-	 * @param IL10N                             $l10n        Translates the refusals
-	 * @param LoggerInterface                   $logger      Logger
+	 * @param IRequest                          $request       The request
+	 * @param AgendaAuthorizationGuardInterface $guard         Requires a signed-in user
+	 * @param PaperDelivery                     $delivery      Serves the paper, stamped when it must be
+	 * @param ObjectServiceInterface            $objectService Reads the object under the caller's rights
+	 * @param IUserSession                      $userSession   The reader
+	 * @param IL10N                             $l10n          Translates the refusals
+	 * @param LoggerInterface                   $logger        Logger
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AgendaAuthorizationGuardInterface $guard,
-		private readonly PaperStamper $stamper,
-		private readonly PaperLocator $locator,
+		private readonly PaperDelivery $delivery,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
@@ -106,45 +105,46 @@ class PaperController extends Controller {
 			return $this->message(text: 'Papers are opened from meetings and agenda items only.', status: Http::STATUS_BAD_REQUEST);
 		}
 
-		$paper = $this->locator->locate(schema: $schema, objectId: $objectId, fileId: $fileId);
-		if ($paper === null) {
+		$data = $this->readable(schema: $schema, objectId: $objectId);
+		if ($data === null) {
 			return $this->message(text: 'Not found.', status: Http::STATUS_NOT_FOUND);
 		}
 
-		return $this->open(paper: $paper, reader: ['uid' => $user->getUID(), 'displayName' => $user->getDisplayName()]);
+		$delivered = $this->delivery->deliver(
+			located: ['schema' => $schema, 'objectId' => $objectId, 'data' => $data, 'fileId' => $fileId],
+			reader: ['uid' => $user->getUID(), 'displayName' => $user->getDisplayName()]
+		);
+		if (isset($delivered['refusal']) === true) {
+			return $this->message(text: $delivered['refusal'], status: $delivered['status']);
+		}
+
+		return $this->inline(content: $delivered['content'], name: $delivered['name'], mimeType: $delivered['mimeType']);
 	}//end view()
 
 	/**
-	 * Serve a located paper: as it is, or stamped when the meeting asks for it.
+	 * The object as the caller may read it, or null.
 	 *
-	 * @param array{meeting: array<string, mixed>, agendaItemId: ?string, file: File, fileId: int} $paper  The located paper
-	 * @param array{uid: string, displayName: string}                                            $reader The reader
+	 * @param string $schema   `agenda-item` or `meeting`
+	 * @param string $objectId The object uuid
 	 *
-	 * @return DataDisplayResponse|JSONResponse
-	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+	 * @return array<string, mixed>|null
 	 */
-	private function open(array $paper, array $reader): DataDisplayResponse|JSONResponse {
-		$file = $paper['file'];
+	private function readable(string $schema, string $objectId): ?array {
 		try {
-			if ($this->stamper->mustStamp(meeting: $paper['meeting'], agendaItemId: $paper['agendaItemId']) === false) {
-				return $this->inline(content: $file->getContent(), name: $file->getName(), mimeType: $file->getMimetype());
-			}
-
-			$stamped = $this->stamper->stamped(
-				meeting: $paper['meeting'],
-				paper: ['fileId' => $paper['fileId'], 'etag' => (string)$file->getEtag(), 'content' => $file->getContent()],
-				reader: $reader
-			);
-		} catch (PaperStampRefusedException $e) {
-			return $this->message(text: $e->getMessage(), status: $e->getStatus());
+			// Under the caller's own rights: a reader who may not see the
+			// item or meeting gets the same 404 as a missing one.
+			$object = $this->objectService->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable $e) {
-			$this->logger->error('Decidiq: a paper could not be opened', ['fileId' => $paper['fileId'], 'exception' => $e->getMessage()]);
-			return $this->message(text: 'The paper could not be opened.', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->debug('Decidiq: paper refused, object not readable', ['objectId' => $objectId, 'exception' => $e->getMessage()]);
+			return null;
 		}
 
-		return $this->inline(content: $stamped, name: $file->getName(), mimeType: 'application/pdf');
-	}//end open()
+		if ($object === null) {
+			return null;
+		}
+
+		return $object->getObject();
+	}//end readable()
 
 	/**
 	 * The paper, shown in the browser.

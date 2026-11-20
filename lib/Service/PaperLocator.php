@@ -3,10 +3,10 @@
 /**
  * Decidiq Paper Locator
  *
- * Finds one paper of a meeting or an agenda item for PaperController: the
- * object read under the caller's own rights, the check that the file is one
- * of its papers, the file itself, and the meeting whose watermark policy
- * applies.
+ * Finds one paper of a meeting or an agenda item for PaperController, once
+ * the controller has read the object under the caller's own rights: the
+ * check that the file is one of its papers, the file itself, and the meeting
+ * whose watermark policy applies.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -57,20 +57,20 @@ class PaperLocator {
 	}//end __construct()
 
 	/**
-	 * The paper with its meeting, or null when the caller may not read the
-	 * object, the file is not one of its papers, or the file is gone.
+	 * The paper with its meeting, or null when the file is not one of the
+	 * object's papers or the file is gone.
 	 *
-	 * @param string $schema   `agenda-item` or `meeting`
-	 * @param string $objectId The object uuid
-	 * @param int    $fileId   The paper's file id
+	 * @param string               $schema   `agenda-item` or `meeting`
+	 * @param string               $objectId The object uuid
+	 * @param array<string, mixed> $data     The object, as the caller read it
+	 * @param int                  $fileId   The paper's file id
 	 *
 	 * @return array{meeting: array<string, mixed>, agendaItemId: ?string, file: File, fileId: int}|null
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
-	public function locate(string $schema, string $objectId, int $fileId): ?array {
-		$data = $this->readable(schema: $schema, objectId: $objectId);
-		if ($data === null || $this->recordsPaper(data: $data, fileId: $fileId) === false) {
+	public function locate(string $schema, string $objectId, array $data, int $fileId): ?array {
+		if ($this->recordsPaper(data: $data, fileId: $fileId) === false) {
 			return null;
 		}
 
@@ -85,31 +85,6 @@ class PaperLocator {
 
 		return ['meeting' => $data, 'agendaItemId' => null, 'file' => $file, 'fileId' => $fileId];
 	}//end locate()
-
-	/**
-	 * The object as the caller may read it, or null.
-	 *
-	 * @param string $schema   `agenda-item` or `meeting`
-	 * @param string $objectId The object uuid
-	 *
-	 * @return array<string, mixed>|null
-	 */
-	private function readable(string $schema, string $objectId): ?array {
-		try {
-			// Under the caller's own rights: a reader who may not see the
-			// item or meeting gets the same 404 as a missing one.
-			$object = $this->objectService->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
-		} catch (\Throwable $e) {
-			$this->logger->debug('Decidiq: paper refused, object not readable', ['objectId' => $objectId, 'exception' => $e->getMessage()]);
-			return null;
-		}
-
-		if ($object === null) {
-			return null;
-		}
-
-		return $object->getObject();
-	}//end readable()
 
 	/**
 	 * The meeting of an agenda item the caller may read, or an empty meeting.

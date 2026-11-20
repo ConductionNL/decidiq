@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\PaperController;
+use OCA\Decidiq\Service\PaperDelivery;
 use OCA\Decidiq\Service\PaperLocator;
 use OCA\Decidiq\Exception\PaperStampRefusedException;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
@@ -48,6 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\Decidiq\Controller\PaperController
  * @covers \OCA\Decidiq\Service\PaperLocator
+ * @covers \OCA\Decidiq\Service\PaperDelivery
  *
  * @uses \OCA\Decidiq\Exception\PaperStampRefusedException
  */
@@ -116,8 +118,12 @@ class PaperControllerTest extends TestCase {
 		return new PaperController(
 			$this->createMock(IRequest::class),
 			$guard,
-			$stamper,
-			new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class)),
+			new PaperDelivery(
+				new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class)),
+				$stamper,
+				$this->createMock(LoggerInterface::class)
+			),
+			$objects,
 			$session,
 			$l10n,
 			$this->createMock(LoggerInterface::class)
