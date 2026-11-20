@@ -344,6 +344,41 @@
 							"isUrgent": true
 						},
 						"showCount": true
+					},
+					{
+						"label": "Not started",
+						"filter": {
+							"implementationStatus": "not-started"
+						},
+						"showCount": true
+					},
+					{
+						"label": "On track",
+						"filter": {
+							"implementationStatus": "on-track"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Delayed",
+						"filter": {
+							"implementationStatus": "delayed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Implemented",
+						"filter": {
+							"implementationStatus": "completed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Not implemented",
+						"filter": {
+							"implementationStatus": "will-not-be-implemented"
+						},
+						"showCount": true
 					}
 				]
 			},
@@ -870,6 +905,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"decision-urgency": {
+						"type": "UrgencyBanner"
+					},
 					"decision-lifecycle": {
 						"type": "DecisionLifecycleTab"
 					},
@@ -881,6 +919,9 @@
 					},
 					"decision-related": {
 						"type": "RelatedDecisionsTab"
+					},
+					"decision-amendments": {
+						"type": "MotionAmendmentsTab"
 					},
 					"decision-approval": {
 						"type": "DecisionApprovalTab"
@@ -1073,6 +1114,10 @@
 						"icon": "NoteTextOutline",
 						"content": {
 							"sections": [
+								{
+									"label": "Urgency",
+									"widgetId": "decision-urgency"
+								},
 								{
 									"label": "Content",
 									"widgetId": "decision-content"
@@ -1276,6 +1321,11 @@
 									"overflow": true
 								},
 								{
+									"widgetId": "decision-amendments",
+									"label": "Amendments",
+									"overflow": true
+								},
+								{
 									"widgetId": "decision-governing-citations",
 									"label": "Cited governing documents",
 									"overflow": true
@@ -1283,6 +1333,16 @@
 								{
 									"widgetId": "decision-lifecycle",
 									"label": "Lifecycle",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
 									"overflow": true
 								}
 							]
@@ -1656,6 +1716,16 @@
 									"widgetId": "motion-stage",
 									"label": "Stage",
 									"overflow": true
+								},
+								{
+									"widgetId": "motion-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
+									"overflow": true
 								}
 							]
 						}
@@ -1881,6 +1951,15 @@
 					"meeting-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"meeting-pack": {
+						"type": "MeetingPackTab"
+					},
+					"meeting-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
+					"meeting-document-accessibility": {
+						"type": "DocumentAccessibilityTab"
+					},
 					"meeting-votes": {
 						"type": "MeetingVotesTab"
 					},
@@ -2095,6 +2174,18 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "meeting-paper-renditions"
+								},
+								{
+									"label": "Meeting pack",
+									"widgetId": "meeting-pack"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "meeting-annotations"
+								},
+								{
+									"label": "Accessibility",
+									"widgetId": "meeting-document-accessibility"
 								}
 							]
 						}
@@ -2716,6 +2807,45 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "urgency-kpi",
+						"widgetId": "awaiting-ratification-kpi",
+						"gridX": 0,
+						"gridY": 38,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "18",
+						"widgetId": "onboarding-open",
+						"gridX": 0,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "19",
+						"widgetId": "offboarding-open",
+						"gridX": 3,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "20",
+						"widgetId": "member-pathways-by-status",
+						"gridX": 6,
+						"gridY": 40,
+						"gridWidth": 6,
+						"gridHeight": 2,
+						"showTitle": true
 					}
 				],
 				"showHeader": false,
@@ -3250,7 +3380,8 @@
 					"agenda-conflicts",
 					"agenda-speakers",
 					"agenda-paper-summaries",
-					"agenda-themes"
+					"agenda-themes",
+					"agenda-readers"
 				],
 				"layout": [
 					{
@@ -3266,6 +3397,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"agenda-phase": {
+						"type": "AgendaItemPhaseTab"
+					},
 					"agenda-case": {
 						"type": "AgendaItemCaseTab"
 					},
@@ -3274,6 +3408,12 @@
 					},
 					"agenda-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
+					},
+					"agenda-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
+					"agenda-document-accessibility": {
+						"type": "DocumentAccessibilityTab"
 					},
 					"agenda-type-fields": {
 						"type": "AgendaItemTypeFieldsTab"
@@ -3292,6 +3432,9 @@
 					},
 					"agenda-themes": {
 						"type": "AgendaItemThemesTab"
+					},
+					"agenda-readers": {
+						"type": "AgendaItemReadersTab"
 					}
 				}
 			},
@@ -3304,6 +3447,10 @@
 						"icon": "ClipboardList",
 						"content": {
 							"sections": [
+								{
+									"label": "Phase",
+									"widgetId": "agenda-phase"
+								},
 								{
 									"label": "Agenda item",
 									"widgetId": "agenda-data"
@@ -3333,6 +3480,14 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "agenda-paper-renditions"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "agenda-annotations"
+								},
+								{
+									"label": "Accessibility",
+									"widgetId": "agenda-document-accessibility"
 								}
 							]
 						}

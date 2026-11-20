@@ -296,6 +296,7 @@ import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
 import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
 import { markSpeakingOutcome, queuePreloadFor } from '../services/speakingRequestApi.js'
 import { useObjectStore } from '../store/store.js'
+import { AGENDA_PHASE_STAGES, canAdvancePhase, phaseOf } from '../utils/agendaPhase.js'
 import {
 	formalityUrl,
 	isPendingFormality,
@@ -309,13 +310,9 @@ import {
 import { references } from '../utils/objectRelations.js'
 import { teamsJoinUrl } from '../utils/teamsMeeting.js'
 
-const BOB_STAGES = [
-	{ id: 'beeldvorming', label: 'Beeldvorming' },
-	{ id: 'oordeelsvorming', label: 'Oordeelsvorming' },
-	{ id: 'besluitvorming', label: 'Besluitvorming' },
-]
-
-const BOB_FINAL = 'completed'
+// The phase reads the declared `phase` (agenda-item-phase-is-declared), with
+// the legacy `status` as a fallback; shared with the agenda item page.
+const BOB_STAGES = AGENDA_PHASE_STAGES
 
 /**
  * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
@@ -629,8 +626,7 @@ export default {
 		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		currentBobStageIndex(item) {
-			const status = item?.status ?? 'beeldvorming'
-			const idx = BOB_STAGES.findIndex((s) => s.id === status)
+			const idx = BOB_STAGES.findIndex((s) => s.id === phaseOf(item))
 			return idx === -1 ? 0 : idx
 		},
 
@@ -639,7 +635,7 @@ export default {
 		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		canAdvanceBob(item) {
-			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
+			return canAdvancePhase(item)
 		},
 
 		/**

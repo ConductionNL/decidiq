@@ -259,6 +259,45 @@
             }
           }
         }
+      },
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.5.0",
+        "description": "Additive delta (ADR-037; OpenSpec urgent-decision-procedure, REQ-004). Merges two optional properties onto the existing decision-stage schema for the auto-appended ratifying stage of an urgent decision: where its ratification is on the agenda, and whether that placement is still pending because the ratifying body has no regular meeting scheduled yet. No required field, lifecycle or existing property changes.",
+        "properties": {
+          "agendaItem": {
+            "title": "Agenda item",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "agenda-item",
+            "description": "The agenda item that puts this ratifying stage on the ratifying body's regular meeting. Set by UrgentRatificationService when the ratification is placed; empty while placementPending is true."
+          },
+          "placementPending": {
+            "title": "Placement pending",
+            "type": "boolean",
+            "facetable": true,
+            "default": false,
+            "description": "True while a ratifying stage of an urgent decision waits for a regular meeting of its body to be scheduled. The decision detail shows a warning while it is true; creating a regular meeting of that body places the ratification and clears it.",
+            "example": false
+          }
+        }
+      },
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.5.0",
+        "description": "Additive delta (ADR-037; OpenSpec urgent-decision-procedure, REQ-004). Merges one optional relation onto the existing agenda-item schema: the urgent decision an agenda item puts up for ratification. No required field or existing property changes.",
+        "properties": {
+          "ratifiesDecision": {
+            "title": "Ratifies decision",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "facetable": true,
+            "$ref": "decision",
+            "description": "The urgent decision this agenda item puts up for ratification (bekrachtiging) on the ratifying body's regular meeting. Set by UrgentRatificationService when it places the ratification."
+          }
+        }
       }
     }
   }

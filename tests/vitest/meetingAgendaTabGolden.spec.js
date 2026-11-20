@@ -18,6 +18,7 @@ import * as agendaRules from '../../src/services/agendaRules.js'
 import * as agendaCopy from '../../src/utils/agendaCopy.js'
 import * as agendaItemTypeFields from '../../src/utils/agendaItemTypeFields.js'
 import * as agendaPublication from '../../src/utils/agendaPublication.js'
+import * as documentAccessibility from '../../src/utils/documentAccessibility.js'
 import * as formalities from '../../src/utils/formalities.js'
 import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
@@ -100,13 +101,19 @@ function tab(answers) {
 		},
 		'@nextcloud/router': { generateUrl },
 		'@nextcloud/vue': { NcButton: {} },
+		'../../dialogs/AccessibilityGateDialog.vue': { default: {} },
 		'../../dialogs/AgendaCopyDialog.vue': { default: {} },
 		'../AgendaItemTypeFields.vue': { default: {} },
 		'../../services/agendaRules.js': agendaRules,
 		'../../utils/agendaCopy.js': agendaCopy,
 		'../../utils/agendaItemTypeFields.js': agendaItemTypeFields,
 		'../../utils/agendaPublication.js': agendaPublication,
+		'../../utils/documentAccessibility.js': documentAccessibility,
 		'../../utils/formalities.js': formalities,
+		'../../utils/annotations.js': { countOf: () => 0 },
+		'../../store/annotation.js': {
+			useAnnotationStore: () => ({ loadCounts: async () => ({}) }),
+		},
 		'../../utils/saveOrThrow.js': saveOrThrowModule,
 		'./jsonRequests.js': jsonRequests,
 		'./useRelationStore.js': { ensureRelationType: store },

@@ -22,7 +22,7 @@ Read at development `4d7430ff`.
 
 ### D2. One vote object per member, written by the clerk
 
-`POST /api/voting-rounds/{id}/recorded-votes`, route `voting#recordVotes`, `#[NoAdminRequired]`. Body:
+`POST /api/voting-rounds/{id}/named-votes`, route `voting#recordVotes`, `#[NoAdminRequired]`. Not `recorded-votes`: that path already belongs to `paperVote#record`, the paper-vote entry the voting round panel offers on any public, unranked round, and a second route on it would never be reached. Body:
 
 ```json
 {

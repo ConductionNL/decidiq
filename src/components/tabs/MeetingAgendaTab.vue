@@ -39,7 +39,7 @@
 					v-if="canManage"
 					data-testid="agenda-publish"
 					:disabled="publishing"
-					@click="publishAgenda">
+					@click="publishAgenda()">
 					{{ t('decidiq', 'Publish agenda') }}
 				</NcButton>
 				<NcButton
@@ -120,6 +120,13 @@
 			}}
 		</p>
 
+		<AccessibilityGateDialog
+			v-if="accessibilityGate"
+			:mode="accessibilityGate.mode"
+			:documents="accessibilityGate.documents"
+			@close="accessibilityGate = null"
+			@confirm="answerAccessibilityGate" />
+
 		<CnNoteCard
 			v-if="publishError"
 			type="error"
@@ -187,6 +194,20 @@
 				<span @dragover.prevent @drop.prevent="onDrop(row)">{{
 					value
 				}}</span>
+				<span
+					v-if="annotationCount(row.id) > 0"
+					class="decidiq-tab__annotation-badge"
+					:data-testid="`agenda-annotation-count-${row.id}`">
+					{{
+						n(
+							'decidiq',
+							'{count} note',
+							'{count} notes',
+							annotationCount(row.id),
+							{ count: annotationCount(row.id) },
+						)
+					}}
+				</span>
 			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
@@ -265,6 +286,7 @@ import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Presentation from 'vue-material-design-icons/Presentation.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import AccessibilityGateDialog from '../../dialogs/AccessibilityGateDialog.vue'
 import AgendaCopyDialog from '../../dialogs/AgendaCopyDialog.vue'
 import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
@@ -275,6 +297,7 @@ import {
 	missingStatutoryItems,
 	moveAgendaItem,
 } from '../../services/agendaRules.js'
+import { useAnnotationStore } from '../../store/annotation.js'
 import {
 	itemsFromMeeting,
 	itemsFromTemplate,
@@ -288,6 +311,8 @@ import {
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
+import { countOf } from '../../utils/annotations.js'
+import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { formalityUrl } from '../../utils/formalities.js'
 import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
@@ -397,6 +422,7 @@ async function assembledPackage(meetingId) {
 export default {
 	name: 'MeetingAgendaTab',
 	components: {
+		AccessibilityGateDialog,
 		AgendaCopyDialog,
 		AgendaItemTypeFields,
 		ContentCopy,
@@ -420,6 +446,9 @@ export default {
 			loading: false,
 			error: '',
 			rawRows: [],
+			// Agenda item id → annotations the caller may see on its papers
+			// (document-annotations, REQ-ANN-005), one request per meeting.
+			annotationCounts: {},
 			meeting: null,
 			agendaSchema: null,
 			// uuid → name for the agenda-item types this instance has configured.
@@ -445,6 +474,8 @@ export default {
 			reorderError: '',
 			publishing: false,
 			publishError: '',
+			// The accessibility check held the publication back: {mode, documents}.
+			accessibilityGate: null,
 			// Add from template or meeting (agenda-templates-and-copy).
 			copyOpen: false,
 			copying: false,
@@ -630,6 +661,8 @@ export default {
 			this.error = ''
 			try {
 				this.rawRows = agendaRows(await this.fetchAgendaItems())
+				// Not awaited: the badges are a hint, the agenda is the page.
+				this.loadAnnotationCounts()
 				await this.loadMeeting()
 			} catch (e) {
 				this.error =
@@ -662,6 +695,26 @@ export default {
 			// they arrive and the agenda never waits for them.
 			this.loadItemTypes()
 			return items
+		},
+
+		/**
+		 * Read the annotation counts of this meeting's agenda items in one
+		 * request. The server counts only what the caller may see; a failure
+		 * leaves no badges.
+		 *
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-005-annotation-counts-on-agenda-item-rows
+		 */
+		async loadAnnotationCounts() {
+			this.annotationCounts = { ...(await useAnnotationStore().loadCounts(this.objectId)) }
+		},
+
+		/**
+		 * @param {string} itemId The agenda item.
+		 * @return {number} Its annotation count, 0 for none.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-005-annotation-counts-on-agenda-item-rows
+		 */
+		annotationCount(itemId) {
+			return countOf(this.annotationCounts, itemId)
 		},
 
 		/**
@@ -930,15 +983,27 @@ export default {
 		/**
 		 * Publish the agenda: the server records the version and the
 		 * convocation and invites every member. Then reload the meeting so
-		 * the published date shows.
+		 * the published date shows. A publication the accessibility check
+		 * holds back opens the gate dialog instead.
 		 *
+		 * @param {object} [answer] The answer to the accessibility check, when publishing again.
 		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
 		 */
-		async publishAgenda() {
+		async publishAgenda(answer) {
 			this.publishError = ''
 			this.publishing = true
 			try {
-				await acceptedOrThrow(await postJson(publishAgendaPath(this.objectId)))
+				const response = await postJson(publishAgendaPath(this.objectId), answer)
+				if (response.status === 409) {
+					const data = await response.json().catch(() => ({}))
+					const refusal = gateRefusal(409, data)
+					if (refusal) {
+						this.accessibilityGate = refusal
+						return
+					}
+					throw new Error(data?.message || '')
+				}
+				await acceptedOrThrow(response)
 				await this.loadMeeting()
 			} catch (e) {
 				this.publishError =
@@ -946,6 +1011,17 @@ export default {
 			} finally {
 				this.publishing = false
 			}
+		},
+
+		/**
+		 * Publish again with the publisher's answer to the accessibility check.
+		 *
+		 * @param {object} answer `accessibilityAcknowledged` or `accessibilityOverride`.
+		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 */
+		answerAccessibilityGate(answer) {
+			this.accessibilityGate = null
+			this.publishAgenda(answer)
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */
@@ -1160,6 +1236,16 @@ export default {
 	display: flex;
 	gap: var(--default-grid-baseline);
 	flex-wrap: wrap;
+}
+
+.decidiq-tab__annotation-badge {
+	margin-inline-start: var(--default-grid-baseline);
+	padding: 0 var(--default-grid-baseline);
+	border-radius: var(--border-radius-pill);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text, var(--color-main-text));
+	font-size: var(--font-size-small, 13px);
+	white-space: nowrap;
 }
 
 .decidiq-tab__order {
