@@ -32,17 +32,27 @@ namespace OCA\Decidiq\Service\Pathway;
  */
 final class PathwayResult {
 
+	public const DONE = 'done';
+
+	public const REFUSED = 'refused';
+
+	public const FAILED = 'failed';
+
+	public const NOT_FOUND = 'not-found';
+
 	/**
-	 * Constructor.
+	 * Constructor. Services build a result with `new` and one of the outcome
+	 * constants; the named factories below are shorthands for tests and callers
+	 * outside the services.
 	 *
 	 * @param string              $outcome done, refused, failed or not-found.
 	 * @param string              $message What happened, for the secretariat.
 	 * @param array<string,mixed> $details What was written or skipped.
 	 */
-	private function __construct(
+	public function __construct(
 		public readonly string $outcome,
 		public readonly string $message,
-		public readonly array $details,
+		public readonly array $details=[],
 	) {
 	}//end __construct()
 
@@ -57,7 +67,7 @@ final class PathwayResult {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public static function done(string $message, array $details=[]): self {
-		return new self(outcome: 'done', message: $message, details: $details);
+		return new self(outcome: self::DONE, message: $message, details: $details);
 	}//end done()
 
 	/**
@@ -70,7 +80,7 @@ final class PathwayResult {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public static function refused(string $message): self {
-		return new self(outcome: 'refused', message: $message, details: []);
+		return new self(outcome: self::REFUSED, message: $message, details: []);
 	}//end refused()
 
 	/**
@@ -83,7 +93,7 @@ final class PathwayResult {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public static function failed(string $message): self {
-		return new self(outcome: 'failed', message: $message, details: []);
+		return new self(outcome: self::FAILED, message: $message, details: []);
 	}//end failed()
 
 	/**
@@ -96,7 +106,7 @@ final class PathwayResult {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public static function notFound(string $message): self {
-		return new self(outcome: 'not-found', message: $message, details: []);
+		return new self(outcome: self::NOT_FOUND, message: $message, details: []);
 	}//end notFound()
 
 	/**
@@ -107,7 +117,7 @@ final class PathwayResult {
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function isDone(): bool {
-		return ($this->outcome === 'done');
+		return ($this->outcome === self::DONE);
 	}//end isDone()
 
 	/**
@@ -119,9 +129,9 @@ final class PathwayResult {
 	 */
 	public function httpStatus(): int {
 		return match ($this->outcome) {
-			'done' => 200,
-			'not-found' => 404,
-			'failed' => 502,
+			self::DONE => 200,
+			self::NOT_FOUND => 404,
+			self::FAILED => 502,
 			default => 422,
 		};
 	}//end httpStatus()

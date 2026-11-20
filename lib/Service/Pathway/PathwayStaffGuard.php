@@ -48,6 +48,13 @@ class PathwayStaffGuard {
 	public const SECRETARIAT_GROUP = 'decidiq-secretariat';
 
 	/**
+	 * Reads and completes the checklist steps on a pathway record.
+	 *
+	 * @var PathwaySteps
+	 */
+	private readonly PathwaySteps $pathwaySteps;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IGroupManager            $groupManager The Nextcloud group manager.
@@ -61,6 +68,7 @@ class PathwayStaffGuard {
 		private readonly RegisterObjectStore $store,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->pathwaySteps = new PathwaySteps();
 	}//end __construct()
 
 	/**
@@ -132,7 +140,7 @@ class PathwayStaffGuard {
 		foreach ($rows as $row) {
 			if (($row['nextcloudUserId'] ?? null) === $userId
 				&& ($row['role'] ?? null) === 'secretary'
-				&& PathwaySteps::relationId(value: ($row['governanceBody'] ?? null)) === $bodyId
+				&& $this->pathwaySteps->relationId(value: ($row['governanceBody'] ?? null)) === $bodyId
 			) {
 				return true;
 			}

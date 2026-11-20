@@ -27,6 +27,8 @@ use DateTime;
 use OCA\Decidiq\Service\OnboardingProvisioningService;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwaySteps;
+use OCA\Decidiq\Service\Pathway\MemberGroupPolicy;
+use OCA\Decidiq\Service\Pathway\MemberGroupChanges;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IAppConfig;
@@ -48,6 +50,8 @@ use Psr\Log\LoggerInterface;
 #[CoversClass(OnboardingProvisioningService::class)]
 #[UsesClass(PathwayResult::class)]
 #[UsesClass(PathwaySteps::class)]
+#[UsesClass(MemberGroupPolicy::class)]
+#[UsesClass(MemberGroupChanges::class)]
 class OnboardingProvisioningServiceTest extends TestCase {
 
 	/**

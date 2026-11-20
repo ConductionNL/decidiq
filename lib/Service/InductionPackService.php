@@ -62,6 +62,13 @@ class InductionPackService {
 	public const LINKS_FILE = 'Links.md';
 
 	/**
+	 * Reads and completes the checklist steps on a pathway record.
+	 *
+	 * @var PathwaySteps
+	 */
+	private readonly PathwaySteps $pathwaySteps;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store       The register's objects.
@@ -77,6 +84,7 @@ class InductionPackService {
 		private readonly ITimeFactory $time,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->pathwaySteps = new PathwaySteps();
 	}//end __construct()
 
 	/**
@@ -104,12 +112,13 @@ class InductionPackService {
 			$folder = $this->folderFor(uid: $pack['uid'], name: $this->folderName(body: $pack['body']));
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: could not create the induction folder', ['exception' => $e]);
-			return PathwayResult::failed(message: 'The folder could not be created in the member\'s Files.');
+			return new PathwayResult(outcome: PathwayResult::FAILED, message: 'The folder could not be created in the member\'s Files.');
 		}
 
 		$tally = $this->copyAll(target: ['folder' => $folder, 'actor' => $actor], items: $pack['items']);
 		if ($tally['delivered'] === []) {
-			return PathwayResult::failed(
+			return new PathwayResult(
+				outcome: PathwayResult::FAILED,
 				message: 'Nothing could be delivered. Skipped: ' . implode('; ', $tally['skipped']) . '.'
 			);
 		}
@@ -118,7 +127,8 @@ class InductionPackService {
 		$note = $this->noteFor(path: $path, tally: $tally);
 		$this->completeStep(open: $open, done: ['by' => $actor, 'note' => $note, 'reference' => $path]);
 
-		return PathwayResult::done(
+		return new PathwayResult(
+			outcome: PathwayResult::DONE,
 			message: $note,
 			details: ['folder' => $path, 'delivered' => $tally['delivered'], 'skipped' => $tally['skipped']]
 		);
@@ -157,7 +167,7 @@ class InductionPackService {
 		$this->store->patch(
 			schema: OnboardingProvisioningService::ONBOARDING,
 			data: [
-				'steps' => PathwaySteps::complete(
+				'steps' => $this->pathwaySteps->complete(
 					steps: $open['steps'],
 					index: $open['index'],
 					completedBy: $done['by'],
@@ -182,17 +192,17 @@ class InductionPackService {
 	private function openStep(string $onboardingId): array|PathwayResult {
 		$record = $this->store->find(schema: OnboardingProvisioningService::ONBOARDING, uuid: $onboardingId);
 		if ($record === null) {
-			return PathwayResult::notFound(message: 'Onboarding not found.');
+			return new PathwayResult(outcome: PathwayResult::NOT_FOUND, message: 'Onboarding not found.');
 		}
 
-		$steps = PathwaySteps::of(record: $record);
-		$index = PathwaySteps::indexOf(steps: $steps, stepType: self::STEP);
+		$steps = $this->pathwaySteps->listOf(record: $record);
+		$index = $this->pathwaySteps->indexOf(steps: $steps, stepType: self::STEP);
 		if ($index === null) {
-			return PathwayResult::refused(message: 'This onboarding has no induction pack step.');
+			return new PathwayResult(outcome: PathwayResult::REFUSED, message: 'This onboarding has no induction pack step.');
 		}
 
-		if (PathwaySteps::isCompleted(steps: $steps, index: $index) === true) {
-			return PathwayResult::refused(message: 'The induction pack has already been delivered.');
+		if ($this->pathwaySteps->isCompleted(steps: $steps, index: $index) === true) {
+			return new PathwayResult(outcome: PathwayResult::REFUSED, message: 'The induction pack has already been delivered.');
 		}
 
 		return ['uuid' => $onboardingId, 'record' => $record, 'steps' => $steps, 'index' => $index];
@@ -210,15 +220,16 @@ class InductionPackService {
 	private function packFor(array $record): array|PathwayResult {
 		$uid = trim((string) ($record['ncAccount'] ?? ''));
 		if ($uid === '' || $this->userManager->get($uid) === null) {
-			return PathwayResult::refused(
+			return new PathwayResult(
+				outcome: PathwayResult::REFUSED,
 				message: 'Link the member to a Nextcloud account first (the account linking step).'
 			);
 		}
 
-		$body  = ($this->store->find(schema: 'governance-body', uuid: PathwaySteps::relationId(value: ($record['targetBody'] ?? null))) ?? []);
+		$body  = ($this->store->find(schema: 'governance-body', uuid: $this->pathwaySteps->relationId(value: ($record['targetBody'] ?? null))) ?? []);
 		$items = $this->items(body: $body);
 		if ($items === []) {
-			return PathwayResult::refused(message: 'No induction documents are configured for this body.');
+			return new PathwayResult(outcome: PathwayResult::REFUSED, message: 'No induction documents are configured for this body.');
 		}
 
 		return ['uid' => $uid, 'body' => $body, 'items' => $items];

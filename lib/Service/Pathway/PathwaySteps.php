@@ -48,7 +48,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
-	public static function of(array $record): array {
+	public function listOf(array $record): array {
 		$steps = ($record['steps'] ?? []);
 		if (is_array($steps) === false) {
 			return [];
@@ -62,7 +62,7 @@ final class PathwaySteps {
 		}
 
 		return $list;
-	}//end of()
+	}//end listOf()
 
 	/**
 	 * The position of the first step of a type, or null when the record has none.
@@ -74,7 +74,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
-	public static function indexOf(array $steps, string $stepType): ?int {
+	public function indexOf(array $steps, string $stepType): ?int {
 		foreach ($steps as $index => $step) {
 			if (($step['stepType'] ?? null) === $stepType) {
 				return $index;
@@ -94,7 +94,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
-	public static function isCompleted(array $steps, int $index): bool {
+	public function isCompleted(array $steps, int $index): bool {
 		return (($steps[$index]['status'] ?? null) === self::COMPLETED);
 	}//end isCompleted()
 
@@ -112,7 +112,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
-	public static function complete(
+	public function complete(
 		array $steps,
 		int $index,
 		string $completedBy,
@@ -144,7 +144,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
-	public static function annotate(array $steps, int $index, string $note): array {
+	public function annotate(array $steps, int $index, string $note): array {
 		$steps[$index]['note'] = $note;
 		return array_values($steps);
 	}//end annotate()
@@ -158,7 +158,7 @@ final class PathwaySteps {
 	 *
 	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-001-onboardingtraject-schema-on-openregister
 	 */
-	public static function relationId(mixed $value): string {
+	public function relationId(mixed $value): string {
 		if (is_string($value) === true) {
 			return trim($value);
 		}

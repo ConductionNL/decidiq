@@ -25,6 +25,8 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use DateTime;
 use OCA\Decidiq\Service\Pathway\PathwaySteps;
+use OCA\Decidiq\Service\Pathway\RosterMatcher;
+use OCA\Decidiq\Service\Pathway\TurnoverPathwayWriter;
 use OCA\Decidiq\Service\RosterTurnoverService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -42,6 +44,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass(RosterTurnoverService::class)]
 #[UsesClass(PathwaySteps::class)]
+#[UsesClass(RosterMatcher::class)]
+#[UsesClass(TurnoverPathwayWriter::class)]
 class RosterTurnoverServiceTest extends TestCase {
 
 	/**
