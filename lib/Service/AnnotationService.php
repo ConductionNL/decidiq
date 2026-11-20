@@ -32,14 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\Exception\AnnotationRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -56,12 +49,12 @@ class AnnotationService {
 	/**
 	 * The annotation types.
 	 */
-	public const TYPES = ['highlight', 'sticky-note', 'drawing'];
+	public const TYPES = AnnotationInput::TYPES;
 
 	/**
 	 * The colours.
 	 */
-	public const COLORS = ['yellow', 'blue', 'red', 'green'];
+	public const COLORS = AnnotationInput::COLORS;
 
 	/**
 	 * The export columns, in order.
@@ -69,47 +62,24 @@ class AnnotationService {
 	public const EXPORT_COLUMNS = ['document', 'page', 'type', 'text', 'visibility', 'version', 'date'];
 
 	/**
-	 * Most highlighted areas on one highlight.
-	 */
-	private const MAX_QUADS = 200;
-
-	/**
-	 * Most points on one drawing.
-	 */
-	private const MAX_PATH = 5000;
-
-	/**
-	 * Longest note.
-	 */
-	private const MAX_BODY = 4000;
-
-	/**
-	 * Longest quote.
-	 */
-	private const MAX_QUOTE = 2000;
-
-	/**
-	 * Most annotations read in one go.
-	 */
-	private const LIMIT = 5000;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface      $objectService OpenRegister object service
+	 * @param AnnotationStore             $store         Reads and writes the annotations in system context
 	 * @param AnnotationVisibilityService $visibility    Who sees and changes what
 	 * @param DocumentVersionReader       $versions      The file's current version
 	 * @param ITimeFactory                $timeFactory   Clock
 	 * @param CsvCell                     $csvCell       CSV cell escaping
+	 * @param AnnotationInput             $input         Checks and shapes the request body
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-002-visibility-is-private-by-default-and-enforced-server-side
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		private readonly AnnotationStore $store,
 		private readonly AnnotationVisibilityService $visibility,
 		private readonly DocumentVersionReader $versions,
 		private readonly ITimeFactory $timeFactory,
 		private readonly CsvCell $csvCell,
+		private readonly AnnotationInput $input,
 	) {
 	}//end __construct()
 
@@ -130,7 +100,7 @@ class AnnotationService {
 		$current = $this->versions->current(userId: $userId, fileId: $fileId);
 
 		$results = [];
-		foreach ($this->rows(filters: ['fileId' => $fileId]) as $annotation) {
+		foreach ($this->store->rows(filters: ['fileId' => $fileId]) as $annotation) {
 			if ($this->visibility->canRead(annotation: $annotation, userId: $userId) === false) {
 				continue;
 			}
@@ -164,16 +134,16 @@ class AnnotationService {
 	 * @return array<string, mixed> The stored annotation
 	 *
 	 * @throws MissingObjectException When the user cannot read the file.
-	 * @throws AnnotationRefusedException When the content is refused.
+	 * @throws \OCA\Decidiq\Exception\AnnotationRefusedException When the content is refused.
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-001-annotation-is-an-openregister-object-anchored-to-a-document-version
 	 */
 	public function create(int $fileId, array $data, string $userId): array {
 		$current = $this->versions->current(userId: $userId, fileId: $fileId);
 
-		$annotation = $this->anchor(data: $data);
-		$annotation += $this->content(data: $data, stored: []);
-		$annotation += $this->context(data: $data);
+		$annotation = $this->input->anchor(data: $data);
+		$annotation += $this->input->content(data: $data, stored: []);
+		$annotation += $this->input->context(data: $data);
 
 		$annotation['visibility'] = (string)($data['visibility'] ?? 'private');
 		$this->visibility->assertMayShare(
@@ -189,7 +159,7 @@ class AnnotationService {
 		$annotation['author'] = $userId;
 		$annotation['createdAt'] = $this->timeFactory->getDateTime()->format(DATE_ATOM);
 
-		$saved = $this->save(annotation: $annotation, uuid: null);
+		$saved = $this->store->save(annotation: $annotation, uuid: null);
 		$saved['current'] = true;
 
 		return $saved;
@@ -209,7 +179,7 @@ class AnnotationService {
 	 *
 	 * @throws MissingObjectException When it does not exist or is not visible.
 	 * @throws \OCA\Decidiq\Exception\AccessDeniedException When the user is not the author.
-	 * @throws AnnotationRefusedException When the content is refused.
+	 * @throws \OCA\Decidiq\Exception\AnnotationRefusedException When the content is refused.
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-002-visibility-is-private-by-default-and-enforced-server-side
 	 */
@@ -217,7 +187,7 @@ class AnnotationService {
 		$stored = $this->visibleOrMissing(id: $id, userId: $userId);
 		$this->visibility->assertAuthor(annotation: $stored, userId: $userId);
 
-		$annotation = $this->content(data: $data, stored: $stored) + $stored;
+		$annotation = $this->input->content(data: $data, stored: $stored) + $stored;
 		if (array_key_exists('visibility', $data) === true) {
 			$annotation['visibility'] = (string)$data['visibility'];
 		}
@@ -230,7 +200,7 @@ class AnnotationService {
 
 		unset($annotation['id'], $annotation['current']);
 
-		return $this->save(annotation: $annotation, uuid: $id);
+		return $this->store->save(annotation: $annotation, uuid: $id);
 	}//end update()
 
 	/**
@@ -250,7 +220,7 @@ class AnnotationService {
 		$stored = $this->visibleOrMissing(id: $id, userId: $userId);
 		$this->visibility->assertAuthor(annotation: $stored, userId: $userId);
 
-		$this->remove(id: $id);
+		$this->store->remove(id: $id);
 	}//end delete()
 
 	/**
@@ -272,7 +242,7 @@ class AnnotationService {
 			return $counts;
 		}
 
-		foreach ($this->rows(filters: ['meeting' => $meetingId]) as $annotation) {
+		foreach ($this->store->rows(filters: ['meeting' => $meetingId]) as $annotation) {
 			$item = (string)($annotation['agendaItem'] ?? '');
 			if ($item === '' || $this->visibility->canRead(annotation: $annotation, userId: $userId) === false) {
 				continue;
@@ -355,7 +325,7 @@ class AnnotationService {
 	public function deleteOwn(string $userId): int {
 		$deleted = 0;
 		foreach ($this->own(userId: $userId) as $annotation) {
-			$this->remove(id: (string)$annotation['id']);
+			$this->store->remove(id: (string)$annotation['id']);
 			$deleted++;
 		}
 
@@ -379,222 +349,11 @@ class AnnotationService {
 
 		return array_values(
 			array_filter(
-				$this->rows(filters: ['author' => $userId]),
+				$this->store->rows(filters: ['author' => $userId]),
 				static fn (array $annotation): bool => (string)($annotation['author'] ?? '') === $userId && (string)($annotation['id'] ?? '') !== ''
 			)
 		);
 	}//end own()
-
-	/**
-	 * The anchor of a new annotation: type, page and the position the type needs.
-	 *
-	 * @param array<string, mixed> $data The request body
-	 *
-	 * @return array<string, mixed>
-	 *
-	 * @throws AnnotationRefusedException When the anchor is incomplete or off the page.
-	 */
-	private function anchor(array $data): array {
-		$type = (string)($data['annotationType'] ?? '');
-		if (in_array(needle: $type, haystack: self::TYPES, strict: true) === false) {
-			throw new AnnotationRefusedException(message: 'Annotation type must be highlight, sticky-note or drawing.');
-		}
-
-		$page = $data['page'] ?? null;
-		if (is_numeric($page) === false || (int)$page < 1 || (float)$page !== (float)(int)$page) {
-			throw new AnnotationRefusedException(message: 'Page must be a whole number of at least 1.');
-		}
-
-		$anchor = ['annotationType' => $type, 'page' => (int)$page];
-
-		if ($type === 'highlight') {
-			$anchor['quads'] = $this->points(value: ($data['quads'] ?? null), size: 8, max: self::MAX_QUADS, label: 'quads');
-			$quote = $data['quote'] ?? null;
-			if (is_string($quote) === true && trim($quote) !== '') {
-				$anchor['quote'] = $this->bounded(text: $quote, max: self::MAX_QUOTE, label: 'Quote');
-			}
-		}
-
-		if ($type === 'sticky-note') {
-			$point = $data['point'] ?? null;
-			if (is_array($point) === false
-				|| $this->normalised(value: ($point['x'] ?? null)) === false
-				|| $this->normalised(value: ($point['y'] ?? null)) === false
-			) {
-				throw new AnnotationRefusedException(message: 'A sticky note needs a point with x and y between 0 and 1.');
-			}
-
-			$anchor['point'] = ['x' => (float)$point['x'], 'y' => (float)$point['y']];
-		}
-
-		if ($type === 'drawing') {
-			$path = $this->points(value: ($data['path'] ?? null), size: 2, max: self::MAX_PATH, label: 'path');
-			if (count($path) < 2) {
-				throw new AnnotationRefusedException(message: 'A drawing needs at least two points.');
-			}
-
-			$anchor['path'] = $path;
-		}
-
-		return $anchor;
-	}//end anchor()
-
-	/**
-	 * The editable content: note text and colour.
-	 *
-	 * @param array<string, mixed> $data   The request body
-	 * @param array<string, mixed> $stored The stored annotation, empty when new
-	 *
-	 * @return array<string, mixed>
-	 *
-	 * @throws AnnotationRefusedException When the text is too long or the colour unknown.
-	 */
-	private function content(array $data, array $stored): array {
-		$content = [];
-		if (array_key_exists('bodyText', $data) === true) {
-			$content['bodyText'] = $this->bounded(text: (string)$data['bodyText'], max: self::MAX_BODY, label: 'Note');
-		}
-
-		$color = (string)($data['color'] ?? ($stored['color'] ?? 'yellow'));
-		if (in_array(needle: $color, haystack: self::COLORS, strict: true) === false) {
-			throw new AnnotationRefusedException(message: 'Colour must be yellow, blue, red or green.');
-		}
-
-		$content['color'] = $color;
-
-		return $content;
-	}//end content()
-
-	/**
-	 * The agenda item, meeting and document the annotation belongs to.
-	 *
-	 * A meeting not given is taken from the agenda item. The meeting must be
-	 * one the author can read, so a note cannot be shared with a body the author
-	 * has nothing to do with.
-	 *
-	 * @param array<string, mixed> $data The request body
-	 *
-	 * @return array<string, string>
-	 *
-	 * @throws AnnotationRefusedException When a reference does not resolve.
-	 */
-	private function context(array $data): array {
-		$context = [];
-		foreach (['document', 'agendaItem', 'meeting'] as $field) {
-			$value = trim((string)($data[$field] ?? ''));
-			if ($value !== '') {
-				$context[$field] = $value;
-			}
-		}
-
-		if (isset($context['agendaItem']) === true) {
-			$item = $this->readable(schema: 'agenda-item', id: $context['agendaItem']);
-			if ($item === null) {
-				throw new AnnotationRefusedException(message: 'The agenda item was not found.');
-			}
-
-			$context['meeting'] = ($context['meeting'] ?? trim((string)($item['meeting'] ?? '')));
-			if ($context['meeting'] === '') {
-				unset($context['meeting']);
-			}
-		}
-
-		if (isset($context['meeting']) === true && $this->readable(schema: 'meeting', id: $context['meeting']) === null) {
-			throw new AnnotationRefusedException(message: 'The meeting was not found.');
-		}
-
-		return $context;
-	}//end context()
-
-	/**
-	 * Read an object as the acting user, null when it resolves to nothing.
-	 *
-	 * @param string $schema The schema slug
-	 * @param string $id     The object id
-	 *
-	 * @return array<string, mixed>|null
-	 */
-	private function readable(string $schema, string $id): ?array {
-		try {
-			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
-		} catch (DoesNotExistException) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return $entity->getObject();
-	}//end readable()
-
-	/**
-	 * A list of fixed-size point arrays with every value between 0 and 1.
-	 *
-	 * @param mixed  $value The request value
-	 * @param int    $size  Numbers per entry
-	 * @param int    $max   Most entries
-	 * @param string $label The field name, for the message
-	 *
-	 * @return list<list<float>>
-	 *
-	 * @throws AnnotationRefusedException When the shape or a value is wrong.
-	 */
-	private function points(mixed $value, int $size, int $max, string $label): array {
-		if (is_array($value) === false || $value === [] || count($value) > $max) {
-			throw new AnnotationRefusedException(message: ucfirst($label) . ' must hold between 1 and ' . $max . ' entries.');
-		}
-
-		$points = [];
-		foreach ($value as $entry) {
-			if (is_array($entry) === false || count($entry) !== $size) {
-				throw new AnnotationRefusedException(message: 'Each entry of ' . $label . ' must hold ' . $size . ' numbers.');
-			}
-
-			$numbers = [];
-			foreach ($entry as $number) {
-				if ($this->normalised(value: $number) === false) {
-					throw new AnnotationRefusedException(message: 'Positions in ' . $label . ' must lie between 0 and 1.');
-				}
-
-				$numbers[] = (float)$number;
-			}
-
-			$points[] = $numbers;
-		}
-
-		return $points;
-	}//end points()
-
-	/**
-	 * Whether a value is a number between 0 and 1.
-	 *
-	 * @param mixed $value The value
-	 *
-	 * @return bool
-	 */
-	private function normalised(mixed $value): bool {
-		return (is_int($value) === true || is_float($value) === true) && $value >= 0 && $value <= 1;
-	}//end normalised()
-
-	/**
-	 * Text no longer than a maximum.
-	 *
-	 * @param string $text  The text
-	 * @param int    $max   Most characters
-	 * @param string $label The field name, for the message
-	 *
-	 * @return string
-	 *
-	 * @throws AnnotationRefusedException When it is longer.
-	 */
-	private function bounded(string $text, int $max, string $label): string {
-		if (mb_strlen($text) > $max) {
-			throw new AnnotationRefusedException(message: $label . ' can be at most ' . $max . ' characters.');
-		}
-
-		return $text;
-	}//end bounded()
 
 	/**
 	 * The annotation when the user may see it.
@@ -607,23 +366,7 @@ class AnnotationService {
 	 * @throws MissingObjectException When it does not exist or is not visible.
 	 */
 	private function visibleOrMissing(string $id, string $userId): array {
-		$annotation = null;
-		if (trim($id) !== '') {
-			try {
-				$entity = $this->objectService->find(
-					id: $id,
-					options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
-					_rbac: false,
-					_multitenancy: false
-				);
-			} catch (DoesNotExistException) {
-				$entity = null;
-			}
-
-			if ($entity !== null) {
-				$annotation = ['id' => (string)$entity->getUuid()] + $entity->getObject();
-			}
-		}
+		$annotation = $this->store->find(id: $id);
 
 		if ($annotation === null || $this->visibility->canRead(annotation: $annotation, userId: $userId) === false) {
 			throw new MissingObjectException(message: 'Annotation not found.');
@@ -631,62 +374,4 @@ class AnnotationService {
 
 		return $annotation;
 	}//end visibleOrMissing()
-
-	/**
-	 * Read annotations in system context; callers filter what the user sees.
-	 *
-	 * @param array<string, mixed> $filters Property filters
-	 *
-	 * @return list<array<string, mixed>>
-	 */
-	private function rows(array $filters): array {
-		$found = $this->objectService->findAll(
-			config: ['filters' => (['register' => 'decidiq', 'schema' => self::SCHEMA] + $filters), 'limit' => self::LIMIT],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
-			if (is_object($row) === true && method_exists($row, 'getObject') === true) {
-				$rows[] = ['id' => (string)$row->getUuid()] + (array)$row->getObject();
-			}
-		}
-
-		return $rows;
-	}//end rows()
-
-	/**
-	 * Save in system context, after the checks above.
-	 *
-	 * @param array<string, mixed> $annotation The complete annotation
-	 * @param string|null          $uuid       The id, null for a new one
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function save(array $annotation, ?string $uuid): array {
-		$saved = $this->objectService->saveObject(
-			object: $annotation,
-			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $uuid),
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		return ['id' => (string)$saved->getUuid()] + $saved->getObject();
-	}//end save()
-
-	/**
-	 * Delete in system context, after the checks above.
-	 *
-	 * @param string $id The annotation
-	 *
-	 * @return void
-	 */
-	private function remove(string $id): void {
-		$this->objectService->deleteObject(
-			new ObjectDeletion(uuid: $id, target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA)),
-			_rbac: false,
-			_multitenancy: false
-		);
-	}//end remove()
 }//end class

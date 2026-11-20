@@ -30,7 +30,9 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use DateTime;
 use OCA\Decidiq\Controller\AnnotationController;
 use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
+use OCA\Decidiq\Service\AnnotationInput;
 use OCA\Decidiq\Service\AnnotationService;
+use OCA\Decidiq\Service\AnnotationStore;
 use OCA\Decidiq\Service\AnnotationVisibilityService;
 use OCA\Decidiq\Service\CsvCell;
 use OCA\Decidiq\Service\DocumentVersionReader;
@@ -55,6 +57,8 @@ use RuntimeException;
 /**
  * @covers \OCA\Decidiq\Controller\AnnotationController
  * @uses   \OCA\Decidiq\Service\AnnotationService
+ * @uses   \OCA\Decidiq\Service\AnnotationInput
+ * @uses   \OCA\Decidiq\Service\AnnotationStore
  * @uses   \OCA\Decidiq\Service\AnnotationVisibilityService
  * @uses   \OCA\Decidiq\Service\DocumentVersionReader
  * @uses   \OCA\Decidiq\Service\CsvCell
@@ -235,11 +239,12 @@ class AnnotationControllerTest extends TestCase {
 
 		$visibility = new AnnotationVisibilityService(objectService: $objects, participants: $participants, timeFactory: $clock);
 		$service = new AnnotationService(
-			objectService: $objects,
+			store: new AnnotationStore(objectService: $objects),
 			visibility: $visibility,
 			versions: new DocumentVersionReader(rootFolder: $this->rootFolder(readable: $readable)),
 			timeFactory: $clock,
-			csvCell: new CsvCell()
+			csvCell: new CsvCell(),
+			input: new AnnotationInput(objectService: $objects)
 		);
 
 		return new AnnotationController(request: $request, annotations: $service, userSession: $session, logger: new NullLogger());
