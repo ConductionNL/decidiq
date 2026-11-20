@@ -81,21 +81,61 @@ class UrgencyFieldGuardListener implements IEventListener {
 			return;
 		}
 
-		$old = [];
-		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
-			if ($event->getOldObject() !== null) {
-				$old = (new EntityPayloadReader())->payloadOf(entity: $event->getOldObject());
-			}
-		} else {
-			$entity = $event->getObject();
-		}
-
+		[$entity, $old] = $this->entityAndOld(event: $event);
 		$new = (new EntityPayloadReader())->payloadOf(entity: $entity);
 		if ($this->grant->isGranted(decisionId: $this->uuidOf(entity: $entity, row: $new)) === true || $this->userSession->getUser() === null) {
 			return;
 		}
 
+		$carry = $this->carried(new: $new, old: $old);
+		if ($carry === null) {
+			$event->setErrors(['message' => self::REFUSAL]);
+			$event->stopPropagation();
+			return;
+		}
+
+		if ($carry !== []) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), $carry));
+		}
+	}//end handle()
+
+	/**
+	 * The object being saved, and the stored payload it replaces (empty on create).
+	 *
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The save event
+	 *
+	 * @return array{0: object, 1: array<string, mixed>}
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 */
+	private function entityAndOld(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
+		if ($event instanceof ObjectCreatingEvent) {
+			return [$event->getObject(), []];
+		}
+
+		$old = [];
+		if ($event->getOldObject() !== null) {
+			$old = (new EntityPayloadReader())->payloadOf(entity: $event->getOldObject());
+		}
+
+		return [$event->getNewObject(), $old];
+	}//end entityAndOld()
+
+	/**
+	 * The urgency fields to carry over from the stored object, or null when the
+	 * save changes one of them outside the urgency procedure.
+	 *
+	 * An urgency field the save leaves out keeps its stored value; one it
+	 * sends must be unchanged (two empty values count as unchanged).
+	 *
+	 * @param array<string, mixed> $new The payload being saved
+	 * @param array<string, mixed> $old The stored payload
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 */
+	private function carried(array $new, array $old): ?array {
 		$carry = [];
 		foreach (UrgencyDeclarationService::URGENCY_FIELDS as $field) {
 			if (array_key_exists($field, $new) === false) {
@@ -106,21 +146,15 @@ class UrgencyFieldGuardListener implements IEventListener {
 				continue;
 			}
 
-			if (self::isEmpty(value: $new[$field]) === true && self::isEmpty(value: ($old[$field] ?? null)) === true) {
-				continue;
+			$unchanged = $new[$field] === ($old[$field] ?? null)
+				|| (self::isEmpty(value: $new[$field]) === true && self::isEmpty(value: ($old[$field] ?? null)) === true);
+			if ($unchanged === false) {
+				return null;
 			}
-
-			if ($new[$field] !== ($old[$field] ?? null)) {
-				$event->setErrors(['message' => self::REFUSAL]);
-				$event->stopPropagation();
-				return;
-			}
-		}//end foreach
-
-		if ($carry !== []) {
-			$event->setModifiedData(array_merge($event->getModifiedData(), $carry));
 		}
-	}//end handle()
+
+		return $carry;
+	}//end carried()
 
 	/**
 	 * Whether a field value says nothing: absent, null, false or an empty string.

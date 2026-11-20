@@ -28,14 +28,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateInterval;
-use DateTimeImmutable;
 use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Lifecycle\UrgencyTriggerGuard;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Utility\ITimeFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -61,7 +56,7 @@ class ExpeditedRoundService {
 	 * @param DecisionContextResolver         $context     The decision's meeting, body and chair.
 	 * @param ProcessTemplateServiceInterface $templates   The body's urgency policy.
 	 * @param UrgencyTriggerGuard             $guard       Who may open the round.
-	 * @param ITimeFactory                    $timeFactory The opening time.
+	 * @param ExpeditedRoundWriter            $writer      Saves the round on the stage.
 	 * @param LoggerInterface                 $logger      Logs a failed save.
 	 */
 	public function __construct(
@@ -69,7 +64,7 @@ class ExpeditedRoundService {
 		private readonly DecisionContextResolver $context,
 		private readonly ProcessTemplateServiceInterface $templates,
 		private readonly UrgencyTriggerGuard $guard,
-		private readonly ITimeFactory $timeFactory,
+		private readonly ExpeditedRoundWriter $writer,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -104,28 +99,14 @@ class ExpeditedRoundService {
 			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: 'The urgent procedure is not configured for this body.');
 		}
 
-		$allowed = $this->guard->mayTrigger(
-			policy: $policy,
-			meetingId: $this->context->resolveRelationId(value: $this->context->readMeetingReference(decision: $decision)),
-			chairUserId: $this->context->resolveChairUserId(objectService: $objectService, meeting: $meeting),
-			userId: $userId
-		);
-		if ($allowed === false) {
-			return self::envelope(status: Http::STATUS_FORBIDDEN, message: 'Only the chair or a role the urgency policy allows may open the expedited round.');
+		$refused = $this->refusal(objectService: $objectService, decision: $decision, meeting: $meeting, policy: $policy, userId: $userId);
+		if ($refused !== null) {
+			return self::envelope(status: $refused['status'], message: $refused['message']);
 		}
 
-		if (($decision['isUrgent'] ?? false) !== true) {
-			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: 'Only an urgent decision has an expedited round.');
-		}
-
-		$bounds = self::bounds(policy: $policy);
-		if (is_int($hours) === false && (is_string($hours) === false || preg_match('/^\d+$/', $hours) !== 1)) {
-			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: self::boundsMessage(bounds: $bounds));
-		}
-
-		$hours = (int)$hours;
-		if ($hours < $bounds['min'] || $hours > $bounds['max']) {
-			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: self::boundsMessage(bounds: $bounds));
+		$deadline = self::deadlineHours(policy: $policy, hours: $hours);
+		if ($deadline === null) {
+			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: self::boundsMessage(bounds: self::bounds(policy: $policy)));
 		}
 
 		$stage = $this->decisiveStage(objectService: $objectService, decisionId: $decisionId);
@@ -133,27 +114,8 @@ class ExpeditedRoundService {
 			return self::envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: 'The decision has no open decisive stage to hold the round.');
 		}
 
-		$opened = DateTimeImmutable::createFromInterface($this->timeFactory->getDateTime());
 		try {
-			$round = (array)$objectService->saveObject(object: [
-				'votingMethod'   => 'for-against-abstain',
-				'isSecret'       => false,
-				'openedAt'       => $opened->format(DATE_ATOM),
-				'votingDeadline' => $opened->add(new DateInterval('PT' . $hours . 'H'))->format(DATE_ATOM),
-				'decisionStage'  => UrgentRatificationService::idOf(row: $stage),
-			], options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round')))->jsonSerialize();
-
-			$linked = $stage;
-			unset($linked['@self']);
-			$linked['method']      = 'vote';
-			$linked['votingRound'] = UrgentRatificationService::idOf(row: $round);
-			$objectService->saveObject(
-				object: $linked,
-				options: new ObjectSaveOptions(
-					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
-					uuid: UrgentRatificationService::idOf(row: $stage)
-				)
-			);
+			$round = $this->writer->write(objectService: $objectService, stage: $stage, hours: $deadline);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: opening an expedited round failed', ['decision' => $decisionId, 'reason' => $e->getMessage()]);
 			return self::envelope(status: Http::STATUS_INTERNAL_SERVER_ERROR, message: 'The expedited round could not be opened.');
@@ -161,6 +123,61 @@ class ExpeditedRoundService {
 
 		return ['status' => Http::STATUS_CREATED, 'data' => $round];
 	}//end open()
+
+	/**
+	 * Why the user may not open the round on this decision, or null when they may.
+	 *
+	 * @param object                    $objectService OpenRegister's object service.
+	 * @param array<string, mixed>      $decision      The decision.
+	 * @param array<string, mixed>|null $meeting       Its meeting.
+	 * @param array<string, mixed>      $policy        The body's urgency policy.
+	 * @param string                    $userId        The acting user.
+	 *
+	 * @return array{status: int, message: string}|null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
+	 */
+	private function refusal(object $objectService, array $decision, ?array $meeting, array $policy, string $userId): ?array {
+		$allowed = $this->guard->mayTrigger(
+			policy: $policy,
+			meetingId: $this->context->resolveRelationId(value: $this->context->readMeetingReference(decision: $decision)),
+			chairUserId: $this->context->resolveChairUserId(objectService: $objectService, meeting: $meeting),
+			userId: $userId
+		);
+		if ($allowed === false) {
+			return ['status' => Http::STATUS_FORBIDDEN, 'message' => 'Only the chair or a role the urgency policy allows may open the expedited round.'];
+		}
+
+		if (($decision['isUrgent'] ?? false) !== true) {
+			return ['status' => Http::STATUS_UNPROCESSABLE_ENTITY, 'message' => 'Only an urgent decision has an expedited round.'];
+		}
+
+		return null;
+	}//end refusal()
+
+	/**
+	 * The requested deadline as whole hours within the policy's bounds, or null.
+	 *
+	 * @param array<string, mixed> $policy The urgency policy.
+	 * @param mixed                $hours  The deadline as requested.
+	 *
+	 * @return int|null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
+	 */
+	private static function deadlineHours(array $policy, mixed $hours): ?int {
+		if (is_int($hours) === false && (is_string($hours) === false || preg_match('/^\d+$/', $hours) !== 1)) {
+			return null;
+		}
+
+		$bounds = self::bounds(policy: $policy);
+		$hours  = (int)$hours;
+		if ($hours < $bounds['min'] || $hours > $bounds['max']) {
+			return null;
+		}
+
+		return $hours;
+	}//end deadlineHours()
 
 	/**
 	 * The decisive stage the round belongs to: the first one not yet decided or skipped.
@@ -178,23 +195,30 @@ class ExpeditedRoundService {
 
 		$found = null;
 		foreach ((array)$result as $item) {
-			$stage = $item;
+			$stage = (array)$item;
 			if (is_object($item) === true && method_exists($item, 'jsonSerialize') === true) {
-				$stage = $item->jsonSerialize();
+				$stage = (array)$item->jsonSerialize();
 			}
 
-			$stage = (array)$stage;
-			if (($stage['stageType'] ?? '') !== 'decisive' || in_array((string)($stage['status'] ?? 'pending'), self::TERMINAL_STAGE_STATES, true) === true) {
-				continue;
-			}
-
-			if ($found === null || (int)($stage['sequence'] ?? 0) < (int)($found['sequence'] ?? 0)) {
+			if (self::isOpenDecisive(stage: $stage) === true && ($found === null || (int)($stage['sequence'] ?? 0) < (int)($found['sequence'] ?? 0))) {
 				$found = $stage;
 			}
 		}
 
 		return $found;
 	}//end decisiveStage()
+
+	/**
+	 * Whether a stage is decisive and can still take a round.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 *
+	 * @return bool
+	 */
+	private static function isOpenDecisive(array $stage): bool {
+		return ($stage['stageType'] ?? '') === 'decisive'
+			&& in_array((string)($stage['status'] ?? 'pending'), self::TERMINAL_STAGE_STATES, true) === false;
+	}//end isOpenDecisive()
 
 	/**
 	 * The policy's response-deadline bounds.

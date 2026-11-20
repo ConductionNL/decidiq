@@ -234,12 +234,12 @@ class UrgentRatificationService {
 		}
 
 		try {
-			$at = new DateTimeImmutable((string)$meeting['scheduledDate']);
+			$startsAt = new DateTimeImmutable((string)$meeting['scheduledDate']);
 		} catch (Throwable) {
 			return false;
 		}
 
-		return $at > $this->timeFactory->getDateTime();
+		return $startsAt > $this->timeFactory->getDateTime();
 	}//end qualifies()
 
 	/**

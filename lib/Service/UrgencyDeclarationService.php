@@ -120,11 +120,6 @@ class UrgencyDeclarationService {
 			return self::envelope(status: Http::STATUS_CONFLICT, message: 'This decision has already been declared urgent.');
 		}
 
-		$override = null;
-		if ($bodyOverride !== null && trim($bodyOverride) !== '') {
-			$override = trim($bodyOverride);
-		}
-
 		$urgent = $decision;
 		unset($urgent['@self']);
 		$urgent['isUrgent']          = true;
@@ -145,12 +140,43 @@ class UrgencyDeclarationService {
 			$this->grant->revoke(decisionId: $decisionId);
 		}
 
-		$saved = (array)$saved->jsonSerialize();
+		return [
+			'status' => Http::STATUS_OK,
+			'data'   => $this->withRatification(
+				objectService: $objectService,
+				decisionId: $decisionId,
+				saved: (array)$saved->jsonSerialize(),
+				policy: (array)$policy,
+				bodyOverride: $bodyOverride
+			),
+		];
+	}//end declare()
+
+	/**
+	 * The response body: the saved decision with its appended ratification stage,
+	 * or with a warning when the stage could not be added (the decision stays urgent).
+	 *
+	 * @param object               $objectService OpenRegister's object service.
+	 * @param string               $decisionId    The decision.
+	 * @param array<string, mixed> $saved         The saved urgent decision.
+	 * @param array<string, mixed> $policy        The body's urgency policy.
+	 * @param string|null          $bodyOverride  The ratifying body asked for, if any.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 */
+	private function withRatification(object $objectService, string $decisionId, array $saved, array $policy, ?string $bodyOverride): array {
+		$override = null;
+		if ($bodyOverride !== null && trim($bodyOverride) !== '') {
+			$override = trim($bodyOverride);
+		}
+
 		try {
 			$ratification = $this->ratification->appendRatification(
 				objectService: $objectService,
 				decision: $saved,
-				policy: (array)$policy,
+				policy: $policy,
 				bodyOverride: $override
 			);
 		} catch (Throwable $e) {
@@ -159,11 +185,11 @@ class UrgencyDeclarationService {
 				['decision' => $decisionId, 'reason' => $e->getMessage()]
 			);
 			$warning = 'The decision is urgent, but its ratification stage could not be added: ' . $e->getMessage();
-			return ['status' => Http::STATUS_OK, 'data' => ['decision' => $saved, 'ratification' => null, 'warning' => $warning]];
+			return ['decision' => $saved, 'ratification' => null, 'warning' => $warning];
 		}
 
-		return ['status' => Http::STATUS_OK, 'data' => ['decision' => $saved, 'ratification' => $ratification]];
-	}//end declare()
+		return ['decision' => $saved, 'ratification' => $ratification];
+	}//end withRatification()
 
 	/**
 	 * A refusal with its message.

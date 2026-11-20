@@ -28,6 +28,7 @@ use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Lifecycle\UrgencyTriggerGuard;
 use OCA\Decidiq\Service\DecisionContextResolver;
 use OCA\Decidiq\Service\ExpeditedRoundService;
+use OCA\Decidiq\Service\ExpeditedRoundWriter;
 use OCA\Decidiq\Tests\Unit\Support\UrgentProcedureStore;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
@@ -38,6 +39,7 @@ use Psr\Log\NullLogger;
  * Bounds enforced, round linked to the decisive stage, guard applied.
  *
  * @covers \OCA\Decidiq\Service\ExpeditedRoundService
+ * @covers \OCA\Decidiq\Service\ExpeditedRoundWriter
  * @uses   \OCA\Decidiq\Lifecycle\UrgencyTriggerGuard
  * @uses   \OCA\Decidiq\Service\DecisionContextResolver
  * @uses   \OCA\Decidiq\Service\UrgentRatificationService
@@ -95,7 +97,7 @@ class ExpeditedRoundServiceTest extends TestCase {
 			context: new DecisionContextResolver(logger: new NullLogger()),
 			templates: $templates,
 			guard: new UrgencyTriggerGuard(participants: $participants),
-			timeFactory: $time,
+			writer: new ExpeditedRoundWriter(timeFactory: $time),
 			logger: new NullLogger(),
 		);
 	}//end service()

@@ -133,7 +133,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * lifecycle is left alone (#1396).
 	 *
 	 * @param string      $meetingId             UUID of the Meeting to publish
-	 * @param string|null $shortenedNoticeReason Null for a regular convocation; a string (empty for the
+	 * @param string|null $noticeReason          Null for a regular convocation; a string (empty for the
 	 *                                           urgency reason) for an emergency convocation at shortened notice
 	 *
 	 * @return void
@@ -142,20 +142,20 @@ class AgendaService implements AgendaServiceInterface {
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
-	public function publishAgenda(string $meetingId, ?string $shortenedNoticeReason=null): void {
+	public function publishAgenda(string $meetingId, ?string $noticeReason=null): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
 		$meeting   = $this->readMeeting(meetingId: $meetingId);
 		$deviation = [];
-		if ($shortenedNoticeReason !== null) {
+		if ($noticeReason !== null) {
 			// Checked before anything is saved or sent: a refused deviation records nothing.
 			if ($this->shortenedNotice === null) {
 				throw new InvalidArgumentException('A shortened notice is not available.');
 			}
 
-			$deviation = $this->shortenedNotice->deviationFor(meetingId: $meetingId, meeting: $meeting, reason: $shortenedNoticeReason);
+			$deviation = $this->shortenedNotice->deviationFor(meetingId: $meetingId, meeting: $meeting, reason: $noticeReason);
 		}
 
 		$publication = ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items, 'deviation' => $deviation];

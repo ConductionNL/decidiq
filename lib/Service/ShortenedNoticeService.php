@@ -116,12 +116,12 @@ class ShortenedNoticeService {
 		}
 
 		try {
-			$at = new DateTimeImmutable($start);
+			$startsAt = new DateTimeImmutable($start);
 		} catch (Throwable) {
 			return null;
 		}
 
-		return intdiv(($at->getTimestamp() - $this->timeFactory->getDateTime()->getTimestamp()), 3600);
+		return intdiv(($startsAt->getTimestamp() - $this->timeFactory->getDateTime()->getTimestamp()), 3600);
 	}//end hoursUntil()
 
 	/**
