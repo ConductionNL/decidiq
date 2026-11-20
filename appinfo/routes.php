@@ -189,6 +189,9 @@ $extra = [
         // @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
         ['name' => 'urgentProcedure#declareUrgency',       'url' => '/api/decisions/{decisionId}/urgency',          'verb' => 'POST'],
         ['name' => 'urgentProcedure#expeditedRound', 'url' => '/api/decisions/{decisionId}/expedited-round', 'verb' => 'POST'],
+        // Urgent-decisions-register REQ-021: record the report to the ratifying body, once.
+        // @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+        ['name' => 'urgentProcedure#reported',       'url' => '/api/decisions/{decisionId}/urgency/reported', 'verb' => 'POST'],
 
         // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
         // @spec openspec/specs/decidesk-contract-decision-hub/spec.md

@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 290,
+			"objectCount": 302,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -2650,6 +2650,158 @@
 						"assignedBody": "gemeenteraad-amsterdam",
 						"agendaItem": "bekrachtiging-spoedbesluit-opvang",
 						"placementPending": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodverordening-havenfestival-2026-spoedbesluit",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-10-02T18:30:00+02:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Spoedbesluit",
+						"decision": "spoedbesluit-noodverordening-havenfestival-2026",
+						"assignedBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodverordening-havenfestival-2026-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "pending",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "spoedbesluit-noodverordening-havenfestival-2026",
+						"assignedBody": "gemeenteraad-amsterdam",
+						"placementPending": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "opvang-sporthal-de-linde-spoedbesluit",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-09-15T12:00:00+02:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Spoedbesluit",
+						"decision": "spoedbesluit-opvang-sporthal-de-linde",
+						"assignedBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "opvang-sporthal-de-linde-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "pending",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "spoedbesluit-opvang-sporthal-de-linde",
+						"assignedBody": "gemeenteraad-amsterdam",
+						"placementPending": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodlocatie-hoogwater-2026-spoedbesluit",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-03-10T21:00:00+01:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Spoedbesluit",
+						"decision": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"assignedBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodlocatie-hoogwater-2026-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "decided",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"assignedBody": "gemeenteraad-amsterdam",
+						"placementPending": false,
+						"outcome": "adopted",
+						"decidedAt": "2026-03-26T21:00:00+01:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "herstel-brug-lindengracht-2026-spoedbesluit",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-04-20T16:00:00+02:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Spoedbesluit",
+						"decision": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"assignedBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "herstel-brug-lindengracht-2026-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "decided",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"assignedBody": "gemeenteraad-amsterdam",
+						"placementPending": false,
+						"outcome": "adopted",
+						"decidedAt": "2026-05-07T21:00:00+02:00"
 					}
 				],
 				"decision": [
@@ -3038,7 +3190,106 @@
 						"isUrgent": true,
 						"urgencyReason": "Acute opvangcrisis; eerstvolgende reguliere raadsvergadering is pas over drie weken (Gemeentewet-spoedbevoegdheid college)",
 						"urgencyDeclaredBy": "burgemeester",
-						"urgencyDeclaredAt": "2026-06-02T09:15:00+02:00"
+						"urgencyDeclaredAt": "2026-06-02T09:15:00+02:00",
+						"urgencyDeclaredByBody": "college-van-b-en-w-amsterdam",
+						"reportedToRatifyingBodyAt": "2026-06-04"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "spoedbesluit-noodverordening-havenfestival-2026",
+						"id": "a1d10000-0000-4000-a000-000000000211",
+						"uuid": "a1d10000-0000-4000-a000-000000000211",
+						"decisionType": "resolution",
+						"title": "Noodverordening Havenfestival 2026",
+						"text": "De burgemeester stelt een noodverordening vast voor het havengebied tijdens het Havenfestival: een verbod op glaswerk en een afgesloten kade na een melding van ernstige wanordelijkheden.",
+						"lifecycle": "enacted",
+						"outcome": "adopted",
+						"decisionDate": "2026-10-02T18:30:00+02:00",
+						"isPublished": "internal",
+						"governingBody": "Burgemeester van Amsterdam",
+						"isUrgent": true,
+						"urgencyReason": "Dreigende wanordelijkheden tijdens het Havenfestival; de raad komt pas op 15 oktober bijeen (Gemeentewet art. 176)",
+						"urgencyDeclaredBy": "burgemeester",
+						"urgencyDeclaredAt": "2026-10-02T17:45:00+02:00",
+						"urgencyDeclaredByBody": "college-van-b-en-w-amsterdam",
+						"urgencyDeclaredInOffice": "Burgemeester",
+						"reportedToRatifyingBodyAt": "2026-10-06"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "spoedbesluit-opvang-sporthal-de-linde",
+						"id": "a1d10000-0000-4000-a000-000000000212",
+						"uuid": "a1d10000-0000-4000-a000-000000000212",
+						"decisionType": "resolution",
+						"title": "Tijdelijke opvang in sporthal De Linde",
+						"text": "Het college besluit sporthal De Linde voor zes weken als tijdelijke opvang in te richten voor bewoners van de door brand getroffen flat aan de Lindelaan.",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"decisionDate": "2026-09-15T12:00:00+02:00",
+						"isPublished": "internal",
+						"governingBody": "College van B&W Amsterdam",
+						"isUrgent": true,
+						"urgencyReason": "Brand in de flat aan de Lindelaan; 80 bewoners hebben vannacht onderdak nodig",
+						"urgencyDeclaredBy": "burgemeester",
+						"urgencyDeclaredAt": "2026-09-15T08:30:00+02:00",
+						"urgencyDeclaredByBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "spoedbesluit-noodlocatie-hoogwater-2026",
+						"id": "a1d10000-0000-4000-a000-000000000213",
+						"uuid": "a1d10000-0000-4000-a000-000000000213",
+						"decisionType": "resolution",
+						"title": "Aanwijzing noodlocatie bij hoogwater Amstel",
+						"text": "De burgemeester wijst het evenemententerrein Amstelpark aan als noodlocatie voor de opvang van bewoners van de uiterwaarden bij hoogwater.",
+						"lifecycle": "enacted",
+						"outcome": "adopted",
+						"decisionDate": "2026-03-10T21:00:00+01:00",
+						"isPublished": "internal",
+						"governingBody": "Burgemeester van Amsterdam",
+						"isUrgent": true,
+						"urgencyReason": "Waterschap verwacht binnen 24 uur een kritieke waterstand op de Amstel",
+						"urgencyDeclaredBy": "burgemeester",
+						"urgencyDeclaredAt": "2026-03-10T19:15:00+01:00",
+						"urgencyDeclaredByBody": "college-van-b-en-w-amsterdam",
+						"urgencyDeclaredInOffice": "Burgemeester",
+						"reportedToRatifyingBodyAt": "2026-03-12"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "spoedbesluit-herstel-brug-lindengracht-2026",
+						"id": "a1d10000-0000-4000-a000-000000000214",
+						"uuid": "a1d10000-0000-4000-a000-000000000214",
+						"decisionType": "resolution",
+						"title": "Spoedherstel brug Lindengracht",
+						"text": "Het college besluit de brug over de Lindengracht direct te laten herstellen en daarvoor 240.000 euro uit de algemene reserve vrij te maken.",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"decisionDate": "2026-04-20T16:00:00+02:00",
+						"isPublished": "internal",
+						"governingBody": "College van B&W Amsterdam",
+						"isUrgent": true,
+						"urgencyReason": "Constructeur keurt de brug af; de brug is de enige toegang voor hulpdiensten tot het Lindenkwartier",
+						"urgencyDeclaredBy": "wethouder-ouali",
+						"urgencyDeclaredAt": "2026-04-20T10:00:00+02:00",
+						"urgencyDeclaredByBody": "college-van-b-en-w-amsterdam",
+						"reportedToRatifyingBodyAt": "2026-04-22"
 					}
 				],
 				"authority-delegation": [

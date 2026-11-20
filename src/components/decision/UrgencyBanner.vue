@@ -33,6 +33,9 @@
 				<p v-else-if="state.awaiting && meetingLabel" data-testid="urgency-placement">
 					{{ t('decidiq', 'Ratification is on the agenda of {meeting}.', { meeting: meetingLabel }) }}
 				</p>
+				<p v-if="decision.reportedToRatifyingBodyAt" data-testid="urgency-reported">
+					{{ t('decidiq', 'Reported to the ratifying body on {date}', { date: new Date(decision.reportedToRatifyingBodyAt).toLocaleDateString() }) }}
+				</p>
 			</div>
 		</div>
 		<div class="urgency-banner__actions">
@@ -48,6 +51,13 @@
 				@click="openDialog('round')">
 				{{ t('decidiq', 'Open expedited written round') }}
 			</NcButton>
+			<NcButton
+				v-if="reportable"
+				data-testid="urgency-report"
+				:disabled="saving"
+				@click="report">
+				{{ t('decidiq', 'Mark as reported to the ratifying body') }}
+			</NcButton>
 		</div>
 		<CnNoteCard v-if="message" type="success">
 			{{ message }}
@@ -56,6 +66,8 @@
 			v-if="dialog === 'declare'"
 			:saving="saving"
 			:error="error"
+			:bodies="bodies"
+			:defaultBody="defaultBody"
 			@submit="submit('urgency', $event)"
 			@close="closeDialog" />
 		<ExpeditedRoundDialog
@@ -74,7 +86,7 @@ import AlertDecagramOutline from 'vue-material-design-icons/AlertDecagramOutline
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
 import DeclareUrgencyDialog from '../../dialogs/DeclareUrgencyDialog.vue'
 import ExpeditedRoundDialog from '../../dialogs/ExpeditedRoundDialog.vue'
-import { postUrgentAction, urgencyState } from '../../services/urgency.js'
+import { canReport, postUrgentAction, urgencyState } from '../../services/urgency.js'
 import { ensureRelationType } from '../tabs/useRelationStore.js'
 
 /**
@@ -109,6 +121,8 @@ export default {
 			saving: false,
 			error: '',
 			message: '',
+			bodies: [],
+			defaultBody: '',
 		}
 	},
 
@@ -116,6 +130,11 @@ export default {
 		/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi */
 		state() {
 			return urgencyState(this.decision, this.stages)
+		},
+
+		/** @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once */
+		reportable() {
+			return canReport(this.decision, this.state)
 		},
 	},
 
@@ -187,6 +206,55 @@ export default {
 			this.error = ''
 			this.message = ''
 			this.dialog = name
+			if (name === 'declare') {
+				this.loadBodies()
+			}
+		},
+
+		/**
+		 * The governance bodies a declaration can be made for, with the
+		 * decision's own meeting body picked first.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
+		 */
+		async loadBodies() {
+			try {
+				const meetingId = refId(this.decision.meeting)
+				const meeting = meetingId ? await ensureRelationType('meeting').fetchObject('meeting', meetingId) : null
+				this.defaultBody = refId(meeting?.governanceBody)
+				const rows = (await ensureRelationType('governance-body').fetchCollection('governance-body', { _limit: 200 })) || []
+				this.bodies = rows.map((row) => ({ id: String(row.id || ''), label: row.name || row.title || String(row.id || '') }))
+			} catch (e) {
+				this.error = e?.message || ''
+			}
+		},
+
+		/**
+		 * Record that the urgent decision was reported to its ratifying body.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+		 */
+		async report() {
+			await this.submit('urgency/reported', {})
+		},
+
+		/**
+		 * What to say after an action succeeded.
+		 *
+		 * @param {string} action The action posted.
+		 * @return {string}
+		 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+		 */
+		successMessage(action) {
+			if (action === 'urgency') {
+				return this.t('decidiq', 'The decision is urgent. Its ratification has been added to the route.')
+			}
+			if (action === 'urgency/reported') {
+				return this.t('decidiq', 'The report to the ratifying body is recorded.')
+			}
+			return this.t('decidiq', 'The expedited written round is open.')
 		},
 
 		/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md */
@@ -198,7 +266,7 @@ export default {
 		/**
 		 * Post an action and show the server's answer.
 		 *
-		 * @param {string} action `urgency` or `expedited-round`.
+		 * @param {string} action `urgency`, `urgency/reported` or `expedited-round`.
 		 * @param {object} body The request body.
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
@@ -214,9 +282,7 @@ export default {
 				}
 
 				this.dialog = ''
-				this.message = data.warning || (action === 'urgency'
-					? this.t('decidiq', 'The decision is urgent. Its ratification has been added to the route.')
-					: this.t('decidiq', 'The expedited written round is open.'))
+				this.message = data.warning || this.successMessage(action)
 				await this.load()
 				this.$emit('refresh')
 			} finally {

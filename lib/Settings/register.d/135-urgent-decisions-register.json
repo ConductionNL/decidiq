@@ -1,0 +1,38 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change urgent-decisions-register (REQ-020, REQ-021). An urgent decision records who declared the urgency as a body or office, not only as a user, and the day it was first reported to the body that ratifies it. All three join the server-guarded urgency fields (UrgencyDeclarationService::URGENCY_FIELDS): a direct edit that changes them is refused, and every decision save carries them forward. Properties only, so no schema version moves here, as in 134-decision-authority-basis.",
+  "_spec": "openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "properties": {
+          "urgencyDeclaredByBody": {
+            "title": "Urgency declared by body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "description": "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there."
+          },
+          "urgencyDeclaredInOffice": {
+            "title": "Urgency declared in office",
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "description": "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only."
+          },
+          "reportedToRatifyingBodyAt": {
+            "title": "Reported to the ratifying body on",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared."
+          }
+        }
+      }
+    }
+  }
+}

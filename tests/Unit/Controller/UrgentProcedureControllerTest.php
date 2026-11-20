@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\UrgentProcedureController;
 use OCA\Decidiq\Service\ExpeditedRoundService;
 use OCA\Decidiq\Service\UrgencyDeclarationService;
+use OCA\Decidiq\Service\UrgentReportService;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -47,7 +48,7 @@ class UrgentProcedureControllerTest extends TestCase {
 	 *
 	 * @return UrgentProcedureController
 	 */
-	private function controller(array $params, ?string $uid, ?UrgencyDeclarationService $declarations = null, ?ExpeditedRoundService $rounds = null): UrgentProcedureController {
+	private function controller(array $params, ?string $uid, ?UrgencyDeclarationService $declarations = null, ?ExpeditedRoundService $rounds = null, ?UrgentReportService $reports = null): UrgentProcedureController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default));
 		$user = null;
@@ -64,6 +65,7 @@ class UrgentProcedureControllerTest extends TestCase {
 			userSession: $session,
 			declarations: ($declarations ?? $this->createMock(UrgencyDeclarationService::class)),
 			rounds: ($rounds ?? $this->createMock(ExpeditedRoundService::class)),
+			reports: ($reports ?? $this->createMock(UrgentReportService::class)),
 		);
 	}//end controller()
 
@@ -91,10 +93,11 @@ class UrgentProcedureControllerTest extends TestCase {
 	public function testTheDeclarationIsPassedThrough(): void {
 		$declarations = $this->createMock(UrgencyDeclarationService::class);
 		$declarations->expects($this->once())->method('declare')
-			->with('dec-1', 'burgemeester', 'Acute crisis', 'body-raad')
+			->with('dec-1', 'burgemeester', 'Acute crisis', 'body-raad', ['body' => 'body-college', 'office' => 'Burgemeester'])
 			->willReturn(['status' => 403, 'data' => ['message' => 'no']]);
 
-		$response = $this->controller(params: ['reason' => 'Acute crisis', 'ratifyingBody' => 'body-raad'], uid: 'burgemeester', declarations: $declarations)->declareUrgency(decisionId: 'dec-1');
+		$params   = ['reason' => 'Acute crisis', 'ratifyingBody' => 'body-raad', 'urgencyDeclaredByBody' => 'body-college', 'urgencyDeclaredInOffice' => 'Burgemeester'];
+		$response = $this->controller(params: $params, uid: 'burgemeester', declarations: $declarations)->declareUrgency(decisionId: 'dec-1');
 
 		$this->assertSame(403, $response->getStatus());
 		$this->assertSame(['message' => 'no'], $response->getData());
@@ -107,7 +110,7 @@ class UrgentProcedureControllerTest extends TestCase {
 	 */
 	public function testANonStringOverrideIsIgnored(): void {
 		$declarations = $this->createMock(UrgencyDeclarationService::class);
-		$declarations->expects($this->once())->method('declare')->with('dec-1', 'burgemeester', '', null)->willReturn(['status' => 422, 'data' => []]);
+		$declarations->expects($this->once())->method('declare')->with('dec-1', 'burgemeester', '', null, ['body' => null, 'office' => null])->willReturn(['status' => 422, 'data' => []]);
 
 		$this->controller(params: ['ratifyingBody' => ['x']], uid: 'burgemeester', declarations: $declarations)->declareUrgency(decisionId: 'dec-1');
 	}//end testANonStringOverrideIsIgnored()
@@ -126,4 +129,36 @@ class UrgentProcedureControllerTest extends TestCase {
 		$this->assertSame(201, $response->getStatus());
 		$this->assertSame(['id' => 'round-1'], $response->getData());
 	}//end testTheRoundIsPassedThrough()
+
+	/**
+	 * The report action answers 401 without a user and asks nothing of the service.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function testTheReportActionNeedsAUser(): void {
+		$reports = $this->createMock(UrgentReportService::class);
+		$reports->expects($this->never())->method('report');
+
+		$this->assertSame(401, $this->controller(params: [], uid: null, reports: $reports)->reported(decisionId: 'dec-1')->getStatus());
+	}//end testTheReportActionNeedsAUser()
+
+	/**
+	 * The report action passes the caller through and answers as the service does,
+	 * a refusal included.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function testTheReportIsPassedThrough(): void {
+		$reports = $this->createMock(UrgentReportService::class);
+		$reports->expects($this->once())->method('report')->with('dec-1', 'raadslid')->willReturn(['status' => 403, 'data' => ['message' => 'no']]);
+
+		$response = $this->controller(params: [], uid: 'raadslid', reports: $reports)->reported(decisionId: 'dec-1');
+
+		$this->assertSame(403, $response->getStatus());
+		$this->assertSame(['message' => 'no'], $response->getData());
+	}//end testTheReportIsPassedThrough()
 }//end class

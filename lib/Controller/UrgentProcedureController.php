@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ExpeditedRoundService;
 use OCA\Decidiq\Service\UrgencyDeclarationService;
+use OCA\Decidiq\Service\UrgentReportService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -57,12 +58,14 @@ class UrgentProcedureController extends Controller {
 	 * @param IUserSession              $userSession  The caller.
 	 * @param UrgencyDeclarationService $declarations Runs the guarded declaration.
 	 * @param ExpeditedRoundService     $rounds       Opens the expedited round.
+	 * @param UrgentReportService       $reports      Records the report to the ratifying body.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
 		private readonly UrgencyDeclarationService $declarations,
 		private readonly ExpeditedRoundService $rounds,
+		private readonly UrgentReportService $reports,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -80,6 +83,7 @@ class UrgentProcedureController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
 	 */
 	#[NoAdminRequired]
 	public function declareUrgency(string $decisionId): JSONResponse {
@@ -98,7 +102,11 @@ class UrgentProcedureController extends Controller {
 			decisionId: $decisionId,
 			userId: $user->getUID(),
 			reason: (string)$this->request->getParam('reason', ''),
-			bodyOverride: $body
+			bodyOverride: $body,
+			declarer: [
+				'body'   => $this->request->getParam('urgencyDeclaredByBody'),
+				'office' => $this->request->getParam('urgencyDeclaredInOffice'),
+			]
 		);
 
 		return new JSONResponse($result['data'], $result['status']);
@@ -133,4 +141,28 @@ class UrgentProcedureController extends Controller {
 
 		return new JSONResponse($result['data'], $result['status']);
 	}//end expeditedRound()
+
+	/**
+	 * Record that an urgent decision was reported to its ratifying body.
+	 *
+	 * Sets the report date once; running it again keeps the first date.
+	 *
+	 * @param string $decisionId The decision.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	#[NoAdminRequired]
+	public function reported(string $decisionId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		// Object rights (find) and the urgency role check run inside the service.
+		$result = $this->reports->report(decisionId: $decisionId, userId: $user->getUID());
+
+		return new JSONResponse($result['data'], $result['status']);
+	}//end reported()
 }//end class
