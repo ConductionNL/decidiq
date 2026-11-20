@@ -21,6 +21,7 @@
 		"PlannedAgenda": "ActionItems",
 		"PlanningCycles": "ActionItems",
 		"ProxyAuthorizations": "GovernanceBodies",
+		"TopicThemes": "Decisions",
 		"UrgentDecisions": "Decisions",
 		"WorksCouncilConsultations": "Decisions"
 	},

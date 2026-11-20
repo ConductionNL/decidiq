@@ -36,6 +36,8 @@ use OCP\IL10N;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The fake store answers the way live OpenRegister does, and no more:
@@ -149,7 +151,10 @@ trait FlowDecisionStoreFixture {
 		$service = $this->createMock(ObjectService::class);
 
 		$service->method('saveObject')->willReturnCallback(
-			function (array|ObjectEntity $object, ?array $_extend = [], mixed $register = null, mixed $schema = null): ObjectEntity {
+			function (array|ObjectEntity $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$_extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				if ($this->saveFails === true || (string)$register !== 'decidiq' || (string)$schema !== 'decision') {
 					throw new RuntimeException('save refused');
 				}
@@ -165,7 +170,11 @@ trait FlowDecisionStoreFixture {
 		);
 
 		$service->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ((string)$register !== 'decidiq' || (string)$schema !== 'decision') {
 					return null;
 				}

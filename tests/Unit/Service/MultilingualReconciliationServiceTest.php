@@ -29,6 +29,8 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for MultilingualReconciliationService.
@@ -77,7 +79,11 @@ class MultilingualReconciliationServiceTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rowsRef) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use (&$rowsRef) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$schemaKey = (string)$schema;
 				foreach (($rowsRef[$schemaKey] ?? []) as $row) {
 					if ((string)($row['id'] ?? '') === (string)$id) {
@@ -93,7 +99,11 @@ class MultilingualReconciliationServiceTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef, &$rowsRef): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$schemaKey = (string)$schema;
 				$savedRef[] = $object + ['_schema' => $schemaKey, '_uuid' => (string)($uuid ?? '')];
 				$id = ((string)($uuid ?? '') !== '' ? (string)$uuid : ($schemaKey . '-' . (count($savedRef))));

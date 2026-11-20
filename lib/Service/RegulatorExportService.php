@@ -34,6 +34,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\RegulatorExportServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -209,8 +212,7 @@ class RegulatorExportService implements RegulatorExportServiceInterface {
 		try {
 			$saved = $objectService->saveObject(
 				object: $exportRecord,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA))
 			);
 			if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
 				$exportRecord = (array)$saved->jsonSerialize();
@@ -298,8 +300,7 @@ class RegulatorExportService implements RegulatorExportServiceInterface {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entity = $objectService->find(
 				id: $exportId,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA)
 			);
 			if ($entity === null) {
 				return $this->failureDownload(message: 'Export not found.');

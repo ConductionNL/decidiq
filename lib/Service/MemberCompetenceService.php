@@ -280,18 +280,7 @@ class MemberCompetenceService implements MemberCompetenceServiceInterface {
 	 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['@self'], $data['id']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 
 	/**
@@ -306,17 +295,6 @@ class MemberCompetenceService implements MemberCompetenceServiceInterface {
 	 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
 	 */
 	private function write(string $schema, array $object, ?string $id): array {
-		$saved = $this->objectService->saveObject(
-			object: $object,
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $id,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: $schema, object: $object, uuid: $id);
 	}//end write()
 }//end class

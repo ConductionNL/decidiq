@@ -17,6 +17,7 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
+		:cellWidgets="cellWidgets"
 		:customComponents="headerActionHandlers"
 		appId="decidiq"
 		data-testid="app-root"
@@ -64,9 +65,12 @@
 
 <script>
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { showError, showSuccess, showWarning } from '@nextcloud/dialogs'
 import { translate as ncT } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
+import SpeakingRequestDeadlineCell from './components/cells/SpeakingRequestDeadlineCell.vue'
 import ExportBundleModal from './modals/ExportBundleModal.vue'
 import UserSettings from './views/settings/UserSettings.vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
@@ -74,6 +78,7 @@ import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
 import { createConnectionHandlers } from './utils/connectionRegistry.js'
 import { createExportBundleHandlers } from './utils/exportBundle.js'
+import { createPlannedAgendaReportHandlers } from './utils/plannedAgendaReport.js'
 
 /**
  * The location hash that opens the user settings dialog.
@@ -179,6 +184,15 @@ export default {
 			 * CnAppRoot merges under this registry.
 			 */
 			cellFormatters,
+			/**
+			 * Cell-widget registry passed to CnAppRoot's `cellWidgets` prop: a
+			 * column's `widget` id names one. `speaking-deadline` is the
+			 * registration deadline warning on the speaking requests overview
+			 * (inspreekrecht-plenair REQ-INS-010).
+			 */
+			cellWidgets: {
+				'speaking-deadline': SpeakingRequestDeadlineCell,
+			},
 
 			/**
 			 * Header-action handlers resolved by name. CnIndexPage looks a
@@ -195,6 +209,15 @@ export default {
 
 				// Bulk actions resolve their handler name the same way.
 				...createExportBundleHandlers(exportBundleState),
+
+				// The long-term agenda's Download report (REQ-LTAT-004).
+				...createPlannedAgendaReportHandlers({
+					post: (url, body) => axios.post(url, body),
+					generateUrl,
+					open: (url) => window.open(url, '_blank', 'noopener'),
+					query: () => (this.$route ? this.$route.query : {}),
+					notify: (kind, message) => ({ success: showSuccess, warning: showWarning, error: showError })[kind](message),
+				}),
 			},
 
 			objectSidebarState: reactive({

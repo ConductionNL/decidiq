@@ -54,4 +54,36 @@ final class RssDocumentTest extends TestCase {
 		$this->assertCount(0, $item->description);
 		$this->assertSame('application/rss+xml; charset=utf-8', RssDocument::CONTENT_TYPE);
 	}
+	public function testItemsKeepTheirOrderAndAnUntitledItemGetsAnEmptyTitle(): void {
+		$channel = simplexml_load_string((new RssDocument())->render(
+			title: 'T',
+			description: 'D',
+			items: [['title' => 'first'], ['guid' => 'u-2'], ['title' => 'third', 'pubDate' => '']]
+		))->channel;
+
+		$this->assertCount(3, $channel->item);
+		$this->assertSame('first', (string)$channel->item[0]->title);
+		$this->assertCount(1, $channel->item[1]->title);
+		$this->assertSame('', (string)$channel->item[1]->title);
+		$this->assertSame('u-2', (string)$channel->item[1]->guid);
+		$this->assertSame('third', (string)$channel->item[2]->title);
+		$this->assertCount(0, $channel->item[2]->pubDate, 'an empty date is left out');
+		$this->assertCount(0, $channel->item[0]->category);
+	}
+
+	public function testAChannelWithoutItemsHasOnlyItsTitleAndDescription(): void {
+		$rendered = (new RssDocument())->render(title: 'Leeg', description: 'Niets', items: []);
+		$channel  = simplexml_load_string($rendered)->channel;
+
+		$this->assertStringStartsWith('<?xml version="1.0" encoding="UTF-8"?>', $rendered);
+		$this->assertSame(['title', 'description'], array_map(static fn ($node): string => $node->getName(), iterator_to_array($channel->children(), false)));
+		$this->assertSame('Leeg', (string)$channel->title);
+		$this->assertSame('Niets', (string)$channel->description);
+	}
+
+	public function testAPubDateIsWrittenInItsOwnOffset(): void {
+		$item = simplexml_load_string((new RssDocument())->render(title: 'T', description: 'D', items: [['title' => 'x', 'pubDate' => '2026-07-01 08:15:00 UTC']]))->channel->item[0];
+
+		$this->assertSame('Wed, 01 Jul 2026 08:15:00 +0000', (string)$item->pubDate);
+	}
 }

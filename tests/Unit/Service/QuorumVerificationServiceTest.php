@@ -28,6 +28,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for QuorumVerificationService.
@@ -50,7 +51,11 @@ class QuorumVerificationServiceTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meeting): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($meeting): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'meeting' && (string)$id === (string)($meeting['id'] ?? '')) {
 					$entity = $this->createMock(ObjectEntity::class);
 					$entity->method('jsonSerialize')->willReturn($meeting);

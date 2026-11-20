@@ -27,6 +27,9 @@ use DateTimeInterface;
 use OCA\Decidiq\Service\SystemObjectRows;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -260,9 +263,10 @@ class ConfidentialityLapseListener implements IEventListener {
 		try {
 			$this->objectService->saveObject(
 				object: $restriction,
-				register: self::REGISTER,
-				schema: self::SCHEMA_RESTRICTION,
-				uuid: $id
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA_RESTRICTION),
+					uuid: $id
+				)
 			);
 			$this->logger->info(
 				'Decidiq: a confidentiality lapsed because the body did not ratify it',
@@ -289,7 +293,11 @@ class ConfidentialityLapseListener implements IEventListener {
 		}
 
 		try {
-			$ground = $this->objectService->find(id: $groundId, register: self::REGISTER, schema: 'confidentiality-ground', _rbac: false);
+			$ground = $this->objectService->find(
+				id: $groundId,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: 'confidentiality-ground'),
+				_rbac: false
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: a confidentiality ground could not be read; nothing lapses',

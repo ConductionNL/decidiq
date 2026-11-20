@@ -29,6 +29,9 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\TaskProcessing\Events\AbstractTaskProcessingEvent;
@@ -91,8 +94,7 @@ class PaperSummaryTaskListener implements IEventListener, PaperSummaryTaskListen
 		$summaryId = substr($customId, strlen(self::CUSTOM_ID_PREFIX));
 		$summary = $this->objectService->find(
 			id: $summaryId,
-			register: 'decidiq',
-			schema: 'paper-summary',
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'paper-summary'),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -109,9 +111,10 @@ class PaperSummaryTaskListener implements IEventListener, PaperSummaryTaskListen
 		$data = array_merge($data, $this->outcome(event: $event, task: $task));
 		$this->objectService->saveObject(
 			object: $data,
-			register: 'decidiq',
-			schema: 'paper-summary',
-			uuid: $summaryId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'paper-summary'),
+				uuid: $summaryId
+			),
 			_rbac: false,
 			_multitenancy: false
 		);

@@ -37,6 +37,9 @@ use DateTimeInterface;
 use OCA\Decidiq\Exception\ChangeRecommendationRefusedException;
 use OCA\Decidiq\Kernel\Contracts\ChangeRecommendationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use RuntimeException;
 
@@ -148,9 +151,10 @@ class ChangeRecommendationService implements ChangeRecommendationServiceInterfac
 
 		$savedMotion = $this->objectService->saveObject(
 			object: array_merge($motion, $merged),
-			register: self::REGISTER,
-			schema: 'decision',
-			uuid: $motionId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: self::REGISTER, schema: 'decision'),
+				uuid: $motionId
+			)
 		);
 
 		return [
@@ -235,9 +239,10 @@ class ChangeRecommendationService implements ChangeRecommendationServiceInterfac
 
 		return $this->objectService->saveObject(
 			object: $recommendation,
-			register: self::REGISTER,
-			schema: self::SCHEMA,
-			uuid: $recommendationId
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA),
+				uuid: $recommendationId
+			)
 		)->getObject();
 	}//end decide()
 
@@ -251,7 +256,7 @@ class ChangeRecommendationService implements ChangeRecommendationServiceInterfac
 	 */
 	private function data(string $id, string $schema): ?array {
 		try {
-			$object = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+			$object = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		} catch (\Throwable $e) {
 			return null;
 		}

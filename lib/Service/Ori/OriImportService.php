@@ -27,6 +27,9 @@ namespace OCA\Decidiq\Service\Ori;
 use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Reads every object of a source ORI register, maps it per the mapping table in
@@ -260,9 +263,10 @@ class OriImportService implements OriImportServiceInterface {
 			foreach ($this->tagged[$schema] as $tag => $uuid) {
 				if ($this->dryRun === false) {
 					$this->objectService->deleteObject(
-						uuid: $uuid,
-						register: self::TARGET_REGISTER,
-						schema: $schema,
+						new ObjectDeletion(
+							uuid: $uuid,
+							target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema)
+						),
 						_rbac: false,
 						_multitenancy: false
 					);
@@ -891,9 +895,10 @@ class OriImportService implements OriImportServiceInterface {
 		if ($this->dryRun === false) {
 			$saved = $this->objectService->saveObject(
 				object: $data,
-				register: self::TARGET_REGISTER,
-				schema: $schema,
-				uuid: $existing,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema),
+					uuid: $existing
+				),
 				_rbac: false,
 				_multitenancy: false
 			);

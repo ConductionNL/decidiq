@@ -31,6 +31,7 @@ use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * @covers \OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener
@@ -81,7 +82,9 @@ class PortalCreateOpenParentGuardListenerEdgeTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, string|int|null $register=null, string|int|null $schema=null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->finds[] = [(string)$id, $register, $schema];
 				return ($this->parents[(string)$id] ?? null);
 			}//end find()

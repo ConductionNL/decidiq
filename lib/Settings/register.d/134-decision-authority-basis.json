@@ -1,0 +1,24 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change delegatie-mandaatregister (REQ-DMR-006). A decision can name the delegation or mandate it was taken under ('genomen krachtens'). Optional and nullable, and assistive only: nothing creates, transitions or enacts a decision differently on account of it, whether it is empty, names a withdrawn delegation or one outside its validity window. A property only, so no schema version moves here, as in 132-goals-linked-to-decisions.",
+  "_spec": "openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-006-assistive-bevoegdheidsgrondslag-link-on-decision-never-enforcement",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "properties": {
+          "authorityBasis": {
+            "title": "Taken under",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "authority-delegation",
+            "nullable": true,
+            "description": "The delegation or mandate (bevoegdheidsgrondslag) this decision was taken under, shown as 'genomen krachtens' on the decision. Documentation only: it never blocks, warns on or gates the decision. Empty when the decision records no delegated authority."
+          }
+        }
+      }
+    }
+  }
+}

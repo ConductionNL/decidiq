@@ -118,6 +118,7 @@ import {
 	sessionLabel,
 	siblingsOf,
 } from '../../utils/meetingSessions.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -247,7 +248,8 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await ensureRelationType('meeting').saveObject(
+				await saveOrThrow(
+					ensureRelationType('meeting'),
 					'meeting',
 					newSession(this.meeting, this.draft),
 				)

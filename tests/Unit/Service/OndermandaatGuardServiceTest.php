@@ -29,6 +29,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * @covers \OCA\Decidiq\Service\OndermandaatGuardService
@@ -55,6 +56,15 @@ class OndermandaatGuardServiceTest extends TestCase {
 	private array $reads = [];
 
 	/**
+	 * Toedelingen still on the old Dutch slug.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private array $legacy = [
+		'mandaat-oud' => ['id' => 'mandaat-oud', 'subMandatePermitted' => false],
+	];
+
+	/**
 	 * The guard over the stored toedelingen.
 	 *
 	 * @param \Throwable|null $failure Thrown on every read.
@@ -65,18 +75,26 @@ class OndermandaatGuardServiceTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (mixed ...$args) use ($failure): ObjectEntity {
+				$args = LegacyObjectArgs::positional(method: 'find', args: $args);
 				if ($failure !== null) {
 					throw $failure;
 				}
 
-				self::assertContains('bevoegdheidstoedeling', $args);
+				// Parents are read on the renamed schema, where the migration moved
+				// the rows, and then on the old Dutch slug.
+				$store = $this->stored;
+				if (in_array('authority-delegation', $args, true) === false) {
+					self::assertContains('bevoegdheidstoedeling', $args);
+					$store = $this->legacy;
+				}
+
 				$this->reads[] = $args[0];
-				if (isset($this->stored[$args[0]]) === false) {
+				if (isset($store[$args[0]]) === false) {
 					throw new DoesNotExistException('gone');
 				}
 
 				$entity = $this->createMock(ObjectEntity::class);
-				$entity->method('jsonSerialize')->willReturn($this->stored[$args[0]]);
+				$entity->method('jsonSerialize')->willReturn($store[$args[0]]);
 				return $entity;
 			}
 		);
@@ -151,4 +169,17 @@ class OndermandaatGuardServiceTest extends TestCase {
 			'The toedeling was not saved: its parent chain leads back to itself. An ondermandaat chain may not loop.'
 		);
 	}//end testAChainDeeperThanTheLimitIsRefused()
+	/**
+	 * A parent still on the old Dutch slug is found there and still checked.
+	 *
+	 * @return void
+	 */
+	public function testAParentOnTheOldSlugIsStillChecked(): void {
+		$this->refused(
+			toedeling: ['parentAllocation' => 'mandaat-oud'],
+			message: 'The toedeling was not saved: its parent does not permit ondermandaat.'
+		);
+		self::assertSame(['mandaat-oud', 'mandaat-oud'], $this->reads, 'read on the renamed schema first, then on the old slug');
+	}//end testAParentOnTheOldSlugIsStillChecked()
+
 }//end class

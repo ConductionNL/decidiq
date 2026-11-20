@@ -289,6 +289,7 @@ import {
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
 import { formalityUrl } from '../../utils/formalities.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -808,7 +809,7 @@ export default {
 			try {
 				const store = ensureRelationType('agenda-item')
 				for (const item of items) {
-					await store.saveObject('agenda-item', item)
+					await saveOrThrow(store, 'agenda-item', item)
 				}
 				this.copyOpen = false
 				this.copyNotice = this.t('decidiq', 'Agenda items added: {count}.', {
@@ -836,7 +837,8 @@ export default {
 			try {
 				const name =
 					this.meeting?.title || this.t('decidiq', 'Agenda template')
-				await ensureRelationType('agenda-template').saveObject(
+				await saveOrThrow(
+					ensureRelationType('agenda-template'),
 					'agenda-template',
 					templateFromItems(name, this.rawRows),
 				)
@@ -1120,7 +1122,7 @@ export default {
 			}
 			const store = ensureRelationType('agenda-item')
 			try {
-				await store.saveObject('agenda-item', {
+				await saveOrThrow(store, 'agenda-item', {
 					...formData,
 					typeFields: this.formTypeFields,
 					meeting: this.objectId,

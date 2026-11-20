@@ -32,6 +32,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * The daily run, and the cases where retention leaves a transcript alone or
@@ -133,7 +135,11 @@ class TranscriptRetentionJobRunTest extends TestCase {
 		$this->auditFails    = false;
 
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, $register = null, $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($id === 'boom') {
 					throw new RuntimeException('lookup failed');
 				}
@@ -156,7 +162,11 @@ class TranscriptRetentionJobRunTest extends TestCase {
 			}
 		);
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], $register = null, $schema = null, ?string $uuid = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity($object);
 			}
@@ -482,4 +492,30 @@ class TranscriptRetentionJobRunTest extends TestCase {
 		self::assertSame('purged', $this->enforce($this->transcript()));
 		self::assertCount(1, $this->saved);
 	}//end testAFailedAuditIsLogged()
+
+	/**
+	 * A row without an id of its own is saved under its @self id.
+	 *
+	 * @return void
+	 */
+	public function testThePurgeSavesUnderTheSelfId(): void {
+		$transcript = $this->transcript(['@self' => ['id' => 't-self']]);
+		unset($transcript['id']);
+
+		self::assertSame('purged', $this->enforce($transcript));
+		self::assertSame('t-self', $this->saved[0]['uuid']);
+	}//end testThePurgeSavesUnderTheSelfId()
+
+	/**
+	 * A row with no id at all is saved without one.
+	 *
+	 * @return void
+	 */
+	public function testThePurgeOfARowWithoutAnIdNamesNoUuid(): void {
+		$transcript = $this->transcript();
+		unset($transcript['id']);
+
+		self::assertSame('purged', $this->enforce($transcript));
+		self::assertNull($this->saved[0]['uuid']);
+	}//end testThePurgeOfARowWithoutAnIdNamesNoUuid()
 }//end class

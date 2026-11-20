@@ -31,6 +31,8 @@ use DateTime;
 use DateTimeImmutable;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IURLGenerator;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
@@ -215,8 +217,7 @@ class NotificationPreferenceService implements NotificationPreferenceServiceInte
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $merged,
-			register: 'decidiq',
-			schema: 'notification-preference',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'notification-preference'))
 		);
 
 		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);

@@ -35,6 +35,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -146,7 +149,10 @@ class AdvisoryVoteService {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'citizen-vote', object: $vote);
+		$saved = $objectService->saveObject(
+			object: $vote,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'citizen-vote'))
+		);
 		$savedArr = $this->normaliseSaved(saved: $saved, fallback: $vote);
 
 		// Re-tally all CitizenVotes for this proposal (atomic count path) and persist
@@ -197,12 +203,15 @@ class AdvisoryVoteService {
 			}
 		}
 
-		$proposalEntity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
+		$proposalEntity = $objectService->find(id: $proposalId, options: new ObjectFindOptions(register: 'decidiq', schema: 'budget-proposal'));
 		if ($proposalEntity !== null) {
 			$proposal = $proposalEntity->jsonSerialize();
 			$proposal['votesFor'] = $for;
 			$proposal['votesAgainst'] = $against;
-			$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+			$objectService->saveObject(
+				object: $proposal,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+			);
 		}
 
 		return [

@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -152,7 +153,7 @@ class QuorumVerificationService {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 
-			$meeting = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meeting = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			if ($meeting === null) {
 				return null;
 			}
