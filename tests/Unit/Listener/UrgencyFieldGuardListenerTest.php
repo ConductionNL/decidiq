@@ -199,22 +199,23 @@ class UrgencyFieldGuardListenerTest extends TestCase {
 			['urgencyDeclaredByBody' => 'body-college', 'urgencyDeclaredInOffice' => 'Burgemeester', 'reportedToRatifyingBodyAt' => '2026-10-06']
 		);
 
-		foreach (['urgencyDeclaredByBody' => 'body-raad', 'urgencyDeclaredInOffice' => 'Wethouder', 'reportedToRatifyingBodyAt' => '2026-10-15'] as $field => $changed) {
-			$event = new ObjectUpdatingEvent($this->entity(array_merge($stored, [$field => $changed])), $this->entity($stored));
+		$changes = ['urgencyDeclaredByBody' => 'body-raad', 'urgencyDeclaredInOffice' => 'Wethouder', 'reportedToRatifyingBodyAt' => '2026-10-15'];
+		foreach ($changes as $field => $changed) {
+			$event = new ObjectUpdatingEvent($this->entity(row: array_merge($stored, [$field => $changed])), $this->entity(row: $stored));
 			$this->listener(grant: new UrgencyWriteGrant())->handle($event);
-			$this->assertTrue($event->isPropagationStopped(), $field . ' could be changed directly');
+			$this->assertTrue(condition: $event->isPropagationStopped(), message: $field . ' could be changed directly');
 		}
 
-		$cleared = new ObjectUpdatingEvent($this->entity(array_merge($stored, ['reportedToRatifyingBodyAt' => null])), $this->entity($stored));
+		$cleared = new ObjectUpdatingEvent($this->entity(row: array_merge($stored, ['reportedToRatifyingBodyAt' => null])), $this->entity(row: $stored));
 		$this->listener(grant: new UrgencyWriteGrant())->handle($cleared);
-		$this->assertTrue($cleared->isPropagationStopped(), 'the report date could be cleared directly');
+		$this->assertTrue(condition: $cleared->isPropagationStopped(), message: 'the report date could be cleared directly');
 
-		$edit = new ObjectUpdatingEvent($this->entity(['title' => 'Noodopvang statushouders (herzien)']), $this->entity($stored));
+		$edit = new ObjectUpdatingEvent($this->entity(row: ['title' => 'Noodopvang statushouders (herzien)']), $this->entity(row: $stored));
 		$this->listener(grant: new UrgencyWriteGrant())->handle($edit);
-		$this->assertFalse($edit->isPropagationStopped());
-		$this->assertSame('2026-10-06', $edit->getModifiedData()['reportedToRatifyingBodyAt']);
-		$this->assertSame('body-college', $edit->getModifiedData()['urgencyDeclaredByBody']);
-		$this->assertSame('Burgemeester', $edit->getModifiedData()['urgencyDeclaredInOffice']);
+		$this->assertFalse(condition: $edit->isPropagationStopped());
+		$this->assertSame(expected: '2026-10-06', actual: $edit->getModifiedData()['reportedToRatifyingBodyAt']);
+		$this->assertSame(expected: 'body-college', actual: $edit->getModifiedData()['urgencyDeclaredByBody']);
+		$this->assertSame(expected: 'Burgemeester', actual: $edit->getModifiedData()['urgencyDeclaredInOffice']);
 	}//end testTheRegisterFieldsAreGuardedAndCarriedForward()
 
 	/**
@@ -227,10 +228,11 @@ class UrgencyFieldGuardListenerTest extends TestCase {
 	public function testTheGrantedReportSetsTheDate(): void {
 		$grant = new UrgencyWriteGrant();
 		$grant->grant(decisionId: 'dec-1');
-		$event = new ObjectUpdatingEvent($this->entity(array_merge(self::URGENT, ['reportedToRatifyingBodyAt' => '2026-10-06'])), $this->entity(self::URGENT));
+		$reported = $this->entity(row: array_merge(self::URGENT, ['reportedToRatifyingBodyAt' => '2026-10-06']));
+		$event    = new ObjectUpdatingEvent($reported, $this->entity(row: self::URGENT));
 
 		$this->listener(grant: $grant)->handle($event);
 
-		$this->assertFalse($event->isPropagationStopped());
+		$this->assertFalse(condition: $event->isPropagationStopped());
 	}//end testTheGrantedReportSetsTheDate()
 }//end class

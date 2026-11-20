@@ -48,7 +48,13 @@ class UrgentProcedureControllerTest extends TestCase {
 	 *
 	 * @return UrgentProcedureController
 	 */
-	private function controller(array $params, ?string $uid, ?UrgencyDeclarationService $declarations = null, ?ExpeditedRoundService $rounds = null, ?UrgentReportService $reports = null): UrgentProcedureController {
+	private function controller(
+		array $params,
+		?string $uid,
+		?UrgencyDeclarationService $declarations = null,
+		?ExpeditedRoundService $rounds = null,
+		?UrgentReportService $reports = null
+	): UrgentProcedureController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default));
 		$user = null;
@@ -65,7 +71,7 @@ class UrgentProcedureControllerTest extends TestCase {
 			userSession: $session,
 			declarations: ($declarations ?? $this->createMock(UrgencyDeclarationService::class)),
 			rounds: ($rounds ?? $this->createMock(ExpeditedRoundService::class)),
-			reports: ($reports ?? $this->createMock(UrgentReportService::class)),
+			reports: ($reports ?? $this->createMock(originalClassName: UrgentReportService::class)),
 		);
 	}//end controller()
 
@@ -96,7 +102,12 @@ class UrgentProcedureControllerTest extends TestCase {
 			->with('dec-1', 'burgemeester', 'Acute crisis', 'body-raad', ['body' => 'body-college', 'office' => 'Burgemeester'])
 			->willReturn(['status' => 403, 'data' => ['message' => 'no']]);
 
-		$params   = ['reason' => 'Acute crisis', 'ratifyingBody' => 'body-raad', 'urgencyDeclaredByBody' => 'body-college', 'urgencyDeclaredInOffice' => 'Burgemeester'];
+		$params   = [
+			'reason' => 'Acute crisis',
+			'ratifyingBody' => 'body-raad',
+			'urgencyDeclaredByBody' => 'body-college',
+			'urgencyDeclaredInOffice' => 'Burgemeester',
+		];
 		$response = $this->controller(params: $params, uid: 'burgemeester', declarations: $declarations)->declareUrgency(decisionId: 'dec-1');
 
 		$this->assertSame(403, $response->getStatus());
@@ -110,7 +121,9 @@ class UrgentProcedureControllerTest extends TestCase {
 	 */
 	public function testANonStringOverrideIsIgnored(): void {
 		$declarations = $this->createMock(UrgencyDeclarationService::class);
-		$declarations->expects($this->once())->method('declare')->with('dec-1', 'burgemeester', '', null, ['body' => null, 'office' => null])->willReturn(['status' => 422, 'data' => []]);
+		$declarations->expects($this->once())->method('declare')
+			->with('dec-1', 'burgemeester', '', null, ['body' => null, 'office' => null])
+			->willReturn(['status' => 422, 'data' => []]);
 
 		$this->controller(params: ['ratifyingBody' => ['x']], uid: 'burgemeester', declarations: $declarations)->declareUrgency(decisionId: 'dec-1');
 	}//end testANonStringOverrideIsIgnored()
@@ -138,10 +151,10 @@ class UrgentProcedureControllerTest extends TestCase {
 	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
 	 */
 	public function testTheReportActionNeedsAUser(): void {
-		$reports = $this->createMock(UrgentReportService::class);
+		$reports = $this->createMock(originalClassName: UrgentReportService::class);
 		$reports->expects($this->never())->method('report');
 
-		$this->assertSame(401, $this->controller(params: [], uid: null, reports: $reports)->reported(decisionId: 'dec-1')->getStatus());
+		$this->assertSame(expected: 401, actual: $this->controller(params: [], uid: null, reports: $reports)->reported(decisionId: 'dec-1')->getStatus());
 	}//end testTheReportActionNeedsAUser()
 
 	/**
@@ -153,12 +166,12 @@ class UrgentProcedureControllerTest extends TestCase {
 	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
 	 */
 	public function testTheReportIsPassedThrough(): void {
-		$reports = $this->createMock(UrgentReportService::class);
+		$reports = $this->createMock(originalClassName: UrgentReportService::class);
 		$reports->expects($this->once())->method('report')->with('dec-1', 'raadslid')->willReturn(['status' => 403, 'data' => ['message' => 'no']]);
 
 		$response = $this->controller(params: [], uid: 'raadslid', reports: $reports)->reported(decisionId: 'dec-1');
 
-		$this->assertSame(403, $response->getStatus());
-		$this->assertSame(['message' => 'no'], $response->getData());
+		$this->assertSame(expected: 403, actual: $response->getStatus());
+		$this->assertSame(expected: ['message' => 'no'], actual: $response->getData());
 	}//end testTheReportIsPassedThrough()
 }//end class

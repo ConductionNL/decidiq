@@ -128,7 +128,10 @@ class UrgentReportService {
 			userId: $userId
 		);
 		if ($allowed === false) {
-			return self::envelope(status: Http::STATUS_FORBIDDEN, message: 'Only the chair or a role the urgency policy allows may record the report to the ratifying body.');
+			return self::envelope(
+				status: Http::STATUS_FORBIDDEN,
+				message: 'Only the chair or a role the urgency policy allows may record the report to the ratifying body.'
+			);
 		}
 
 		if (($decision['isUrgent'] ?? false) !== true) {

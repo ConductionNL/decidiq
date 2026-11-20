@@ -159,14 +159,15 @@ class RatificationPlacedReportListener implements IEventListener {
 	 * @return string|null
 	 */
 	private static function referenceId(mixed $value): ?string {
+		$id = $value;
 		if (is_array($value) === true) {
-			$value = ($value['id'] ?? ($value['uuid'] ?? null));
+			$id = ($value['id'] ?? ($value['uuid'] ?? null));
 		}
 
-		if (is_string($value) === false || $value === '') {
+		if (is_string($id) === false || $id === '') {
 			return null;
 		}
 
-		return $value;
+		return $id;
 	}//end referenceId()
 }//end class

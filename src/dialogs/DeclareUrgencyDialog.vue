@@ -100,6 +100,7 @@ export default {
 		 * The bodies arrive after the dialog opens: pick the default once they do.
 		 *
 		 * @param {Array<{id: string, label: string}>} options The bodies.
+		 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
 		 */
 		bodies(options) {
 			if (this.body === null) {

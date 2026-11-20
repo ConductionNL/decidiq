@@ -129,15 +129,13 @@ class UrgentReportServiceTest extends TestCase {
 	 * @return UrgentReportService
 	 */
 	private function service(?array $policy=self::POLICY, array $roles=['griffier' => true]): UrgentReportService {
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->with('OCA\OpenRegister\Service\ObjectService')->willReturn($this->store);
-		$templates = $this->createMock(ProcessTemplateServiceInterface::class);
-		$templates->method('resolveUrgencyPolicyForBody')->willReturnCallback(
-			static fn (?string $body): ?array => $body === 'body-college' ? $policy : null
-		);
-		$participants = $this->createMock(ParticipantResolverInterface::class);
+		$templates = $this->createMock(originalClassName: ProcessTemplateServiceInterface::class);
+		$templates->method('resolveUrgencyPolicyForBody')->willReturnMap([['body-college', $policy]]);
+		$participants = $this->createMock(originalClassName: ParticipantResolverInterface::class);
 		$participants->method('hasRole')->willReturnCallback(static fn (string $meeting, string $uid): bool => ($roles[$uid] ?? false));
-		$time = $this->createMock(ITimeFactory::class);
+		$time = $this->createMock(originalClassName: ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-10-06T16:20:00+02:00'));
 
 		return new UrgentReportService(
@@ -159,13 +157,13 @@ class UrgentReportServiceTest extends TestCase {
 	public function testTheGriffierRecordsTheReport(): void {
 		$result = $this->service()->report(decisionId: 'dec-1', userId: 'griffier');
 
-		$this->assertSame(200, $result['status']);
-		$this->assertFalse($result['data']['alreadyReported']);
-		$this->assertSame('2026-10-06', $result['data']['decision']['reportedToRatifyingBodyAt']);
-		$this->assertSame(['decision', 'dec-1'], [$this->store->saves[0][0], $this->store->saves[0][1]]);
-		$this->assertSame(array_merge(self::URGENT, ['reportedToRatifyingBodyAt' => '2026-10-06']), $this->store->saves[0][2]);
-		$this->assertSame([true], $this->store->grantedAtSave);
-		$this->assertFalse($this->grant->isGranted(decisionId: 'dec-1'));
+		$this->assertSame(expected: 200, actual: $result['status']);
+		$this->assertFalse(condition: $result['data']['alreadyReported']);
+		$this->assertSame(expected: '2026-10-06', actual: $result['data']['decision']['reportedToRatifyingBodyAt']);
+		$this->assertSame(expected: ['decision', 'dec-1'], actual: [$this->store->saves[0][0], $this->store->saves[0][1]]);
+		$this->assertSame(expected: array_merge(self::URGENT, ['reportedToRatifyingBodyAt' => '2026-10-06']), actual: $this->store->saves[0][2]);
+		$this->assertSame(expected: [true], actual: $this->store->grantedAtSave);
+		$this->assertFalse(condition: $this->grant->isGranted(decisionId: 'dec-1'));
 	}//end testTheGriffierRecordsTheReport()
 
 	/**
@@ -174,7 +172,7 @@ class UrgentReportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheChairRecordsTheReport(): void {
-		$this->assertSame(200, $this->service(roles: [])->report(decisionId: 'dec-1', userId: 'burgemeester')['status']);
+		$this->assertSame(expected: 200, actual: $this->service(roles: [])->report(decisionId: 'dec-1', userId: 'burgemeester')['status']);
 	}//end testTheChairRecordsTheReport()
 
 	/**
@@ -187,10 +185,10 @@ class UrgentReportServiceTest extends TestCase {
 
 		$result = $this->service()->report(decisionId: 'dec-1', userId: 'griffier');
 
-		$this->assertSame(200, $result['status']);
-		$this->assertTrue($result['data']['alreadyReported']);
-		$this->assertSame('2026-10-01', $result['data']['decision']['reportedToRatifyingBodyAt']);
-		$this->assertSame([], $this->store->saves);
+		$this->assertSame(expected: 200, actual: $result['status']);
+		$this->assertTrue(condition: $result['data']['alreadyReported']);
+		$this->assertSame(expected: '2026-10-01', actual: $result['data']['decision']['reportedToRatifyingBodyAt']);
+		$this->assertSame(expected: [], actual: $this->store->saves);
 	}//end testASecondReportKeepsTheFirstDate()
 
 	/**
@@ -204,8 +202,8 @@ class UrgentReportServiceTest extends TestCase {
 
 		$result = $this->service()->report(decisionId: 'dec-1', userId: 'raadslid');
 
-		$this->assertSame(403, $result['status']);
-		$this->assertSame([], $this->store->saves);
+		$this->assertSame(expected: 403, actual: $result['status']);
+		$this->assertSame(expected: [], actual: $this->store->saves);
 	}//end testAMemberWithoutTheRoleIsRefused()
 
 	/**
@@ -215,12 +213,12 @@ class UrgentReportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testRefusals(): void {
-		$this->assertSame(404, $this->service()->report(decisionId: 'nope', userId: 'griffier')['status']);
-		$this->assertSame(422, $this->service(policy: null)->report(decisionId: 'dec-1', userId: 'griffier')['status']);
+		$this->assertSame(expected: 404, actual: $this->service()->report(decisionId: 'nope', userId: 'griffier')['status']);
+		$this->assertSame(expected: 422, actual: $this->service(policy: null)->report(decisionId: 'dec-1', userId: 'griffier')['status']);
 
 		$this->store->put(schema: 'decision', object: array_merge(self::URGENT, ['isUrgent' => false]));
-		$this->assertSame(409, $this->service()->report(decisionId: 'dec-1', userId: 'griffier')['status']);
-		$this->assertSame([], $this->store->saves);
+		$this->assertSame(expected: 409, actual: $this->service()->report(decisionId: 'dec-1', userId: 'griffier')['status']);
+		$this->assertSame(expected: [], actual: $this->store->saves);
 	}//end testRefusals()
 
 	/**
@@ -231,8 +229,8 @@ class UrgentReportServiceTest extends TestCase {
 	public function testAFailedSaveDropsTheGrant(): void {
 		$this->store->failingSaves = ['decision'];
 
-		$this->assertSame(500, $this->service()->report(decisionId: 'dec-1', userId: 'griffier')['status']);
-		$this->assertFalse($this->grant->isGranted(decisionId: 'dec-1'));
+		$this->assertSame(expected: 500, actual: $this->service()->report(decisionId: 'dec-1', userId: 'griffier')['status']);
+		$this->assertFalse(condition: $this->grant->isGranted(decisionId: 'dec-1'));
 	}//end testAFailedSaveDropsTheGrant()
 
 	/**
@@ -241,13 +239,13 @@ class UrgentReportServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testWhichDecisionsAreDue(): void {
-		$time   = $this->createMock(ITimeFactory::class);
+		$time   = $this->createMock(originalClassName: ITimeFactory::class);
 		$report = new RatifyingBodyReport(timeFactory: $time, grant: new UrgencyWriteGrant());
 
-		$this->assertTrue($report->isDue(decision: ['isUrgent' => true]));
-		$this->assertTrue($report->isDue(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '']));
-		$this->assertFalse($report->isDue(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '2026-10-06']));
-		$this->assertFalse($report->isDue(decision: ['isUrgent' => false]));
-		$this->assertFalse($report->isDue(decision: []));
+		$this->assertTrue(condition: $report->isDue(decision: ['isUrgent' => true]));
+		$this->assertTrue(condition: $report->isDue(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '']));
+		$this->assertFalse(condition: $report->isDue(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '2026-10-06']));
+		$this->assertFalse(condition: $report->isDue(decision: ['isUrgent' => false]));
+		$this->assertFalse(condition: $report->isDue(decision: []));
 	}//end testWhichDecisionsAreDue()
 }//end class

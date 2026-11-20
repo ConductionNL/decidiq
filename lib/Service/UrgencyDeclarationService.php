@@ -246,7 +246,11 @@ class UrgencyDeclarationService {
 			return 'urgencyDeclaredInOffice is longer than ' . self::MAX_OFFICE_LENGTH . ' characters.';
 		}
 
-		return ['urgencyDeclaredByBody' => trim($body), 'urgencyDeclaredInOffice' => ($office === null ? null : trim($office))];
+		if ($office !== null) {
+			$office = trim($office);
+		}
+
+		return ['urgencyDeclaredByBody' => trim($body), 'urgencyDeclaredInOffice' => $office];
 	}//end declaredBy()
 
 	/**

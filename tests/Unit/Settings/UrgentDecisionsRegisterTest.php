@@ -137,7 +137,8 @@ class UrgentDecisionsRegisterTest extends TestCase {
 	 * @return list<string>
 	 */
 	private static function violations(array $decision): array {
-		return MergedRegisterSchema::violations(slug: 'decision', payload: array_diff_key($decision, ['@self' => true, 'slug' => true, 'uuid' => true, 'id' => true]));
+		$payload = array_diff_key($decision, ['@self' => true, 'slug' => true, 'uuid' => true, 'id' => true]);
+		return MergedRegisterSchema::violations(slug: 'decision', payload: $payload);
 
 	}//end violations()
 

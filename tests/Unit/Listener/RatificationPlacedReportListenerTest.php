@@ -83,11 +83,11 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->grant         = new UrgencyWriteGrant();
-		$this->objectService = $this->createMock(ObjectServiceInterface::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ObjectSaveOptions $options=new ObjectSaveOptions(), bool $_rbac=true, bool $_multitenancy=true): ObjectEntity {
-				self::assertSame(['decidiq', 'decision'], [$options->target->register, $options->target->schema]);
-				self::assertFalse($_rbac, 'the report date is an invariant of the procedure, not the saver\'s right');
+				self::assertSame(expected: ['decidiq', 'decision'], actual: [$options->target->register, $options->target->schema]);
+				self::assertFalse(condition: $_rbac, message: 'the report date is an invariant of the procedure, not the saver\'s right');
 				$this->saved[] = [(string)$options->uuid, $object, $this->grant->isGranted(decisionId: (string)$options->uuid)];
 				return new ObjectEntity();
 			}
@@ -112,16 +112,16 @@ class RatificationPlacedReportListenerTest extends TestCase {
 				return $schema;
 			}
 		};
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn($mapper);
-		$time = $this->createMock(ITimeFactory::class);
+		$time = $this->createMock(originalClassName: ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-10-15T10:00:00+02:00'));
 
 		$this->listener = new RatificationPlacedReportListener(
 			objectService: $this->objectService,
-			schemaResolver: new ListenerSchemaResolver(container: $container, logger: $this->createMock(LoggerInterface::class)),
+			schemaResolver: new ListenerSchemaResolver(container: $container, logger: $this->createMock(originalClassName: LoggerInterface::class)),
 			report: new RatifyingBodyReport(timeFactory: $time, grant: $this->grant),
-			logger: $this->createMock(LoggerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 		);
 	}//end setUp()
 
@@ -162,17 +162,18 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testPlacingTheRatificationSetsTheReportDate(): void {
-		$this->decisionIs(['title' => 'Noodverordening Havenfestival 2026', 'isUrgent' => true]);
+		$this->decisionIs(decision: ['title' => 'Noodverordening Havenfestival 2026', 'isUrgent' => true]);
 
-		$item = $this->entity(uuid: 'item-1', schemaId: '41', payload: ['title' => 'Ratification', 'meeting' => 'meet-raad', 'ratifiesDecision' => 'dec-1']);
+		$payload = ['title' => 'Ratification', 'meeting' => 'meet-raad', 'ratifiesDecision' => 'dec-1'];
+		$item    = $this->entity(uuid: 'item-1', schemaId: '41', payload: $payload);
 		$this->listener->handle(new ObjectCreatedEvent($item));
 
-		self::assertCount(1, $this->saved);
-		self::assertSame('dec-1', $this->saved[0][0]);
-		self::assertSame('2026-10-15', $this->saved[0][1]['reportedToRatifyingBodyAt']);
-		self::assertSame('Noodverordening Havenfestival 2026', $this->saved[0][1]['title']);
-		self::assertTrue($this->saved[0][2], 'saved without the urgency write grant');
-		self::assertFalse($this->grant->isGranted(decisionId: 'dec-1'));
+		self::assertCount(expectedCount: 1, haystack: $this->saved);
+		self::assertSame(expected: 'dec-1', actual: $this->saved[0][0]);
+		self::assertSame(expected: '2026-10-15', actual: $this->saved[0][1]['reportedToRatifyingBodyAt']);
+		self::assertSame(expected: 'Noodverordening Havenfestival 2026', actual: $this->saved[0][1]['title']);
+		self::assertTrue(condition: $this->saved[0][2], message: 'saved without the urgency write grant');
+		self::assertFalse(condition: $this->grant->isGranted(decisionId: 'dec-1'));
 	}//end testPlacingTheRatificationSetsTheReportDate()
 
 	/**
@@ -181,13 +182,13 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnEarlierReportDateStays(): void {
-		$this->decisionIs(['isUrgent' => true, 'reportedToRatifyingBodyAt' => '2026-10-06']);
+		$this->decisionIs(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '2026-10-06']);
 
 		$old = $this->entity(uuid: 'item-1', schemaId: '41', payload: ['ratifiesDecision' => 'dec-1']);
 		$new = $this->entity(uuid: 'item-1', schemaId: '41', payload: ['ratifiesDecision' => 'dec-1', 'meeting' => 'meet-raad']);
 		$this->listener->handle(new ObjectUpdatedEvent($new, $old));
 
-		self::assertSame([], $this->saved);
+		self::assertSame(expected: [], actual: $this->saved);
 	}//end testAnEarlierReportDateStays()
 
 	/**
@@ -198,14 +199,16 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testOtherSavesChangeNothing(): void {
-		$this->decisionIs(['isUrgent' => false]);
+		$this->decisionIs(decision: ['isUrgent' => false]);
 
 		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'item-2', schemaId: '41', payload: ['meeting' => 'meet-raad'])));
 		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'item-3', schemaId: '41', payload: ['ratifiesDecision' => 'dec-1'])));
-		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'dec-2', schemaId: '60', payload: ['ratifiesDecision' => 'dec-1', 'meeting' => 'm'])));
-		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'item-4', schemaId: '41', payload: ['ratifiesDecision' => ['id' => 'dec-1'], 'meeting' => ['id' => 'meet-raad']])));
+		$notAnItem = $this->entity(uuid: 'dec-2', schemaId: '60', payload: ['ratifiesDecision' => 'dec-1', 'meeting' => 'm']);
+		$this->listener->handle(new ObjectCreatedEvent($notAnItem));
+		$asObjects = $this->entity(uuid: 'item-4', schemaId: '41', payload: ['ratifiesDecision' => ['id' => 'dec-1'], 'meeting' => ['id' => 'meet-raad']]);
+		$this->listener->handle(new ObjectCreatedEvent($asObjects));
 
-		self::assertSame([], $this->saved);
+		self::assertSame(expected: [], actual: $this->saved);
 	}//end testOtherSavesChangeNothing()
 
 	/**
@@ -216,8 +219,9 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	public function testAFailedReadIsSwallowed(): void {
 		$this->objectService->method('find')->willThrowException(new RuntimeException('gone'));
 
-		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'item-1', schemaId: '41', payload: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1'])));
+		$item = $this->entity(uuid: 'item-1', schemaId: '41', payload: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1']);
+		$this->listener->handle(new ObjectCreatedEvent($item));
 
-		self::assertSame([], $this->saved);
+		self::assertSame(expected: [], actual: $this->saved);
 	}//end testAFailedReadIsSwallowed()
 }//end class

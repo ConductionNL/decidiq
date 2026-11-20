@@ -126,7 +126,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheChairDeclaresAndTheRatificationFollows(): void {
-		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: '  Acute opvangcrisis; eerstvolgende raadsvergadering is pas over drie weken ', declarer: self::DECLARER);
+		$reason = '  Acute opvangcrisis; eerstvolgende raadsvergadering is pas over drie weken ';
+		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: $reason, declarer: self::DECLARER);
 
 		$this->assertSame(200, $result['status']);
 		$this->assertSame(['decision', 'dec-1'], [$this->store->saves[0][0], $this->store->saves[0][1]]);
@@ -188,7 +189,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	public function testAnAllowedRoleDeclaresWithABodyOverride(): void {
 		$policy = array_merge(self::POLICY, ['allowedTriggerRoles' => ['chair', 'secretary']]);
 
-		$result = $this->service(policy: $policy, roles: ['secretaris' => true])->declare(decisionId: 'dec-1', userId: 'secretaris', reason: 'Spoed', bodyOverride: ' body-rvc ', declarer: self::DECLARER);
+		$result = $this->service(policy: $policy, roles: ['secretaris' => true])
+			->declare(decisionId: 'dec-1', userId: 'secretaris', reason: 'Spoed', bodyOverride: ' body-rvc ', declarer: self::DECLARER);
 
 		$this->assertSame(200, $result['status']);
 		$this->assertSame('body-rvc', $result['data']['ratification']['stage']['assignedBody']);
@@ -203,7 +205,8 @@ class UrgencyDeclarationServiceTest extends TestCase {
 		$this->assertSame(404, $this->service()->declare(decisionId: 'nope', userId: 'burgemeester', reason: 'x')['status']);
 
 		$this->store->put(schema: 'decision', object: ['id' => 'dec-1', 'meeting' => 'meet-college', 'isUrgent' => true]);
-		$this->assertSame(409, $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'x', declarer: self::DECLARER)['status']);
+		$again = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'x', declarer: self::DECLARER);
+		$this->assertSame(expected: 409, actual: $again['status']);
 		$this->assertSame([], $this->store->saves);
 	}//end testUnknownAndAlreadyUrgentDecisions()
 
@@ -248,11 +251,11 @@ class UrgencyDeclarationServiceTest extends TestCase {
 		foreach ([[], ['body' => ''], ['body' => '   '], ['body' => ['x']]] as $declarer) {
 			$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $declarer);
 
-			$this->assertSame(422, $result['status']);
-			$this->assertStringStartsWith('urgencyDeclaredByBody is required', $result['data']['message']);
+			$this->assertSame(expected: 422, actual: $result['status']);
+			$this->assertStringStartsWith(prefix: 'urgencyDeclaredByBody is required', string: $result['data']['message']);
 		}
 
-		$this->assertSame([], $this->store->saves);
+		$this->assertSame(expected: [], actual: $this->store->saves);
 	}//end testADeclarationWithoutABodyIsRefused()
 
 	/**
@@ -264,7 +267,7 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
 	 */
 	public function testTheRoleIsCheckedBeforeTheBody(): void {
-		$this->assertSame(403, $this->service()->declare(decisionId: 'dec-1', userId: 'raadslid', reason: 'Spoed')['status']);
+		$this->assertSame(expected: 403, actual: $this->service()->declare(decisionId: 'dec-1', userId: 'raadslid', reason: 'Spoed')['status']);
 	}//end testTheRoleIsCheckedBeforeTheBody()
 
 	/**
@@ -276,14 +279,16 @@ class UrgencyDeclarationServiceTest extends TestCase {
 	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-020-the-declaration-records-the-declaring-body-or-office
 	 */
 	public function testTheCollegeDeclaresWithoutAnOffice(): void {
-		$long = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: ['body' => 'body-college', 'office' => str_repeat('x', 256)]);
-		$this->assertSame(422, $long['status']);
-		$this->assertStringStartsWith('urgencyDeclaredInOffice is longer than', $long['data']['message']);
+		$tooLong = ['body' => 'body-college', 'office' => str_repeat('x', 256)];
+		$long    = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $tooLong);
+		$this->assertSame(expected: 422, actual: $long['status']);
+		$this->assertStringStartsWith(prefix: 'urgencyDeclaredInOffice is longer than', string: $long['data']['message']);
 
-		$result = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: ['body' => 'body-college', 'office' => '']);
+		$noOffice = ['body' => 'body-college', 'office' => ''];
+		$result   = $this->service()->declare(decisionId: 'dec-1', userId: 'burgemeester', reason: 'Spoed', declarer: $noOffice);
 
-		$this->assertSame(200, $result['status']);
-		$this->assertSame('body-college', $this->store->saves[0][2]['urgencyDeclaredByBody']);
-		$this->assertNull($this->store->saves[0][2]['urgencyDeclaredInOffice']);
+		$this->assertSame(expected: 200, actual: $result['status']);
+		$this->assertSame(expected: 'body-college', actual: $this->store->saves[0][2]['urgencyDeclaredByBody']);
+		$this->assertNull(actual: $this->store->saves[0][2]['urgencyDeclaredInOffice']);
 	}//end testTheCollegeDeclaresWithoutAnOffice()
 }//end class
