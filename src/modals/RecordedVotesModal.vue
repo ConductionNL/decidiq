@@ -128,17 +128,32 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<object>} The members on the sheet. */
+		/**
+		 * The members on the sheet.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 */
 		members() {
 			return activeMembers(this.participants)
 		},
 
-		/** @return {string[]} The parties of those members. */
+		/**
+		 * The parties of those members.
+		 *
+		 * @return {string[]}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 */
 		parties() {
 			return partiesOf(this.members)
 		},
 
-		/** @return {Array<object>} The choices of a row; empty means did not vote. */
+		/**
+		 * The choices of a row; empty means did not vote.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 */
 		choiceOptions() {
 			return [
 				{ value: 'for', label: this.t('decidiq', 'For') },
@@ -148,14 +163,23 @@ export default {
 			]
 		},
 
-		/** @return {Array<object>} The entries that would be sent. */
+		/**
+		 * The entries that would be sent.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 */
 		entries() {
 			return namedVoteEntries(this.choices, this.members)
 		},
 	},
 
 	methods: {
-		/** Set the chosen vote for every member of the chosen party. */
+		/**
+		 * Set the chosen vote for every member of the chosen party.
+		 *
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 */
 		applyParty() {
 			const { party, value } = this.partyChoice
 			if (!party || !value) return
@@ -172,6 +196,7 @@ export default {
 		 * and keep every entry.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		async save() {
 			this.saving = true

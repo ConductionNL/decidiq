@@ -26,6 +26,7 @@ use OCA\Decidiq\Exception\RecordedVotesRefusedException;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\RecordedVoteWriter;
+use OCA\Decidiq\Service\VoteBallotFactory;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -113,7 +114,12 @@ class RecordedVoteWriterTest extends TestCase {
 		$amendmentOrder = $this->createMock(AmendmentOrderService::class);
 		$amendmentOrder->method('resolveMeetingIdForRound')->willReturn('meeting-1');
 
-		return new RecordedVoteWriter($objectService, $participants, $amendmentOrder, $this->createMock(ContainerInterface::class), new NullLogger());
+		return new RecordedVoteWriter(
+			objectService: $objectService,
+			participantResolver: $participants,
+			amendmentOrder: $amendmentOrder,
+			ballots: new VoteBallotFactory(container: $this->createMock(ContainerInterface::class), logger: new NullLogger())
+		);
 	}//end writer()
 
 	/**

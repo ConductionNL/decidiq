@@ -29,8 +29,6 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -59,13 +57,6 @@ class RecordedVoteWriter {
 	private const VALUES = ['for', 'against', 'abstain'];
 
 	/**
-	 * Builds a vote the way a cast vote is built.
-	 *
-	 * @var VoteBallotFactory
-	 */
-	private readonly VoteBallotFactory $ballots;
-
-	/**
 	 * Matches votes to their round and participant.
 	 *
 	 * @var ObjectRelationFilter
@@ -78,17 +69,14 @@ class RecordedVoteWriter {
 	 * @param ObjectServiceInterface $objectService       OpenRegister objects.
 	 * @param ParticipantResolver    $participantResolver The meeting's participants.
 	 * @param AmendmentOrderService  $amendmentOrder      Resolves the round's meeting.
-	 * @param ContainerInterface     $container           For the ballot factory.
-	 * @param LoggerInterface        $logger              For the ballot factory.
+	 * @param VoteBallotFactory      $ballots             Builds a vote the way a cast vote is built.
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly AmendmentOrderService $amendmentOrder,
-		ContainerInterface $container,
-		LoggerInterface $logger,
+		private readonly VoteBallotFactory $ballots,
 	) {
-		$this->ballots = new VoteBallotFactory(container: $container, logger: $logger);
 		$this->relationFilter = new ObjectRelationFilter();
 	}//end __construct()
 

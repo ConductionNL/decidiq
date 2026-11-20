@@ -797,6 +797,7 @@ export default {
 		 * round, not a show of hands, a ranked or a secret one.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		canEnterPaperVotes() {
 			const round = this.currentRound || {}

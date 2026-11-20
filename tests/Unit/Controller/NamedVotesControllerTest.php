@@ -1,7 +1,7 @@
 <?php
 
 /**
- * VotingController::recordVotes(): only the round's own chair or secretary, refusals answered with their names.
+ * NamedVotesController::record(): only the round's own chair or secretary, refusals answered with their names.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Controller
@@ -22,15 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
-use OCA\Decidiq\Controller\VotingController;
+use OCA\Decidiq\Controller\NamedVotesController;
 use OCA\Decidiq\Exception\RecordedVotesRefusedException;
-use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
-use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
-use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
-use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
-use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
-use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
+use OCA\Decidiq\Service\RecordedVoteWriter;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUser;
@@ -39,25 +34,25 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The guard runs before the list is read; the service's refusal becomes the answer.
+ * The guard runs before the list is read; the writer's refusal becomes the answer.
  */
-class VotingRecordVotesControllerTest extends TestCase {
+class NamedVotesControllerTest extends TestCase {
 
 	/**
-	 * The voting service double.
+	 * The writer double.
 	 *
-	 * @var VotingServiceInterface&MockObject
+	 * @var RecordedVoteWriter&MockObject
 	 */
-	private VotingServiceInterface&MockObject $voting;
+	private RecordedVoteWriter&MockObject $writer;
 
 	/**
 	 * The controller with a guard that answers the given refusal, or lets through when null.
 	 *
 	 * @param JSONResponse|null $guardAnswer The guard's answer.
 	 *
-	 * @return VotingController
+	 * @return NamedVotesController
 	 */
-	private function controller(?JSONResponse $guardAnswer): VotingController {
+	private function controller(?JSONResponse $guardAnswer): NamedVotesController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParams')->willReturn(
 			['heldAt' => '2026-03-12T21:40:00+01:00', 'entries' => [['participantId' => 'p-1', 'value' => 'for']]]
@@ -72,18 +67,13 @@ class VotingRecordVotesControllerTest extends TestCase {
 		$guard->method('resolveMeetingIdFromVotingRound')->willReturn('meeting-1');
 		$guard->expects($this->once())->method('requireChairOrSecretary')->with('meeting-1')->willReturn($guardAnswer);
 
-		$this->voting = $this->createMock(VotingServiceInterface::class);
+		$this->writer = $this->createMock(RecordedVoteWriter::class);
 
-		return new VotingController(
+		return new NamedVotesController(
 			request: $request,
-			votingService: $this->voting,
-			oriService: $this->createMock(OriPublicationServiceInterface::class),
+			writer: $this->writer,
 			userSession: $session,
 			guard: $guard,
-			openHandler: $this->createMock(VotingOpenRequestHandlerInterface::class),
-			proxyService: $this->createMock(ProxyDelegationServiceInterface::class),
-			errors: $this->createMock(VotingErrorResponderInterface::class),
-			written: $this->createMock(WrittenRoundServiceInterface::class),
 		);
 	}//end controller()
 
@@ -94,23 +84,23 @@ class VotingRecordVotesControllerTest extends TestCase {
 	 */
 	public function testOnlyTheRoundsOwnChairOrSecretary(): void {
 		$controller = $this->controller(guardAnswer: new JSONResponse(['message' => 'forbidden'], 403));
-		$this->voting->expects($this->never())->method('recordNamedVotes');
+		$this->writer->expects($this->never())->method('record');
 
-		$this->assertSame(403, $controller->recordVotes(id: 'round-1')->getStatus());
+		$this->assertSame(403, $controller->record(id: 'round-1')->getStatus());
 	}//end testOnlyTheRoundsOwnChairOrSecretary()
 
 	/**
-	 * The secretary's list reaches the service with the caller as recorder.
+	 * The secretary's list reaches the writer with the caller as recorder.
 	 *
 	 * @return void
 	 */
 	public function testTheListIsRecordedByTheCaller(): void {
 		$controller = $this->controller(guardAnswer: null);
-		$this->voting->expects($this->once())->method('recordNamedVotes')
+		$this->writer->expects($this->once())->method('record')
 			->with('round-1', [['participantId' => 'p-1', 'value' => 'for']], '2026-03-12T21:40:00+01:00', 'griffier1')
 			->willReturn(['votingRoundId' => 'round-1', 'recorded' => 1]);
 
-		$response = $controller->recordVotes(id: 'round-1');
+		$response = $controller->record(id: 'round-1');
 
 		$this->assertSame([200, ['votingRoundId' => 'round-1', 'recorded' => 1]], [$response->getStatus(), $response->getData()]);
 	}//end testTheListIsRecordedByTheCaller()
@@ -122,11 +112,11 @@ class VotingRecordVotesControllerTest extends TestCase {
 	 */
 	public function testARefusalNamesTheMembers(): void {
 		$controller = $this->controller(guardAnswer: null);
-		$this->voting->method('recordNamedVotes')->willThrowException(
+		$this->writer->method('record')->willThrowException(
 			new RecordedVotesRefusedException(message: 'These members cast their own vote, which is not replaced: p-2', status: 409, participantIds: ['p-2'])
 		);
 
-		$response = $controller->recordVotes(id: 'round-1');
+		$response = $controller->record(id: 'round-1');
 
 		$this->assertSame(409, $response->getStatus());
 		$this->assertSame(['p-2'], $response->getData()['participantIds']);

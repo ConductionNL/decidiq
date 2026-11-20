@@ -153,7 +153,9 @@ describe('the voting round panel', () => {
 	const panel = read('src', 'components', 'VotingRoundPanel.vue')
 
 	it('offers roll call when a round is opened', () => {
-		expect(panel).toContain('<option value="roll-call">')
+		// The select lists the body's allowed methods; roll call is one of them, with its own label.
+		expect(read('src', 'utils', 'votingMethods.js')).toContain("'roll-call',")
+		expect(panel).toContain("'roll-call': this.t('decidiq', 'Roll call, recorded by name')")
 	})
 
 	it('hides the cast buttons on a roll call and shows a notice instead', () => {
