@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.8-unstable.20261120182502</version>
+    <version>1.2.8-unstable.20261120204600</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -515,6 +515,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\MigrateGovernanceGroupNames</step>
             <!--
+                approval-routes-on-flow-user-tasks (REQ-ARF-008): a decision whose
+                route has an open step on decidiq's old engine finishes there and
+                is marked approvalEngine: legacy. The send path does not depend on
+                the mark (a decision with stage rows is never started as a flow).
+            -->
+            <step>OCA\Decidiq\Migration\MarkLegacyApprovalRoutes</step>
+            <!--
                 After InitializeSettings imports the register (129-agenda-item-phase.json must
                 already have declared AgendaItem.phase). Copies a phase still held in the
                 undeclared `status` into `phase` with a phase-only patch; an item that already has
@@ -631,6 +638,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <command>OCA\Decidiq\Command\MigrateActionItems</command>
         <command>OCA\Decidiq\Command\ImportFormResponses</command>
         <command>OCA\Decidiq\Command\ImportOriCommand</command>
+        <command>OCA\Decidiq\Command\ApprovalRoutesLegacyCommand</command>
     </commands>
 
     <settings>

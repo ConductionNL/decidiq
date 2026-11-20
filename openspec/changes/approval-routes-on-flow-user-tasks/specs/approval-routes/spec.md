@@ -24,6 +24,8 @@ The system SHALL compile an `ApprovalRoute` into an OpenRegister flow definition
 
 #### Scenario: two steps with the same order run side by side
 
+@e2e exclude the parallel compile and its join are asserted on the compiled document by ApprovalRouteFlowCompilerTest; running two approvers side by side end to end needs a third account and is checked on a provisioned instance
+
 - GIVEN a route where Wethouder and Concerncontroller both have order 2
 - WHEN the route is compiled
 - THEN both nodes follow order 1 in parallel
@@ -81,6 +83,8 @@ When a step declares what silence means, its task MUST carry the deadline and th
 
 #### Scenario: the advice term lapses
 
+@e2e exclude a lapse is applied by OpenRegister's timer sweep from cron, which the e2e rig does not run, and the installed OpenRegister offers no declared outcome on silence, so such a route is refused when saved
+
 - GIVEN step 1 declares that silence after 10 working days means advised
 - WHEN 10 working days pass without an outcome
 - THEN step 1 concludes as advised, recorded as a lapse
@@ -116,12 +120,16 @@ Routes with an open step when this change is installed MUST finish on decidiq's 
 
 #### Scenario: a half-way route is not restarted
 
+@e2e exclude needs a route under way on the old engine before the upgrade; ApprovalRouteControllerFlowSendTest asserts that a decision with stage rows is never started as a flow
+
 - GIVEN a route at step 3 on the old engine when the upgrade runs
 - WHEN the approver of step 3 approves
 - THEN step 4 opens on the old engine
 - AND no flow run is created for that decision
 
 #### Scenario: the old engine is gone when nothing uses it
+
+@e2e exclude the clean-up release that deletes the old engine is a separate change; LegacyApprovalRoutesTest asserts the listing it waits on
 
 - GIVEN `occ decidiq:approval-routes:legacy` lists no route
 - WHEN the clean-up release is installed

@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Utskottsmöte",
         "Public hearing": "Offentlig utfrågning",
         "General assembly": "Stämma",
-        "Members' ancillary positions": "Medlemmarnas bisysslor"
+        "Members' ancillary positions": "Medlemmarnas bisysslor",
+        "Return to step": "Återförvisa till steg",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Steget som ett återförvisat förslag går tillbaka till. Tomt skickar det tillbaka till avsändaren.",
+        "returned": "återförvisad"
     },
     "nplurals=2; plural=(n != 1);"
 )

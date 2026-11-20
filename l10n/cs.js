@@ -3324,7 +3324,10 @@ OC.L10N.register(
         "Committee meeting": "Schůze výboru",
         "Public hearing": "Veřejné slyšení",
         "General assembly": "Valná hromada",
-        "Members' ancillary positions": "Vedlejší funkce členů"
+        "Members' ancillary positions": "Vedlejší funkce členů",
+        "Return to step": "Vrátit do kroku",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Krok, do kterého se vrácený návrh vrací. Prázdné pole jej vrátí odesílateli.",
+        "returned": "vráceno"
     },
     "nplurals=2; plural=(n != 1);"
 )

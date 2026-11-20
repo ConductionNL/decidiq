@@ -3326,7 +3326,10 @@
         "Committee meeting": "Седница на комисија",
         "Public hearing": "Јавна расправа",
         "General assembly": "Собрание",
-        "Members' ancillary positions": "Споредни функции на членовите"
+        "Members' ancillary positions": "Споредни функции на членовите",
+        "Return to step": "Врати на чекор",
+        "The step a returned proposal goes back to. Empty sends it back to the sender.": "Чекорот на кој се враќа вратениот предлог. Ако е празно, се враќа кај испраќачот.",
+        "returned": "вратено"
     },
     "plurals": null
 }

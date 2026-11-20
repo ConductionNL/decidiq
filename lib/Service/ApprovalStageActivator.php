@@ -154,23 +154,8 @@ class ApprovalStageActivator {
 	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away
 	 */
 	private function withAbsenceSubstitute(array $patch, string $actor, DateTimeImmutable $now): array {
-		if ($this->preferences === null || trim($actor) === '') {
-			return $patch;
-		}
-
-		try {
-			$delegate = $this->preferences->getActiveDelegate(personId: $actor, today: $now);
-		} catch (\Throwable $e) {
-			// An unreadable preference is not an absence: the stage waits on
-			// the person it names, as it did before this rule existed.
-			$this->logger?->warning(
-				'Decidiq: could not read the absence of an approval stage actor',
-				['actor' => $actor, 'reason' => $e->getMessage()]
-			);
-			return $patch;
-		}
-
-		if ($delegate === null || $delegate === '' || $delegate === $actor) {
+		$delegate = $this->absenceDelegateOf(person: $actor, now: $now);
+		if ($delegate === null) {
 			return $patch;
 		}
 
@@ -179,6 +164,43 @@ class ApprovalStageActivator {
 
 		return $patch;
 	}//end withAbsenceSubstitute()
+
+	/**
+	 * Who stands in for a person who is away at a moment, or null.
+	 *
+	 * An unreadable preference is not an absence: the work waits on the person
+	 * it names, as it did before this rule existed.
+	 *
+	 * @param string            $person The person the stage or step names.
+	 * @param DateTimeImmutable $now    The moment the absence must cover.
+	 *
+	 * @return string|null The delegate; null when the person is not away or names nobody else.
+	 *
+	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away
+	 */
+	public function absenceDelegateOf(string $person, DateTimeImmutable $now): ?string {
+		$person = trim($person);
+		if ($this->preferences === null || $person === '') {
+			return null;
+		}
+
+		try {
+			$delegate = $this->preferences->getActiveDelegate(personId: $person, today: $now);
+		} catch (\Throwable $e) {
+			$this->logger?->warning(
+				'Decidiq: could not read the absence of an approval stage actor',
+				['actor' => $person, 'reason' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		$delegate = trim((string)$delegate);
+		if ($delegate === '' || $delegate === $person) {
+			return null;
+		}
+
+		return $delegate;
+	}//end absenceDelegateOf()
 
 	/**
 	 * The substitute of a person, or null when the record does not name exactly

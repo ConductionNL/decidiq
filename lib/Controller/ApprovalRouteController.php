@@ -32,6 +32,7 @@ use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
 use OCA\Decidiq\Service\ApprovalPrincipal;
+use OCA\Decidiq\Service\ApprovalRouteFlowStarter;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -60,6 +61,8 @@ class ApprovalRouteController extends Controller {
 	 *        whether the caller may declare that a step's silence approves
 	 *        (REQ-AR-015).
 	 * @param LoggerInterface $logger Logger.
+	 * @param ApprovalRouteFlowStarter|null $flows Starts a template route as an OpenRegister flow run;
+	 *        null keeps every send on the old engine.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -69,6 +72,7 @@ class ApprovalRouteController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
+		private readonly ?ApprovalRouteFlowStarter $flows = null,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -105,6 +109,12 @@ class ApprovalRouteController extends Controller {
 
 			// Held or instantiated, depending on the route's origin. See
 			// stagesFor() for why an adhoc route writes no template row.
+			if ($this->runsAsFlow(route: $route, subject: $subject, subjectSchema: $subjectSchema) === true) {
+				$started = $this->flows->start(route: $route, decision: $subject);
+
+				return new JSONResponse(['stages' => [], 'run' => $started['run']], Http::STATUS_CREATED);
+			}
+
 			$stages = $this->stagesFor(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
@@ -118,6 +128,31 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * Whether this send starts an OpenRegister flow run instead of the old engine.
+	 *
+	 * A template route sent for a decision runs as a flow. An ad-hoc route, a
+	 * route on another kind of subject, and a decision whose route is already
+	 * under way on the old engine stay where they are: a half-way route is never
+	 * restarted from step one (REQ-ARF-008).
+	 *
+	 * @param array<string, mixed> $route         The route as the caller sent it.
+	 * @param string               $subject       The subject's UUID.
+	 * @param string               $subjectSchema The subject's schema slug.
+	 *
+	 * @return bool True when the send starts a flow run.
+	 *
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-002-sending-a-proposal-starts-one-flow-run-with-the-decision-as-its-subject
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-008-routes-that-run-on-the-old-engine-finish-there
+	 */
+	private function runsAsFlow(array $route, string $subject, string $subjectSchema): bool {
+		if ($this->flows === null || $subjectSchema !== 'decision' || (string)($route['origin'] ?? '') === 'adhoc') {
+			return false;
+		}
+
+		return $this->service->stagesFor(subject: $subject) === [];
+	}//end runsAsFlow()
 
 	/**
 	 * The stages this route produces, held or instantiated.
