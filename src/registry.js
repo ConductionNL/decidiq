@@ -27,6 +27,7 @@ import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -72,6 +73,7 @@ import MeetingBroadcastTab from './components/tabs/MeetingBroadcastTab.vue'
 import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingPackTab from './components/tabs/MeetingPackTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingRoomSystemTab from './components/tabs/MeetingRoomSystemTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
@@ -155,6 +157,7 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
+import AdhocMeetingPage from './views/meetings/AdhocMeetingPage.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -250,6 +253,7 @@ export default {
 	// toggle rides the index page's actionsComponent slot and routes
 	// between the two pages, leaving the table surface untouched.
 	MeetingCalendarView: page(MeetingCalendarView),
+	AdhocMeetingPage: page(AdhocMeetingPage),
 	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
@@ -357,6 +361,7 @@ export default {
 	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
 	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	AgendaItemPhaseTab: page(AgendaItemPhaseTab),
 	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
 	// pending requests on the agenda item, and the meeting-level ones.
 	AgendaItemSpeakersTab: page(AgendaItemSpeakersTab),
@@ -375,6 +380,7 @@ export default {
 	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
 	MeetingTeamsTab: page(MeetingTeamsTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
+	MeetingPackTab: page(MeetingPackTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
