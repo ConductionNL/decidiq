@@ -12,6 +12,7 @@ import {
 	ensureRelationType,
 	resolveOrCreatePerson,
 } from '../components/tabs/useRelationStore.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 export const memberImportRunMixin = {
 	methods: {
@@ -63,7 +64,8 @@ export const memberImportRunMixin = {
 			if (!stored?.id) {
 				return
 			}
-			await stores.membershipStore.saveObject(
+			await saveOrThrow(
+				stores.membershipStore,
 				'membership',
 				buildMembershipPayload({
 					personId: stored.id,

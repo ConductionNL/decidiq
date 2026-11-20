@@ -16,11 +16,12 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 // @e2e agenda-management::a-member-opens-the-paper
 test('the converted paper shows once, as its PDF', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Kadernota begroting 2026').first().click()
+	await openRow(page, 'Kadernota begroting 2026')
 	const widget = page.getByTestId('paper-renditions')
 	await expect(widget).toContainText('Kadernota 2026')
 })
@@ -28,7 +29,7 @@ test('the converted paper shows once, as its PDF', async ({ page }) => {
 // @e2e agenda-management::a-spreadsheet-cannot-be-converted
 test('a failed conversion shows its reason and Try again', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await page.getByText('Kadernota begroting 2026').first().click()
+	await openRow(page, 'Kadernota begroting 2026')
 	await expect(page.getByTestId('paper-renditions-failure')).toContainText(
 		'no backend could convert this file',
 	)

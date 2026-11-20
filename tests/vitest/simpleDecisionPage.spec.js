@@ -482,6 +482,7 @@ describe('the decision page in the simple structure', () => {
 			'Related decisions',
 			// An amendment can target a proposal too (mot-02).
 			'Amendments',
+			'Cited governing documents',
 			'Lifecycle',
 		])
 		expect(
@@ -511,9 +512,12 @@ describe('the decision page in the simple structure', () => {
 		)
 		// routes-send-proposal-along-route added the approval route block,
 		// goals-linked-to-decisions the goal block,
-		// voting-written-resolution the written resolution block, and
+		// voting-written-resolution the written resolution block,
+		// governing-documents-register the cited governing documents,
+		// publication-theme-pages the themes block,
+		// delegatie-mandaatregister the authority basis block, and
 		// capability-rows-get-requirements the amendments (mot-02).
-		expect(declared).toHaveLength(19)
+		expect(declared).toHaveLength(22)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {

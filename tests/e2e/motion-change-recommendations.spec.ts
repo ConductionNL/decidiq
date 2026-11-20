@@ -18,12 +18,13 @@
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { openRow } from './support/open-row.ts'
 
 const MOTION = 'Verlichting fietspaden 2027'
 
 async function openMotion(page) {
 	await page.goto(`${BASE}/index.php/apps/decidiq/motions`)
-	await page.getByText(MOTION).first().click()
+	await openRow(page, MOTION)
 	await expect(page.getByTestId('motion-text-lines-tab')).toBeVisible()
 }
 

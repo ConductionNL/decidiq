@@ -69,6 +69,7 @@ use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
@@ -141,6 +142,7 @@ use OCA\Decidiq\Kernel\Contracts\ThemeRefreshServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionQueueInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\TeamsMeetingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptRepositoryInterface;
 use OCA\Decidiq\Kernel\Contracts\VoteBreakdownServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
@@ -232,6 +234,7 @@ final class ContractBindings {
 		FlowDecisionServiceInterface::class => FlowDecisionService::class,
 		FormResponseImportServiceInterface::class => FormResponseImportService::class,
 		FullExportServiceInterface::class => FullExportService::class,
+		GoverningDocumentConsolidationServiceInterface::class => GoverningDocumentConsolidationService::class,
 		GovernanceBodyCommandServiceInterface::class => GovernanceBodyCommandService::class,
 		GovernanceBodyQueryServiceInterface::class => GovernanceBodyQueryService::class,
 		GovernanceReportingServiceInterface::class => GovernanceReportingService::class,
@@ -300,6 +303,7 @@ final class ContractBindings {
 		SigningRoundServiceInterface::class => SigningRoundService::class,
 		SubjectClearanceServiceInterface::class => SubjectClearanceService::class,
 		SystemWhenNobodySignedInInterface::class => SystemWhenNobodySignedIn::class,
+		TeamsMeetingServiceInterface::class => TeamsMeetingService::class,
 		ThemeRefreshServiceInterface::class => ThemeRefreshService::class,
 		TranscriptRepositoryInterface::class => TranscriptRepository::class,
 		TranscriptionQueueInterface::class => TranscriptionQueue::class,

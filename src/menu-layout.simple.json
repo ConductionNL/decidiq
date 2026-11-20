@@ -25,6 +25,7 @@
 		"PlannedAgenda",
 		"PlanningCycles",
 		"ProxyAuthorizations",
+		"TopicThemes",
 		"UrgentDecisions",
 		"WorksCouncilConsultations"
 	],
@@ -267,6 +268,13 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					},
+					{
+						"id": "open-theme-pages",
+						"label": "Theme pages",
+						"icon": "BookOpenVariantOutline",
+						"handler": "navigate",
+						"route": "TopicThemes"
 					}
 				],
 				"columns": [
@@ -891,6 +899,12 @@
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
+					},
+					"decision-governing-citations": {
+						"type": "GoverningDocumentCitationsTab"
+					},
+					"decision-themes": {
+						"type": "DecisionThemesTab"
 					}
 				}
 			},
@@ -1071,6 +1085,10 @@
 									"widgetId": "decision-governance"
 								},
 								{
+									"label": "Taken under",
+									"widgetId": "decision-authority-basis"
+								},
+								{
 									"label": "Goal",
 									"widgetId": "decision-goal"
 								}
@@ -1143,6 +1161,10 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "decision-confidentiality"
+								},
+								{
+									"label": "Themes",
+									"widgetId": "decision-themes"
 								}
 							]
 						}
@@ -1259,6 +1281,11 @@
 								{
 									"widgetId": "decision-amendments",
 									"label": "Amendments",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-governing-citations",
+									"label": "Cited governing documents",
 									"overflow": true
 								},
 								{
@@ -1841,6 +1868,9 @@
 					"meeting-video-call": {
 						"type": "MeetingVideoCallTab"
 					},
+					"meeting-teams": {
+						"type": "MeetingTeamsTab"
+					},
 					"meeting-participants": {
 						"type": "MeetingParticipantsTab"
 					},
@@ -2047,6 +2077,10 @@
 								{
 									"label": "Video call",
 									"widgetId": "meeting-video-call"
+								},
+								{
+									"label": "Microsoft Teams",
+									"widgetId": "meeting-teams"
 								}
 							]
 						}
@@ -2670,6 +2704,26 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "16",
+						"widgetId": "open-wor-consultations",
+						"gridX": 6,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "17",
+						"widgetId": "wor-response-overdue",
+						"gridX": 9,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"showHeader": false,
@@ -3203,7 +3257,8 @@
 					},
 					"agenda-conflicts",
 					"agenda-speakers",
-					"agenda-paper-summaries"
+					"agenda-paper-summaries",
+					"agenda-themes"
 				],
 				"layout": [
 					{
@@ -3242,6 +3297,9 @@
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
+					},
+					"agenda-themes": {
+						"type": "AgendaItemThemesTab"
 					}
 				}
 			},
@@ -3527,6 +3585,10 @@
 								{
 									"label": "Delegation / mandate",
 									"widgetId": "toedeling-data"
+								},
+								{
+									"label": "Decisions taken under it",
+									"widgetId": "toedeling-decisions"
 								}
 							]
 						}
