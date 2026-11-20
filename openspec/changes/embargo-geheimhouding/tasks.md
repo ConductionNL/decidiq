@@ -9,8 +9,9 @@
   - GIVEN the register is imported on a clean instance WHEN schemas are listed THEN `geheimhouding` and `geheimhouding-grond` exist with `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys: `opgelegd → bekrachtigd → opgeheven`, direct `opgelegd → opgeheven` guarded by the ground's bekrachtiging requirement, `opgeheven` terminal), aggregations, notifications (ADR-031 dialect), and relations
   - GIVEN existing DigitalDocument objects WHEN the additive `embargoUntil`/`embargoActive`/`embargoAudience` properties are imported into the canonical file THEN existing objects validate unchanged
   - GIVEN a geheimhouding whose ground requires bekrachtiging WHEN a direct `opgelegd → opgeheven` transition is attempted THEN OR rejects it per the declared map
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (fragment 65, renamed by confidentiality-in-plain-words to `confidentiality-restriction` and `confidentiality-ground`; embargo fields on `digital-document` in 134-document-embargo). Completed (20 Nov): the map allows `imposed → dissolved` for grounds that need no ratification but cannot read the ground, so `LiftAfterRatificationGuard` (before-update, `SaveGuardSubscriptions`) refuses that transition when the ground has `requiresRatification`, and fails closed when the ground cannot be read. Tests: `tests/Unit/Listener/LiftAfterRatificationGuardTest.php` (real `ObjectUpdatingEvent`s) and `tests/Unit/Settings/ConfidentialityRegisterTest.php` (fields, refs, canonical lifecycle, the guard subscription, the ratification-due and lifted notifications in nl and en, the ground schema, the retired Dutch-named schemas, the embargo fields optional so every seeded paper still validates). The counts the register shows are stat-widget source queries in the manifest (task 8), not `x-openregister-aggregations` on the schema.
 
 ### Task 2: Seed data — grounds with dual article labels + example geheimhoudingen + embargo documents
 - **spec_ref**: `openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-002-configurable-ground-list-with-dual-gemeentewet-article-labels`
@@ -18,8 +19,9 @@
 - **acceptance_criteria**:
   - GIVEN a clean install WHEN seeds import THEN 8 GeheimhoudingGronden exist (Gemeentewet art. 87-89 with legacy labels voorheen art. 25/55/86, Woo 5.1 absolute + relative, one `overig` statutory ground), each `builtIn: true` and admin-editable; deactivating a ground hides it from the picker but keeps it resolvable on existing records
   - GIVEN the seeds WHEN the register overview loads THEN 3 Geheimhoudingen (awaiting bekrachtiging, OVERDUE bekrachtiging, opgeheven-awaiting-publication) and 2 embargo documents (locked future / released past) make every KPI and state visible on install (ADR-016)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (seed-profiles): seven grounds in the municipality example set and the statutory `other` ground in the association set, all `builtIn`, three restrictions (imposed, dissolved, lapsed) and more. Completed (20 Nov): the two embargo papers were missing; the municipality set now has the draft 2027 budget under embargo until 2029 for the group leaders and the 2026 framework memorandum whose embargo was released (`objectCount` 304). Test: `ConfidentialityRegisterTest::testTheExampleSetsSeedEveryState` (eight grounds, the pre-2023 articles 25, 55 and 86, both Woo categories and the other ground, the restriction states, one locked and one released paper). The overdue state follows from the seeded deadlines having passed, so it is not asserted separately.
 
 ### Task 3: GeheimhoudingService — impose with classifier drive + authority guards
 - **spec_ref**: `openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground`

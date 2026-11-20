@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\ApprovalRouteSavedListener;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
+use OCA\Decidiq\Listener\LiftAfterRatificationGuard;
 use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
@@ -106,6 +107,10 @@ final class SaveGuardSubscriptions {
 		// on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		// Lifting before ratification (embargo-geheimhouding, REQ-EMB-001): a
+		// restriction whose ground requires ratification is not lifted
+		// straight from imposed.
+		['event' => ObjectUpdatingEvent::class, 'listener' => LiftAfterRatificationGuard::class, 'schemas' => ['confidentiality-restriction']],
 		// Confidential agenda items (agenda-item-confidential-papers,
 		// REQ-ACP-003): a paper saved onto a non-public item is not public.
 		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
