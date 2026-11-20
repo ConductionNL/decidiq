@@ -211,6 +211,7 @@ import {
 	memberRowsFor,
 } from '../../utils/bodyMembership.js'
 import { profilePath } from '../../utils/memberProfile.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { buildMembershipPayload, ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -507,7 +508,7 @@ export default {
 			try {
 				// Keep what the membership already says (start date,
 				// faction, party): the save replaces the object.
-				await store.saveObject('membership', {
+				await saveOrThrow(store, 'membership', {
 					...buildMembershipPayload({
 						id: target.id,
 						personId: target.person,

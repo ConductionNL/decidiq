@@ -30,6 +30,8 @@ const { calls, fail, relationStore } = vi.hoisted(() => {
 					if (fail.at === 'membership') {
 						throw new Error('membership refused')
 					}
+					// The store answers a successful save with the saved object.
+					return payload
 				},
 			}
 		},

@@ -25,6 +25,7 @@
 		"PlannedAgenda",
 		"PlanningCycles",
 		"ProxyAuthorizations",
+		"TopicThemes",
 		"UrgentDecisions",
 		"WorksCouncilConsultations"
 	],
@@ -267,6 +268,13 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					},
+					{
+						"id": "open-theme-pages",
+						"label": "Theme pages",
+						"icon": "BookOpenVariantOutline",
+						"handler": "navigate",
+						"route": "TopicThemes"
 					}
 				],
 				"columns": [
@@ -891,6 +899,9 @@
 					},
 					"decision-governing-citations": {
 						"type": "GoverningDocumentCitationsTab"
+					},
+					"decision-themes": {
+						"type": "DecisionThemesTab"
 					}
 				}
 			},
@@ -1071,6 +1082,10 @@
 									"widgetId": "decision-governance"
 								},
 								{
+									"label": "Taken under",
+									"widgetId": "decision-authority-basis"
+								},
+								{
 									"label": "Goal",
 									"widgetId": "decision-goal"
 								}
@@ -1143,6 +1158,10 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "decision-confidentiality"
+								},
+								{
+									"label": "Themes",
+									"widgetId": "decision-themes"
 								}
 							]
 						}
@@ -3259,7 +3278,8 @@
 					},
 					"agenda-conflicts",
 					"agenda-speakers",
-					"agenda-paper-summaries"
+					"agenda-paper-summaries",
+					"agenda-themes"
 				],
 				"layout": [
 					{
@@ -3298,6 +3318,9 @@
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
+					},
+					"agenda-themes": {
+						"type": "AgendaItemThemesTab"
 					}
 				}
 			},
@@ -3583,6 +3606,10 @@
 								{
 									"label": "Delegation / mandate",
 									"widgetId": "toedeling-data"
+								},
+								{
+									"label": "Decisions taken under it",
+									"widgetId": "toedeling-decisions"
 								}
 							]
 						}

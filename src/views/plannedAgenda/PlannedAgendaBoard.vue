@@ -99,6 +99,7 @@ import {
 	isTerminal,
 	PLANNED_AGENDA_SCHEMA,
 } from '../../utils/plannedAgenda.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 
 export default {
 	name: 'PlannedAgendaBoard',
@@ -258,7 +259,7 @@ export default {
 					user: getCurrentUser()?.uid || '',
 					now: Date.now(),
 				})
-				const saved = await ensureRelationType(PLANNED_AGENDA_SCHEMA).saveObject(PLANNED_AGENDA_SCHEMA, next)
+				const saved = await saveOrThrow(ensureRelationType(PLANNED_AGENDA_SCHEMA), PLANNED_AGENDA_SCHEMA, next)
 				this.items = this.items.map((candidate) => (candidate.id === item.id ? (saved || next) : candidate))
 				this.pending = null
 			} catch (e) {

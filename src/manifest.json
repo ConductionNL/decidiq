@@ -376,14 +376,89 @@
 						"type": "stat",
 						"title": "Open WOR cases",
 						"_note": "works-council-consultation task 4 (REQ-WCC-008): the WOR-trajecten that are neither completed nor withdrawn. The filter holds a list of states, which the aggregation endpoint cannot count (see open-commitments-overdue), so `via: list` counts it through the list endpoint's total, the same query the pre-filtered index runs.",
-						"content": { "label": "Open WOR cases", "icon": "HandshakeOutline", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } } }
+						"content": {
+							"label": "Open WOR cases",
+							"icon": "HandshakeOutline",
+							"route": {
+								"name": "WorksCouncilConsultations",
+								"query": {
+									"lifecycle": [
+										"received",
+										"in-progress",
+										"constituencyConsultation",
+										"consultationMeeting",
+										"adopted",
+										"sent",
+										"decision-received"
+									]
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "consultation-request",
+								"metric": "count",
+								"via": "list",
+								"filter": {
+									"lifecycle": [
+										"received",
+										"in-progress",
+										"constituencyConsultation",
+										"consultationMeeting",
+										"adopted",
+										"sent",
+										"decision-received"
+									]
+								}
+							}
+						}
 					},
 					{
 						"id": "wor-response-overdue",
 						"type": "stat",
 						"title": "Reply overdue",
 						"_note": "works-council-consultation task 4 (REQ-WCC-008, design D5): open WOR-trajecten whose response has not been sent and whose requestedResponseDate lies before today. `@today` is resolved by the widget when it fetches, so the count follows the calendar without a stored flag; `via: list` counts through the list endpoint, which understands the state list and the date operator.",
-						"content": { "label": "Reply overdue", "icon": "AlertOutline", "variant": "warning", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate[lt]": "@today" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate": { "lt": "@today" } } } }
+						"content": {
+							"label": "Reply overdue",
+							"icon": "AlertOutline",
+							"variant": "warning",
+							"route": {
+								"name": "WorksCouncilConsultations",
+								"query": {
+									"lifecycle": [
+										"received",
+										"in-progress",
+										"constituencyConsultation",
+										"consultationMeeting",
+										"adopted"
+									],
+									"requestedResponseDate[lt]": "@today"
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "consultation-request",
+								"metric": "count",
+								"via": "list",
+								"filter": {
+									"lifecycle": [
+										"received",
+										"in-progress",
+										"constituencyConsultation",
+										"consultationMeeting",
+										"adopted"
+									],
+									"requestedResponseDate": {
+										"lt": "@today"
+									}
+								}
+							}
+						}
 					},
 					{
 						"_note": "termijnagenda REQ-LTA-010 / design D6. Counts long-term agenda items whose planned period's last day has passed while they are planned or postponed and nothing realised them. The aggregation endpoint has no relative-today token and honours scalar-equality filters only (see open-commitments-overdue), so this is a custom widget that fetches the open items and applies the period rule client-side (src/utils/plannedAgenda.js), never a silently wrong declarative count. It deep-links to the long-term agenda filtered to the open states. Placed in its own band below the spec'd rows.",
@@ -2954,6 +3029,14 @@
 						"title": "Summaries of the papers",
 						"icon": "TextBoxSearchOutline",
 						"_note": "agenda-ai-paper-summaries (age-16 age-20 plt-27): a clerk asks the AI for a summary of a paper or a comparison of two, corrects the draft and shows it to members; members read shown ones only, labelled as AI-generated with the clerk who checked it. Without an AI provider the actions are left out."
+					},
+					{
+						"id": "agenda-themes",
+						"type": "custom",
+						"component": "AgendaItemThemesTab",
+						"title": "Themes",
+						"icon": "BookOpenVariantOutline",
+						"_note": "publication-theme-pages (REQ-THP-001): the theme pages this item belongs to, and Add to theme."
 					}
 				],
 				"layout": [
@@ -3036,6 +3119,14 @@
 						"gridY": 40,
 						"gridWidth": 12,
 						"gridHeight": 4
+					},
+					{
+						"id": "11",
+						"widgetId": "agenda-themes",
+						"gridX": 0,
+						"gridY": 44,
+						"gridWidth": 12,
+						"gridHeight": 3
 					}
 				],
 				"sidebar": {
@@ -3865,7 +3956,8 @@
 				"widget-decision-voting": "DecisionVotingTab",
 				"widget-decision-written-resolution": "WrittenResolutionTab",
 				"widget-decision-publication": "DecisionPublicationTab",
-				"widget-decision-governing-citations": "GoverningDocumentCitationsTab"
+				"widget-decision-governing-citations": "GoverningDocumentCitationsTab",
+				"widget-decision-themes": "DecisionThemesTab"
 			},
 			"title": "Decision",
 			"config": {
@@ -3899,8 +3991,52 @@
 								"candidates",
 								"nominatingParty",
 								"appointedMemberships",
-								"contests"
+								"contests",
+								"authorityBasis"
 							]
+						}
+					},
+					{
+						"id": "decision-authority-basis",
+						"type": "object-list",
+						"title": "Taken under",
+						"icon": "ShieldCheckOutline",
+						"_note": "delegatie-mandaatregister REQ-DMR-006: the delegation or mandate this decision was taken under ('genomen krachtens'), linking to its detail page. Shown only when the decision names one; documentation only, it gates nothing.",
+						"visibleWhen": {
+							"field": "authorityBasis",
+							"op": "notEmpty"
+						},
+						"content": {
+							"register": "decidiq",
+							"schema": "authority-delegation",
+							"filter": {
+								"id": "@object.authorityBasis"
+							},
+							"columns": [
+								{
+									"key": "subject",
+									"label": "Subject",
+									"widget": "link"
+								},
+								{
+									"key": "type",
+									"label": "Type",
+									"widget": "badge"
+								},
+								{
+									"key": "status",
+									"label": "Status",
+									"widget": "badge"
+								},
+								{
+									"key": "validTo",
+									"label": "Valid until",
+									"widget": "date"
+								}
+							],
+							"limit": 1,
+							"emptyText": "The delegation or mandate this decision names could not be found.",
+							"rowRoute": "AuthorityDelegationDetail"
 						}
 					},
 					{
@@ -4302,6 +4438,14 @@
 							"emptyText": "This decision has no confidentiality restriction.",
 							"rowRoute": "ConfidentialityRestrictionDetail"
 						}
+					},
+					{
+						"id": "decision-themes",
+						"type": "custom",
+						"component": "DecisionThemesTab",
+						"title": "Themes",
+						"icon": "BookOpenVariantOutline",
+						"_note": "publication-theme-pages (REQ-THP-001): the theme pages this decision belongs to, and Add to theme."
 					}
 				],
 				"layout": [
@@ -4456,6 +4600,22 @@
 						"gridY": 56,
 						"gridWidth": 12,
 						"gridHeight": 4
+					},
+					{
+						"id": "22",
+						"widgetId": "decision-themes",
+						"gridX": 0,
+						"gridY": 60,
+						"gridWidth": 12,
+						"gridHeight": 3
+					},
+					{
+						"id": "23",
+						"widgetId": "decision-authority-basis",
+						"gridX": 0,
+						"gridY": 63,
+						"gridWidth": 12,
+						"gridHeight": 3
 					}
 				],
 				"sidebar": {

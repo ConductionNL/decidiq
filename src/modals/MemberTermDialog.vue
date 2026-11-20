@@ -65,6 +65,7 @@ import {
 	buildMembershipPayload,
 	ensureRelationType,
 } from '../components/tabs/useRelationStore.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 import { pickedTerm } from '../utils/stepDownSchedule.js'
 
 export default {
@@ -111,7 +112,8 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await ensureRelationType('membership').saveObject(
+				await saveOrThrow(
+					ensureRelationType('membership'),
 					'membership',
 					buildMembershipPayload({
 						id: this.member.id,

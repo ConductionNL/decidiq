@@ -74,6 +74,7 @@ import {
 	realisationCandidates,
 	suggestRealisations,
 } from '../../utils/plannedAgenda.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -184,7 +185,7 @@ export default {
 			this.busy = true
 			try {
 				const next = build(this.item)
-				const saved = await ensureRelationType(PLANNED_AGENDA_SCHEMA).saveObject(PLANNED_AGENDA_SCHEMA, next)
+				const saved = await saveOrThrow(ensureRelationType(PLANNED_AGENDA_SCHEMA), PLANNED_AGENDA_SCHEMA, next)
 				this.item = saved || next
 				this.open = ''
 			} catch (e) {

@@ -21,6 +21,7 @@ vi.mock('../../src/store/store.js', () => ({
 	useObjectStore: () => ({}),
 	useSettingsStore: () => ({}),
 }))
+import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 globalThis.t = (_app, text) => text
@@ -88,6 +89,7 @@ async function run(data) {
 		'../../modals/MemberTermDialog.vue': { default: {} },
 		'../../utils/bodyMembership.js': bodyMembership,
 		'../../utils/memberProfile.js': { profilePath: (id) => `/p/${id}` },
+		'../../utils/saveOrThrow.js': saveOrThrowModule,
 		'./useRelationStore.js': {
 			buildMembershipPayload: () => ({}),
 			ensureRelationType: store,
