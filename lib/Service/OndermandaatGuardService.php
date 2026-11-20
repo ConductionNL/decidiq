@@ -38,11 +38,38 @@ use Throwable;
 class OndermandaatGuardService {
 
 	/**
-	 * The toedeling schema.
+	 * The toedeling schema. It was renamed from `bevoegdheidstoedeling`
+	 * (MigrateTheLastTwoDutchNames moves the rows), so parents are read here.
 	 *
 	 * @var string
 	 */
-	public const SCHEMA = 'bevoegdheidstoedeling';
+	public const SCHEMA = 'authority-delegation';
+
+	/**
+	 * The schemas a toedeling is saved on: the current one, and the old Dutch
+	 * slug, which stays guarded while an install still writes to it.
+	 *
+	 * @var list<string>
+	 */
+	public const SCHEMAS = [self::SCHEMA, 'bevoegdheidstoedeling'];
+
+	/**
+	 * The parties a toedeling must name (REQ-DMR-001): at least one field of
+	 * each group, on the current field names and on the old Dutch ones.
+	 *
+	 * @var array<string, list<string>>
+	 */
+	public const PARTY_GROUPS = [
+		'the delegans (a governing body or a description)' => ['delegatingBody', 'delegatingDescription', 'delegans', 'delegansDescription'],
+		'the delegataris (a governing body, a role or a person)' => [
+			'delegateBody',
+			'delegateRole',
+			'delegatePerson',
+			'delegateUser',
+			'delegateGroup',
+			'delegatarisBody',
+		],
+	];
 
 	/**
 	 * The deepest chain walked; a longer one is refused as if it looped.
@@ -105,36 +132,42 @@ class OndermandaatGuardService {
 	}//end assertAllowed()
 
 	/**
-	 * A parent toedeling.
+	 * A parent toedeling, read on the current schema and then on the old Dutch slug.
+	 *
+	 * The migration moves rows to `authority-delegation`, but an install that
+	 * still holds a toedeling on `bevoegdheidstoedeling` keeps its chains
+	 * checkable: a parent missing on the first schema is looked up on the next.
 	 *
 	 * @param string $parentId The parent's uuid.
 	 *
 	 * @return array<string, mixed> The parent.
 	 *
-	 * @throws OndermandaatRefusedException When it does not exist or cannot be read.
+	 * @throws OndermandaatRefusedException When it exists on neither schema or cannot be read.
 	 */
 	private function parent(string $parentId): array {
-		try {
-			$entity = $this->objectService->find(
-				id: $parentId,
-				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
-				_rbac: false
-			);
-		} catch (DoesNotExistException) {
-			$entity = null;
-		} catch (Throwable $e) {
-			throw new OndermandaatRefusedException(
-				message: 'The toedeling was not saved: its parent could not be read to check the ondermandaat chain.',
-				code: 0,
-				previous: $e
-			);
+		foreach (self::SCHEMAS as $schema) {
+			try {
+				$entity = $this->objectService->find(
+					id: $parentId,
+					options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+					_rbac: false
+				);
+			} catch (DoesNotExistException) {
+				$entity = null;
+			} catch (Throwable $e) {
+				throw new OndermandaatRefusedException(
+					message: 'The toedeling was not saved: its parent could not be read to check the ondermandaat chain.',
+					code: 0,
+					previous: $e
+				);
+			}
+
+			if ($entity !== null) {
+				return (array)$entity->jsonSerialize();
+			}
 		}
 
-		if ($entity === null) {
-			throw new OndermandaatRefusedException(message: 'The toedeling was not saved: its parent toedeling does not exist.');
-		}
-
-		return (array)$entity->jsonSerialize();
+		throw new OndermandaatRefusedException(message: 'The toedeling was not saved: its parent toedeling does not exist.');
 	}//end parent()
 
 	/**

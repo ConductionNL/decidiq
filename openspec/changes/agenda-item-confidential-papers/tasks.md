@@ -48,3 +48,4 @@
 - Each task has a unit or vitest test that is red before the code and green after.
 - `composer check:strict`, `npm run lint`, `format`, `test:l10n`, `check:l10n-js`, `check:schema-l10n` and the hydra gates `--scope-to-diff` once before push.
 - Playwright `tests/e2e/confidential-agenda-item.spec.ts` tagged with each scenario.
+  - Written for the scenarios that are built (REQ-ACP-001 closing, REQ-ACP-003, REQ-ACP-004, REQ-ACP-005 pack). The REQ-ACP-002 read-rule scenarios and the REQ-ACP-006 view log get theirs with tasks 1 and 5.

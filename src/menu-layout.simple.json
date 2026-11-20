@@ -1082,6 +1082,10 @@
 									"widgetId": "decision-governance"
 								},
 								{
+									"label": "Taken under",
+									"widgetId": "decision-authority-basis"
+								},
+								{
 									"label": "Goal",
 									"widgetId": "decision-goal"
 								}
@@ -3577,6 +3581,10 @@
 								{
 									"label": "Delegation / mandate",
 									"widgetId": "toedeling-data"
+								},
+								{
+									"label": "Decisions taken under it",
+									"widgetId": "toedeling-decisions"
 								}
 							]
 						}
