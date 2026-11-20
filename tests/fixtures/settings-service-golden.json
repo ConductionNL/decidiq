@@ -21,6 +21,7 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "member_provisioning_groups": "",
             "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
@@ -171,6 +172,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "portal_confidential_min_trust",
                     ""
                 ]
@@ -215,6 +223,7 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
+            "member_provisioning_groups": "",
             "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": true,
@@ -365,6 +374,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "portal_confidential_min_trust",
                     ""
                 ]
@@ -409,6 +425,7 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
+            "member_provisioning_groups": "",
             "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
@@ -559,6 +576,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "portal_confidential_min_trust",
                     ""
                 ]
@@ -606,6 +630,7 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "member_provisioning_groups": "",
             "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
@@ -791,6 +816,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "portal_confidential_min_trust",
                     ""
                 ]
@@ -835,6 +867,7 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "member_provisioning_groups": "",
             "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
@@ -979,6 +1012,13 @@
                 "getValueString": [
                     "decidiq",
                     "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "member_provisioning_groups",
                     ""
                 ]
             },

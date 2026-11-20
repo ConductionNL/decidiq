@@ -2810,6 +2810,35 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "18",
+						"widgetId": "onboarding-open",
+						"gridX": 0,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "19",
+						"widgetId": "offboarding-open",
+						"gridX": 3,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "20",
+						"widgetId": "member-pathways-by-status",
+						"gridX": 6,
+						"gridY": 40,
+						"gridWidth": 6,
+						"gridHeight": 2,
+						"showTitle": true
 					}
 				],
 				"showHeader": false,
