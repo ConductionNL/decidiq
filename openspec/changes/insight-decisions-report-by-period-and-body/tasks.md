@@ -46,6 +46,12 @@
 - [x] Implement (header action Show these decisions, `navigate` to `/decisions` with `decidingBody`, `decisionDate[gte]` and `decisionDate[lte]`)
 - [ ] Test (Playwright; the link's query is unit-tested in `tests/vitest/decisionsReportCut.spec.js`)
 
+Round 2: the Playwright checks of tasks 3, 4 and 5 are written in
+`tests/e2e/decisions-report-cut.spec.ts` (two run-owned bodies and six adopted
+decisions; the Adopted tile reads 2, 5 and 1 as body and period change; Show
+these decisions opens the list with the same body and dates). Not run here: no
+live instance, so the boxes stay open until it runs green.
+
 ## Verification
 
 - `composer check:strict` and `npm run lint` once before push.

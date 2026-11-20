@@ -30,7 +30,9 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
@@ -56,12 +58,28 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 	private array $saves = [];
 
 	/**
+	 * Whether every save fails, as when the register is unreachable.
+	 *
+	 * @var bool
+	 */
+	private bool $failSaves = false;
+
+	/**
+	 * Ids whose read throws, as an object the system cannot read.
+	 *
+	 * @var list<string>
+	 */
+	private array $unreadable = [];
+
+	/**
 	 * The council's ratified restriction on Tarieven grondexploitatie, liftBy 1 July 2027.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		$this->saves = [];
+		$this->failSaves = false;
+		$this->unreadable = [];
 		$this->store = [
 			'confidentiality-restriction' => [
 				'cr-1' => [
@@ -90,11 +108,12 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 	/**
 	 * The service over the store.
 	 *
-	 * @param int $leadDays The lead time setting.
+	 * @param int                  $leadDays The lead time setting.
+	 * @param LoggerInterface|null $logger   The logger, a null logger when not given.
 	 *
 	 * @return ConfidentialityLiftBySweep
 	 */
-	private function service(int $leadDays = 30): ConfidentialityLiftBySweep {
+	private function service(int $leadDays = 30, ?LoggerInterface $logger = null): ConfidentialityLiftBySweep {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config): array {
@@ -118,10 +137,20 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 			}
 		);
 		$objects->method('find')->willReturnCallback(
-			fn (string|int $id, ?ObjectFindOptions $options = null): ?ObjectEntity => isset($this->store[($options?->schema)][$id]) ? $this->entity(row: $this->store[($options?->schema)][$id]) : null
+			function (string|int $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				if (in_array((string)$id, $this->unreadable, true) === true) {
+					throw new RuntimeException('not readable');
+				}
+
+				return isset($this->store[($options?->schema)][$id]) ? $this->entity(row: $this->store[($options?->schema)][$id]) : null;
+			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				if ($this->failSaves === true) {
+					throw new RuntimeException('register offline');
+				}
+
 				$extend = $options->extend ?? [];
 				$register = $options->target->register;
 				$schema = $options->target->schema;
@@ -137,7 +166,7 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 		$config = $this->createMock(IAppConfig::class);
 		$config->method('getValueInt')->with('decidiq', ConfidentialityLiftBySweep::LEAD_DAYS_KEY, 30)->willReturn($leadDays);
 
-		return new ConfidentialityLiftBySweep($objects, $config, new NullLogger());
+		return new ConfidentialityLiftBySweep($objects, $config, ($logger ?? new NullLogger()));
 	}//end service()
 
 	/**
@@ -252,4 +281,78 @@ class ConfidentialityLiftBySweepTest extends TestCase {
 		self::assertSame(30, $this->service(leadDays: -5)->leadDays());
 		self::assertSame(14, $this->service(leadDays: 14)->leadDays());
 	}//end testANegativeLeadTimeIsThirtyDays()
+
+	/**
+	 * A failing save places nothing, logs why and leaves the restriction as it was.
+	 *
+	 * @return void
+	 */
+	public function testAFailedSavePlacesNothingAndIsLogged(): void {
+		$this->failSaves = true;
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())->method('error')->with(
+			'Decidiq: the lifting of a confidentiality could not be put on the agenda',
+			['restriction' => 'cr-1', 'meeting' => 'm-june', 'error' => 'register offline']
+		);
+
+		self::assertSame(['placed' => 0, 'overdue' => 0], $this->service(logger: $logger)->sweep(today: new DateTimeImmutable('2027-06-01')));
+		self::assertArrayNotHasKey('liftStatus', $this->store['confidentiality-restriction']['cr-1']);
+	}//end testAFailedSavePlacesNothingAndIsLogged()
+
+	/**
+	 * A failing overdue mark counts nothing and is logged.
+	 *
+	 * @return void
+	 */
+	public function testAFailedOverdueMarkCountsNothingAndIsLogged(): void {
+		$this->failSaves = true;
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())->method('error')->with(
+			'Decidiq: a confidentiality past its end date could not be marked overdue',
+			['restriction' => 'cr-1', 'error' => 'register offline']
+		);
+
+		self::assertSame(['placed' => 0, 'overdue' => 0], $this->service(logger: $logger)->sweep(today: new DateTimeImmutable('2027-07-02')));
+		self::assertArrayNotHasKey('liftStatus', $this->store['confidentiality-restriction']['cr-1']);
+	}//end testAFailedOverdueMarkCountsNothingAndIsLogged()
+
+	/**
+	 * Without a ratification item or an imposing body no body decides, so nothing is placed.
+	 *
+	 * @return void
+	 */
+	public function testWithoutADecidingBodyNothingIsPlaced(): void {
+		unset(
+			$this->store['confidentiality-restriction']['cr-1']['ratificationAgendaItem'],
+			$this->store['confidentiality-restriction']['cr-1']['imposedByBody']
+		);
+
+		self::assertSame(['placed' => 0, 'overdue' => 0], $this->service()->sweep(today: new DateTimeImmutable('2027-06-01')));
+		self::assertSame([], $this->saves);
+	}//end testWithoutADecidingBodyNothingIsPlaced()
+
+	/**
+	 * A target that no longer exists names the item after "stukken".
+	 *
+	 * @return void
+	 */
+	public function testAMissingTargetNamesTheItemStukken(): void {
+		$this->store['confidentiality-restriction']['cr-1']['targetDocument'] = 'doc-gone';
+
+		$this->service()->sweep(today: new DateTimeImmutable('2027-06-01'));
+
+		self::assertSame('Opheffen geheimhouding stukken', $this->savedIn(schema: 'agenda-item')[0]['title']);
+	}//end testAMissingTargetNamesTheItemStukken()
+
+	/**
+	 * An unreadable ratification item counts as none: the imposing body decides.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadableRatificationItemFallsBackToTheImposingBody(): void {
+		$this->unreadable = ['ai-ratify'];
+
+		self::assertSame(['placed' => 1, 'overdue' => 0], $this->service()->sweep(today: new DateTimeImmutable('2027-06-01')));
+		self::assertSame('m-college', $this->savedIn(schema: 'agenda-item')[0]['meeting']);
+	}//end testAnUnreadableRatificationItemFallsBackToTheImposingBody()
 }//end class

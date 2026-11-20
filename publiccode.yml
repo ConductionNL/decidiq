@@ -2,8 +2,9 @@ publiccodeYmlVersion: "0.4"
 
 name: Decidiq
 url: "https://github.com/ConductionNL/decidiq"
-softwareVersion: "0.1.4"
-releaseDate: "2026-05-26"
+logo: img/app-store.svg
+softwareVersion: "1.2.2"
+releaseDate: "2026-09-12"
 developmentStatus: beta
 softwareType: "standalone/other"
 

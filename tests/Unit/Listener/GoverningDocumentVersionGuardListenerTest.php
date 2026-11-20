@@ -40,6 +40,8 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Listener\GoverningDocumentVersionGuardListener
  * @covers \OCA\Decidiq\Service\GoverningDocumentConsolidationService
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
+ * @uses \OCA\Decidiq\Listener\EntityPayloadReader
+ * @uses \OCA\Decidiq\Listener\SaveGuardEvent
  */
 class GoverningDocumentVersionGuardListenerTest extends TestCase {
 

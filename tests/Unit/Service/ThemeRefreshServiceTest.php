@@ -248,4 +248,21 @@ final class ThemeRefreshServiceTest extends TestCase {
 
 		$this->assertSame(86400, $job->getInterval());
 	}//end testTheJobRunsTheRefreshAsTheSystemNightly()
+
+	/**
+	 * A failing refresh is logged as a warning and logs no counts.
+	 *
+	 * @return void
+	 */
+	public function testTheJobLogsAFailedRefreshAndStops(): void {
+		$refresh = $this->createMock(ThemeRefreshService::class);
+		$system = $this->createMock(SystemWhenNobodySignedInInterface::class);
+		$system->expects($this->once())->method('run')->willThrowException(new RuntimeException('register offline'));
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())->method('warning')->with('Decidiq theme refresh failed', ['exception' => 'register offline']);
+		$logger->expects($this->never())->method('info');
+
+		$job = new ThemeRefreshJob($this->createMock(ITimeFactory::class), $refresh, $system, $logger);
+		(new ReflectionMethod($job, 'run'))->invoke($job, null);
+	}//end testTheJobLogsAFailedRefreshAndStops()
 }//end class

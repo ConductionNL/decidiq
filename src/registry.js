@@ -28,6 +28,7 @@ import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
+import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
@@ -49,6 +50,7 @@ import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue'
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
+import DecisionThemesTab from './components/tabs/DecisionThemesTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 import DocumentAnnotationsTab from './components/tabs/DocumentAnnotationsTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
@@ -106,6 +108,8 @@ import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import ThemePublicationTab from './components/tabs/ThemePublicationTab.vue'
+import ThemeTimelineTab from './components/tabs/ThemeTimelineTab.vue'
 import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
 import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
@@ -552,6 +556,12 @@ export default {
 	// Office papers as PDF on meeting and agenda item pages
 	// (agenda-office-files-to-pdf).
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
+	// Theme pages (publication-theme-pages): the staff timeline and Publish on
+	// the theme page, and Add to theme on agenda item and decision pages.
+	ThemeTimelineTab: page(ThemeTimelineTab),
+	ThemePublicationTab: page(ThemePublicationTab),
+	AgendaItemThemesTab: page(AgendaItemThemesTab),
+	DecisionThemesTab: page(DecisionThemesTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
