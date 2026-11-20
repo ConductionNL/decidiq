@@ -147,7 +147,7 @@ interface ProcessTemplateServiceInterface {
 	 *
 	 * @return array<string, mixed>|null The policy, or null.
 	 *
-	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
 	 */
 	public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array;
 }//end interface

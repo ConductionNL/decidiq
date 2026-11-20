@@ -56,7 +56,7 @@ final class FilesEventRegistrar {
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(event: NodeCreatedEvent::class, listener: OfficePaperAddedListener::class);
 		$context->registerEventListener(event: NodeWrittenEvent::class, listener: OfficePaperAddedListener::class);
-		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 		$context->registerEventListener(event: NodeCreatedEvent::class, listener: DocumentScanOnUploadListener::class);
 		$context->registerEventListener(event: NodeWrittenEvent::class, listener: DocumentScanOnUploadListener::class);
 	}//end register()

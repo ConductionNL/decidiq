@@ -401,7 +401,7 @@ export default {
 		 *
 		 * @param {object} [answer] `accessibilityAcknowledged` or `accessibilityOverride`.
 		 * @spec openspec/specs/public-publication/spec.md
-		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 		 */
 		async publish(answer = {}) {
 			this.working = true
@@ -431,7 +431,7 @@ export default {
 		 * Publish again with the publisher's answer to the accessibility check.
 		 *
 		 * @param {object} answer `accessibilityAcknowledged` or `accessibilityOverride`.
-		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 		 */
 		answerAccessibilityGate(answer) {
 			this.accessibilityGate = null

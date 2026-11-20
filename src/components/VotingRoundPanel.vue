@@ -44,7 +44,7 @@
 				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
 				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
 				<!-- Only the methods the meeting's body allows (bod-14) -->
-				<!-- @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use -->
+				<!-- @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use -->
 				<select id="votingMethod" v-model="newRound.votingMethod">
 					<option
 						v-for="method in allowedMethods"
@@ -760,7 +760,7 @@ export default {
 		 * The name of each voting method, as the panel lists it.
 		 *
 		 * @return {Record<string, string>}
-		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 		 */
 		methodLabels() {
 			return {
@@ -992,7 +992,7 @@ export default {
 		 * or when the body cannot be read, every method stays on offer: the
 		 * server refuses a method the body does not allow either way.
 		 *
-		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 		 */
 		async loadAllowedMethods() {
 			if (!this.meetingId) {

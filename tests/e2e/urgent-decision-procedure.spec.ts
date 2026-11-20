@@ -17,7 +17,7 @@
  * an open decisive stage; decision D2 on M for the direct-write check. chair1
  * and member1 are not Nextcloud admins and sign in with an empty storage state.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
  */
 import type { APIRequestContext, Browser, Page, Playwright } from '@playwright/test'
 

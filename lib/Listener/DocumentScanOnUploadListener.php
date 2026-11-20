@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use OCP\IAppConfig;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 class DocumentScanOnUploadListener implements IEventListener {
 
@@ -74,7 +74,7 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	public function handle(Event $event): void {
 		$node = $this->scannablePdf(event: $event);
@@ -97,7 +97,7 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 *
 	 * @return File|null The PDF, or null when there is nothing to scan.
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	private function scannablePdf(Event $event): ?File {
 		$node = self::changedNode(event: $event);
@@ -131,7 +131,7 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#scenario-scan-on-upload-queues-a-background-scan
 	 */
 	private static function jobArgument(int $fileId, array $owner): array {
 		$argument = ['fileId' => $fileId, 'objectId' => $owner['objectId'], 'schema' => $owner['schema']];
@@ -151,7 +151,7 @@ class DocumentScanOnUploadListener implements IEventListener {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 	 */
 	private function switchedOn(): bool {
 		$value = strtolower(trim($this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, 'true')));

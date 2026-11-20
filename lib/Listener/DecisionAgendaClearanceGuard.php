@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -75,7 +75,7 @@ class DecisionAgendaClearanceGuard implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
+	 * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectUpdatingEvent === false) {
@@ -116,7 +116,7 @@ class DecisionAgendaClearanceGuard implements IEventListener {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
+	 * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
 	 */
 	private function refusal(string $subject): ?string {
 		if ($subject === '') {
@@ -144,7 +144,7 @@ class DecisionAgendaClearanceGuard implements IEventListener {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
+	 * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
 	 */
 	public static function message(array $waitingOn): string {
 		$steps = [];

@@ -26,7 +26,7 @@ export const VOTING_METHODS = Object.freeze([
  *
  * @param {?object} body The governance body.
  * @return {Array<string>} The allowed methods, never empty.
- * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+ * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
  */
 export function allowedVotingMethods(body) {
 	const declared = Array.isArray(body?.allowedVotingMethods)
@@ -43,7 +43,7 @@ export function allowedVotingMethods(body) {
  * @param {string} current The current pick.
  * @param {Array<string>} allowed The allowed methods.
  * @return {string} The method.
- * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+ * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
  */
 export function startingVotingMethod(current, allowed) {
 	return allowed.includes(current) ? current : allowed[0]
@@ -55,7 +55,7 @@ export function startingVotingMethod(current, allowed) {
  *
  * @param {?object} meeting The meeting.
  * @return {string} The body id, or ''.
- * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+ * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
  */
 export function meetingBodyId(meeting) {
 	const ref = meeting?.governanceBody

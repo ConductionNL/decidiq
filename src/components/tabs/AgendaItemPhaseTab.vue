@@ -8,7 +8,7 @@
  item has no phase and shows a short note instead. Read-only: the chair moves
  the phase on the live meeting screen.
 
- @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
+ @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--phase" data-testid="agenda-item-phase-tab">
@@ -47,7 +47,7 @@ export default {
 	name: 'AgendaItemPhaseTab',
 	components: { CnNoteCard, CnTimelineStages, NcLoadingIcon },
 
-	/** @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
+	/** @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
 	mixins: [objectIdLoader],
 
 	data() {
@@ -59,12 +59,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
+		/** @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
 		showsPhase() {
 			return hasPhase(this.item)
 		},
 
-		/** @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
+		/** @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
 		stages() {
 			return AGENDA_PHASE_STAGES.map((stage) => ({
 				...stage,
@@ -72,14 +72,14 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
+		/** @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
 		current() {
 			return phaseStageIndex(this.item)
 		},
 	},
 
 	methods: {
-		/** @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
+		/** @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase */
 		async load() {
 			if (!this.objectId) return
 			this.loading = true

@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -30,7 +30,7 @@ use OCA\Decidiq\Support\OpenRegisterFiles;
  * them to the gate. The gate throws when it holds the publication back, and
  * returns the recorded override when the publisher went past it.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
  */
 class AgendaAccessibilityCheck {
 
@@ -62,7 +62,7 @@ class AgendaAccessibilityCheck {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	public function overrideFor(array $publication, array $consent): ?array {
 		return $this->documentGate->check(documents: $this->agendaDocuments(publication: $publication), consent: $consent);
@@ -77,7 +77,7 @@ class AgendaAccessibilityCheck {
 	 *
 	 * @return list<array{fileId: int, fileName: string, sourceObject: string, sourceSchema: string, governanceBody: string|null}>
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function agendaDocuments(array $publication): array {
 		if ($this->files === null || $this->files->installed() === false) {

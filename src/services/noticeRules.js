@@ -31,7 +31,7 @@ export const DEADLINE_WARNING_DAYS = 3
  *         a deliberate deviation, not an error) | 'unknown' (no parseable meeting date).
  *
  * @spec openspec/specs/meeting-management/spec.md
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 export function getNoticeDeadlineInfo(meeting, now = new Date()) {
 	const meetingDate = meetingDay(meeting)
@@ -62,7 +62,7 @@ export function getNoticeDeadlineInfo(meeting, now = new Date()) {
  *
  * @return {boolean} True for a recorded deviation.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 export function isRecordedShortenedNotice(meeting) {
 	return meeting?.meetingType === 'extraordinary' && meeting?.shortenedNotice === true

@@ -35,7 +35,7 @@ function rowsOf(data) {
  *
  * @param {string} subjectType The kind of subject, e.g. `decision`.
  * @return {Promise<object[]>} The routes.
- * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
  */
 export async function activeRoutesFor(subjectType) {
 	const res = await axios.get(
@@ -73,7 +73,7 @@ export function sortRoutes(routes) {
  * @param {object} route The route row, as read.
  * @param {string} decisionId The decision's UUID.
  * @return {Promise<object[]>} The stages the engine created.
- * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
  */
 export async function sendAlongRoute(route, decisionId) {
 	const res = await axios.post(

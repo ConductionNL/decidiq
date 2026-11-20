@@ -105,7 +105,7 @@ class PublicationService implements PublicationServiceInterface {
 	 *                                            `acknowledged` (bool) and `overrideReason` (string|null).
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 *
 	 * The accessibility gate's exception passes through when the gate holds the publication back;
 	 * nothing is written then (see PublicationServiceInterface::publish()).
@@ -163,7 +163,7 @@ class PublicationService implements PublicationServiceInterface {
 	 *
 	 * @return list<array{fileId: int, sourceObject: string, sourceSchema: string, governanceBody: string|null}>
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function paperDocuments(PublicationRun $run): array {
 		$documents = [];
@@ -306,7 +306,7 @@ class PublicationService implements PublicationServiceInterface {
 	 *
 	 * @return array<string, array<string, mixed>> The field, or [].
 	 *
-	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	private function accessibilityOverrideOf(PublicationRun $run): array {
 		if ($run->gateOverride === null) {

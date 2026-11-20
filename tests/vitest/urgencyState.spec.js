@@ -4,7 +4,7 @@
  *
  * What the urgency banner shows, and the two urgent procedure calls.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { postUrgentAction, urgencyState } from '../../src/services/urgency.js'

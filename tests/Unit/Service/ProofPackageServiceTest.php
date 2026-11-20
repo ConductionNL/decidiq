@@ -491,7 +491,7 @@ class ProofPackageServiceTest extends TestCase {
 	 * The approved, signed minutes go into the hashed package with their signers,
 	 * next to the round results and the attendance list.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
 	 *
 	 * @return void
 	 */
@@ -517,7 +517,7 @@ class ProofPackageServiceTest extends TestCase {
 	/**
 	 * Draft minutes are named with their state, not included and not left out silently.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
 	 *
 	 * @return void
 	 */
@@ -539,7 +539,7 @@ class ProofPackageServiceTest extends TestCase {
 	/**
 	 * A meeting without minutes says so.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
 	 *
 	 * @return void
 	 */

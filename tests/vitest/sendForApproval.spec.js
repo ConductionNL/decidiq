@@ -10,7 +10,7 @@
  * lives in src/services/approvalRouteStart.js and the wiring is asserted on
  * the manifest and the registry source.
  *
- * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
  */
 
 import axios from '@nextcloud/axios'

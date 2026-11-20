@@ -7,7 +7,7 @@
  * it), and whether a paper is scanned when it is added (scan-on-upload;
  * DocumentScanOnUploadListener reads it).
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
  */
 
 /** The enforcement modes, in the order the section offers them. */

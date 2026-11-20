@@ -7,7 +7,7 @@
 			"route": "/reports/accessibility",
 			"type": "dashboard",
 			"title": "Document accessibility",
-			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. The body picker and the period range write the page workspace (governanceBody, dateFrom, dateTo); every tile, its share caption and the override count read it, so the report is per body and period. Overrides are counted from accessibility-override records, one per publication past the gate. The CSV export is the one custom widget: the shared export has no room for the heuristic-scan statement the CSV must carry. Every status is a heuristic check result, not a PDF/UA conformance claim; the chart, the table and the export say so.",
+			"_note": "spec: openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. The body picker and the period range write the page workspace (governanceBody, dateFrom, dateTo); every tile, its share caption and the override count read it, so the report is per body and period. Overrides are counted from accessibility-override records, one per publication past the gate. The CSV export is the one custom widget: the shared export has no room for the heuristic-scan statement the CSV must carry. Every status is a heuristic check result, not a PDF/UA conformance claim; the chart, the table and the export say so.",
 			"config": {
 				"widgets": [
 					{
@@ -435,7 +435,7 @@
 			"route": "/reports/accessibility/documents",
 			"type": "index",
 			"title": "Checked documents",
-			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. The body and the period are the sidebar facets (governanceBody, scannedAt); the mass export is the CSV of the same rows. Reports are written by the scan only, so the index is read only.",
+			"_note": "spec: openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. The body and the period are the sidebar facets (governanceBody, scannedAt); the mass export is the CSV of the same rows. Reports are written by the scan only, so the index is read only.",
 			"config": {
 				"register": "decidiq",
 				"schema": "accessibility-scan-report",
@@ -523,7 +523,7 @@
 			"route": "/reports/accessibility/documents/:id",
 			"type": "detail",
 			"title": "Checked document",
-			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding. One report: the status, the findings with what was seen, and which file and body it is about. A report is a snapshot, so the page is read only.",
+			"_note": "spec: openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding. One report: the status, the findings with what was seen, and which file and body it is about. A report is a snapshot, so the page is read only.",
 			"config": {
 				"register": "decidiq",
 				"schema": "accessibility-scan-report",

@@ -6,7 +6,7 @@
  (never colour alone), labelled as a heuristic check. Clicking it toggles the
  scan detail the parent shows.
 
- @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
+ @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged
 -->
 <template>
 	<component

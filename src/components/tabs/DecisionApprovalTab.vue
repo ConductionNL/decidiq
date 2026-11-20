@@ -8,7 +8,7 @@
  whose turn it is act; the button starts a route. After a send the leaf is
  remounted so it reads the new stages.
 
- @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+ @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
 -->
 <template>
 	<div class="decision-approval">
@@ -55,7 +55,7 @@ export default {
 		/**
 		 * Close the dialog and let the chain read the new route.
 		 *
-		 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
+		 * @spec openspec/changes/archive/2026-11-20-routes-send-proposal-along-route/specs/approval-routes/spec.md#requirement-req-rspr-001-a-proposal-is-sent-along-a-route-from-its-page
 		 */
 		onSent() {
 			this.dialogOpen = false

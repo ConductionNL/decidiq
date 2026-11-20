@@ -8,7 +8,7 @@
  * the export, because the shared export has no room for the heuristic-scan
  * disclaimer the report must carry.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period
  */
 
 import axios from '@nextcloud/axios'

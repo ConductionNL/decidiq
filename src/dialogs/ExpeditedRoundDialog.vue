@@ -6,7 +6,7 @@
   response deadline in hours. The bounds come from the body's urgency policy
   and are checked again by the server.
 
-  @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
+  @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline
 -->
 <template>
 	<NcDialog
@@ -67,7 +67,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline */
+		/** @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline */
 		valid() {
 			const hours = Number(this.hours)
 			if (!Number.isInteger(hours) || hours < 1) return false

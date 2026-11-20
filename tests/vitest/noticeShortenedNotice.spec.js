@@ -5,7 +5,7 @@
  * A recorded shortened notice on an extraordinary meeting is a deliberate
  * state, not an overdue error; a regular meeting keeps the overdue warning.
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 import { describe, expect, it } from 'vitest'
 import { getNoticeDeadlineInfo, isRecordedShortenedNotice } from '../../src/services/noticeRules.js'

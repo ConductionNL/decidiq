@@ -6,7 +6,7 @@
   policy allows) states why; the parent posts it and shows the server's
   answer, so a refusal reads exactly as the server gave it.
 
-  @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
+  @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration
 -->
 <template>
 	<NcDialog

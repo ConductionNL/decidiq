@@ -6,7 +6,7 @@
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\DocumentAccessibilityScanService
  * @uses   \OCA\Decidiq\Service\PdfStructureInspector
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
  */
 class DocumentAccessibilityScanServiceTest extends TestCase {
 

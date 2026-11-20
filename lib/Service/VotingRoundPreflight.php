@@ -129,7 +129,7 @@ class VotingRoundPreflight {
 	 * @throws InvalidArgumentException When the body does not allow the method; the message names the allowed ones.
 	 * @throws RuntimeException When the body cannot be read.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 	 */
 	public function assertMethodAllowed(?string $governanceBodyId, string $votingMethod): void {
 		$allowed = $this->allowedMethodsOf(governanceBodyId: $governanceBodyId);
@@ -155,7 +155,7 @@ class VotingRoundPreflight {
 	 *
 	 * @throws RuntimeException When the body cannot be read.
 	 *
-	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
 	 */
 	public function allowedMethodsOf(?string $governanceBodyId): array {
 		if ($governanceBodyId === null || $governanceBodyId === '') {

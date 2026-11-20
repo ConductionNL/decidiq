@@ -10,7 +10,7 @@
  * live meeting screen and the agenda item page read it through here, so the
  * two never disagree.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md
  */
 
 /** Every value AgendaItem.phase declares, in order. */
@@ -33,7 +33,7 @@ export const AGENDA_PHASE_FINAL = 'completed'
  * @param {object|null} item The agenda item.
  * @return {string} The phase.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
  */
 export function phaseOf(item) {
 	for (const key of ['phase', 'status']) {
@@ -51,7 +51,7 @@ export function phaseOf(item) {
  * @param {object|null} item The agenda item.
  * @return {boolean} True for a discussion or decision item.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
  */
 export function hasPhase(item) {
 	return Boolean(item) && item.itemType !== 'informational'
@@ -65,7 +65,7 @@ export function hasPhase(item) {
  * @param {object|null} item The agenda item.
  * @return {number} The index.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
  */
 export function phaseStageIndex(item) {
 	const phase = phaseOf(item)
@@ -82,7 +82,7 @@ export function phaseStageIndex(item) {
  * @param {object|null} item The agenda item.
  * @return {boolean} True when it has a phase and is not completed.
  *
- * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
+ * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-011-the-agenda-item-page-shows-the-phase
  */
 export function canAdvancePhase(item) {
 	return hasPhase(item) && phaseOf(item) !== AGENDA_PHASE_FINAL

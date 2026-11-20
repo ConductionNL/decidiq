@@ -9,7 +9,7 @@
  the reason with the publication. The parent sends the publication again
  with the answer on @confirm (modal isolation, ADR-004).
 
- @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+ @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 -->
 <template>
 	<NcDialog

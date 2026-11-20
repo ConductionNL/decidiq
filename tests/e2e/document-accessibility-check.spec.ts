@@ -20,7 +20,7 @@
  * Every write goes to objects this suite creates and deletes again; the
  * enforcement mode and the scan-on-upload switch are restored afterwards.
  *
- * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md
+ * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md
  */
 import type { APIRequestContext, Page } from '@playwright/test'
 

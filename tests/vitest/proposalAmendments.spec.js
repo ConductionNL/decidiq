@@ -8,7 +8,7 @@
  * new amendment is saved with that reference as a draft amendment. Only the
  * relation store is a double.
  *
- * @spec openspec/changes/capability-rows-get-requirements/specs/motion-amendment/spec.md#requirement-an-amendment-can-target-a-proposal-as-well-as-a-motion
+ * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/motion-amendment/spec.md#requirement-an-amendment-can-target-a-proposal-as-well-as-a-motion
  */
 
 import * as fs from 'fs'

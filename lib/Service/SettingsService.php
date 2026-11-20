@@ -93,10 +93,10 @@ class SettingsService implements SettingsServiceInterface {
 		// 'true' makes a motion forwarded to another body wait for that body's
 		// chair (MotionForwardingService).
 		'motion_forwarding_requires_approval',
-		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 		// off|warn|block: how the document accessibility gate treats a publication.
 		'accessibility_enforcement_mode',
-		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 		// A paper added to a meeting or agenda item is scanned in the background unless this reads false.
 		'accessibility_scan_on_upload',
 		// @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning

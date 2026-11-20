@@ -10,7 +10,7 @@
  Rendered by the Nextcloud settings framework via AdminSettings.php, not the
  in-app router.
 
- @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+ @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 -->
 <template>
 	<div class="decidiq-document-scan" data-testid="document-scan-settings">

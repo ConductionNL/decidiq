@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/urgent-decision-procedure/specs/decision-management/spec.md#requirement-decision-urgency-fields
+ * @spec openspec/changes/archive/2026-11-20-urgent-decision-procedure/specs/decision-management/spec.md#requirement-decision-urgency-fields
  */
 
 declare(strict_types=1);
