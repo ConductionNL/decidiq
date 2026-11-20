@@ -154,6 +154,7 @@ import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import RelatedDecisionAddModal from '../../modals/RelatedDecisionAddModal.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 // The five typed peer-relation fields on Decision (design D1). amends is the
@@ -389,7 +390,7 @@ export default {
 					return
 				}
 				const next = [...existing, targetId]
-				await store.saveObject('decision', {
+				await saveOrThrow(store, 'decision', {
 					id: this.objectId,
 					[type]: next,
 				})
@@ -424,7 +425,7 @@ export default {
 				)
 					.map((r) => this.refId(r))
 					.filter((id) => id !== rowId)
-				await store.saveObject('decision', {
+				await saveOrThrow(store, 'decision', {
 					id: this.objectId,
 					[type]: next,
 				})

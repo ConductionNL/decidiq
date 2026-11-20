@@ -43,6 +43,16 @@
 					">
 					{{ t('decidiq', 'Room screen') }}
 				</NcButton>
+				<!-- platform-microsoft-365-calendar-and-teams (REQ-M365-005) -->
+				<NcButton
+					v-if="teamsJoinUrl"
+					variant="primary"
+					:href="teamsJoinUrl"
+					target="_blank"
+					rel="noopener noreferrer"
+					data-testid="meeting-live-teams-join">
+					{{ t('decidiq', 'Join in Microsoft Teams') }}
+				</NcButton>
 			</div>
 
 			<!-- Meeting cost panel (meeting-efficiency) -->
@@ -224,7 +234,9 @@
 				:meetingId="id"
 				:currentItemId="activeItem.id"
 				:participants="participants"
-				:isChair="isChair" />
+				:isChair="isChair"
+				:preload="publicSpeakers"
+				:markOutcome="isChair ? markSpeakerOutcome : null" />
 
 			<!-- Seats and the mandate swap (bodies-substitute-mandate-swap) -->
 			<SeatsPanel :meetingId="id" />
@@ -282,6 +294,7 @@ import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
 import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
+import { markSpeakingOutcome, queuePreloadFor } from '../services/speakingRequestApi.js'
 import { useObjectStore } from '../store/store.js'
 import {
 	formalityUrl,
@@ -294,6 +307,7 @@ import {
 	sharedCurrentItemId,
 } from '../utils/liveMeeting.js'
 import { references } from '../utils/objectRelations.js'
+import { teamsJoinUrl } from '../utils/teamsMeeting.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -339,6 +353,9 @@ export default {
 		return {
 			loading: true,
 			activeItemId: null,
+			// Approved public speakers of the current item, for the speaker
+			// queue (inspreekrecht-plenair REQ-INS-009).
+			publicSpeakers: null,
 			advancingBob: false,
 			processingHamerstukken: false,
 			confirmHamerstukken: false,
@@ -368,6 +385,16 @@ export default {
 		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
+		},
+
+		/**
+		 * The Teams join address of the meeting, or '' (platform-microsoft-365-calendar-and-teams).
+		 *
+		 * @return {string} The join address.
+		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
+		 */
+		teamsJoinUrl() {
+			return teamsJoinUrl(this.meeting)
 		},
 
 		/**
@@ -506,6 +533,15 @@ export default {
 		sharedItemId(itemId) {
 			if (itemId) this.activeItemId = itemId
 		},
+
+		/**
+		 * Read the approved public speakers of the item that became current.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		activeItemId() {
+			this.loadPublicSpeakers()
+		},
 	},
 
 	/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
@@ -563,6 +599,31 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Read the approved public speakers of the current item, so the queue
+		 * can place them. Only staff of an opened meeting get them; for
+		 * anyone else the queue stays as it was.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		async loadPublicSpeakers() {
+			const itemId = this.activeItemId
+			const preload = await queuePreloadFor({ ...this.meeting, id: this.id }, itemId, this.t('decidiq', 'Public speaker'), Date.now())
+			if (itemId === this.activeItemId) this.publicSpeakers = preload
+		},
+
+		/**
+		 * Record a public speaker's outcome on their speaking request.
+		 *
+		 * @param {string} requestId The speaking request.
+		 * @param {'spoke'|'no-show'} outcome The outcome.
+		 * @return {Promise<object>} The updated request.
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		markSpeakerOutcome(requestId, outcome) {
+			return markSpeakingOutcome(requestId, outcome)
+		},
+
 		/**
 		 * @param item
 		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3

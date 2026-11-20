@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Command;
 
-use OCA\Decidiq\Service\ActionItemMigrationService;
+use OCA\Decidiq\Kernel\Contracts\ActionItemMigrationServiceInterface;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -49,15 +49,15 @@ class MigrateActionItems extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param ActionItemMigrationService $migration   The migration.
-	 * @param IUserManager               $userManager Loads each owning user.
-	 * @param IUserSession               $userSession Makes the owner the acting user.
-	 * @param LoggerInterface            $logger      The logger.
+	 * @param ActionItemMigrationServiceInterface $migration   The migration.
+	 * @param IUserManager                        $userManager Loads each owning user.
+	 * @param IUserSession                        $userSession Makes the owner the acting user.
+	 * @param LoggerInterface                     $logger      The logger.
 	 *
 	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	public function __construct(
-		private readonly ActionItemMigrationService $migration,
+		private readonly ActionItemMigrationServiceInterface $migration,
 		private readonly IUserManager $userManager,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,

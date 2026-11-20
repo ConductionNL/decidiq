@@ -103,6 +103,30 @@ final class ImportOriCommandTest extends TestCase {
 		$this->assertSame([['ori', true], ['ori', false]], $this->calls);
 	}
 
+	/**
+	 * A strict run still fails when the preview was clean but the import itself hits a problem.
+	 *
+	 * @return void
+	 */
+	public function testStrictFailsWhenTheImportItselfFindsAProblemAfterACleanPreview(): void {
+		$this->import->method('preview')->willReturnCallback(function (string $sourceRegister='ori'): OriImportReport {
+			$this->calls[] = [$sourceRegister, true];
+			return new OriImportReport(dryRun: true);
+		});
+		$this->import->method('import')->willReturnCallback(function (string $sourceRegister='ori'): OriImportReport {
+			$this->calls[] = [$sourceRegister, false];
+			$report = new OriImportReport(dryRun: false);
+			$report->problem(schema: 'agendapunt', source: 'a7', problem: 'source changed during the import');
+			return $report;
+		});
+
+		$tester = $this->runCommand(input: ['--strict' => true]);
+
+		$this->assertSame(expected: Command::FAILURE, actual: $tester->getStatusCode());
+		$this->assertSame(expected: [['ori', true], ['ori', false]], actual: $this->calls);
+		$this->assertStringContainsString(needle: 'problem: agendapunt a7 source changed during the import', haystack: $tester->getDisplay());
+	}
+
 	public function testWithoutStrictAProblemIsReportedButTheRunSucceeds(): void {
 		$this->answers(problem: true);
 
