@@ -168,7 +168,10 @@ class DocumentPublicationGate {
 			return null;
 		}
 
-		throw new AccessibilityGateException(mode: $consent['mode'], documents: array_map(fn (array $report): array => $this->summary(report: $report), $holding));
+		throw new AccessibilityGateException(
+			mode: $consent['mode'],
+			documents: array_map(fn (array $report): array => $this->summary(report: $report), $holding)
+		);
 	}//end decide()
 
 	/**

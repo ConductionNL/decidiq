@@ -204,7 +204,10 @@ class DocumentAccessibilityScanService {
 		$file = ['fileName' => $fileName, 'mimeType' => $mimeType, 'fileSize' => $size];
 		if ($this->isPdf(fileName: $fileName, mimeType: $mimeType) === false) {
 			$note = sprintf('%s, %d bytes; content checks apply to PDF only', ($mimeType ?? 'unknown type'), $size);
-			return $this->result(file: $file, outcome: ['status' => 'not-scanned', 'findings' => [$this->finding(code: 'unsupported-format', evidence: $note)]]);
+			return $this->result(
+				file: $file,
+				outcome: ['status' => 'not-scanned', 'findings' => [$this->finding(code: 'unsupported-format', evidence: $note)]]
+			);
 		}
 
 		if ($size > self::SIZE_CAP) {
@@ -420,7 +423,7 @@ class DocumentAccessibilityScanService {
 	 * Assemble a result.
 	 *
 	 * @param array{fileName: string, mimeType: string|null, fileSize: int|null} $file    The file.
-	 * @param array<string, mixed>                                              $outcome status and findings, and the checks evaluated and the page count when read.
+	 * @param array<string, mixed>                                              $outcome status and findings, the checks evaluated, the page count.
 	 *
 	 * @return array<string, mixed>
 	 */

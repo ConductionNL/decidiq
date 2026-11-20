@@ -84,7 +84,10 @@ class AgendaAccessibilityCheck {
 			return [];
 		}
 
-		$body = ((string)($publication['meeting']['governanceBody'] ?? '') ?: null);
+		$body = (string)($publication['meeting']['governanceBody'] ?? '');
+		if ($body === '') {
+			$body = null;
+		}
 
 		$documents = [];
 		foreach ($this->documentSources(meetingId: $publication['meetingId'], items: $publication['items']) as [$sourceId, $schema]) {
