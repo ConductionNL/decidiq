@@ -99,8 +99,8 @@ class RatificationPlacedReportListener implements IEventListener {
 			return;
 		}
 
-		$decisionId = self::referenceId(value: ($item['ratifiesDecision'] ?? null));
-		if ($decisionId === null || self::referenceId(value: ($item['meeting'] ?? null)) === null) {
+		$decisionId = (new RelationReference())->idOf(value: ($item['ratifiesDecision'] ?? null));
+		if ($decisionId === null || (new RelationReference())->idOf(value: ($item['meeting'] ?? null)) === null) {
 			return;
 		}
 
@@ -150,24 +150,4 @@ class RatificationPlacedReportListener implements IEventListener {
 			)
 		);
 	}//end stamp()
-
-	/**
-	 * A relation value (a uuid or `{id}`) as a uuid, or null.
-	 *
-	 * @param mixed $value The relation value.
-	 *
-	 * @return string|null
-	 */
-	private static function referenceId(mixed $value): ?string {
-		$id = $value;
-		if (is_array($value) === true) {
-			$id = ($value['id'] ?? ($value['uuid'] ?? null));
-		}
-
-		if (is_string($id) === false || $id === '') {
-			return null;
-		}
-
-		return $id;
-	}//end referenceId()
 }//end class

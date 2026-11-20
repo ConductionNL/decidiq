@@ -105,7 +105,7 @@ class LiftAfterRatificationGuard implements IEventListener {
 			return;
 		}
 
-		$message = $this->refusal(groundId: self::referenceId(value: ($new['ground'] ?? ($old['ground'] ?? null))));
+		$message = $this->refusal(groundId: (new RelationReference())->idOf(value: ($new['ground'] ?? ($old['ground'] ?? null))));
 		if ($message !== null) {
 			$event->setErrors(['message' => $message]);
 			$event->stopPropagation();
@@ -163,24 +163,4 @@ class LiftAfterRatificationGuard implements IEventListener {
 
 		return null;
 	}//end refusal()
-
-	/**
-	 * A relation value (a uuid or `{id}`) as a uuid, or null.
-	 *
-	 * @param mixed $value The relation value.
-	 *
-	 * @return string|null
-	 */
-	private static function referenceId(mixed $value): ?string {
-		$id = $value;
-		if (is_array($value) === true) {
-			$id = ($value['id'] ?? ($value['uuid'] ?? null));
-		}
-
-		if (is_string($id) === false || $id === '') {
-			return null;
-		}
-
-		return $id;
-	}//end referenceId()
 }//end class
