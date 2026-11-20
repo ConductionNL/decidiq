@@ -44,8 +44,10 @@ use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
 use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\UrgencyFieldGuardListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\Decidiq\Service\OndermandaatGuardService;
 
 /**
  * The before-save listener subscriptions.
@@ -89,9 +91,10 @@ final class SaveGuardSubscriptions {
 		['event' => ObjectUpdatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
 		// Ondermandaat chains (delegatie-mandaatregister, REQ-DMR-003): a
 		// toedeling's parent must exist and permit ondermandaat, and the
-		// chain may not loop, on create and on update.
-		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
-		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
+		// chain may not loop, on create and on update. The schema is now
+		// authority-delegation; the old Dutch slug stays guarded too.
+		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
+		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
 		// Document details (platform-document-metadata-fields, REQ-DMF-002
 		// and REQ-DMF-004): a record keeps its type's required fields and
 		// one record describes one file, on create and on update.
@@ -116,6 +119,10 @@ final class SaveGuardSubscriptions {
 		['event' => ObjectUpdatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Urgency fields (urgent-decision-procedure, REQ-001): written only by
+		// the guarded urgency declaration, carried forward on other edits.
+		['event' => ObjectCreatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
 		// Agenda placement waits for approval (routes-send-proposal-along-route,
 		// REQ-RSPR-001): a decision whose approval route has an open step is
 		// not placed on an agenda item.

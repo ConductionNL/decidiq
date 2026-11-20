@@ -480,8 +480,12 @@ describe('the decision page in the simple structure', () => {
 			'Action items',
 			'Commitments',
 			'Related decisions',
+			// An amendment can target a proposal too (mot-02).
+			'Amendments',
 			'Cited governing documents',
 			'Lifecycle',
+			// followup-implementation-progress: on an adopted decision only.
+			'Implementation',
 		])
 		expect(
 			tabs.filter((tab) => !tab.overflow).map((tab) => dutch[tab.label]),
@@ -511,9 +515,13 @@ describe('the decision page in the simple structure', () => {
 		// routes-send-proposal-along-route added the approval route block,
 		// goals-linked-to-decisions the goal block,
 		// voting-written-resolution the written resolution block,
-		// governing-documents-register the cited governing documents and
-		// publication-theme-pages the themes block.
-		expect(declared).toHaveLength(20)
+		// governing-documents-register the cited governing documents,
+		// publication-theme-pages the themes block,
+		// delegatie-mandaatregister the authority basis block,
+		// capability-rows-get-requirements the amendments (mot-02),
+		// followup-implementation-progress the Implementation block, and
+		// urgent-decision-procedure the urgency block.
+		expect(declared).toHaveLength(24)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {

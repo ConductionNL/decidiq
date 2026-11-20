@@ -89,6 +89,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 * @param DocumentPublicationGate|null $documentGate The document accessibility gate on publication
 	 * @param OpenRegisterFiles|null $files OpenRegister's files, read for the gate
+	 * @param ShortenedNoticeService|null $shortenedNotice Checks an emergency convocation's shortened notice
 	 *
 	 * @return void
 	 *
@@ -102,6 +103,7 @@ class AgendaService implements AgendaServiceInterface {
 		private readonly PublicationEventRecorder $eventRecorder,
 		private readonly ?DocumentPublicationGate $documentGate=null,
 		private readonly ?OpenRegisterFiles $files=null,
+		private readonly ?ShortenedNoticeService $shortenedNotice=null,
 	) {
 		$this->rules   = new AgendaRules();
 	}//end __construct()
@@ -137,18 +139,20 @@ class AgendaService implements AgendaServiceInterface {
 	 * meeting's and items' files first; an override is kept on the meeting.
 	 *
 	 * @param string               $meetingId     UUID of the Meeting to publish
+	 * @param string|null          $noticeReason  Null for a regular convocation; a string (empty for the
+	 *                                            urgency reason) for an emergency convocation at shortened notice
 	 * @param array<string, mixed> $accessibility `acknowledged`: the publisher acknowledged the documents the gate lists;
 	 *                                            `overrideReason`: the reason for publishing past the gate, when given
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When no agenda items exist for the meeting
+	 * @throws InvalidArgumentException When no agenda items exist for the meeting, or the shortened notice is refused
 	 * @throws \OCA\Decidiq\Exception\AccessibilityGateException When the accessibility gate holds the publication back
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public function publishAgenda(string $meetingId, array $accessibility=[]): void {
+	public function publishAgenda(string $meetingId, ?string $noticeReason=null, array $accessibility=[]): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
@@ -164,7 +168,17 @@ class AgendaService implements AgendaServiceInterface {
 			$meeting['accessibilityOverrides'][] = $override;
 		}
 
-		$publication = ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items];
+		$deviation = [];
+		if ($noticeReason !== null) {
+			// Checked before anything is saved or sent: a refused deviation records nothing.
+			if ($this->shortenedNotice === null) {
+				throw new InvalidArgumentException('A shortened notice is not available.');
+			}
+
+			$deviation = $this->shortenedNotice->deviationFor(meetingId: $meetingId, meeting: $meeting, reason: $noticeReason);
+		}
+
+		$publication = ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items, 'deviation' => $deviation];
 		$this->savePublication(publication: $publication);
 		$this->announcePublication(publication: $publication);
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
@@ -272,7 +286,8 @@ class AgendaService implements AgendaServiceInterface {
 			meetingId: $publication['meetingId'],
 			meeting: array_merge(
 				$this->rules->withNewAgendaVersion(meetingData: $meetingData, items: $publication['items']),
-				$this->rules->publicationChanges(meetingData: $meetingData)
+				$this->rules->publicationChanges(meetingData: $meetingData),
+				($publication['deviation'] ?? [])
 			)
 		);
 	}//end savePublication()
@@ -310,6 +325,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @throws InvalidArgumentException When item is informational or already at final phase
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function advanceBobPhase(string $agendaItemId): void {
 		$item = $this->objectService->find($agendaItemId);
@@ -321,8 +337,10 @@ class AgendaService implements AgendaServiceInterface {
 
 		// Uses patchObject, not saveObject: a uuid-bearing save is a FULL REPLACE
 		// that OpenRegister validates whole, so a status-only payload 400s on
-		// the required title, itemType and orderNumber it omits.
-		$this->patchItem(itemId: $agendaItemId, data: ['status' => $nextStatus]);
+		// the required title, itemType and orderNumber it omits. A phase-only
+		// payload, likewise.
+		// The phase is the declared `phase` (REQ-LIV-010); `status` was never declared.
+		$this->patchItem(itemId: $agendaItemId, data: ['phase' => $nextStatus]);
 
 		$this->logger->info(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',

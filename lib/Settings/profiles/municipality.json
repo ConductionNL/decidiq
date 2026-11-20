@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 261,
+			"objectCount": 290,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -296,6 +296,61 @@
 						"familyName": "Ouali",
 						"email": "t.ouali@gemeente.example",
 						"biography": "Wethouder mobiliteit en verkeersveiligheid."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-wethouder-de-boer",
+						"name": "Wethouder De Boer",
+						"givenName": "Sanne",
+						"familyName": "de Boer",
+						"gender": "female",
+						"email": "s.deboer@gemeente.example",
+						"biography": "Wethouder energie en duurzaamheid; portefeuillehouder van de energietransitie."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-wethouder-yilmaz",
+						"name": "Wethouder Yilmaz",
+						"givenName": "Emre",
+						"familyName": "Yilmaz",
+						"gender": "male",
+						"email": "e.yilmaz@gemeente.example",
+						"biography": "Wethouder mobiliteit en openbare ruimte."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "persoon-s-visser",
+						"name": "S. Visser",
+						"givenName": "Sophie",
+						"familyName": "Visser",
+						"gender": "female",
+						"email": "s.visser@gemeente.example",
+						"biography": "Beleidsadviseur energie; steller van de raadsvoorstellen over de energietransitie."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "pieter-bos",
+						"name": "Pieter Bos",
+						"givenName": "Pieter",
+						"familyName": "Bos",
+						"biography": "Registeraccountant, extern adviseur van de raad bij de grondaankoop Lindelaan. Leest de besloten stukken via het portaal; heeft geen Nextcloud-account.",
+						"portalAccountRef": "portal-account-pieter-bos"
 					}
 				],
 				"goal": [
@@ -1044,6 +1099,60 @@
 						"meetingMode": "hybrid",
 						"isPublic": true,
 						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "besloten-vergadering-grondzaken-2026-10-03",
+						"title": "Besloten vergadering grondzaken",
+						"meetingType": "regular",
+						"scheduledDate": "2026-10-03T18:00:00Z",
+						"endDate": "2026-10-03T20:30:00Z",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "in-person",
+						"isPublic": false,
+						"watermarkPapers": "on",
+						"watermarkText": "Vertrouwelijk",
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "spoedvergadering-college-2026-06-02",
+						"title": "Spoedvergadering college 2 juni 2026",
+						"meetingType": "extraordinary",
+						"governanceBody": "college-van-b-en-w-amsterdam",
+						"scheduledDate": "2026-06-02T14:00:00+02:00",
+						"endDate": "2026-06-02T15:00:00+02:00",
+						"location": "Stadhuis Amsterdam, Collegekamer",
+						"meetingMode": "hybrid",
+						"lifecycle": "closed",
+						"convocationSentAt": "2026-06-01T14:00:00+02:00",
+						"shortenedNotice": true,
+						"actualNoticeHours": 24,
+						"noticeDeviationReason": "Spoedbesluit noodopvang — reguliere oproeptermijn niet haalbaar"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "raadsvergadering-2026-06-18",
+						"title": "Raadsvergadering 18 juni 2026",
+						"meetingType": "regular",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2026-06-18T19:30:00+02:00",
+						"endDate": "2026-06-18T23:00:00+02:00",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "hybrid",
+						"lifecycle": "scheduled"
 					}
 				],
 				"agenda-item": [
@@ -1656,6 +1765,39 @@
 						"estimatedDuration": 45,
 						"description": "Raadsvoorstel voor het voorbereidingskrediet van het nieuwe zwembad De Hoge Dijk.",
 						"meeting": "raadsvergadering-2025-04-10"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-grondaankoop-lindelaan",
+						"title": "Grondaankoop Lindelaan",
+						"itemType": "decision",
+						"orderNumber": 10,
+						"meeting": "raadsvergadering-2025-04-10",
+						"description": "Besloten punt: de onderhandelingsruimte voor de aankoop van de percelen aan de Lindelaan. De stukken zijn niet openbaar.",
+						"public": false,
+						"authorisedReaders": [],
+						"authorisedPersons": [
+							"pieter-bos"
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "bekrachtiging-spoedbesluit-opvang",
+						"title": "Bekrachtiging spoedbesluit noodopvang",
+						"itemType": "decision",
+						"orderNumber": 3,
+						"estimatedDuration": 20,
+						"description": "Het college legt het spoedbesluit noodopvang sporthal De Vliet ter bekrachtiging voor aan de raad.",
+						"meeting": "raadsvergadering-2026-06-18",
+						"ratifiesDecision": "a1d10000-0000-4000-a000-000000000201"
 					}
 				],
 				"ancillary-position": [
@@ -1839,122 +1981,6 @@
 								"label": "Verzending"
 							}
 						]
-					}
-				],
-				"authority-delegation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "delegatie-uitwerkingsplannen",
-						"type": "delegation",
-						"subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:13",
-							"Wro art. 3.6"
-						],
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"validFrom": "2026-01-01",
-						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z",
-						"delegatingBody": "gemeenteraad-amsterdam",
-						"delegateBody": "00000000-0000-0000-0000-000000000000",
-						"restrictions": "Uitsluitend binnen door de raad vastgestelde kaders"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "machtiging-woo-vertegenwoordiging",
-						"type": "authorisation",
-						"delegateRole": "juridisch adviseur team Recht",
-						"delegatePerson": "00000000-0000-0000-0000-000000000000",
-						"subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:3"
-						],
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"validFrom": "2025-01-01",
-						"validTo": "2026-01-01",
-						"status": "withdrawn",
-						"withdrawnBy": "00000000-0000-0000-0000-000000000000",
-						"publicationDate": "2025-01-10T09:00:00Z",
-						"delegatingBody": "00000000-0000-0000-0000-000000000000"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "mandaat-subsidies-secretaris",
-						"type": "mandate",
-						"delegateRole": "gemeentesecretaris",
-						"subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
-						"financialCeiling": 25000,
-						"subMandatePermitted": true,
-						"statutoryBasis": [
-							"Awb art. 10:3",
-							"Asv 2026 art. 4"
-						],
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"validFrom": "2026-01-01",
-						"status": "effective",
-						"publicationDate": "2026-01-05T09:00:00Z",
-						"delegatingBody": "00000000-0000-0000-0000-000000000000",
-						"restrictions": "Geen subsidies met precedentwerking"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "ondermandaat-subsidies-samenleving",
-						"type": "mandate",
-						"delegateRole": "afdelingshoofd Samenleving",
-						"subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
-						"financialCeiling": 5000,
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"Awb art. 10:9"
-						],
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"parentAllocation": "mandaat-subsidies-secretaris",
-						"validFrom": "2026-02-01",
-						"validTo": "2026-08-15",
-						"status": "effective",
-						"publicationDate": "2026-02-05T09:00:00Z",
-						"delegatingDescription": "gemeentesecretaris",
-						"restrictions": "Uitsluitend reguliere subsidieregelingen"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "authority-delegation"
-						},
-						"slug": "volmacht-inkoop-teamleider",
-						"type": "power-of-attorney",
-						"delegateRole": "teamleider Inkoop",
-						"subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
-						"financialCeiling": 50000,
-						"subMandatePermitted": false,
-						"statutoryBasis": [
-							"BW art. 3:60",
-							"Gemeentewet art. 171"
-						],
-						"decision": "00000000-0000-0000-0000-000000000000",
-						"validFrom": "2026-03-01",
-						"status": "draft",
-						"delegatingDescription": "burgemeester",
-						"restrictions": "Binnen het vastgestelde inkoopbeleid"
 					}
 				],
 				"body-governance-configuration": [
@@ -2510,6 +2536,23 @@
 						"votesFor": 28,
 						"votesAgainst": 3,
 						"votesAbstain": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"slug": "stemming-hoofdelijk-parkeerbeleid",
+						"votingMethod": "roll-call",
+						"isSecret": false,
+						"openedAt": "2026-03-12T20:35:00Z",
+						"closedAt": "2026-03-12T20:40:00Z",
+						"quorumWith": true,
+						"result": "adopted",
+						"votesFor": 2,
+						"votesAgainst": 1,
+						"votesAbstain": 0
 					}
 				],
 				"decision-stage": [
@@ -2569,6 +2612,44 @@
 						"decision": "besluit-begroting-2027",
 						"assignedBody": "gemeenteraad-amsterdam",
 						"votingRound": "stemming-begroting-2027-gemeenteraad"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodopvang-college-besluit",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-06-02T14:45:00+02:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Spoedbesluit college",
+						"decision": "spoedbesluit-noodopvang-2026",
+						"assignedBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "noodopvang-raad-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "pending",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "spoedbesluit-noodopvang-2026",
+						"assignedBody": "gemeenteraad-amsterdam",
+						"agendaItem": "bekrachtiging-spoedbesluit-opvang",
+						"placementPending": false
 					}
 				],
 				"decision": [
@@ -2864,6 +2945,48 @@
 							"register": "decidiq",
 							"schema": "decision"
 						},
+						"slug": "besluit-delegatie-uitwerkingsplannen",
+						"decisionType": "resolution",
+						"title": "Delegatiebesluit uitwerkingsplannen",
+						"text": "Besluit van de gemeenteraad van Amsterdam tot delegatie van de bevoegdheid tot vaststelling van uitwerkingsplannen aan het college (Awb art. 10:13).",
+						"lifecycle": "enacted",
+						"decisionDate": "2025-12-11",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "besluit-algemeen-mandaatbesluit-2026",
+						"decisionType": "resolution",
+						"title": "Algemeen mandaatbesluit 2026",
+						"text": "Besluit van het college van B&W van Amsterdam tot verlening van mandaat, volmacht en machtiging aan functionarissen van de gemeente (Awb art. 10:3).",
+						"lifecycle": "enacted",
+						"decisionDate": "2025-12-16",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "besluit-intrekking-machtiging-woo",
+						"decisionType": "resolution",
+						"title": "Intrekkingsbesluit machtiging Woo-vertegenwoordiging",
+						"text": "Besluit van het college van B&W van Amsterdam tot intrekking van de machtiging tot vertegenwoordiging bij Woo-bezwaarprocedures (Awb art. 10:8).",
+						"lifecycle": "enacted",
+						"decisionDate": "2025-12-18",
+						"outcome": "adopted"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
 						"slug": "raadsvoorstel-verlichting-fietspaden-2027",
 						"decisionType": "council-proposal",
 						"title": "Raadsvoorstel verlichting fietspaden 2027",
@@ -2893,6 +3016,144 @@
 						"submittedAt": "2025-04-10T19:15:00Z",
 						"decisionDate": "2025-04-10T21:20:00Z",
 						"meeting": "raadsvergadering-2025-04-10"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "spoedbesluit-noodopvang-2026",
+						"id": "a1d10000-0000-4000-a000-000000000201",
+						"uuid": "a1d10000-0000-4000-a000-000000000201",
+						"decisionType": "resolution",
+						"title": "Noodopvang statushouders sporthal De Vliet",
+						"text": "Het college besluit sporthal De Vliet per direct als noodopvang voor 120 statushouders in te richten, voor ten hoogste drie maanden.",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"decisionDate": "2026-06-02T14:45:00+02:00",
+						"isPublished": "internal",
+						"meeting": "spoedvergadering-college-2026-06-02",
+						"governingBody": "College van B&W Amsterdam",
+						"isUrgent": true,
+						"urgencyReason": "Acute opvangcrisis; eerstvolgende reguliere raadsvergadering is pas over drie weken (Gemeentewet-spoedbevoegdheid college)",
+						"urgencyDeclaredBy": "burgemeester",
+						"urgencyDeclaredAt": "2026-06-02T09:15:00+02:00"
+					}
+				],
+				"authority-delegation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "delegatie-uitwerkingsplannen",
+						"type": "delegation",
+						"subject": "Vaststellen van uitwerkingsplannen als bedoeld in art. 3.6 Wro",
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:13",
+							"Wro art. 3.6"
+						],
+						"decision": "besluit-delegatie-uitwerkingsplannen",
+						"validFrom": "2026-01-01",
+						"status": "effective",
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "gemeenteraad-amsterdam",
+						"delegateBody": "college-van-b-en-w-amsterdam",
+						"restrictions": "Uitsluitend binnen door de raad vastgestelde kaders"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "machtiging-woo-vertegenwoordiging",
+						"type": "authorisation",
+						"delegateRole": "juridisch adviseur team Recht",
+						"subject": "Vertegenwoordiging bij Woo-bezwaarprocedures",
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:3"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2025-01-01",
+						"validTo": "2026-01-01",
+						"status": "withdrawn",
+						"withdrawnBy": "besluit-intrekking-machtiging-woo",
+						"publicationDate": "2025-01-10T09:00:00Z",
+						"delegatingBody": "college-van-b-en-w-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "mandaat-subsidies-secretaris",
+						"type": "mandate",
+						"delegateRole": "gemeentesecretaris",
+						"subject": "Beslissen op subsidieaanvragen tot het genoemde plafond",
+						"financialCeiling": 25000,
+						"subMandatePermitted": true,
+						"statutoryBasis": [
+							"Awb art. 10:3",
+							"Asv 2026 art. 4"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2026-01-01",
+						"status": "effective",
+						"publicationDate": "2026-01-05T09:00:00Z",
+						"delegatingBody": "college-van-b-en-w-amsterdam",
+						"restrictions": "Geen subsidies met precedentwerking"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "ondermandaat-subsidies-samenleving",
+						"type": "mandate",
+						"delegateRole": "afdelingshoofd Samenleving",
+						"subject": "Beslissen op subsidieaanvragen binnen het programma Samenleving",
+						"financialCeiling": 5000,
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"Awb art. 10:9"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"parentAllocation": "mandaat-subsidies-secretaris",
+						"validFrom": "2026-02-01",
+						"validTo": "2026-08-15",
+						"status": "effective",
+						"publicationDate": "2026-02-05T09:00:00Z",
+						"delegatingDescription": "gemeentesecretaris",
+						"restrictions": "Uitsluitend reguliere subsidieregelingen"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "authority-delegation"
+						},
+						"slug": "volmacht-inkoop-teamleider",
+						"type": "power-of-attorney",
+						"delegateRole": "teamleider Inkoop",
+						"subject": "Aangaan van privaatrechtelijke rechtshandelingen voor inkoop",
+						"financialCeiling": 50000,
+						"subMandatePermitted": false,
+						"statutoryBasis": [
+							"BW art. 3:60",
+							"Gemeentewet art. 171"
+						],
+						"decision": "besluit-algemeen-mandaatbesluit-2026",
+						"validFrom": "2026-03-01",
+						"status": "draft",
+						"delegatingDescription": "burgemeester",
+						"restrictions": "Binnen het vastgestelde inkoopbeleid"
 					}
 				],
 				"decision-template": [
@@ -4387,6 +4648,80 @@
 						"notes": "Volgt op het voorbereidingskrediet en de motie duurzaam zwembad.",
 						"lifecycle": "planned",
 						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-energietransitie",
+						"subject": "Energietransitie",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q4",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"notes": "Onderwerp op de termijnagenda; de uitwerking loopt in afzonderlijke sporen.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-warmtevisie-2-0",
+						"subject": "Warmtevisie 2.0",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2026-Q4",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"parentItem": "lta-energietransitie",
+						"notes": "Spoor van de energietransitie: de herziene warmtevisie per wijk.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-regionale-energiestrategie-2-0",
+						"subject": "Regionale energiestrategie 2.0",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q1",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-de-boer",
+						"author": "persoon-s-visser",
+						"parentItem": "lta-energietransitie",
+						"notes": "Spoor van de energietransitie: de regionale energiestrategie met de buurgemeenten.",
+						"lifecycle": "planned",
+						"shiftHistory": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-mobiliteitsplan-2027",
+						"subject": "Mobiliteitsplan 2027",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q2",
+						"expectedType": "council-proposal",
+						"ownerType": "portfolio-holder",
+						"owner": "persoon-wethouder-yilmaz",
+						"author": "persoon-a-terpstra",
+						"notes": "Herijking van het mobiliteitsplan na de evaluatie van de autoluwe binnenstad.",
+						"lifecycle": "planned",
+						"shiftHistory": []
 					}
 				],
 				"planning-cycle-template": [
@@ -4732,6 +5067,48 @@
 						"weight": 1,
 						"isProxy": true,
 						"castAt": "2025-04-10T21:32:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-hoofdelijk-doornbos",
+						"value": "for",
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2026-03-12T20:40:00Z",
+						"entryMode": "recorded",
+						"recordedBy": "griffier"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-hoofdelijk-bakker",
+						"value": "for",
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2026-03-12T20:40:00Z",
+						"entryMode": "recorded",
+						"recordedBy": "griffier"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-hoofdelijk-yilmaz",
+						"value": "against",
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2026-03-12T20:40:00Z",
+						"entryMode": "recorded",
+						"recordedBy": "griffier"
 					}
 				],
 				"proxy-authorization": [
@@ -4880,6 +5257,34 @@
 							"zaaknummer": "Z-2026-00412",
 							"status": "definitief"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"slug": "document-taxatierapport-lindelaan",
+						"name": "Taxatierapport percelen Lindelaan.pdf",
+						"documentType": "Raadsvoorstel",
+						"encodingFormat": "application/pdf",
+						"fileId": 900501,
+						"agendaItem": "agendapunt-grondaankoop-lindelaan",
+						"public": false
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"slug": "document-onderhandelingsmandaat-lindelaan",
+						"name": "Onderhandelingsmandaat grondaankoop Lindelaan.pdf",
+						"documentType": "Raadsvoorstel",
+						"encodingFormat": "application/pdf",
+						"fileId": 900502,
+						"agendaItem": "agendapunt-grondaankoop-lindelaan",
+						"public": false
 					}
 				],
 				"case-exchange-record": [
@@ -5451,6 +5856,137 @@
 						"plannedAgendaItems": [
 							"lta-bouwbesluit-zwembad"
 						]
+					}
+				],
+				"annotation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "hl-bestemmingsplan-bouwhoogte",
+						"annotationType": "highlight",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 3,
+						"quads": [
+							[
+								0.12,
+								0.41,
+								0.71,
+								0.41,
+								0.71,
+								0.44,
+								0.12,
+								0.44
+							]
+						],
+						"quote": "maximale bouwhoogte van 12 meter",
+						"bodyText": "Strijdig met eerdere toezegging aan omwonenden?",
+						"color": "yellow",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "commissie-ruimte-2026-11-03-punt-2",
+						"meeting": "commissie-ruimte-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-begroting-dekking",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 2,
+						"point": {
+							"x": 0.82,
+							"y": 0.18
+						},
+						"bodyText": "Navragen bij wethouder: dekking uit de algemene reserve?",
+						"color": "blue",
+						"visibility": "faction",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "begroting-2026-bespreking"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "draw-situatietekening-kruising",
+						"annotationType": "drawing",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 5,
+						"path": [
+							[
+								0.3,
+								0.52
+							],
+							[
+								0.36,
+								0.48
+							],
+							[
+								0.44,
+								0.47
+							],
+							[
+								0.5,
+								0.51
+							],
+							[
+								0.48,
+								0.58
+							],
+							[
+								0.39,
+								0.61
+							],
+							[
+								0.31,
+								0.58
+							],
+							[
+								0.3,
+								0.52
+							]
+						],
+						"bodyText": "Kruising Stationsweg: zichtlijnen controleren",
+						"color": "red",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-notulen-actiepunt-griffie",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v2",
+						"versionLabel": "v2",
+						"page": 1,
+						"point": {
+							"x": 0.75,
+							"y": 0.1
+						},
+						"bodyText": "Actiepunt griffie: raadsbrief vóór 1 mei versturen",
+						"color": "green",
+						"visibility": "body",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "notulen-2024-12-18"
 					}
 				]
 			}

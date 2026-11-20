@@ -110,6 +110,10 @@ function tab(answers) {
 		'../../utils/agendaPublication.js': agendaPublication,
 		'../../utils/documentAccessibility.js': documentAccessibility,
 		'../../utils/formalities.js': formalities,
+		'../../utils/annotations.js': { countOf: () => 0 },
+		'../../store/annotation.js': {
+			useAnnotationStore: () => ({ loadCounts: async () => ({}) }),
+		},
 		'../../utils/saveOrThrow.js': saveOrThrowModule,
 		'./jsonRequests.js': jsonRequests,
 		'./useRelationStore.js': { ensureRelationType: store },

@@ -43,18 +43,14 @@
 				:aria-label="t('decidiq', 'Open voting round')">
 				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
 				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
+				<!-- Only the methods the meeting's body allows (bod-14) -->
+				<!-- @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use -->
 				<select id="votingMethod" v-model="newRound.votingMethod">
-					<option value="for-against-abstain">
-						{{ t('decidiq', 'For / Against / Abstain') }}
-					</option>
-					<option value="show-of-hands">
-						{{ t('decidiq', 'Show of hands') }}
-					</option>
-					<option value="weighted">
-						{{ t('decidiq', 'Weighted vote') }}
-					</option>
-					<option value="ranked-choice">
-						{{ t('decidiq', 'Ranked preference (Borda count)') }}
+					<option
+						v-for="method in allowedMethods"
+						:key="method"
+						:value="method">
+						{{ methodLabels[method] }}
 					</option>
 				</select>
 				<!-- Options of a ranked round (REQ-PRF-001, issue #1419) -->
@@ -289,6 +285,7 @@
 				v-if="
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !isRollCallRound
 					&& !isRankedRound
 					&& !voteCast
 				"
@@ -326,6 +323,29 @@
 					{{ castVoteError }}
 				</p>
 			</div>
+
+			<!-- A roll call: members do not cast, the chair or secretary records each choice by name -->
+			<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+			<p
+				v-if="isRoundOpen && isRollCallRound"
+				class="decidiq-roll-call-notice"
+				role="status"
+				data-testid="roll-call-notice">
+				{{ t('decidiq', 'A roll call is in progress. The chair or the secretary records each vote by name.') }}
+			</p>
+			<NcButton
+				v-if="isRoundOpen && isRollCallRound && permissions.canEnterTally"
+				variant="primary"
+				data-testid="recorded-votes-open"
+				@click="showRecordedVotes = true">
+				{{ t('decidiq', 'Record votes by name') }}
+			</NcButton>
+			<RecordedVotesModal
+				v-if="showRecordedVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordedVotes = false" />
 
 			<!-- Vote confirmation message -->
 			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
@@ -596,13 +616,20 @@ import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import RecordVotesDialog from '../dialogs/RecordVotesDialog.vue'
+import RecordedVotesModal from '../modals/RecordedVotesModal.vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
+import { isRollCall } from '../utils/namedVotes.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
 import { excludedMemberNames, meetingBodyId, votingGroupChoices } from '../utils/votingGroups.js'
+import {
+	allowedVotingMethods,
+	startingVotingMethod,
+	VOTING_METHODS,
+} from '../utils/votingMethods.js'
 import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
@@ -650,6 +677,7 @@ export default {
 		RankedBallot,
 		RankedResultsCard,
 		RecordVotesDialog,
+		RecordedVotesModal,
 	},
 
 	props: {
@@ -688,6 +716,8 @@ export default {
 			activeProxy: null,
 			oriStatus: null,
 			showOfHands: { for: 0, against: 0, abstain: 0 },
+			// Every method until the meeting's body says otherwise (bod-14).
+			allowedMethods: [...VOTING_METHODS],
 			newRound: {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -717,6 +747,7 @@ export default {
 			participantCount: 0,
 			participants: [],
 			showRecordVotes: false,
+			showRecordedVotes: false,
 			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
@@ -725,6 +756,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The name of each voting method, as the panel lists it.
+		 *
+		 * @return {Record<string, string>}
+		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		methodLabels() {
+			return {
+				'for-against-abstain': this.t('decidiq', 'For / Against / Abstain'),
+				'show-of-hands': this.t('decidiq', 'Show of hands'),
+				weighted: this.t('decidiq', 'Weighted vote'),
+				'roll-call': this.t('decidiq', 'Roll call, recorded by name'),
+				'ranked-choice': this.t('decidiq', 'Ranked preference (Borda count)'),
+			}
+		},
+
 		/**
 		 * The members who may vote: participants minus those recused on the
 		 * motion or its agenda item (bod-10).
@@ -750,14 +797,27 @@ export default {
 		 * round, not a show of hands, a ranked or a secret one.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		canEnterPaperVotes() {
 			const round = this.currentRound || {}
 			return (
 				round.votingMethod !== 'show-of-hands'
+				&& !isRollCall(round)
 				&& !this.isRankedRound
 				&& round.isSecret !== true
 			)
+		},
+
+		/**
+		 * Whether the current round is a roll call, whose votes the chair or
+		 * the secretary records by name.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		isRollCallRound() {
+			return isRollCall(this.currentRound)
 		},
 
 		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
@@ -909,6 +969,7 @@ export default {
 	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		this.loadPermissions()
+		this.loadAllowedMethods()
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
 		this.pollInterval = setInterval(async () => {
@@ -926,6 +987,31 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The methods the meeting's body allows (bod-14). Without a meeting,
+		 * or when the body cannot be read, every method stays on offer: the
+		 * server refuses a method the body does not allow either way.
+		 *
+		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		async loadAllowedMethods() {
+			if (!this.meetingId) {
+				return
+			}
+			try {
+				const meeting = await this.objectStore.fetchObject('meeting', this.meetingId)
+				const bodyId = meetingBodyId(meeting)
+				if (!bodyId) {
+					return
+				}
+				const body = await ensureRelationType('governance-body').fetchObject('governance-body', bodyId)
+				this.allowedMethods = allowedVotingMethods(body)
+				this.newRound.votingMethod = startingVotingMethod(this.newRound.votingMethod, this.allowedMethods)
+			} catch {
+				this.allowedMethods = [...VOTING_METHODS]
+			}
+		},
+
 		/**
 		 * Ask the server once per meeting which voting controls this user may
 		 * use. Fail closed: an error leaves every control hidden.
@@ -998,11 +1084,7 @@ export default {
 						...relationFilterFor(this.motionId),
 						_limit: 100,
 					}),
-					this.meetingId
-						? this.objectStore.fetchCollection('participant', {
-								'relations.meeting': this.meetingId,
-							})
-						: Promise.resolve(null),
+					this.meetingParticipants(),
 				])
 				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
@@ -1019,6 +1101,7 @@ export default {
 					id: member.id || member.uuid,
 					displayName: member.displayName || '',
 					party: member.party || '',
+					leftAt: member.leftAt || '',
 				}))
 				await this.loadDeclarations()
 			} catch {
@@ -1079,6 +1162,39 @@ export default {
 			const data = await resp.json()
 			this.castVoteError =
 				data.message || this.t('decidiq', 'Failed to cast vote')
+		},
+
+		/**
+		 * The participants of the meeting: the members of its governance body,
+		 * as the server counts them when a list is recorded by name.
+		 *
+		 * Participant carries no meeting property, so a meeting filter on it
+		 * matches nothing and the list came back empty on a healthy 200: the
+		 * entry sheet listed nobody and the not-voted count read zero. The body
+		 * is the link the server resolves (ParticipantResolver), so read that,
+		 * narrow by its property and keep only rows that reference the body.
+		 *
+		 * @return {Promise<Array<object>|null>} The participants, or null without a meeting.
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		async meetingParticipants() {
+			if (!this.meetingId) {
+				return null
+			}
+			const resp = await fetch(
+				generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId }),
+				{ headers: { Accept: 'application/json' } },
+			)
+			const bodyId = meetingBodyId(resp.ok ? await resp.json() : null)
+			if (!bodyId) {
+				return []
+			}
+			const participants = await this.objectStore.fetchCollection('participant', {
+				governanceBody: bodyId,
+				_limit: 500,
+			})
+			// A participant names its body the way a meeting does.
+			return (participants || []).filter((participant) => meetingBodyId(participant) === bodyId)
 		},
 
 		/**
@@ -1486,6 +1602,10 @@ export default {
 .decidiq-ori-status {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
+}
+
+.decidiq-roll-call-notice {
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-show-of-hands {

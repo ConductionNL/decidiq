@@ -180,7 +180,9 @@ test-results/
 # Claude Code's local directory: per-machine settings and worktrees, never
 # shared. Ignoring the directory, not single files, keeps the `!**/*.json`
 # rescue above from re-including a machine-local settings file.
-/.claude/
+# The shared agent commands in .claude/commands/ are the one exception.
+/.claude/*
+!/.claude/commands/
 
 # WCAG scan output (platform-accessibility-audit-report): generated per run
 tests/axe/report.json

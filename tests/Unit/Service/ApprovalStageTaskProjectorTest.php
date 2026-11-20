@@ -18,6 +18,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalStageTaskProjector;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\OpenRegister\Service\Task\TaskTrigger;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -74,6 +75,11 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 			public array $consumed = [];
 
 			/**
+			 * @var array<int, TaskTrigger>
+			 */
+			public array $triggers = [];
+
+			/**
 			 * Import a task.
 			 *
 			 * @param array<string, mixed> $data The task data.
@@ -99,14 +105,14 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 			/**
 			 * Consume a task.
 			 *
-			 * @param string $uuid The task uuid.
-			 * @param string $source The consuming source.
-			 * @param string $reason The reason.
+			 * @param string      $uuid    The task uuid.
+			 * @param TaskTrigger $trigger The consuming source and reason.
 			 *
 			 * @return void
 			 */
-			public function consume(string $uuid, string $source, string $reason): void {
+			public function consume(string $uuid, TaskTrigger $trigger): void {
 				$this->consumed[] = $uuid;
+				$this->triggers[] = $trigger;
 			}
 		};
 	}
@@ -181,6 +187,8 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		);
 
 		$this->assertSame(['task-1'], $this->tasks->consumed);
+		$this->assertSame('decidiq:approval-stage', $this->tasks->triggers[0]->source);
+		$this->assertSame('The approval stage this task asked about is no longer awaiting an answer.', $this->tasks->triggers[0]->reason);
 		$this->assertSame([['decision-stage', ['taskUuid' => ''], 's-1']], $this->stagePatches);
 	}
 

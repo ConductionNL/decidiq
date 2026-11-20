@@ -15,9 +15,12 @@
  * It declares — for the `citizen` audience (a resident participating in a
  * consultation, participatory-budget round or advisory vote WITHOUT a Nextcloud
  * account) — the OpenRegister collections that subject may read and the field
- * whitelists projected onto each. DigiD/eHerkenning is DEFERRED: citizens log
- * in through portaliq's ordinary password/`portalAccount` edge at trust `low`,
- * exactly like pipelinq's `client` / `customer` audiences.
+ * whitelists projected onto each. Most collections are read at trust `low`,
+ * through portaliq's ordinary password/`portalAccount` edge, exactly like
+ * pipelinq's `client` / `customer` audiences. The confidential papers of a
+ * non-public agenda item (`confidentialAgendaItems`) need a DigiD or
+ * eHerkenning session at the trust `portal_confidential_min_trust` names, and
+ * reach only a reader the griffie named (REQ-PSH-003).
  *
  * Decidiq's citizen data is ALREADY portal-shaped: the scope fields
  * `submitterId` / `voterId` / `submitter` / `recipientId` each hold a Nextcloud
@@ -51,6 +54,7 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
 use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
 use OCP\L10N\IFactory;
@@ -96,263 +100,6 @@ class PortalContributionProvider {
 	private const LABEL = 'Council and participation';
 
 	/**
-	 * What a resident reads of their own consultation reactions.
-	 *
-	 * @var list<string>
-	 */
-	private const REACTION_READ_FIELDS = [
-		'body',
-		'submittedAt',
-		'moderationStatus',
-		'voteCount',
-		'proposalTitle',
-		'proposalAmount',
-	];
-
-	/**
-	 * What a resident reads of their own advisory votes.
-	 *
-	 * @var list<string>
-	 */
-	private const VOTE_READ_FIELDS = [
-		'voteValue',
-		'motionId',
-		'proposalId',
-		'citizenPanelId',
-		'weight',
-		'isProxy',
-		'castAt',
-		'notes',
-	];
-
-	/**
-	 * What a resident reads of their own budget proposals.
-	 *
-	 * @var list<string>
-	 */
-	private const BUDGET_PROPOSAL_READ_FIELDS = [
-		'title',
-		'description',
-		'requestedAmount',
-		'category',
-		'status',
-		'votesFor',
-		'votesAgainst',
-	];
-
-	/**
-	 * What a resident reads of their own notifications.
-	 *
-	 * @var list<string>
-	 */
-	private const NOTIFICATION_READ_FIELDS = [
-		'type',
-		'subject',
-		'content',
-		'channel',
-		'status',
-		'sentAt',
-		'readAt',
-	];
-
-	/**
-	 * What the council calendar shows of a publication payload.
-	 *
-	 * @var list<string>
-	 */
-	private const CALENDAR_FIELDS = [
-		'title',
-		'bodyName',
-		'meetingDate',
-		'meetingType',
-		'location',
-		'audiences',
-		'oriType',
-	];
-
-	/**
-	 * The calendar's declared labels, so the reader's language applies;
-	 * without them portaliq heads the table with the schema's English titles.
-	 *
-	 * @var array<string, array<string, mixed>>
-	 */
-	private const CALENDAR_FIELD_CONFIGS = [
-		'title' => ['label' => 'Meeting'],
-		'meetingDate' => ['label' => 'Date'],
-		'bodyName' => ['label' => 'Body'],
-		'meetingType' => [
-			'label' => 'Meeting type',
-			'valueLabels' => [
-				'regular' => 'Regular meeting',
-				'extraordinary' => 'Extraordinary meeting',
-				'committee' => 'Committee meeting',
-				'public hearing' => 'Public hearing',
-				'general_assembly' => 'General assembly',
-			],
-		],
-		'location' => ['label' => 'Location'],
-		'oriType' => [
-			'label' => 'Kind',
-			'valueLabels' => [
-				'Vergadering' => 'Meeting',
-				'Besluit' => 'Decision',
-				'Verslag' => 'Minutes',
-			],
-		],
-	];
-
-	/**
-	 * The calendar's table columns.
-	 *
-	 * @var list<array<string, string>>
-	 */
-	private const CALENDAR_COLUMNS = [
-		['field' => 'meetingDate', 'render' => 'datetime'],
-		['field' => 'title'],
-		['field' => 'bodyName'],
-		['field' => 'meetingType'],
-	];
-
-	/**
-	 * What the public broadcasts list shows; never a staff field.
-	 *
-	 * @var list<string>
-	 */
-	private const BROADCAST_FIELDS = [
-		'title',
-		'eveningTitle',
-		'bodyName',
-		'scheduledDate',
-		'lifecycle',
-		'playerUrl',
-		'recordingUrl',
-		'captionTracks',
-	];
-
-	/**
-	 * What a resident reads of a member's ancillary position (REQ-PLB-007).
-	 *
-	 * @var list<string>
-	 */
-	private const ANCILLARY_POSITION_FIELDS = [
-		'person',
-		'organisation',
-		'role',
-		'remunerated',
-		'startDate',
-		'endDate',
-	];
-
-	/**
-	 * What the list of motions open for advice shows; who voted is never listed.
-	 *
-	 * @var list<string>
-	 */
-	private const ADVICE_MOTION_FIELDS = [
-		'title',
-		'text',
-		'motionType',
-		'citizenVotingStatus',
-		'citizenAdviceFor',
-		'citizenAdviceAgainst',
-		'citizenAdviceAbstain',
-	];
-
-	/**
-	 * What a resident reads of their own publication subscriptions.
-	 *
-	 * @var list<string>
-	 */
-	private const SUBSCRIPTION_READ_FIELDS = [
-		'governanceBodies',
-		'kinds',
-		'frequency',
-		'active',
-		'lastSentAt',
-	];
-
-	/**
-	 * What a resident sends to react to a consultation; never the scope
-	 * field or a staff-only field.
-	 *
-	 * @var list<string>
-	 */
-	private const REACTION_CREATE_FIELDS = [
-		'consultation',
-		'body',
-	];
-
-	/**
-	 * What a resident sends to submit a budget proposal.
-	 *
-	 * @var list<string>
-	 */
-	private const BUDGET_PROPOSAL_CREATE_FIELDS = [
-		'participatoryBudget',
-		'title',
-		'description',
-		'requestedAmount',
-		'category',
-	];
-
-	/**
-	 * What a resident sends to give advice on a motion.
-	 *
-	 * @var list<string>
-	 */
-	private const ADVICE_CREATE_FIELDS = [
-		'motionId',
-		'voteValue',
-	];
-
-	/**
-	 * What a resident sends to follow publications.
-	 *
-	 * @var list<string>
-	 */
-	private const SUBSCRIBE_FIELDS = [
-		'governanceBodies',
-		'kinds',
-		'frequency',
-	];
-
-	/**
-	 * A reaction may only be created on a consultation that is open.
-	 *
-	 * @var array<string, string>
-	 */
-	private const OPEN_CONSULTATION = [
-		'field' => 'consultation',
-		'parentSchema' => 'public-consultation',
-		'statusField' => 'status',
-		'statusValue' => 'open',
-	];
-
-	/**
-	 * A budget proposal may only be submitted while its budget takes submissions.
-	 *
-	 * @var array<string, string>
-	 */
-	private const BUDGET_IN_SUBMISSION = [
-		'field' => 'participatoryBudget',
-		'parentSchema' => 'participatory-budget',
-		'statusField' => 'status',
-		'statusValue' => 'submission',
-	];
-
-	/**
-	 * Advice may only be given on a motion whose advisory vote is open.
-	 *
-	 * @var array<string, string>
-	 */
-	private const MOTION_OPEN_FOR_ADVICE = [
-		'field' => 'motionId',
-		'parentSchema' => 'decision',
-		'statusField' => 'citizenVotingStatus',
-		'statusValue' => 'open',
-	];
-
-	/**
 	 * Constructor; the container hands in the factory, `new` with no arguments answers in English.
 	 *
 	 * The only dependency is optional, so the class still resolves without
@@ -361,6 +108,7 @@ class PortalContributionProvider {
 	 * @param IFactory|null             $l10nFactory    Puts the labels in the reader's language (PortalLabelTranslator).
 	 * @param PublicVotingRecordsInterface|null  $votingRecords  The public members and their votes (memberVotingRecords).
 	 * @param PublicMeetingRecordsInterface|null $meetingRecords The published meetings and decisions.
+	 * @param ConfidentialPapersInterface|null   $confidentialPapers The papers of non-public items for a named reader.
 	 *
 	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-contribution/spec.md
@@ -369,6 +117,7 @@ class PortalContributionProvider {
 		private readonly ?IFactory $l10nFactory=null,
 		private readonly ?PublicVotingRecordsInterface $votingRecords=null,
 		private readonly ?PublicMeetingRecordsInterface $meetingRecords=null,
+		private readonly ?ConfidentialPapersInterface $confidentialPapers=null,
 	) {
 	}//end __construct()
 
@@ -397,6 +146,36 @@ class PortalContributionProvider {
 	public function publicVotingRecord(string $personId): ?array {
 		return $this->votingRecords?->record(personId: $personId);
 	}//end publicVotingRecord()
+
+	/**
+	 * The papers of one non-public agenda item (confidentialAgendaItems documents provider).
+	 *
+	 * Empty once the item is public again, and without decidiq's services.
+	 *
+	 * @param string $itemId The agenda item id.
+	 *
+	 * @return list<array<string, mixed>> Portal document entries.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function confidentialPapers(string $itemId): array {
+		return ($this->confidentialPapers?->papers(itemId: $itemId) ?? []);
+	}//end confidentialPapers()
+
+	/**
+	 * Log one portal opening of a confidential paper; the portal streams it only on true.
+	 *
+	 * @param string               $itemId     The agenda item id.
+	 * @param string               $documentId The paper id.
+	 * @param array<string, mixed> $subject    The portal session: subjectRef, trust, identityType, audience.
+	 *
+	 * @return bool True only when the audit entry was written.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first
+	 */
+	public function confidentialPaperOpened(string $itemId, string $documentId, array $subject): bool {
+		return ($this->confidentialPapers?->opened(itemId: $itemId, documentId: $documentId, subject: $subject) ?? false);
+	}//end confidentialPaperOpened()
 
 	/**
 	 * The published meetings (publicMeetings list).
@@ -621,9 +400,42 @@ class PortalContributionProvider {
 			$this->publicBroadcastsCollection(),
 			$this->motionsOpenForAdviceCollection(),
 			$this->publicAncillaryPositionsCollection(),
+			$this->confidentialAgendaItemsCollection(),
 		];
 
 	}//end citizenCollections()
+
+	/**
+	 * The non-public agenda items a named reader may read through the portal
+	 * (REQ-PSH-003): scoped by the reader's `decidiq.personId` claim against
+	 * the item's `authorisedPersons`, at the trust `portal_confidential_min_trust`
+	 * names, with the item's papers through `confidentialPapers` and every
+	 * opening logged first by `confidentialPaperOpened` (REQ-PSH-004).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	private function confidentialAgendaItemsCollection(): array {
+		return [
+			'id' => 'confidentialAgendaItems',
+			'register' => self::REGISTER,
+			'schema' => 'agenda-item',
+			'scopeClaim' => 'decidiq.personId',
+			'scopeField' => 'authorisedPersons',
+			'label' => 'Confidential papers',
+			'listable' => true,
+			'minTrust' => ($this->confidentialPapers?->minTrust() ?? 'high'),
+			'defaultFilters' => ['public' => false],
+			'fields' => ['title', 'description', 'meeting'],
+			'documents' => [
+				'label' => 'Papers',
+				'provider' => 'confidentialPapers',
+				'opened' => 'confidentialPaperOpened',
+			],
+		];
+
+	}//end confidentialAgendaItemsCollection()
 
 	/**
 	 * The resident's own consultation reactions, without the staff-set
@@ -642,7 +454,7 @@ class PortalContributionProvider {
 			'label' => 'My consultation reactions',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::REACTION_READ_FIELDS,
+			'fields' => PortalFieldSets::REACTION_READ_FIELDS,
 		];
 
 	}//end citizenReactionsCollection()
@@ -663,7 +475,7 @@ class PortalContributionProvider {
 			'label' => 'My votes',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::VOTE_READ_FIELDS,
+			'fields' => PortalFieldSets::VOTE_READ_FIELDS,
 		];
 
 	}//end citizenVotesCollection()
@@ -684,7 +496,7 @@ class PortalContributionProvider {
 			'label' => 'My budget proposals',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::BUDGET_PROPOSAL_READ_FIELDS,
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_READ_FIELDS,
 		];
 
 	}//end citizenBudgetProposalsCollection()
@@ -706,7 +518,7 @@ class PortalContributionProvider {
 			'label' => 'My notifications',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::NOTIFICATION_READ_FIELDS,
+			'fields' => PortalFieldSets::NOTIFICATION_READ_FIELDS,
 		];
 
 	}//end citizenNotificationsCollection()
@@ -730,14 +542,14 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Council calendar',
 			'listable' => true,
-			'fields' => self::CALENDAR_FIELDS,
+			'fields' => PortalFieldSets::CALENDAR_FIELDS,
 			// The calendar lists meetings only: `filter` narrows the read,
 			// `defaultFilters` only presets what the list shows.
 			'filter' => ['oriType' => 'Vergadering'],
 			'defaultFilters' => ['oriType' => 'Vergadering'],
 			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
-			'fieldConfigs' => self::CALENDAR_FIELD_CONFIGS,
-			'columns' => self::CALENDAR_COLUMNS,
+			'fieldConfigs' => PortalFieldSets::CALENDAR_FIELD_CONFIGS,
+			'columns' => PortalFieldSets::CALENDAR_COLUMNS,
 			'detail' => ['layout' => 'card', 'fields' => ['title', 'meetingDate', 'bodyName', 'meetingType', 'location']],
 		];
 
@@ -765,7 +577,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Live and recent meetings',
 			'listable' => true,
-			'fields' => self::BROADCAST_FIELDS,
+			'fields' => PortalFieldSets::BROADCAST_FIELDS,
 			'defaultSort' => ['field' => 'scheduledDate', 'direction' => 'desc'],
 		];
 
@@ -793,7 +605,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => 'Motions open for your advice',
 			'listable' => true,
-			'fields' => self::ADVICE_MOTION_FIELDS,
+			'fields' => PortalFieldSets::ADVICE_MOTION_FIELDS,
 			// Only the motions the griffie opened for advice are read.
 			'filter' => ['citizenVotingAllowed' => true],
 			'defaultFilters' => ['citizenVotingAllowed' => true],
@@ -824,7 +636,7 @@ class PortalContributionProvider {
 			'anonymous' => true,
 			'label' => "Members' ancillary positions",
 			'listable' => true,
-			'fields' => self::ANCILLARY_POSITION_FIELDS,
+			'fields' => PortalFieldSets::ANCILLARY_POSITION_FIELDS,
 			'defaultSort' => ['field' => 'startDate', 'direction' => 'desc'],
 		];
 
@@ -875,12 +687,12 @@ class PortalContributionProvider {
 			'schema' => 'consultation-reaction',
 			'scopeField' => 'submitterId',
 			'minTrust' => 'low',
-			'fields' => self::REACTION_CREATE_FIELDS,
+			'fields' => PortalFieldSets::REACTION_CREATE_FIELDS,
 			'defaults' => [
 				'moderationStatus' => 'pending',
 				'submittedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			],
-			'parentConstraint' => self::OPEN_CONSULTATION,
+			'parentConstraint' => PortalFieldSets::OPEN_CONSULTATION,
 		];
 
 	}//end createReactionAction()
@@ -901,11 +713,11 @@ class PortalContributionProvider {
 			'schema' => 'budget-proposal',
 			'scopeField' => 'submitter',
 			'minTrust' => 'low',
-			'fields' => self::BUDGET_PROPOSAL_CREATE_FIELDS,
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_CREATE_FIELDS,
 			'defaults' => [
 				'status' => 'submitted',
 			],
-			'parentConstraint' => self::BUDGET_IN_SUBMISSION,
+			'parentConstraint' => PortalFieldSets::BUDGET_IN_SUBMISSION,
 		];
 
 	}//end createBudgetProposalAction()
@@ -927,13 +739,13 @@ class PortalContributionProvider {
 			'schema' => 'citizen-vote',
 			'scopeField' => 'voterId',
 			'minTrust' => 'substantial',
-			'fields' => self::ADVICE_CREATE_FIELDS,
+			'fields' => PortalFieldSets::ADVICE_CREATE_FIELDS,
 			'defaults' => [
 				'weight' => 1,
 				'isProxy' => false,
 				'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			],
-			'parentConstraint' => self::MOTION_OPEN_FOR_ADVICE,
+			'parentConstraint' => PortalFieldSets::MOTION_OPEN_FOR_ADVICE,
 		];
 
 	}//end castMotionAdviceAction()
@@ -956,7 +768,7 @@ class PortalContributionProvider {
 			'label' => 'My subscriptions',
 			'listable' => true,
 			'minTrust' => 'low',
-			'fields' => self::SUBSCRIPTION_READ_FIELDS,
+			'fields' => PortalFieldSets::SUBSCRIPTION_READ_FIELDS,
 		];
 
 	}//end subscriptionsCollection()
@@ -996,7 +808,7 @@ class PortalContributionProvider {
 			'schema' => 'publication-subscription',
 			'scopeField' => 'subscriberRef',
 			'minTrust' => 'low',
-			'fields' => self::SUBSCRIBE_FIELDS,
+			'fields' => PortalFieldSets::SUBSCRIBE_FIELDS,
 			'defaults' => [
 				'active' => true,
 			],

@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "Decidiq",
-        "version": "1.2.6-unstable.20261020200000",
+        "version": "1.2.7-unstable.20261119124854",
         "description": "The JSON API of Decidiq, the decision-making app for Nextcloud: governance bodies and their meetings, agendas, motions and amendments, voting rounds, minutes, decisions and action items, publication and the settings behind them. The records themselves are stored in OpenRegister and read and written through its API; this document covers the endpoints Decidiq adds on top, including its public REST surface under /api/v1/{resource}.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -42,6 +42,10 @@
         {
             "name": "analytics",
             "description": "Controller for the personal action-item list endpoint."
+        },
+        {
+            "name": "annotation",
+            "description": "Annotations on meeting documents, filtered by who may see each one."
         },
         {
             "name": "api",
@@ -180,6 +184,10 @@
             "description": "The OpenAPI document that describes this API."
         },
         {
+            "name": "paper",
+            "description": "Papers of meetings and agenda items, opened with the reader's watermark when the meeting asks for it."
+        },
+        {
             "name": "paper-conversion",
             "description": "POST /api/papers/{schema}/{objectId}/{fileId}/convert queues a new conversion of a paper the object already records. Only the chair, the secretary or an administrator of the meeting may ask; the paper must be one of the object's own, so no other file can be converted through it."
         },
@@ -262,6 +270,10 @@
         {
             "name": "room-system",
             "description": "The room's conference and voting system, through integriq."
+        },
+        {
+            "name": "member-pathways",
+            "description": "The secretariat's access steps on member onboardings and offboardings."
         },
         {
             "name": "theme",
@@ -1728,6 +1740,152 @@
                 }
             }
         },
+        "/decisions/{decisionId}/urgency": {
+            "post": {
+                "operationId": "urgentProcedure-declareUrgency",
+                "summary": "Declare a decision urgent",
+                "description": "Declare a decision urgent. POST /api/decisions/{decisionId}/urgency with reason and an optional ratifyingBody. Reads the decision with the caller's object rights, then authorises the caller against the body's urgency policy (the resolved meeting chair or an allowed role; fails closed). Stores isUrgent, urgencyReason, urgencyDeclaredBy and urgencyDeclaredAt without changing the lifecycle, and appends the ratifying stage. Returns 200 with the decision and its ratification, 403 for another caller, 404, 409 when already urgent, 422 without a policy or a reason. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "description": "Why the decision is urgent (required)."
+                                    },
+                                    "ratifyingBody": {
+                                        "description": "A ratifying body other than the policy's (optional)."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
+        "/decisions/{decisionId}/expedited-round": {
+            "post": {
+                "operationId": "urgentProcedure-expeditedRound",
+                "summary": "Open the expedited written round of an urgent decision",
+                "description": "Open the expedited written round of an urgent decision. POST /api/decisions/{decisionId}/expedited-round with responseDeadlineHours. Creates a VotingRound on the decision's open decisive stage whose votingDeadline lies that many hours after opening, within the body's urgencyPolicy.responseDeadlineHours bounds. Returns 201 with the round, 403, 404, 422 outside the bounds, for a decision that is not urgent, without a policy or without an open decisive stage. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "responseDeadlineHours": {
+                                        "description": "The response deadline in whole hours."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
         "/decisions/{id}/outcome": {
             "get": {
                 "operationId": "integration-get-outcome",
@@ -1833,6 +1991,97 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
+        "/documents/{fileId}/annotations": {
+            "get": {
+                "operationId": "annotation-index",
+                "summary": "List a document's annotations",
+                "description": "The annotations on a document that the caller may see, on every version, by page. Private ones only to their author, faction ones to the author's faction, body ones to the meeting's participants. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "annotation-create",
+                "summary": "Annotate a document",
+                "description": "Save a highlight, sticky note or drawing on a document. The author and the document version are set by the server; visibility is private unless asked otherwise. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
@@ -3057,6 +3306,118 @@
                 }
             }
         },
+        "/meetings/{id}/board-book": {
+            "post": {
+                "operationId": "board-book-compile",
+                "summary": "Queue the compilation of the meeting pack (vergaderbundel)",
+                "description": "Queue the compilation of the meeting's next pack version: one PDF of the cover, the table of contents and every agenda item with its attachments. Only the meeting's chair or secretary (or an administrator) may; one compilation per meeting at a time; from version 2 the body's `changeNote` is required. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "changeNote": {
+                                        "type": "string",
+                                        "description": "Why this version differs from the previous one; required from version 2."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The compilation is queued: `{status, meetingId, nextVersion}`.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/meetings/{id}/board-book/status": {
+            "get": {
+                "operationId": "board-book-status",
+                "summary": "Where the meeting pack stands",
+                "description": "The compile state, the latest pack version, the latest and current fingerprints, whether the pack is outdated, and its skip and delivery reports. For the meeting's participants, chair and secretary. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
         "/meetings/{id}/proof-package": {
             "post": {
                 "operationId": "meeting-proof-package",
@@ -3201,6 +3562,48 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/annotation-counts": {
+            "get": {
+                "operationId": "annotation-counts",
+                "summary": "Count annotations per agenda item",
+                "description": "Per agenda item of a meeting, the number of annotations the caller may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
                     }
                 }
             }
@@ -5547,6 +5950,84 @@
                 }
             }
         },
+        "/papers/{schema}/{objectId}/{fileId}/view": {
+            "get": {
+                "operationId": "paper-view",
+                "summary": "Open one paper of a meeting or an agenda item",
+                "description": "Open one paper of a meeting or an agenda item. The caller must be able to read the meeting or the agenda item, and the file must be one of its papers. When the meeting's watermark policy applies, the paper is served only as a PDF stamped with the reader's name, the date and time and the meeting's watermark text; when it cannot be stamped the request is refused and no file is sent. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "paper"
+                ],
+                "parameters": [
+                    {
+                        "name": "schema",
+                        "in": "path",
+                        "required": true,
+                        "description": "`agenda-item` or `meeting`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "objectId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The object uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The paper's file id: its PDF, or its original when it has none.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The paper, shown in the browser; stamped when the meeting asks for it.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
         "/participation/budgets/{budgetId}/proposals": {
             "post": {
                 "operationId": "participation-budget-submit-proposal",
@@ -7313,6 +7794,65 @@
                 }
             }
         },
+        "/voting-rounds/{id}/named-votes": {
+            "post": {
+                "operationId": "voting-record-votes",
+                "summary": "Record the members' choices of an open roll-call round by name",
+                "description": "Record the members' choices of an open roll-call round by name. POST /api/voting-rounds/{id}/named-votes Body: { \"entries\": [ { \"participantId\": \"<uuid>\", \"value\": \"for\"|\"against\"|\"abstain\" } ], \"heldAt\": \"<ISO 8601>\" }. Restricted to chair/secretary. The whole list is checked before anything is written; a corrected list replaces the earlier one. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "voting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The voting round UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
         "/{resource}": {
             "options": {
                 "operationId": "api-preflight",
@@ -8126,6 +8666,337 @@
                 }
             }
         },
+        "/member-onboardings/{id}/assign-groups": {
+            "post": {
+                "operationId": "member-pathways-assign-groups",
+                "summary": "Grant a joining member the groups of their role",
+                "description": "Grant a joining member the groups of their role on the body, and complete the assign-groups step with the verified group list. Fails closed: an unmapped role or a missing group refuses before anything is written. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The member onboarding.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The step was completed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "502": {
+                        "description": "A group write did not hold; the step stays open and nothing is reported as done.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/member-offboardings/{id}/revoke-groups": {
+            "post": {
+                "operationId": "member-pathways-revoke-groups",
+                "summary": "Revoke a leaving member's groups",
+                "description": "Remove a leaving member from every group the body maps, end the membership on the offboarding's end date, and complete the revoke-groups step with the verified state. Groups outside the body's mapping are not touched. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The member offboarding.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The step was completed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "502": {
+                        "description": "A group write did not hold; the step stays open and nothing is reported as done.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/member-onboardings/{id}/induction-pack": {
+            "post": {
+                "operationId": "member-pathways-deliver-induction-pack",
+                "summary": "Deliver the induction pack into the member's Files",
+                "description": "Copy the body's induction documents into a folder in the joining member's own Files, write its links into Links.md, and complete the induction-pack step with the folder as reference. A document that cannot be delivered is listed as skipped; when nothing could be delivered the step stays open. Files are read from the confirming user's own Files. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The member onboarding.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The step was completed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "502": {
+                        "description": "Nothing could be delivered; the step stays open.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/governance-bodies/{bodyId}/turnover/suggestions": {
+            "post": {
+                "operationId": "member-pathways-turnover-suggestions",
+                "summary": "Suggest onboardings and offboardings for an incoming roster",
+                "description": "Diff an incoming roster against the body's active memberships: an onboarding suggestion for each person without an active membership, an offboarding suggestion for each active member not on the roster. Creates nothing. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "bodyId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governance body.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "rows": {
+                                        "type": "array",
+                                        "description": "The incoming roster: one row per person with name, email and/or nextcloudUserId, and role.",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/governance-bodies/{bodyId}/turnover/confirm": {
+            "post": {
+                "operationId": "member-pathways-confirm-turnover",
+                "summary": "Create the confirmed onboardings and offboardings",
+                "description": "Recompute the suggestions from the current state and create only the confirmed ones that still hold, all with one batch label; the rest is returned as rejected. Never creates or ends a membership. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "bodyId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governance body.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "rows": {
+                                        "type": "array",
+                                        "description": "The incoming roster: one row per person with name, email and/or nextcloudUserId, and role.",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "joining": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "The confirmed joining keys."
+                                    },
+                                    "leaving": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "The confirmed leaving membership ids."
+                                    },
+                                    "batch": {
+                                        "type": "string",
+                                        "description": "The batch label."
+                                    },
+                                    "endDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "The end date for leaving members."
+                                    },
+                                    "endReason": {
+                                        "type": "string",
+                                        "description": "Why their membership ends."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
         "/themes/{id}/timeline": {
             "get": {
                 "operationId": "theme-timeline",
@@ -8164,6 +9035,118 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/agenda-items/{id}/readers": {
+            "post": {
+                "operationId": "confidential-reader-create",
+                "summary": "Add a portal reader to a confidential agenda item",
+                "description": "Add a person without a Nextcloud account as a portal reader of a non-public agenda item by BSN or KvK number. POST /api/agenda-items/{id}/readers Body: { person, identityType: bsn|kvk, number, organisation? }. Portaliq provisions the account and writes the claim decidiq.personId; decidiq keeps only the portal reference, never the number. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting; 409 for a public item or without portaliq's answer; 422 for an invalid number.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "person": {
+                                        "description": "The person id."
+                                    },
+                                    "identityType": {
+                                        "description": "bsn or kvk."
+                                    },
+                                    "number": {
+                                        "description": "The BSN or KvK number; not stored."
+                                    },
+                                    "organisation": {
+                                        "description": "The portal tenant."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The reader was added.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/agenda-items/{id}/readers/{personId}": {
+            "delete": {
+                "operationId": "confidential-reader-destroy",
+                "summary": "Remove a portal reader from a confidential agenda item",
+                "description": "Remove a person from the portal readers of an agenda item. DELETE /api/agenda-items/{id}/readers/{personId}. Access control: ConfidentialReaders checks the caller first: 401 when anonymous, 403 outside the secretariat and without a chair or secretary role on the item's meeting.",
+                "tags": [
+                    "confidential-reader"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The agenda item.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The reader.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The reader was removed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

@@ -99,6 +99,14 @@ class SettingsService implements SettingsServiceInterface {
 		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 		// A paper added to a meeting or agenda item is scanned in the background unless this reads false.
 		'accessibility_scan_on_upload',
+		// @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		// Comma-separated groups a governance body may map for member
+		// provisioning (OnboardingProvisioningService). Admin-written only.
+		'member_provisioning_groups',
+		// @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+		// The trust a portal reader needs for confidential papers: substantial
+		// (the default) or high; ConfidentialPapers reads any other value as high.
+		'portal_confidential_min_trust',
 		// Which structure the app shows (simple-structure-profile). A key that
 		// is not on this list is dropped by updateSettings() while the write
 		// still answers success.
@@ -140,6 +148,7 @@ class SettingsService implements SettingsServiceInterface {
 		'motion_forwarding_requires_approval' => 'false',
 		'accessibility_enforcement_mode' => 'warn',
 		'accessibility_scan_on_upload' => 'true',
+		'portal_confidential_min_trust' => 'substantial',
 	];
 
 	/**

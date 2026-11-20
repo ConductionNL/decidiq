@@ -38,6 +38,7 @@ use OCA\Decidiq\Listener\GoalProgressRefreshListener;
 use OCA\Decidiq\Listener\GoverningDocumentCurrentDateListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\RatificationPlacementListener;
 use OCA\Decidiq\Listener\RoomSystemFeedListener;
 use OCA\Decidiq\Listener\RoomSystemMessageListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
@@ -156,6 +157,16 @@ class ObjectListenerRegistrar {
 			listener: PlanningCycleCreatedListener::class,
 			registers: null,
 			schemas: [PlanningCycleCreatedListener::SCHEMA_PLANNING_CYCLE]
+		);
+
+		// Pending ratifications (urgent-decision-procedure, REQ-004): a new
+		// regular meeting of the ratifying body takes them on its agenda.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: RatificationPlacementListener::class,
+			registers: null,
+			schemas: [RatificationPlacementListener::SCHEMA_MEETING]
 		);
 
 		// Implementation progress (followup-implementation-progress,

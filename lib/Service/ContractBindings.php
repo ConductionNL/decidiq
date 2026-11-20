@@ -35,6 +35,7 @@ use OCA\Decidiq\Kernel\Contracts\ApprovalStageLapseServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\BoardBookServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationAccessGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationReportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
@@ -48,6 +49,7 @@ use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ChangeRecommendationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
@@ -200,6 +202,7 @@ final class ContractBindings {
 		ApprovalStageTaskProjectorInterface::class => ApprovalStageTaskProjector::class,
 		ArchivalDossierServiceInterface::class => ArchivalDossierService::class,
 		AuditLogServiceInterface::class => AuditLogService::class,
+		BoardBookServiceInterface::class => BoardBookService::class,
 		BoardEvaluationAccessGuardInterface::class => BoardEvaluationAccessGuard::class,
 		BoardEvaluationReportServiceInterface::class => BoardEvaluationReportService::class,
 		BoardEvaluationResponseServiceInterface::class => BoardEvaluationResponseService::class,
@@ -289,6 +292,7 @@ final class ContractBindings {
 		ProxyVoteServiceInterface::class => ProxyVoteService::class,
 		PublicMeetingRecordsInterface::class => PublicMeetingRecords::class,
 		PublicVotingRecordsInterface::class => PublicVotingRecords::class,
+		ConfidentialPapersInterface::class => ConfidentialPapers::class,
 		PublicationConfigServiceInterface::class => PublicationConfigService::class,
 		PublicationDigestServiceInterface::class => PublicationDigestService::class,
 		PublicationEventRecorderInterface::class => PublicationEventRecorder::class,

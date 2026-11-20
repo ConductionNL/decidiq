@@ -23,6 +23,8 @@
             "motion_forwarding_requires_approval": "false",
             "accessibility_enforcement_mode": "warn",
             "accessibility_scan_on_upload": "true",
+            "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -186,6 +188,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -225,6 +241,8 @@
             "motion_forwarding_requires_approval": "false",
             "accessibility_enforcement_mode": "warn",
             "accessibility_scan_on_upload": "true",
+            "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": true,
             "filinq": true,
@@ -388,6 +406,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -427,6 +459,8 @@
             "motion_forwarding_requires_approval": "false",
             "accessibility_enforcement_mode": "warn",
             "accessibility_scan_on_upload": "true",
+            "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": true,
@@ -590,6 +624,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -632,6 +680,8 @@
             "motion_forwarding_requires_approval": "false",
             "accessibility_enforcement_mode": "warn",
             "accessibility_scan_on_upload": "true",
+            "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -830,6 +880,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -869,6 +933,8 @@
             "motion_forwarding_requires_approval": "false",
             "accessibility_enforcement_mode": "warn",
             "accessibility_scan_on_upload": "true",
+            "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -1026,6 +1092,20 @@
                 "getValueString": [
                     "decidiq",
                     "accessibility_scan_on_upload",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
                     ""
                 ]
             },
