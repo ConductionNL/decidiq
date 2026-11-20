@@ -11,8 +11,9 @@
   - GIVEN a Toezegging with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned; without the predicate it is not
   - GIVEN an IngekomenStuk with routingAdvice `betrekken-bij-agendapunt` and no targetAgendaItem WHEN saved THEN validation rejects it
 - [x] Implement
-- [ ] Test
+- [x] Test
   - On development: both schemas with the canonical lifecycle dialect and the Toezegging notification rules; the commitment schema now ships as `governance-commitment` (84-commitment-in-plain-words). `IngekomenStuk` is superseded by documents-as-agenda-items (85-documents-as-agenda-items sets it `active: false`), so its conditional `targetAgendaItem` rule was not added to a retired schema.
+  - Test (20 Nov): `tests/Unit/Settings/CommitmentsRegisterTest.php` checks the merged `governance-commitment` schema (required fields, titles, refs, `schema:Action`), the canonical lifecycle map, the four notification rules with nl+en subjects and non-terminal reminder filters, the public read predicate on `publicationDate <= $now` (and no unconditional public read), and that `ingekomen-stuk` is retired (`active: false`, `hardDelete: false`).
 
 ### Task 2: Seed data — realistic Dutch municipal objects for both schemas
 - **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/design.md#seed-data`
@@ -21,8 +22,9 @@
   - GIVEN a fresh install WHEN seeding completes THEN 3 toezeggingen (one overdue+open, one in-uitvoering, one afgedaan with afdoening note + relatedMotion) and 4 ingekomen stukken (mixed senderType/category/lifecycle per design tables) exist, linked to seeded meeting/body/agenda-item objects with only nil-UUID placeholders for unresolved refs
   - GIVEN the seeded LIS agenda item (tagged `hamerstuk`) on the upcoming raadsvergadering WHEN opened THEN the placed stukken are visible, so placement and bulk-confirm are demoable on install
 - [x] Implement
-- [ ] Test
+- [x] Test
   - Seed objects moved to `lib/Settings/profiles/municipality.json` (seed-profiles); incoming documents are seeded there as agenda items under the list item.
+  - Test (20 Nov): `CommitmentsRegisterTest::testTheExampleSetSeedsEachKindOfCommitment` checks every seeded commitment in the municipality profile against the schema and that the set holds an open commitment past its deadline, one in execution, and a disposed one with settlement notes and a related motion.
 
 ### Task 3: Manifest fragment — index/detail pages + menu for both registers
 - **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-006-list-page-detail-page-and-csv-export`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-006-list-page-detail-page-and-export`
@@ -31,8 +33,9 @@
   - GIVEN the built app WHEN navigating the menu THEN Toezeggingen and IngekomenStukken index pages render with the specced columns and quick filters, and row click opens the detail pages (schema refs by slug `toezegging` / `ingekomen-stuk`, never PascalCase)
   - GIVEN a detail page WHEN opened THEN linked meeting/agenda-item/motion render as navigable references, Files leaf and audit-trail sidebar are present, and CSV export works via the mass-export dialog on both indexes
 - [x] Implement
-- [ ] Test
+- [x] Test
   - Commitments index and detail pages are on development. The IngekomenStukken pages are replaced by the Incoming documents widget and page over agenda items (agenda-incoming-documents-list).
+  - Test (20 Nov): `tests/vitest/commitmentsRegisterPages.spec.js` checks the menu entry, both pages by slug, the index columns, row navigation, CSV export, the state lenses and the Over the deadline lens, and the files, related and history widgets on the detail page.
 
 ### Task 4: Dashboard KPI — open toezeggingen past deadline
 - **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-007-dashboard-kpi-for-overdue-open-commitments`
@@ -41,8 +44,9 @@
   - GIVEN seeded data WHEN the dashboard renders THEN the "Open toezeggingen over deadline" stat widget shows the count of non-terminal toezeggingen with a past deadline via a declarative source aggregation, and clicking routes to the pre-filtered Toezeggingen index
   - GIVEN the widget filter DSL lacks a relative-now token WHEN implementing THEN the documented D6 fallback is applied (never a silently wrong count) and the design open question is resolved in the PR
 - [x] Implement
-- [ ] Test
+- [x] Test
   - The `open-commitments-overdue` stat widget is in `src/manifest.json`; the D6 fallback and the aggregation limit are recorded in its `_note`.
+  - Fixed and tested (20 Nov): the tile counted every non-terminal commitment, overdue or not, through an `in` filter the aggregation endpoint answers with 0. It now counts the Over the deadline lens's own filter (`lifecycle` open or in execution, `deadline[lt]` `@today`) through the list endpoint (`via: list`) and deep-links to that lens. `tests/vitest/commitmentsRegisterPages.spec.js` asserts the tile and the lens share one filter; red on the old manifest, green on the new.
 
 ### Task 5: Publication extension — IngekomenStuk eligibility + anonymised payload
 - **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/public-publication/spec.md#requirement-publication-eligibility-gates`
@@ -83,6 +87,7 @@
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → place → bulk-confirm → publish (ingekomen stuk) and register → rappel-visible → afdoen → public list (toezegging) pass end-to-end
 - [ ] Implement
 - [ ] Test
+  - Written, not run (20 Nov): `tests/e2e/commitments-register.spec.ts` for the commitment half (browse and filter, CSV export, the overdue tile, settlement, anonymous read). The incoming-document half is covered by `tests/e2e/incoming-documents.spec.ts` since documents-as-agenda-items. Running it needs a live instance.
 
 ## Quality checklist
 

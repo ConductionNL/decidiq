@@ -3056,7 +3056,8 @@
 									"lifecycle": [
 										"open",
 										"in-execution"
-									]
+									],
+									"deadline[lt]": "@today"
 								}
 							},
 							"format": {
@@ -3066,13 +3067,13 @@
 								"register": "decidiq",
 								"schema": "governance-commitment",
 								"metric": "count",
+								"via": "list",
 								"filter": {
-									"lifecycle": {
-										"in": [
-											"open",
-											"in-execution"
-										]
-									}
+									"lifecycle": [
+										"open",
+										"in-execution"
+									],
+									"deadline[lt]": "@today"
 								}
 							}
 						}
