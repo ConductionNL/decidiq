@@ -22,6 +22,7 @@
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
             "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -178,6 +179,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -216,6 +224,7 @@
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
             "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": true,
             "filinq": true,
@@ -372,6 +381,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -410,6 +426,7 @@
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
             "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": true,
@@ -566,6 +583,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -607,6 +631,7 @@
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
             "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -798,6 +823,13 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "portal_confidential_min_trust",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -836,6 +868,7 @@
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
             "member_provisioning_groups": "",
+            "portal_confidential_min_trust": "substantial",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -986,6 +1019,13 @@
                 "getValueString": [
                     "decidiq",
                     "member_provisioning_groups",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "portal_confidential_min_trust",
                     ""
                 ]
             },

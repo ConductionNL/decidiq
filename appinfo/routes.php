@@ -181,6 +181,10 @@ $extra = [
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+        // Urgent decision procedure: declare urgency, open the expedited written round.
+        // @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+        ['name' => 'urgentProcedure#declareUrgency',       'url' => '/api/decisions/{decisionId}/urgency',          'verb' => 'POST'],
+        ['name' => 'urgentProcedure#expeditedRound', 'url' => '/api/decisions/{decisionId}/expedited-round', 'verb' => 'POST'],
 
         // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
         // @spec openspec/specs/decidesk-contract-decision-hub/spec.md
@@ -194,6 +198,9 @@ $extra = [
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
+        // Meeting pack (board book): compile is chair/secretary gated, status is for the meeting's participants.
+        ['name' => 'boardBook#compile', 'url' => '/api/meetings/{id}/board-book', 'verb' => 'POST'],
+        ['name' => 'boardBook#status', 'url' => '/api/meetings/{id}/board-book/status', 'verb' => 'GET'],
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
         ['name' => 'guestInvitation#invite',  'url' => '/api/meetings/{id}/guests',  'verb' => 'POST'],
         // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.
@@ -208,7 +215,12 @@ $extra = [
         ['name' => 'mandateSubstitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
         // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
         ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
+        // agenda-paper-watermark REQ-WMK-002: open a paper, stamped with the reader's name when the meeting asks for it.
+        ['name' => 'paper#view', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/view', 'verb' => 'GET'],
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
+        // Named portal readers of a confidential item (portal-voting-record-and-confidential-papers REQ-PSH-002).
+        ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
+        ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
         // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.
@@ -466,6 +478,17 @@ $extra = [
         ['name' => 'participationBudget#publishBudgetResults',  'url' => '/api/participation/budgets/{budgetId}/publish',                     'verb' => 'POST'],
         ['name' => 'participationBudget#validateProposal',      'url' => '/api/participation/proposals/{proposalId}/validate',                'verb' => 'POST'],
         ['name' => 'participationBudget#castAdvisoryVote',      'url' => '/api/participation/proposals/{proposalId}/vote',                    'verb' => 'POST'],
+        // Document annotations: every read filtered by who may see each one,
+        // every change the author's alone (AnnotationVisibilityService). The
+        // literal `export` and `own` routes come before `{id}` so they win.
+        // @spec openspec/changes/document-annotations/specs/document-annotations/spec.md
+        ['name' => 'annotation#index',      'url' => '/api/documents/{fileId}/annotations',         'verb' => 'GET',    'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#create',     'url' => '/api/documents/{fileId}/annotations',         'verb' => 'POST',   'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#counts',     'url' => '/api/meetings/{meetingId}/annotation-counts', 'verb' => 'GET'],
+        ['name' => 'annotation#export',     'url' => '/api/annotations/export',                    'verb' => 'GET'],
+        ['name' => 'annotation#destroyOwn', 'url' => '/api/annotations/own',                       'verb' => 'DELETE'],
+        ['name' => 'annotation#update',     'url' => '/api/annotations/{id}',                      'verb' => 'PUT'],
+        ['name' => 'annotation#destroy',    'url' => '/api/annotations/{id}',                      'verb' => 'DELETE'],
 ];
 
 // Preferred path: the OpenRegister AppHost owns the canonical route table.

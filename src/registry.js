@@ -24,9 +24,12 @@
  */
 
 import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
+import UrgencyBanner from './components/decision/UrgencyBanner.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
+import AgendaItemReadersTab from './components/tabs/AgendaItemReadersTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -52,6 +55,7 @@ import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionThemesTab from './components/tabs/DecisionThemesTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentAnnotationsTab from './components/tabs/DocumentAnnotationsTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
 import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
@@ -72,6 +76,7 @@ import MeetingBroadcastTab from './components/tabs/MeetingBroadcastTab.vue'
 import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingPackTab from './components/tabs/MeetingPackTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingRoomSystemTab from './components/tabs/MeetingRoomSystemTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
@@ -124,6 +129,7 @@ import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import SpeakingRequestApproveDialog from './dialogs/SpeakingRequestApproveDialog.vue'
 import SpeakingRequestReferDialog from './dialogs/SpeakingRequestReferDialog.vue'
 import SpeakingRequestRejectDialog from './dialogs/SpeakingRequestRejectDialog.vue'
+import AnnotationView from './views/AnnotationView.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -155,6 +161,7 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
+import AdhocMeetingPage from './views/meetings/AdhocMeetingPage.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -250,6 +257,7 @@ export default {
 	// toggle rides the index page's actionsComponent slot and routes
 	// between the two pages, leaving the table surface untouched.
 	MeetingCalendarView: page(MeetingCalendarView),
+	AdhocMeetingPage: page(AdhocMeetingPage),
 	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
@@ -357,6 +365,7 @@ export default {
 	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
 	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	AgendaItemPhaseTab: page(AgendaItemPhaseTab),
 	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
 	// pending requests on the agenda item, and the meeting-level ones.
 	AgendaItemSpeakersTab: page(AgendaItemSpeakersTab),
@@ -375,6 +384,7 @@ export default {
 	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
 	MeetingTeamsTab: page(MeetingTeamsTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
+	MeetingPackTab: page(MeetingPackTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
@@ -537,6 +547,7 @@ export default {
 	// The decision's approval route, and sending it along one (routes-send-proposal-along-route).
 	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
+	UrgencyBanner: page(UrgencyBanner),
 	DecisionVotingTab: page(DecisionVotingTab),
 	WrittenResolutionTab: page(WrittenResolutionTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
@@ -558,12 +569,19 @@ export default {
 	// the theme page, and Add to theme on agenda item and decision pages.
 	ThemeTimelineTab: page(ThemeTimelineTab),
 	ThemePublicationTab: page(ThemePublicationTab),
+	AgendaItemReadersTab: page(AgendaItemReadersTab),
 	AgendaItemThemesTab: page(AgendaItemThemesTab),
 	DecisionThemesTab: page(DecisionThemesTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
 	OnboardingChecklistTab: page(OnboardingChecklistTab),
+
+	// Document annotations (document-annotations): the PDF papers of a meeting
+	// or agenda item with Annotate, and the annotator itself, which loads
+	// pdf.js in a chunk of its own only when it opens.
+	DocumentAnnotationsTab: page(DocumentAnnotationsTab),
+	AnnotationView: page(AnnotationView),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.

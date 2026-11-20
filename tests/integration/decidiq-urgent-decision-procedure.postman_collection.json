@@ -1,0 +1,1864 @@
+{
+ "info": {
+  "name": "Decidiq urgent decision procedure",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+  "description": "API contract of the urgent decision procedure (openspec/changes/urgent-decision-procedure): only the meeting's chair (or a role the body's urgency policy allows) declares urgency (401 without a session, 403 otherwise, 422 without a reason, 409 twice); the declaration stores the urgency fields, keeps the lifecycle, appends a ratifying stage for the policy's body and puts it on that body's next regular meeting; the urgency fields cannot be written through the object API, and an edit that leaves them out keeps them; the expedited written round keeps to the policy's hour bounds (422 outside 4 to 72, 422 on a decision that is not urgent, 201 with the deadline 24 hours out). Self-contained: setup seeds the objects through the OpenRegister object API as the admin and teardown deletes them."
+ },
+ "auth": {
+  "type": "basic",
+  "basic": [
+   {
+    "key": "username",
+    "value": "{{adminUser}}",
+    "type": "string"
+   },
+   {
+    "key": "password",
+    "value": "{{adminPass}}",
+    "type": "string"
+   }
+  ]
+ },
+ "variable": [
+  {
+   "key": "runTag",
+   "value": ""
+  },
+  {
+   "key": "farFuture",
+   "value": ""
+  },
+  {
+   "key": "soon",
+   "value": ""
+  },
+  {
+   "key": "ratifyingBodyId",
+   "value": ""
+  },
+  {
+   "key": "ratifyingMeetingId",
+   "value": ""
+  },
+  {
+   "key": "templateId",
+   "value": ""
+  },
+  {
+   "key": "boardId",
+   "value": ""
+  },
+  {
+   "key": "chairId",
+   "value": ""
+  },
+  {
+   "key": "otherChairId",
+   "value": ""
+  },
+  {
+   "key": "meetingId",
+   "value": ""
+  },
+  {
+   "key": "otherMeetingId",
+   "value": ""
+  },
+  {
+   "key": "decisionId",
+   "value": ""
+  },
+  {
+   "key": "otherDecisionId",
+   "value": ""
+  },
+  {
+   "key": "plainDecisionId",
+   "value": ""
+  },
+  {
+   "key": "stageId",
+   "value": ""
+  },
+  {
+   "key": "ratifyingStageId",
+   "value": ""
+  },
+  {
+   "key": "agendaItemId",
+   "value": ""
+  },
+  {
+   "key": "roundId",
+   "value": ""
+  },
+  {
+   "key": "roundOpenedAt",
+   "value": ""
+  },
+  {
+   "key": "putBody",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Run tag",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/settings"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.collectionVariables.set('runTag', 'newman-urgent-' + Date.now());",
+         "pm.collectionVariables.set('farFuture', new Date(Date.now() + 21 * 86400000).toISOString());",
+         "pm.collectionVariables.set('soon', new Date(Date.now() + 3 * 86400000).toISOString());",
+         "pm.test('decidiq answers', () => pm.expect(pm.response.code).to.be.below(500));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Ratifying body",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/governance-body"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"name\": \"{{runTag}} raad\",\n \"bodyType\": \"supervisory-board\",\n \"domain\": \"corporate\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('ratifyingBodyId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Regular meeting of the ratifying body",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} regular\",\n \"meetingType\": \"regular\",\n \"meetingMode\": \"in-person\",\n \"scheduledDate\": \"{{farFuture}}\",\n \"lifecycle\": \"scheduled\",\n \"governanceBody\": \"{{ratifyingBodyId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('ratifyingMeetingId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Template with an urgency policy",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-template"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"name\": \"{{runTag}} template\",\n \"urgencyPolicy\": {\n  \"allowedTriggerRoles\": [\n   \"chair\"\n  ],\n  \"minimumNoticeFloorHours\": 12,\n  \"responseDeadlineHours\": {\n   \"min\": 4,\n   \"max\": 72\n  },\n  \"ratificationRequired\": true,\n  \"ratifyingBody\": \"{{ratifyingBodyId}}\"\n }\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('templateId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Board on that template",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/governance-body"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"name\": \"{{runTag}} board\",\n \"bodyType\": \"corporate-board\",\n \"domain\": \"corporate\",\n \"processTemplate\": \"{{templateId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('boardId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Admin as chair",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participant"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"displayName\": \"Chair\",\n \"role\": \"chair\",\n \"nextcloudUserId\": \"{{adminUser}}\",\n \"governanceBody\": \"{{boardId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('chairId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Someone else as chair",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participant"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"displayName\": \"Other chair\",\n \"role\": \"chair\",\n \"nextcloudUserId\": \"{{runTag}}-other\",\n \"governanceBody\": \"{{boardId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('otherChairId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Meeting chaired by the admin",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} emergency\",\n \"meetingType\": \"extraordinary\",\n \"meetingMode\": \"digital\",\n \"scheduledDate\": \"{{soon}}\",\n \"lifecycle\": \"scheduled\",\n \"governanceBody\": \"{{boardId}}\",\n \"chair\": \"{{chairId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('meetingId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Meeting chaired by someone else",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} other\",\n \"meetingType\": \"extraordinary\",\n \"meetingMode\": \"digital\",\n \"scheduledDate\": \"{{soon}}\",\n \"lifecycle\": \"scheduled\",\n \"governanceBody\": \"{{boardId}}\",\n \"chair\": \"{{otherChairId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('otherMeetingId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Decision (urgent)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} urgent\",\n \"text\": \"Report the data breach to the regulator.\",\n \"decisionType\": \"resolution\",\n \"lifecycle\": \"deliberating\",\n \"meeting\": \"{{meetingId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('decisionId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Decision (other chair)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} other chair\",\n \"text\": \"Report the data breach to the regulator.\",\n \"decisionType\": \"resolution\",\n \"lifecycle\": \"deliberating\",\n \"meeting\": \"{{otherMeetingId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('otherDecisionId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Decision (plain)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"{{runTag}} plain\",\n \"text\": \"Report the data breach to the regulator.\",\n \"decisionType\": \"resolution\",\n \"lifecycle\": \"deliberating\",\n \"meeting\": \"{{meetingId}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('plainDecisionId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Decisive stage",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-stage"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"decision\": \"{{decisionId}}\",\n \"sequence\": 1,\n \"stageType\": \"decisive\",\n \"status\": \"pending\",\n \"decisionMakerType\": \"body\",\n \"assignedBody\": \"{{boardId}}\",\n \"label\": \"Board decides\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('created', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "const o = pm.response.json();",
+         "pm.collectionVariables.set('stageId', o.id || (o['@self'] && o['@self'].id) || o.uuid);"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1. Urgency declaration",
+   "item": [
+    {
+     "name": "No session: 401",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/urgency"
+      },
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"reason\": \"Now.\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('answers 401 without a session', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Not the chair: 403",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{otherDecisionId}}/urgency"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"reason\": \"Now.\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('refuses a caller who is not the chair', () => pm.response.to.have.status(403));",
+         "pm.test('names the policy', () => pm.expect(pm.response.json().message).to.include('chair'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Not the chair: nothing changed",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{otherDecisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the decision is not urgent', () => pm.expect(pm.response.json().isUrgent || false).to.eql(false));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "No reason: 422",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/urgency"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"reason\": \"\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('a reason is required', () => pm.response.to.have.status(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "The chair declares: 200",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/urgency"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"reason\": \"The regulator must be told within 72 hours.\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the chair declares the decision urgent', () => pm.response.to.have.status(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Declared: fields stored, lifecycle unchanged",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const d = pm.response.json();",
+         "pm.test('urgency fields stored', () => { pm.expect(d.isUrgent).to.eql(true); pm.expect(d.urgencyReason).to.eql('The regulator must be told within 72 hours.'); pm.expect(d.urgencyDeclaredBy).to.eql(pm.environment.get('adminUser') || pm.collectionVariables.get('adminUser') || 'admin'); pm.expect(d.urgencyDeclaredAt).to.be.a('string'); });",
+         "pm.test('lifecycle unchanged', () => pm.expect(d.lifecycle).to.eql('deliberating'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Declared: a ratifying stage for the ratifying body",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-stage?decision={{decisionId}}&_limit=50"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const rows = pm.response.json().results || [];",
+         "const r = rows.find((s) => s.stageType === 'ratifying');",
+         "pm.test('a ratifying stage was appended', () => { pm.expect(r).to.be.an('object'); pm.expect(r.assignedBody).to.eql(pm.collectionVariables.get('ratifyingBodyId')); pm.expect(r.sequence).to.eql(2); });",
+         "if (r) pm.collectionVariables.set('ratifyingStageId', r.id || r['@self'].id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Declared: on the agenda of the regular meeting",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/agenda-item?ratifiesDecision={{decisionId}}&_limit=50"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const rows = (pm.response.json().results || []).filter((i) => i.ratifiesDecision === pm.collectionVariables.get('decisionId'));",
+         "pm.test('one agenda item ratifies the decision', () => { pm.expect(rows.length).to.eql(1); pm.expect(rows[0].meeting).to.eql(pm.collectionVariables.get('ratifyingMeetingId')); });",
+         "if (rows.length) pm.collectionVariables.set('agendaItemId', rows[0].id || rows[0]['@self'].id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Twice: 409",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/urgency"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"reason\": \"Again.\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('a decision is declared urgent once', () => pm.response.to.have.status(409));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "2. Urgency fields guard",
+   "item": [
+    {
+     "name": "Direct write of isUrgent: refused",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{plainDecisionId}}"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{{putBody}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const id = pm.collectionVariables.get('plainDecisionId');",
+         "pm.sendRequest({ url: pm.variables.replaceIn('{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/') + id, method: 'GET', header: { Accept: 'application/json', Authorization: 'Basic ' + CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(pm.variables.replaceIn('{{adminUser}}:{{adminPass}}'))) } }, (err, res) => {",
+         "  const body = res.json(); delete body['@self']; body.isUrgent = true; body.urgencyReason = 'Set by hand';",
+         "  pm.collectionVariables.set('putBody', JSON.stringify(body));",
+         "});"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('a direct urgency write is refused', () => pm.expect(pm.response.code).to.be.at.least(400));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Direct write: nothing stored",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{plainDecisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the decision is not urgent', () => pm.expect(pm.response.json().isUrgent || false).to.eql(false));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Edit without the urgency fields",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{{putBody}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const id = pm.collectionVariables.get('decisionId');",
+         "pm.sendRequest({ url: pm.variables.replaceIn('{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/') + id, method: 'GET', header: { Accept: 'application/json', Authorization: 'Basic ' + CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(pm.variables.replaceIn('{{adminUser}}:{{adminPass}}'))) } }, (err, res) => {",
+         "  const body = res.json(); delete body['@self']; ['isUrgent','urgencyReason','urgencyDeclaredBy','urgencyDeclaredAt'].forEach((k) => delete body[k]); body.title = body.title + ' (edited)';",
+         "  pm.collectionVariables.set('putBody', JSON.stringify(body));",
+         "});"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('an unrelated edit is saved', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Edit: urgency carried forward",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const d = pm.response.json();",
+         "pm.test('urgency survives the edit', () => { pm.expect(d.isUrgent).to.eql(true); pm.expect(d.urgencyReason).to.eql('The regulator must be told within 72 hours.'); pm.expect(d.title).to.include('(edited)'); });"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "3. Expedited written round",
+   "item": [
+    {
+     "name": "Expedited round, no session: 401",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/expedited-round"
+      },
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"responseDeadlineHours\": 24\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('answers 401 without a session', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Expedited round, 1 hour: 422",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/expedited-round"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"responseDeadlineHours\": 1\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('below the policy bounds', () => pm.response.to.have.status(422));",
+         "pm.test('names the bounds', () => { const m = pm.response.json().message; pm.expect(m).to.include('4'); pm.expect(m).to.include('72'); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Expedited round, 100 hours: 422",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/expedited-round"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"responseDeadlineHours\": 100\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('above the policy bounds', () => pm.response.to.have.status(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Expedited round, not urgent: 422",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{plainDecisionId}}/expedited-round"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"responseDeadlineHours\": 24\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('only an urgent decision has an expedited round', () => pm.response.to.have.status(422));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Expedited round, 24 hours: 201",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/expedited-round"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"responseDeadlineHours\": 24\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.collectionVariables.set('roundOpenedAt', String(Date.now()));",
+         "pm.test('opens the round', () => pm.response.to.have.status(201));",
+         "const r = pm.response.json();",
+         "pm.collectionVariables.set('roundId', r.id || (r['@self'] && r['@self'].id) || '');",
+         "pm.test('the deadline is 24 hours out', () => pm.expect(Math.abs(Date.parse(r.votingDeadline) - (Date.now() + 24 * 3600000))).to.be.below(600000));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete voting-round roundId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/voting-round/{{roundId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete agenda-item agendaItemId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/agenda-item/{{agendaItemId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision-stage ratifyingStageId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-stage/{{ratifyingStageId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision-stage stageId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-stage/{{stageId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision decisionId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision otherDecisionId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{otherDecisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision plainDecisionId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{plainDecisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete meeting meetingId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting/{{meetingId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete meeting otherMeetingId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting/{{otherMeetingId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete meeting ratifyingMeetingId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/meeting/{{ratifyingMeetingId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete participant chairId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participant/{{chairId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete participant otherChairId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/participant/{{otherChairId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete governance-body boardId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/governance-body/{{boardId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete governance-body ratifyingBodyId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/governance-body/{{ratifyingBodyId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete decision-template templateId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision-template/{{templateId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

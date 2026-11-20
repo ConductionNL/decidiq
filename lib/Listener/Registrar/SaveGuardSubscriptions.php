@@ -44,6 +44,7 @@ use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
 use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\UrgencyFieldGuardListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCA\Decidiq\Service\OndermandaatGuardService;
@@ -118,6 +119,10 @@ final class SaveGuardSubscriptions {
 		['event' => ObjectUpdatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Urgency fields (urgent-decision-procedure, REQ-001): written only by
+		// the guarded urgency declaration, carried forward on other edits.
+		['event' => ObjectCreatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
 		// Agenda placement waits for approval (routes-send-proposal-along-route,
 		// REQ-RSPR-001): a decision whose approval route has an open step is
 		// not placed on an agenda item.

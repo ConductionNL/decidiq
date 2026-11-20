@@ -28,5 +28,6 @@
 - **files**: `tests/e2e/voting-group-round.spec.ts` (new), `openspec/parity/capabilities.json` (vot-25 to built)
 - **acceptance_criteria**:
   - GIVEN a seeded group WHEN the chair opens a round with it on the live instance THEN only its members can cast a vote
+- Written: `tests/e2e/voting-group-round.spec.ts` (two real accounts: the group's member casts, a participant outside it is refused; a group member who is no participant is named; a group plus preset ids is a 400). Left: running it on an instance, then `vot-25` to built.
 - [ ] Implement
 - [ ] Test

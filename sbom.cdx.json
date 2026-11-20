@@ -830,8 +830,8 @@
       "type": "library",
       "name": "nextcloud-vue",
       "group": "@conduction",
-      "version": "2.135.0",
-      "bom-ref": "decidiq@0.1.0|@conduction/nextcloud-vue@2.135.0",
+      "version": "2.181.0",
+      "bom-ref": "decidiq@0.1.0|@conduction/nextcloud-vue@2.181.0",
       "licenses": [
         {
           "license": {
@@ -839,15 +839,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.135.0",
+      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.181.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.135.0.tgz",
+          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.181.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "5698c8632d1f7726c9b12eca303820fe4fe9e87a8afe93ffb3411d6b94db025b12a252031d04055c6bb25cb7ae620cb23741c0c409c5d878ed748ff84bb7f26d"
+              "content": "4cbbcd40d463ccd080f1a3edaeca41c546842375bad9b7956540f0b289a94f3641ca79122d3ae762d6ae99d659767b057dff60ef40b1c4f0ab8937579b586f9b"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -2602,6 +2602,426 @@
     },
     {
       "type": "library",
+      "name": "canvas-android-arm64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-android-arm64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-android-arm64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "8638422a19ed3eff7eb787241f299dc74a6160d7155be18a411e8bcf0db313ea4e5633a99529adc7d9cd3649d38db1032dcb8b66a035cbcb9f2a0d577e07edcd"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-android-arm64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-darwin-arm64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-darwin-arm64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-arm64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "d8f72cc11682ecbcbae390c6b7cf3ffffcee143849c4961d280b35b94de67e4d5ab58917b9f81c80b7c1a64e939b5da709005a36dd70a726ee3d9e2a3a14e8f0"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-darwin-arm64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-darwin-x64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-darwin-x64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-x64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "78f359b63ee9348bdafec899320f8799b7a8ce4223a94218768ca61fc1da037a8aecb7f314de1630133c1ba1d0f590be1f7f839e7e69aad897a602f291a3ce87"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-darwin-x64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm-gnueabihf",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm-gnueabihf@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm-gnueabihf@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "779703078f28585194f3f5cf854385025c9281bfd502eec3facf1f8b9e4ad4f71f83c68fa651d6a8c8226e154b53c932ecfca0fdfba254bcf835fdc9ad24ee50"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm-gnueabihf"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "ac3c60c51bbaf51bc3957fdb87da36d83c4bb06afc12ab0d828b4bf7e470404d52d1bd1ca9e6adaacc3a696e399ae926d01e360c801a01a70a69843c72a4b59f"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm64-musl",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm64-musl@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-musl@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "2b79835bae8dfb14f6fd5e37f6ed5a94500d881523744c7680b88d6270a652cbdae6364cc564e369f058c13cd82be10c14c1eb52869bb94f93d4120fe4281b61"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-musl"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-riscv64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-riscv64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-riscv64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "9a8a2a5014c8b1c719a67a100b8360ac2d6fe82d6fa1fdfd7ad2cd327070098fa9d206a3589bc01cb190ea0fe01b24b962ba435be19e7d2378f82bdcaf4f145b"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-riscv64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-x64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-x64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "d5e0af90309ace6ec5161b13ec37c639d49a1e06552b76edfdd4819791161ce5a69f3f88ee3f2d3ec789aaa0fcd4d17e307db58ca50ae304120e337499d8674e"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-x64-musl",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-x64-musl@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-musl@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "db46ab4fa967235f52ebca8d9628bbdd34840db102360ccccf612995d0b557799916e4647ae8d791c79b464d0b4497bd484500a286222e891f315898f085fbc8"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-musl"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-win32-arm64-msvc",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-win32-arm64-msvc@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-arm64-msvc@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-arm64-msvc/-/canvas-win32-arm64-msvc-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "0d91454f5c08020dfb2c9c37ef284c4457e3013777bd34338d9d58922f2edaf84ee878b9544e8155a190d5a683bbbc5be22304af3fbd10ec23a52ef173115e07"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-win32-arm64-msvc"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-win32-x64-msvc",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-win32-x64-msvc@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-x64-msvc@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3324f58f79870b6f8bbb8a418bd98ac8c261b4fe94ee4ec495d63bb23fee4b980903ae604d7b7c31e7c94172c9a3977fbd96ee5a67f1ce411435cfeead5de91c"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-win32-x64-msvc"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "c6095803aab75cee4fdc1349631559d4857b0cb563a753f2ea7c1a83cf189edad2fb7bca1f261c32a5d54b8673b499b0cf6b86bf3d455a123fe0b81b479b900c"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "wasm-runtime",
       "group": "@napi-rs",
       "version": "1.2.6",
@@ -3259,8 +3679,8 @@
       "type": "library",
       "name": "vue",
       "group": "@nextcloud",
-      "version": "9.11.0",
-      "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0",
+      "version": "9.13.1",
+      "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1",
       "licenses": [
         {
           "license": {
@@ -3268,15 +3688,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40nextcloud/vue@9.11.0",
+      "purl": "pkg:npm/%40nextcloud/vue@9.13.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@nextcloud/vue/-/vue-9.11.0.tgz",
+          "url": "https://registry.npmjs.org/@nextcloud/vue/-/vue-9.13.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "2d1b3253d331b346f6c56a9bc72829b3c3bbfe2d73e1084d403f7f4039e2f95a8563757437de6602098a266eaf7e816ec5300c5c4469f5b8ea167dd4579e3683"
+              "content": "e997879be7281c9eb0b1abee965978095977b64e5e86387ba7aa56f465350607c390eb1bc793efe14f3fb9593bc8e4e7e28028ebde574c7845375ee9c88d6979"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -3292,8 +3712,8 @@
         {
           "type": "library",
           "name": "vue-router",
-          "version": "5.3.0",
-          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0|vue-router@5.3.0",
+          "version": "5.5.1",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|vue-router@5.5.1",
           "licenses": [
             {
               "license": {
@@ -3301,15 +3721,15 @@
               }
             }
           ],
-          "purl": "pkg:npm/vue-router@5.3.0",
+          "purl": "pkg:npm/vue-router@5.5.1",
           "externalReferences": [
             {
-              "url": "https://registry.npmjs.org/vue-router/-/vue-router-5.3.0.tgz",
+              "url": "https://registry.npmjs.org/vue-router/-/vue-router-5.5.1.tgz",
               "type": "distribution",
               "hashes": [
                 {
                   "alg": "SHA-512",
-                  "content": "6b63c15d7f727e44b9f09cd22402d47df8036b4f651332a609c1272da7a9a08afcf0bfbd8449ec80442471a7491880febed1dad20169568d3ae339b2940f5f72"
+                  "content": "95410d77f40884a7761d60029d7203deeb34196067b8e8b707091353371edbee277ccfdbdec795e6c68d51133dfb0b78f3fa94c6f8a8b69726ef21710b4538a8"
                 }
               ],
               "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -3327,7 +3747,7 @@
           "name": "devtools-api",
           "group": "@vue",
           "version": "8.2.1",
-          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0|@vue/devtools-api@8.2.1",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|@vue/devtools-api@8.2.1",
           "licenses": [
             {
               "license": {
@@ -3358,10 +3778,76 @@
         },
         {
           "type": "library",
+          "name": "chokidar",
+          "version": "6.0.0",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|chokidar@6.0.0",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/chokidar@6.0.0",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/chokidar/-/chokidar-6.0.0.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "11cd99ef0a5c28188ca51ec3c6d7a8a92fecab91b97760387e9c733efebe7c3ef134d76b4e0867ecbd7563057910dd41de2ef612b7375d54f91645880f1f74f8"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@nextcloud/vue/node_modules/chokidar"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "magic-string",
+          "version": "1.4.5",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|magic-string@1.4.5",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/magic-string@1.4.5",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "a0b2c2dbe62f4147c06bebf1a2e7c4ff273589c6fceccf625c846a02847fd84844ffc71bdd217ff868b4736072d41fb9573d9edaf42d52f1e2bb5fbadd99e1fb"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@nextcloud/vue/node_modules/magic-string"
+            }
+          ]
+        },
+        {
+          "type": "library",
           "name": "devtools-kit",
           "group": "@vue",
           "version": "8.2.1",
-          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0|@vue/devtools-kit@8.2.1",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|@vue/devtools-kit@8.2.1",
           "licenses": [
             {
               "license": {
@@ -3395,7 +3881,7 @@
           "name": "devtools-shared",
           "group": "@vue",
           "version": "8.2.1",
-          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0|@vue/devtools-shared@8.2.1",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|@vue/devtools-shared@8.2.1",
           "licenses": [
             {
               "license": {
@@ -3428,7 +3914,7 @@
           "type": "library",
           "name": "perfect-debounce",
           "version": "2.1.0",
-          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.11.0|perfect-debounce@2.1.0",
+          "bom-ref": "decidiq@0.1.0|@nextcloud/vue@9.13.1|perfect-debounce@2.1.0",
           "licenses": [
             {
               "license": {
@@ -4638,10 +5124,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@rolldown/pluginutils"
@@ -6307,6 +6789,74 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@vue-macros/common"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "local-pkg",
+          "version": "1.2.1",
+          "bom-ref": "decidiq@0.1.0|@vue-macros/common@3.1.4|local-pkg@1.2.1",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/local-pkg@1.2.1",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/local-pkg/-/local-pkg-1.2.1.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "fbe814a910c4bdc9cde9986aaebfb2fc2915107865ad1f7abd99f79d964f63331c054c81b532b307d35a74294522c2154acbbede2f6d7e4fdeaeacbd9009aded"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue-macros/common/node_modules/local-pkg"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "quansync",
+          "version": "0.2.11",
+          "bom-ref": "decidiq@0.1.0|@vue-macros/common@3.1.4|quansync@0.2.11",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/quansync@0.2.11",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/quansync/-/quansync-0.2.11.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "0227d3ed011b5bd36b8b8b40c11e4cfeece906ea9f65ffb3c1a10cfd09331238fb341b850f6ac1bb2d0addd13ef3096d6decc357b24c03459f9c23d845261b5c"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/@vue-macros/common/node_modules/quansync"
+            }
+          ]
         }
       ]
     },
@@ -8048,8 +8598,8 @@
     {
       "type": "library",
       "name": "ast-walker-scope",
-      "version": "0.9.0",
-      "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.9.0",
+      "version": "0.10.0",
+      "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0",
       "licenses": [
         {
           "license": {
@@ -8057,15 +8607,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/ast-walker-scope@0.9.0",
+      "purl": "pkg:npm/ast-walker-scope@0.10.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/ast-walker-scope/-/ast-walker-scope-0.9.0.tgz",
+          "url": "https://registry.npmjs.org/ast-walker-scope/-/ast-walker-scope-0.10.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "209773a36bcb884941c4acf04b7e95b02b9effad9de887568e73c1dafde7b8f29e586ca7a7a145fc26282dae62ff78d71ffcfded90ddb17cfa69ba6033ac34ec"
+              "content": "2b3be8c437d7373d869bc2982e1e3b2b7a9c6376736b758a3ae876c68a9aecb06ee8c0ca58064ba2f26d53d0ee01dfc4afeae14070919fad7d9474b953eaa687"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -8075,6 +8625,210 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/ast-walker-scope"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "parser",
+          "group": "@babel",
+          "version": "8.1.2",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|@babel/parser@8.1.2",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/parser@8.1.2",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/parser/-/parser-8.1.2.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "643294eef697d1539177606168efb714aaffdf44ca8db532dd23197327623e782701bf8c7ac814a21e5225c139130132063d7833927a7cae7a1ae06abd898ea7"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/@babel/parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "types",
+          "group": "@babel",
+          "version": "8.1.2",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|@babel/types@8.1.2",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/types@8.1.2",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/types/-/types-8.1.2.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "b97b7aaadd9fe46eb58d9c0d2332b544abbb9795e3b75557b4f3ce1ae56f7a16bd7f16f1d1033de14d64338a4564a4d12e358af97f2f9b08f06c87a62638904c"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/@babel/types"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "ast-kit",
+          "version": "3.0.1",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|ast-kit@3.0.1",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/ast-kit@3.0.1",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/ast-kit/-/ast-kit-3.0.1.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "7c21a242f98782185ff39f1efd2546876694a3f16c6ed079a81f1b89fa3aca01cae4e31c1a76b9e8552f4b422b62fa3eba7630222d670a494487f29468e2959a"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/ast-kit"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-string-parser",
+          "group": "@babel",
+          "version": "8.1.2",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|@babel/helper-string-parser@8.1.2",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-string-parser@8.1.2",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-8.1.2.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "4d1cf96743207c87d6ab0108abfa42a54a445d0c54b76220d996f11b749d9a149b1cc00515818e8b1d2423824b577ef5fd303ea969d0e315873d68e88e4c9114"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/@babel/helper-string-parser"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "helper-validator-identifier",
+          "group": "@babel",
+          "version": "8.0.6",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|@babel/helper-validator-identifier@8.0.6",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/%40babel/helper-validator-identifier@8.0.6",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.6.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "1d8c74626b9c851c514a99e3bdc35f7e73d2f0309ab8a3669ee988b871b78e740055ec1103b91f246c05d776b2129499b3bb3847fa011f87a9a6e5dc01077925"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/@babel/helper-validator-identifier"
+            }
+          ]
+        },
+        {
+          "type": "library",
+          "name": "estree-walker",
+          "version": "3.0.3",
+          "bom-ref": "decidiq@0.1.0|ast-walker-scope@0.10.0|estree-walker@3.0.3",
+          "licenses": [
+            {
+              "license": {
+                "id": "MIT"
+              }
+            }
+          ],
+          "purl": "pkg:npm/estree-walker@3.0.3",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/estree-walker/-/estree-walker-3.0.3.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "ed150a7d781230c933b7a66e5e6a9aa4ebab2c63cf7e08fa97db9167b9511a896f934cb6ca871cdf92dd731282e4f419767d8332a8a8010d8da1672b4ca9a6ea"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/ast-walker-scope/node_modules/estree-walker"
+            }
+          ]
         }
       ]
     },
@@ -9173,8 +9927,8 @@
     {
       "type": "library",
       "name": "confbox",
-      "version": "0.2.4",
-      "bom-ref": "decidiq@0.1.0|confbox@0.2.4",
+      "version": "0.3.2",
+      "bom-ref": "decidiq@0.1.0|confbox@0.3.2",
       "licenses": [
         {
           "license": {
@@ -9182,15 +9936,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/confbox@0.2.4",
+      "purl": "pkg:npm/confbox@0.3.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/confbox/-/confbox-0.2.4.tgz",
+          "url": "https://registry.npmjs.org/confbox/-/confbox-0.3.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "cac3869604c56cddbf63a0a0dc8c9ef182ae947c3e4767cd5c7ae04a65c849074c9e8998e9e343a6b55d5bd479c4182e12a23de78f92ebbd3d53288eec1fba39"
+              "content": "65400a84a96408eac818a73c723ef37a4f6cf73d66bde1e27ffdb99d4b21236073091cc5eca1fb2876be2e7876b9babe7b5b4895a16e3fbeb79b35b8a95a1e86"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -11549,8 +12303,8 @@
     {
       "type": "library",
       "name": "exsolve",
-      "version": "1.1.1",
-      "bom-ref": "decidiq@0.1.0|exsolve@1.1.1",
+      "version": "1.2.0",
+      "bom-ref": "decidiq@0.1.0|exsolve@1.2.0",
       "licenses": [
         {
           "license": {
@@ -11558,15 +12312,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/exsolve@1.1.1",
+      "purl": "pkg:npm/exsolve@1.2.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/exsolve/-/exsolve-1.1.1.tgz",
+          "url": "https://registry.npmjs.org/exsolve/-/exsolve-1.2.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "f54fe36548239d21b29ed46beb2e4cbaed4c25cc0597a90fbbb93ca8b17420c35f2eabf0d0d6789e7543ab4455a19d11bc2cae9a26f8133dca62b55f8a5af0fa"
+              "content": "875a503d1f57a1e48c767b513428f24f39daba67b85297d7ad42c19e5919d8250cfc6e5e49afa9041c8695d3b9b91f1dc5b3c2f8eb895ec3cf35ff8967cd400e"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -14524,8 +15278,8 @@
     {
       "type": "library",
       "name": "local-pkg",
-      "version": "1.2.1",
-      "bom-ref": "decidiq@0.1.0|local-pkg@1.2.1",
+      "version": "2.0.0",
+      "bom-ref": "decidiq@0.1.0|local-pkg@2.0.0",
       "licenses": [
         {
           "license": {
@@ -14533,15 +15287,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/local-pkg@1.2.1",
+      "purl": "pkg:npm/local-pkg@2.0.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/local-pkg/-/local-pkg-1.2.1.tgz",
+          "url": "https://registry.npmjs.org/local-pkg/-/local-pkg-2.0.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "fbe814a910c4bdc9cde9986aaebfb2fc2915107865ad1f7abd99f79d964f63331c054c81b532b307d35a74294522c2154acbbede2f6d7e4fdeaeacbd9009aded"
+              "content": "c6f4cdc0cdbb12953e7e42d2a68df73eafe79bc9b9ccd7f4694fe11785b864cf511d08d565ae4a4e699723313356c748d3d34e52a8f47631e14eff7ab14a3049"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -16636,8 +17390,8 @@
     {
       "type": "library",
       "name": "nostics",
-      "version": "1.2.0",
-      "bom-ref": "decidiq@0.1.0|nostics@1.2.0",
+      "version": "1.4.0",
+      "bom-ref": "decidiq@0.1.0|nostics@1.4.0",
       "licenses": [
         {
           "license": {
@@ -16645,15 +17399,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/nostics@1.2.0",
+      "purl": "pkg:npm/nostics@1.4.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/nostics/-/nostics-1.2.0.tgz",
+          "url": "https://registry.npmjs.org/nostics/-/nostics-1.4.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "146a847e1423aefa3594bf0a1627dd4d088dc304072710b58ed604d51739e2a17f8f138d50d2fe902f604b592b5fc43ae4f82b4397c2a87fc8e0d85606f752aa"
+              "content": "5a35c73ae36ecd8dcc3ca3a8093db32f549addc4b698e51ee28f05f7826f04e1f67067f2348b5b42609bda9347231a2875de4efafb66987abb3e84995468021c"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -17157,6 +17911,39 @@
     },
     {
       "type": "library",
+      "name": "pdfjs-dist",
+      "version": "4.10.38",
+      "bom-ref": "decidiq@0.1.0|pdfjs-dist@4.10.38",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/pdfjs-dist@4.10.38",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.10.38.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "fd8ddf705ad7100b0c8c95de2fd27cf991bd534d4b6ee59a632a6f0d6db2716d632f6ebd2f78ecdc35418c3274529f4da75baa0d7b03ad18a11c036164e97075"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/pdfjs-dist"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "perfect-debounce",
       "version": "1.0.0",
       "bom-ref": "decidiq@0.1.0|perfect-debounce@1.0.0",
@@ -17290,8 +18077,8 @@
     {
       "type": "library",
       "name": "pkg-types",
-      "version": "2.3.1",
-      "bom-ref": "decidiq@0.1.0|pkg-types@2.3.1",
+      "version": "2.4.0",
+      "bom-ref": "decidiq@0.1.0|pkg-types@2.4.0",
       "licenses": [
         {
           "license": {
@@ -17299,15 +18086,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/pkg-types@2.3.1",
+      "purl": "pkg:npm/pkg-types@2.4.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/pkg-types/-/pkg-types-2.3.1.tgz",
+          "url": "https://registry.npmjs.org/pkg-types/-/pkg-types-2.4.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "cbe89c85c81cd8bac00ee84b340c7c0c58d57e0cfdd694717d9748dd40e1c47bdc54466c7a72cefbb5da539bcea74bbfed5ff067ea65cae431b6b0e5649fb27a"
+              "content": "d3b172b3b895c745fa4dcbe230e82880cd4b937dd9caa39eccc9d4efd4be91f7d6ab0a251bfe56f55f0481049e60221f15361582cb116e71fadf439adbeb2804"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -18134,8 +18921,8 @@
     {
       "type": "library",
       "name": "quansync",
-      "version": "0.2.11",
-      "bom-ref": "decidiq@0.1.0|quansync@0.2.11",
+      "version": "1.0.0",
+      "bom-ref": "decidiq@0.1.0|quansync@1.0.0",
       "licenses": [
         {
           "license": {
@@ -18143,15 +18930,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/quansync@0.2.11",
+      "purl": "pkg:npm/quansync@1.0.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/quansync/-/quansync-0.2.11.tgz",
+          "url": "https://registry.npmjs.org/quansync/-/quansync-1.0.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "0227d3ed011b5bd36b8b8b40c11e4cfeece906ea9f65ffb3c1a10cfd09331238fb341b850f6ac1bb2d0addd13ef3096d6decc357b24c03459f9c23d845261b5c"
+              "content": "e7165a70412e7efdc74933d0b9c86bbd5eaca1a88008c167ab51fcc24562a1cb681f74d185af52cfaea53b14703cafea663ec73e24af7a287dc80ca1f7c82fa8"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -20607,8 +21394,8 @@
     {
       "type": "library",
       "name": "unplugin",
-      "version": "3.3.0",
-      "bom-ref": "decidiq@0.1.0|unplugin@3.3.0",
+      "version": "3.7.0",
+      "bom-ref": "decidiq@0.1.0|unplugin@3.7.0",
       "licenses": [
         {
           "license": {
@@ -20616,15 +21403,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/unplugin@3.3.0",
+      "purl": "pkg:npm/unplugin@3.7.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/unplugin/-/unplugin-3.3.0.tgz",
+          "url": "https://registry.npmjs.org/unplugin/-/unplugin-3.7.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "a9aeba2be72b6dfc84e892b5d068ef6c9791aceb2e0bf2696e71dcb5fca9fe2e28053c563b325f459c8388e9353ed12b30546ef0986c53fc0fbce7413567b946"
+              "content": "1ab336baadc3428de1bcb536163798868a09f0163d37a8f515bce0c7b3ed6b755525ebec0f754fe1d3e366464e4b498bbcdf30f73cebf4e94ffb7d5b48ccae2f"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""

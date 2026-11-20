@@ -59,6 +59,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @covers \OCA\Decidiq\Service\Records\OpenRegisterArchive
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
  * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class ArchivalDossierServiceTest extends TestCase {
 

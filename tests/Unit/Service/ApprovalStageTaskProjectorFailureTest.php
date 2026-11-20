@@ -26,6 +26,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalStageTaskProjector;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\OpenRegister\Service\Task\TaskTrigger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -129,13 +130,12 @@ class ApprovalStageTaskProjectorFailureTest extends TestCase {
 			}
 
 			/**
-			 * @param string $uuid   The task
-			 * @param string $source The source
-			 * @param string $reason The reason
+			 * @param string      $uuid    The task
+			 * @param TaskTrigger $trigger The consuming source and reason
 			 *
 			 * @return void
 			 */
-			public function consume(string $uuid, string $source, string $reason): void {
+			public function consume(string $uuid, TaskTrigger $trigger): void {
 				throw new RuntimeException('already terminal');
 			}
 		};

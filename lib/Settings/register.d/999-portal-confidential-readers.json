@@ -1,0 +1,36 @@
+{
+    "x-openregister": {
+        "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+    },
+    "_comment": "ADR-037 register fragment, change portal-voting-record-and-confidential-papers (REQ-PSH-002). A non-public agenda item names, beside its Nextcloud readers, the people without a Nextcloud account who may read its papers through the portal; a person carries the reference of the portal account the griffie provisioned for them. Named 999-portal- so it merges after 999-ori-adoption: fragments merge in sorted name order, and the agenda-item and person version bumps must win.",
+    "components": {
+        "schemas": {
+            "AgendaItem": {
+                "slug": "agenda-item",
+                "version": "1.6.0",
+                "properties": {
+                    "authorisedPersons": {
+                        "title": "Authorised persons",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [],
+                        "description": "People (person records) without a Nextcloud account who may read this item's papers through the portal while it is not public (Lezers toevoegen), for example an external accountant. The portal reaches them by the portal account on their person record."
+                    }
+                }
+            },
+            "Person": {
+                "slug": "person",
+                "version": "0.4.0",
+                "properties": {
+                    "portalAccountRef": {
+                        "title": "Portal account",
+                        "type": "string",
+                        "description": "The reference of the portal account provisioned for this person, so the portal can match a signed-in reader to the person an agenda item names. Never the BSN or KvK number the account was provisioned with."
+                    }
+                }
+            }
+        }
+    }
+}
