@@ -1462,6 +1462,7 @@
 				"widget-decision-voting": "DecisionVotingTab",
 				"widget-decision-written-resolution": "WrittenResolutionTab",
 				"widget-decision-publication": "DecisionPublicationTab",
+				"widget-decision-amendments": "MotionAmendmentsTab",
 				"widget-decision-governing-citations": "GoverningDocumentCitationsTab",
 				"widget-decision-themes": "DecisionThemesTab"
 			},
@@ -1478,6 +1479,7 @@
 					{ "id": "decision-goal", "type": "custom", "component": "DecisionGoalWidget", "title": "Goal", "icon": "TargetVariant", "_note": "goals-linked-to-decisions REQ-010: the goal this decision serves, as a link to /goals/:id. Picked in the decision form and in the Governance widget (goal, scoped by x-relation-filter to draft, active and at-risk goals)." },
 					{ "id": "decision-actions", "type": "custom", "component": "ActionItemsSurface", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "decision-related", "type": "custom", "component": "RelatedDecisionsTab", "title": "Related decisions", "icon": "LinkVariant" },
+					{ "id": "decision-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
 					{ "id": "decision-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "decision-approval", "type": "custom", "component": "DecisionApprovalTab", "title": "Approval route", "icon": "AccountCheckOutline" },
 					{ "id": "decision-route", "type": "custom", "component": "DecisionRouteTab", "title": "Route", "icon": "Sitemap" },
@@ -1516,7 +1518,8 @@
 					{ "id": "21", "widgetId": "decision-governing-citations", "gridX": 0, "gridY": 56, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "22", "widgetId": "decision-themes", "gridX": 0, "gridY": 60, "gridWidth": 12, "gridHeight": 3 },
 					{ "id": "23", "widgetId": "decision-authority-basis", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 3 },
-					{ "id": "24", "widgetId": "decision-implementation", "gridX": 0, "gridY": 66, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "24", "widgetId": "decision-amendments", "gridX": 0, "gridY": 66, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "25", "widgetId": "decision-implementation", "gridX": 0, "gridY": 72, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
