@@ -64,6 +64,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  * @uses \OCA\Decidiq\Service\PublicationRun
+ * @uses   \OCA\Decidiq\Service\ThemeTimelineBuilder
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
  */
