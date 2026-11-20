@@ -10,8 +10,9 @@
   - GIVEN the Nevenfunctie schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with states `gemeld → openbaar | intern → beëindigd` and `beëindigd` terminal, and neither schema carries remuneration amounts, private contact data, or a free-form internal-remarks property
   - GIVEN a Nevenfunctie with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned; without the predicate (or for an `intern` RvC declaration) it is not; the public-publication eligibility gates are untouched
   - GIVEN a Nevenfunctie missing organisatie, functie, bezoldigd, or person WHEN saved THEN OpenRegister validation rejects it
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built earlier and renamed by integrity-disclosures-in-plain-words: fragment 62 declared Nevenfunctie, Geschenk and Integriteitsbeleid; fragment 81 carries them as `ancillary-position` and `declared-gift` (English names, same properties) and folds the policy into `body-governance-configuration`, retiring the Dutch-named schemas (`active: false`, `hardDelete: false`). Tested (20 Nov): `tests/Unit/Settings/IntegrityDisclosuresRegisterTest.php` checks the required fields, titles, `x-schema-org`, no pay amount, contact data or internal-remarks field, the refusal of a declaration missing organisation, role, paid flag or person, the canonical lifecycle with `ended` terminal, the public read predicate on `publicationDate <= $now` with no unconditional public read, and the retired schemas and folded policy fields. The anonymous read itself needs a live instance (Newman).
 
 ### Task 2: Declarative notifications — annual review rappel and integrity triggers
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification` (+ REQ-INT-009)
@@ -29,8 +30,9 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 2 integriteitsbeleid objects (gemeenteraad openbaar/50/public gifts; RvC intern/100/internal), 5 nevenfuncties (openbaar published, q.q., gemeld, intern RvC mirroring the otherPositions seed string, beëindigd), and 3 geschenken (aanvaard below threshold, geweigerd boven-drempel, overgedragen) exist per the design tables, with only nil-UUID placeholders for unresolved refs
   - GIVEN the seeded stale `reviewedAt` and the council member without any declaration WHEN the dashboard and compliance panel render THEN the KPI and the panel are non-zero on a fresh install (ADR-016)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built earlier in the example sets (seed-profiles moved seeds out of `register.d`): the municipality profile seeds the council policy and four ancillary positions and two gifts; the corporate profile seeds the supervisory board policy, its internal position and the transferred gift. Tested (20 Nov): `IntegrityDisclosuresRegisterTest::testTheExampleSetsSeedEveryKindOfDisclosure` checks both policies (public, EUR 50, gifts public; internal, EUR 100, gifts internal), the five kinds of position (public, q.q., declared, internal, ended), the three gift decisions around the threshold, the required fields of every seed, that nothing declared or internal carries a publication date, and that one review is over a year old so the dashboard counts it.
 
 ### Task 4: Manifest fragment — MyDeclarations, register index/detail pages, menu, export
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi`
@@ -68,6 +70,7 @@
   - GIVEN the seeded environment WHEN the suite runs THEN declare → verify → publish → anonymous read (nevenfunctie), register gift → boven-drempel badge + notification (geschenk), annual confirm → KPI drop, and COI dialog assistive block pass end-to-end
 - [ ] Implement
 - [ ] Test
+- Written, not run (20 Nov): `tests/e2e/interests-and-integrity.spec.ts` (anonymous read of published, ended, declared and internal positions; register lenses and export; ex officio; gift lenses; the overdue-review tile). The self-service scenarios wait on task 4. Running it needs a live instance.
 
 ## Verification
 
