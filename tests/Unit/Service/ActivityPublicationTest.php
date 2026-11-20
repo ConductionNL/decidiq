@@ -48,6 +48,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Service\PublicationRepository
  * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
  * @uses \OCA\Decidiq\Service\PublicationRun
+ * @uses   \OCA\Decidiq\Service\ThemeTimelineBuilder
  *
  * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
  */

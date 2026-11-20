@@ -16,12 +16,17 @@
 import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/src/utils/builtInFormatters.js'
 import * as fs from 'fs'
 import * as path from 'path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import cellFormatters from '../../src/utils/cellFormatters.js'
 import {
 	createConnectionHandlers,
 	INTEGRIQ_CONNECTIONS_PATH,
 } from '../../src/utils/connectionRegistry.js'
+
+// builtInFormatters pulls in the library's user autocomplete, whose
+// @nextcloud/axios import reads browser storage on load. This spec never
+// makes a request, so an inert client keeps the node environment.
+vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))
 
 const ROOT = path.resolve(__dirname, '../..')
 const fragment = JSON.parse(

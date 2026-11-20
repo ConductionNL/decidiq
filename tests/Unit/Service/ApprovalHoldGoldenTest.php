@@ -80,6 +80,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
  * @uses   \OCA\Decidiq\Service\HeldRouteRequest
  * @uses   \OCA\Decidiq\Event\ApprovalRouteRequestedEvent
  * @uses \OCA\Decidiq\Service\RouteStagesRun
+ * @uses   \OCA\Decidiq\Service\IntakeVerdictRecorder
  */
 class ApprovalHoldGoldenTest extends TestCase {
 

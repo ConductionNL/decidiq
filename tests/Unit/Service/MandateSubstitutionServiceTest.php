@@ -52,6 +52,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Service\MeetingRoleGate
  * @uses \OCA\Decidiq\Service\MeetingScopedRecords
  * @uses \OCA\Decidiq\Service\ReferenceId
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class MandateSubstitutionServiceTest extends TestCase {
 
