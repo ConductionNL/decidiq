@@ -316,6 +316,23 @@ class RegisterDescriptorTest extends TestCase {
 	}//end testThePublicationPayloadDeclaresTheRemedyClause()
 
 	/**
+	 * AgendaItem declares its phase: the five values, facetable, in the
+	 * descriptor the importer assembles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 */
+	public function testTheAgendaItemDeclaresItsPhase(): void {
+		$agendaItem = ($this->descriptor['components']['schemas']['AgendaItem'] ?? []);
+		$phase = ($agendaItem['properties']['phase'] ?? null);
+
+		self::assertIsArray($phase, 'AgendaItem does not declare phase, so the phase the chair sets is an undeclared property again');
+		self::assertSame(['voorstel', 'beeldvorming', 'oordeelsvorming', 'besluitvorming', 'completed'], $phase['enum'] ?? null);
+		self::assertTrue($phase['facetable'] ?? false, 'phase must be facetable so the agenda list can filter on it');
+	}//end testTheAgendaItemDeclaresItsPhase()
+
+	/**
 	 * No notification rule on an updated trigger uses an operator OpenRegister
 	 * does not evaluate there: an unknown operator falls through to false, so
 	 * such a rule never fires and nothing says so.

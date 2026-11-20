@@ -84,6 +84,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @uses   \OCA\Decidiq\Service\BordaCount
  * @uses \OCA\Decidiq\Service\MeetingScopedRecords
  * @uses \OCA\Decidiq\Service\ReferenceId
+ * @uses   \OCA\Decidiq\Service\VotingGroupResolver
  */
 class VotingRoundOpenGoldenTest extends TestCase {
 	use VotingFacadeCalls;
