@@ -156,11 +156,15 @@ Rappels SHALL be declared exclusively via the canonical `x-openregister-notifica
 
 #### Scenario: Rappel when the period arrives unrealised
 
+@e2e exclude needs the scheduled notification trigger, which OpenRegister evaluates from cron; the e2e rig serves Nextcloud without cron, so it is checked on a provisioned instance; the rule itself is the declaration in the register fragment
+
 - GIVEN an item planned `2026-11` in lifecycle `gepland` with no realisation link
 - WHEN the scheduled notification trigger evaluates on/after 1 November 2026
 - THEN the owner and the griffie recipients receive a Nextcloud notification referencing the item
 
 #### Scenario: No rappel for realised or dropped items
+
+@e2e exclude needs the scheduled notification trigger, which OpenRegister evaluates from cron; the e2e rig serves Nextcloud without cron, so it is checked on a provisioned instance; the rule itself is the declaration in the register fragment
 
 - GIVEN items planned in the current period in lifecycle `gerealiseerd` and `vervallen`, and a `gepland` item with `realisedAgendaItem` set
 - WHEN the scheduled notification trigger evaluates
