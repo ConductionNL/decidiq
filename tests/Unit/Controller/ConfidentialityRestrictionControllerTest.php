@@ -25,6 +25,7 @@ use OCA\Decidiq\Exception\ConfidentialityImposeRefusedException;
 use OCA\Decidiq\Service\ConfidentialityImposer;
 use OCA\Decidiq\Service\ConfidentialityLifter;
 use OCA\Decidiq\Service\ConfidentialityRatifier;
+use OCA\Decidiq\Service\RestrictedPaperViews;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\IRequest;
 use OCP\IUser;
@@ -57,6 +58,7 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 * @param ConfidentialityImposer|null $imposer The imposer.
 	 * @param ConfidentialityLifter|null  $lifter  The lifter.
 	 * @param ConfidentialityRatifier|null $ratifier The ratifier.
+	 * @param RestrictedPaperViews|null    $views    The view log.
 	 *
 	 * @return ConfidentialityRestrictionController
 	 */
@@ -64,7 +66,8 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 		?string $uid,
 		?ConfidentialityImposer $imposer=null,
 		?ConfidentialityLifter $lifter=null,
-		?ConfidentialityRatifier $ratifier=null
+		?ConfidentialityRatifier $ratifier=null,
+		?RestrictedPaperViews $views=null
 	): ConfidentialityRestrictionController {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default=null): mixed => (self::BODY[$key] ?? $default));
@@ -82,7 +85,8 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 			userSession: $session,
 			imposer: ($imposer ?? $this->createMock(originalClassName: ConfidentialityImposer::class)),
 			lifter: ($lifter ?? $this->createMock(originalClassName: ConfidentialityLifter::class)),
-			ratifier: ($ratifier ?? $this->createMock(originalClassName: ConfidentialityRatifier::class))
+			ratifier: ($ratifier ?? $this->createMock(originalClassName: ConfidentialityRatifier::class)),
+			views: ($views ?? $this->createMock(originalClassName: RestrictedPaperViews::class))
 		);
 	}//end controller()
 
@@ -153,7 +157,7 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 	 */
 	public function testTheEndpointIsOpenToNonAdministrators(): void {
-		foreach (['impose', 'ratify', 'lift'] as $name) {
+		foreach (['impose', 'ratify', 'lift', 'views'] as $name) {
 			$method = new ReflectionMethod(ConfidentialityRestrictionController::class, $name);
 			$this->assertCount(1, $method->getAttributes(NoAdminRequired::class));
 		}
@@ -209,4 +213,28 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 		$refusing->method('ratify')->willThrowException(new ConfidentialityImposeRefusedException(message: 'No ratification needed', status: 409));
 		$this->assertSame(409, $this->controller(uid: 'griffier', ratifier: $refusing)->ratify(id: 'r-1')->getStatus());
 	}//end testRatify()
+
+	/**
+	 * The views list: 401 signed out; 200 with the views; a refusal keeps its status.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-007-view-audit-trail-for-stukken-under-geheimhouding
+	 */
+	public function testViews(): void {
+		$never = $this->createMock(originalClassName: RestrictedPaperViews::class);
+		$never->expects($this->never())->method('viewsOf');
+		$this->assertSame(401, $this->controller(uid: null, views: $never)->views(id: 'r-1')->getStatus());
+
+		$views = $this->createMock(originalClassName: RestrictedPaperViews::class);
+		$views->expects($this->once())->method('viewsOf')->with('griffier', 'r-1')
+			->willReturn([['actor' => 'j.jansen', 'at' => '2026-11-21T10:00:00+01:00', 'document' => 'doc-1', 'agendaItem' => '', 'fileId' => 42]]);
+		$response = $this->controller(uid: 'griffier', views: $views)->views(id: 'r-1');
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame('j.jansen', $response->getData()['views'][0]['actor']);
+
+		$refusing = $this->createMock(originalClassName: RestrictedPaperViews::class);
+		$refusing->method('viewsOf')->willThrowException(new ConfidentialityImposeRefusedException(message: 'Only staff', status: 403));
+		$this->assertSame(403, $this->controller(uid: 'member', views: $refusing)->views(id: 'r-1')->getStatus());
+	}//end testViews()
 }//end class

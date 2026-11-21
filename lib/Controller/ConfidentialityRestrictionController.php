@@ -3,7 +3,8 @@
 /**
  * Confidentiality Restriction Controller
  *
- * The impose, ratify and lift endpoints of a confidentiality restriction. Reading and
+ * The impose, ratify and lift endpoints of a confidentiality restriction, and
+ * the list of who opened its papers. Reading and
  * listing go through OpenRegister's object API (ADR-022).
  *
  * @category Controller
@@ -30,6 +31,7 @@ use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ConfidentialityImposer;
 use OCA\Decidiq\Service\ConfidentialityLifter;
 use OCA\Decidiq\Service\ConfidentialityRatifier;
+use OCA\Decidiq\Service\RestrictedPaperViews;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -58,6 +60,7 @@ class ConfidentialityRestrictionController extends Controller {
 	 * @param ConfidentialityImposer $imposer     Checks the caller, then records the restriction.
 	 * @param ConfidentialityLifter  $lifter      Checks the caller, then lifts the restriction.
 	 * @param ConfidentialityRatifier $ratifier   Places it for ratification, and records the ratification.
+	 * @param RestrictedPaperViews    $views      Who opened the restriction's papers.
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 	 */
@@ -67,6 +70,7 @@ class ConfidentialityRestrictionController extends Controller {
 		private readonly ConfidentialityImposer $imposer,
 		private readonly ConfidentialityLifter $lifter,
 		private readonly ConfidentialityRatifier $ratifier,
+		private readonly RestrictedPaperViews $views,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -183,4 +187,32 @@ class ConfidentialityRestrictionController extends Controller {
 
 		return new JSONResponse($result, Http::STATUS_OK);
 	}//end lift()
+
+	/**
+	 * GET /api/confidentiality/restrictions/{id}/views: who opened the restriction's papers, and when.
+	 *
+	 * 200 with `views` (actor, at, document, agendaItem, fileId), newest
+	 * first; 401, 403 (not the imposing body's staff), 404 or 503.
+	 *
+	 * @param string $id The restriction.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-007-view-audit-trail-for-stukken-under-geheimhouding
+	 */
+	#[NoAdminRequired]
+	public function views(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		try {
+			$views = $this->views->viewsOf(userId: $user->getUID(), restrictionId: $id);
+		} catch (ConfidentialityImposeRefusedException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
+		}
+
+		return new JSONResponse(['views' => $views], Http::STATUS_OK);
+	}//end views()
 }//end class

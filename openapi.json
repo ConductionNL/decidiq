@@ -9482,6 +9482,45 @@
                     }
                 }
             }
+        },
+        "/confidentiality/restrictions/{id}/views": {
+            "get": {
+                "operationId": "confidentiality-restriction-views",
+                "summary": "Who opened the papers of a confidentiality restriction",
+                "description": "List the openings of the restriction's papers. GET /api/confidentiality/restrictions/{id}/views. Every opening of a paper under an active restriction through decidiq's paper view (GET /api/papers/{schema}/{objectId}/{fileId}/view) is written to the OpenRegister audit trail before the paper is sent; an opening that cannot be recorded is refused. Returns 200 with { views: [{ actor, at, document, agendaItem, fileId }] }, newest first. Returns 401 without a user, 403 unless the caller is the imposing body's chair, vice-chair or secretary, in the secretariat or an administrator, 404 when the caller cannot read the restriction, and 503 when the audit trail cannot be read. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "confidentiality-restriction"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The UUID of the confidentiality restriction.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The openings.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

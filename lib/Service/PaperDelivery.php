@@ -44,6 +44,7 @@ class PaperDelivery {
 	 * @param PaperLocator    $locator Finds the paper and its meeting
 	 * @param PaperStamper    $stamper The watermark policy and stamp
 	 * @param LoggerInterface $logger  Logger
+	 * @param RestrictedPaperViews $views Records the opening of a paper under an active restriction
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
@@ -51,6 +52,7 @@ class PaperDelivery {
 		private readonly PaperLocator $locator,
 		private readonly PaperStamper $stamper,
 		private readonly LoggerInterface $logger,
+		private readonly RestrictedPaperViews $views,
 	) {
 	}//end __construct()
 
@@ -66,11 +68,19 @@ class PaperDelivery {
 	 * @return array{content: string, name: string, mimeType: string}|array{refusal: string, status: int}
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-007-view-audit-trail-for-stukken-under-geheimhouding
 	 */
 	public function deliver(array $located, array $reader): array {
 		$paper = $this->locator->locate(schema: $located['schema'], objectId: $located['objectId'], data: $located['data'], fileId: $located['fileId']);
 		if ($paper === null) {
 			return ['refusal' => 'Not found.', 'status' => 404];
+		}
+
+		// The opening of a paper under an active restriction is recorded
+		// before a byte is read; when it cannot be, nothing is sent.
+		$refused = $this->views->record(readerUid: $reader['uid'], agendaItemId: $paper['agendaItemId'], fileId: $paper['fileId']);
+		if ($refused !== null) {
+			return ['refusal' => $refused, 'status' => 503];
 		}
 
 		$file = $paper['file'];
