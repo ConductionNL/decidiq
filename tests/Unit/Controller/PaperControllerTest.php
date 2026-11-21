@@ -29,6 +29,7 @@ use OCA\Decidiq\Service\PaperLocator;
 use OCA\Decidiq\Exception\PaperStampRefusedException;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\PaperStamper;
+use OCA\Decidiq\Service\RestrictedPaperViews;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
@@ -62,6 +63,13 @@ class PaperControllerTest extends TestCase {
 	/**
 	 * The item records paper 42 (PDF of Office file 41).
 	 */
+	/**
+	 * The view log the next controller uses; null for one that records nothing.
+	 *
+	 * @var RestrictedPaperViews|null
+	 */
+	private ?RestrictedPaperViews $views = null;
+
 	private const ITEM_DATA = [
 		'meeting'         => self::MEETING,
 		'paperRenditions' => [['sourceFileId' => 41, 'pdfFileId' => 42, 'sourceName' => 'Grondtransactie.docx']],
@@ -121,7 +129,8 @@ class PaperControllerTest extends TestCase {
 			new PaperDelivery(
 				new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class)),
 				$stamper,
-				$this->createMock(LoggerInterface::class)
+				$this->createMock(LoggerInterface::class),
+				$this->views ?? $this->createMock(RestrictedPaperViews::class)
 			),
 			$objects,
 			$session,
@@ -269,4 +278,45 @@ class PaperControllerTest extends TestCase {
 		self::assertSame('%PDF stamped', $response->render());
 		self::assertSame([['meeting', true]], $calls);
 	}//end testAMeetingPaperIsJudgedOnTheMeeting()
+
+	/**
+	 * The opening of a paper under an active restriction is recorded for the reader before the paper is read.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#scenario-viewing-a-geheim-document-is-audited
+	 */
+	public function testTheOpeningIsRecordedForTheReader(): void {
+		$this->views = $this->createMock(RestrictedPaperViews::class);
+		$this->views->expects($this->once())->method('record')->with('aisha', self::ITEM, 42)->willReturn(null);
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->method('mustStamp')->willReturn(false);
+
+		$response = $this->controller(stamper: $stamper, item: $this->item(), meeting: ['isPublic' => true])
+			->view(schema: 'agenda-item', objectId: self::ITEM, fileId: 42);
+
+		self::assertInstanceOf(DataDisplayResponse::class, $response);
+		self::assertSame('%PDF raw', $response->render());
+	}//end testTheOpeningIsRecordedForTheReader()
+
+	/**
+	 * An opening that cannot be recorded is refused with 503, and the paper is not stamped or sent.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-007-view-audit-trail-for-stukken-under-geheimhouding
+	 */
+	public function testAnUnrecordedOpeningIsRefused(): void {
+		$this->views = $this->createMock(RestrictedPaperViews::class);
+		$this->views->method('record')->willReturn('This paper is not shown: the opening of a confidential paper could not be recorded.');
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->expects($this->never())->method('mustStamp');
+		$stamper->expects($this->never())->method('stamped');
+
+		$response = $this->controller(stamper: $stamper, item: $this->item(), meeting: ['isPublic' => false])
+			->view(schema: 'agenda-item', objectId: self::ITEM, fileId: 42);
+
+		self::assertInstanceOf(JSONResponse::class, $response);
+		self::assertSame(503, $response->getStatus());
+	}//end testAnUnrecordedOpeningIsRefused()
 }//end class

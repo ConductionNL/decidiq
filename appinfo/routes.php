@@ -234,6 +234,8 @@ $extra = [
         // embargo-geheimhouding REQ-EMB-003: record the ratifying decision (imposing or ratifying body's authority).
         ['name' => 'confidentialityRestriction#ratify', 'url' => '/api/confidentiality/restrictions/{id}/ratify', 'verb' => 'POST'],
         ['name' => 'confidentialityRestriction#lift', 'url' => '/api/confidentiality/restrictions/{id}/lift', 'verb' => 'POST'],
+        // embargo-geheimhouding REQ-EMB-007: who opened the restriction's papers (the imposing body's staff).
+        ['name' => 'confidentialityRestriction#views', 'url' => '/api/confidentiality/restrictions/{id}/views', 'verb' => 'GET'],
         ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
         ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
