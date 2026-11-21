@@ -23,6 +23,7 @@
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
 - [x] Implement
 - [ ] Test (Playwright as secretary and as member) (not run: needs the live instance) (code exists, test missing: no Playwright spec for remuneration; live pass, decision 139)
+- Written, not run (21 Nov): `tests/e2e/mandate-remuneration.spec.ts` (the secretary records the chair's fee; a member does not read an undisclosed fee, through the API and on the body page; an anonymous visitor reads only disclosed, published pay; the body page shows this year's two records and a total of 56000; the hold page lists this year above last year). Left: running it on an instance.
 
 ### Task 3: Remuneration on the position hold page
 - **spec_ref**: `openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-003-a-position-hold-lists-its-remuneration-over-the-years`
@@ -31,6 +32,7 @@
   - GIVEN a hold with records for 2025 and 2026 WHEN the secretary opens the hold THEN both years are listed, newest first
 - [x] Implement
 - [ ] Test (Playwright) (not run: needs the live instance) (code exists, test missing: no Playwright spec for remuneration; live pass, decision 139)
+- Written, not run (21 Nov): `tests/e2e/mandate-remuneration.spec.ts` (the secretary records the chair's fee; a member does not read an undisclosed fee, through the API and on the body page; an anonymous visitor reads only disclosed, published pay; the body page shows this year's two records and a total of 56000; the hold page lists this year above last year). Left: running it on an instance.
 
 ## Verification
 
