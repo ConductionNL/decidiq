@@ -72,7 +72,7 @@
   - GIVEN the seeded environment WHEN the suite runs THEN declare → verify → publish → anonymous read (nevenfunctie), register gift → boven-drempel badge + notification (geschenk), annual confirm → KPI drop, and COI dialog assistive block pass end-to-end
 - [ ] Implement
 - [ ] Test
-- Written, not run (20 Nov): `tests/e2e/interests-and-integrity.spec.ts` (anonymous read of published, ended, declared and internal positions; register lenses and export; ex officio; gift lenses; the overdue-review tile). The self-service scenarios wait on task 4. Running it needs a live instance.
+- Written, not run (20 Nov): `tests/e2e/interests-and-integrity.spec.ts` (anonymous read of published, ended, declared and internal positions; register lenses and export; ex officio; gift lenses; the overdue-review tile). The self-service scenarios were added once task 4 landed (21 Nov): the member sees only their own declarations, confirms a review, declares a position, registers a gift and ends a position, as a person the test links to the signed-in account and deletes afterwards; plus the publish/withdraw header action. Running it needs a live instance.
 
 ## Verification
 

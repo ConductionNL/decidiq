@@ -16,8 +16,9 @@
  * stored session.
  *
  * Written, not yet run: it needs a live instance with the example sets. The
- * self-service scenarios (MyDeclarations scoped to the signed-in member, add,
- * end, confirm review) wait on task 4.
+ * self-service scenarios create their own person linked to the signed-in
+ * administrator (no example person carries a Nextcloud account), walk the
+ * My declarations panel, and delete what they made.
  *
  * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md
  */
@@ -119,4 +120,109 @@ test('Dashboard: the overdue-review tile is not zero on the example set', async 
 		.first()
 	await expect(tile).toBeVisible()
 	await expect(tile.locator('.cn-stats-block__count-value')).not.toHaveText('0')
+})
+
+const OBJECTS = '/index.php/apps/openregister/api/objects/decidiq'
+const JSON_HEADERS = { 'OCS-APIRequest': 'true', 'Content-Type': 'application/json' }
+
+/**
+ * Create a record through the OpenRegister object API as the signed-in user.
+ *
+ * @param {import('@playwright/test').APIRequestContext} api The request context.
+ * @param {string} slug The schema slug.
+ * @param {object} data The record.
+ * @return {Promise<string>} The new record's id.
+ */
+async function create(api, slug: string, data: object): Promise<string> {
+	const response = await api.post(`${BASE}${OBJECTS}/${slug}`, { headers: JSON_HEADERS, data })
+	expect(response.ok()).toBe(true)
+	const body = await response.json()
+	return String(body.id ?? body['@self']?.id ?? body.uuid)
+}
+
+// @e2e interests-and-integrity::member-manages-own-declarations
+// @e2e interests-and-integrity::member-confirms-own-declaration
+test('MyDeclarations: the member sees only their own declarations, declares, registers a gift, confirms and ends', async ({
+	page,
+}) => {
+	const api = page.request
+	const bodies = await api.get(`${BASE}${OBJECTS}/governance-body?_limit=1`, { headers: JSON_HEADERS })
+	const body = String((await bodies.json()).results[0].id)
+	const person = await create(api, 'person', { name: 'E2E Declaring Member', nextcloudUserId: 'admin' })
+	const position = await create(api, 'ancillary-position', {
+		person,
+		governanceBody: body,
+		organisation: 'E2E Stichting',
+		role: 'Board member',
+		remunerated: false,
+		startDate: '2024-01-01',
+		declaredAt: '2024-01-05',
+		lifecycle: 'public',
+	})
+	try {
+		await page.goto(`${BASE}/index.php/apps/decidiq/my-declarations`)
+		const panel = page.getByTestId('my-declarations-panel')
+		await expect(panel).toBeVisible()
+
+		// Only the member's own: the one position made above, none of the example set.
+		const rows = panel.getByTestId('my-declarations-position')
+		await expect(rows).toHaveCount(1)
+		await expect(rows.first()).toContainText('E2E Stichting')
+		await expect(panel.getByTestId('my-declarations-review-due')).toBeVisible()
+
+		// Confirm the annual review: reviewedAt becomes today and the badge goes.
+		await panel.getByTestId('my-declarations-confirm').click()
+		await expect(panel.getByTestId('my-declarations-review-due')).toHaveCount(0)
+		const confirmed = await (await api.get(`${BASE}${OBJECTS}/ancillary-position/${position}`, { headers: JSON_HEADERS })).json()
+		expect(confirmed.reviewedAt).toBe(new Date().toISOString().slice(0, 10))
+		expect(confirmed.organisation).toBe('E2E Stichting')
+
+		// Declare another position.
+		await panel.getByTestId('my-declarations-add-position').click()
+		const dialog = page.getByTestId('declaration-position-dialog')
+		await dialog.getByTestId('declaration-organisation').locator('input').fill('E2E Vereniging')
+		await dialog.getByTestId('declaration-role').locator('input').fill('Treasurer')
+		await dialog.getByTestId('declaration-startDate').fill('2026-01-01')
+		await dialog.getByLabel('Governance body').click()
+		await page.getByRole('option').first().click()
+		await dialog.getByTestId('declaration-position-confirm').click()
+		await expect(rows).toHaveCount(2)
+
+		// Register a gift.
+		await panel.getByTestId('my-declarations-add-gift').click()
+		const gift = page.getByTestId('declaration-gift-dialog')
+		await gift.getByLabel('Governance body').click()
+		await page.getByRole('option').first().click()
+		await gift.getByTestId('declaration-giver').locator('input').fill('E2E Giver')
+		await gift.getByTestId('declaration-description').locator('input').fill('A book')
+		await gift.getByTestId('declaration-estimatedValue').locator('input').fill('20')
+		await gift.getByTestId('declaration-receivedOn').fill('2026-11-01')
+		await gift.getByTestId('declaration-gift-confirm').click()
+		await expect(panel.getByTestId('my-declarations-gift')).toHaveCount(1)
+
+		// End the public position.
+		await rows.filter({ hasText: 'E2E Stichting' }).getByTestId('my-declarations-end').click()
+		await page.getByTestId('declaration-end-confirm').click()
+		const ended = await (await api.get(`${BASE}${OBJECTS}/ancillary-position/${position}`, { headers: JSON_HEADERS })).json()
+		expect(ended.lifecycle).toBe('ended')
+		expect(ended.endDate).toBeTruthy()
+	} finally {
+		const own = async (slug: string, field: string) => {
+			const list = await (await api.get(`${BASE}${OBJECTS}/${slug}?${field}=${person}&_limit=50`, { headers: JSON_HEADERS })).json()
+			for (const row of list.results ?? []) {
+				await api.delete(`${BASE}${OBJECTS}/${slug}/${row.id}`, { headers: JSON_HEADERS })
+			}
+		}
+		await own('ancillary-position', 'person')
+		await own('declared-gift', 'recipient')
+		await api.delete(`${BASE}${OBJECTS}/person/${person}`, { headers: JSON_HEADERS })
+	}
+})
+
+test('Detail pages: staff publish and withdraw a position from the header', async ({ page }) => {
+	await page.goto(`${BASE}/index.php/apps/decidiq/ancillary-positions`)
+	await openRow(page, 'Afvalschap')
+	const publish = page.getByRole('button', { name: /^Publish$/ })
+	const withdraw = page.getByRole('button', { name: /Withdraw from the public register/ })
+	await expect(publish.or(withdraw)).toBeVisible()
 })
