@@ -13,7 +13,7 @@
 			"label": "Association or VvE",
 			"description": "A members' meeting with a board. House rules, weighted votes, audit statements and annual accounts.",
 			"order": 2,
-			"objectCount": 45,
+			"objectCount": 54,
 			"icon": "AccountGroupOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -33,6 +33,35 @@
 						"orderNumber": 99,
 						"estimatedDuration": 10,
 						"isRecurring": true
+					}
+				],
+				"governance-body": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "ledenraad-vng",
+						"name": "Ledenraad VNG",
+						"bodyType": "association",
+						"domain": "association",
+						"votingDefault": "for-against-abstain",
+						"termStart": "2024-01-01T00:00:00Z",
+						"termEnd": "2025-12-31T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "vve-parkstaete",
+						"name": "VvE Parkstaete",
+						"bodyType": "association",
+						"domain": "association",
+						"workflowTemplate": "association",
+						"votingDefault": "for-against-abstain"
 					}
 				],
 				"audit-statement": [
@@ -565,35 +594,6 @@
 						"status": "draft"
 					}
 				],
-				"governance-body": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-body"
-						},
-						"slug": "ledenraad-vng",
-						"name": "Ledenraad VNG",
-						"bodyType": "association",
-						"domain": "association",
-						"votingDefault": "for-against-abstain",
-						"termStart": "2024-01-01T00:00:00Z",
-						"termEnd": "2025-12-31T00:00:00Z"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "governance-body"
-						},
-						"slug": "vve-parkstaete",
-						"name": "VvE Parkstaete",
-						"bodyType": "association",
-						"domain": "association",
-						"workflowTemplate": "association",
-						"votingDefault": "for-against-abstain"
-					}
-				],
 				"governance-consultation": [
 					{
 						"@self": {
@@ -730,22 +730,34 @@
 						"status": "draft"
 					}
 				],
-				"meeting": [
+				"person": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "meeting"
+							"schema": "person"
 						},
-						"slug": "ledenvergadering-vng-voorjaar-2025",
-						"title": "Algemene Ledenvergadering VNG. Voorjaar 2025",
-						"meetingType": "public hearing",
-						"scheduledDate": "2025-06-18T13:00:00Z",
-						"endDate": "2025-06-18T17:00:00Z",
-						"location": "World Forum Den Haag",
-						"meetingMode": "in-person",
-						"lifecycle": "scheduled",
-						"quorumRequired": 50
+						"slug": "jan-de-vries",
+						"name": "Jan de Vries",
+						"givenName": "Jan",
+						"familyName": "de Vries",
+						"gender": "male",
+						"email": "j.devries@waterschap.example",
+						"biography": "Secretaris / griffier."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "marie-janssen",
+						"name": "Marie Janssen",
+						"givenName": "Marie",
+						"familyName": "Janssen",
+						"gender": "female",
+						"email": "m.janssen@gemeente.example",
+						"biography": "Raadslid en lid van de VNG-ledenraad."
 					}
 				],
 				"membership": [
@@ -764,6 +776,71 @@
 						"governanceBody": "ledenraad-vng"
 					}
 				],
+				"position-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-vng-treasurer",
+						"name": "Treasurer",
+						"governanceBody": "ledenraad-vng"
+					}
+				],
+				"position-hold": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-marie-vng-treasurer",
+						"membership": "m-marie-vng",
+						"position": "position-vng-treasurer",
+						"governanceBody": "ledenraad-vng",
+						"holdType": "regular",
+						"startDate": "2024-01-01"
+					}
+				],
+				"mandate-remuneration": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "mandate-remuneration"
+						},
+						"slug": "rem-marie-vng-2026",
+						"positionHold": "ph-marie-vng-treasurer",
+						"person": "marie-janssen",
+						"governanceBody": "ledenraad-vng",
+						"year": 2026,
+						"fixedFee": 0,
+						"meetingFee": 0,
+						"expenseAllowance": 600,
+						"currency": "EUR",
+						"disclosed": false,
+						"note": "Unpaid office; the allowance covers travel."
+					}
+				],
+				"meeting": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "ledenvergadering-vng-voorjaar-2025",
+						"title": "Algemene Ledenvergadering VNG. Voorjaar 2025",
+						"meetingType": "public hearing",
+						"scheduledDate": "2025-06-18T13:00:00Z",
+						"endDate": "2025-06-18T17:00:00Z",
+						"location": "Congrescentrum",
+						"meetingMode": "in-person",
+						"lifecycle": "scheduled",
+						"quorumRequired": 50
+					}
+				],
 				"participant": [
 					{
 						"@self": {
@@ -774,7 +851,7 @@
 						"slug": "ans-rutten",
 						"displayName": "Ans Rutten",
 						"role": "observer",
-						"email": "a.rutten@vng.nl",
+						"email": "a.rutten@vereniging.example",
 						"joinedAt": "2024-01-10T00:00:00Z",
 						"votingWeight": 0
 					},
@@ -787,7 +864,7 @@
 						"slug": "jan-de-vries",
 						"displayName": "Jan de Vries",
 						"role": "secretary",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"joinedAt": "2021-01-15T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -801,39 +878,91 @@
 						"displayName": "Marie Janssen",
 						"role": "member",
 						"party": "D66",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"joinedAt": "2022-03-16T00:00:00Z",
 						"votingWeight": 1
 					}
 				],
-				"person": [
+				"planning-cycle-template": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "person"
+							"schema": "planning-cycle-template"
 						},
-						"slug": "jan-de-vries",
-						"name": "Jan de Vries",
-						"givenName": "Jan",
-						"familyName": "de Vries",
-						"gender": "male",
-						"email": "j.devries@waterschap.nl",
-						"biography": "Secretaris / griffier."
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "person"
-						},
-						"slug": "marie-janssen",
-						"name": "Marie Janssen",
-						"givenName": "Marie",
-						"familyName": "Janssen",
-						"gender": "female",
-						"email": "m.janssen@amsterdam.nl",
-						"biography": "Raadslid en lid van de VNG-ledenraad."
+						"slug": "association-jaarstukken",
+						"name": "Verenigings-/jaarstukkencyclus",
+						"context": "association",
+						"builtIn": true,
+						"steps": [
+							{
+								"stepType": "jaarstukken",
+								"label": "Jaarstukken",
+								"subjectYearOffset": -1,
+								"deliveryDeadline": "03-01",
+								"handlingDate": "04-15",
+								"documentSlots": [
+									{
+										"name": "Jaarrekening",
+										"required": true
+									},
+									{
+										"name": "Bestuursverslag",
+										"required": true
+									},
+									{
+										"name": "Kascommissieverslag",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "decharge",
+								"label": "Decharge bestuur",
+								"subjectYearOffset": -1,
+								"handlingDate": "04-15",
+								"documentSlots": []
+							},
+							{
+								"stepType": "berap",
+								"label": "Tussenrapportage",
+								"subjectYearOffset": 0,
+								"deliveryDeadline": "05-15",
+								"handlingDate": "06-20",
+								"documentSlots": [
+									{
+										"name": "Tussenrapportage",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "jaarplan",
+								"label": "Jaarplan",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Jaarplan",
+										"required": true
+									}
+								]
+							},
+							{
+								"stepType": "begroting",
+								"label": "Begroting",
+								"subjectYearOffset": 1,
+								"deliveryDeadline": "10-01",
+								"handlingDate": "11-25",
+								"documentSlots": [
+									{
+										"name": "Begroting",
+										"required": true
+									}
+								]
+							}
+						]
 					}
 				],
 				"planning-cycle": [
@@ -973,88 +1102,6 @@
 						"cycle": "jaarcyclus-2026-vereniging"
 					}
 				],
-				"planning-cycle-template": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "planning-cycle-template"
-						},
-						"slug": "association-jaarstukken",
-						"name": "Verenigings-/jaarstukkencyclus",
-						"context": "association",
-						"builtIn": true,
-						"steps": [
-							{
-								"stepType": "jaarstukken",
-								"label": "Jaarstukken",
-								"subjectYearOffset": -1,
-								"deliveryDeadline": "03-01",
-								"handlingDate": "04-15",
-								"documentSlots": [
-									{
-										"name": "Jaarrekening",
-										"required": true
-									},
-									{
-										"name": "Bestuursverslag",
-										"required": true
-									},
-									{
-										"name": "Kascommissieverslag",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "decharge",
-								"label": "Decharge bestuur",
-								"subjectYearOffset": -1,
-								"handlingDate": "04-15",
-								"documentSlots": []
-							},
-							{
-								"stepType": "berap",
-								"label": "Tussenrapportage",
-								"subjectYearOffset": 0,
-								"deliveryDeadline": "05-15",
-								"handlingDate": "06-20",
-								"documentSlots": [
-									{
-										"name": "Tussenrapportage",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "jaarplan",
-								"label": "Jaarplan",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Jaarplan",
-										"required": true
-									}
-								]
-							},
-							{
-								"stepType": "begroting",
-								"label": "Begroting",
-								"subjectYearOffset": 1,
-								"deliveryDeadline": "10-01",
-								"handlingDate": "11-25",
-								"documentSlots": [
-									{
-										"name": "Begroting",
-										"required": true
-									}
-								]
-							}
-						]
-					}
-				],
 				"proxy-authorization": [
 					{
 						"@self": {
@@ -1082,6 +1129,161 @@
 						"signedAt": "2026-04-10T08:30:00Z",
 						"signingReference": "docudesk:sign:seed-jansen-alv-2026",
 						"proxyStatus": "active"
+					}
+				],
+				"speaking-policy": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-policy"
+						},
+						"slug": "speaking-policy-ledenraad-vng",
+						"governanceBody": "ledenraad-vng",
+						"enabled": true,
+						"registrationDeadlineHours": 48,
+						"defaultSpeakingMinutes": 3,
+						"level": "meeting",
+						"publicDisplay": "count"
+					}
+				],
+				"speaking-request": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-request"
+						},
+						"slug": "speaking-request-alv-servicekosten",
+						"meeting": "ledenvergadering-vng-voorjaar-2025",
+						"governanceBody": "ledenraad-vng",
+						"topic": {
+							"speakerName": "Mw. Pietersen",
+							"topicText": "Verhoging servicekosten",
+							"requestedMinutes": 3
+						},
+						"contactDetails": {
+							"name": "Els Pietersen",
+							"email": "e.pietersen@example.org",
+							"phone": "06-45678901",
+							"address": "Parklaan 21, 3511 GH Utrecht"
+						},
+						"lifecycle": "rejected",
+						"rejectionReason": "Onderwerp staat niet op de agenda van deze vergadering"
+					}
+				],
+				"voting-round": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"slug": "stemming-voorkeur-clubhuis",
+						"votingMethod": "ranked-choice",
+						"isSecret": false,
+						"openedAt": "2025-06-18T15:10:00Z",
+						"closedAt": "2025-06-18T15:25:00Z",
+						"quorumWith": true,
+						"options": [
+							{
+								"key": "renoveren",
+								"label": "Renovate the clubhouse"
+							},
+							{
+								"key": "nieuwbouw",
+								"label": "Build a new clubhouse"
+							},
+							{
+								"key": "huren",
+								"label": "Rent a hall"
+							}
+						],
+						"rankingResult": [
+							{
+								"key": "renoveren",
+								"label": "Renovate the clubhouse",
+								"points": 5,
+								"rank": 1
+							},
+							{
+								"key": "nieuwbouw",
+								"label": "Build a new clubhouse",
+								"points": 3,
+								"rank": 2
+							},
+							{
+								"key": "huren",
+								"label": "Rent a hall",
+								"points": 1,
+								"rank": 3
+							}
+						],
+						"winningOption": "renoveren",
+						"result": "adopted",
+						"tieBreakRule": "revote"
+					}
+				],
+				"vote": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-voorkeur-clubhuis-ans-rutten",
+						"value": "ranked",
+						"ranking": [
+							"renoveren",
+							"nieuwbouw",
+							"huren"
+						],
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2025-06-18T15:14:00Z",
+						"castAs": "in-person",
+						"votingRound": "stemming-voorkeur-clubhuis",
+						"participant": "ans-rutten"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-voorkeur-clubhuis-jan-de-vries",
+						"value": "ranked",
+						"ranking": [
+							"nieuwbouw",
+							"renoveren",
+							"huren"
+						],
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2025-06-18T15:16:00Z",
+						"castAs": "in-person",
+						"votingRound": "stemming-voorkeur-clubhuis",
+						"participant": "jan-de-vries"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-voorkeur-clubhuis-marie-janssen",
+						"value": "ranked",
+						"ranking": [
+							"renoveren",
+							"huren",
+							"nieuwbouw"
+						],
+						"weight": 1,
+						"isProxy": false,
+						"castAt": "2025-06-18T15:19:00Z",
+						"castAs": "in-person",
+						"votingRound": "stemming-voorkeur-clubhuis",
+						"participant": "marie-janssen"
 					}
 				]
 			}

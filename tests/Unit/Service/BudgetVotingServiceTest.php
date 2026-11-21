@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Exception\ParticipationValidationException;
+use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Service\AdvisoryVoteService;
 use OCA\Decidiq\Service\BudgetVotingService;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
@@ -26,6 +28,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests proposal submission/validation guards and greedy allocation.
@@ -114,10 +117,43 @@ class BudgetVotingServiceTest extends TestCase {
 		$this->objectService->method('find')->willReturn(
 			$this->entity(['id' => 'b1', 'status' => 'submission', 'submissionDeadline' => $future, 'totalAmount' => 10000])
 		);
-		$this->expectException(\InvalidArgumentException::class);
+		// The validation exception, which ParticipationResponder answers with 422.
+		$this->expectException(ParticipationValidationException::class);
 		$this->service->submitProposal(budgetId: 'b1', title: 'Big', description: 'Too big', requested: 25000, submitterId: 'alice');
 
 	}//end testOversizedProposalRejected()
+
+	/**
+	 * A submitted proposal names its round in the schema's own
+	 * `participatoryBudget` field. `relations` is not a BudgetProposal property
+	 * and does not survive the next save, so without the field a validated
+	 * proposal could not be traced back to its round and every advisory vote
+	 * on it was refused as "voting is closed".
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	public function testSubmittedProposalNamesItsRound(): void {
+		$future = (new \DateTimeImmutable('+1 day'))->format(\DateTimeInterface::ATOM);
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'b1', 'status' => 'submission', 'submissionDeadline' => $future, 'totalAmount' => 100000])
+		);
+		$saved = null;
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (...$args) use (&$saved) {
+				$args = LegacyObjectArgs::flatten(args: $args);
+				$saved = ($args[0] ?? $args['object'] ?? null);
+				return $this->entity(is_array($saved) === true ? $saved : []);
+			}
+		);
+
+		$this->service->submitProposal(budgetId: 'b1', title: 'Playground', description: 'Renovate', requested: 25000, submitterId: 'alice');
+
+		self::assertIsArray($saved);
+		self::assertSame('b1', $saved['participatoryBudget']);
+
+	}//end testSubmittedProposalNamesItsRound()
 
 	/**
 	 * Proposal submission outside the submission phase is rejected.
@@ -128,7 +164,8 @@ class BudgetVotingServiceTest extends TestCase {
 	 */
 	public function testProposalOutsideSubmissionPhaseRejected(): void {
 		$this->objectService->method('find')->willReturn($this->entity(['id' => 'b1', 'status' => 'voting', 'totalAmount' => 10000]));
-		$this->expectException(\RuntimeException::class);
+		// The window exception, which ParticipationResponder answers with 400.
+		$this->expectException(ParticipationWindowClosedException::class);
 		$this->service->submitProposal(budgetId: 'b1', title: 'Late', description: 'x', requested: 100, submitterId: 'alice');
 
 	}//end testProposalOutsideSubmissionPhaseRejected()

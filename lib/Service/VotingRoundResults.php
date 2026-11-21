@@ -29,6 +29,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use RuntimeException;
 
 /**
@@ -120,11 +123,22 @@ class VotingRoundResults {
 	 * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, total, base, result and applied rules
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function tally(string $votingRoundId): array {
 		// Load the round first — the configured rules drive the result computation.
 		$round = $this->loadRound(votingRoundId: $votingRoundId);
+		if ($round !== null && (new RankedBallotRules())->isRanked(round: $round) === true) {
+			return $this->rankedTally(round: $round, votingRoundId: $votingRoundId);
+		}
+
 		$counts = $this->countVotes(voteEntities: $this->ballotsInRound(votingRoundId: $votingRoundId));
+		if ($round !== null && ($round['votingMethod'] ?? '') === 'show-of-hands') {
+			// A show-of-hands round has no vote objects: the chair's saved totals
+			// are the count, so closing computes the result from them instead of
+			// recounting to zero (voting-named-paper-vote-entry D4, REQ-NPV-005).
+			$counts = self::storedTotals(round: $round);
+		}
 
 		$computed = $this->compute(
 			for: $counts['votesFor'],
@@ -149,6 +163,59 @@ class VotingRoundResults {
 		];
 
 	}//end tally()
+
+	/**
+	 * Count a ranked-choice round with a Borda count and store the ranking.
+	 *
+	 * The for, against and abstain counts stay at zero: a ranked ballot is
+	 * none of those. `result` is adopted with one winner, tied when two or
+	 * more options share the top score, and invalid with no ballots, so the
+	 * closer moves the motion exactly as it does for any other round.
+	 *
+	 * @param array<string, mixed> $round The round.
+	 * @param string $votingRoundId The round's UUID.
+	 *
+	 * @return array<string,mixed> The tally, with rankingResult and winningOption.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 */
+	private function rankedTally(array $round, string $votingRoundId): array {
+		$ballots = [];
+		foreach ($this->ballotsInRound(votingRoundId: $votingRoundId) as $voteEntity) {
+			$vote = $voteEntity->jsonSerialize();
+			if (($vote['value'] ?? '') === RankedBallotRules::VALUE && is_array($vote['ranking'] ?? null) === true) {
+				$ballots[] = $vote['ranking'];
+			}
+		}
+
+		$outcome = (new BordaCount())->count(options: (array)($round['options'] ?? []), ballots: $ballots);
+
+		$round['votesFor'] = 0;
+		$round['votesAgainst'] = 0;
+		$round['votesAbstain'] = 0;
+		$round['result'] = $outcome['result'];
+		$round['rankingResult'] = $outcome['rankingResult'];
+		$round['winningOption'] = $outcome['winningOption'];
+		$this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
+
+		return [
+			'votesFor' => 0,
+			'votesAgainst' => 0,
+			'votesAbstain' => 0,
+			'total' => $outcome['counted'],
+			'base' => $outcome['counted'],
+			'voteThreshold' => ($round['voteThreshold'] ?? null),
+			'abstentionHandling' => ($round['abstentionHandling'] ?? null),
+			'tieBreakRule' => ($round['tieBreakRule'] ?? null),
+			'result' => $outcome['result'],
+			'rankingResult' => $outcome['rankingResult'],
+			'winningOption' => $outcome['winningOption'],
+			'tiedOptions' => $outcome['tiedOptions'],
+		];
+	}//end rankedTally()
 
 	/**
 	 * Record a show-of-hands tally for an open VotingRound.
@@ -187,7 +254,10 @@ class VotingRoundResults {
 		$computed = $this->compute(for: $votesFor, against: $votesAgainst, abstain: $votesAbstain, round: $round);
 		$round = $this->withOutcome(round: $round, counts: $counts, computed: $computed);
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$saved = $this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliser->toArray(saved: $saved, fallback: $round);
@@ -223,6 +293,23 @@ class VotingRoundResults {
 		);
 
 	}//end ballotsInRound()
+
+	/**
+	 * The totals a show-of-hands round holds, as saved by the chair.
+	 *
+	 * @param array<string, mixed> $round The voting round.
+	 *
+	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int}
+	 *
+	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
+	 */
+	private static function storedTotals(array $round): array {
+		return [
+			'votesFor' => (int)($round['votesFor'] ?? 0),
+			'votesAgainst' => (int)($round['votesAgainst'] ?? 0),
+			'votesAbstain' => (int)($round['votesAbstain'] ?? 0),
+		];
+	}//end storedTotals()
 
 	/**
 	 * Sum the weighted for / against / abstain counts of a ballot set.
@@ -271,9 +358,8 @@ class VotingRoundResults {
 		}
 
 		$this->objectService()->saveObject(
-			register: 'decidiq',
-			schema: 'voting-round',
-			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed)
+			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed),
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
 		);
 
 	}//end persistOutcome()
@@ -366,7 +452,7 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function loadRound(string $votingRoundId): ?array {
-		$entity = $this->objectService()->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$entity = $this->objectService()->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		if ($entity === null) {
 			return null;
 		}

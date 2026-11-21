@@ -28,64 +28,160 @@ export const KNOWN_GUARDS = [
  * @spec openspec/specs/process-configuration/spec.md
  */
 export function validateStateMachineGraph(template) {
-	const errors = []
 	const sm = template?.stateMachine
 	if (!sm || typeof sm !== 'object') {
 		return { valid: false, errors: ['stateMachine is required.'] }
 	}
 
-	const stateNames = new Set(
-		(Array.isArray(sm.states) ? sm.states : [])
+	const graph = {
+		names: declaredStateNames(sm),
+		initialState: template?.initialState,
+		inbound: new Set(),
+		outbound: new Set(),
+		errors: [],
+	}
+	checkStatesDeclared(graph)
+	checkInitialState(graph)
+	for (const t of listOf(sm.transitions)) {
+		checkTransition(graph, t)
+	}
+	checkReachability(graph)
+
+	return { valid: graph.errors.length === 0, errors: graph.errors }
+}
+
+/**
+ * The value when it is a list, otherwise an empty list.
+ *
+ * @param {unknown} value Any value.
+ * @return {Array} The list.
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function listOf(value) {
+	return Array.isArray(value) ? value : []
+}
+
+/**
+ * Whether a value is a non-empty string.
+ *
+ * @param {unknown} value Any value.
+ * @return {boolean} True for a usable state name.
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function isStateName(value) {
+	return typeof value === 'string' && value !== ''
+}
+
+/**
+ * The named states the state machine declares.
+ *
+ * @param {object} sm The state machine.
+ * @return {Set<string>} The state names.
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function declaredStateNames(sm) {
+	return new Set(
+		listOf(sm.states)
 			.map((s) => s?.name)
 			.filter((n) => typeof n === 'string' && n !== ''),
 	)
-	if (stateNames.size === 0) {
-		errors.push('states[] must declare at least one named state.')
-	}
+}
 
-	const initialState = template?.initialState
-	if (typeof initialState !== 'string' || initialState === '') {
+/**
+ * At least one named state must be declared.
+ *
+ * @param {object} graph The graph being checked: declared names, initial state, inbound and outbound sets and the errors, changed in place.
+ * @return {void}
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function checkStatesDeclared(graph) {
+	if (graph.names.size === 0) {
+		graph.errors.push('states[] must declare at least one named state.')
+	}
+}
+
+/**
+ * The initial state must be given and, when states are declared, be one of them.
+ *
+ * @param {object} graph The graph being checked: declared names, initial state, inbound and outbound sets and the errors, changed in place.
+ * @return {void}
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function checkInitialState(graph) {
+	const { names, initialState, errors } = graph
+	if (!isStateName(initialState)) {
 		errors.push('initialState is required.')
-	} else if (stateNames.size > 0 && !stateNames.has(initialState)) {
+	} else if (names.size > 0 && !names.has(initialState)) {
 		errors.push(`initialState '${initialState}' is not declared in states[].`)
 	}
+}
 
-	const inbound = new Set()
-	const outbound = new Set()
-	for (const t of Array.isArray(sm.transitions) ? sm.transitions : []) {
-		const from = t?.from
-		const to = t?.to
-		if (
-			typeof from !== 'string'
-			|| from === ''
-			|| typeof to !== 'string'
-			|| to === ''
-		) {
-			errors.push('Each transition must declare non-empty from and to states.')
-			continue
-		}
-		if (!stateNames.has(from)) {
-			errors.push(`Transition references dangling from-state '${from}'.`)
-		}
-		if (!stateNames.has(to)) {
-			errors.push(`Transition references dangling to-state '${to}'.`)
-		}
-		outbound.add(from)
-		inbound.add(to)
-		for (const g of Array.isArray(t.guards) ? t.guards : []) {
-			if (!KNOWN_GUARDS.includes(g)) {
-				errors.push(`Unknown guard token '${g}'.`)
-			}
+/**
+ * Check one transition: both ends named and declared, and every guard known. The ends of a named transition count towards reachability.
+ *
+ * @param {object} graph The graph being checked: declared names, initial state, inbound and outbound sets and the errors, changed in place.
+ * @param {object} t The transition.
+ * @return {void}
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function checkTransition(graph, t) {
+	const from = t?.from
+	const to = t?.to
+	if (!isStateName(from) || !isStateName(to)) {
+		graph.errors.push(
+			'Each transition must declare non-empty from and to states.',
+		)
+		return
+	}
+	if (!graph.names.has(from)) {
+		graph.errors.push(`Transition references dangling from-state '${from}'.`)
+	}
+	if (!graph.names.has(to)) {
+		graph.errors.push(`Transition references dangling to-state '${to}'.`)
+	}
+	graph.outbound.add(from)
+	graph.inbound.add(to)
+	checkGuards(graph, t.guards)
+}
+
+/**
+ * Every guard token must be one the editor and the backend know.
+ *
+ * @param {object} graph The graph being checked: declared names, initial state, inbound and outbound sets and the errors, changed in place.
+ * @param {unknown} guards The transition guards.
+ * @return {void}
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function checkGuards(graph, guards) {
+	for (const g of listOf(guards)) {
+		if (!KNOWN_GUARDS.includes(g)) {
+			graph.errors.push(`Unknown guard token '${g}'.`)
 		}
 	}
+}
 
-	for (const name of stateNames) {
+/**
+ * Every declared state other than the initial one must appear in a transition.
+ *
+ * @param {object} graph The graph being checked: declared names, initial state, inbound and outbound sets and the errors, changed in place.
+ * @return {void}
+ *
+ * @spec openspec/specs/process-configuration/spec.md
+ */
+function checkReachability(graph) {
+	const { names, inbound, outbound, initialState, errors } = graph
+	for (const name of names) {
 		if (!inbound.has(name) && !outbound.has(name) && name !== initialState) {
 			errors.push(
 				`State '${name}' is unreachable: no transitions reference it.`,
 			)
 		}
 	}
-
-	return { valid: errors.length === 0, errors }
 }

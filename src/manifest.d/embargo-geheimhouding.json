@@ -49,7 +49,9 @@
 						"label": "Bekrachtiging deadline",
 						"format": "date"
 					},
-					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" },
+					{ "key": "liftBy", "label": "Lift by", "format": "date" },
+					{ "key": "liftStatus", "label": "Lifting", "widget": "badge" }
 				],
 				"actions": [
 					{
@@ -71,17 +73,47 @@
 			"route": "/confidentiality-restrictions/:id",
 			"type": "detail",
 			"title": "Confidentiality",
-			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-006 / REQ-EMB-007). GeheimhoudingDetail. Record data leads 8-wide (scope + target reference, imposedBy/imposedByBody/imposedAt, bekrachtiging + opheffing fields when set); the resolved ground (citation incl. legacyCitation), imposedByBody, target, bekrachtigingsbesluit and opheffingsbesluit render as resolved references in the data + Related widgets. Audit trail is a sidebar tab (REQ-EMB-007: the per-geheimhouding view-audit list of stukken under geheimhouding is queryable here for griffie/staff — the audit logging itself is imperative and out of this declarative fragment). The impose/bekrachtig/opheffen action buttons (wired to GeheimhoudingController) are the imperative tail and are NOT declared here.",
+			"_note": "spec: openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md (REQ-EMB-006 / REQ-EMB-007). GeheimhoudingDetail. Record data leads 8-wide (scope + target reference, imposedBy/imposedByBody/imposedAt, bekrachtiging + opheffing fields when set); the resolved ground (citation incl. legacyCitation), imposedByBody, target, bekrachtigingsbesluit and opheffingsbesluit render as resolved references in the data + Related widgets. Audit trail is a sidebar tab (REQ-EMB-007: the per-geheimhouding view-audit list of stukken under geheimhouding is queryable here for griffie/staff — the audit logging itself is imperative and out of this declarative fragment). The impose/bekrachtig/opheffen action buttons (wired to GeheimhoudingController) are the imperative tail and are NOT declared here. confidentiality-term-and-lapse (REQ-EMB-023, board DcGeheimhouding): the header carries the status pill and, through headerWidget, the ratification line and the stepper; the body shows the Confidentiality card (the restriction's own fields, empty ones hidden), What the confidentiality covers (scope and target), Ground, Related and the four-step status timeline.",
 			"config": {
 				"register": "decidiq",
 				"schema": "confidentiality-restriction",
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": { "imposed": "Imposed", "ratified": "Ratified", "dissolved": "Lifted", "lapsed": "Lapsed" },
+					"colorMap": { "imposed": "warning", "ratified": "primary", "dissolved": "default", "lapsed": "default" }
+				},
+				"headerWidget": "geheimhouding-header",
 				"widgets": [
+					{
+						"id": "geheimhouding-header",
+						"type": "confidentiality-header",
+						"title": "Confidentiality steps",
+						"_note": "confidentiality-term-and-lapse REQ-EMB-023: the header line 'Bekrachtiging door <body> uiterlijk <date>' while ratification is open, and the stepper Imposed, Ratified (Lapsed once lapsed), Lifted. Rendered in the header row through headerWidget, so it has no place in the grid."
+					},
 					{
 						"id": "geheimhouding-data",
 						"type": "data",
 						"title": "Confidentiality",
 						"icon": "ShieldCheckOutline",
-						"content": { "columns": 2 }
+						"content": {
+							"columns": 2,
+							"include": ["lifecycle", "imposedBy", "imposedByBody", "imposedAt", "imposingDecision", "ratificationDeadline", "ratificationDate", "ratificationDecision", "liftingConditions", "liftBy", "liftingDate", "dissolutionDecision", "lapsedAt", "lapsedAtMeeting"],
+							"hideEmpty": true
+						}
+					},
+					{
+						"id": "geheimhouding-target",
+						"type": "data",
+						"title": "What the confidentiality covers",
+						"icon": "FileLockOutline",
+						"content": { "columns": 1, "include": ["scope", "targetDocument", "targetAgendaItem", "targetDecision"], "hideEmpty": true }
+					},
+					{
+						"id": "geheimhouding-ground",
+						"type": "data",
+						"title": "Ground",
+						"icon": "ScaleBalance",
+						"content": { "columns": 1, "include": ["ground"], "hideEmpty": true }
 					},
 					{
 						"id": "geheimhouding-related",
@@ -101,6 +133,14 @@
 							"register": "decidiq",
 							"groundSchema": "geheimhouding-grond"
 						}
+					},
+					{
+						"id": "geheimhouding-views",
+						"type": "custom",
+						"component": "RestrictedPaperViewsTab",
+						"title": "Who opened the papers",
+						"icon": "EyeOutline",
+						"_note": "embargo-geheimhouding REQ-EMB-007: every opening of a paper under this restriction while it is active, newest first (reader, time, paper, agenda item), from GET /api/confidentiality/restrictions/{id}/views. Only the imposing body's staff may read the list; anyone else sees the server's refusal."
 					}
 				],
 				"layout": [
@@ -121,12 +161,36 @@
 						"gridHeight": 6
 					},
 					{
+						"id": "4",
+						"widgetId": "geheimhouding-target",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4
+					},
+					{
+						"id": "5",
+						"widgetId": "geheimhouding-ground",
+						"gridX": 6,
+						"gridY": 6,
+						"gridWidth": 6,
+						"gridHeight": 4
+					},
+					{
 						"id": "3",
 						"widgetId": "geheimhouding-timeline",
 						"gridX": 0,
-						"gridY": 6,
+						"gridY": 10,
 						"gridWidth": 12,
 						"gridHeight": 4
+					},
+					{
+						"id": "6",
+						"widgetId": "geheimhouding-views",
+						"gridX": 0,
+						"gridY": 14,
+						"gridWidth": 12,
+						"gridHeight": 5
 					}
 				],
 				"sidebar": {

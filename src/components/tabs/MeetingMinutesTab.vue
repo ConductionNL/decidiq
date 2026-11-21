@@ -12,7 +12,7 @@
  user create a draft with the meeting reference pre-filled, and
  deep-links each row to MinutesDetail for full editing.
 
- @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
+ @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--minutes" data-testid="meeting-minutes-tab">
@@ -65,6 +65,7 @@
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -84,7 +85,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidiq', 'Title') },
@@ -94,7 +95,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		lifecycleColors() {
 			return {
 				draft: 'primary',
@@ -109,7 +110,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+			/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 			handler() {
 				this.refresh()
 			},
@@ -117,7 +118,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -137,14 +138,14 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
 		async createMinutes() {
 			if (!this.objectId || this.creating) return
 			this.creating = true
 			this.error = ''
 			try {
 				const store = ensureRelationType('minutes')
-				const created = await store.saveObject('minutes', {
+				const created = await saveOrThrow(store, 'minutes', {
 					title: this.t('decidiq', 'Minutes'),
 					lifecycle: 'draft',
 					version: 1,
@@ -165,7 +166,7 @@ export default {
 		 * Navigate to the MinutesDetail page for a row.
 		 *
 		 * @param {object} row Minutes row (must carry `id` or `uuid`).
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting
 		 */
 		openDetail(row) {
 			const id = row && (row.id || row.uuid)
@@ -176,30 +177,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-</style>
+<style scoped src="./relationTab.css"></style>

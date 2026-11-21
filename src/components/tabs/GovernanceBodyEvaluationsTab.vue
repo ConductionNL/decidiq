@@ -172,6 +172,7 @@ import {
 	publishEvaluation,
 	respondToEvaluation,
 } from '../../services/boardEvaluationApi.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -372,7 +373,7 @@ export default {
 
 			try {
 				const store = ensureRelationType('board-evaluation')
-				await store.saveObject('board-evaluation', {
+				await saveOrThrow(store, 'board-evaluation', {
 					governanceBody: this.resolvedObjectId,
 					template: template.id,
 					cycleLabel: String(new Date().getFullYear()),
@@ -399,7 +400,7 @@ export default {
 		async openEvaluation(evaluation) {
 			try {
 				const store = ensureRelationType('board-evaluation')
-				await store.saveObject('board-evaluation', {
+				await saveOrThrow(store, 'board-evaluation', {
 					...evaluation,
 					lifecycle: 'open',
 					openedAt: new Date().toISOString(),
@@ -489,32 +490,9 @@ export default {
 }
 </script>
 
+<style scoped src="./governanceBodyResultsTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: calc(var(--default-grid-baseline) * 2);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__empty,
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-
 .evaluation-list {
 	list-style: none;
 	margin: 0;

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\DecisionController;
+use OCA\Decidiq\Service\ConfidentialityRestrictions;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -36,6 +37,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for DecisionController.
@@ -313,9 +315,14 @@ class DecisionControllerTest extends TestCase {
 	public function testPublishSucceedsReturns200(): void {
 		$this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
 
+		// The publish action also reads the confidentiality restrictions; none
+		// target this decision (findAll answers no rows).
 		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
+			->willReturnCallback(
+				fn (string $id): object => $id === ConfidentialityRestrictions::class
+					? new ConfidentialityRestrictions($this->objectService)
+					: $this->objectService
+			);
 
 		$entity = $this->createMock(ObjectEntity::class);
 		$entity->method('getObject')->willReturn(
@@ -337,13 +344,11 @@ class DecisionControllerTest extends TestCase {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
 			->willReturnCallback(
-				function (
-					array $object,
-					?array $extend = [],
-					string|int|null $register = null,
-					string|int|null $schema = null,
-					?string $uuid = null,
-				) use (&$saves): ObjectEntity {
+				function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saves): ObjectEntity {
+					$extend = $options->extend ?? [];
+					$register = $options->target->register;
+					$schema = $options->target->schema;
+					$uuid = $options->uuid;
 					$saves[] = ['object' => $object, 'schema' => $schema, 'uuid' => $uuid];
 
 					// What OpenRegister STORES is not what it was handed:

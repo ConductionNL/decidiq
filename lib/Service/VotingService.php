@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use RuntimeException;
 
 /**
@@ -37,7 +38,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class VotingService {
+class VotingService implements VotingServiceInterface {
 
 	/**
 	 * Configurable majority thresholds (mirrors Resolution.voteThreshold).
@@ -124,15 +125,7 @@ class VotingService {
 	/**
 	 * Open a VotingRound, optionally with preset participant UUIDs.
 	 *
-	 * @param string $motionId The motion UUID (the amendment UUID when subjectType is 'amendment')
-	 * @param string $meetingId The meeting UUID
-	 * @param string $votingMethod The voting method (for-against-abstain, show-of-hands, etc.)
-	 * @param bool $isSecret Whether the ballot is secret
-	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
-	 * @param string|null $revoteOfRoundId UUID of a tied round this round is the single permitted revote of
-	 * @param VotingRoundRules|null $roundRules The configurable decision rules (threshold / abstention /
-	 *                                          tie-break / subject type / opening body); null = all defaults
+	 * @param VotingRoundRequest $request The round to open: subject, meeting, method, secrecy, close time, presets, revote link and rules
 	 *
 	 * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
 	 *
@@ -144,26 +137,8 @@ class VotingService {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
 	 */
-	public function openVotingRound(
-		string $motionId,
-		string $meetingId,
-		string $votingMethod,
-		bool $isSecret,
-		?string $closedAt,
-		array $presetParticipantIds = [],
-		?string $revoteOfRoundId = null,
-		?VotingRoundRules $roundRules = null,
-	): array {
-		return $this->opener->openVotingRound(
-			motionId: $motionId,
-			meetingId: $meetingId,
-			votingMethod: $votingMethod,
-			isSecret: $isSecret,
-			closedAt: $closedAt,
-			presetParticipantIds: $presetParticipantIds,
-			revoteOfRoundId: $revoteOfRoundId,
-			roundRules: $roundRules
-		);
+	public function openVotingRound(VotingRoundRequest $request): array {
+		return $this->opener->openVotingRound(request: $request);
 
 	}//end openVotingRound()
 
@@ -174,14 +149,10 @@ class VotingService {
 	 * meeting that owns the round (#300), prevents duplicates (overwrites an
 	 * existing vote), and enforces one-proxy-per-round for proxy votes.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The participant UUID
-	 * @param string $value for | against | abstain
-	 * @param bool $isProxy True when the participant is voting as proxy for another
-	 * @param string|null $delegatorId The participant UUID being delegated (required when isProxy=true)
+	 * @param VoteCast $cast The ballot: round, participant, value or ranking, and proxy delegator
 	 * @param string|null $callerUid The authenticated Nextcloud UID of the casting user (used only
-	 *                               to detect an absence delegation when no formal proxy exists —
-	 *                               delegations are configured by NC UID in the user settings)
+	 *                               to detect an absence delegation when no formal proxy exists,
+	 *                               since delegations are configured by NC UID in the user settings)
 	 *
 	 * @return array<string,mixed> The created/updated Vote object
 	 *
@@ -191,23 +162,10 @@ class VotingService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
-	public function castVote(
-		string $votingRoundId,
-		string $participantId,
-		string $value,
-		bool $isProxy,
-		?string $delegatorId,
-		?string $callerUid = null,
-	): array {
-		return $this->caster->castVote(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			value: $value,
-			isProxy: $isProxy,
-			delegatorId: $delegatorId,
-			callerUid: $callerUid
-		);
+	public function castVote(VoteCast $cast, ?string $callerUid = null): array {
+		return $this->caster->castVote(cast: $cast, callerUid: $callerUid);
 
 	}//end castVote()
 

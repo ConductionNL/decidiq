@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Service\AdvisoryVoteService;
 use OCA\Decidiq\Service\BudgetVotingService;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
@@ -29,7 +30,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * `BudgetVotingService::castAdvisoryVote()` refuses when the round cannot be
@@ -116,13 +117,11 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 	 */
 	private function stubFind(array $proposal, ?array $round): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($proposal, $round): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($proposal, $round): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema === 'budget-proposal') {
 					return $this->entity($proposal);
 				}
@@ -148,7 +147,7 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 		$this->stubFind(['id' => 'p-1', 'status' => 'validated'], null);
 		$this->advisoryVoteService->expects($this->never())->method('applyAdvisoryTally');
 
-		$this->expectException(RuntimeException::class);
+		$this->expectException(ParticipationWindowClosedException::class);
 		$this->expectExceptionMessage('Voting is closed for this budget round');
 
 		$this->service->castAdvisoryVote(proposalId: 'p-1', voterId: 'alice', value: 'voor');
@@ -169,7 +168,7 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 		);
 		$this->advisoryVoteService->expects($this->never())->method('applyAdvisoryTally');
 
-		$this->expectException(RuntimeException::class);
+		$this->expectException(ParticipationWindowClosedException::class);
 		$this->expectExceptionMessage('Voting is closed for this budget round');
 
 		$this->service->castAdvisoryVote(proposalId: 'p-1', voterId: 'alice', value: 'voor');
@@ -193,7 +192,7 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 		);
 		$this->advisoryVoteService->expects($this->never())->method('applyAdvisoryTally');
 
-		$this->expectException(RuntimeException::class);
+		$this->expectException(ParticipationWindowClosedException::class);
 		$this->expectExceptionMessage('Voting is closed for this budget round');
 
 		$this->service->castAdvisoryVote(proposalId: 'p-1', voterId: 'alice', value: 'voor');

@@ -22,8 +22,8 @@
  (v-bind) onto this component — so `content.title` / `content.icon` land on
  this component's own `title` / `icon` props without extra wiring.
 
- @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
- @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+ @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+ @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 -->
 <template>
 	<CnWidgetWrapper
@@ -37,6 +37,36 @@
 		</template>
 
 		<div class="cn-version-timeline">
+			<form
+				v-if="inForceControl && resolvedObjectId"
+				class="cn-version-timeline__in-force"
+				data-testid="version-timeline-in-force"
+				@submit.prevent="resolveInForce">
+				<label :for="inForceInputId" class="cn-version-timeline__in-force-label">
+					{{ t('decidiq', 'In force on') }}
+				</label>
+				<input
+					:id="inForceInputId"
+					v-model="inForceDate"
+					type="date"
+					class="cn-version-timeline__in-force-input"
+					data-testid="version-timeline-in-force-date">
+				<NcButton
+					type="submit"
+					variant="secondary"
+					:disabled="inForceLoading || !inForceDate"
+					data-testid="version-timeline-in-force-resolve">
+					{{ t('decidiq', 'Show version') }}
+				</NcButton>
+				<p
+					v-if="inForceMessage"
+					class="cn-version-timeline__in-force-result"
+					role="status"
+					aria-live="polite"
+					data-testid="version-timeline-in-force-result">
+					{{ inForceMessage }}
+				</p>
+			</form>
 			<p v-if="loading && !rows.length" class="cn-version-timeline__loading">
 				{{ t('decidiq', 'Loading versions…') }}
 			</p>
@@ -70,6 +100,8 @@
 					v-for="row in rows"
 					:key="row.id"
 					class="cn-version-timeline__item"
+					:class="{ 'cn-version-timeline__item--in-force': inForceVersionId && row.id === inForceVersionId }"
+					:aria-current="inForceVersionId && row.id === inForceVersionId ? 'true' : null"
 					data-testid="version-timeline-item">
 					<span class="cn-version-timeline__marker" aria-hidden="true" />
 					<div class="cn-version-timeline__body">
@@ -143,8 +175,17 @@ import {
 	CnWidgetWrapper,
 	useObjectStore,
 } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
 import {
+	inForcePath,
+	isCalendarDate,
+} from '../../utils/governingDocumentCitations.js'
+import {
+	contentWithDefaults,
+	detailObjectId,
+	plainObject,
 	resolveObjectLabel,
 	sortVersionsByEffectiveDate,
 } from './registerDetailWidgets.js'
@@ -192,6 +233,12 @@ export default {
 			error: '',
 			/** Resolved Decision titles, keyed by decision id. */
 			decisionLabels: {},
+			/** The date the "in force on" control asks about (REQ-GDR-004/006). */
+			inForceDate: '',
+			/** The id of the version in force on that date, or null. */
+			inForceVersionId: null,
+			inForceMessage: '',
+			inForceLoading: false,
 		}
 	},
 
@@ -204,15 +251,18 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				versionRegister: c.versionRegister || this.register || 'decidiq',
-				versionSchema: c.versionSchema || '',
-				parentRefField: c.parentRefField || '',
-				effectiveDateField: c.effectiveDateField || 'effectiveDate',
-				lapseDateField: c.lapseDateField || '',
-				versionNumberField: c.versionNumberField || 'versionNumber',
-				statusField: c.statusField || 'status',
-				decisionRefField: c.decisionRefField || '',
-				decisionRoute: c.decisionRoute || 'DecisionDetail',
+				...contentWithDefaults(c, {
+					versionRegister: this.register || 'decidiq',
+					versionSchema: '',
+					parentRefField: '',
+					effectiveDateField: 'effectiveDate',
+					lapseDateField: '',
+					versionNumberField: 'versionNumber',
+					statusField: 'status',
+					decisionRefField: '',
+					decisionRoute: 'DecisionDetail',
+				}),
+
 				extraFields: Array.isArray(c.extraFields) ? c.extraFields : [],
 			}
 		},
@@ -223,12 +273,7 @@ export default {
 		 * @spec exclude defensive object-id accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectId() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
-			const self = data['@self'] || {}
-			return this.objectId || data.id || self.id || ''
+			return detailObjectId(this.objectId, this.objectData)
 		},
 
 		/**
@@ -245,12 +290,23 @@ export default {
 		 * @spec exclude defensive object-slug accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectSlug() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
+			const data = plainObject(this.objectData)
 			const self = data['@self'] || {}
 			return self.slug || data.slug || ''
+		},
+
+		/**
+		 * Whether the page asked for the "in force on" date control.
+		 *
+		 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages
+		 */
+		inForceControl() {
+			return this.content?.inForceControl === true
+		},
+
+		/** @spec exclude element-id plumbing for the date label, no behavioural requirement of its own */
+		inForceInputId() {
+			return `version-timeline-in-force-${this.resolvedObjectId}`
 		},
 
 		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
@@ -270,8 +326,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		sortedVersions() {
 			return sortVersionsByEffectiveDate(
@@ -281,8 +337,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		rows() {
 			const {
@@ -317,8 +373,8 @@ export default {
 		resolvedObjectId: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-			 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+			 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+			 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 			 */
 			handler() {
 				this.load()
@@ -328,6 +384,42 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Ask decidiq which version was in force on the chosen date and mark it
+		 * in the timeline (REQ-GDR-004, the "geldend op" control of REQ-GDR-006).
+		 *
+		 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages
+		 */
+		async resolveInForce() {
+			if (!isCalendarDate(this.inForceDate)) {
+				this.inForceVersionId = null
+				this.inForceMessage = t('decidiq', 'Enter a date.')
+				return
+			}
+			this.inForceLoading = true
+			try {
+				const { data } = await axios.get(
+					generateUrl(inForcePath(String(this.resolvedObjectId), this.inForceDate)),
+				)
+				const version = data?.version || null
+				this.inForceVersionId = version?.id || null
+				this.inForceMessage = version
+					? t('decidiq', 'Version {n} was in force on {date}.', {
+						n: version.versionNumber,
+						date: this.formatDate(this.inForceDate),
+					})
+					: t('decidiq', 'No version was in force on {date}.', {
+						date: this.formatDate(this.inForceDate),
+					})
+			} catch (e) {
+				this.inForceVersionId = null
+				this.inForceMessage = e?.response?.data?.message
+					|| t('decidiq', 'The version in force could not be read.')
+			} finally {
+				this.inForceLoading = false
+			}
+		},
 
 		/**
 		 * The object store to query — explicit prop wins, else the library's
@@ -350,14 +442,12 @@ export default {
 		 * Fetch the version collection filtered on `parentRefField == currentId`,
 		 * then batch-resolve the (deduplicated) Decision links.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @return {Promise<void>}
 		 */
 		async load() {
-			const id = this.resolvedObjectId
-			const { versionSchema, versionRegister, parentRefField } = this.cfg
-			if (!id || !versionSchema || !parentRefField) {
+			if (!this.hasTarget()) {
 				this.versions = []
 				return
 			}
@@ -369,33 +459,8 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				if (
-					!store.objectTypeRegistry
-					|| !store.objectTypeRegistry[versionSchema]
-				) {
-					store.registerObjectType(
-						versionSchema,
-						versionSchema,
-						versionRegister,
-					)
-				}
-				this.versions = await store.fetchCollection(versionSchema, {
-					[parentRefField]: id,
-					_limit: 200,
-				})
-				// Seeded rows reference their parent by SLUG (see
-				// resolvedObjectSlug) — retry once on the slug before
-				// concluding this record simply has no versions.
-				if (
-					Array.isArray(this.versions)
-					&& this.versions.length === 0
-					&& this.resolvedObjectSlug
-				) {
-					this.versions = await store.fetchCollection(versionSchema, {
-						[parentRefField]: this.resolvedObjectSlug,
-						_limit: 200,
-					})
-				}
+				this.registerVersionType(store)
+				await this.fetchVersions(store)
 				await this.resolveDecisionLabels(store)
 			} catch (e) {
 				this.error =
@@ -408,11 +473,66 @@ export default {
 		},
 
 		/**
+		 * Whether there is a record, a version schema and a parent field to load by.
+		 *
+		 * @spec exclude load guard, no behavioural requirement of its own
+		 * @return {boolean}
+		 */
+		hasTarget() {
+			const { versionSchema, parentRefField } = this.cfg
+			return Boolean(this.resolvedObjectId && versionSchema && parentRefField)
+		},
+
+		/**
+		 * @spec exclude store-registration plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {void}
+		 */
+		registerVersionType(store) {
+			const { versionSchema, versionRegister } = this.cfg
+			const registry = store.objectTypeRegistry || {}
+			if (!registry[versionSchema]) {
+				store.registerObjectType(
+					versionSchema,
+					versionSchema,
+					versionRegister,
+				)
+			}
+		},
+
+		/**
+		 * Fetch the versions by the parent id, and once more by its slug when
+		 * the id finds none: seeded rows reference their parent by SLUG (see
+		 * resolvedObjectSlug).
+		 *
+		 * @spec exclude version fetch plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {Promise<void>}
+		 */
+		async fetchVersions(store) {
+			const { versionSchema, parentRefField } = this.cfg
+			this.versions = await store.fetchCollection(versionSchema, {
+				[parentRefField]: this.resolvedObjectId,
+				_limit: 200,
+			})
+			if (
+				Array.isArray(this.versions)
+				&& this.versions.length === 0
+				&& this.resolvedObjectSlug
+			) {
+				this.versions = await store.fetchCollection(versionSchema, {
+					[parentRefField]: this.resolvedObjectSlug,
+					_limit: 200,
+				})
+			}
+		},
+
+		/**
 		 * Batch-resolve every unique amending-Decision id referenced by the
 		 * loaded versions (single Promise.all pass, not one request per row).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {object} store The object store.
 		 * @return {Promise<void>}
 		 */
@@ -428,14 +548,13 @@ export default {
 			await Promise.all(
 				ids.map(async (id) => {
 					if (labels[id]) return
-					labels[id] = await resolveObjectLabel(
-						store,
-						'decision',
-						'decision',
-						versionRegister,
+					labels[id] = await resolveObjectLabel(store, {
+						typeSlug: 'decision',
+						schemaSlug: 'decision',
+						registerSlug: versionRegister,
 						id,
-						'title',
-					)
+						labelField: 'title',
+					})
 				}),
 			)
 			this.decisionLabels = labels
@@ -456,7 +575,7 @@ export default {
 		/**
 		 * Locale date, empty-safe (never a raw ISO string — REQ-VOR-011).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
 		 * @param {string} value ISO date string.
 		 * @return {string}
 		 */
@@ -469,7 +588,7 @@ export default {
 		/**
 		 * Render an extraFields entry value, date-formatted when configured.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string|number|null|undefined} value The raw field value.
 		 * @param {string} [format] `'date'` to format through formatDate.
 		 * @return {string}
@@ -482,8 +601,8 @@ export default {
 		/**
 		 * Navigate to the enacting Decision's detail page.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string} decisionId The Decision id.
 		 * @return {void}
 		 */
@@ -516,6 +635,33 @@ export default {
 .cn-version-timeline__item {
 	display: flex;
 	gap: 10px;
+}
+
+.cn-version-timeline__item--in-force {
+	box-shadow: inset 3px 0 0 0 var(--color-success);
+	padding-inline-start: calc(2 * var(--default-grid-baseline, 4px));
+}
+
+.cn-version-timeline__in-force {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: calc(2 * var(--default-grid-baseline, 4px));
+	padding: calc(2 * var(--default-grid-baseline, 4px));
+}
+
+.cn-version-timeline__in-force-input {
+	min-height: var(--default-clickable-area);
+}
+
+.cn-version-timeline__in-force-input:focus-visible {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.cn-version-timeline__in-force-result {
+	flex-basis: 100%;
+	margin: 0;
 }
 
 .cn-version-timeline__marker {

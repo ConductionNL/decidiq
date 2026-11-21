@@ -13,7 +13,7 @@
 
  Registered in src/manifest.json at `/motions/:id/integrations`.
 
- @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.3
+ @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.3
 -->
 <template>
 	<CnDetailPage
@@ -64,7 +64,7 @@ export default {
 		/**
 		 * Motion object UUID — captured from the `:id` route param.
 		 *
-		 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.3
+		 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.3
 		 * @type {string}
 		 */
 		id: {
@@ -81,8 +81,8 @@ export default {
 		 * conversation. The Talk tab is hidden automatically when Talk is absent
 		 * (ADR-019 stage-1 filter — graceful degradation).
 		 *
-		 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.3
-		 * @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-1.4
+		 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.3
+		 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-1.4
 		 * @return {object} CnDetailPage `sidebar` prop value.
 		 */
 		sidebarConfig() {

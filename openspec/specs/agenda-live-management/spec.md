@@ -100,3 +100,75 @@ The live meeting view SHALL indicate which AgendaItem is currently active (being
 #### Scenario: Participants see which item is active
 - **WHEN** a Participant refreshes the live meeting page
 - **THEN** the currently active AgendaItem is visually distinguished with the "Actief" indicator
+
+### Requirement: REQ-AFH-001 Formalities are marked and adopted together
+
+The chair or secretary SHALL be able to mark agenda items as formalities, and the live screen SHALL adopt all formalities in one step, recording the outcome on each item.
+
+#### Scenario: The chair adopts the formalities
+- GIVEN items 3, 4 and 7 are marked as formalities
+- WHEN the chair presses Adopt formalities on the live screen
+- THEN each of the three shows adopted without debate with the time
+
+### Requirement: REQ-LSC-001 Everyone follows the current item
+
+The chair's choice of current item SHALL be saved on the meeting, and members' live screens and the room screen SHALL follow it.
+
+#### Scenario: Members follow the chair
+- GIVEN the chair activates item 5 Housing plan
+- WHEN member Anna has the live screen open
+- THEN her screen marks item 5 as current within seconds
+
+### Requirement: REQ-LSC-002 A room screen shows the current item and vote
+
+decidiq SHALL offer a screen page for the room that shows the current item and the state of an open vote.
+
+#### Scenario: The room sees the vote
+- GIVEN a vote on motion M-12 is open
+- WHEN the screen page is shown in the council chamber
+- THEN it shows the item and that voting is open
+
+### Requirement: REQ-LSC-003 A decision is recorded when it is taken
+
+The live screen SHALL let the chair or secretary record a decision on the current item with its text and type.
+
+#### Scenario: The secretary records the decision
+- GIVEN item 5 is current
+- WHEN the secretary records Adopted with the decision text
+- THEN the decision appears on the meeting and on the item
+
+### Requirement: REQ-LSC-004 Speeches and questions are logged per item
+
+Speeches and questions logged on the live screen SHALL record the agenda item they belong to.
+
+#### Scenario: Who spoke on which item
+- GIVEN Anna spoke and Pieter raised a question on item 5
+- WHEN the clerk opens the engagement overview
+- THEN both entries show item 5
+
+### Requirement: REQ-LIV-010 The agenda item declares its phase
+
+The `AgendaItem` schema SHALL declare a `phase` property, an enum of `voorstel`, `beeldvorming`, `oordeelsvorming`, `besluitvorming` and `completed`, facetable so lists can filter on it. Moving an item to its next phase SHALL write `phase`, and an item created without a phase SHALL read as `beeldvorming`. Existing items that carry the phase in the undeclared `status` property SHALL have it moved to `phase` once, on upgrade.
+
+#### Scenario: The chair moves an item to forming an opinion
+
+- GIVEN a decision item at phase `beeldvorming`
+- WHEN the chair presses Next phase on the live meeting screen
+- THEN the item's `phase` reads `oordeelsvorming` after a reload
+- AND the agenda list can filter items on that phase
+
+#### Scenario: An item from before the upgrade keeps its phase
+
+- GIVEN an agenda item with the undeclared `status` value `besluitvorming`
+- WHEN the upgrade runs
+- THEN the item's `phase` reads `besluitvorming`
+
+### Requirement: REQ-LIV-011 The agenda item page shows the phase
+
+The agenda item page SHALL show the phase of a discussion or decision item as a stage line with the current phase marked, as DcAgendapunt draws it. An informational item SHALL show no phase.
+
+#### Scenario: A member opens a decision item
+
+- GIVEN a decision item at phase `oordeelsvorming`
+- WHEN member Noor opens the agenda item page
+- THEN she sees the stage line with forming an opinion marked as the current phase

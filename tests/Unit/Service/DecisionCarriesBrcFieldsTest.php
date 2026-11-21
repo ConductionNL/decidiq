@@ -20,9 +20,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 
 /**
  * Asserts on the MERGED register, not on the fragment.
@@ -68,9 +67,6 @@ final class DecisionCarriesBrcFieldsTest extends TestCase {
 		);
 		$this->assertIsArray($base, 'the register JSON must parse');
 
-		$merge = new ReflectionMethod(SettingsService::class, 'deepMergeConfig');
-		$merge->setAccessible(true);
-
 		$fragments = glob($root.'/lib/Settings/register.d/*.json');
 		$this->assertNotEmpty($fragments, 'there must be fragments to merge');
 
@@ -78,7 +74,7 @@ final class DecisionCarriesBrcFieldsTest extends TestCase {
 		foreach ($fragments as $fragment) {
 			$overlay = json_decode((string)file_get_contents($fragment), true);
 			$this->assertIsArray($overlay, basename($fragment).' must parse');
-			$base = $merge->invoke(null, $base, $overlay);
+			$base = RegisterFragmentMerger::deepMerge(base: $base, overlay: $overlay);
 		}
 
 		return $base;

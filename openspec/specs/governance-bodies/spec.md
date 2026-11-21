@@ -175,3 +175,152 @@ faction membership.
   to a Membership in a non-faction body
 
 @e2e exclude schema/register-shape assertion (relation resolution at the API layer, no new relation mechanism introduced) — no dedicated e2e assertion opens a faction's own detail page and lists its Memberships distinctly from a non-faction body's; no UI surface beyond the existing Membership-listing pattern already exercised for non-faction bodies.
+
+### Requirement: REQ-BMT-001 A membership records from when to when
+
+The Members widget SHALL write a start date when a member is added and SHALL list past members with their start and end dates on request.
+
+#### Scenario: The clerk sees who left the council
+- GIVEN council member Anna was removed from the council on 1 June
+- WHEN the clerk turns on Past members on the council page
+- THEN Anna is listed with her start date and 1 June as end date
+
+### Requirement: REQ-BMT-002 Contact details for members and bodies
+
+The body page SHALL show and edit contact details (email, phone, address) for each member and for the body itself, stored as ContactDetail records.
+
+#### Scenario: The clerk adds a phone number
+- GIVEN council member Pieter has only an email address
+- WHEN the clerk opens Contact details on his row and adds 06 12345678 as phone
+- THEN the members table shows his phone number after a reload
+
+### Requirement: REQ-BMT-003 Members belong to a faction with its own workspace
+
+A membership SHALL reference its faction body, and a faction page SHALL offer the faction a shared Collectives workspace.
+
+#### Scenario: A faction gets its workspace
+- GIVEN the council has a faction Groen with three members
+- WHEN a member of Groen opens the faction page
+- THEN the page shows the faction workspace widget and the three members
+
+### Requirement: REQ-TOS-001 A member's term is entered when the member is added
+
+The Leden add and edit form on a body's page SHALL ask "Termijn begint" and "Termijn eindigt" and store them on the membership's `startDate` and `endDate`. "Termijn begint" MUST default to the start of the body's current term.
+
+#### Scenario: adding a council member with a term
+
+- GIVEN the Gemeenteraad with term 30 March 2026 to 29 March 2030
+- WHEN the griffier adds Rachid Yilmaz through Lid toevoegen
+- THEN the form shows Termijn begint filled with 30 March 2026
+- AND after saving, Rachid's membership carries that start date and the end date the griffier entered
+
+### Requirement: REQ-TOS-002 The step-down schedule lists every term that ends, soonest first
+
+The body's page SHALL offer "Rooster van aftreden" under Meer > Functies en integriteit. The list MUST union the body's memberships and position holds whose end date falls in the chosen window, sorted by end date ascending, with name, position or "Lid", term number, end date and Herbenoembaar. The list MUST be computed on read; the system MUST NOT store a copy of it.
+
+#### Scenario: a position term ends before a membership term
+
+- GIVEN Lars de Koning's membership ends on 29 March 2030
+- AND his hold of Plaatsvervanger ends on 1 January 2027
+- WHEN the griffier opens Rooster van aftreden with the window "alles"
+- THEN the Plaatsvervanger line for 1 January 2027 is listed before the membership line for 29 March 2030
+
+#### Scenario: nothing is stored
+
+- GIVEN the griffier opened the schedule
+- WHEN the register is searched for a schedule object
+- THEN none exists
+
+### Requirement: REQ-TOS-003 Herbenoembaar follows the position's rules
+
+For a position hold, Herbenoembaar MUST read "nee" when the position type is not reappointable, "laatste termijn" when the term number equals the position type's maximum consecutive terms, and "ja" otherwise.
+
+#### Scenario: a treasurer in the last allowed term
+
+- GIVEN position type Penningmeester allows 2 consecutive terms
+- AND Joost Hendriks holds it in term 2
+- WHEN the schedule is shown
+- THEN Joost's line reads "laatste termijn"
+
+### Requirement: REQ-TOS-004 The secretary is reminded before a term ends
+
+The register SHALL declare a notification to the body's secretary group a number of days before a membership or position hold ends. The number of days MUST come from the body's `termReminderDays`, default 90.
+
+#### Scenario: a reminder 90 days ahead
+
+- GIVEN a body without its own reminder setting
+- AND a position hold ending on 1 January 2027
+- WHEN the notification sweep runs on 3 October 2026
+- THEN the body's secretary group gets one notice naming the holder, the position and the end date
+
+### Requirement: REQ-TOS-005 Ended memberships show as former members without a write
+
+A membership whose end date has passed MUST be listed under "Oud-leden" on the body's page and MUST NOT be listed under the current members. The system MUST NOT change the membership record when its term ends.
+
+#### Scenario: a term passes
+
+- GIVEN Sanne Mulder's membership ended yesterday
+- WHEN the griffier opens the body's page
+- THEN Sanne is listed under Oud-leden
+- AND her membership record is unchanged
+
+### Requirement: REQ-BCS-001 A body lists the competences it needs
+
+A user in a body's signatory scope SHALL be able to create, edit and deactivate the body's competences, each with a name, a description and how many members should hold it. Other users SHALL be able to read them and SHALL NOT be able to change them.
+
+#### Scenario: The secretary sets up the board profile
+
+- GIVEN Jan de Vries is secretary of "Raad van Commissarissen Waterschap Amstel, Gooi en Vecht"
+- WHEN Jan opens the body page, opens the "Composition" widget and adds "IT and cybersecurity" with one required holder
+- THEN the competence exists for that body and appears as a column in the skills matrix
+
+#### Scenario: A member cannot change the profile
+
+- GIVEN Mark van den Berg is an ordinary member of the board
+- WHEN Mark tries to edit the required holders of "Legal"
+- THEN the change is refused and the competence is unchanged
+
+### Requirement: REQ-BCS-002 A member's competences are recorded and confirmed
+
+A member SHALL be able to record their own competence against their membership with a level (basic, experienced or expert); a signatory SHALL be able to record one for any member. Only a signatory SHALL be able to confirm a competence. Changing the level of a confirmed competence SHALL clear the confirmation.
+
+#### Scenario: A member records and the chair confirms
+
+- GIVEN Mark van den Berg is a member of the board
+- WHEN Mark records "Water management" at level expert
+- THEN the matrix shows "expert, unconfirmed" in his row
+- AND after chair Janneke de Bruin confirms it, the cell shows "expert" and names her as confirmer
+
+#### Scenario: A member cannot confirm their own competence
+
+- GIVEN Mark's unconfirmed competence
+- WHEN Mark tries to confirm it
+- THEN the confirm action is refused
+
+### Requirement: REQ-BCS-003 The skills matrix shows where the body falls short
+
+The "Composition" widget SHALL show a matrix of the body's current members against its active competences. Under each competence it SHALL show how many members hold it confirmed at level experienced or expert, against how many the body requires, and SHALL mark the competence "Gap" when fewer hold it.
+
+#### Scenario: The board sees its gaps
+
+- GIVEN the seeded board with Finance and audit held by Janneke (expert, confirmed), Legal by Jan (experienced, confirmed), Water management by Mark (expert, unconfirmed) and nobody holding IT and cybersecurity
+- WHEN any board member opens the "Composition" widget
+- THEN "IT and cybersecurity" and "Water management" are marked "Gap"
+- AND "Finance and audit" and "Legal" are not
+
+### Requirement: REQ-BCS-004 The body sees its composition figures against its own targets
+
+The "Composition" widget SHALL show the current members by gender, age band, nationality, independence and whether they sit from outside, as counts and shares, each with a "not recorded" count. A body SHALL be able to set targets as a minimum share for a value of a dimension, and the widget SHALL show each target as met or not met. The widget SHALL NOT list names per value.
+
+#### Scenario: A gender target is met
+
+- GIVEN the board has three current members, one recorded as female and two as male, and a target of at least 0.33 female
+- WHEN a board member opens the "Composition" widget
+- THEN the gender figures show female 1 (33%), male 2 (67%), not recorded 0
+- AND the target is shown as met
+
+#### Scenario: Missing data is counted, not guessed
+
+- GIVEN one member has no birth date recorded
+- WHEN the widget shows age bands
+- THEN that member is counted under "not recorded" and in no age band

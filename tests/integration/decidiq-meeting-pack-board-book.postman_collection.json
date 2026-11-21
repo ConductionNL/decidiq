@@ -1,0 +1,1296 @@
+{
+ "info": {
+  "name": "Decidiq Meeting Pack (Board Book) Contract Suite",
+  "description": "Wire contract of the compiled meeting pack (openspec/changes/meeting-pack-board-book, task 9):\n\n  POST /api/meetings/{id}/board-book         boardBook#compile   401 / 403 (not chair or secretary) / 422 empty_agenda / 202 queued with nextVersion\n  GET  /api/meetings/{id}/board-book/status  boardBook#status    200 contract shape / 401 / 403 (no participant) / 404 unknown meeting\n\nThe administrator stands in for the secretary (MeetingRoleGate lets an administrator compile). The 202 request queues BoardBookCompileJob; this suite does not wait for it, so the status request accepts any non-idle state. Self-contained and idempotent: it seeds a stranger probe user, a governance body, a meeting with one agenda item and an empty meeting, and deletes them, plus any MeetingPack a compile job created, in teardown.\n\n@spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md\n\nSPDX-License-Identifier: EUPL-1.2\nSPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "noauth"
+ },
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Create stranger probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: stranger probe user available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{mpbStrangerUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{mpbStrangerPass}}"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Seed governance body",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: governance body created', () => pm.expect(pm.response.code).to.be.below(300));",
+         "const b = pm.response.json();",
+         "pm.collectionVariables.set('mpbBodyId', b.id || (b['@self'] || {}).id || '');",
+         "pm.test('Setup: governance body has an id', () => pm.expect(pm.collectionVariables.get('mpbBodyId')).to.have.length.above(0));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"MPB Newman gemeenteraad\",\n  \"bodyType\": \"legislative\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed meeting with an agenda",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+         "const b = pm.response.json();",
+         "pm.collectionVariables.set('mpbMeetingId', b.id || (b['@self'] || {}).id || '');",
+         "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('mpbMeetingId')).to.have.length.above(0));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"MPB Newman Raadsvergadering 9 december 2026\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-12-09T19:30:00+00:00\",\n  \"location\": \"Raadzaal\",\n  \"governanceBody\": \"{{mpbBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed agenda item",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: agenda item created', () => pm.expect(pm.response.code).to.be.below(300));",
+         "const b = pm.response.json();",
+         "pm.collectionVariables.set('mpbItemId', b.id || (b['@self'] || {}).id || '');",
+         "pm.test('Setup: agenda item has an id', () => pm.expect(pm.collectionVariables.get('mpbItemId')).to.have.length.above(0));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "agenda-item"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"MPB Newman Opening en mededelingen\",\n  \"itemType\": \"informational\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{mpbMeetingId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed meeting without agenda items",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: empty meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+         "const b = pm.response.json();",
+         "pm.collectionVariables.set('mpbEmptyMeetingId', b.id || (b['@self'] || {}).id || '');",
+         "pm.test('Setup: empty meeting has an id', () => pm.expect(pm.collectionVariables.get('mpbEmptyMeetingId')).to.have.length.above(0));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"MPB Newman lege vergadering\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-12-10T19:30:00+00:00\",\n  \"governanceBody\": \"{{mpbBodyId}}\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "1. Compile",
+   "item": [
+    {
+     "name": "Compile without a session (401)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Unauthenticated compile is 401', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"changeNote\": \"\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Compile as a user who is neither chair nor secretary (403)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Compile by a non-presiding user is 403', () => pm.response.to.have.status(403));",
+         "pm.test('The refusal names the role it needs', () => pm.expect(pm.response.json().message).to.match(/chair or secretary/));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mpbStrangerUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mpbStrangerPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"changeNote\": \"\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Compile an empty agenda (422 empty_agenda)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An empty agenda is refused with 422', () => pm.response.to.have.status(422));",
+         "pm.test('The refusal is empty_agenda with the spec message', () => {",
+         "    const b = pm.response.json();",
+         "    pm.expect(b.code).to.eql('empty_agenda');",
+         "    pm.expect(b.message).to.eql('Een vergaderbundel vereist minimaal één agendapunt');",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{mpbEmptyMeetingId}}/board-book",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbEmptyMeetingId}}",
+        "board-book"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"changeNote\": \"\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Compile as the secretary (202 queued, version 1)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Compile is accepted with 202', () => pm.response.to.have.status(202));",
+         "pm.test('The response says queued, names the meeting and the next version', () => {",
+         "    const b = pm.response.json();",
+         "    pm.expect(b.status).to.eql('queued');",
+         "    pm.expect(b.meetingId).to.eql(pm.collectionVariables.get('mpbMeetingId'));",
+         "    pm.expect(b.nextVersion).to.eql(1);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"changeNote\": \"\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "2. Status",
+   "item": [
+    {
+     "name": "Status as the secretary (200, contract shape)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('state is one of the compile states', () => pm.expect(b.state).to.be.oneOf(['idle', 'queued', 'running', 'done', 'failed']));",
+         "pm.test('the compile just requested is visible (not idle)', () => pm.expect(b.state).to.not.eql('idle'));",
+         "pm.test('freshness fields are present and typed', () => {",
+         "    pm.expect(b.latestVersion).to.be.a('number');",
+         "    pm.expect(b.currentFingerprint).to.be.a('string').and.have.length.above(0);",
+         "    pm.expect(b.outdated).to.be.a('boolean');",
+         "    pm.expect(b.skipped).to.be.an('array');",
+         "    pm.expect(b.deliveryFailures).to.be.an('array');",
+         "});",
+         "pm.test('without a compiled version the pack is not outdated', () => {",
+         "    if (b.latestVersion === 0) { pm.expect(b.outdated).to.eql(false); pm.expect(b.latestFingerprint).to.eql(null); }",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book/status",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book",
+        "status"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Status without a session (401)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Unauthenticated status is 401', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book/status",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book",
+        "status"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    },
+    {
+     "name": "Status as a user who is no participant (403)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Status for a non-participant is 403', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{mpbMeetingId}}/board-book/status",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{mpbMeetingId}}",
+        "board-book",
+        "status"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mpbStrangerUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mpbStrangerPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Status of an unknown meeting (404)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Status of an unknown meeting is 404', () => pm.response.to.have.status(404));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/00000000-0000-0000-0000-000000000000/board-book/status",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "00000000-0000-0000-0000-000000000000",
+        "board-book",
+        "status"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete packs a compile job may have created",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: packs listed', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));",
+         "if (pm.response.code !== 200) { return; }",
+         "const body = pm.response.json();",
+         "const auth = 'Basic ' + btoa(pm.collectionVariables.get('adminUser') + ':' + pm.collectionVariables.get('adminPass'));",
+         "(body.results || body.items || []).forEach((p) => {",
+         "    const id = p.id || (p['@self'] || {}).id;",
+         "    if (!id) { return; }",
+         "    pm.sendRequest({",
+         "        url: pm.collectionVariables.get('baseUrl') + '/index.php/apps/openregister/api/objects/decidiq/meeting-pack/' + id,",
+         "        method: 'DELETE',",
+         "        header: { Authorization: auth, 'OCS-APIRequest': 'true' },",
+         "    }, () => {});",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting-pack?meeting={{mpbMeetingId}}&_limit=100",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting-pack"
+       ],
+       "query": [
+        {
+         "key": "meeting",
+         "value": "{{mpbMeetingId}}"
+        },
+        {
+         "key": "_limit",
+         "value": "100"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete agenda item",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: agenda item gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{mpbItemId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "agenda-item",
+        "{{mpbItemId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete meeting",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: meeting gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{mpbMeetingId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting",
+        "{{mpbMeetingId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete empty meeting",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: empty meeting gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{mpbEmptyMeetingId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting",
+        "{{mpbEmptyMeetingId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete governance body",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: governance body gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{mpbBodyId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body",
+        "{{mpbBodyId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete stranger probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: stranger probe user gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{mpbStrangerUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{mpbStrangerUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8080"
+  },
+  {
+   "key": "noAuthBase",
+   "value": "http://127.0.0.1:8080"
+  },
+  {
+   "key": "adminUser",
+   "value": "admin"
+  },
+  {
+   "key": "adminPass",
+   "value": "admin"
+  },
+  {
+   "key": "register",
+   "value": "decidiq"
+  },
+  {
+   "key": "mpbStrangerUser",
+   "value": "decidiq-mpb-stranger"
+  },
+  {
+   "key": "mpbStrangerPass",
+   "value": "Decidiq-Mpb-Stranger!42x"
+  },
+  {
+   "key": "mpbBodyId",
+   "value": ""
+  },
+  {
+   "key": "mpbMeetingId",
+   "value": ""
+  },
+  {
+   "key": "mpbItemId",
+   "value": ""
+  },
+  {
+   "key": "mpbEmptyMeetingId",
+   "value": ""
+  }
+ ]
+}

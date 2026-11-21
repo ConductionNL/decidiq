@@ -1,0 +1,1169 @@
+{
+    "no-meeting": {
+        "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+        "message": "No linked Meeting found for Minutes \"min-1\". Please link a Meeting before generating a draft.",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            }
+        ]
+    },
+    "empty-meeting-id": {
+        "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+        "message": "No linked Meeting found for Minutes \"min-1\". Please link a Meeting before generating a draft.",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            }
+        ]
+    },
+    "paged": {
+        "returns": "draft",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 100
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "voting-round",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "warning": "Decidiq: Failed to fetch related objects for minutes draft",
+                "context": {
+                    "schema": "voting-round",
+                    "meetingId": "mt-m-1",
+                    "offset": 0,
+                    "exception": "page down"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "mt-m-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "render": {
+                    "minutes": {
+                        "title": "Raad",
+                        "meeting": "m-1"
+                    },
+                    "parts": {
+                        "meeting": {
+                            "id": "mt-m-1",
+                            "title": "Fetched"
+                        },
+                        "agendaItems": [
+                            "ai-x#0",
+                            "ai-y#-",
+                            "ai-0#1",
+                            "ai-73#2",
+                            "ai-46#3",
+                            "ai-19#4",
+                            "ai-92#5",
+                            "ai-65#6",
+                            "ai-38#7",
+                            "ai-11#8",
+                            "ai-84#9",
+                            "ai-57#10",
+                            "ai-30#11",
+                            "ai-3#12",
+                            "ai-76#13",
+                            "ai-49#14",
+                            "ai-22#15",
+                            "ai-95#16",
+                            "ai-68#17",
+                            "ai-41#18",
+                            "ai-14#19",
+                            "ai-87#20",
+                            "ai-60#21",
+                            "ai-33#22",
+                            "ai-6#23",
+                            "ai-79#24",
+                            "ai-52#25",
+                            "ai-25#26",
+                            "ai-98#27",
+                            "ai-71#28",
+                            "ai-44#29",
+                            "ai-17#30",
+                            "ai-90#31",
+                            "ai-63#32",
+                            "ai-36#33",
+                            "ai-9#34",
+                            "ai-82#35",
+                            "ai-55#36",
+                            "ai-28#37",
+                            "ai-1#38",
+                            "ai-74#39",
+                            "ai-47#40",
+                            "ai-20#41",
+                            "ai-93#42",
+                            "ai-66#43",
+                            "ai-39#44",
+                            "ai-12#45",
+                            "ai-85#46",
+                            "ai-58#47",
+                            "ai-31#48",
+                            "ai-4#49",
+                            "ai-77#50",
+                            "ai-50#51",
+                            "ai-23#52",
+                            "ai-96#53",
+                            "ai-69#54",
+                            "ai-42#55",
+                            "ai-15#56",
+                            "ai-88#57",
+                            "ai-61#58",
+                            "ai-34#59",
+                            "ai-7#60",
+                            "ai-80#61",
+                            "ai-53#62",
+                            "ai-26#63",
+                            "ai-99#64",
+                            "ai-72#65",
+                            "ai-45#66",
+                            "ai-18#67",
+                            "ai-91#68",
+                            "ai-64#69",
+                            "ai-37#70",
+                            "ai-10#71",
+                            "ai-83#72",
+                            "ai-56#73",
+                            "ai-29#74",
+                            "ai-2#75",
+                            "ai-75#76",
+                            "ai-48#77",
+                            "ai-21#78",
+                            "ai-94#79",
+                            "ai-67#80",
+                            "ai-40#81",
+                            "ai-13#82",
+                            "ai-86#83",
+                            "ai-59#84",
+                            "ai-32#85",
+                            "ai-5#86",
+                            "ai-78#87",
+                            "ai-51#88",
+                            "ai-24#89",
+                            "ai-97#90",
+                            "ai-70#91",
+                            "ai-43#92",
+                            "ai-16#93",
+                            "ai-89#94",
+                            "ai-62#95",
+                            "ai-35#96",
+                            "ai-8#97",
+                            "ai-81#98",
+                            "ai-54#99",
+                            "ai-27#100"
+                        ],
+                        "motions": [
+                            "d-1#-"
+                        ],
+                        "votingRounds": [],
+                        "decisions": [
+                            "d-1#-",
+                            "d-2#4"
+                        ],
+                        "attendance": []
+                    }
+                }
+            }
+        ]
+    },
+    "array-row": {
+        "throws": "TypeError",
+        "message": "method_exists(): Argument #1 ($object_or_class) must be of type object|string, array given",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            }
+        ]
+    },
+    "second-page-fails": {
+        "returns": "draft",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 100
+                    }
+                }
+            },
+            {
+                "warning": "Decidiq: Failed to fetch related objects for minutes draft",
+                "context": {
+                    "schema": "agenda-item",
+                    "meetingId": "mt-m-1",
+                    "offset": 100,
+                    "exception": "page down"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "voting-round",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "mt-m-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "render": {
+                    "minutes": {
+                        "title": "Raad",
+                        "meeting": "m-1"
+                    },
+                    "parts": {
+                        "meeting": {
+                            "id": "mt-m-1",
+                            "title": "Fetched"
+                        },
+                        "agendaItems": [
+                            "ai-0#1",
+                            "ai-73#2",
+                            "ai-46#3",
+                            "ai-19#4",
+                            "ai-92#5",
+                            "ai-65#6",
+                            "ai-38#7",
+                            "ai-11#8",
+                            "ai-84#9",
+                            "ai-57#10",
+                            "ai-30#11",
+                            "ai-3#12",
+                            "ai-76#13",
+                            "ai-49#14",
+                            "ai-22#15",
+                            "ai-95#16",
+                            "ai-68#17",
+                            "ai-41#18",
+                            "ai-14#19",
+                            "ai-87#20",
+                            "ai-60#21",
+                            "ai-33#22",
+                            "ai-6#23",
+                            "ai-79#24",
+                            "ai-52#25",
+                            "ai-25#26",
+                            "ai-98#27",
+                            "ai-71#28",
+                            "ai-44#29",
+                            "ai-17#30",
+                            "ai-90#31",
+                            "ai-63#32",
+                            "ai-36#33",
+                            "ai-9#34",
+                            "ai-82#35",
+                            "ai-55#36",
+                            "ai-28#37",
+                            "ai-1#38",
+                            "ai-74#39",
+                            "ai-47#40",
+                            "ai-20#41",
+                            "ai-93#42",
+                            "ai-66#43",
+                            "ai-39#44",
+                            "ai-12#45",
+                            "ai-85#46",
+                            "ai-58#47",
+                            "ai-31#48",
+                            "ai-4#49",
+                            "ai-77#50",
+                            "ai-50#51",
+                            "ai-23#52",
+                            "ai-96#53",
+                            "ai-69#54",
+                            "ai-42#55",
+                            "ai-15#56",
+                            "ai-88#57",
+                            "ai-61#58",
+                            "ai-34#59",
+                            "ai-7#60",
+                            "ai-80#61",
+                            "ai-53#62",
+                            "ai-26#63",
+                            "ai-99#64",
+                            "ai-72#65",
+                            "ai-45#66",
+                            "ai-18#67",
+                            "ai-91#68",
+                            "ai-64#69",
+                            "ai-37#70",
+                            "ai-10#71",
+                            "ai-83#72",
+                            "ai-56#73",
+                            "ai-29#74",
+                            "ai-2#75",
+                            "ai-75#76",
+                            "ai-48#77",
+                            "ai-21#78",
+                            "ai-94#79",
+                            "ai-67#80",
+                            "ai-40#81",
+                            "ai-13#82",
+                            "ai-86#83",
+                            "ai-59#84",
+                            "ai-32#85",
+                            "ai-5#86",
+                            "ai-78#87",
+                            "ai-51#88",
+                            "ai-24#89",
+                            "ai-97#90",
+                            "ai-70#91",
+                            "ai-43#92",
+                            "ai-16#93",
+                            "ai-89#94",
+                            "ai-62#95",
+                            "ai-35#96",
+                            "ai-8#97",
+                            "ai-81#98",
+                            "ai-54#99",
+                            "ai-27#100"
+                        ],
+                        "motions": [],
+                        "votingRounds": [
+                            "v-1#-"
+                        ],
+                        "decisions": [],
+                        "attendance": []
+                    }
+                }
+            }
+        ]
+    },
+    "attendance": {
+        "returns": "draft",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "voting-round",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "mt-m-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "participant"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "render": {
+                    "minutes": {
+                        "title": "Raad",
+                        "meeting": "m-1"
+                    },
+                    "parts": {
+                        "meeting": {
+                            "id": "mt-m-1",
+                            "title": "Fetched"
+                        },
+                        "agendaItems": [],
+                        "motions": [],
+                        "votingRounds": [],
+                        "decisions": [],
+                        "attendance": [
+                            {
+                                "name": "Anna",
+                                "status": "present"
+                            },
+                            {
+                                "name": "p-2",
+                                "status": "absent"
+                            },
+                            {
+                                "name": "p-3",
+                                "status": "present"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "attendance-names-fail": {
+        "returns": "draft",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "voting-round",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "mt-m-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "participant"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "render": {
+                    "minutes": {
+                        "title": "Raad",
+                        "meeting": "m-1"
+                    },
+                    "parts": {
+                        "meeting": {
+                            "id": "mt-m-1",
+                            "title": "Fetched"
+                        },
+                        "agendaItems": [],
+                        "motions": [],
+                        "votingRounds": [],
+                        "decisions": [],
+                        "attendance": [
+                            {
+                                "name": "p-1",
+                                "status": "present"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "attendance-none": {
+        "returns": "draft",
+        "calls": [
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "minutes"
+                }
+            },
+            {
+                "find": {
+                    "id": "min-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "decisionType": "motion",
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "voting-round",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "setRegister": {
+                    "register": "decidiq"
+                }
+            },
+            {
+                "setSchema": {
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "decision",
+                            "_relations.meeting": "mt-m-1"
+                        },
+                        "limit": 100,
+                        "offset": 0
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "mt-m-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "render": {
+                    "minutes": {
+                        "title": "Raad",
+                        "meeting": "m-1"
+                    },
+                    "parts": {
+                        "meeting": {
+                            "id": "mt-m-1",
+                            "title": "Fetched"
+                        },
+                        "agendaItems": [],
+                        "motions": [],
+                        "votingRounds": [],
+                        "decisions": [],
+                        "attendance": []
+                    }
+                }
+            }
+        ]
+    }
+}

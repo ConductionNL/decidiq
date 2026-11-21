@@ -7,7 +7,7 @@
       "Goal": {
         "slug": "goal",
         "icon": "TargetVariant",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Goal",
         "description": "An organisation goal (quality objective, ISO 9001 §6.2): a measurable, owned, deadlined objective set at a governance body's level (council, board, department, commission, via GovernanceBody.bodyType), monitored via a declarative progress rollup from linked Toezegging commitments and ActionItem tasks, and optionally cascaded from a parent Goal (single-level only, see parentGoal). Goal is the target end of the accountability chain that Toezegging and ActionItem already track day-to-day (organisation-goals REQ-001).",
         "type": "object",
@@ -199,14 +199,14 @@
         "x-openregister-aggregations": {
           "linkedCommitmentCount": {
             "metric": "count",
-            "schema": "Toezegging",
+            "schema": "Commitment",
             "filter": {
               "goal": "@self.id"
             }
           },
           "settledCommitmentCount": {
             "metric": "count",
-            "schema": "Toezegging",
+            "schema": "Commitment",
             "filter": {
               "goal": "@self.id",
               "lifecycle": "disposed"
@@ -242,19 +242,33 @@
               "parentGoal": "@self.id",
               "status": "achieved"
             }
+          },
+          "linkedPlannedAgendaItemCount": {
+            "metric": "count",
+            "schema": "PlannedAgendaItem",
+            "filter": {
+              "goal": "@self.id"
+            }
+          },
+          "linkedDecisionCount": {
+            "metric": "count",
+            "schema": "Decision",
+            "filter": {
+              "goal": "@self.id"
+            }
           }
         },
         "x-openregister-aggregate-refs": {
           "linkedCommitmentCount": {
             "metric": "count",
-            "schema": "toezegging",
+            "schema": "governance-commitment",
             "filters": {
               "goal": "@self.id"
             }
           },
           "settledCommitmentCount": {
             "metric": "count",
-            "schema": "toezegging",
+            "schema": "governance-commitment",
             "filters": {
               "goal": "@self.id",
               "lifecycle": "disposed"
@@ -289,6 +303,20 @@
             "filters": {
               "parentGoal": "@self.id",
               "status": "achieved"
+            }
+          },
+          "linkedPlannedAgendaItemCount": {
+            "metric": "count",
+            "schema": "planned-agenda-item",
+            "filters": {
+              "goal": "@self.id"
+            }
+          },
+          "linkedDecisionCount": {
+            "metric": "count",
+            "schema": "decision",
+            "filters": {
+              "goal": "@self.id"
             }
           }
         },

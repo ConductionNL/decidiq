@@ -1,0 +1,20 @@
+{
+	"_note": "agenda-incoming-documents-list (age-13): an agenda item type says whether its items are incoming documents. The meeting's Incoming documents widget and the Incoming documents page read agenda items of a flagged type, instead of the retired raadsinformatiebrief and ingekomen-stuk schemas.",
+	"_spec": "openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md",
+	"components": {
+		"schemas": {
+			"AgendaItemType": {
+				"slug": "agenda-item-type",
+				"version": "0.3.0",
+				"properties": {
+					"incomingDocument": {
+						"title": "Incoming document",
+						"type": "boolean",
+						"description": "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.",
+						"default": false
+					}
+				}
+			}
+		}
+	}
+}

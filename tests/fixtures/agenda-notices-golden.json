@@ -1,0 +1,3052 @@
+{
+    "gone": {
+        "publish": {
+            "throws": "InvalidArgumentException",
+            "message": "Cannot publish agenda: no agenda items exist for this meeting.",
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "gone"
+                        }
+                    }
+                }
+            ]
+        },
+        "revise": {
+            "throws": "OCA\\Decidiq\\Exception\\NotFoundException",
+            "message": "Meeting gone not found",
+            "calls": [
+                {
+                    "find": {
+                        "id": "gone",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "gone",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "gone"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "item-2",
+                            "meetingId": "gone"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "gone"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "item-1",
+                            "meetingId": "gone"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "uuid-4",
+                            "meetingId": "gone"
+                        }
+                    ]
+                },
+                {
+                    "find": {
+                        "id": "gone",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "gone"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 0,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "gone"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 0,
+                            "meetingId": "gone"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "no-items": {
+        "publish": {
+            "throws": "InvalidArgumentException",
+            "message": "Cannot publish agenda: no agenda items exist for this meeting.",
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "no-items"
+                        }
+                    }
+                }
+            ]
+        },
+        "revise": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "no-items",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaUnderRevision": true
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "no-items"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda opened for revision for meeting {meetingId}",
+                        {
+                            "meetingId": "no-items"
+                        }
+                    ]
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "no-items",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "no-items"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "item-2",
+                            "meetingId": "no-items"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "no-items"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "item-1",
+                            "meetingId": "no-items"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "uuid-4",
+                            "meetingId": "no-items"
+                        }
+                    ]
+                },
+                {
+                    "find": {
+                        "id": "no-items",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "no-items"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 0,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "no-items"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 0,
+                            "meetingId": "no-items"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "first": {
+        "publish": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "first"
+                        }
+                    }
+                },
+                {
+                    "find": {
+                        "id": "first",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 1,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "agendaUnderRevision": false,
+                            "convocationSentAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "first"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "The agenda of %s was published",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "When: %s",
+                        [
+                            "2026-10-08 19:30"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Where: %s",
+                        [
+                            "Raadzaal"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Agenda:",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "first"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/first",
+                        "inApp": {
+                            "subject": "agenda_published",
+                            "parameters": {
+                                "meetingId": "first",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "first"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:first@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/first",
+                        "inApp": {
+                            "subject": "agenda_published",
+                            "parameters": {
+                                "meetingId": "first",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "first"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:first@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/first",
+                        "inApp": {
+                            "subject": "agenda_published",
+                            "parameters": {
+                                "meetingId": "first",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "first"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:first@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaPublished": {
+                        "meetingId": "first",
+                        "meeting": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal"
+                        },
+                        "revised": false
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda published for meeting {meetingId}",
+                        {
+                            "meetingId": "first"
+                        }
+                    ]
+                }
+            ]
+        },
+        "revise": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "first",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaUnderRevision": true
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "first"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda opened for revision for meeting {meetingId}",
+                        {
+                            "meetingId": "first"
+                        }
+                    ]
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "first",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "first"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "orderNumber": 1
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "first"
+                        }
+                    ]
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-1",
+                        "data": {
+                            "orderNumber": 2
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "orderNumber": 3
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "first",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "first"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 2,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "first"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 2,
+                            "meetingId": "first"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "untitled": {
+        "publish": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "untitled"
+                        }
+                    }
+                },
+                {
+                    "find": {
+                        "id": "untitled",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 3,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "version": 3,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>"
+                            },
+                            "agendaUnderRevision": false
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "untitled"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "this meeting",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "A revised agenda of %s was published",
+                        [
+                            "[this meeting]"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "Agenda:",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "untitled"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of [this meeting] was published]",
+                        "message": "\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:untitled@decidiq\r\nDTSTAMP:<stamp>\r\nSUMMARY:\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of [this meeting] was published]",
+                        "message": "\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:untitled@decidiq\r\nDTSTAMP:<stamp>\r\nSUMMARY:\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of [this meeting] was published]",
+                        "message": "\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:untitled@decidiq\r\nDTSTAMP:<stamp>\r\nSUMMARY:\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaPublished": {
+                        "meetingId": "untitled",
+                        "meeting": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 2,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>"
+                            }
+                        },
+                        "revised": true
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda published for meeting {meetingId}",
+                        {
+                            "meetingId": "untitled"
+                        }
+                    ]
+                }
+            ]
+        },
+        "revise": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "untitled",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 2,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>"
+                            },
+                            "agendaUnderRevision": true
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "untitled"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "this meeting",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "The agenda of %s is being revised",
+                        [
+                            "[this meeting]"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "untitled"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda opened for revision for meeting {meetingId}",
+                        {
+                            "meetingId": "untitled"
+                        }
+                    ]
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "untitled",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "untitled"
+                        }
+                    }
+                },
+                {
+                    "participants": "untitled"
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 3,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "version": 3,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>",
+                                "dora": "<date>"
+                            }
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "untitled"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "this meeting",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "The agenda of %s changed",
+                        [
+                            "[this meeting]"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaChanged": {
+                        "meetingId": "untitled",
+                        "meeting": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 2,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>"
+                            }
+                        },
+                        "versions": [
+                            {
+                                "version": 1,
+                                "items": []
+                            },
+                            {
+                                "version": 2,
+                                "items": [
+                                    {
+                                        "id": "item-1"
+                                    }
+                                ]
+                            },
+                            {
+                                "version": 3,
+                                "publishedAt": "<date>",
+                                "items": [
+                                    {
+                                        "id": "item-1",
+                                        "title": "Opening",
+                                        "orderNumber": 1
+                                    },
+                                    {
+                                        "id": "item-2",
+                                        "title": "Notulen",
+                                        "orderNumber": 2
+                                    },
+                                    {
+                                        "id": "item-3",
+                                        "title": "Begroting",
+                                        "orderNumber": 3
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "Ingekomen stukken",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "No id",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "item-6",
+                                        "title": "",
+                                        "orderNumber": 6
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "untitled"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "orderNumber": 1
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "untitled"
+                        }
+                    ]
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-1",
+                        "data": {
+                            "orderNumber": 2
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "orderNumber": 3
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "untitled",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "untitled"
+                        }
+                    }
+                },
+                {
+                    "participants": "untitled"
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 3,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "version": 3,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>",
+                                "dora": "<date>"
+                            }
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "untitled"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "this meeting",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "The agenda of %s changed",
+                        [
+                            "[this meeting]"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of [this meeting] changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/untitled",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "untitled",
+                                "meetingTitle": ""
+                            },
+                            "objectType": "meeting",
+                            "objectId": "untitled"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaChanged": {
+                        "meetingId": "untitled",
+                        "meeting": {
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 2,
+                            "agendaVersions": [
+                                {
+                                    "version": 1,
+                                    "items": []
+                                },
+                                {
+                                    "version": 2,
+                                    "items": [
+                                        {
+                                            "id": "item-1"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>",
+                            "agendaNoticeSentAt": {
+                                "anna": "<date>",
+                                "cees": "<date>"
+                            }
+                        },
+                        "versions": [
+                            {
+                                "version": 1,
+                                "items": []
+                            },
+                            {
+                                "version": 2,
+                                "items": [
+                                    {
+                                        "id": "item-1"
+                                    }
+                                ]
+                            },
+                            {
+                                "version": 3,
+                                "publishedAt": "<date>",
+                                "items": [
+                                    {
+                                        "id": "item-1",
+                                        "title": "Opening",
+                                        "orderNumber": 1
+                                    },
+                                    {
+                                        "id": "item-2",
+                                        "title": "Notulen",
+                                        "orderNumber": 2
+                                    },
+                                    {
+                                        "id": "item-3",
+                                        "title": "Begroting",
+                                        "orderNumber": 3
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "Ingekomen stukken",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "No id",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "item-6",
+                                        "title": "",
+                                        "orderNumber": 6
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "untitled"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 2,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "untitled"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 2,
+                            "meetingId": "untitled"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "revising": {
+        "publish": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "revising"
+                        }
+                    }
+                },
+                {
+                    "find": {
+                        "id": "revising",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 2,
+                            "agendaUnderRevision": false,
+                            "agendaVersions": [
+                                {
+                                    "version": 2,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "convocationSentAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "revising"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "A revised agenda of %s was published",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "When: %s",
+                        [
+                            "2026-10-08 19:30"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Where: %s",
+                        [
+                            "Raadzaal"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Agenda:",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "revising"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:revising@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:revising@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:revising@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaPublished": {
+                        "meetingId": "revising",
+                        "meeting": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 1,
+                            "agendaUnderRevision": true
+                        },
+                        "revised": true
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda published for meeting {meetingId}",
+                        {
+                            "meetingId": "revising"
+                        }
+                    ]
+                }
+            ]
+        },
+        "revise": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "revising",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 1,
+                            "agendaUnderRevision": true
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "revising"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "The agenda of %s is being revised",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "revising"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/revising",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "revising",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "revising"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda opened for revision for meeting {meetingId}",
+                        {
+                            "meetingId": "revising"
+                        }
+                    ]
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "revising",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "revising"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "orderNumber": 1
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "revising"
+                        }
+                    ]
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-1",
+                        "data": {
+                            "orderNumber": 2
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "orderNumber": 3
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "revising",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "revising"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 2,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "revising"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 2,
+                            "meetingId": "revising"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "bad-history": {
+        "publish": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "find": {
+                        "id": "bad-history",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 4,
+                            "agendaVersions": [
+                                {
+                                    "version": 4,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "agendaNoticeSentAt": "x",
+                            "agendaUnderRevision": false,
+                            "convocationSentAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "bad-history"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "A revised agenda of %s was published",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "When: %s",
+                        [
+                            "2026-10-08 19:30"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Where: %s",
+                        [
+                            "Raadzaal"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Agenda:",
+                        []
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "bad-history"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:bad-history@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:bad-history@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[A revised agenda of Raad was published]",
+                        "message": "[When: 2026-10-08 19:30]\n[Where: Raadzaal]\n\n[Agenda:]\n1. Opening\n2. Notulen\n3. Begroting\n4. \n5. Ingekomen stukken\n6. No id\n\n[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revised",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        },
+                        "attachments": [
+                            {
+                                "data": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Conduction//Decidiq//NL\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:bad-history@decidiq\r\nDTSTAMP:<stamp>\r\nDTSTART:<stamp>\r\nDTEND:<stamp>\r\nSUMMARY:Raad\r\nLOCATION:Raadzaal\r\nDESCRIPTION:1. Opening\\n2. Notulen\\n3. Begroting\\n4. \\n5. Ingekomen stukken\r\n \\n6. No id\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+                                "filename": "meeting.ics",
+                                "contentType": "text/calendar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaPublished": {
+                        "meetingId": "bad-history",
+                        "meeting": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": "3",
+                            "agendaVersions": "x",
+                            "agendaNoticeSentAt": "x"
+                        },
+                        "revised": true
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda published for meeting {meetingId}",
+                        {
+                            "meetingId": "bad-history"
+                        }
+                    ]
+                }
+            ]
+        },
+        "revise": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "bad-history",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": "3",
+                            "agendaVersions": "x",
+                            "agendaNoticeSentAt": "x",
+                            "agendaUnderRevision": true
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "bad-history"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "The agenda of %s is being revised",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "participants": "bad-history"
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad is being revised]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_revision_started",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "log": [
+                        "info",
+                        "Agenda opened for revision for meeting {meetingId}",
+                        {
+                            "meetingId": "bad-history"
+                        }
+                    ]
+                }
+            ]
+        },
+        "changed": {
+            "returns": null,
+            "calls": [
+                {
+                    "find": {
+                        "id": "bad-history",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "participants": "bad-history"
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 4,
+                            "agendaVersions": [
+                                {
+                                    "version": 4,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "agendaNoticeSentAt": {
+                                "0": "x",
+                                "anna": "<date>",
+                                "cees": "<date>",
+                                "dora": "<date>"
+                            }
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "bad-history"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "The agenda of %s changed",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaChanged": {
+                        "meetingId": "bad-history",
+                        "meeting": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": "3",
+                            "agendaVersions": "x",
+                            "agendaNoticeSentAt": "x"
+                        },
+                        "versions": [
+                            {
+                                "version": 4,
+                                "publishedAt": "<date>",
+                                "items": [
+                                    {
+                                        "id": "item-1",
+                                        "title": "Opening",
+                                        "orderNumber": 1
+                                    },
+                                    {
+                                        "id": "item-2",
+                                        "title": "Notulen",
+                                        "orderNumber": 2
+                                    },
+                                    {
+                                        "id": "item-3",
+                                        "title": "Begroting",
+                                        "orderNumber": 3
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "Ingekomen stukken",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "No id",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "item-6",
+                                        "title": "",
+                                        "orderNumber": 6
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "reorder": {
+            "returns": null,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "orderNumber": 1
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped",
+                        {
+                            "id": "foreign",
+                            "meetingId": "bad-history"
+                        }
+                    ]
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-1",
+                        "data": {
+                            "orderNumber": 2
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "orderNumber": 3
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "bad-history",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "participants": "bad-history"
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": 4,
+                            "agendaVersions": [
+                                {
+                                    "version": 4,
+                                    "publishedAt": "<date>",
+                                    "items": [
+                                        {
+                                            "id": "item-1",
+                                            "title": "Opening",
+                                            "orderNumber": 1
+                                        },
+                                        {
+                                            "id": "item-2",
+                                            "title": "Notulen",
+                                            "orderNumber": 2
+                                        },
+                                        {
+                                            "id": "item-3",
+                                            "title": "Begroting",
+                                            "orderNumber": 3
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "Ingekomen stukken",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "",
+                                            "title": "No id",
+                                            "orderNumber": null
+                                        },
+                                        {
+                                            "id": "item-6",
+                                            "title": "",
+                                            "orderNumber": 6
+                                        }
+                                    ]
+                                }
+                            ],
+                            "agendaNoticeSentAt": {
+                                "0": "x",
+                                "anna": "<date>",
+                                "cees": "<date>",
+                                "dora": "<date>"
+                            }
+                        },
+                        "register": "decidiq",
+                        "schema": "meeting",
+                        "uuid": "bad-history"
+                    }
+                },
+                {
+                    "l10n": "decidiq"
+                },
+                {
+                    "t": [
+                        "The agenda of %s changed",
+                        [
+                            "Raad"
+                        ]
+                    ]
+                },
+                {
+                    "t": [
+                        "Open the meeting in Decidiq to see the agenda.",
+                        []
+                    ]
+                },
+                {
+                    "dispatch": {
+                        "personId": "anna",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "cees",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "dispatch": {
+                        "personId": "dora",
+                        "eventType": "agendaChanged",
+                        "title": "[The agenda of Raad changed]",
+                        "message": "[Open the meeting in Decidiq to see the agenda.]",
+                        "deepLink": "/meetings/bad-history",
+                        "inApp": {
+                            "subject": "agenda_changed",
+                            "parameters": {
+                                "meetingId": "bad-history",
+                                "meetingTitle": "Raad"
+                            },
+                            "objectType": "meeting",
+                            "objectId": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "log": [
+                        "warning",
+                        "Failed to send agenda notification to user {userId}: {error}",
+                        {
+                            "userId": "dora",
+                            "error": "mail down"
+                        }
+                    ]
+                },
+                {
+                    "agendaChanged": {
+                        "meetingId": "bad-history",
+                        "meeting": {
+                            "title": "Raad",
+                            "scheduledDate": "<date>",
+                            "endDate": "<date>",
+                            "location": "Raadzaal",
+                            "agendaPublishedAt": "<date>",
+                            "agendaVersion": "3",
+                            "agendaVersions": "x",
+                            "agendaNoticeSentAt": "x"
+                        },
+                        "versions": [
+                            {
+                                "version": 4,
+                                "publishedAt": "<date>",
+                                "items": [
+                                    {
+                                        "id": "item-1",
+                                        "title": "Opening",
+                                        "orderNumber": 1
+                                    },
+                                    {
+                                        "id": "item-2",
+                                        "title": "Notulen",
+                                        "orderNumber": 2
+                                    },
+                                    {
+                                        "id": "item-3",
+                                        "title": "Begroting",
+                                        "orderNumber": 3
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "Ingekomen stukken",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "title": "No id",
+                                        "orderNumber": null
+                                    },
+                                    {
+                                        "id": "item-6",
+                                        "title": "",
+                                        "orderNumber": 6
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Reordered {count} agenda items for meeting {meetingId}",
+                        {
+                            "count": 4,
+                            "meetingId": "bad-history"
+                        }
+                    ]
+                }
+            ]
+        },
+        "formalities": {
+            "returns": 2,
+            "calls": [
+                {
+                    "findAll": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "agenda-item",
+                            "_relations.meeting": "bad-history"
+                        }
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "item-2",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "patchObject": {
+                        "objectId": "uuid-4",
+                        "data": {
+                            "formalityOutcome": "adopted-without-debate",
+                            "adoptedAt": "<date>"
+                        },
+                        "register": "decidiq",
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "log": [
+                        "info",
+                        "Adopted {count} formalities for meeting {meetingId}",
+                        {
+                            "count": 2,
+                            "meetingId": "bad-history"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

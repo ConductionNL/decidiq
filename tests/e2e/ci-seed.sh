@@ -169,6 +169,30 @@ if [ -f ./occ ]; then
 		exit 1
 	fi
 
+	# ── 0a. THE SUITE RUNS AGAINST THE FULL STRUCTURE ────────────────────────
+	#
+	# decidiq ships two structures from one manifest (simple-structure-profile).
+	# `simple` is the default: eight menu entries. The specs here were written
+	# against the full menu and reach pages through it (the entries nested
+	# under Decisions, Tasks & Commitments, Organisation and Registers), so the
+	# CI instance is put on `full`, the same switch an administrator has.
+	# `simple-structure-menu.spec.ts` turns the setting to `simple` for its own
+	# run and puts back what it found.
+	#
+	# Only here, never in global-setup: this script runs on a throwaway CI
+	# instance, and global-setup also runs against a shared instance people use.
+	if ! php ./occ config:app:set decidiq menu_structure --value=full >/dev/null; then
+		echo "::error::could not set decidiq menu_structure=full. The suite would run against the simple menu, and every spec that walks the full navigation would fail naming a missing entry rather than this step."
+		exit 1
+	fi
+	MENU_VALUE="$(php ./occ config:app:get decidiq menu_structure 2>/dev/null \
+		| grep -v '^[[:space:]]*$' | tail -1 | tr -d '[:space:]' || true)"
+	echo "[ci-seed] decidiq menu_structure -> '${MENU_VALUE}'"
+	if [ "$MENU_VALUE" != "full" ]; then
+		echo "::error::decidiq menu_structure reads '${MENU_VALUE}' after being set to full."
+		exit 1
+	fi
+
 	# ── 0a-bis. A VTODO-CAPABLE CALENDAR MUST EXIST FOR THE ACTING USER ──────
 	#
 	# Action items ARE CalDAV VTODOs (ADR-002): ActionItemWriter hands the write
@@ -588,6 +612,36 @@ print(o.get("id") or (o.get("@self") or {}).get("id") or o.get("uuid") or "")
 	echo "$id"
 }
 
+# Walk a seeded object through its declared lifecycle, one PATCH per edge.
+#   walk_lifecycle <schema-slug> <uuid> <label> <state>...
+#
+# OpenRegister starts every object whose schema declares
+# `x-openregister-lifecycle.initial` in that state and refuses a create naming
+# any other one (422 "A new object starts in \"draft\""), so a fixture that
+# needs a later state is created in `initial` and moved along the transition map.
+walk_lifecycle() {
+	local slug="$1" id="$2" label="$3"
+	shift 3
+	local state out code
+	for state in "$@"; do
+		out="$(mktemp)"
+		code="$(curl -sS -o "$out" -w '%{http_code}' \
+			-u "${USER_NAME}:${USER_PASS}" \
+			-X PATCH \
+			-H 'Content-Type: application/json' \
+			-H 'OCS-APIRequest: true' \
+			--data "{\"lifecycle\":\"${state}\"}" \
+			"${BASE}/index.php/apps/openregister/api/objects/decidiq/${slug}/${id}" || echo 000)"
+		if [ "$code" -lt 200 ] 2>/dev/null || [ "$code" -ge 300 ] 2>/dev/null; then
+			{
+				echo "::error::Moving ${label} (schema '${slug}') to lifecycle '${state}' failed with HTTP ${code}."
+				echo "::error::Response: $(head -c 800 "$out")"
+			} >&2
+			exit 1
+		fi
+	done
+}
+
 EXISTING_BODY="$(curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 	"${BASE}/index.php/apps/openregister/api/objects/decidiq/governance-body?_limit=100" 2>/dev/null \
 	| python3 -c '
@@ -663,18 +717,21 @@ else
 	# mistakes were in the first version of this seed and together took the whole
 	# step down.
 	MOTION_ID="$(seed_object decision \
-		"{\"decisionType\":\"motion\",\"title\":\"${SEED_TAG} Motie duurzame energie\",\"text\":\"De raad draagt het college op te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:30:00Z\",\"outcome\":\"adopted\",\"motionType\":\"motion\",\"proposer\":\"${SEED_TAG} Chair (admin)\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:00:00Z\"}" \
+		"{\"decisionType\":\"motion\",\"title\":\"${SEED_TAG} Motie duurzame energie\",\"text\":\"De raad draagt het college op te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:30:00Z\",\"outcome\":\"adopted\",\"motionType\":\"motion\",\"proposer\":\"${SEED_TAG} Chair (admin)\",\"lifecycle\":\"draft\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:00:00Z\"}" \
 		'the motion Decision')"
+	walk_lifecycle decision "$MOTION_ID" 'the motion Decision' proposed
 	echo "[ci-seed]   decision (motion) ${MOTION_ID}"
 
 	AMENDMENT_ID="$(seed_object decision \
-		"{\"decisionType\":\"amendment\",\"title\":\"${SEED_TAG} Amendement op de motie\",\"text\":\"Vervang versnellen door onmiddellijk versnellen.\",\"proposedText\":\"De raad draagt het college op onmiddellijk te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:35:00Z\",\"outcome\":\"rejected\",\"motionType\":\"amendment\",\"proposer\":\"${SEED_TAG} Member\",\"lifecycle\":\"proposed\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:05:00Z\",\"amends\":\"${MOTION_ID}\"}" \
+		"{\"decisionType\":\"amendment\",\"title\":\"${SEED_TAG} Amendement op de motie\",\"text\":\"Vervang versnellen door onmiddellijk versnellen.\",\"proposedText\":\"De raad draagt het college op onmiddellijk te versnellen op duurzame energie.\",\"decisionDate\":\"2026-01-15T19:35:00Z\",\"outcome\":\"rejected\",\"motionType\":\"amendment\",\"proposer\":\"${SEED_TAG} Member\",\"lifecycle\":\"draft\",\"isPublished\":\"public\",\"submittedAt\":\"2026-01-15T19:05:00Z\",\"amends\":\"${MOTION_ID}\"}" \
 		'the amendment Decision')"
+	walk_lifecycle decision "$AMENDMENT_ID" 'the amendment Decision' proposed
 	echo "[ci-seed]   decision (amendment) ${AMENDMENT_ID}"
 
 	DECISION_ID="$(seed_object decision \
-		"{\"decisionType\":\"meeting-outcome\",\"title\":\"${SEED_TAG} Vaststelling begroting 2026\",\"text\":\"De begroting 2026 wordt vastgesteld.\",\"decisionDate\":\"2026-01-15T20:00:00Z\",\"outcome\":\"adopted\",\"lifecycle\":\"enacted\",\"isPublished\":\"public\",\"enactedAt\":\"2026-01-15T20:05:00Z\"}" \
+		"{\"decisionType\":\"meeting-outcome\",\"title\":\"${SEED_TAG} Vaststelling begroting 2026\",\"text\":\"De begroting 2026 wordt vastgesteld.\",\"decisionDate\":\"2026-01-15T20:00:00Z\",\"outcome\":\"adopted\",\"lifecycle\":\"draft\",\"isPublished\":\"public\",\"enactedAt\":\"2026-01-15T20:05:00Z\"}" \
 		'the enacted Decision')"
+	walk_lifecycle decision "$DECISION_ID" 'the enacted Decision' proposed deliberating voting decided enacted
 	echo "[ci-seed]   decision (meeting-outcome, enacted) ${DECISION_ID}"
 
 	# lifecycle 'review' feeds the minutes-in-review stats-block on the dashboard.
@@ -719,15 +776,22 @@ else
 	# their own bodies by slug (`gemeenteraad-amsterdam`, `ledenraad-vng`,
 	# `raad-van-bestuur-acme-bv`), none of which exist here — a dangling
 	# reference would seed an object the Goals index cannot resolve or render.
-	# `owner` is dropped for the same reason: `femke-halsema` is not a user on
+	# `owner` is dropped for the same reason: `wieteke-doornbos` is not a user on
 	# this instance, and it is not a required field.
 	seed_goal() {
 		# $1 = title, $2 = description, $3 = horizon, $4 = startDate,
 		# $5 = deadline, $6 = status, $7 = extra JSON fields (may be empty)
-		local id
+		local id path=()
 		id="$(seed_object goal \
-			"{\"title\":\"$1\",\"description\":\"$2\",\"horizon\":\"$3\",\"body\":\"${BODY_ID}\",\"startDate\":\"$4\",\"deadline\":\"$5\",\"status\":\"$6\"$7}" \
+			"{\"title\":\"$1\",\"description\":\"$2\",\"horizon\":\"$3\",\"body\":\"${BODY_ID}\",\"startDate\":\"$4\",\"deadline\":\"$5\",\"status\":\"draft\"$7}" \
 			"the Goal \"$1\"")"
+		case "$6" in
+			active) path=(active) ;;
+			at-risk) path=(active at-risk) ;;
+		esac
+		if [ "${#path[@]}" -gt 0 ]; then
+			walk_lifecycle goal "$id" "the Goal \"$1\"" "${path[@]}"
+		fi
 		echo "[ci-seed]   goal ${id}  $1"
 	}
 
@@ -811,7 +875,7 @@ else
 	# which does not exist here, and a dangling reference would seed a document
 	# the detail page cannot resolve.
 	GOVERNING_DOC_ID="$(seed_object governing-document \
-		"{\"type\":\"by-law\",\"citationTitle\":\"Afvalstoffenverordening Amsterdam\",\"officialTitle\":\"Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam\",\"statutoryBasis\":[\"Gemeentewet art. 149\"],\"governingBody\":\"${BODY_ID}\",\"externalRegisterIdentifier\":\"CVDR641871\",\"currentVersionNumber\":2,\"currentEffectiveDate\":\"2025-06-01\",\"status\":\"in-effect\"}" \
+		"{\"type\":\"by-law\",\"citationTitle\":\"Afvalstoffenverordening Amsterdam\",\"officialTitle\":\"Verordening op de inzameling en verwerking van huishoudelijke afvalstoffen Amsterdam\",\"statutoryBasis\":[\"Gemeentewet art. 149\"],\"governingBody\":\"${BODY_ID}\",\"externalRegisterIdentifier\":\"CVDR641871\",\"currentVersionNumber\":2,\"currentEffectiveDate\":\"2025-06-01\",\"status\":\"in-force\"}" \
 		'the governing document "Afvalstoffenverordening Amsterdam"')"
 	echo "[ci-seed]   governing-document ${GOVERNING_DOC_ID}  Afvalstoffenverordening Amsterdam"
 
@@ -831,8 +895,13 @@ else
 	do
 		IFS='|' read -r v_num v_date v_status v_notes <<<"${versie}"
 		v_id="$(seed_object governing-document-versie \
-			"{\"document\":\"${GOVERNING_DOC_ID}\",\"versionNumber\":${v_num},\"effectiveDate\":\"${v_date}\",\"status\":\"${v_status}\",\"notes\":\"${v_notes}\"}" \
+			"{\"document\":\"${GOVERNING_DOC_ID}\",\"versionNumber\":${v_num},\"effectiveDate\":\"${v_date}\",\"status\":\"draft\",\"notes\":\"${v_notes}\"}" \
 			"governing-document version ${v_num}")"
+		if [ "${v_status}" = 'replaced' ]; then
+			walk_lifecycle governing-document-versie "$v_id" "governing-document version ${v_num}" adopted in-effect replaced
+		else
+			walk_lifecycle governing-document-versie "$v_id" "governing-document version ${v_num}" adopted in-effect
+		fi
 		echo "[ci-seed]   governing-document-versie ${v_id}  v${v_num} (${v_status})"
 	done
 
@@ -1051,11 +1120,9 @@ echo "[ci-seed] done."
 # treated it as one. Tolerance that cannot distinguish "this app has no such
 # step" from "this app renamed it" is not tolerance, it is blindness.
 #
-# `example_profile=none` rather than the skip action, because it closes BOTH
-# steps: status() reports `example-set.done` from `$picked !== ''` and
-# `load-example-set.done` from `$picked === NONE_PROFILE`. The skip action
-# writes only DEMO_DECIDED_KEY and would leave `example-set` open — still
-# enough wizard to mask every click.
+# `example_profile=none` closes the step: status() reports `example-set.done`
+# once a pick is stored. Since wizard-dataset-card-load the cards load
+# themselves, so there is no separate `load-example-set` step to close.
 # 🔴 `${BASE}`, NOT ITS OWN RESOLUTION. This line used to read
 # `${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}`, which ignores
 # PLAYWRIGHT_BASE_URL and falls back to the SHARED dev container — the exact
@@ -1086,7 +1153,7 @@ try:
     s = json.load(sys.stdin).get("steps", {})
 except Exception:
     sys.exit(1)
-sys.exit(0 if all(s.get(k, {}).get("done") for k in ("example-set", "load-example-set")) else 1)'; then
+sys.exit(0 if "example-set" in s and all(v.get("done") for v in s.values()) else 1)'; then
 	echo "[ci-seed] setup steps report done — the wizard will not mask the suite."
 else
 	echo "[ci-seed] ERROR: setup steps are NOT done after seeding." >&2

@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * Decidiq Save Guard Subscriptions
+ *
+ * The before-save (creating/updating) object listeners Decidiq subscribes,
+ * with the schema each one declares interest in. Kept apart from
+ * {@see ObjectListenerRegistrar} so the registrar does not accumulate a class
+ * reference for every guard it subscribes (PHPMD CouplingBetweenObjects).
+ *
+ * @category Listener
+ * @package  OCA\Decidiq\Listener\Registrar
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Listener\Registrar;
+
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
+use OCA\Decidiq\Listener\ApprovalRouteSavedListener;
+use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
+use OCA\Decidiq\Listener\LiftAfterRatificationGuard;
+use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
+use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
+use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
+use OCA\Decidiq\Listener\DecisionRemedyStampListener;
+use OCA\Decidiq\Listener\DecisionTermListener;
+use OCA\Decidiq\Listener\DeclaredGiftThresholdListener;
+use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\GoverningDocumentVersionGuardListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
+use OCA\Decidiq\Listener\MeetingDefaultsListener;
+use OCA\Decidiq\Listener\OndermandaatGuardListener;
+use OCA\Decidiq\Listener\ParallelSessionListener;
+use OCA\Decidiq\Listener\PlannedAgendaItemRulesGuardListener;
+use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
+use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\UrgencyFieldGuardListener;
+use OCA\OpenRegister\Event\ObjectCreatingEvent;
+use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\Decidiq\Service\OndermandaatGuardService;
+
+/**
+ * The before-save listener subscriptions.
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
+ */
+final class SaveGuardSubscriptions {
+
+	/**
+	 * Every before-save subscription as event, listener and schema slugs.
+	 *
+	 * Each declared schema is the handler's own literal schema guard, so the
+	 * declaration can never be narrower than the guard it fronts.
+	 *
+	 * @var list<array{event: string, listener: string, schemas: list<string>}>
+	 */
+	public const ALL = [
+		// Deciding body (insight-decisions-report-by-period-and-body,
+		// REQ-DRP-001): a decision saved with a meeting and no deciding body
+		// gets the meeting's governance body, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
+		// Submission deadline gate (motion-amendment spec). ADR-005 retired
+		// the `motion` and `amendment` schemas into `decision`; the
+		// motion/amendment narrowing happens inside the handler on the
+		// `decisionType` discriminator, which no subscription can express.
+		['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['decision']],
+		// Meeting defaults (meeting-rules-from-body-and-type, REQ-MRB-001):
+		// a new meeting takes the empty fields from its type, then its body.
+		['event' => ObjectCreatingEvent::class, 'listener' => MeetingDefaultsListener::class, 'schemas' => ['meeting']],
+		// Submission window sanity (motions-submission-window,
+		// REQ-SUBW-003): a meeting whose window opens after it closes is
+		// refused, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
+		// Parallel sessions (planning-parallel-sessions, REQ-PPS-001): a
+		// session stays inside its evening, is never nested, and a new one
+		// takes the evening's body, publicity and mode. After the meeting
+		// defaults, so a type's body is not overwritten by the evening's.
+		['event' => ObjectCreatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
+		// Ondermandaat chains (delegatie-mandaatregister, REQ-DMR-003): a
+		// toedeling's parent must exist and permit ondermandaat, and the
+		// chain may not loop, on create and on update. The schema is now
+		// authority-delegation; the old Dutch slug stays guarded too.
+		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
+		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => OndermandaatGuardService::SCHEMAS],
+		// Document details (platform-document-metadata-fields, REQ-DMF-002
+		// and REQ-DMF-004): a record keeps its type's required fields and
+		// one record describes one file, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Confidentiality term (confidentiality-term-and-lapse, REQ-EMB-020):
+		// a restriction's lift-by date is not before the day it was imposed,
+		// on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		// Lifting before ratification (embargo-geheimhouding, REQ-EMB-001): a
+		// restriction whose ground requires ratification is not lifted
+		// straight from imposed.
+		['event' => ObjectUpdatingEvent::class, 'listener' => LiftAfterRatificationGuard::class, 'schemas' => ['confidentiality-restriction']],
+		// Gift threshold (interests-and-integrity, REQ-INT-006): a declared
+		// gift is stamped above or below its body's threshold, on create and
+		// on update, so the integrity notification can filter on it.
+		['event' => ObjectCreatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
+		// Confidential agenda items (agenda-item-confidential-papers,
+		// REQ-ACP-003): a paper saved onto a non-public item is not public.
+		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
+		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
+		// a decision of a type is recorded only by the body the type names as
+		// competent, on create and on update.
+		// Governing-document versions (governing-documents-register, REQ-GDR-002/004):
+		// an amendment names its enacting decision, numbers are unique per
+		// document, and a version is put in effect only after the latest one.
+		['event' => ObjectCreatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Urgency fields (urgent-decision-procedure, REQ-001): written only by
+		// the guarded urgency declaration, carried forward on other edits.
+		['event' => ObjectCreatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
+		// Agenda placement waits for approval (routes-send-proposal-along-route,
+		// REQ-RSPR-001): a decision whose approval route has an open step is
+		// not placed on an agenda item.
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionAgendaClearanceGuard::class, 'schemas' => ['decision']],
+		// Planned-agenda rules (termijnagenda, REQ-LTA-001 and REQ-LTA-003):
+		// a portfolio holder as owner type names a person, and an item
+		// entering lapsed carries its reason, on create and on update.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
+		[
+			'event'    => ObjectUpdatingEvent::class,
+			'listener' => PlannedAgendaItemRulesGuardListener::class,
+			'schemas'  => PlannedAgendaItemRulesGuardListener::SCHEMAS,
+		],
+		// Long-term agenda tracks (planning-long-term-agenda-tracks-and-report,
+		// REQ-LTAT-002): a track sits under a topic, one level deep.
+		['event' => ObjectCreatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
+		// decision carries the clause of its type as it stood when it was
+		// taken. After the competence guard, so a refused save stamps nothing.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
+		// Decision term (objection-advisory-committee, REQ-OAC-008): a decision
+		// whose type declares a term gets the day it has to be taken by, from
+		// the moment the type counts it from, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-001): only an adopted decision takes progress updates.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => ImplementationUpdateListener::class,
+			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
+		],
+		// Approval routes on flows (approval-routes-on-flow-user-tasks,
+		// REQ-ARF-009): an active route that needs a feature the installed
+		// OpenRegister does not offer is refused, naming the feature and step.
+		['event' => ObjectCreatingEvent::class, 'listener' => ApprovalRouteSavedListener::class, 'schemas' => [ApprovalRouteSavedListener::SCHEMA]],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ApprovalRouteSavedListener::class, 'schemas' => [ApprovalRouteSavedListener::SCHEMA]],
+	];
+}//end class

@@ -16,16 +16,22 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\DecisionStageLabelRepair;
+use OCA\Decidiq\Service\HeldRouteRequest;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\Decidiq\Service\WorkingDayDeadlineSplitter;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the approval-route engine.
@@ -206,8 +212,170 @@ class ApprovalRouteServiceTest extends TestCase {
 	private function service(): ApprovalRouteService {
 		$store = $this->store();
 
-		return new ApprovalRouteService($store, new ApprovalStageGuard(new MandateDirectory($store)), new ApprovalRouteStepMapper());
+		// NAMED arguments, not positional. The two nullable tail parameters were
+		// added by two different changes, and the second to merge takes the
+		// position the first one had: a positional call would then hand the
+		// splitter to the activator's slot and fail on a type nobody changed.
+		return new ApprovalRouteService(
+			store: $store,
+			guard: new ApprovalStageGuard(new MandateDirectory($store)),
+			mapper: new ApprovalRouteStepMapper(),
+			projector: null,
+			activator: null,
+			splitter: new WorkingDayDeadlineSplitter(),
+		);
 	}
+
+	/**
+	 * Three colleagues, in order, on a document with a deadline.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testARouteIsHeldFromNamedPeopleInOrder(): void {
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-1', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']));
+
+		$this->assertCount(3, $stages);
+		$this->assertSame(
+			['j.jansen', 'd.devries', 'b.bakker'],
+			array_map(static fn (array $stage): string => (string)$stage['assignedPerson'], $stages)
+		);
+		$this->assertSame([1, 2, 3], array_map(static fn (array $stage): int => (int)$stage['sequence'], $stages));
+
+		// Only the first step is live: a route whose every step is live is not a
+		// sequence, it is three people asked at once.
+		$this->assertSame('active', (string)$stages[0]['status']);
+		$this->assertSame('pending', (string)$stages[1]['status']);
+		$this->assertSame('pending', (string)$stages[2]['status']);
+	}//end testARouteIsHeldFromNamedPeopleInOrder()
+
+	/**
+	 * A held route says it had no template, so a surface that finds no route row
+	 * can tell that from one somebody deleted.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAHeldRouteIsMarkedAdhoc(): void {
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-2', subjectSchema: 'decision', actors: ['j.jansen']));
+
+		$this->assertSame('adhoc', (string)$stages[0]['origin']);
+	}//end testAHeldRouteIsMarkedAdhoc()
+
+	/**
+	 * One deadline is divided over the steps, the last landing on it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testOneDeadlineIsDividedOverTheSteps(): void {
+		$deadline = (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM);
+
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']))->due(deadline: $deadline, askSubstituteAfter: null));
+
+		$dueDates = array_map(static fn (array $stage): string => (string)$stage['dueAt'], $stages);
+
+		$this->assertCount(3, array_filter($dueDates));
+		$this->assertSame($deadline, $dueDates[2], 'The last step must land on the deadline itself.');
+		$this->assertLessThan($dueDates[1], $dueDates[0]);
+		$this->assertLessThan($dueDates[2], $dueDates[1]);
+	}//end testOneDeadlineIsDividedOverTheSteps()
+
+	/**
+	 * A route held from named people can ask each approver's substitute part
+	 * way through the step, which the lapse sweep reads off the stage (#1397).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	public function testAHeldRouteCanAskTheSubstitute(): void {
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3b', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']))->due(deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM), askSubstituteAfter: 0.5));
+
+		foreach ($this->stages() as $stage) {
+			$this->assertSame(0.5, $stage['askSubstituteAfter'] ?? null, 'Every held step must carry askSubstituteAfter');
+		}
+
+		$this->assertCount(2, $stages);
+	}//end testAHeldRouteCanAskTheSubstitute()
+
+	/**
+	 * No deadline means no due dates, which means a route that never lapses.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testNoDeadlineWritesNoDueDates(): void {
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-4', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']));
+
+		foreach ($stages as $stage) {
+			$this->assertSame('', (string)($stage['dueAt'] ?? ''));
+		}
+	}//end testNoDeadlineWritesNoDueDates()
+
+	/**
+	 * A person named twice is asked once. The second ask would be refused by the
+	 * guard anyway, because the first sign-off already advanced past their step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAPersonNamedTwiceIsAskedOnce(): void {
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-5', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'j.jansen', '']));
+
+		$this->assertCount(2, $stages);
+	}//end testAPersonNamedTwiceIsAskedOnce()
+
+	/**
+	 * A route with nobody on it is refused, not created empty.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function testAHeldRouteWithNobodyOnItIsRefused(): void {
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('needs at least one person');
+
+		$this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-6', subjectSchema: 'decision', actors: ['', '  ']));
+	}//end testAHeldRouteWithNobodyOnItIsRefused()
+
+	/**
+	 * An unreadable deadline refuses rather than inventing a term.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testAnUnreadableDeadlineIsRefused(): void {
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('could not be read as a date');
+
+		$this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-7', subjectSchema: 'decision', actors: ['j.jansen']))->due(deadline: 'end of the month', askSubstituteAfter: null));
+	}//end testAnUnreadableDeadlineIsRefused()
+
+	/**
+	 * Overdue is COMPUTED, and only for a step that is still waiting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
+	 */
+	public function testOverdueIsComputedAndOnlyForAWaitingStep(): void {
+		$service = $this->service();
+		$past = ['status' => 'active', 'dueAt' => '2026-01-01T09:00:00+00:00'];
+
+		$this->assertTrue($service->isOverdue($past));
+		$this->assertFalse($service->isOverdue(['status' => 'decided', 'dueAt' => '2026-01-01T09:00:00+00:00']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => '']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => 'not a date']));
+		$this->assertFalse($service->isOverdue(['status' => 'active', 'dueAt' => '2099-01-01T09:00:00+00:00']));
+	}//end testOverdueIsComputedAndOnlyForAWaitingStep()
 
 	/**
 	 * A store over the stateful fake.
@@ -228,13 +396,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				// saveObject returns an ENTITY, not an array. The store already
@@ -250,12 +416,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);
@@ -270,13 +435,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -686,5 +849,427 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertCount(1, $this->objectService->rows['approval-action'], 'The action trail is never edited by the repair.');
 
 		$this->assertSame(0, $repair->repair(), 'A re-run repairs nothing.');
+	}
+
+	/**
+	 * A route step whose silence APPROVES is refused when the person asking is
+	 * not an administrator.
+	 *
+	 * REQ-AR-015 says silence that approves is a signature nobody gave. The
+	 * policy that says so has always been right and, until the engine called it,
+	 * enforced nothing: this asserts the WIRING, so deleting the call in
+	 * instantiate() reddens here rather than somewhere nobody looks.
+	 *
+	 * The principal is an ordinary signed-in user, which is the least privileged
+	 * one that should be refused. An anonymous caller never reaches the engine.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAnOrdinaryUserCannotDeclareThatSilenceApproves(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		// expectException, NOT try/fail/catch: PHPUnit's AssertionFailedError
+		// extends RuntimeException, so a catch of RuntimeException swallows the
+		// fail() that is supposed to end the test and reports the wrong thing.
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessageMatches('/administrator/');
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Ordinary,
+		);
+	}
+
+	/**
+	 * And the refusal lands BEFORE any stage is written, so the subject is not
+	 * left carrying half a route.
+	 *
+	 * The offending step is the SECOND one deliberately: a guard inside the
+	 * write loop would already have written the first stage by the time it threw,
+	 * and this is the assertion that tells those two designs apart.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testTheRefusedRouteWritesNoStageAtAll(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		try {
+			$this->service()->instantiate(
+				route: $route,
+				subject: 'subj-1',
+				subjectSchema: 'proposal',
+				principal: ApprovalPrincipal::Ordinary,
+			);
+		} catch (RuntimeException) {
+			// The refusal is the other test's subject; this one is about what
+			// it left behind.
+		}
+
+		$this->assertSame([], $this->stages(), 'A refused route left stages behind.');
+	}
+
+	/**
+	 * An administrator may declare it, and the stage carries it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAnAdministratorMayDeclareThatSilenceApproves(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'approve';
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Administrator,
+		);
+
+		$this->assertSame('approve', (string)($this->stages()[1]['onSilence'] ?? ''));
+	}
+
+	/**
+	 * Every stored route is unaffected: a step that declares no silence, or
+	 * declares one anybody may set, still instantiates for an ordinary user.
+	 *
+	 * This is the compatibility half. A guard that also refused `hold` would
+	 * have stopped every route already in flight, and nothing would have said so
+	 * until somebody tried to sign one.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	public function testAStoredRouteWithoutAnApprovingSilenceStillInstantiates(): void {
+		$route = $this->route();
+		$route['steps'][1]['onSilence'] = 'escalate';
+
+		$this->service()->instantiate(
+			route: $route,
+			subject: 'subj-1',
+			subjectSchema: 'proposal',
+			principal: ApprovalPrincipal::Ordinary,
+		);
+
+		$this->assertCount(3, $this->stages(), 'An ordinary route stopped instantiating.');
+	}
+
+
+	/**
+	 * A stage carries the step configuration it is running under.
+	 *
+	 * These four lived only on the ApprovalRoute step, which is the template, so
+	 * the three services that read a step's configuration had nothing to read at
+	 * runtime even once they were called. The stage is what the engine and the
+	 * sweeps actually hold, so the configuration has to travel onto it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002, REQ-DWP-003, REQ-DWP-004)
+	 */
+	public function testAStageCarriesItsStepConfiguration(): void {
+		$route = $this->route();
+		$route['steps'][0]['thresholdKind'] = 'share';
+		$route['steps'][0]['thresholdValue'] = 0.6;
+		$route['steps'][0]['approvalBasis'] = ['body', 'attachments'];
+		$route['steps'][0]['stepKind'] = 'intake';
+
+		$this->service()->instantiate(route: $route, subject: 'subj-1', subjectSchema: 'proposal');
+
+		$stage = $this->stages()[0];
+		$this->assertSame('share', $stage['thresholdKind']);
+		$this->assertSame(0.6, $stage['thresholdValue']);
+		$this->assertSame(['body', 'attachments'], $stage['approvalBasis']);
+		$this->assertSame('intake', $stage['stepKind']);
+	}
+
+	/**
+	 * A step that declares none of them writes none of them, so every stored
+	 * route keeps its meaning and each schema default stands.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStageDeclaringNoStepConfigurationCarriesNone(): void {
+		$this->service()->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$stage = $this->stages()[0];
+		foreach (['thresholdKind', 'thresholdValue', 'approvalBasis', 'stepKind'] as $key) {
+			$this->assertArrayNotHasKey($key, $stage, sprintf('%s was written for a step that declared nothing.', $key));
+		}
+	}
+
+	/**
+	 * An EMPTY approval basis is dropped rather than stored.
+	 *
+	 * An empty basis never withdraws anything, which is what keeps staleness
+	 * opt-in. Storing `[]` would read as declared-and-empty to the next person,
+	 * which is a different claim from "this step named no basis".
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 */
+	public function testAnEmptyApprovalBasisIsNotStored(): void {
+		$route = $this->route();
+		$route['steps'][0]['approvalBasis'] = [];
+
+		$this->service()->instantiate(route: $route, subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->assertArrayNotHasKey('approvalBasis', $this->stages()[0]);
+	}
+
+
+	/**
+	 * Seed an approval action row straight into the fake, as a stored row.
+	 *
+	 * @param string               $uuid The row's uuid.
+	 * @param array<string, mixed> $row  The row.
+	 *
+	 * @return void
+	 */
+	private function seedAction(string $uuid, array $row): void {
+		$this->objectService->rows['approval-action'][$uuid] = ($row + ['id' => $uuid]);
+	}
+
+	/**
+	 * Every recorded act carries the state it ends in, so none reads as open.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testARecordedActCarriesItsTerminalState(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
+
+		$states = array_map(
+			static fn (array $a): string => (string)$a['action'] . ':' . (string)$a['state'],
+			array_values($this->objectService->rows['approval-action'])
+		);
+		$this->assertSame(['advised:granted', 'endorsed:granted', 'returned:refused'], $states);
+	}
+
+	/**
+	 * An open mandatory approval assigned to somebody else holds the step, and
+	 * the refusal names it; nothing is written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$before = $this->statuses();
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+			$this->fail('An open mandatory approval must hold the step.');
+		} catch (RuntimeException $e) {
+			$this->assertSame('This subject is waiting on an approval: j.jansen at step 1.', $e->getMessage());
+		}
+
+		$this->assertSame($before, $this->statuses(), 'A refused advance changes no stage.');
+		$this->assertSame(['open-1'], array_keys($this->objectService->rows['approval-action']), 'A refused advance records no action.');
+	}
+
+	/**
+	 * The actor's own open approval does not hold them up; their act ends it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testTheActorsOwnOpenApprovalIsEndedByTheirAct(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'bob']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+		$this->assertSame('granted', $this->objectService->rows['approval-action']['open-1']['state']);
+	}
+
+	/**
+	 * Open approvals on another step, on an optional step, or rows that record
+	 * an act but still read `open` (stored before the state was written) never
+	 * hold the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(thirdMandatory: false), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'legacy', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => 'x', 'action' => 'advised', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'other-subject', row: ['subject' => 'subj-2', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+			$this->fail('The open approval on step 2 must hold step 2.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('j.jansen at step 2', $e->getMessage());
+		}
+
+		// An optional step is never held: skipping it is already allowed.
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => 'alice', 'action' => 'endorsed', 'state' => 'granted']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$this->seedAction(uuid: 'optional', row: ['subject' => 'subj-1', 'step' => 3, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
+		$this->assertSame(['decided', 'decided', 'skipped'], $this->statuses());
+	}
+
+	/**
+	 * A route opening with an intake step, on a decision.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function intakeRoute(): array {
+		return [
+			'name' => 'Intake route',
+			'steps' => [
+				['order' => 1, 'stageType' => 'decisive', 'stepKind' => 'intake', 'actorType' => 'person', 'actor' => 'alice', 'label' => 'Ontvankelijkheid'],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict closes the route at intake and no later step becomes live.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnInadmissibleRequestEndsTheRouteAtIntake(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => 'Artikel 4:5 Awb']);
+
+		$this->assertSame(['decided', 'pending'], $this->statuses());
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('outcome', $this->stages()[1]);
+		$this->assertSame('niet-ontvankelijk', $recorded['action']);
+		$this->assertSame('refused', $recorded['state']);
+		$this->assertSame('Artikel 4:5 Awb', $recorded['comment']);
+		$this->assertSame(
+			['ontvankelijkheid' => 'niet-ontvankelijk', 'ontvankelijkheidGround' => 'Artikel 4:5 Awb', 'ontvankelijkheidDecidedBy' => 'alice', 'id' => 'dec-1'],
+			$this->objectService->rows['decision']['dec-1']
+		);
+	}
+
+	/**
+	 * An ontvankelijk verdict completes the intake step and the route walks on.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnAdmissibleRequestWalksOn(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'ontvankelijk']);
+
+		$this->assertSame(['decided', 'active'], $this->statuses());
+		$this->assertSame('ontvankelijk', $this->stages()[0]['outcome']);
+		$this->assertSame('granted', $recorded['state']);
+		$this->assertSame('ontvankelijk', $this->objectService->rows['decision']['dec-1']['ontvankelijkheid']);
+	}
+
+	/**
+	 * The verdict is written onto the subject only when the subject is a decision.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnotherSubjectStaysOnTheRoute(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'case-1', subjectSchema: 'proposal');
+
+		$service->record(['subject' => 'case-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'comment' => 'Te laat ingediend']);
+
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict without a ground is refused and leaves no trace.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictWithoutAGroundIsRefusedAndWritesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		try {
+			$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => '  ']);
+			$this->fail('A verdict without a ground was accepted.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('needs the ground it rests on', $e->getMessage());
+		}
+
+		$this->assertSame(['active', 'pending'], $this->statuses());
+		$this->assertSame([], $this->objectService->rows['approval-action']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * An intake step takes a verdict, not a sign-off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testASignOffOnAnIntakeStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown verdict "approved"');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'approved']);
+	}
+
+	/**
+	 * A verdict on an approval step is no action that step knows.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnApprovalStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown action: ontvankelijk');
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'ontvankelijk']);
 	}
 }

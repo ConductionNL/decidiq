@@ -1,0 +1,1677 @@
+{
+    "person-bart-reijnders": {
+        "title": "Bart Reijnders",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-charlotte-hendriks": {
+        "title": "Charlotte Hendriks",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "Against",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Liberaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-dirk-zwart": {
+        "title": "Dirk Zwart",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "Against",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Liberaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-erik-veldhuis": {
+        "title": "Erik Veldhuis",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-esther-lubbers": {
+        "title": "Esther Lubbers",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "Against",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Liberaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-floor-vos": {
+        "title": "Floor Vos",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-frank-jonker": {
+        "title": "Frank Jonker",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Sociaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-gerard-lammers": {
+        "title": "Gerard Lammers",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-gertjan-bouwman": {
+        "title": "Gert-Jan Bouwman",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Christelijk Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-hanneke-westra": {
+        "title": "Hanneke Westra",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Christelijk Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-hatice-kaya": {
+        "title": "Hatice Kaya",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-jan-overdijk": {
+        "title": "Jan Overdijk",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "Against",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Ouderen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-joost-mulder": {
+        "title": "Joost Mulder",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-kees-hofman": {
+        "title": "Kees Hofman",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-lieke-vanrooij": {
+        "title": "Lieke van Rooij",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-maarten-wijnands": {
+        "title": "Maarten Wijnands",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "Against",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Liberaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-mohamed-tahiri": {
+        "title": "Mohamed Tahiri",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Sociaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-monique-dekker": {
+        "title": "Monique Dekker",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-nadia-ouali": {
+        "title": "Nadia Ouali",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Sociaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-pim-kramer": {
+        "title": "Pim Kramer",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "2"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "Against",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Liberaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-rianne-peeters": {
+        "title": "Rianne Peeters",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Sociaal Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-roel-brands": {
+        "title": "Roel Brands",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-sandra-kroon": {
+        "title": "Sandra Kroon",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-tim-groenewoud": {
+        "title": "Tim Groenewoud",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "3"
+            },
+            {
+                "label": "Against",
+                "value": "0"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "For",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Groen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-truus-wiersma": {
+        "title": "Truus Wiersma",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "1"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "1"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "Against",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Abstained",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Ouderen Zuiddrecht, Gemeenteraad Zuiddrecht"
+    },
+    "person-wilma-schouten": {
+        "title": "Wilma Schouten",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "person-yvonne-bosman": {
+        "title": "Yvonne Bosman",
+        "summary": [
+            {
+                "label": "Took part",
+                "value": "100%",
+                "detail": "in 3 open votes"
+            },
+            {
+                "label": "For",
+                "value": "2"
+            },
+            {
+                "label": "Against",
+                "value": "1"
+            },
+            {
+                "label": "Abstained",
+                "value": "0"
+            }
+        ],
+        "columns": [
+            {
+                "key": "date",
+                "label": "Date"
+            },
+            {
+                "key": "subject",
+                "label": "Subject"
+            },
+            {
+                "key": "choice",
+                "label": "Vote"
+            },
+            {
+                "key": "result",
+                "label": "Result"
+            }
+        ],
+        "rows": [
+            {
+                "date": "long:today-11",
+                "subject": "Verordening afvalstoffenheffing 2027",
+                "choice": "For",
+                "result": "Adopted"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Motie lantaarnpalen op zonne-energie",
+                "choice": "Against",
+                "result": "Rejected"
+            },
+            {
+                "date": "long:today-25",
+                "subject": "Krediet verlichting fietspad Lindelaan",
+                "choice": "For",
+                "result": "Adopted"
+            }
+        ],
+        "note": "Only open votes on published decisions. Secret votes are not shown here.",
+        "subtitle": "Member, Zuiddrecht Lokaal, Gemeenteraad Zuiddrecht"
+    },
+    "nobody": null
+}

@@ -105,10 +105,10 @@ if (defined('OC_CONSOLE') === false && $decidiqNcRoot !== null) {
 			include_once $decidiqNcRoot . '/tests/autoload.php';
 		}
 
-		if (class_exists(\OC_App::class) === true) {
-			\OC_App::loadApps();
-			\OC_App::loadApp('decidiq');
-		}
+		// Public IAppManager rather than the deprecated private OC_App statics.
+		$decidiqAppManager = \OCP\Server::get(\OCP\App\IAppManager::class);
+		$decidiqAppManager->loadApps();
+		$decidiqAppManager->loadApp('decidiq');
 
 		if (class_exists(\OC_Hook::class) === true) {
 			\OC_Hook::clear();
@@ -157,4 +157,12 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
 // signature-parity contract these stubs are held to (#399).
 if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
 	include_once __DIR__ . '/Stubs/OpenRegisterServices.php';
+}
+
+// Integriq's connection-registry events (adopt-connection-registry), resolved by
+// name in ConnectionReportService (ADR-041). Loaded only when integriq is absent.
+foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as $integriqStubEvent) {
+	if (class_exists('\\OCA\\Integriq\\Event\\' . $integriqStubEvent) === false) {
+		include_once __DIR__ . '/Stubs/Integriq/Event/' . $integriqStubEvent . '.php';
+	}
 }

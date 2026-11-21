@@ -15,9 +15,12 @@
  * It declares — for the `citizen` audience (a resident participating in a
  * consultation, participatory-budget round or advisory vote WITHOUT a Nextcloud
  * account) — the OpenRegister collections that subject may read and the field
- * whitelists projected onto each. DigiD/eHerkenning is DEFERRED: citizens log
- * in through portaliq's ordinary password/`portalAccount` edge at trust `low`,
- * exactly like pipelinq's `client` / `customer` audiences.
+ * whitelists projected onto each. Most collections are read at trust `low`,
+ * through portaliq's ordinary password/`portalAccount` edge, exactly like
+ * pipelinq's `client` / `customer` audiences. The confidential papers of a
+ * non-public agenda item (`confidentialAgendaItems`) need a DigiD or
+ * eHerkenning session at the trust `portal_confidential_min_trust` names, and
+ * reach only a reader the griffie named (REQ-PSH-003).
  *
  * Decidiq's citizen data is ALREADY portal-shaped: the scope fields
  * `submitterId` / `voterId` / `submitter` / `recipientId` each hold a Nextcloud
@@ -42,7 +45,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 
 declare(strict_types=1);
@@ -51,6 +54,10 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
+use OCP\L10N\IFactory;
 
 /**
  * Declares what an external portal subject may see and do in Decidiq.
@@ -73,7 +80,7 @@ use DateTimeInterface;
  * writable scalar property to whitelist and cannot be constrained to an open
  * parent by the flat create vocabulary — see design.md "Deferred creates".
  *
- * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
  */
 class PortalContributionProvider {
@@ -85,11 +92,138 @@ class PortalContributionProvider {
 	private const REGISTER = 'decidiq';
 
 	/**
-	 * The human label portaliq renders for this app's portal section.
+	 * The heading portaliq renders over this app's portal section: what the
+	 * section is about, never the product name (a resident does not know it).
 	 *
 	 * @var string
 	 */
-	private const LABEL = 'Decidiq';
+	private const LABEL = 'Council and participation';
+
+	/**
+	 * Constructor; the container hands in the factory, `new` with no arguments answers in English.
+	 *
+	 * The only dependency is optional, so the class still resolves without
+	 * portaliq and without a container (amendment A1).
+	 *
+	 * @param IFactory|null             $l10nFactory    Puts the labels in the reader's language (PortalLabelTranslator).
+	 * @param PublicVotingRecordsInterface|null  $votingRecords  The public members and their votes (memberVotingRecords).
+	 * @param PublicMeetingRecordsInterface|null $meetingRecords The published meetings and decisions.
+	 * @param ConfidentialPapersInterface|null   $confidentialPapers The papers of non-public items for a named reader.
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	public function __construct(
+		private readonly ?IFactory $l10nFactory=null,
+		private readonly ?PublicVotingRecordsInterface $votingRecords=null,
+		private readonly ?PublicMeetingRecordsInterface $meetingRecords=null,
+		private readonly ?ConfidentialPapersInterface $confidentialPapers=null,
+	) {
+	}//end __construct()
+
+	/**
+	 * The public members a visitor may look up (memberVotingRecords list).
+	 *
+	 * Empty without decidiq's services, never an error.
+	 *
+	 * @return list<array<string, string>> `{id, title, subtitle?}` per member.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	public function publicMembers(): array {
+		return ($this->votingRecords?->members() ?? []);
+	}//end publicMembers()
+
+	/**
+	 * One public member's voting record, or null for anyone publicMembers() does not name.
+	 *
+	 * @param string $personId The person id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	public function publicVotingRecord(string $personId): ?array {
+		return $this->votingRecords?->record(personId: $personId);
+	}//end publicVotingRecord()
+
+	/**
+	 * The papers of one non-public agenda item (confidentialAgendaItems documents provider).
+	 *
+	 * Empty once the item is public again, and without decidiq's services.
+	 *
+	 * @param string $itemId The agenda item id.
+	 *
+	 * @return list<array<string, mixed>> Portal document entries.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function confidentialPapers(string $itemId): array {
+		return ($this->confidentialPapers?->papers(itemId: $itemId) ?? []);
+	}//end confidentialPapers()
+
+	/**
+	 * Log one portal opening of a confidential paper; the portal streams it only on true.
+	 *
+	 * @param string               $itemId     The agenda item id.
+	 * @param string               $documentId The paper id.
+	 * @param array<string, mixed> $subject    The portal session: subjectRef, trust, identityType, audience.
+	 *
+	 * @return bool True only when the audit entry was written.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first
+	 */
+	public function confidentialPaperOpened(string $itemId, string $documentId, array $subject): bool {
+		return ($this->confidentialPapers?->opened(itemId: $itemId, documentId: $documentId, subject: $subject) ?? false);
+	}//end confidentialPaperOpened()
+
+	/**
+	 * The published meetings (publicMeetings list).
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 */
+	public function publicMeetings(): array {
+		return ($this->meetingRecords?->meetings() ?? []);
+	}//end publicMeetings()
+
+	/**
+	 * One published meeting with its agenda.
+	 *
+	 * @param string $id The publication id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 */
+	public function publicMeeting(string $id): ?array {
+		return $this->meetingRecords?->meeting(id: $id);
+	}//end publicMeeting()
+
+	/**
+	 * The published decisions (publicDecisions list).
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 */
+	public function publicDecisions(): array {
+		return ($this->meetingRecords?->decisions() ?? []);
+	}//end publicDecisions()
+
+	/**
+	 * One published decision with its outcome.
+	 *
+	 * @param string $id The publication id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 */
+	public function publicDecision(string $id): ?array {
+		return $this->meetingRecords?->decision(id: $id);
+	}//end publicDecision()
 
 	/**
 	 * The audiences this provider contributes to (contract v2, preferred).
@@ -99,7 +233,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<int, string> The audience identifiers.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getAudiences(): array {
 		return ['citizen'];
@@ -113,7 +247,7 @@ class PortalContributionProvider {
 	 *
 	 * @return string The primary audience identifier.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getAudience(): string {
 		return 'citizen';
@@ -131,13 +265,15 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>|null The manifest, or null when not contributing.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getContribution(array $subject): ?array {
 		$audience = ($subject['audience'] ?? '');
 
 		if ($audience === 'citizen') {
-			return $this->citizenContribution();
+			$translator = new PortalLabelTranslator(l10n: $this->l10nFactory?->get('decidiq'));
+			return $translator->translate(manifest: $this->citizenContribution());
 		}
 
 		return null;
@@ -163,8 +299,10 @@ class PortalContributionProvider {
 	 * - `citizenNotifications` (`notification`, scope `recipientId`,
 	 *   `kind: 'inbox'`) — the citizen's own notification inbox.
 	 *
-	 * `actions` carries two `type: create` entries (portal-citizen-create-actions,
-	 * REQ-DKPCA-001/002/003/004), each `minTrust: low`:
+	 * `actions` carries three `type: create` entries. The first two
+	 * (portal-citizen-create-actions, REQ-DKPCA-001/002/003/004) are
+	 * `minTrust: low`; the third, `castMotionAdvice`, is described on
+	 * {@see citizenActions()}:
 	 *
 	 * - `createReaction` (`consultation-reaction`) — client whitelist
 	 *   `{consultation, body}`; the scope field `submitterId` is stamped from the
@@ -194,7 +332,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed> The citizen manifest.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
 	 */
 	private function citizenContribution(): array {
@@ -203,9 +341,44 @@ class PortalContributionProvider {
 			'collections' => $this->citizenCollections(),
 			'actions' => $this->citizenActions(),
 			'notifications' => [],
+			'publicRecords' => $this->publicRecords(),
 		];
 
 	}//end citizenContribution()
+
+	/**
+	 * The record lists a visitor reads without signing in (portaliq's
+	 * public records block). Each names the two provider methods portaliq
+	 * calls; what they return is decidiq's publication rule, never the
+	 * caller's rights.
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	private function publicRecords(): array {
+		$council = 'Council';
+
+		return [
+			['id' => 'publicMeetings', 'label' => 'Meetings', 'group' => $council, 'listProvider' => 'publicMeetings', 'recordProvider' => 'publicMeeting'],
+			[
+				'id' => 'publicDecisions',
+				'label' => 'Decisions',
+				'group' => $council,
+				'listProvider' => 'publicDecisions',
+				'recordProvider' => 'publicDecision',
+			],
+			[
+				'id' => 'memberVotingRecords',
+				'label' => 'How members voted',
+				'group' => $council,
+				'listProvider' => 'publicMembers',
+				'recordProvider' => 'publicVotingRecord',
+			],
+		];
+
+	}//end publicRecords()
 
 	/**
 	 * The four read/inbox collections on the `citizen` manifest (see
@@ -214,148 +387,454 @@ class PortalContributionProvider {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenCollections(): array {
 		return [
-			[
-				'id' => 'citizenReactions',
-				'register' => self::REGISTER,
-				'schema' => 'consultation-reaction',
-				'scopeField' => 'submitterId',
-				'label' => 'My consultation reactions',
-				'listable' => true,
-				'minTrust' => 'low',
-				'fields' => [
-					'body',
-					'submittedAt',
-					'moderationStatus',
-					'voteCount',
-					'proposalTitle',
-					'proposalAmount',
-				],
-			],
-			[
-				'id' => 'citizenVotes',
-				'register' => self::REGISTER,
-				'schema' => 'citizen-vote',
-				'scopeField' => 'voterId',
-				'label' => 'My votes',
-				'listable' => true,
-				'minTrust' => 'low',
-				'fields' => [
-					'voteValue',
-					'motionId',
-					'proposalId',
-					'citizenPanelId',
-					'weight',
-					'isProxy',
-					'castAt',
-					'notes',
-				],
-			],
-			[
-				'id' => 'citizenBudgetProposals',
-				'register' => self::REGISTER,
-				'schema' => 'budget-proposal',
-				'scopeField' => 'submitter',
-				'label' => 'My budget proposals',
-				'listable' => true,
-				'minTrust' => 'low',
-				'fields' => [
-					'title',
-					'description',
-					'requestedAmount',
-					'category',
-					'status',
-					'votesFor',
-					'votesAgainst',
-				],
-			],
-			[
-				'id' => 'citizenNotifications',
-				'register' => self::REGISTER,
-				'schema' => 'notification',
-				'scopeField' => 'recipientId',
-				'kind' => 'inbox',
-				'label' => 'My notifications',
-				'listable' => true,
-				'minTrust' => 'low',
-				'fields' => [
-					'type',
-					'subject',
-					'content',
-					'channel',
-					'status',
-					'sentAt',
-					'readAt',
-				],
-			],
+			$this->citizenReactionsCollection(),
+			$this->citizenVotesCollection(),
+			$this->citizenBudgetProposalsCollection(),
+			$this->citizenNotificationsCollection(),
+			$this->subscriptionsCollection(),
+			$this->publicCalendarCollection(),
+			$this->publicBroadcastsCollection(),
+			$this->motionsOpenForAdviceCollection(),
+			$this->publicAncillaryPositionsCollection(),
+			$this->confidentialAgendaItemsCollection(),
 		];
 
 	}//end citizenCollections()
 
 	/**
-	 * The two `type: create` actions on the `citizen` manifest (see
+	 * The non-public agenda items a named reader may read through the portal
+	 * (REQ-PSH-003): scoped by the reader's `decidiq.personId` claim against
+	 * the item's `authorisedPersons`, at the trust `portal_confidential_min_trust`
+	 * names, with the item's papers through `confidentialPapers` and every
+	 * opening logged first by `confidentialPaperOpened` (REQ-PSH-004).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	private function confidentialAgendaItemsCollection(): array {
+		return [
+			'id' => 'confidentialAgendaItems',
+			'register' => self::REGISTER,
+			'schema' => 'agenda-item',
+			'scopeClaim' => 'decidiq.personId',
+			'scopeField' => 'authorisedPersons',
+			'label' => 'Confidential papers',
+			'listable' => true,
+			'minTrust' => ($this->confidentialPapers?->minTrust() ?? 'high'),
+			'defaultFilters' => ['public' => false],
+			'fields' => ['title', 'description', 'meeting'],
+			'documents' => [
+				'label' => 'Papers',
+				'provider' => 'confidentialPapers',
+				'opened' => 'confidentialPaperOpened',
+			],
+		];
+
+	}//end confidentialAgendaItemsCollection()
+
+	/**
+	 * The resident's own consultation reactions, without the staff-set
+	 * moderation reason and publication controls.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	private function citizenReactionsCollection(): array {
+		return [
+			'id' => 'citizenReactions',
+			'register' => self::REGISTER,
+			'schema' => 'consultation-reaction',
+			'scopeField' => 'submitterId',
+			'label' => 'My consultation reactions',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::REACTION_READ_FIELDS,
+		];
+
+	}//end citizenReactionsCollection()
+
+	/**
+	 * The resident's own advisory votes.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	private function citizenVotesCollection(): array {
+		return [
+			'id' => 'citizenVotes',
+			'register' => self::REGISTER,
+			'schema' => 'citizen-vote',
+			'scopeField' => 'voterId',
+			'label' => 'My votes',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::VOTE_READ_FIELDS,
+		];
+
+	}//end citizenVotesCollection()
+
+	/**
+	 * The resident's own participatory-budget proposals.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	private function citizenBudgetProposalsCollection(): array {
+		return [
+			'id' => 'citizenBudgetProposals',
+			'register' => self::REGISTER,
+			'schema' => 'budget-proposal',
+			'scopeField' => 'submitter',
+			'label' => 'My budget proposals',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_READ_FIELDS,
+		];
+
+	}//end citizenBudgetProposalsCollection()
+
+	/**
+	 * The resident's own notification inbox.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	private function citizenNotificationsCollection(): array {
+		return [
+			'id' => 'citizenNotifications',
+			'register' => self::REGISTER,
+			'schema' => 'notification',
+			'scopeField' => 'recipientId',
+			'kind' => 'inbox',
+			'label' => 'My notifications',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::NOTIFICATION_READ_FIELDS,
+		];
+
+	}//end citizenNotificationsCollection()
+
+	/**
+	 * The council calendar residents read without an account
+	 * (planning-activity-calendar-by-audience, REQ-ACAL-005). Every publication
+	 * payload is public once published; the whitelist holds calendar fields only.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-005-residents-read-the-calendar-without-an-account
+	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicCalendarCollection(): array {
+		return [
+			'id' => 'publicCalendar',
+			'register' => self::REGISTER,
+			'schema' => 'publication-payload',
+			'anonymous' => true,
+			'label' => 'Council calendar',
+			'listable' => true,
+			'fields' => PortalFieldSets::CALENDAR_FIELDS,
+			// The calendar lists meetings only: `filter` narrows the read,
+			// `defaultFilters` only presets what the list shows.
+			'filter' => ['oriType' => 'Vergadering'],
+			'defaultFilters' => ['oriType' => 'Vergadering'],
+			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
+			'fieldConfigs' => PortalFieldSets::CALENDAR_FIELD_CONFIGS,
+			'columns' => PortalFieldSets::CALENDAR_COLUMNS,
+			'detail' => ['layout' => 'card', 'fields' => ['title', 'meetingDate', 'bodyName', 'meetingType', 'location']],
+		];
+
+	}//end publicCalendarCollection()
+
+	/**
+	 * Live and recent broadcasts residents read without an account
+	 * (live-public-livestream, REQ-LSTR-008). OpenRegister's read rule on
+	 * meeting-broadcast already hides a broadcast until its publicationDate;
+	 * the whitelist holds what the public row shows and never a staff field
+	 * (previewUrl, testResult, testNote, testedBy, publicWindows). A session's
+	 * broadcast carries its evening's title (eveningTitle), so the evening's
+	 * sessions list together (planning-parallel-sessions, REQ-PPS-004).
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-008-residents-see-live-and-recent-broadcasts-through-portaliq
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-004-each-sessions-broadcast-names-its-evening-for-residents
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicBroadcastsCollection(): array {
+		return [
+			'id' => 'publicBroadcasts',
+			'register' => self::REGISTER,
+			'schema' => 'meeting-broadcast',
+			'anonymous' => true,
+			'label' => 'Live and recent meetings',
+			'listable' => true,
+			'fields' => PortalFieldSets::BROADCAST_FIELDS,
+			'defaultSort' => ['field' => 'scheduledDate', 'direction' => 'desc'],
+		];
+
+	}//end publicBroadcastsCollection()
+
+	/**
+	 * Motions residents may give advice on, read without an account
+	 * (participation-citizen-advisory-vote-on-motions, REQ-CAV-003).
+	 *
+	 * Listed only where the griffie allowed citizen voting. OpenRegister's
+	 * Decision read rule admits an anonymous caller to published decisions
+	 * only, so a draft motion never reaches this list. The three counts travel
+	 * with the motion so the portal shows the advisory result after the vote
+	 * closes; who voted is never listed.
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-003-the-advisory-result-shows-apart-from-the-councils-vote
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function motionsOpenForAdviceCollection(): array {
+		return [
+			'id' => 'motionsOpenForAdvice',
+			'register' => self::REGISTER,
+			'schema' => 'decision',
+			'anonymous' => true,
+			'label' => 'Motions open for your advice',
+			'listable' => true,
+			'fields' => PortalFieldSets::ADVICE_MOTION_FIELDS,
+			// Only the motions the griffie opened for advice are read.
+			'filter' => ['citizenVotingAllowed' => true],
+			'defaultFilters' => ['citizenVotingAllowed' => true],
+		];
+
+	}//end motionsOpenForAdviceCollection()
+
+	/**
+	 * The members' ancillary positions residents read without an account
+	 * (platform-baseline-on-nextcloud, REQ-PLB-007).
+	 *
+	 * OpenRegister's read rule on ancillary-position admits an anonymous
+	 * caller only to a position whose publicationDate has passed, so a
+	 * position still under review never reaches this list. The whitelist
+	 * holds who, where, what, whether it is paid and when; never the review
+	 * fields (declaredAt, reviewedAt, lifecycle), the hours or the
+	 * publication controls.
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicAncillaryPositionsCollection(): array {
+		return [
+			'id' => 'publicAncillaryPositions',
+			'register' => self::REGISTER,
+			'schema' => 'ancillary-position',
+			'anonymous' => true,
+			'label' => "Members' ancillary positions",
+			'listable' => true,
+			'fields' => PortalFieldSets::ANCILLARY_POSITION_FIELDS,
+			'defaultSort' => ['field' => 'startDate', 'direction' => 'desc'],
+		];
+
+	}//end publicAncillaryPositionsCollection()
+
+	/**
+	 * The three `type: create` actions on the `citizen` manifest (see
 	 * {@see citizenContribution()} for the documented whitelist/stamp/
 	 * parentConstraint rationale, portal-citizen-create-actions
 	 * REQ-DKPCA-001/002).
 	 *
+	 * `castMotionAdvice` (issue #1418, REQ-CAV-002) lets a resident give
+	 * voor, tegen or onthoud on a motion whose advisory vote the griffie has
+	 * opened. It asks for trust level substantial (DigiD or an equivalent),
+	 * because one vote per person needs a verified person; the voter id is
+	 * stamped from the subject and never sent by the client. The open motion,
+	 * the value and the one vote per resident are enforced server side by
+	 * PortalCreateOpenParentGuardListener, whatever path the vote arrives by.
+	 *
 	 * @return array<int, array<string, mixed>>
 	 *
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
 	 */
 	private function citizenActions(): array {
 		return [
-			[
-				'id' => 'createReaction',
-				'type' => 'create',
-				'label' => 'React to this consultation',
-				'register' => self::REGISTER,
-				'schema' => 'consultation-reaction',
-				'scopeField' => 'submitterId',
-				'minTrust' => 'low',
-				'fields' => [
-					'consultation',
-					'body',
-				],
-				'defaults' => [
-					'moderationStatus' => 'pending',
-					'submittedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-				],
-				'parentConstraint' => [
-					'field' => 'consultation',
-					'parentSchema' => 'public-consultation',
-					'statusField' => 'status',
-					'statusValue' => 'open',
-				],
-			],
-			[
-				'id' => 'createBudgetProposal',
-				'type' => 'create',
-				'label' => 'Submit a budget proposal',
-				'register' => self::REGISTER,
-				'schema' => 'budget-proposal',
-				'scopeField' => 'submitter',
-				'minTrust' => 'low',
-				'fields' => [
-					'participatoryBudget',
-					'title',
-					'description',
-					'requestedAmount',
-					'category',
-				],
-				'defaults' => [
-					'status' => 'submitted',
-				],
-				'parentConstraint' => [
-					'field' => 'participatoryBudget',
-					'parentSchema' => 'participatory-budget',
-					'statusField' => 'status',
-					'statusValue' => 'submission',
-				],
-			],
+			$this->createReactionAction(),
+			$this->createBudgetProposalAction(),
+			$this->castMotionAdviceAction(),
+			...$this->subscriptionActions(),
 		];
 
 	}//end citizenActions()
+
+	/**
+	 * React to an open consultation; the reaction starts pending moderation.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function createReactionAction(): array {
+		return [
+			'id' => 'createReaction',
+			'type' => 'create',
+			'label' => 'React to this consultation',
+			'register' => self::REGISTER,
+			'schema' => 'consultation-reaction',
+			'scopeField' => 'submitterId',
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::REACTION_CREATE_FIELDS,
+			'defaults' => [
+				'moderationStatus' => 'pending',
+				'submittedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			],
+			'parentConstraint' => PortalFieldSets::OPEN_CONSULTATION,
+		];
+
+	}//end createReactionAction()
+
+	/**
+	 * Submit a proposal to a budget that takes submissions.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function createBudgetProposalAction(): array {
+		return [
+			'id' => 'createBudgetProposal',
+			'type' => 'create',
+			'label' => 'Submit a budget proposal',
+			'register' => self::REGISTER,
+			'schema' => 'budget-proposal',
+			'scopeField' => 'submitter',
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::BUDGET_PROPOSAL_CREATE_FIELDS,
+			'defaults' => [
+				'status' => 'submitted',
+			],
+			'parentConstraint' => PortalFieldSets::BUDGET_IN_SUBMISSION,
+		];
+
+	}//end createBudgetProposalAction()
+
+	/**
+	 * Give one advisory vote on a motion open for advice; asks for a
+	 * verified person (trust level substantial).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
+	 */
+	private function castMotionAdviceAction(): array {
+		return [
+			'id' => 'castMotionAdvice',
+			'type' => 'create',
+			'label' => 'Give your advice on this motion',
+			'register' => self::REGISTER,
+			'schema' => 'citizen-vote',
+			'scopeField' => 'voterId',
+			'minTrust' => 'substantial',
+			'fields' => PortalFieldSets::ADVICE_CREATE_FIELDS,
+			'defaults' => [
+				'weight' => 1,
+				'isProxy' => false,
+				'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			],
+			'parentConstraint' => PortalFieldSets::MOTION_OPEN_FOR_ADVICE,
+		];
+
+	}//end castMotionAdviceAction()
+	/**
+	 * The resident's own publication subscriptions (REQ-PSD-001).
+	 *
+	 * The digest itself arrives in citizenNotifications; this lists what the
+	 * resident follows, scoped to the portal subject.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function subscriptionsCollection(): array {
+		return [
+			'id' => 'citizenSubscriptions',
+			'register' => self::REGISTER,
+			'schema' => 'publication-subscription',
+			'scopeField' => 'subscriberRef',
+			'label' => 'My subscriptions',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::SUBSCRIPTION_READ_FIELDS,
+		];
+
+	}//end subscriptionsCollection()
+
+	/**
+	 * Subscribe to agendas, papers, decisions and minutes per body, and stop again (REQ-PSD-001).
+	 *
+	 * The portal stamps subscriberRef from the signed-in subject; the client
+	 * sends only the bodies, the kinds and how often. Stopping sets `active`
+	 * to false and nothing else.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function subscriptionActions(): array {
+		return [
+			$this->subscribeAction(),
+			$this->unsubscribeAction(),
+		];
+
+	}//end subscriptionActions()
+
+	/**
+	 * Follow bodies and kinds of publication; the subscription starts active.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function subscribeAction(): array {
+		return [
+			'id' => 'subscribeToPublications',
+			'type' => 'create',
+			'label' => 'Follow agendas and decisions',
+			'register' => self::REGISTER,
+			'schema' => 'publication-subscription',
+			'scopeField' => 'subscriberRef',
+			'minTrust' => 'low',
+			'fields' => PortalFieldSets::SUBSCRIBE_FIELDS,
+			'defaults' => [
+				'active' => true,
+			],
+		];
+
+	}//end subscribeAction()
+
+	/**
+	 * Stop following: sets `active` to false and nothing else.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function unsubscribeAction(): array {
+		return [
+			'id' => 'unsubscribeFromPublications',
+			'type' => 'update',
+			'label' => 'Stop following',
+			'register' => self::REGISTER,
+			'schema' => 'publication-subscription',
+			'scopeField' => 'subscriberRef',
+			'minTrust' => 'low',
+			'fields' => ['active'],
+			'set' => ['active' => false],
+		];
+
+	}//end unsubscribeAction()
 }//end class

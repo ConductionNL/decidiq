@@ -23,48 +23,115 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  */
 
+import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
+import UrgencyBanner from './components/decision/UrgencyBanner.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
+import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
+import AgendaItemReadersTab from './components/tabs/AgendaItemReadersTab.vue'
+import RestrictedPaperViewsTab from './components/tabs/RestrictedPaperViewsTab.vue'
+import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
+import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
+import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
+import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
+import AgendaPaperSummariesTab from './components/tabs/AgendaPaperSummariesTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
+import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
+import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
+import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
+import CommitmentPublicationTab from './components/tabs/CommitmentPublicationTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import DecisionApprovalTab from './components/tabs/DecisionApprovalTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 // Public-publication tabs (publish-decisions-via-opencatalogi): publish /
 // withdraw / rectify actions on the decision, meeting (agenda), and minutes
 // detail views. Three thin wrappers around the shared PublicationActionsTab.
+import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue'
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
+import DecisionThemesTab from './components/tabs/DecisionThemesTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentAccessibilityTab from './components/tabs/DocumentAccessibilityTab.vue'
+import DocumentAnnotationsTab from './components/tabs/DocumentAnnotationsTab.vue'
+import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
+import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
+import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
+import GoverningDocumentCitationsTab from './components/tabs/GoverningDocumentCitationsTab.vue'
+import GoverningDocumentCitedByTab from './components/tabs/GoverningDocumentCitedByTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 // Meeting-scoped facet composition (meeting-facet-composition): kascommissie
 // verklaringen (VvE mode-gated) and incoming documents routed onto this
 // meeting's agenda (two-hop join). See design.md Decisions 3/4 for why each
 // needs a thin wrapper rather than a pure declarative object-list widget.
 import MeetingAuditStatementTab from './components/tabs/MeetingAuditStatementTab.vue'
+import MeetingBroadcastTab from './components/tabs/MeetingBroadcastTab.vue'
+import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingPackTab from './components/tabs/MeetingPackTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingRoomSystemTab from './components/tabs/MeetingRoomSystemTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
+import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
+import MeetingSpeakersTab from './components/tabs/MeetingSpeakersTab.vue'
+import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
+import MeetingTeamsTab from './components/tabs/MeetingTeamsTab.vue'
+import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
+import MeetingVideoCallTab from './components/tabs/MeetingVideoCallTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
+import MinutesActionsTab from './components/tabs/MinutesActionsTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
+import MinutesItemNotesTab from './components/tabs/MinutesItemNotesTab.vue'
 import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionChangeRecommendationsTab from './components/tabs/MotionChangeRecommendationsTab.vue'
+import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
+import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
+import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
+import MotionStageTab from './components/tabs/MotionStageTab.vue'
+import MotionTextLinesTab from './components/tabs/MotionTextLinesTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import OnboardingChecklistTab from './components/tabs/OnboardingChecklistTab.vue'
+import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
+import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
+import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
+import PlannedAgendaActionsTab from './components/tabs/PlannedAgendaActionsTab.vue'
+import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import ThemePublicationTab from './components/tabs/ThemePublicationTab.vue'
+import ThemeTimelineTab from './components/tabs/ThemeTimelineTab.vue'
+import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
+import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
+import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
+import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
+import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
+import GoalContributionsWidget from './components/widgets/GoalContributionsWidget.vue'
+import GoalParentWidget from './components/widgets/GoalParentWidget.vue'
+import GoalProgressWidget from './components/widgets/GoalProgressWidget.vue'
+import GoalStepBar from './components/widgets/GoalStepBar.vue'
+import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
+import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
+import SpeakingRequestApproveDialog from './dialogs/SpeakingRequestApproveDialog.vue'
+import SpeakingRequestReferDialog from './dialogs/SpeakingRequestReferDialog.vue'
+import SpeakingRequestRejectDialog from './dialogs/SpeakingRequestRejectDialog.vue'
+import AnnotationView from './views/AnnotationView.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -82,8 +149,12 @@ import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.v
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
 import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
+import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+import OverduePlannedAgendaKpiWidget from './views/dashboard/widgets/OverduePlannedAgendaKpiWidget.vue'
+// interests-and-integrity (REQ-INT-010): the overdue-review KPI card.
+import OverdueReviewsKpiWidget from './views/dashboard/widgets/OverdueReviewsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
@@ -92,6 +163,7 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
+import AdhocMeetingPage from './views/meetings/AdhocMeetingPage.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -101,10 +173,10 @@ import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
 // schema config; these two are bespoke action surfaces (citizen + staff
 // participation, and the staff moderation queue).
 import ParticipationPage from './views/participation/ParticipationPage.vue'
+import PlannedAgendaBoard from './views/plannedAgenda/PlannedAgendaBoard.vue'
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
-import UserSettingsPage from './views/settings/UserSettingsPage.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
@@ -119,6 +191,26 @@ import UserSettingsPage from './views/settings/UserSettingsPage.vue'
  */
 function page(component) {
 	return { kind: 'page', component }
+}
+
+/**
+ * Wrap a Vue component into a v2 `kind: "modal"` registry entry: a manifest
+ * action of `type: "open-modal"` opens it through CnAppRoot's `cnOpenModal`,
+ * a row action with the row as `object` and its key as `objectId`.
+ *
+ * @param {object} component Vue component options.
+ *
+ * @return {object} A `{ kind: "modal", component, propsSchema }` registry entry.
+ */
+function modal(component) {
+	return {
+		kind: 'modal',
+		component,
+		propsSchema: {
+			object: { type: 'object' },
+			objectId: { type: 'string' },
+		},
+	}
 }
 
 /**
@@ -167,6 +259,7 @@ export default {
 	// toggle rides the index page's actionsComponent slot and routes
 	// between the two pages, leaving the table surface untouched.
 	MeetingCalendarView: page(MeetingCalendarView),
+	AdhocMeetingPage: page(AdhocMeetingPage),
 	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
@@ -197,6 +290,12 @@ export default {
 	// renderer, per the manifest-abstract-sidebar contract.
 	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
+	// Member profile (bodies-member-profile-and-voting-record, bod-05 vot-18).
+	PersonMembershipsTab: page(PersonMembershipsTab),
+	PersonVotingRecordTab: page(PersonVotingRecordTab),
+	ParticipantProfileLink: page(ParticipantProfileLink),
+	// Archival dossier route, hand-over and certificate (records-management-archiving, pub-11).
+	DossierDispositionPanel: page(DossierDispositionPanel),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
 	// trend, agenda completion, speaking distribution, cost trend and time
@@ -217,22 +316,82 @@ export default {
 	MeetingMinutesTab: page(MeetingMinutesTab),
 	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
 	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
+	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
+	// Participating organisations of a shared body (bodies-shared-body-participations, bod-13).
+	BodyParticipationsTab: page(BodyParticipationsTab),
+	// Step-down schedule of a body (bodies-term-of-office-and-step-down, bod-07).
+	// @custom-widget-ratchet exclude the step-down schedule unions two schemas (memberships and position holds) into one list sorted by end date, which one object-list cannot do
+	StepDownScheduleWidget: page(StepDownScheduleWidget),
+	DecisionGoalWidget: page(DecisionGoalWidget),
+	// The goal page (goals-linked-to-decisions Task 4, board DcDoel).
+	// @custom-widget-ratchet exclude the progress card counts objects of three schemas against their totals, which one stats tile cannot do
+	GoalProgressWidget: page(GoalProgressWidget),
+	// @custom-widget-ratchet exclude the contributions list joins four schemas (commitment, action item, planned agenda item, decision) into one list, which one object-list cannot do
+	GoalContributionsWidget: page(GoalContributionsWidget),
+	GoalParentWidget: page(GoalParentWidget),
+	GoalStepBar: page(GoalStepBar),
+	// Steps of a planning cycle in order (planning-cycle-generate-from-template, pla-12).
+	PlanningCycleStepsTab: page(PlanningCycleStepsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated
 	// kascommissie facet + the routed-incoming-documents two-hop join.
 	MeetingAuditStatementTab: page(MeetingAuditStatementTab),
 	MeetingRoutedDocumentsTab: page(MeetingRoutedDocumentsTab),
+	AgendaItemTypeFieldsTab: page(AgendaItemTypeFieldsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
+	MotionChangeRecommendationsTab: page(MotionChangeRecommendationsTab),
+	MotionTextLinesTab: page(MotionTextLinesTab),
 	// Chair-controlled amendment voting order (motion-amendment spec).
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
+	AmendmentVotingRoundTab: page(AmendmentVotingRoundTab),
+	MotionCitizenAdviceTab: page(MotionCitizenAdviceTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	MinutesActionsTab: page(MinutesActionsTab),
+	// signing-external-service-with-order (min-17): the same Signers widget on
+	// motions and on a meeting's decision list.
+	MotionSignersTab: page(MotionSignersTab),
+	MotionConflictsTab: page(MotionConflictsTab),
+	// motions-stages-and-themes (mot-08): stage buttons on the motion page.
+	MotionStageTab: page(MotionStageTab),
+	// followup-public-progress (fol-06): progress entries on a commitment.
+	CommitmentProgressTab: page(CommitmentProgressTab),
+	// termijnagenda: reschedule / realise / lapse on a long-term agenda item.
+	PlannedAgendaActionsTab: page(PlannedAgendaActionsTab),
+	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
+	CommitmentPublicationTab: page(CommitmentPublicationTab),
+	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	AgendaItemPhaseTab: page(AgendaItemPhaseTab),
+	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
+	// pending requests on the agenda item, and the meeting-level ones.
+	AgendaItemSpeakersTab: page(AgendaItemSpeakersTab),
+	MeetingSpeakersTab: page(MeetingSpeakersTab),
+	// Moderation of a pending speaking request from the overview row
+	// (inspreekrecht-plenair REQ-INS-005), opened by `open-modal` row actions.
+	SpeakingRequestApproveDialog: modal(SpeakingRequestApproveDialog),
+	SpeakingRequestRejectDialog: modal(SpeakingRequestRejectDialog),
+	SpeakingRequestReferDialog: modal(SpeakingRequestReferDialog),
+	// The case system on the agenda item and meeting pages
+	// (platform-case-system-document-exchange).
+	AgendaItemCaseTab: page(AgendaItemCaseTab),
+	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
+	MeetingRoomSystemTab: page(MeetingRoomSystemTab),
+	MeetingBroadcastTab: page(MeetingBroadcastTab),
+	// The Teams meeting of a digital or hybrid meeting (platform-microsoft-365-calendar-and-teams).
+	MeetingTeamsTab: page(MeetingTeamsTab),
+	MeetingSessionsTab: page(MeetingSessionsTab),
+	MeetingPackTab: page(MeetingPackTab),
+	DecisionListSignersTab: page(DecisionListSignersTab),
+	MinutesItemNotesTab: page(MinutesItemNotesTab),
+	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
+	MeetingStageTab: page(MeetingStageTab),
+	MeetingVideoCallTab: page(MeetingVideoCallTab),
 	// Minutes approval workflow + document generation (minutes-ui-v1):
 	// lifecycle timeline with guarded submit/approve/reject actions and
 	// participant correction suggestions; document generation into the
@@ -255,6 +414,8 @@ export default {
 	// page() because slot resolution (resolveRegistryName) ignores `kind`;
 	// what matters is that the kind is one CnAppRoot's validator knows.
 	DecisionFormDialog: page(DecisionFormDialog),
+	// Index-page slot (below-header) on AncillaryPositions.
+	AncillaryCompliancePanel: page(AncillaryCompliancePanel),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
@@ -289,6 +450,18 @@ export default {
 		maxSize: { w: 4, h: 3 },
 		allowedSlots: ['dashboard', 'kpi'],
 	}),
+	OverduePlannedAgendaKpiWidget: widget(OverduePlannedAgendaKpiWidget, {
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverdueReviewsKpiWidget: widget(OverdueReviewsKpiWidget, {
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
+	}),
 	// List / chart widgets — same geometry as the already-registered
 	// PendingVotesListWidget they share a row with.
 	UpcomingMeetingsListWidget: widget(UpcomingMeetingsListWidget, {
@@ -312,6 +485,14 @@ export default {
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 },
 		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
+	}),
+	// @custom-widget-ratchet exclude the incoming documents waiting list filters on the agenda item type's incomingDocument flag, a two-object condition no built-in widget's filter can express (age-13)
+	IncomingDocumentsWidget: widget(IncomingDocumentsWidget, {
+		_note: 'agenda-incoming-documents-list (age-13): incoming documents without a meeting, with Put on agenda. object-table cannot filter on a property of the referenced agenda item type.',
+		defaultSize: { w: 12, h: 4 },
+		minSize: { w: 6, h: 3 },
 		maxSize: { w: 12, h: 8 },
 		allowedSlots: ['dashboard'],
 	}),
@@ -356,23 +537,66 @@ export default {
 	// timeline + guarded transition buttons, and the read-only
 	// decision → motion → voting-round → vote results aggregate.
 	DecisionLifecycleTab: page(DecisionLifecycleTab),
+	// The step bar of the simple decision page (simple-decision-page). Named
+	// as a widget `type` in src/menu-layout.simple.json, which the detail
+	// page resolves here.
+	DecisionStepBar: page(DecisionStepBar),
+	// The step bar of the simple meeting page (simple-meeting-page), named
+	// the same way.
+	MeetingStepBar: page(MeetingStepBar),
+	// And the step bar of the simple amendment page (simple-amendment-page).
+	AmendmentStepBar: page(AmendmentStepBar),
+	// The decision's approval route, and sending it along one (routes-send-proposal-along-route).
+	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
+	UrgencyBanner: page(UrgencyBanner),
 	DecisionVotingTab: page(DecisionVotingTab),
+	WrittenResolutionTab: page(WrittenResolutionTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
 	DecisionPublicationTab: page(DecisionPublicationTab),
 	AgendaPublicationTab: page(AgendaPublicationTab),
+
+	// Document details on meeting and agenda item pages
+	// (platform-document-metadata-fields).
+	DocumentAccessibilityTab: page(DocumentAccessibilityTab),
+	DocumentMetadataTab: page(DocumentMetadataTab),
+	// governing-documents-register (REQ-GDR-005): a decision's citations and a document's citing decisions.
+	GoverningDocumentCitationsTab: page(GoverningDocumentCitationsTab),
+	GoverningDocumentCitedByTab: page(GoverningDocumentCitedByTab),
+	// Office papers as PDF on meeting and agenda item pages
+	// (agenda-office-files-to-pdf).
+	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
+	// Theme pages (publication-theme-pages): the staff timeline and Publish on
+	// the theme page, and Add to theme on agenda item and decision pages.
+	ThemeTimelineTab: page(ThemeTimelineTab),
+	ThemePublicationTab: page(ThemePublicationTab),
+	AgendaItemReadersTab: page(AgendaItemReadersTab),
+	// embargo-geheimhouding REQ-EMB-007: who opened the papers of a restriction.
+	RestrictedPaperViewsTab: page(RestrictedPaperViewsTab),
+	AgendaItemThemesTab: page(AgendaItemThemesTab),
+	DecisionThemesTab: page(DecisionThemesTab),
+	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
+	OnboardingChecklistTab: page(OnboardingChecklistTab),
+
+	// Document annotations (document-annotations): the PDF papers of a meeting
+	// or agenda item with Annotate, and the annotator itself, which loads
+	// pdf.js in a chunk of its own only when it opens.
+	DocumentAnnotationsTab: page(DocumentAnnotationsTab),
+	AnnotationView: page(AnnotationView),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
-	UserSettingsPage: page(UserSettingsPage),
 
 	// --- Citizen participation (citizen-participation). ---
 	// Bespoke action surfaces: the citizen+staff participation view (reaction
 	// form, proposal form, advisory voting cards, staff lifecycle/publish) and
 	// the staff reaction moderation queue.
 	ParticipationPage: page(ParticipationPage),
+	// termijnagenda: the per-body period board (REQ-LTA-005).
+	PlannedAgendaBoard: page(PlannedAgendaBoard),
 	ModerationQueuePage: page(ModerationQueuePage),
 }

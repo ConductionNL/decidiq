@@ -1,0 +1,583 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2026 Conduction B.V.
+//
+// Shared helpers for the "Parafering" (approval chain) integration leaf.
+//
+// The leaf shows the sign-off route travelling a host object, and lets the
+// person whose turn it is approve or reject it, on ANY consuming object's
+// detail page or sidebar (ADR-019 / ADR-022). The host can be a dossiq
+// document, an opencatalogi publication, or any OpenRegister object; nothing
+// here names a consuming app.
+//
+// EVERY WRITE GOES THROUGH DECIDIQ'S OWN CONTROLLER.
+// Start, approve and reject post to `/apps/decidiq/api/approval-routes/…`,
+// never to the host app and never straight at OpenRegister. The engine's
+// refusals ARE the sign-off route: an action by somebody the live step does
+// not name is refused server-side, and a leaf that wrote the stage itself
+// would be a second engine with none of those rules (ADR-066 decision 2,
+// REQ-ARE-004).
+//
+// The stages are read straight off the OpenRegister objects API rather than
+// through decidiq's Pinia store: the leaf renders inside a foreign app's
+// bundle, where `getActivePinia` is not decidiq's, and `useObjectStore()`
+// threw `reading '_s' of undefined` the last time a leaf tried it.
+
+import axios from '@nextcloud/axios'
+import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+
+/**
+ * Stage statuses that mean the route is still travelling.
+ *
+ * @type {string[]}
+ */
+export const UNFINISHED = ['active', 'pending']
+
+/**
+ * OpenRegister objects endpoint for decidiq `decision-stage` objects.
+ *
+ * @return {string} The resolved objects URL.
+ */
+function stagesUrl() {
+	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
+		register: 'decidiq',
+		schema: 'decision-stage',
+	})
+}
+
+/**
+ * Read an object's id whatever shape OpenRegister returned it in.
+ *
+ * @param {object} row An object row.
+ * @return {string} The id, or ''.
+ */
+export function objId(row) {
+	if (!row) return ''
+	return String(row.id || selfId(row) || row.uuid || '')
+}
+
+/**
+ * The id OpenRegister puts in a row's `@self` block, when it has one.
+ *
+ * @param {object} row An object row.
+ * @return {string|undefined} The id.
+ */
+function selfId(row) {
+	return row['@self'] && row['@self'].id
+}
+
+/**
+ * The rows of an OpenRegister list answer, bare or under `results`.
+ *
+ * @param {object} res The axios response.
+ * @return {object[]} The rows, or `[]` for any other shape.
+ */
+function resultRows(res) {
+	const data = res && res.data
+	if (Array.isArray(data)) return data
+	return data && Array.isArray(data.results) ? data.results : []
+}
+
+/**
+ * Orders stages by their step number, a stage without one first.
+ *
+ * @param {object} a A stage.
+ * @param {object} b Another stage.
+ * @return {number} The comparison.
+ */
+function bySequence(a, b) {
+	return Number(a.sequence || 0) - Number(b.sequence || 0)
+}
+
+/**
+ * Orders actions oldest first, an undated action first.
+ *
+ * @param {object} a An action.
+ * @param {object} b Another action.
+ * @return {number} The comparison.
+ */
+function byRecordedAt(a, b) {
+	return String(a.recordedAt || '').localeCompare(String(b.recordedAt || ''))
+}
+
+/**
+ * The stages of the route travelling a host object, in step order.
+ *
+ * @param {string} subjectId The host object's UUID.
+ * @param {number} [limit] Max rows.
+ * @return {Promise<object[]>} The stages, or `[]`.
+ */
+export async function listStages(subjectId, limit = 100) {
+	if (!subjectId) return []
+	// Filtered on `decision`, the stage's own back-reference to its subject.
+	const res = await axios.get(stagesUrl(), {
+		params: { decision: subjectId, _limit: limit },
+	})
+	return resultRows(res).slice().sort(bySequence)
+}
+
+/**
+ * OpenRegister objects endpoint for decidiq `approval-action` objects.
+ *
+ * @return {string} The resolved objects URL.
+ */
+function actionsUrl() {
+	return generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
+		register: 'decidiq',
+		schema: 'approval-action',
+	})
+}
+
+/**
+ * Every action recorded against a host object, oldest first.
+ *
+ * The REASON somebody gave lives here and not on the stage: a stage holds one
+ * status, and a step that was returned, revised and approved has three things
+ * said about it. Reading the reason off the stage would show the last one as if
+ * it were the only one, and `note` on a stage is the subject's schema slug, not
+ * anybody's words.
+ *
+ * @param {string} subjectId The host object's UUID.
+ * @param {number} [limit] Max rows.
+ * @return {Promise<object[]>} The actions, or `[]`.
+ */
+export async function listActions(subjectId, limit = 200) {
+	if (!subjectId) return []
+	const res = await axios.get(actionsUrl(), {
+		params: { subject: subjectId, _limit: limit },
+	})
+	return resultRows(res).slice().sort(byRecordedAt)
+}
+
+/**
+ * The actions recorded against each step, keyed by step number.
+ *
+ * @param {object[]} actions The actions.
+ * @return {object} A map of step number to its actions, in order.
+ */
+export function actionsByStep(actions) {
+	const byStep = {}
+	for (const action of actions || []) {
+		const step = String(Number(action.step || 0))
+		if (byStep[step] === undefined) byStep[step] = []
+		byStep[step].push(action)
+	}
+	return byStep
+}
+
+/**
+ * The step the route is on, or null when it has finished.
+ *
+ * @param {object[]} stages The stages, in order.
+ * @return {object|null} The live stage.
+ */
+export function liveStage(stages) {
+	if (!Array.isArray(stages) || stages.length === 0) return null
+	return (
+		stages.find((stage) => String(stage.status || '') === 'active')
+		|| stages.find((stage) => String(stage.status || '') === 'pending')
+		|| null
+	)
+}
+
+/**
+ * Whether a stage is past its due date with nothing recorded on it.
+ *
+ * COMPUTED, never stored. A stored "overdue" flag needs somebody to unset it
+ * the moment the step is signed, and the moment it is not unset the timeline
+ * lies about a step that is already done.
+ *
+ * @param {object} stage The stage.
+ * @param {Date} [now] The clock.
+ * @return {boolean} True when it renders overdue.
+ */
+export function isOverdue(stage, now) {
+	if (!isActiveStage(stage)) return false
+	const due = dueDate(stage)
+	if (due === null) return false
+	return due < (now || new Date())
+}
+
+/**
+ * Whether a stage is the one the route is waiting on.
+ *
+ * @param {object|null} stage The stage.
+ * @return {boolean} True when it is active.
+ */
+function isActiveStage(stage) {
+	return Boolean(stage) && String(stage.status || '') === 'active'
+}
+
+/**
+ * A stage's due date, or null when it has none or it does not parse.
+ *
+ * @param {object} stage The stage.
+ * @return {Date|null} The due date.
+ */
+function dueDate(stage) {
+	const dueAt = String(stage.dueAt || '')
+	if (!dueAt) return null
+	const due = new Date(dueAt)
+	return Number.isNaN(due.getTime()) ? null : due
+}
+
+/**
+ * What a step declares about who is asked, silence and its substitute.
+ *
+ * Read off the STAGE, because the rule, the silence policy and the substitute
+ * ask point are copied onto it when the route starts: editing the route later
+ * never changes what a step in flight means. A step that approves or refuses on
+ * silence says so in plain words, because a reader who misses it thinks the
+ * step waits for a person.
+ *
+ * @param {object} stage The stage.
+ * @return {string[]} One line per declaration, empty for a plain step.
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+ */
+export function stagePolicyLines(stage) {
+	if (!stage) return []
+	return [actorRuleLine(stage), silenceLine(stage), substituteLine(stage)].filter(
+		Boolean,
+	)
+}
+
+/**
+ * The line naming the step's actor rule, or '' for a step without one.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function actorRuleLine(stage) {
+	const rules = {
+		'manager-of-actor': t(
+			'decidiq',
+			'Asked of the manager of the person who acts',
+		),
+		'manager-of-subject-owner': t(
+			'decidiq',
+			'Asked of the manager of whoever owns the subject',
+		),
+		'substitute-of-actor': t(
+			'decidiq',
+			'Asked of the substitute of the person who acts',
+		),
+	}
+	return rules[String(stage.actorRule || '')] || ''
+}
+
+/**
+ * The line saying what the step's silence means, or '' when it holds.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function silenceLine(stage) {
+	const silence = {
+		approve: t(
+			'decidiq',
+			'Approves on its own if nobody answers by the deadline',
+		),
+		refuse: t('decidiq', 'Refuses on its own if nobody answers by the deadline'),
+		escalate: t('decidiq', 'Goes up a level if nobody answers by the deadline'),
+	}
+	return silence[String(stage.onSilence || '')] || ''
+}
+
+/**
+ * The line saying when the substitute is asked too, or '' when the ask point
+ * is not inside the term.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function substituteLine(stage) {
+	const after = Number(stage.askSubstituteAfter)
+	if (!(Number.isFinite(after) && after > 0 && after <= 1)) return ''
+	return t(
+		'decidiq',
+		'The substitute is also asked after {percent}% of the time',
+		{
+			percent: Math.round(after * 100),
+		},
+	)
+}
+
+/**
+ * Whether this user is the person the live step is waiting on.
+ *
+ * Decides only whether the BUTTONS are drawn. It is not the authorisation:
+ * decidiq's controller refuses an action by anybody the live stage does not
+ * name, whatever the browser sends. A client-side check that were the only
+ * check would be no check at all.
+ *
+ * @param {object} stage The live stage.
+ * @param {string} uid The current user's uid.
+ * @return {boolean} True when it is their turn.
+ */
+export function isCurrentActor(stage, uid) {
+	if (!stage || !uid) return false
+	return (
+		String(stage.assignedPerson || '') === String(uid)
+		|| String(stage.substituteActor || '') === String(uid)
+	)
+}
+
+/**
+ * Record an action on the host object's live step, through decidiq's own
+ * controller.
+ *
+ * The actor is NOT sent: the controller reads it off the session. Sending it
+ * would let any caller sign off as anyone, which is the one thing a sign-off
+ * route exists to prevent. Acting for the assignee is a different thing: the
+ * actor stays the session user, and `onBehalfOf` plus a `mandate` ask
+ * ApprovalStageGuard to accept them for the assignee, which it only does
+ * when the mandate authorises this actor (#1397).
+ *
+ * @param {object} params The action.
+ * @param {string} params.subject The host object's UUID.
+ * @param {string} params.subjectSchema The host object's schema slug.
+ * @param {number} params.step The step number.
+ * @param {string} params.action The verb, e.g. `approved` or `rejected`.
+ * @param {string} [params.comment] The reason, required on a rejection.
+ * @param {string} [params.onBehalfOf] The assignee acted for.
+ * @param {string} [params.mandate] The mandate that authorises it.
+ * @return {Promise<object>} The recorded action.
+ */
+export async function recordAction({
+	subject,
+	subjectSchema,
+	step,
+	action,
+	comment,
+	onBehalfOf,
+	mandate,
+}) {
+	const body = { subject, subjectSchema, step, action, comment: comment || '' }
+	if (onBehalfOf && mandate) {
+		body.onBehalfOf = onBehalfOf
+		body.mandate = mandate
+	}
+	const res = await axios.post(
+		generateUrl('/apps/decidiq/api/approval-routes/actions'),
+		body,
+	)
+	return (res && res.data) || {}
+}
+
+/**
+ * The mandates in `rows` that let `uid` act today.
+ *
+ * Mirrors what MandateDirectory checks on the server: status `effective`,
+ * the delegate is this person (or the mandate names nobody), and today
+ * falls inside the validity window. The server still decides; this only
+ * keeps the leaf from offering a mandate it would refuse.
+ *
+ * @param {object[]} rows The mandate rows.
+ * @param {string} uid The acting user.
+ * @param {Date} [today] Clock override for tests.
+ * @return {object[]} The usable mandates.
+ */
+export function usableMandates(rows, uid, today = new Date()) {
+	const day = today.toISOString().slice(0, 10)
+	return (rows || []).filter(
+		(row) =>
+			isEffective(row) && isDelegatedTo(row, uid) && isInForceOn(row, day),
+	)
+}
+
+/**
+ * Whether a mandate names this person as its delegate, or names nobody.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} uid The acting user.
+ * @return {boolean} True when the person may use it.
+ */
+function isDelegatedTo(row, uid) {
+	const delegate = String(row.delegatePerson || '')
+	return delegate === '' || delegate === String(uid || '')
+}
+
+/**
+ * Whether the day falls inside a mandate's validity window; a blank edge is
+ * open.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} day The day as YYYY-MM-DD.
+ * @return {boolean} True when the mandate is in force that day.
+ */
+function isInForceOn(row, day) {
+	const from = windowEdge(row, 'validFrom')
+	const to = windowEdge(row, 'validTo')
+	return (from === '' || from <= day) && (to === '' || to >= day)
+}
+
+/**
+ * Whether a mandate has status `effective`.
+ *
+ * @param {object} row The mandate row.
+ * @return {boolean} True when it is effective.
+ */
+function isEffective(row) {
+	return String(row.status || '') === 'effective'
+}
+
+/**
+ * One edge of a mandate's validity window as YYYY-MM-DD, or '' when blank.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} field validFrom or validTo.
+ * @return {string} The day.
+ */
+function windowEdge(row, field) {
+	return String(row[field] || '').slice(0, 10)
+}
+
+/**
+ * Read the mandates `uid` may sign under, from the register the server
+ * checks them against (MandateDirectory reads `bevoegdheidstoedeling`).
+ *
+ * @param {string} uid The acting user.
+ * @param {Date} [today] Clock override for tests.
+ * @return {Promise<object[]>} The usable mandates.
+ */
+export async function listMandates(uid, today = new Date()) {
+	if (!uid) return []
+	const res = await axios.get(
+		generateUrl('/apps/openregister/api/objects/decidiq/bevoegdheidstoedeling'),
+		{ params: { delegatePerson: uid, status: 'effective', _limit: 50 } },
+	)
+	return usableMandates(resultRows(res), uid, today)
+}
+
+/**
+ * Whether to offer "sign on behalf of" the step's assignee.
+ *
+ * Not the authorisation: ApprovalStageGuard decides that.
+ *
+ * @param {object|null} stage The live stage.
+ * @param {string} uid The current user.
+ * @param {object[]} mandates The user's usable mandates.
+ * @return {boolean} True when someone else holds the step and a mandate exists.
+ */
+export function mayActOnBehalf(stage, uid, mandates) {
+	if (!stage || String(stage.status || '') !== 'active') return false
+	const assigned = String(stage.assignedPerson || '')
+	if (assigned === '' || assigned === String(uid || '')) return false
+	return Array.isArray(mandates) && mandates.length > 0
+}
+
+/**
+ * Start a sign-off route on the host object, from named people.
+ *
+ * With `askSubstituteAfter` (a fraction of each step's term, 0 to 1) every
+ * step also asks the approver's substitute once that share of its term has
+ * passed; the substitute is read from the organisation record (#1397). It
+ * needs a deadline, because a step without a term has no point part way
+ * through it.
+ *
+ * @param {object} params The route.
+ * @param {string} params.subject The host object's UUID.
+ * @param {string} params.subjectSchema The host object's schema slug.
+ * @param {string[]} params.actors The people to ask, in order.
+ * @param {string} [params.deadline] One deadline for the whole route.
+ * @param {string} [params.name] What to call the route.
+ * @param {number} [params.askSubstituteAfter] When to ask the substitute too.
+ * @return {Promise<object[]>} The stages.
+ */
+export async function holdRoute(params) {
+	const res = await axios.post(
+		generateUrl('/apps/decidiq/api/approval-routes/instantiate'),
+		heldRouteBody(params),
+	)
+	const data = (res && res.data) || {}
+	return Array.isArray(data.stages) ? data.stages : []
+}
+
+/**
+ * Whether an ask point is a fraction of the term the substitute can be asked at.
+ *
+ * @param {number|string|undefined} askSubstituteAfter The ask point.
+ * @return {boolean} True for a number above 0 and at most 1.
+ */
+function isAskPoint(askSubstituteAfter) {
+	return (
+		typeof askSubstituteAfter === 'number'
+		&& askSubstituteAfter > 0
+		&& askSubstituteAfter <= 1
+	)
+}
+
+/**
+ * The request body of a held route: one endorsement step per person, the
+ * deadline, and the ask point on every step and the route when it is one.
+ *
+ * @param {object} params The route (see holdRoute).
+ * @return {object} The body.
+ */
+function heldRouteBody(params) {
+	const { subject, subjectSchema, actors, deadline, name, askSubstituteAfter } =
+		params
+	const substitute = isAskPoint(askSubstituteAfter)
+	const body = {
+		subject,
+		subjectSchema,
+		route: {
+			name: name || 'Review',
+			origin: 'adhoc',
+			steps: (actors || []).map((actor, index) => ({
+				order: index + 1,
+				stageType: 'endorsement',
+				actorType: 'person',
+				actor,
+				...(substitute ? { askSubstituteAfter } : {}),
+			})),
+		},
+		deadline: deadline || '',
+	}
+	if (substitute) {
+		body.askSubstituteAfter = askSubstituteAfter
+	}
+	return body
+}
+
+/**
+ * The people named in a free-text "people to ask" field, in order.
+ *
+ * Commas, semicolons and line breaks separate names; blanks and repeats are
+ * dropped, because holdFor() asks a person once.
+ *
+ * @param {string} text What was typed.
+ * @return {string[]} The user names.
+ */
+export function parseActors(text) {
+	const seen = []
+	for (const part of String(text || '').split(/[,;\n]/)) {
+		const name = part.trim()
+		if (name !== '' && !seen.includes(name)) seen.push(name)
+	}
+	return seen
+}
+
+/**
+ * The reason templates a host offers, as picker options.
+ *
+ * A host app (dossiq's starter-content templates, decision 156) may hand the
+ * leaf ready-made reasons: "Akkoord, conform advies". The leaf does not read
+ * any app's template library itself; it shows what it was given. A malformed
+ * list is an empty offer, never a crash and never a half-list, and an entry
+ * without a body is dropped because picking it would fill nothing.
+ *
+ * @param {Array<object>|null|undefined} raw What the host passed as `reasonTemplates`.
+ * @return {Array<{id: string, name: string, body: string}>} The options.
+ * @spec openspec/specs/approval-routes/spec.md
+ */
+export function reasonTemplateOptions(raw) {
+	if (!Array.isArray(raw)) return []
+	return raw
+		.filter((item) => item && item.id && String(item.body || '').trim() !== '')
+		.map((item) => ({
+			id: String(item.id),
+			name: String(item.name || item.id),
+			body: String(item.body),
+		}))
+}
