@@ -20,8 +20,9 @@
   - GIVEN no linked room system WHEN the chair gives the floor THEN no outbound call is made and the queue behaves as before
   - GIVEN the rule WHEN declared THEN it uses only `changed` or `equals` conditions, which the OpenRegister dispatcher supports on updated triggers
 - **depends_on**: `live-room-conference-system-link` Task 1 (the `room-system` connection and `Participant.roomSeat`)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (21 Nov), through the room-system feed the live-room change already has instead of a meeting field and a declarative transport: an `x-openregister-notifications` rule cannot call an integriq connection, and `RoomSystemClient` is the one place decidiq talks to the room system. When the chair gives the floor, `SpeakerQueuePanel.giveFloor()` posts `floorRequest()` (`src/utils/roomFloor.js`) to `POST /api/meetings/{id}/room-system/floor`. `RoomSystemController::floor()` runs the chair-or-secretary guard on the meeting before anything is read or sent, refuses a missing participant with 422, and has `RoomSystemFeed::floorGiven()` send one `floor` message with the meeting, the participant, the name and `Participant.roomSeat`. Without a linked room system nothing is sent (`sent: false`), and the queue is fail-soft either way. A public speaker has no seat and is not sent. Tests: `RoomSystemFeedTest` (sent with the seat, without a seat, nothing without a room system or a member), `RoomSystemControllerTest` (guard first, 403, 422), `tests/vitest/roomFloor.spec.js`. The live check with a real room system is part of the live pass.
 
 ### Task 3: Ancillary positions on the public portal
 - **spec_ref**: `openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account`

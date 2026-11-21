@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
+use OCA\Decidiq\Service\RoomSystemFeed;
 use OCA\Decidiq\Service\RoomSystemMessageService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -44,6 +45,7 @@ class RoomSystemController extends Controller {
 	 * @param IRequest                         $request  The request.
 	 * @param RoomSystemMessageService         $messages The room system messages.
 	 * @param TranscriptionStaffGuardInterface $guard    Chair or secretary of the meeting.
+	 * @param RoomSystemFeed                   $feed     Sends the floor to the room system.
 	 *
 	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 	 */
@@ -51,6 +53,7 @@ class RoomSystemController extends Controller {
 		IRequest $request,
 		private readonly RoomSystemMessageService $messages,
 		private readonly TranscriptionStaffGuardInterface $guard,
+		private readonly RoomSystemFeed $feed,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -105,4 +108,32 @@ class RoomSystemController extends Controller {
 
 		return new JSONResponse($message);
 	}//end apply()
+
+	/**
+	 * Tell the room system that the chair gave a member the floor (REQ-PLB-006).
+	 *
+	 * Chair or secretary of the meeting only, checked before anything is read
+	 * or sent. Without a linked room system nothing is sent and the answer is
+	 * `sent: false`; the speaker queue goes on as before either way.
+	 *
+	 * @param string $id The meeting UUID.
+	 *
+	 * @return JSONResponse `{sent: bool}`, 422 without a participant, or the guard's refusal.
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+	 */
+	#[NoAdminRequired]
+	public function floor(string $id): JSONResponse {
+		$denied = $this->guard->forMeeting(meetingId: $id);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$participant = trim((string)$this->request->getParam('participant', ''));
+		if ($participant === '') {
+			return new JSONResponse(['message' => 'Name the participant who has the floor.'], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		return new JSONResponse(['sent' => $this->feed->floorGiven(meetingId: $id, participantId: $participant)]);
+	}//end floor()
 }//end class

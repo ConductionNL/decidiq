@@ -334,6 +334,55 @@ final class RoomSystemFeedTest extends TestCase {
 	}//end testNothingIsSentWhileNoRoomSystemIsLinked()
 
 	/**
+	 * The chair gives Sem the floor: the room system is told who speaks, with
+	 * the seat, so the camera and microphone switch (REQ-PLB-006).
+	 *
+	 * @return void
+	 */
+	public function testGivingTheFloorSendsTheSpeakerWithTheSeat(): void {
+		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
+		self::assertSame([[
+			'/room-system/floor',
+			'POST',
+			['meeting' => 'meet-1', 'participant' => 'p-vries', 'name' => 'J. de Vries', 'seat' => '12'],
+		]], $this->calls);
+	}//end testGivingTheFloorSendsTheSpeakerWithTheSeat()
+
+	/**
+	 * A member without a seat, or who cannot be read, still goes over by id,
+	 * with no seat.
+	 *
+	 * @return void
+	 */
+	public function testAMemberWithoutASeatGoesOverWithoutOne(): void {
+		$this->store['participant']['p-nieuw'] = ['displayName' => 'S. Jansen'];
+
+		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-nieuw'));
+		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-weg'));
+		self::assertSame(
+			[
+				['meeting' => 'meet-1', 'participant' => 'p-nieuw', 'name' => 'S. Jansen', 'seat' => null],
+				['meeting' => 'meet-1', 'participant' => 'p-weg', 'name' => '', 'seat' => null],
+			],
+			array_column($this->calls, 2)
+		);
+	}//end testAMemberWithoutASeatGoesOverWithoutOne()
+
+	/**
+	 * No room system linked, or no meeting or member named: nothing is sent.
+	 *
+	 * @return void
+	 */
+	public function testTheFloorIsNotSentWithoutARoomSystemOrAMember(): void {
+		self::assertFalse($this->feed()->floorGiven(meetingId: '', participantId: 'p-vries'));
+		self::assertFalse($this->feed()->floorGiven(meetingId: 'meet-1', participantId: ''));
+
+		$this->store['app_connection'] = [];
+		self::assertFalse($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
+		self::assertSame([], $this->calls);
+	}//end testTheFloorIsNotSentWithoutARoomSystemOrAMember()
+
+	/**
 	 * The published agenda goes over with its items in order and the current item.
 	 *
 	 * @return void

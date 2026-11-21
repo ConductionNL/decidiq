@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\RoomSystemController;
+use OCA\Decidiq\Service\RoomSystemFeed;
 use OCA\Decidiq\Service\RoomSystemMessageService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
 use OCP\AppFramework\Http;
@@ -49,10 +50,17 @@ class RoomSystemControllerTest extends TestCase {
 	 *
 	 * @param RoomSystemMessageService&MockObject $messages The messages.
 	 * @param JSONResponse|null                   $denied   What the staff guard answers.
+	 * @param RoomSystemFeed|null                 $feed     The feed; a mock that sends nothing when null.
+	 * @param array<string, mixed>                $params   The request parameters.
 	 *
 	 * @return RoomSystemController
 	 */
-	private function controller(RoomSystemMessageService&MockObject $messages, ?JSONResponse $denied): RoomSystemController {
+	private function controller(
+		RoomSystemMessageService&MockObject $messages,
+		?JSONResponse $denied,
+		?RoomSystemFeed $feed = null,
+		array $params = [],
+	): RoomSystemController {
 		$guard = $this->createMock(TranscriptionStaffGuard::class);
 		$guard->method('forMeeting')->willReturnCallback(
 			function (string $meetingId) use ($denied): ?JSONResponse {
@@ -61,7 +69,17 @@ class RoomSystemControllerTest extends TestCase {
 			}
 		);
 
-		return new RoomSystemController(request: $this->createMock(IRequest::class), messages: $messages, guard: $guard);
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default)
+		);
+
+		return new RoomSystemController(
+			request: $request,
+			messages: $messages,
+			guard: $guard,
+			feed: ($feed ?? $this->createMock(RoomSystemFeed::class)),
+		);
 	}//end controller()
 
 	/**
@@ -141,4 +159,64 @@ class RoomSystemControllerTest extends TestCase {
 
 		$this->assertSame($denied, $this->controller(messages: $messages, denied: $denied)->meeting(id: 'meet-1'));
 	}//end testARefusedCallerReadsNothing()
+
+	/**
+	 * The chair gives the floor: after the guard on the meeting, the feed is
+	 * asked to tell the room system, and the answer says whether it took it.
+	 *
+	 * @return void
+	 */
+	public function testTheChairGivingTheFloorTellsTheRoomSystem(): void {
+		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed->expects($this->once())->method('floorGiven')->with('meet-1', 'p-sem')->willReturn(true);
+
+		$response = $this->controller(
+			messages: $this->createMock(RoomSystemMessageService::class),
+			denied: null,
+			feed: $feed,
+			params: ['participant' => 'p-sem'],
+		)->floor(id: 'meet-1');
+
+		$this->assertSame(['meet-1'], $this->guarded);
+		$this->assertSame(['sent' => true], $response->getData());
+	}//end testTheChairGivingTheFloorTellsTheRoomSystem()
+
+	/**
+	 * A member who is neither chair nor secretary is refused before anything is sent.
+	 *
+	 * @return void
+	 */
+	public function testOnlyStaffGiveTheFloor(): void {
+		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed->expects($this->never())->method('floorGiven');
+		$denied = new JSONResponse(['message' => 'Forbidden: chair or secretary role required.'], Http::STATUS_FORBIDDEN);
+
+		$response = $this->controller(
+			messages: $this->createMock(RoomSystemMessageService::class),
+			denied: $denied,
+			feed: $feed,
+			params: ['participant' => 'p-sem'],
+		)->floor(id: 'meet-1');
+
+		$this->assertSame($denied, $response);
+	}//end testOnlyStaffGiveTheFloor()
+
+	/**
+	 * Without a participant the request is refused with 422 and nothing is sent.
+	 *
+	 * @return void
+	 */
+	public function testTheFloorNeedsAParticipant(): void {
+		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed->expects($this->never())->method('floorGiven');
+
+		$response = $this->controller(
+			messages: $this->createMock(RoomSystemMessageService::class),
+			denied: null,
+			feed: $feed,
+			params: ['participant' => '  '],
+		)->floor(id: 'meet-1');
+
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+	}//end testTheFloorNeedsAParticipant()
 }//end class

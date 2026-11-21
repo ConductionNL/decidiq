@@ -183,6 +183,36 @@ class RoomSystemFeed {
 	}//end resultOf()
 
 	/**
+	 * Tell the room system who has the floor now, with the member's seat, so
+	 * its cameras and microphones follow the speaker (REQ-PLB-006). Sends
+	 * nothing while no room system is linked.
+	 *
+	 * @param string $meetingId     The meeting UUID.
+	 * @param string $participantId The participant who was given the floor.
+	 *
+	 * @return bool Whether the room system took the message.
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+	 */
+	public function floorGiven(string $meetingId, string $participantId): bool {
+		if ($meetingId === '' || $participantId === '' || $this->client->isConnected() === false) {
+			return false;
+		}
+
+		$member = ($this->find(id: $participantId, schema: 'participant') ?? []);
+
+		return $this->client->send(
+			operation: 'floor',
+			body: [
+				'meeting'     => $meetingId,
+				'participant' => $participantId,
+				'name'        => (string)($member['displayName'] ?? ''),
+				'seat'        => self::nullable(value: $member['roomSeat'] ?? null),
+			]
+		);
+	}//end floorGiven()
+
+	/**
 	 * Every speech in the meeting, in the order they started, with the member's name and seat.
 	 *
 	 * @param string $meetingId The meeting UUID.
