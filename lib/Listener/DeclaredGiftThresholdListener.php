@@ -33,11 +33,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
-use OCP\EventDispatcher\Event;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\EventDispatcher\IEventListener;
+use OCP\EventDispatcher\Event;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -66,11 +66,11 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface $objectService Reads the body's configuration.
-	 * @param LoggerInterface        $logger        Logger.
+	 * @param ObjectServiceInterface $configurations Reads the body's governance configuration.
+	 * @param LoggerInterface        $logger         Logs a configuration that cannot be read.
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		private readonly ObjectServiceInterface $configurations,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -85,17 +85,21 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectCreatingEvent) === false && ($event instanceof ObjectUpdatingEvent) === false) {
-			return;
+		$entity = null;
+		if ($event instanceof ObjectCreatingEvent) {
+			$entity = $event->getObject();
 		}
 
-		$entity = SaveGuardEvent::entityOf(event: $event);
+		if ($event instanceof ObjectUpdatingEvent) {
+			$entity = $event->getNewObject();
+		}
+
 		if ($entity === null) {
 			return;
 		}
 
 		$gift = array_merge((array)$entity->getObject(), $event->getModifiedData());
-		if (SaveGuardEvent::namesSchema(row: $gift, schema: self::SCHEMA) === false) {
+		if (strtolower((string)($gift['_schemaSlug'] ?? self::SCHEMA)) !== self::SCHEMA) {
 			return;
 		}
 
@@ -117,7 +121,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 			return null;
 		}
 
-		if ((float)$value >= $this->thresholdOf(body: DecisionDecidingBodyListener::referenceId(value: ($gift['governanceBody'] ?? null)))) {
+		if ((float)$value >= $this->thresholdOf(body: self::bodyOf(gift: $gift))) {
 			return 'above';
 		}
 
@@ -142,7 +146,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 		}
 
 		try {
-			$configurations = $this->objectService->findAll(
+			$found = $this->configurations->findAll(
 				config: [
 					'filters' => ['register' => 'decidiq', 'schema' => 'body-governance-configuration', 'governanceBody' => $body],
 					'limit' => 1,
@@ -150,11 +154,14 @@ class DeclaredGiftThresholdListener implements IEventListener {
 				_rbac: false
 			);
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: the gift threshold of a body could not be read; the default applies', ['body' => $body, 'error' => $e->getMessage()]);
+			$this->logger->warning(
+				'Decidiq: the gift threshold of a body could not be read; the default applies',
+				['body' => $body, 'error' => $e->getMessage()]
+			);
 			return self::DEFAULT_THRESHOLD;
 		}
 
-		foreach ($configurations as $configuration) {
+		foreach ($found as $configuration) {
 			$amount = (self::rowOf(configuration: $configuration)['giftThresholdAmount'] ?? null);
 			if (is_numeric($amount) === true) {
 				return (float)$amount;
@@ -163,6 +170,26 @@ class DeclaredGiftThresholdListener implements IEventListener {
 
 		return self::DEFAULT_THRESHOLD;
 	}//end thresholdOf()
+
+	/**
+	 * The gift's body uuid, from a plain or an expanded reference.
+	 *
+	 * @param array<string, mixed> $gift The gift.
+	 *
+	 * @return string|null The uuid.
+	 */
+	private static function bodyOf(array $gift): ?string {
+		$body = ($gift['governanceBody'] ?? null);
+		if (is_array($body) === true) {
+			$body = ($body['id'] ?? ($body['uuid'] ?? null));
+		}
+
+		if (is_string($body) === false || trim($body) === '') {
+			return null;
+		}
+
+		return $body;
+	}//end bodyOf()
 
 	/**
 	 * A configuration as a row, whether OpenRegister returned an array or an entity.

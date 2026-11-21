@@ -76,7 +76,7 @@ final class DeclaredGiftThresholdListenerTest extends TestCase {
 			}
 		);
 
-		return new DeclaredGiftThresholdListener(objectService: $objects, logger: new NullLogger());
+		return new DeclaredGiftThresholdListener(configurations: $objects, logger: new NullLogger());
 	}//end listener()
 
 	/**
@@ -123,7 +123,11 @@ final class DeclaredGiftThresholdListenerTest extends TestCase {
 		self::assertSame(expected: 'above', actual: $listener->statusOf(gift: ['governanceBody' => 'rvc', 'estimatedValue' => 30]));
 		self::assertSame(expected: 'above', actual: $listener->statusOf(gift: ['governanceBody' => 'rvc', 'estimatedValue' => '25']));
 		self::assertSame(expected: 'below', actual: $listener->statusOf(gift: ['governanceBody' => 'rvc', 'estimatedValue' => 24.99]));
-		self::assertSame(expected: 'below', actual: $listener->statusOf(gift: ['governanceBody' => 'raad', 'estimatedValue' => 30]), message: 'no configuration: EUR 50');
+		self::assertSame(
+			expected: 'below',
+			actual: $listener->statusOf(gift: ['governanceBody' => ['id' => 'raad'], 'estimatedValue' => 30]),
+			message: 'no configuration: EUR 50'
+		);
 	}//end testTheBodysConfiguredThresholdApplies()
 
 	/**
@@ -155,7 +159,8 @@ final class DeclaredGiftThresholdListenerTest extends TestCase {
 		self::assertSame(expected: 'above', actual: $this->listener()->statusOf(gift: ['estimatedValue' => 50]));
 		self::assertSame(expected: [], actual: $this->asked, message: 'no body, nothing read');
 
-		self::assertSame(expected: 'above', actual: $this->listener(thresholds: ['rvc' => 500], broken: true)->statusOf(gift: ['governanceBody' => 'rvc', 'estimatedValue' => 60]));
+		$broken = $this->listener(thresholds: ['rvc' => 500], broken: true);
+		self::assertSame(expected: 'above', actual: $broken->statusOf(gift: ['governanceBody' => 'rvc', 'estimatedValue' => 60]));
 	}//end testMissingValueBodyOrConfiguration()
 
 	/**
