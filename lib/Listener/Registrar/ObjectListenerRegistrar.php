@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\ApprovalBasisChangeListener;
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\GoalProgressRefreshListener;
@@ -197,6 +198,8 @@ class ObjectListenerRegistrar {
 		$this->subscribeConfidentiality(dispatcher: $dispatcher);
 		$this->subscribeUrgentReport(dispatcher: $dispatcher);
 
+		$this->subscribeStaleApprovals(dispatcher: $dispatcher);
+
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
 		// Platform-case-system-document-exchange (plt-24): minutes reaching
@@ -332,6 +335,31 @@ class ObjectListenerRegistrar {
 			);
 		}
 	}//end subscribeConfidentiality()
+
+	/**
+	 * Stale approvals (the-decision-as-a-walked-process, REQ-DWP-003).
+	 *
+	 * A route's subject can be an object of any schema in any register (a
+	 * decision here, a document or case in the host app), so this one is
+	 * declared for every update. The listener skips the route's own rows
+	 * first, and the service stops after one stage read on a subject whose
+	 * stages declare no approval basis.
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 */
+	private function subscribeStaleApprovals(IEventDispatcher $dispatcher): void {
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: ApprovalBasisChangeListener::class,
+			registers: null,
+			schemas: null
+		);
+	}//end subscribeStaleApprovals()
 
 	/**
 	 * A ratification item placed on a meeting sets the urgent decision's
