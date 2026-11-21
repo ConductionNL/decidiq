@@ -199,15 +199,26 @@ export function newPosition(form, personId, now = new Date()) {
  */
 export function giftFormIsValid(form) {
 	if (!form) return false
-	const value = Number(form.estimatedValue)
 	return refId(form.governanceBody) !== ''
 		&& GIFT_TYPES.includes(form.type)
 		&& GIFT_DECISIONS.includes(form.decision)
 		&& filled(form.giver)
 		&& filled(form.description)
-		&& form.estimatedValue !== '' && form.estimatedValue !== null
-		&& Number.isFinite(value) && value >= 0
+		&& valueIsValid(form.estimatedValue)
 		&& /^\d{4}-\d{2}-\d{2}$/.test(String(form.receivedOn || ''))
+}
+
+/**
+ * Whether an estimated value is a number of zero or more.
+ *
+ * @param {unknown} value The value typed in the dialog.
+ * @return {boolean} True when it is acceptable.
+ * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+ */
+export function valueIsValid(value) {
+	if (value === '' || value === null || value === undefined) return false
+	const amount = Number(value)
+	return Number.isFinite(amount) && amount >= 0
 }
 
 /**
@@ -233,4 +244,40 @@ export function newGift(form, personId, now = new Date()) {
 	}
 	if (filled(form.notes)) gift.notes = form.notes.trim()
 	return gift
+}
+
+/** The three forms the declaration dialog shows. */
+export const DIALOG_KINDS = ['position', 'gift', 'end']
+
+/**
+ * The empty form of a dialog kind, with the body preselected when there is only one.
+ *
+ * @param {string} kind One of DIALOG_KINDS.
+ * @param {Array<{id: string}>} [bodies] The governance bodies to choose from.
+ * @param {Date} [now] Today, the default end date.
+ * @return {object} The form's fields.
+ * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ */
+export function emptyForm(kind, bodies = [], now = new Date()) {
+	if (kind === 'end') return { endDate: dayOf(now) }
+	const governanceBody = bodies.length === 1 ? bodies[0].id : ''
+	if (kind === 'gift') {
+		return { governanceBody, type: 'gift', giver: '', description: '', estimatedValue: '', receivedOn: '', decision: 'accepted', notes: '' }
+	}
+	return { governanceBody, organisation: '', role: '', hoursIndication: '', startDate: '', remunerated: false, qualitateQua: false }
+}
+
+/**
+ * Whether a dialog's form can be saved.
+ *
+ * @param {string} kind One of DIALOG_KINDS.
+ * @param {object} form The form's fields.
+ * @param {object} [position] The position being ended, for `end`.
+ * @return {boolean} True when it is complete.
+ * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ */
+export function formIsValid(kind, form, position = null) {
+	if (kind === 'end') return endDateIsValid(position, form?.endDate)
+	if (kind === 'gift') return giftFormIsValid(form)
+	return positionFormIsValid(form)
 }

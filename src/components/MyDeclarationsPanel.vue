@@ -72,7 +72,7 @@
 							variant="tertiary"
 							:disabled="saving"
 							data-testid="my-declarations-end"
-							@click="ending = position">
+							@click="startEnding(position)">
 							{{ t('decidiq', 'End position') }}
 						</NcButton>
 					</span>
@@ -95,26 +95,14 @@
 			</ul>
 		</template>
 
-		<AncillaryPositionDialog
-			v-if="dialog === 'position'"
+		<DeclarationDialog
+			v-if="dialog"
+			:kind="dialog"
 			:bodies="bodyOptions"
-			:saving="saving"
-			:error="dialogError"
-			@submit="declarePosition"
-			@close="closeDialog" />
-		<DeclaredGiftDialog
-			v-if="dialog === 'gift'"
-			:bodies="bodyOptions"
-			:saving="saving"
-			:error="dialogError"
-			@submit="registerGift"
-			@close="closeDialog" />
-		<AncillaryPositionEndDialog
-			v-if="ending"
 			:position="ending"
 			:saving="saving"
 			:error="dialogError"
-			@submit="endPosition"
+			@submit="submit"
 			@close="closeDialog" />
 	</section>
 </template>
@@ -122,9 +110,7 @@
 <script>
 import { getCurrentUser } from '@nextcloud/auth'
 import { NcButton } from '@nextcloud/vue'
-import AncillaryPositionDialog from '../dialogs/AncillaryPositionDialog.vue'
-import AncillaryPositionEndDialog from '../dialogs/AncillaryPositionEndDialog.vue'
-import DeclaredGiftDialog from '../dialogs/DeclaredGiftDialog.vue'
+import DeclarationDialog from '../dialogs/DeclarationDialog.vue'
 import { isReviewOverdue, refId } from '../utils/integrityCompliance.js'
 import {
 	canConfirm,
@@ -147,7 +133,7 @@ const LIST_LIMIT = 500
 export default {
 	name: 'MyDeclarationsPanel',
 
-	components: { AncillaryPositionDialog, AncillaryPositionEndDialog, DeclaredGiftDialog, NcButton },
+	components: { DeclarationDialog, NcButton },
 
 	data() {
 		return {
@@ -270,7 +256,7 @@ export default {
 		 * @param {string} message The reason.
 		 */
 		report(message) {
-			if (this.dialog || this.ending) this.dialogError = message
+			if (this.dialog) this.dialogError = message
 			else this.error = message
 		},
 
@@ -327,6 +313,28 @@ export default {
 		async confirm(position) {
 			const saved = await this.save(POSITION, confirmedReview(position))
 			if (saved) this.positions = this.upsert(this.positions, saved)
+		},
+
+		/**
+		 * Open the end dialog for a position.
+		 *
+		 * @param {object} position The position.
+		 */
+		startEnding(position) {
+			this.ending = position
+			this.dialog = 'end'
+		},
+
+		/**
+		 * Save what the open dialog asks for.
+		 *
+		 * @param {object} form The dialog's fields.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
+		submit(form) {
+			if (this.dialog === 'gift') return this.registerGift(form)
+			if (this.dialog === 'end') return this.endPosition(form.endDate)
+			return this.declarePosition(form)
 		},
 
 		/** Close whichever dialog is open. */

@@ -21,14 +21,17 @@ import {
 	canEnd,
 	confirmedReview,
 	dayOf,
+	emptyForm,
 	endDateIsValid,
 	endedPosition,
+	formIsValid,
 	giftFormIsValid,
 	newGift,
 	newPosition,
 	ownPersonIds,
 	ownRecords,
 	positionFormIsValid,
+	valueIsValid,
 } from '../../src/utils/ownDeclarations.js'
 import { validatorFor } from './helpers/registerSchema.js'
 
@@ -118,7 +121,7 @@ describe('ending a position', () => {
 
 describe('declaring a position', () => {
 	const form = {
-		governanceBody: BODY,
+		governanceBody: BODY.id,
 		organisation: ' Stichting Buurtwerk ',
 		role: 'Board member',
 		hoursIndication: '',
@@ -163,7 +166,7 @@ describe('declaring a position', () => {
 
 describe('registering a gift', () => {
 	const form = {
-		governanceBody: BODY,
+		governanceBody: BODY.id,
 		type: 'invitation',
 		giver: 'Havenbedrijf',
 		description: 'Dinner after the opening',
@@ -191,6 +194,33 @@ describe('registering a gift', () => {
 		const valid = validatorFor('declared-gift')
 		expect(valid(record), JSON.stringify(valid.errors)).toBe(true)
 		expect('notes' in newGift(form, ME, NOW)).toBe(false)
+	})
+})
+
+describe('the declaration dialog\'s forms', () => {
+	it('starts empty, with the only body preselected', () => {
+		expect(emptyForm('position', [BODY]).governanceBody).toBe(BODY.id)
+		expect(emptyForm('position', [BODY, { id: 'other' }]).governanceBody).toBe('')
+		expect(emptyForm('gift', [])).toMatchObject({ type: 'gift', decision: 'accepted', governanceBody: '' })
+		expect(emptyForm('end', [], NOW)).toEqual({ endDate: '2026-11-21' })
+	})
+
+	it('an empty form cannot be saved, a filled one can', () => {
+		expect(formIsValid('position', emptyForm('position', [BODY]))).toBe(false)
+		expect(formIsValid('gift', emptyForm('gift', [BODY]))).toBe(false)
+		expect(formIsValid('end', emptyForm('end', [], NOW), position())).toBe(true)
+		expect(formIsValid('end', { endDate: '2020-01-01' }, position())).toBe(false)
+		const filledPosition = { ...emptyForm('position', [BODY]), organisation: 'Stichting', role: 'Chair', startDate: '2026-01-01' }
+		expect(formIsValid('position', filledPosition)).toBe(true)
+		const filledGift = { ...emptyForm('gift', [BODY]), giver: 'Havenbedrijf', description: 'Book', estimatedValue: 20, receivedOn: '2026-11-01' }
+		expect(formIsValid('gift', filledGift)).toBe(true)
+	})
+
+	it('accepts a value of zero or more only', () => {
+		expect(valueIsValid(0)).toBe(true)
+		expect(valueIsValid('12.50')).toBe(true)
+		expect(valueIsValid(undefined)).toBe(false)
+		expect(valueIsValid('abc')).toBe(false)
 	})
 })
 
