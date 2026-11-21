@@ -6,14 +6,14 @@
  * (embargo-geheimhouding task 7, REQ-EMB-007).
  */
 
-import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { describe, expect, it, vi } from 'vitest'
 import {
 	viewRows,
-	viewTime,
 	viewsRefusal,
 	viewsUrl,
+	viewTime,
 } from '../../src/utils/restrictedPaperViews.js'
 
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))

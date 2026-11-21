@@ -61,7 +61,7 @@
 <script>
 import axios from '@nextcloud/axios'
 import { NcLoadingIcon } from '@nextcloud/vue'
-import { viewRows, viewTime, viewsRefusal, viewsUrl } from '../../utils/restrictedPaperViews.js'
+import { viewRows, viewsRefusal, viewsUrl, viewTime } from '../../utils/restrictedPaperViews.js'
 import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
