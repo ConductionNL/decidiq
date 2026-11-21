@@ -8336,6 +8336,72 @@
                 }
             }
         },
+        "/meetings/{id}/room-system/floor": {
+            "post": {
+                "operationId": "room-system-floor",
+                "summary": "Tell the room system who has the floor",
+                "description": "Tell the room system who has the floor, with the member's seat, so its cameras and microphones follow the speaker. Needs a signed-in Nextcloud user who is the meeting's chair or secretary. Sends nothing while no room system is linked.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "participant"
+                                ],
+                                "properties": {
+                                    "participant": {
+                                        "type": "string",
+                                        "description": "The participant who was given the floor."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sent": {
+                                            "type": "boolean",
+                                            "description": "Whether the room system took the message."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
         "/room-system-messages/{id}/apply": {
             "post": {
                 "operationId": "room-system-apply",

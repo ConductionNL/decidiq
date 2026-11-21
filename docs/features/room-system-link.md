@@ -52,6 +52,7 @@ While a room system is linked, decidiq keeps the room's displays and desks in st
 
 - **The agenda**: once the agenda is published, the items in order and the item under discussion, again each time the agenda version or the current item changes.
 - **The speakers' list**: every speech recorded in the meeting, in the order members spoke, with their name and seat, each time a speech is added.
+- **Who has the floor**: the member and their seat, each time the chair gives someone the floor in the speaker queue, so the room's cameras and microphones follow the speaker. A public speaker has no seat and is not sent.
 - **Vote results**: when the chair closes a voting round, the current agenda item and the totals for, against and abstained.
 
 With no room system linked nothing is sent, and when the room system cannot be reached the meeting carries on as usual.

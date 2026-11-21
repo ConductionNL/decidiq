@@ -242,9 +242,11 @@
 </template>
 
 <script>
+import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { contributionsOn, engagementBody } from '../../utils/liveMeeting.js'
 import { formatClock } from '../../utils/meetingTimer.js'
+import { floorRequest } from '../../utils/roomFloor.js'
 import {
 	addSpeaker,
 	isOverLimit,
@@ -450,6 +452,35 @@ export default {
 			)
 			this.queue = queue
 			if (stopped) this.recordSpeech(stopped)
+			this.announceFloor(participantId)
+		},
+
+		/**
+		 * Tell the room system who has the floor, so its cameras and
+		 * microphones follow (REQ-PLB-006). Fail-soft: the server sends
+		 * nothing without a linked room system, and a failed call never
+		 * stops the queue.
+		 *
+		 * @param {string} participantId The participant given the floor.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+		 */
+		async announceFloor(participantId) {
+			const request = floorRequest(this.meetingId, participantId)
+			if (request === null) return
+			try {
+				await fetch(generateUrl(request.path), {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify(request.body),
+				})
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.warn('decidiq: the room system was not told who has the floor', e)
+			}
 		},
 
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
