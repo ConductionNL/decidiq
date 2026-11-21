@@ -3,8 +3,8 @@
 /**
  * Confidentiality Restriction Controller
  *
- * The impose endpoint of a confidentiality restriction. Reading, listing and
- * the later lifecycle moves go through OpenRegister's object API (ADR-022).
+ * The impose and lift endpoints of a confidentiality restriction. Reading and
+ * listing go through OpenRegister's object API (ADR-022).
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Exception\ConfidentialityImposeRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ConfidentialityImposer;
+use OCA\Decidiq\Service\ConfidentialityLifter;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -36,11 +37,13 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Imposes a confidentiality restriction.
+ * Imposes and lifts a confidentiality restriction.
  *
  * Access control (OWASP A01 / ADR-005): chairs and secretaries of a body are
  * not Nextcloud administrators, hence NoAdminRequired; the authority check on
- * the imposing body runs in ConfidentialityImposer before any object is read.
+ * the imposing body runs in ConfidentialityImposer before any object is read,
+ * and in ConfidentialityLifter right after the restriction is read with the
+ * caller's own rights.
  *
  * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
  */
@@ -52,6 +55,7 @@ class ConfidentialityRestrictionController extends Controller {
 	 * @param IRequest               $request     The request.
 	 * @param IUserSession           $userSession The caller.
 	 * @param ConfidentialityImposer $imposer     Checks the caller, then records the restriction.
+	 * @param ConfidentialityLifter  $lifter      Checks the caller, then lifts the restriction.
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 	 */
@@ -59,6 +63,7 @@ class ConfidentialityRestrictionController extends Controller {
 		IRequest $request,
 		private readonly IUserSession $userSession,
 		private readonly ConfidentialityImposer $imposer,
+		private readonly ConfidentialityLifter $lifter,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -94,4 +99,37 @@ class ConfidentialityRestrictionController extends Controller {
 
 		return new JSONResponse($result, Http::STATUS_CREATED);
 	}//end impose()
+
+	/**
+	 * POST /api/confidentiality/restrictions/{id}/lift: lift a restriction.
+	 *
+	 * Body: `dissolutionDecision`, optional `liftingConditions`. 200 with the
+	 * restriction and the classifier outcome, 400, 401, 403, 404, 409 or 422.
+	 *
+	 * @param string $id The restriction.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-004-opheffing-workflow-routing-into-the-normal-publication-machinery
+	 */
+	#[NoAdminRequired]
+	public function lift(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$params = [
+			'dissolutionDecision' => $this->request->getParam('dissolutionDecision'),
+			'liftingConditions'   => $this->request->getParam('liftingConditions'),
+		];
+
+		try {
+			$result = $this->lifter->lift(userId: $user->getUID(), restrictionId: $id, params: $params);
+		} catch (ConfidentialityImposeRefusedException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
+		}
+
+		return new JSONResponse($result, Http::STATUS_OK);
+	}//end lift()
 }//end class

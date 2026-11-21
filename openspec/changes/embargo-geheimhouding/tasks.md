@@ -50,8 +50,9 @@
 - **acceptance_criteria**:
   - GIVEN an opheffingsbesluit by the imposing/confirming body WHEN opheffen is called THEN state becomes `opgeheven` storing besluit UUID, date, and optional conditions, and the target classifier returns to its non-public default (`internal`), audit-trailed
   - GIVEN an opgeheven geheimhouding WHEN no griffie member has run the publish flow THEN the target appears on no public surface; WHEN the normal publish flow runs THEN it accepts the target
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (21 Nov): `POST /api/confidentiality/restrictions/{id}/lift` (`ConfidentialityRestrictionController::lift`, `ConfidentialityLifter`, in `openapi.json`) with `dissolutionDecision` and optional `liftingConditions`. The restriction is read with the caller's rights (404), then the caller needs the same authority as for imposing, on the restriction's `imposedByBody` (403). Refused: no decision (400), an unknown decision (422), a restriction no longer in force, or one still `imposed` whose ground needs ratification or cannot be read (409, the same rule `LiftAfterRatificationGuard` enforces on the save). The restriction moves to `dissolved` with the decision, today's `liftingDate` and the conditions, every other field kept, written as the system (the register lets only administrators update a restriction). The target's classifier goes from `confidential` back to `internal`, never `public`, unless another active restriction still closes it; a failed save leaves it confidential and answers `not-updated`. `dissolved` is not an active state, so the normal publish flow accepts the target again and nothing is published on its own. Tests: `ConfidentialityLifterTest` (9), `ConfidentialityRestrictionControllerTest::testLift`. The lifting dialog is task 8.
 
 ### Task 6: EmbargoReleaseJob + publication guard
 - **spec_ref**: `openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release`

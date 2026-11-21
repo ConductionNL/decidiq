@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\ConfidentialityRestrictionController;
 use OCA\Decidiq\Exception\ConfidentialityImposeRefusedException;
 use OCA\Decidiq\Service\ConfidentialityImposer;
+use OCA\Decidiq\Service\ConfidentialityLifter;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\IRequest;
 use OCP\IUser;
@@ -42,17 +43,21 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private const BODY = ['scope' => 'item', 'target' => 'item-1', 'ground' => 'ground-gw', 'imposedBy' => 'body', 'imposedByBody' => 'body-raad', 'extra' => 'ignored'];
+	private const BODY = [
+		'scope' => 'item', 'target' => 'item-1', 'ground' => 'ground-gw', 'imposedBy' => 'body', 'imposedByBody' => 'body-raad',
+		'dissolutionDecision' => 'dec-lift', 'liftingConditions' => 'na ondertekening', 'extra' => 'ignored',
+	];
 
 	/**
 	 * The controller with a caller and an imposer.
 	 *
-	 * @param string|null            $uid     The caller, or null when signed out.
-	 * @param ConfidentialityImposer $imposer The imposer.
+	 * @param string|null                $uid     The caller, or null when signed out.
+	 * @param ConfidentialityImposer|null $imposer The imposer.
+	 * @param ConfidentialityLifter|null  $lifter  The lifter.
 	 *
 	 * @return ConfidentialityRestrictionController
 	 */
-	private function controller(?string $uid, ConfidentialityImposer $imposer): ConfidentialityRestrictionController {
+	private function controller(?string $uid, ?ConfidentialityImposer $imposer=null, ?ConfidentialityLifter $lifter=null): ConfidentialityRestrictionController {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default=null): mixed => (self::BODY[$key] ?? $default));
 		$session = $this->createMock(originalClassName: IUserSession::class);
@@ -64,7 +69,12 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 
 		$session->method('getUser')->willReturn($user);
 
-		return new ConfidentialityRestrictionController(request: $request, userSession: $session, imposer: $imposer);
+		return new ConfidentialityRestrictionController(
+			request: $request,
+			userSession: $session,
+			imposer: ($imposer ?? $this->createMock(originalClassName: ConfidentialityImposer::class)),
+			lifter: ($lifter ?? $this->createMock(originalClassName: ConfidentialityLifter::class))
+		);
 	}//end controller()
 
 	/**
@@ -126,8 +136,36 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 	 */
 	public function testTheEndpointIsOpenToNonAdministrators(): void {
-		$method = new ReflectionMethod(ConfidentialityRestrictionController::class, 'impose');
-
-		$this->assertCount(1, $method->getAttributes(NoAdminRequired::class));
+		foreach (['impose', 'lift'] as $name) {
+			$method = new ReflectionMethod(ConfidentialityRestrictionController::class, $name);
+			$this->assertCount(1, $method->getAttributes(NoAdminRequired::class));
+		}
 	}//end testTheEndpointIsOpenToNonAdministrators()
+
+	/**
+	 * Lifting: 401 signed out; the decision and conditions reach the lifter; 200; a refusal keeps its status.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-004-opheffing-workflow-routing-into-the-normal-publication-machinery
+	 */
+	public function testLift(): void {
+		$never = $this->createMock(originalClassName: ConfidentialityLifter::class);
+		$never->expects($this->never())->method('lift');
+		$this->assertSame(401, $this->controller(uid: null, lifter: $never)->lift(id: 'r-1')->getStatus());
+
+		$lifter = $this->createMock(originalClassName: ConfidentialityLifter::class);
+		$lifter->expects($this->once())->method('lift')->with(
+			'griffier',
+			'r-1',
+			['dissolutionDecision' => 'dec-lift', 'liftingConditions' => 'na ondertekening']
+		)->willReturn(['restriction' => ['id' => 'r-1', 'lifecycle' => 'dissolved'], 'classifier' => 'reopened']);
+		$response = $this->controller(uid: 'griffier', lifter: $lifter)->lift(id: 'r-1');
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame('reopened', $response->getData()['classifier']);
+
+		$refusing = $this->createMock(originalClassName: ConfidentialityLifter::class);
+		$refusing->method('lift')->willThrowException(new ConfidentialityImposeRefusedException(message: 'Needs ratification', status: 409));
+		$this->assertSame(409, $this->controller(uid: 'griffier', lifter: $refusing)->lift(id: 'r-1')->getStatus());
+	}//end testLift()
 }//end class
