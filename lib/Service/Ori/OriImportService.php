@@ -636,6 +636,8 @@ class OriImportService implements OriImportServiceInterface {
 	 * @param array<int, array<string, mixed>> $votes   The source votes.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function importAgendaItems(array $records, array $votes): void {
 		$schema = OriExportMapper::SOURCE_SCHEMAS['agendaItems'];
@@ -671,7 +673,7 @@ class OriImportService implements OriImportServiceInterface {
 			$uuid = $this->upsert(schema: 'agenda-item', tag: self::tag(record: $record), data: $data, label: $item['title']);
 			$this->remember(schema: $schema, record: $record, uuid: $uuid);
 			$this->itemTitles[$uuid] = $item['title'];
-			$this->inheritMeetingDate(item: $uuid, meeting: (string)$meeting);
+			$this->inheritMeetingDate(item: $uuid, meeting: $meeting);
 		}//end foreach
 	}//end importAgendaItems()
 
@@ -768,6 +770,8 @@ class OriImportService implements OriImportServiceInterface {
 	 * @param array<int, array<string, mixed>> $records The source votes.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function importVotes(array $records): void {
 		$schema = OriExportMapper::SOURCE_SCHEMAS['votes'];
@@ -788,8 +792,8 @@ class OriImportService implements OriImportServiceInterface {
 				'lifecycle' => 'decided',
 				'subjectSchema' => 'agenda-item',
 				'subjectId' => $item,
-				'subjectLabel' => ($this->itemTitles[(string)$item] ?? ''),
-			] + $this->decisionDate(item: (string)$item);
+				'subjectLabel' => ($this->itemTitles[$item] ?? ''),
+			] + $this->decisionDate(item: $item);
 
 			$round = [
 				'votingMethod' => 'for-against-abstain',

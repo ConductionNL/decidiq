@@ -30,7 +30,7 @@
 
 ## 2. ORI importer (data migration target)
 
-- [ ] 2.1 Create `lib/Service/Ori/OriImportService.php` implementing the
+- [x] 2.1 Create `lib/Service/Ori/OriImportService.php` implementing the
   mapping table (schema map, property map, enum-value translations, dependency
   order, slug→uuid resolution, `externalReference: ori:<uuid>` tagging,
   update-on-rerun). Party aggregates map to `VotingRound.partyResults`; no
@@ -42,6 +42,7 @@
   executive board) and the idempotency + dangling-ref behaviours;
   `composer check:strict` is clean.
   > 2026-11-14 built: `OriImportService` (import, preview, rollback, previewRollback) over `OriExportMapper::read*()`, with `OriImportReport`. `OriImportServiceTest` covers every mapping row named above, idempotency (second run: zero created), dangling refs and unknown values reported, rollback of `ori:*` only, and no `Vote` objects. A member's group membership is tagged `ori:<uuid>#group` (two memberships come from one source member); derived bodies are tagged `ori:council:<name>`, `ori:executive:<name>`, `ori:committee:<name>`. Box left open: `composer check:strict` as a whole is not run here (phpcs, phpmd, phpstan clean on the new files).
+  > 2026-11-21: `composer check:strict` run in full. PHPUnit green (5555 tests, `OriImportServiceTest` and `OriImportServiceProblemsTest` among them); the only findings in this change's files were three psalm `RedundantCast`s in `OriImportService` (an id already narrowed to a string), now removed. The suite's remaining phpcs, phpmd and psalm findings are in files outside this change.
 
 - [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
   with `--source-register=ori`, `--dry-run`, `--rollback`, `--strict`,
@@ -57,7 +58,7 @@
 
 ## 3. ORI interop adapter
 
-- [ ] 3.1 Create `lib/Service/Ori/OriExportMapper.php` — stateless projection
+- [x] 3.1 Create `lib/Service/Ori/OriExportMapper.php` — stateless projection
   of `Meeting`/`AgendaItem`/`DigitalDocument`/`VotingRound` into the ORI wire
   shape. This is the only file where Dutch statutory field names/values appear.
   **Acceptance:** unit tests round-trip an imported object (ORI source →
@@ -65,6 +66,7 @@
   a repo-wide grep confirms no Dutch identifier from the mapper leaks into any
   schema or other class.
   > 2026-11-14 built: `OriExportMapper` holds the whole ORI vocabulary (reads for the importer, renders for the feeds). `OriExportMapperTest` round-trips meeting, document, agenda item and vote through the importer and back, and scans the change's other files for the mapper's Dutch identifiers. Box left open with 2.1 (check:strict).
+  > 2026-11-21: the full `composer check:strict` reports nothing in `OriExportMapper` and `OriExportMapperTest`/`OriExportMapperReadTest` pass, so 3.1 is ticked with 2.1.
 
 - [ ] 3.2 Add `lib/Controller/OriFeedController.php` + routes
   `/feed/ori/meetings.rss`, `/feed/ori/agenda-items.rss`,
