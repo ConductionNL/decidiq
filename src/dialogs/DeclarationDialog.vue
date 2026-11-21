@@ -56,14 +56,13 @@
 		</div>
 		<template #actions>
 			<NcButton
-				variant="primary"
-				:data-testid="`declaration-${kind}-confirm`"
-				:disabled="saving || !valid"
-				@click="$emit('submit', { ...form })">
-				{{ confirmLabel }}
-			</NcButton>
-			<NcButton @click="$emit('close')">
-				{{ t('decidiq', 'Cancel') }}
+				v-for="button in buttons"
+				:key="button.id"
+				:variant="button.variant"
+				:disabled="button.disabled"
+				:data-testid="`declaration-${kind}-${button.id}`"
+				@click="press(button.id)">
+				{{ button.label }}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -101,17 +100,32 @@ export default {
 	},
 
 	computed: {
-		/** @return {string} The dialog's title */
+		/**
+		 * The dialog's title.
+		 *
+		 * @return {string} The title.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
 		title() {
 			if (this.kind === 'gift') return this.t('decidiq', 'Register a gift')
 			if (this.kind === 'end') return this.t('decidiq', 'End this position')
 			return this.t('decidiq', 'Declare another position')
 		},
 
-		/** @return {string} The confirm button's label */
-		confirmLabel() {
-			if (this.kind === 'end') return this.t('decidiq', 'End position')
-			return this.kind === 'gift' ? this.t('decidiq', 'Save') : this.t('decidiq', 'Declare')
+		/**
+		 * The confirm button, then Cancel.
+		 *
+		 * @return {Array<{id: string, label: string, variant: string, disabled: boolean}>} The buttons.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
+		buttons() {
+			let confirm = this.t('decidiq', 'Declare')
+			if (this.kind === 'end') confirm = this.t('decidiq', 'End position')
+			else if (this.kind === 'gift') confirm = this.t('decidiq', 'Save')
+			return [
+				{ id: 'confirm', label: confirm, variant: 'primary', disabled: this.saving || !this.valid },
+				{ id: 'cancel', label: this.t('decidiq', 'Cancel'), variant: 'secondary', disabled: false },
+			]
 		},
 
 		/**
@@ -159,9 +173,21 @@ export default {
 		 *
 		 * @param {{key: string, options: Array<{id: string}>}} field The field.
 		 * @return {object|null} The option, or null.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		selected(field) {
 			return field.options.find((option) => option.id === this.form[field.key]) || null
+		},
+
+		/**
+		 * Answer a button: submit the form or close.
+		 *
+		 * @param {string} id The button's id.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
+		press(id) {
+			if (id === 'confirm') this.$emit('submit', { ...this.form })
+			else this.$emit('close')
 		},
 	},
 }

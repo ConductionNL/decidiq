@@ -151,12 +151,18 @@ export default {
 	},
 
 	computed: {
-		/** @return {boolean} True when the user is a person who can declare */
+		/**
+		 * @return {boolean} True when the user is a person who can declare
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
 		canDeclare() {
 			return this.personIds.length > 0
 		},
 
-		/** @return {Array<{id: string, label: string}>} The governance bodies as options */
+		/**
+		 * @return {Array<{id: string, label: string}>} The governance bodies as options
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
 		bodyOptions() {
 			return this.bodies.map((body) => ({ id: refId(body), label: body.name || refId(body) }))
 		},
@@ -254,6 +260,7 @@ export default {
 		 * Show a save refusal where the user is looking.
 		 *
 		 * @param {string} message The reason.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		report(message) {
 			if (this.dialog) this.dialogError = message
@@ -266,6 +273,7 @@ export default {
 		 * @param {Array<object>} list The list.
 		 * @param {object} record The saved record.
 		 * @return {Array<object>} The new list.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		upsert(list, record) {
 			const id = refId(record)
@@ -319,6 +327,7 @@ export default {
 		 * Open the end dialog for a position.
 		 *
 		 * @param {object} position The position.
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		startEnding(position) {
 			this.ending = position
@@ -337,7 +346,11 @@ export default {
 			return this.declarePosition(form)
 		},
 
-		/** Close whichever dialog is open. */
+		/**
+		 * Close whichever dialog is open.
+		 *
+		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 */
 		closeDialog() {
 			this.dialog = null
 			this.ending = null
