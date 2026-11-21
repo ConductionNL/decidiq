@@ -39,9 +39,10 @@
 ### Task 5: View log
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged`
 - **files**: the paper download path (`lib/Controller/` that serves meeting papers), `lib/Service/AuditLogService.php`
-- [ ] Implement
-- [ ] Test (red first)
-- Note: decidiq has no paper download path to hook: the Documents widget and DocumentMetadataTab read papers through OpenRegister's object file endpoints and Nextcloud Files, so a read never passes decidiq PHP. Logging each read of a closed paper belongs where the file is served (an OpenRegister read audit on object files), then shown on the item's History tab, which already renders OpenRegister's audit trail.
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Service/ClosedPaperReadsTest.php`, two more in `tests/Unit/Controller/PaperControllerTest.php`
+- Built (21 Nov): agenda-paper-watermark gave decidiq its own paper read path, `GET /api/papers/{schema}/{objectId}/{fileId}/view`, which the Papers widget links members through. `PaperDelivery` hands every read of an agenda item's paper to `ClosedPaperReads::record()` before the file is read: when the item's `public` is false, one `material-access` entry (kind `closed-paper-read`: reader, item, file id, paper name) is appended through `AuditLogService` with the item as its only object, so it lands on the item's own audit trail, which its History tab renders. A read that cannot be recorded is refused with 503. Still outside it: a paper read straight through OpenRegister's file API (the Documents widget), and the History rendering is confirmed in the live pass.
+- Note (earlier): decidiq has no paper download path to hook: the Documents widget and DocumentMetadataTab read papers through OpenRegister's object file endpoints and Nextcloud Files, so a read never passes decidiq PHP. Logging each read of a closed paper belongs where the file is served (an OpenRegister read audit on object files), then shown on the item's History tab, which already renders OpenRegister's audit trail.
 
 ## Verification
 
