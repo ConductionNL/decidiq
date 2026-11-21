@@ -30,7 +30,6 @@ import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemReadersTab from './components/tabs/AgendaItemReadersTab.vue'
-import RestrictedPaperViewsTab from './components/tabs/RestrictedPaperViewsTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -128,9 +127,8 @@ import GoalProgressWidget from './components/widgets/GoalProgressWidget.vue'
 import GoalStepBar from './components/widgets/GoalStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
+import ConfidentialityDecisionDialog from './dialogs/ConfidentialityDecisionDialog.vue'
 import ConfidentialityImposeDialog from './dialogs/ConfidentialityImposeDialog.vue'
-import ConfidentialityLiftDialog from './dialogs/ConfidentialityLiftDialog.vue'
-import ConfidentialityRatifyDialog from './dialogs/ConfidentialityRatifyDialog.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import SpeakingRequestApproveDialog from './dialogs/SpeakingRequestApproveDialog.vue'
 import SpeakingRequestReferDialog from './dialogs/SpeakingRequestReferDialog.vue'
@@ -382,8 +380,7 @@ export default {
 	SpeakingRequestRejectDialog: modal(SpeakingRequestRejectDialog),
 	// embargo-geheimhouding REQ-EMB-001, 003, 004: impose, ratify and lift a confidentiality restriction.
 	ConfidentialityImposeDialog: modal(ConfidentialityImposeDialog),
-	ConfidentialityRatifyDialog: modal(ConfidentialityRatifyDialog),
-	ConfidentialityLiftDialog: modal(ConfidentialityLiftDialog),
+	ConfidentialityDecisionDialog: modal(ConfidentialityDecisionDialog),
 	SpeakingRequestReferDialog: modal(SpeakingRequestReferDialog),
 	// The case system on the agenda item and meeting pages
 	// (platform-case-system-document-exchange).

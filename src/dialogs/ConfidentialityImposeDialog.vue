@@ -12,10 +12,13 @@
   @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 -->
 <template>
-	<NcDialog
+	<ConfidentialityDialogShell
 		:name="t('decidiq', 'Impose confidentiality')"
-		data-testid="confidentiality-impose-dialog"
-		@closing="$emit('close')">
+		testId="impose"
+		:error="error"
+		:disabled="working || payload === null"
+		@confirm="confirm"
+		@close="$emit('close')">
 		<NcSelect
 			v-model="ground"
 			:options="grounds"
@@ -38,28 +41,13 @@
 			:inputLabel="t('decidiq', 'Governance body')"
 			:clearable="false"
 			data-testid="confidentiality-impose-body" />
-		<p v-if="error" class="confidentiality-dialog__error" role="alert">
-			{{ error }}
-		</p>
-		<template #actions>
-			<NcButton
-				variant="primary"
-				data-testid="confidentiality-impose-confirm"
-				:disabled="working || payload === null"
-				@click="confirm">
-				{{ t('decidiq', 'Impose confidentiality') }}
-			</NcButton>
-			<NcButton @click="$emit('close')">
-				{{ t('decidiq', 'Cancel') }}
-			</NcButton>
-		</template>
-	</NcDialog>
+	</ConfidentialityDialogShell>
 </template>
 
 <script>
-import { dispatchAction } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
-import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
+import { NcSelect } from '@nextcloud/vue'
+import ConfidentialityDialogShell from './ConfidentialityDialogShell.vue'
 import {
 	defaultBodyOf,
 	imposePayload,
@@ -68,11 +56,12 @@ import {
 	refusalOf,
 	restrictionUrl,
 } from '../utils/confidentialityActions.js'
+import { runModeration } from './speakingRequestModeration.js'
 
 export default {
 	name: 'ConfidentialityImposeDialog',
 
-	components: { NcButton, NcDialog, NcSelect },
+	components: { ConfidentialityDialogShell, NcSelect },
 
 	props: {
 		/** The page's object (agenda item, decision or paper) */
@@ -133,23 +122,13 @@ export default {
 		/** @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground */
 		async confirm() {
 			this.working = true
-			this.error = ''
-			try {
-				await axios.post(restrictionUrl('impose'), this.payload)
-				dispatchAction({ type: 'refresh' })
-				this.$emit('close')
-			} catch (e) {
-				this.error = refusalOf(e, this.t('decidiq', 'The confidentiality could not be imposed.'))
-			} finally {
-				this.working = false
-			}
+			this.error = await runModeration(
+				() => axios.post(restrictionUrl('impose'), this.payload),
+				this.t('decidiq', 'The confidentiality could not be imposed.'),
+			)
+			this.working = false
+			if (!this.error) this.$emit('close')
 		},
 	},
 }
 </script>
-
-<style scoped>
-.confidentiality-dialog__error {
-	color: var(--color-error-text);
-}
-</style>

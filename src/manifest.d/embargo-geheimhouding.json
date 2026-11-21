@@ -83,8 +83,8 @@
 						"label": "Ratify confidentiality",
 						"icon": "ShieldCheckOutline",
 						"type": "open-modal",
-						"target": "ConfidentialityRatifyDialog",
-						"props": { "objectId": "@objectId" },
+						"target": "ConfidentialityDecisionDialog",
+						"props": { "objectId": "@objectId", "action": "ratify" },
 						"visibleWhen": { "field": "lifecycle", "value": "imposed" }
 					},
 					{
@@ -92,8 +92,8 @@
 						"label": "Lift confidentiality",
 						"icon": "LockOpenVariantOutline",
 						"type": "open-modal",
-						"target": "ConfidentialityLiftDialog",
-						"props": { "objectId": "@objectId" },
+						"target": "ConfidentialityDecisionDialog",
+						"props": { "objectId": "@objectId", "action": "lift" },
 						"visibleWhen": { "any": [ { "field": "lifecycle", "value": "imposed" }, { "field": "lifecycle", "value": "ratified" } ] }
 					}
 				],

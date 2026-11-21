@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import {
+	decisionPayload,
 	defaultBodyOf,
 	imposePayload,
 	liftPayload,
@@ -81,6 +82,8 @@ describe('confidentiality actions', () => {
 		expect(liftPayload('d2', '  ')).toEqual({ dissolutionDecision: 'd2' })
 		expect(liftPayload({ id: 'd2' }, ' After the sale ')).toEqual({ dissolutionDecision: 'd2', liftingConditions: 'After the sale' })
 		expect(liftPayload(null, 'x')).toBeNull()
+		expect(decisionPayload('ratify', 'd1', 'ignored')).toEqual({ ratificationDecision: 'd1' })
+		expect(decisionPayload('lift', 'd2', 'If sold')).toEqual({ dissolutionDecision: 'd2', liftingConditions: 'If sold' })
 	})
 
 	it('shows the server refusal, else the fallback', () => {
@@ -90,16 +93,19 @@ describe('confidentiality actions', () => {
 
 	it('wires the dialogs into the pages and the registry', () => {
 		const registry = readFileSync(resolve(__dirname, '../../src/registry.js'), 'utf8')
-		for (const name of ['ConfidentialityImposeDialog', 'ConfidentialityRatifyDialog', 'ConfidentialityLiftDialog']) {
+		for (const name of ['ConfidentialityImposeDialog', 'ConfidentialityDecisionDialog']) {
 			expect(registry).toContain(`${name}: modal(${name})`)
 		}
 
 		const fragment = json('src/manifest.d/embargo-geheimhouding.json')
 		const detail = fragment.pages.find((page) => page.id === 'ConfidentialityRestrictionDetail')
-		const actions = Object.fromEntries(detail.config.headerActions.map((action) => [action.target, action]))
-		expect(actions.ConfidentialityRatifyDialog.type).toBe('open-modal')
-		expect(actions.ConfidentialityRatifyDialog.visibleWhen).toEqual({ field: 'lifecycle', value: 'imposed' })
-		expect(actions.ConfidentialityLiftDialog.visibleWhen.any.map((rule) => rule.value)).toEqual(['imposed', 'ratified'])
+		const actions = Object.fromEntries(detail.config.headerActions.map((action) => [action.id, action]))
+		expect(actions.ratify.target).toBe('ConfidentialityDecisionDialog')
+		expect(actions.ratify.props.action).toBe('ratify')
+		expect(actions.ratify.visibleWhen).toEqual({ field: 'lifecycle', value: 'imposed' })
+		expect(actions.lift.target).toBe('ConfidentialityDecisionDialog')
+		expect(actions.lift.props.action).toBe('lift')
+		expect(actions.lift.visibleWhen.any.map((rule) => rule.value)).toEqual(['imposed', 'ratified'])
 
 		const manifest = json('src/manifest.json')
 		for (const id of ['AgendaItemDetail', 'DecisionDetail']) {

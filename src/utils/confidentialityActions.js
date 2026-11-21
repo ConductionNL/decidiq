@@ -173,6 +173,19 @@ export function liftPayload(decision, conditions = '') {
 }
 
 /**
+ * The request body of the decision dialog: ratify or lift.
+ *
+ * @param {'ratify'|'lift'} action The action.
+ * @param {object|string|null} decision The decision.
+ * @param {string} conditions The lifting conditions (lift only).
+ * @return {object|null} The body, or null.
+ * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-003-bekrachtiging-workflow-with-fail-visible-overdue-flag
+ */
+export function decisionPayload(action, decision, conditions = '') {
+	return action === 'lift' ? liftPayload(decision, conditions) : ratifyPayload(decision)
+}
+
+/**
  * What to say when the server refuses.
  *
  * @param {object} error The axios error.
