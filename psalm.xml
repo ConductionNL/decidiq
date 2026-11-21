@@ -36,7 +36,29 @@
             shape without putting the class back into the runtime autoloader,
             which is what caused the original defect.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectServiceInterface.php" />
+        <!--
+            The object facade as decidiq calls it today: find/findAll/saveObject
+            and patchObject take the Kernel value objects (ObjectFindOptions,
+            ObjectSaveOptions, ObjectPatch, ...). The shared hydra-gates contract
+            still declares the older positional signature, so psalm read every
+            named `options:` argument as InvalidNamedArgument and every value
+            object as UndefinedClass. These are the same stubs the unit suite
+            loads.
+        -->
+        <file name="tests/Stubs/Contract/ObjectServiceInterface.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectFindOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectFindTarget.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectSaveOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectPatch.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectDeletion.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/SaveActor.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/SavePolicy.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/BulkSaveOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/BulkBatchDefaults.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/LockRequest.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/LockRunStep.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/UnlockRequest.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectValidationVerdict.php" />
         <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectEntityInterface.php" />
 
         <!--
@@ -178,7 +200,7 @@
         -->
         <MissingDependency>
             <errorLevel type="suppress">
-                <file name="lib/AppInfo/Registrar/DomainServiceRegistrar.php"/>
+                <file name="lib/Service/Registrar/DomainServiceRegistrar.php"/>
             </errorLevel>
         </MissingDependency>
         <PossiblyUnusedParam>
@@ -204,7 +226,7 @@
         -->
         <InvalidArgument>
             <errorLevel type="suppress">
-                <file name="lib/AppInfo/Registrar/IntegrationLeafRegistrar.php"/>
+                <file name="lib/Listener/Registrar/IntegrationLeafRegistrar.php"/>
                 <file name="lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php"/>
             </errorLevel>
         </InvalidArgument>
