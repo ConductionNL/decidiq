@@ -278,6 +278,10 @@
         {
             "name": "theme",
             "description": "The staff timeline of a theme page."
+        },
+        {
+            "name": "confidentiality-restriction",
+            "description": "Imposing a confidentiality restriction."
         }
     ],
     "paths": {
@@ -9263,6 +9267,74 @@
                 "responses": {
                     "200": {
                         "description": "The reader was removed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/confidentiality/restrictions/impose": {
+            "post": {
+                "operationId": "confidentiality-restriction-impose",
+                "summary": "Impose a confidentiality restriction on a paper, agenda item or decision",
+                "description": "Impose a confidentiality restriction. POST /api/confidentiality/restrictions/impose. Body: { scope, target, ground, imposedBy, imposedByBody }. The restriction is stored as imposed now, and the target's own classifier is set to confidential with every other field kept (an agenda item's confidentiality, a decision's isPublished; a paper has none, every public surface reads the restriction). Returns 201 with { restriction, classifier } where classifier is closed, not-needed or not-updated. Returns 400 for a missing or unknown value, 401 without a user, 403 unless the caller is the imposing body's chair, vice-chair or secretary, in the secretariat or an administrator (checked before anything is read), 404 when the caller cannot read the target, and 422 when the ground does not exist or is no longer in use. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "confidentiality-restriction"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "scope",
+                                    "target",
+                                    "ground",
+                                    "imposedBy",
+                                    "imposedByBody"
+                                ],
+                                "properties": {
+                                    "scope": {
+                                        "type": "string",
+                                        "description": "document, item or decision."
+                                    },
+                                    "target": {
+                                        "type": "string",
+                                        "description": "The UUID of the paper, agenda item or decision."
+                                    },
+                                    "ground": {
+                                        "type": "string",
+                                        "description": "The UUID of a configured confidentiality ground that is still in use."
+                                    },
+                                    "imposedBy": {
+                                        "type": "string",
+                                        "description": "The imposing organ: body, chair or executive-board."
+                                    },
+                                    "imposedByBody": {
+                                        "type": "string",
+                                        "description": "The UUID of the imposing governance body."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The restriction was imposed.",
                         "headers": {
                             "API-Version": {
                                 "$ref": "#/components/headers/API-Version"

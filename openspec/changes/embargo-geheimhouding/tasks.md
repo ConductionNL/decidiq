@@ -30,8 +30,9 @@
   - GIVEN a griffie user WHEN a geheimhouding is imposed on an AgendaItem/Decision/DigitalDocument THEN the record stores ground, imposedBy, imposedAt, scope + target UUID, and the target's EXISTING classifier is driven (`confidentiality: confidential` / `isPublished: "confidential"`), carrying ALL other target fields forward (PUT-semantic save)
   - GIVEN a user without organ authority WHEN impose/bekrachtig/opheffen is called THEN 403 (per-object guard in the method body)
   - GIVEN no resolvable ground WHEN impose is called THEN it is refused — no geheimhouding without a structured ground
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (21 Nov): `POST /api/confidentiality/restrictions/impose` (`ConfidentialityRestrictionController::impose`, `ConfidentialityImposer`, in `openapi.json`), with `scope`, `target`, `ground`, `imposedBy` and `imposedByBody`. The authority check runs before anything is read: an administrator, the secretariat, or the imposing body's signatory scope (chair, vice-chair, secretary), else 403. A missing ground, one that does not exist or one no longer in use is refused (400, 422); a target the caller cannot read is 404. The restriction is stored as `imposed` now with the caller's rights, then the target's existing classifier is set with every other field kept, as the system: an agenda item's `confidentiality: confidential`, a decision's `isPublished: confidential`. A paper has no classifier; every public surface reads the restriction (`OriFeedService`, `ConfidentialityRestrictions`). A failed classifier save is answered as `classifier: not-updated`, not raised: the restriction already keeps the target off public surfaces. The path has three segments because a short `/api/{resource}/{id}` path belongs to the public REST surface. Tests: `ConfidentialityImposerTest` (11), `ConfidentialityRestrictionControllerTest` (4). The impose dialog is task 8.
 
 ### Task 4: Bekrachtiging workflow — agenda placement, besluit link, fail-visible overdue
 - **spec_ref**: `openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-003-bekrachtiging-workflow-with-fail-visible-overdue-flag`
