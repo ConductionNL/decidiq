@@ -3394,7 +3394,17 @@
         "choose files": "vælg filer",
         "Who opened the papers": "Hvem har åbnet dokumenterne",
         "No one has opened these papers yet.": "Ingen har åbnet disse dokumenter endnu.",
-        "The openings could not be read.": "Åbningerne kunne ikke læses."
+        "The openings could not be read.": "Åbningerne kunne ikke læses.",
+        "Impose confidentiality": "Pålæg fortrolighed",
+        "Ratify confidentiality": "Ratificér fortrolighed",
+        "Lift confidentiality": "Ophæv fortrolighed",
+        "Imposed by": "Pålagt af",
+        "Ratifying decision": "Ratifikationsbeslutning",
+        "Lifting decision": "Ophævelsesbeslutning",
+        "Lifting conditions": "Betingelser for ophævelse",
+        "The confidentiality could not be imposed.": "Fortroligheden kunne ikke pålægges.",
+        "The ratification could not be recorded.": "Ratifikationen kunne ikke registreres.",
+        "The confidentiality could not be lifted.": "Fortroligheden kunne ikke ophæves."
     },
     "plurals": null
 }

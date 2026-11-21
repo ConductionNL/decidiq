@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "выберите файлы",
         "Who opened the papers": "Кто открывал документы",
         "No one has opened these papers yet.": "Никто ещё не открывал эти документы.",
-        "The openings could not be read.": "Не удалось прочитать открытия."
+        "The openings could not be read.": "Не удалось прочитать открытия.",
+        "Impose confidentiality": "Установить конфиденциальность",
+        "Ratify confidentiality": "Утвердить конфиденциальность",
+        "Lift confidentiality": "Снять конфиденциальность",
+        "Imposed by": "Установлена",
+        "Ratifying decision": "Решение об утверждении",
+        "Lifting decision": "Решение о снятии",
+        "Lifting conditions": "Условия снятия",
+        "The confidentiality could not be imposed.": "Не удалось установить конфиденциальность.",
+        "The ratification could not be recorded.": "Не удалось записать утверждение.",
+        "The confidentiality could not be lifted.": "Не удалось снять конфиденциальность."
     },
     "nplurals=2; plural=(n != 1);"
 )

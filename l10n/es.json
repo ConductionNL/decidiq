@@ -3394,7 +3394,17 @@
         "choose files": "elija archivos",
         "Who opened the papers": "Quién abrió los documentos",
         "No one has opened these papers yet.": "Nadie ha abierto todavía estos documentos.",
-        "The openings could not be read.": "No se pudieron leer las aperturas."
+        "The openings could not be read.": "No se pudieron leer las aperturas.",
+        "Impose confidentiality": "Imponer confidencialidad",
+        "Ratify confidentiality": "Ratificar confidencialidad",
+        "Lift confidentiality": "Levantar confidencialidad",
+        "Imposed by": "Impuesta por",
+        "Ratifying decision": "Decisión de ratificación",
+        "Lifting decision": "Decisión de levantamiento",
+        "Lifting conditions": "Condiciones de levantamiento",
+        "The confidentiality could not be imposed.": "No se pudo imponer la confidencialidad.",
+        "The ratification could not be recorded.": "No se pudo registrar la ratificación.",
+        "The confidentiality could not be lifted.": "No se pudo levantar la confidencialidad."
     },
     "plurals": null
 }

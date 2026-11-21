@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "vrnjeno",
         "Who opened the papers": "Kdo je odprl dokumente",
         "No one has opened these papers yet.": "Teh dokumentov še nihče ni odprl.",
-        "The openings could not be read.": "Odpiranj ni bilo mogoče prebrati."
+        "The openings could not be read.": "Odpiranj ni bilo mogoče prebrati.",
+        "Impose confidentiality": "Naloži zaupnost",
+        "Ratify confidentiality": "Potrdi zaupnost",
+        "Lift confidentiality": "Odpravi zaupnost",
+        "Imposed by": "Naložil",
+        "Ratifying decision": "Sklep o potrditvi",
+        "Lifting decision": "Sklep o odpravi",
+        "Lifting conditions": "Pogoji odprave",
+        "The confidentiality could not be imposed.": "Zaupnosti ni bilo mogoče naložiti.",
+        "The ratification could not be recorded.": "Potrditve ni bilo mogoče zabeležiti.",
+        "The confidentiality could not be lifted.": "Zaupnosti ni bilo mogoče odpraviti."
     },
     "nplurals=2; plural=(n != 1);"
 )

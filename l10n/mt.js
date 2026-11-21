@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "agħżel fajls",
         "Who opened the papers": "Min fetaħ id-dokumenti",
         "No one has opened these papers yet.": "Għadu ħadd ma fetaħ dawn id-dokumenti.",
-        "The openings could not be read.": "Il-ftuħ ma setax jinqara."
+        "The openings could not be read.": "Il-ftuħ ma setax jinqara.",
+        "Impose confidentiality": "Imponi l-kunfidenzjalità",
+        "Ratify confidentiality": "Irratifika l-kunfidenzjalità",
+        "Lift confidentiality": "Neħħi l-kunfidenzjalità",
+        "Imposed by": "Imposta minn",
+        "Ratifying decision": "Deċiżjoni ta' ratifika",
+        "Lifting decision": "Deċiżjoni ta' tneħħija",
+        "Lifting conditions": "Kundizzjonijiet tat-tneħħija",
+        "The confidentiality could not be imposed.": "Il-kunfidenzjalità ma setgħetx tiġi imposta.",
+        "The ratification could not be recorded.": "Ir-ratifika ma setgħetx tiġi rreġistrata.",
+        "The confidentiality could not be lifted.": "Il-kunfidenzjalità ma setgħetx titneħħa."
     },
     "nplurals=2; plural=(n != 1);"
 )

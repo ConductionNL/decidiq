@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "returnà",
         "Who opened the papers": "Tgi ha avert ils documents",
         "No one has opened these papers yet.": "Anc nagin n'ha avert quests documents.",
-        "The openings could not be read.": "Las averturas n'han betg pudì vegnir legidas."
+        "The openings could not be read.": "Las averturas n'han betg pudì vegnir legidas.",
+        "Impose confidentiality": "Imponer la confidenzialitad",
+        "Ratify confidentiality": "Ratifitgar la confidenzialitad",
+        "Lift confidentiality": "Abolir la confidenzialitad",
+        "Imposed by": "Imponì da",
+        "Ratifying decision": "Decisiun da ratificaziun",
+        "Lifting decision": "Decisiun d'aboliziun",
+        "Lifting conditions": "Cundiziuns da l'aboliziun",
+        "The confidentiality could not be imposed.": "La confidenzialitad n'ha betg pudì vegnir imponida.",
+        "The ratification could not be recorded.": "La ratificaziun n'ha betg pudì vegnir registrada.",
+        "The confidentiality could not be lifted.": "La confidenzialitad n'ha betg pudì vegnir abolida."
     },
     "nplurals=2; plural=(n != 1);"
 )

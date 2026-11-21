@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "izvēlieties failus",
         "Who opened the papers": "Kas atvēra dokumentus",
         "No one has opened these papers yet.": "Šos dokumentus vēl neviens nav atvēris.",
-        "The openings could not be read.": "Atvēršanas neizdevās nolasīt."
+        "The openings could not be read.": "Atvēršanas neizdevās nolasīt.",
+        "Impose confidentiality": "Noteikt konfidencialitāti",
+        "Ratify confidentiality": "Apstiprināt konfidencialitāti",
+        "Lift confidentiality": "Atcelt konfidencialitāti",
+        "Imposed by": "Noteica",
+        "Ratifying decision": "Apstiprināšanas lēmums",
+        "Lifting decision": "Atcelšanas lēmums",
+        "Lifting conditions": "Atcelšanas nosacījumi",
+        "The confidentiality could not be imposed.": "Konfidencialitāti neizdevās noteikt.",
+        "The ratification could not be recorded.": "Apstiprināšanu neizdevās reģistrēt.",
+        "The confidentiality could not be lifted.": "Konfidencialitāti neizdevās atcelt."
     },
     "nplurals=2; plural=(n != 1);"
 )

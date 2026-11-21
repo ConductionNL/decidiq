@@ -3394,7 +3394,17 @@
         "choose files": "alegeți fișiere",
         "Who opened the papers": "Cine a deschis documentele",
         "No one has opened these papers yet.": "Nimeni nu a deschis încă aceste documente.",
-        "The openings could not be read.": "Deschiderile nu au putut fi citite."
+        "The openings could not be read.": "Deschiderile nu au putut fi citite.",
+        "Impose confidentiality": "Impune confidențialitatea",
+        "Ratify confidentiality": "Ratifică confidențialitatea",
+        "Lift confidentiality": "Ridică confidențialitatea",
+        "Imposed by": "Impusă de",
+        "Ratifying decision": "Decizie de ratificare",
+        "Lifting decision": "Decizie de ridicare",
+        "Lifting conditions": "Condiții de ridicare",
+        "The confidentiality could not be imposed.": "Confidențialitatea nu a putut fi impusă.",
+        "The ratification could not be recorded.": "Ratificarea nu a putut fi înregistrată.",
+        "The confidentiality could not be lifted.": "Confidențialitatea nu a putut fi ridicată."
     },
     "plurals": null
 }

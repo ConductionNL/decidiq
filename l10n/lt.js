@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "pasirinkite failus",
         "Who opened the papers": "Kas atidarė dokumentus",
         "No one has opened these papers yet.": "Šių dokumentų dar niekas neatidarė.",
-        "The openings could not be read.": "Atidarymų nepavyko perskaityti."
+        "The openings could not be read.": "Atidarymų nepavyko perskaityti.",
+        "Impose confidentiality": "Nustatyti konfidencialumą",
+        "Ratify confidentiality": "Patvirtinti konfidencialumą",
+        "Lift confidentiality": "Panaikinti konfidencialumą",
+        "Imposed by": "Nustatė",
+        "Ratifying decision": "Patvirtinimo sprendimas",
+        "Lifting decision": "Panaikinimo sprendimas",
+        "Lifting conditions": "Panaikinimo sąlygos",
+        "The confidentiality could not be imposed.": "Nepavyko nustatyti konfidencialumo.",
+        "The ratification could not be recorded.": "Nepavyko užregistruoti patvirtinimo.",
+        "The confidentiality could not be lifted.": "Nepavyko panaikinti konfidencialumo."
     },
     "nplurals=2; plural=(n != 1);"
 )

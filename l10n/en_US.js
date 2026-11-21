@@ -947,7 +947,17 @@ OC.L10N.register(
         "Person for option {number} (optional)": "Person for option {number} (optional)",
         "Who opened the papers": "Who opened the papers",
         "No one has opened these papers yet.": "No one has opened these papers yet.",
-        "The openings could not be read.": "The openings could not be read."
+        "The openings could not be read.": "The openings could not be read.",
+        "Impose confidentiality": "Impose confidentiality",
+        "Ratify confidentiality": "Ratify confidentiality",
+        "Lift confidentiality": "Lift confidentiality",
+        "Imposed by": "Imposed by",
+        "Ratifying decision": "Ratifying decision",
+        "Lifting decision": "Lifting decision",
+        "Lifting conditions": "Lifting conditions",
+        "The confidentiality could not be imposed.": "The confidentiality could not be imposed.",
+        "The ratification could not be recorded.": "The ratification could not be recorded.",
+        "The confidentiality could not be lifted.": "The confidentiality could not be lifted."
     },
     "nplurals=2; plural=(n != 1);"
 )

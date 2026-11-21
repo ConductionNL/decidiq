@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "επιλέξτε αρχεία",
         "Who opened the papers": "Ποιος άνοιξε τα έγγραφα",
         "No one has opened these papers yet.": "Κανείς δεν έχει ανοίξει ακόμη αυτά τα έγγραφα.",
-        "The openings could not be read.": "Δεν ήταν δυνατή η ανάγνωση των ανοιγμάτων."
+        "The openings could not be read.": "Δεν ήταν δυνατή η ανάγνωση των ανοιγμάτων.",
+        "Impose confidentiality": "Επιβολή εμπιστευτικότητας",
+        "Ratify confidentiality": "Επικύρωση εμπιστευτικότητας",
+        "Lift confidentiality": "Άρση εμπιστευτικότητας",
+        "Imposed by": "Επιβλήθηκε από",
+        "Ratifying decision": "Απόφαση επικύρωσης",
+        "Lifting decision": "Απόφαση άρσης",
+        "Lifting conditions": "Όροι άρσης",
+        "The confidentiality could not be imposed.": "Δεν ήταν δυνατή η επιβολή της εμπιστευτικότητας.",
+        "The ratification could not be recorded.": "Δεν ήταν δυνατή η καταχώριση της επικύρωσης.",
+        "The confidentiality could not be lifted.": "Δεν ήταν δυνατή η άρση της εμπιστευτικότητας."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "retornat",
         "Who opened the papers": "Qui ha obert els documents",
         "No one has opened these papers yet.": "Encara ningú no ha obert aquests documents.",
-        "The openings could not be read.": "No s'han pogut llegir les obertures."
+        "The openings could not be read.": "No s'han pogut llegir les obertures.",
+        "Impose confidentiality": "Imposar confidencialitat",
+        "Ratify confidentiality": "Ratificar la confidencialitat",
+        "Lift confidentiality": "Aixecar la confidencialitat",
+        "Imposed by": "Imposada per",
+        "Ratifying decision": "Decisió de ratificació",
+        "Lifting decision": "Decisió d'aixecament",
+        "Lifting conditions": "Condicions d'aixecament",
+        "The confidentiality could not be imposed.": "No s'ha pogut imposar la confidencialitat.",
+        "The ratification could not be recorded.": "No s'ha pogut registrar la ratificació.",
+        "The confidentiality could not be lifted.": "No s'ha pogut aixecar la confidencialitat."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "valitse tiedostot",
         "Who opened the papers": "Kuka avasi asiakirjat",
         "No one has opened these papers yet.": "Kukaan ei ole vielä avannut näitä asiakirjoja.",
-        "The openings could not be read.": "Avauksia ei voitu lukea."
+        "The openings could not be read.": "Avauksia ei voitu lukea.",
+        "Impose confidentiality": "Määrää salassapito",
+        "Ratify confidentiality": "Vahvista salassapito",
+        "Lift confidentiality": "Kumoa salassapito",
+        "Imposed by": "Määrännyt",
+        "Ratifying decision": "Vahvistuspäätös",
+        "Lifting decision": "Kumoamispäätös",
+        "Lifting conditions": "Kumoamisen ehdot",
+        "The confidentiality could not be imposed.": "Salassapitoa ei voitu määrätä.",
+        "The ratification could not be recorded.": "Vahvistusta ei voitu kirjata.",
+        "The confidentiality could not be lifted.": "Salassapitoa ei voitu kumota."
     },
     "nplurals=2; plural=(n != 1);"
 )

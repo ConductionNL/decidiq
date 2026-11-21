@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "velg filer",
         "Who opened the papers": "Hvem har åpnet dokumentene",
         "No one has opened these papers yet.": "Ingen har åpnet disse dokumentene ennå.",
-        "The openings could not be read.": "Åpningene kunne ikke leses."
+        "The openings could not be read.": "Åpningene kunne ikke leses.",
+        "Impose confidentiality": "Pålegg taushetsplikt",
+        "Ratify confidentiality": "Stadfest taushetsplikt",
+        "Lift confidentiality": "Opphev taushetsplikt",
+        "Imposed by": "Pålagt av",
+        "Ratifying decision": "Stadfestingsvedtak",
+        "Lifting decision": "Opphevelsesvedtak",
+        "Lifting conditions": "Vilkår for opphevelse",
+        "The confidentiality could not be imposed.": "Taushetsplikten kunne ikke pålegges.",
+        "The ratification could not be recorded.": "Stadfestingen kunne ikke registreres.",
+        "The confidentiality could not be lifted.": "Taushetsplikten kunne ikke oppheves."
     },
     "nplurals=2; plural=(n != 1);"
 )

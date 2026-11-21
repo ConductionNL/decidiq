@@ -3332,7 +3332,17 @@
         "returned": "vrátené",
         "Who opened the papers": "Kto otvoril dokumenty",
         "No one has opened these papers yet.": "Tieto dokumenty zatiaľ nikto neotvoril.",
-        "The openings could not be read.": "Otvorenia sa nepodarilo načítať."
+        "The openings could not be read.": "Otvorenia sa nepodarilo načítať.",
+        "Impose confidentiality": "Uložiť utajenie",
+        "Ratify confidentiality": "Potvrdiť utajenie",
+        "Lift confidentiality": "Zrušiť utajenie",
+        "Imposed by": "Uložil",
+        "Ratifying decision": "Potvrdzujúce uznesenie",
+        "Lifting decision": "Zrušujúce uznesenie",
+        "Lifting conditions": "Podmienky zrušenia",
+        "The confidentiality could not be imposed.": "Utajenie sa nepodarilo uložiť.",
+        "The ratification could not be recorded.": "Potvrdenie sa nepodarilo zaznamenať.",
+        "The confidentiality could not be lifted.": "Utajenie sa nepodarilo zrušiť."
     },
     "plurals": null
 }
