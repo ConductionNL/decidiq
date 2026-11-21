@@ -9351,6 +9351,69 @@
                     }
                 }
             }
+        },
+        "/confidentiality/restrictions/{id}/lift": {
+            "post": {
+                "operationId": "confidentiality-restriction-lift",
+                "summary": "Lift a confidentiality restriction on the body's lifting decision",
+                "description": "Lift a confidentiality restriction. POST /api/confidentiality/restrictions/{id}/lift. Body: { dissolutionDecision, liftingConditions? }. The restriction moves to dissolved with the decision, today's date and the conditions; the target's classifier returns to internal (never public: publication goes through the normal publish flow), unless another active restriction still closes it. Returns 200 with { restriction, classifier } where classifier is reopened, not-needed, still-restricted or not-updated. Returns 400 without a decision, 401 without a user, 403 unless the caller is the imposing body's chair, vice-chair or secretary, in the secretariat or an administrator, 404 when the caller cannot read the restriction, 409 when it is no longer in force or its ground needs ratification first, and 422 when the decision is not found. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "confidentiality-restriction"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The UUID of the confidentiality restriction.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "dissolutionDecision"
+                                ],
+                                "properties": {
+                                    "dissolutionDecision": {
+                                        "type": "string",
+                                        "description": "The UUID of the lifting decision."
+                                    },
+                                    "liftingConditions": {
+                                        "type": "string",
+                                        "description": "Optional conditions attached to the lifting."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The restriction was lifted.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

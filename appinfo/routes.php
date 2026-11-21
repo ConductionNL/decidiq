@@ -230,6 +230,8 @@ $extra = [
         // Named portal readers of a confidential item (portal-voting-record-and-confidential-papers REQ-PSH-002).
         // embargo-geheimhouding REQ-EMB-001: impose a confidentiality restriction (the imposing body's chair, vice-chair or secretary, the secretariat or an admin).
         ['name' => 'confidentialityRestriction#impose', 'url' => '/api/confidentiality/restrictions/impose', 'verb' => 'POST'],
+        // embargo-geheimhouding REQ-EMB-004: lift a restriction on the body's lifting decision (same authority as imposing).
+        ['name' => 'confidentialityRestriction#lift', 'url' => '/api/confidentiality/restrictions/{id}/lift', 'verb' => 'POST'],
         ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
         ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
