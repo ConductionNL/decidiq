@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Срещата не можа да бъде създадена.",
         "The meeting was created. Finish these steps on the meeting page:": "Срещата е създадена. Довършете тези стъпки на страницата на срещата:",
         "The papers were not uploaded.": "Документите не бяха качени.",
-        "choose files": "изберете файлове"
+        "choose files": "изберете файлове",
+        "Who opened the papers": "Кой е отварял документите",
+        "No one has opened these papers yet.": "Никой още не е отварял тези документи.",
+        "The openings could not be read.": "Отварянията не можаха да бъдат прочетени."
     },
     "nplurals=2; plural=(n != 1);"
 )

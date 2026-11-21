@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Møtet kunne ikke opprettes.",
         "The meeting was created. Finish these steps on the meeting page:": "Møtet er opprettet. Fullfør disse trinnene på møtesiden:",
         "The papers were not uploaded.": "Dokumentene ble ikke lastet opp.",
-        "choose files": "velg filer"
+        "choose files": "velg filer",
+        "Who opened the papers": "Hvem har åpnet dokumentene",
+        "No one has opened these papers yet.": "Ingen har åpnet disse dokumentene ennå.",
+        "The openings could not be read.": "Åpningene kunne ikke leses."
     },
     "nplurals=2; plural=(n != 1);"
 )

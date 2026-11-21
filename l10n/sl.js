@@ -3327,7 +3327,10 @@ OC.L10N.register(
         "Members' ancillary positions": "Stranske funkcije članov",
         "Return to step": "Vrni na korak",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Korak, na katerega se vrne vrnjeni predlog. Prazno ga vrne pošiljatelju.",
-        "returned": "vrnjeno"
+        "returned": "vrnjeno",
+        "Who opened the papers": "Kdo je odprl dokumente",
+        "No one has opened these papers yet.": "Teh dokumentov še nihče ni odprl.",
+        "The openings could not be read.": "Odpiranj ni bilo mogoče prebrati."
     },
     "nplurals=2; plural=(n != 1);"
 )

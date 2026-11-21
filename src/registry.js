@@ -30,6 +30,7 @@ import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemReadersTab from './components/tabs/AgendaItemReadersTab.vue'
+import RestrictedPaperViewsTab from './components/tabs/RestrictedPaperViewsTab.vue'
 import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemThemesTab from './components/tabs/AgendaItemThemesTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
@@ -572,6 +573,8 @@ export default {
 	ThemeTimelineTab: page(ThemeTimelineTab),
 	ThemePublicationTab: page(ThemePublicationTab),
 	AgendaItemReadersTab: page(AgendaItemReadersTab),
+	// embargo-geheimhouding REQ-EMB-007: who opened the papers of a restriction.
+	RestrictedPaperViewsTab: page(RestrictedPaperViewsTab),
 	AgendaItemThemesTab: page(AgendaItemThemesTab),
 	DecisionThemesTab: page(DecisionThemesTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),

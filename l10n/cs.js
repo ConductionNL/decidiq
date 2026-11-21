@@ -3327,7 +3327,10 @@ OC.L10N.register(
         "Members' ancillary positions": "Vedlejší funkce členů",
         "Return to step": "Vrátit do kroku",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Krok, do kterého se vrácený návrh vrací. Prázdné pole jej vrátí odesílateli.",
-        "returned": "vráceno"
+        "returned": "vráceno",
+        "Who opened the papers": "Kdo otevřel dokumenty",
+        "No one has opened these papers yet.": "Tyto dokumenty zatím nikdo neotevřel.",
+        "The openings could not be read.": "Otevření se nepodařilo načíst."
     },
     "nplurals=2; plural=(n != 1);"
 )

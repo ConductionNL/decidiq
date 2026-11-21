@@ -3391,7 +3391,10 @@
         "The meeting could not be created.": "Níorbh fhéidir an cruinniú a chruthú.",
         "The meeting was created. Finish these steps on the meeting page:": "Cruthaíodh an cruinniú. Críochnaigh na céimeanna seo ar leathanach an chruinnithe:",
         "The papers were not uploaded.": "Níor uaslódáladh na páipéir.",
-        "choose files": "roghnaigh comhaid"
+        "choose files": "roghnaigh comhaid",
+        "Who opened the papers": "Cé a d'oscail na páipéir",
+        "No one has opened these papers yet.": "Níor oscail aon duine na páipéir seo fós.",
+        "The openings could not be read.": "Níorbh fhéidir na hoscailtí a léamh."
     },
     "plurals": null
 }

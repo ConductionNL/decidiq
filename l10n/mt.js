@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Il-laqgħa ma setgħetx tinħoloq.",
         "The meeting was created. Finish these steps on the meeting page:": "Il-laqgħa nħolqot. Lesti dawn il-passi fil-paġna tal-laqgħa:",
         "The papers were not uploaded.": "Id-dokumenti ma ttellgħux.",
-        "choose files": "agħżel fajls"
+        "choose files": "agħżel fajls",
+        "Who opened the papers": "Min fetaħ id-dokumenti",
+        "No one has opened these papers yet.": "Għadu ħadd ma fetaħ dawn id-dokumenti.",
+        "The openings could not be read.": "Il-ftuħ ma setax jinqara."
     },
     "nplurals=2; plural=(n != 1);"
 )

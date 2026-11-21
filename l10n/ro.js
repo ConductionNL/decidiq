@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Întâlnirea nu a putut fi creată.",
         "The meeting was created. Finish these steps on the meeting page:": "Întâlnirea a fost creată. Finalizați acești pași pe pagina întâlnirii:",
         "The papers were not uploaded.": "Documentele nu au fost încărcate.",
-        "choose files": "alegeți fișiere"
+        "choose files": "alegeți fișiere",
+        "Who opened the papers": "Cine a deschis documentele",
+        "No one has opened these papers yet.": "Nimeni nu a deschis încă aceste documente.",
+        "The openings could not be read.": "Deschiderile nu au putut fi citite."
     },
     "nplurals=2; plural=(n != 1);"
 )

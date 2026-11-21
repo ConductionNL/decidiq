@@ -3327,7 +3327,10 @@ OC.L10N.register(
         "Members' ancillary positions": "Càrrecs complementaris dels membres",
         "Return to step": "Retorna al pas",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "El pas al qual torna una proposta retornada. Buit la retorna a qui l'ha enviada.",
-        "returned": "retornat"
+        "returned": "retornat",
+        "Who opened the papers": "Qui ha obert els documents",
+        "No one has opened these papers yet.": "Encara ningú no ha obert aquests documents.",
+        "The openings could not be read.": "No s'han pogut llegir les obertures."
     },
     "nplurals=2; plural=(n != 1);"
 )

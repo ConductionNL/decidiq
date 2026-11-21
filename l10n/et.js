@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Koosolekut ei saanud luua.",
         "The meeting was created. Finish these steps on the meeting page:": "Koosolek on loodud. Lõpetage need sammud koosoleku lehel:",
         "The papers were not uploaded.": "Dokumente ei laaditud üles.",
-        "choose files": "valige failid"
+        "choose files": "valige failid",
+        "Who opened the papers": "Kes on dokumente avanud",
+        "No one has opened these papers yet.": "Keegi pole neid dokumente veel avanud.",
+        "The openings could not be read.": "Avamisi ei õnnestunud lugeda."
     },
     "nplurals=2; plural=(n != 1);"
 )
