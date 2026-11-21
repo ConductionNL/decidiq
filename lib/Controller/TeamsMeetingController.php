@@ -31,6 +31,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IL10N;
 use OCP\IRequest;
 
 /**
@@ -49,13 +50,17 @@ class TeamsMeetingController extends Controller {
 	 * @param IRequest                         $request The request
 	 * @param TeamsMeetingServiceInterface     $teams   Creates the Teams meeting
 	 * @param TranscriptionStaffGuardInterface $guard   Chair, secretary or admin of the meeting
+	 * @param IL10N                            $l10n    Puts a refusal in the reader's language
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly TeamsMeetingServiceInterface $teams,
 		private readonly TranscriptionStaffGuardInterface $guard,
+		private readonly IL10N $l10n,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -120,7 +125,34 @@ class TeamsMeetingController extends Controller {
 		try {
 			return new JSONResponse($action(), $status);
 		} catch (TeamsMeetingRefusedException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
+			return new JSONResponse(['message' => $this->refusal(message: $e->getMessage())], $e->getStatus());
 		}
 	}//end guarded()
+
+	/**
+	 * A refusal of the Teams route in the reader's language.
+	 *
+	 * The service refuses in English, and the meeting page shows the answer as
+	 * given. Each fixed refusal is translated here with a literal key, so the
+	 * catalogues can carry it. A message that names something only known at
+	 * run time (Microsoft 365's own answer, a transport error) is passed on
+	 * unchanged rather than half translated.
+	 *
+	 * @param string $message The refusal as the service gave it
+	 *
+	 * @return string The refusal as the reader reads it
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 */
+	private function refusal(string $message): string {
+		return match ($message) {
+			'No Microsoft 365 service is connected' => $this->l10n->t('No Microsoft 365 service is connected'),
+			'Only a digital or hybrid meeting gets a Teams meeting' => $this->l10n->t('Only a digital or hybrid meeting gets a Teams meeting'),
+			'This meeting already has a Teams meeting' => $this->l10n->t('This meeting already has a Teams meeting'),
+			'Meeting not found' => $this->l10n->t('Meeting not found'),
+			'The meeting has no start date' => $this->l10n->t('The meeting has no start date'),
+			'Microsoft 365 answered without a Teams join address' => $this->l10n->t('Microsoft 365 answered without a Teams join address'),
+			default => $message,
+		};
+	}//end refusal()
 }//end class

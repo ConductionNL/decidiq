@@ -25,6 +25,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
+use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -69,11 +70,12 @@ final class TeamsMeetingControllerTest extends TestCase {
 	/**
 	 * The controller over the world, signed in as a user or nobody.
 	 *
-	 * @param string|null $uid The signed-in user.
+	 * @param string|null           $uid       The signed-in user.
+	 * @param array<string, string> $catalogue The reader's translations; an absent key reads as itself.
 	 *
 	 * @return TeamsMeetingController
 	 */
-	private function controller(?string $uid): TeamsMeetingController {
+	private function controller(?string $uid, array $catalogue=[]): TeamsMeetingController {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => (isset($this->world->objects[(string)$id]) === true ? $this->entity(id: (string)$id) : null));
 		$objects->method('findAll')->willReturnCallback(fn (array $config=[]): array => array_map(fn (string $id): ObjectEntity => $this->entity(id: $id), $this->world->match(config: $config)));
@@ -102,10 +104,14 @@ final class TeamsMeetingControllerTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-04-10T10:00:00+02:00'));
 
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(fn (string $text): string => ($catalogue[$text] ?? $text));
+
 		return new TeamsMeetingController(
 			request: $this->createMock(IRequest::class),
 			teams: new TeamsMeetingService(objectService: $objects, container: $container, answers: new SigningAnswer(), userSession: $session, time: $time),
 			guard: new TranscriptionStaffGuard(objectService: $objects, participantResolver: $participants, userSession: $session, groupManager: $groups),
+			l10n: $l10n,
 		);
 	}//end controller()
 
@@ -239,4 +245,57 @@ final class TeamsMeetingControllerTest extends TestCase {
 		$this->assertSame(404, $this->controller(uid: 'griffier')->create(meetingId: 'no-such-meeting')->getStatus());
 		$this->assertSame([], $this->world->calls);
 	}//end testAnUnknownMeeting()
+
+	/**
+	 * A fixed refusal reaches the reader in their language.
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 *
+	 * @return void
+	 */
+	public function testAFixedRefusalIsInTheReadersLanguage(): void {
+		$this->world->objects[$this->meeting]['data']['meetingMode'] = 'in-person';
+		$dutch = ['Only a digital or hybrid meeting gets a Teams meeting' => 'Alleen een digitale of hybride vergadering krijgt een Teams-vergadering'];
+
+		$response = $this->controller(uid: 'griffier', catalogue: $dutch)->create(meetingId: $this->meeting);
+
+		$this->assertSame(409, $response->getStatus());
+		$this->assertSame('Alleen een digitale of hybride vergadering krijgt een Teams-vergadering', $response->getData()['message']);
+	}//end testAFixedRefusalIsInTheReadersLanguage()
+
+	/**
+	 * Microsoft 365's own answer is passed on unchanged, not looked up as a key.
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 *
+	 * @return void
+	 */
+	public function testARunTimeRefusalIsPassedOnUnchanged(): void {
+		$this->world->answers['/online-meetings'] = ['_status' => 500, 'message' => 'Graph is down'];
+
+		$response = $this->controller(uid: 'griffier', catalogue: ['Graph is down' => 'vertaald'])->create(meetingId: $this->meeting);
+
+		$this->assertSame(502, $response->getStatus());
+		$this->assertSame('Graph is down', $response->getData()['message']);
+	}//end testARunTimeRefusalIsPassedOnUnchanged()
+
+	/**
+	 * Every fixed refusal the controller translates has a Dutch and an English catalogue entry.
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 *
+	 * @return void
+	 */
+	public function testEveryFixedRefusalIsInTheCatalogues(): void {
+		$source = (string)file_get_contents(__DIR__ . '/../../../lib/Controller/TeamsMeetingController.php');
+		preg_match_all("/l10n->t\\('([^']+)'\\)/", $source, $matches);
+		$this->assertCount(6, $matches[1]);
+
+		foreach (['en', 'nl'] as $locale) {
+			$catalogue = json_decode((string)file_get_contents(__DIR__ . '/../../../l10n/' . $locale . '.json'), true)['translations'];
+			foreach ($matches[1] as $key) {
+				$this->assertNotSame('', (string)($catalogue[$key] ?? ''), $locale . ' lacks "' . $key . '"');
+			}
+		}
+	}//end testEveryFixedRefusalIsInTheCatalogues()
 }//end class

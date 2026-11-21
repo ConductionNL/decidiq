@@ -57,4 +57,5 @@
 - Dutch and English strings for the section, the button and the refusals (`test:l10n`, `check:schema-l10n` green).
 - `docs/features/microsoft-365.md` (new): subscribing in Outlook, how often Outlook refreshes, creating a Teams meeting, and signing in with a Microsoft account through Nextcloud's `user_oidc`.
 - [x] Implement
-- [ ] Test
+- [x] Test
+  - 21 Nov: the server's refusals of the Teams route were shown in English, because the meeting page shows the answer as given. `TeamsMeetingController::refusal()` now translates each fixed refusal with a literal key (Dutch and English in the catalogues); Microsoft 365's own answer and transport errors pass unchanged. `TeamsMeetingControllerTest`: a fixed refusal in Dutch, a run-time one unchanged, and every key the controller translates present in `en.json` and `nl.json`. `test:l10n` is green; `check:schema-l10n` exits 0 and lists none of this change's schema strings as uncovered (its total is over the baseline from other changes).

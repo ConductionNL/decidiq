@@ -4127,7 +4127,12 @@ OC.L10N.register(
         "Publish this other position?": "Publish this other position?",
         "Publish this gift?": "Publish this gift?",
         "Anyone can then read it on the public register, including later changes such as its end.": "Anyone can then read it on the public register, including later changes such as its end.",
-        "The public can no longer read it. Its record stays as it is.": "The public can no longer read it. Its record stays as it is."
+        "The public can no longer read it. Its record stays as it is.": "The public can no longer read it. Its record stays as it is.",
+        "No Microsoft 365 service is connected": "No Microsoft 365 service is connected",
+        "Only a digital or hybrid meeting gets a Teams meeting": "Only a digital or hybrid meeting gets a Teams meeting",
+        "This meeting already has a Teams meeting": "This meeting already has a Teams meeting",
+        "The meeting has no start date": "The meeting has no start date",
+        "Microsoft 365 answered without a Teams join address": "Microsoft 365 answered without a Teams join address"
     },
     "nplurals=2; plural=(n != 1);"
 )
