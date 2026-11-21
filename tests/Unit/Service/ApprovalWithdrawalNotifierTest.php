@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalWithdrawalNotifier;
-use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -57,7 +56,7 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 	 * @return ApprovalWithdrawalNotifier
 	 */
 	private function notifier(string $failFor = ''): ApprovalWithdrawalNotifier {
-		$dispatcher = $this->createMock(originalClassName: NotificationPreferenceService::class);
+		$dispatcher = $this->createMock(originalClassName: NotificationPreferenceServiceInterface::class);
 		$dispatcher->method('dispatch')->willReturnCallback(
 			function (string $personId, string $eventType, string $title, string $message, string $deepLink = ''): int {
 				if ($personId !== '' && $personId === $this->failFor) {
@@ -70,10 +69,7 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 		);
 		$this->failFor = $failFor;
 
-		$container = $this->createMock(originalClassName: ContainerInterface::class);
-		$container->method('get')->willReturn($dispatcher);
-
-		return new ApprovalWithdrawalNotifier(container: $container, logger: $this->createMock(originalClassName: LoggerInterface::class));
+		return new ApprovalWithdrawalNotifier(notifications: $dispatcher, logger: $this->createMock(originalClassName: LoggerInterface::class));
 	}//end notifier()
 
 	/**
@@ -89,8 +85,7 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 				['actor' => 'p.de.vries', 'step' => 2, 'withdrawnPaths' => ['attachments']],
 				['step' => 3, 'withdrawnPaths' => ['body']],
 			],
-			subject: 'dec-1',
-			subjectSchema: 'decision',
+			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: 'dec-1', subjectSchema: 'decision'),
 		);
 
 		self::assertSame(expected: 2, actual: $notified);
@@ -115,8 +110,7 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 				['actor' => 'j.jansen', 'step' => 1],
 				['actor' => 'p.de.vries', 'step' => 1],
 			],
-			subject: 'doc-1',
-			subjectSchema: 'digital-document',
+			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: 'doc-1', subjectSchema: 'digital-document'),
 		);
 
 		self::assertSame(expected: 1, actual: $notified);
@@ -125,19 +119,14 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 	}//end testANoticeThatFailsForOneActorStillReachesTheOthers()
 
 	/**
-	 * Without a dispatcher nothing is sent and nothing throws.
+	 * No withdrawals send nothing.
 	 *
 	 * @return void
 	 */
-	public function testWithoutADispatcherNothingIsSent(): void {
-		$container = $this->createMock(originalClassName: ContainerInterface::class);
-		$container->method('get')->willThrowException(new RuntimeException('not registered'));
-		$notifier = new ApprovalWithdrawalNotifier(container: $container, logger: $this->createMock(originalClassName: LoggerInterface::class));
-
-		$withdrawals = [['actor' => 'j.jansen', 'step' => 1]];
-		self::assertSame(expected: 0, actual: $notifier->notify(withdrawals: $withdrawals, subject: 'dec-1', subjectSchema: 'decision'));
-		self::assertSame(expected: 0, actual: $notifier->notify(withdrawals: [], subject: 'dec-1', subjectSchema: 'decision'));
-	}//end testWithoutADispatcherNothingIsSent()
+	public function testNoWithdrawalsSendNothing(): void {
+		self::assertSame(expected: 0, actual: $this->notifier()->notify(withdrawals: [], deepLink: '/decisions/dec-1'));
+		self::assertSame(expected: [], actual: $this->sent);
+	}//end testNoWithdrawalsSendNothing()
 
 	/**
 	 * The message names the step only when there is one.

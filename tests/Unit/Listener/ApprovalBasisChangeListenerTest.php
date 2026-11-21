@@ -27,6 +27,7 @@ use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\Decidiq\Listener\ApprovalBasisChangeListener;
 use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Service\ApprovalStalenessService;
+use OCA\Decidiq\Service\SubjectVersions;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -60,12 +61,12 @@ final class ApprovalBasisChangeListenerTest extends TestCase {
 	private function listener(string $slug = 'decision', bool $fail = false, ?LoggerInterface $logger = null): ApprovalBasisChangeListener {
 		$service = $this->createMock(originalClassName: ApprovalStalenessService::class);
 		$service->method('subjectChanged')->willReturnCallback(
-			function (string $subject, array $before, array $after) use ($fail): array {
+			function (SubjectVersions $change) use ($fail): array {
 				if ($fail === true) {
 					throw new RuntimeException('store down');
 				}
 
-				$this->calls[] = [$subject, $before, $after];
+				$this->calls[] = [$change->subject, $change->before, $change->after];
 				return [];
 			}
 		);

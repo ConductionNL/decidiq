@@ -213,17 +213,6 @@ class ObjectListenerRegistrar {
 			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
 		);
 
-		// Confidentiality lapse (confidentiality-term-and-lapse, REQ-EMB-021):
-		// a meeting that closes without ratifying, or a clerk recording "not
-		// ratified" on the item, lapses the restriction put to the body.
-		$this->subscribe(
-			dispatcher: $dispatcher,
-			event: ObjectUpdatedEvent::class,
-			listener: ConfidentialityLapseListener::class,
-			registers: null,
-			schemas: [ConfidentialityLapseListener::SCHEMA_MEETING, ConfidentialityLapseListener::SCHEMA_AGENDA_ITEM]
-		);
-
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,
 		// meeting defaults, submission window and document details.
 		foreach (SaveGuardSubscriptions::ALL as $guard) {
@@ -313,16 +302,19 @@ class ObjectListenerRegistrar {
 	}//end subscribeGoalProgress()
 
 	/**
-	 * Subscribe the confidential-agenda-item listener.
+	 * Subscribe the confidentiality listeners.
 	 *
 	 * A non-public agenda item closes its papers, and an imposed item
-	 * restriction closes the item (REQ-ACP-003/004).
+	 * restriction closes the item (REQ-ACP-003/004). A restriction put to a
+	 * body that does not ratify it lapses (REQ-EMB-021).
 	 *
 	 * @param IEventDispatcher $dispatcher The live event dispatcher.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers
+	 * @spec openspec/changes/confidentiality-term-and-lapse
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
 	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {
 		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
@@ -334,6 +326,17 @@ class ObjectListenerRegistrar {
 				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
 			);
 		}
+
+		// Confidentiality lapse (confidentiality-term-and-lapse, REQ-EMB-021):
+		// a meeting that closes without ratifying, or a clerk recording "not
+		// ratified" on the item, lapses the restriction put to the body.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: ConfidentialityLapseListener::class,
+			registers: null,
+			schemas: [ConfidentialityLapseListener::SCHEMA_MEETING, ConfidentialityLapseListener::SCHEMA_AGENDA_ITEM]
+		);
 	}//end subscribeConfidentiality()
 
 	/**

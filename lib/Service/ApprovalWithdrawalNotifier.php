@@ -8,8 +8,8 @@
  * (REQ-DWP-003). An approver who is not told finds out when somebody asks why
  * the step is still open, which is the worst moment to find out.
  *
- * Fail-soft per actor, through the preference-aware dispatcher, as the voting
- * notices are: a notice that cannot be sent never undoes the withdrawal.
+ * Fail-soft per actor, through the preference-aware dispatcher, as the
+ * technical-question notices are: a notice that cannot be sent never undoes the withdrawal.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -30,7 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use Psr\Container\ContainerInterface;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -51,11 +51,11 @@ class ApprovalWithdrawalNotifier {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container The DI container (lazy lookup of the dispatcher).
-	 * @param LoggerInterface    $logger    The logger.
+	 * @param NotificationPreferenceServiceInterface $notifications Preference-aware dispatch.
+	 * @param LoggerInterface                        $logger        The logger.
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly NotificationPreferenceServiceInterface $notifications,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -63,34 +63,23 @@ class ApprovalWithdrawalNotifier {
 	/**
 	 * Notify every actor of the withdrawals once.
 	 *
-	 * @param array<int, array<string, mixed>> $withdrawals   The withdrawn actions, with `actor`, `step` and `withdrawnPaths`.
-	 * @param string                           $subject       The subject's uuid.
-	 * @param string                           $subjectSchema The subject's schema slug.
+	 * @param array<int, array<string, mixed>> $withdrawals The withdrawn actions, with `actor`, `step` and `withdrawnPaths`.
+	 * @param string                           $deepLink    The subject's app link, or '' (see deepLink()).
 	 *
 	 * @return int How many actors were notified.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	public function notify(array $withdrawals, string $subject, string $subjectSchema): int {
-		$notices = self::noticesPerActor(withdrawals: $withdrawals);
-		if ($notices === []) {
-			return 0;
-		}
-
-		$dispatcher = $this->dispatcher();
-		if ($dispatcher === null) {
-			return 0;
-		}
-
+	public function notify(array $withdrawals, string $deepLink): int {
 		$notified = 0;
-		foreach ($notices as $actor => $notice) {
+		foreach (self::noticesPerActor(withdrawals: $withdrawals) as $actor => $notice) {
 			try {
-				$dispatcher->dispatch(
+				$this->notifications->dispatch(
 					personId: $actor,
 					eventType: self::EVENT_TYPE,
 					title: 'Your approval was withdrawn',
 					message: self::message(steps: $notice['steps'], paths: $notice['paths']),
-					deepLink: self::deepLink(subject: $subject, subjectSchema: $subjectSchema)
+					deepLink: $deepLink
 				);
 				$notified++;
 			} catch (Throwable $e) {
@@ -173,24 +162,4 @@ class ApprovalWithdrawalNotifier {
 
 		return '';
 	}//end deepLink()
-
-	/**
-	 * The preference-aware dispatcher, or null when it cannot be resolved.
-	 *
-	 * @return NotificationPreferenceService|null
-	 */
-	private function dispatcher(): ?NotificationPreferenceService {
-		try {
-			$service = $this->container->get(NotificationPreferenceService::class);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: approval withdrawal notices not sent', ['error' => $e->getMessage()]);
-			return null;
-		}
-
-		if ($service instanceof NotificationPreferenceService === false) {
-			return null;
-		}
-
-		return $service;
-	}//end dispatcher()
 }//end class

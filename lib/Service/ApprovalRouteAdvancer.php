@@ -465,9 +465,10 @@ final class ApprovalRouteAdvancer {
 			$reopenIds[(string)$stage['id']] = true;
 		}
 
+		$plan = ['earliest' => $earliest, 'reopen' => $reopenIds];
 		$changed = [];
 		foreach ($stages as $stage) {
-			$patch = $this->rewindPatch(stage: $stage, earliest: $earliest, reopenIds: $reopenIds);
+			$patch = self::rewindPatch(stage: $stage, plan: $plan);
 			if ($patch === null) {
 				continue;
 			}
@@ -482,16 +483,17 @@ final class ApprovalRouteAdvancer {
 	/**
 	 * The patch one stage needs when its route is rewound, or null when none.
 	 *
-	 * @param array<string, mixed> $stage     The stage.
-	 * @param array<string, int>   $earliest  Per route, the earliest reopened sequence.
-	 * @param array<string, bool>  $reopenIds The ids of the stages that reopen.
+	 * @param array<string, mixed>                                                  $stage The stage.
+	 * @param array{earliest: array<string, int>, reopen: array<string, bool>} $plan  Per route the earliest
+	 *        reopened sequence, and the ids of the stages that reopen.
 	 *
 	 * @return array<string, mixed>|null The patch.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	private function rewindPatch(array $stage, array $earliest, array $reopenIds): ?array {
-		if (isset($reopenIds[(string)($stage['id'] ?? '')]) === true) {
+	private static function rewindPatch(array $stage, array $plan): ?array {
+		$earliest = $plan['earliest'];
+		if (isset($plan['reopen'][(string)($stage['id'] ?? '')]) === true) {
 			return ['status' => 'active', 'outcome' => null, 'decidedAt' => null];
 		}
 

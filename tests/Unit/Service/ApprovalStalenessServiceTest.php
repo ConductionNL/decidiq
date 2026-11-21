@@ -31,6 +31,7 @@ use OCA\Decidiq\Service\ApprovalRouteAdvancer;
 use OCA\Decidiq\Service\ApprovalStalenessService;
 use OCA\Decidiq\Service\ApprovalWithdrawalNotifier;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\Decidiq\Service\SubjectVersions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -60,7 +61,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 	private array $patches = [];
 
 	/**
-	 * The notices asked for: [withdrawals, subject, subjectSchema].
+	 * The notices asked for: [withdrawals, deepLink].
 	 *
 	 * @var array<int, array<int, mixed>>
 	 */
@@ -97,8 +98,8 @@ final class ApprovalStalenessServiceTest extends TestCase {
 
 		$notifier = $this->createMock(originalClassName: ApprovalWithdrawalNotifier::class);
 		$notifier->method('notify')->willReturnCallback(
-			function (array $withdrawals, string $subject, string $subjectSchema): int {
-				$this->notices[] = [$withdrawals, $subject, $subjectSchema];
+			function (array $withdrawals, string $deepLink): int {
+				$this->notices[] = [$withdrawals, $deepLink];
 				return count($withdrawals);
 			}
 		);
@@ -162,11 +163,10 @@ final class ApprovalStalenessServiceTest extends TestCase {
 	public function testEditingWhatWasApprovedWithdrawsTheApprovalAndReopensTheStep(): void {
 		$this->routeWithAnApprovedFirstStep();
 
-		$withdrawn = $this->service->subjectChanged(
-			subject: 'dec-1',
+		$withdrawn = $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1',
 			before: ['body' => 'Version one', 'internalNote' => 'x'],
 			after: ['body' => 'Version two', 'internalNote' => 'x'],
-		);
+		));
 
 		self::assertCount(expectedCount: 1, haystack: $withdrawn);
 		self::assertSame(expected: ['body'], actual: $withdrawn[0]['withdrawnPaths']);
@@ -183,7 +183,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 
 		self::assertCount(expectedCount: 1, haystack: $this->notices);
 		self::assertSame(expected: 'j.jansen', actual: $this->notices[0][0][0]['actor']);
-		self::assertSame(expected: ['dec-1', 'decision'], actual: [$this->notices[0][1], $this->notices[0][2]]);
+		self::assertSame(expected: '/decisions/dec-1', actual: $this->notices[0][1]);
 	}//end testEditingWhatWasApprovedWithdrawsTheApprovalAndReopensTheStep()
 
 	/**
@@ -194,11 +194,10 @@ final class ApprovalStalenessServiceTest extends TestCase {
 	public function testEditingOutsideTheBasisKeepsTheApproval(): void {
 		$this->routeWithAnApprovedFirstStep();
 
-		$withdrawn = $this->service->subjectChanged(
-			subject: 'dec-1',
+		$withdrawn = $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1',
 			before: ['body' => 'Version one', 'internalNote' => 'old'],
 			after: ['body' => 'Version one', 'internalNote' => 'new'],
-		);
+		));
 
 		self::assertSame(expected: [], actual: $withdrawn);
 		self::assertSame(expected: [], actual: $this->patches);
@@ -213,7 +212,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 	public function testAStageWithoutABasisIsNeverLookedAt(): void {
 		$this->routeWithAnApprovedFirstStep(first: ['approvalBasis' => []]);
 
-		$withdrawn = $this->service->subjectChanged(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']);
+		$withdrawn = $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']));
 
 		self::assertSame(expected: [], actual: $withdrawn);
 		self::assertSame(expected: ['decision-stage'], actual: $this->reads);
@@ -232,7 +231,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 
 			self::assertSame(
 				expected: [],
-				actual: $this->service->subjectChanged(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']),
+				actual: $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b'])),
 				message: $status
 			);
 			self::assertSame(expected: [], actual: $this->patches, message: $status);
@@ -249,11 +248,10 @@ final class ApprovalStalenessServiceTest extends TestCase {
 		$this->routeWithAnApprovedFirstStep(first: ['status' => 'active', 'outcome' => null]);
 		$this->rows['decision-stage'][1]['status'] = 'pending';
 
-		$withdrawn = $this->service->subjectChanged(
-			subject: 'dec-1',
+		$withdrawn = $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1',
 			before: ['attachments' => ['a.pdf']],
 			after: ['attachments' => ['b.pdf']],
-		);
+		));
 
 		self::assertCount(expectedCount: 1, haystack: $withdrawn);
 		self::assertSame(expected: ['act-1'], actual: array_keys($this->patchesOf(schema: 'approval-action')));
@@ -276,7 +274,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 			['step' => 1, 'actor' => 'no.id', 'action' => 'approved', 'state' => 'granted'],
 		];
 
-		$this->service->subjectChanged(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']);
+		$this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']));
 
 		self::assertSame(expected: ['act-1'], actual: array_keys($this->patchesOf(schema: 'approval-action')));
 	}//end testOnlyStandingGrantsOnTheStepAreWithdrawn()
@@ -293,10 +291,31 @@ final class ApprovalStalenessServiceTest extends TestCase {
 		];
 		$this->rows['decision-stage'][] = ['id' => 'other-2', 'route' => 'route-b', 'decision' => 'dec-1', 'sequence' => 4, 'status' => 'active'];
 
-		$this->service->subjectChanged(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']);
+		$this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']));
 
 		self::assertSame(expected: ['stage-1', 'stage-2'], actual: array_keys($this->patchesOf(schema: 'decision-stage')));
 	}//end testTheRewindStaysOnTheRouteWhoseGrantWentStale()
+
+	/**
+	 * Two routes with a stage at the same step see the same action: it is
+	 * written and announced once, and both stages reopen.
+	 *
+	 * @return void
+	 */
+	public function testAnActionSeenByTwoRoutesIsWithdrawnOnce(): void {
+		$this->routeWithAnApprovedFirstStep();
+		$this->rows['decision-stage'][] = [
+			'id' => 'other-1', 'route' => 'route-b', 'decision' => 'dec-1', 'sequence' => 1, 'status' => 'decided',
+			'approvalBasis' => ['body'],
+		];
+
+		$withdrawn = $this->service->subjectChanged(change: new SubjectVersions(subject: 'dec-1', before: ['body' => 'a'], after: ['body' => 'b']));
+
+		self::assertCount(expectedCount: 1, haystack: $withdrawn);
+		self::assertSame(expected: ['act-1'], actual: array_keys($this->patchesOf(schema: 'approval-action')));
+		self::assertSame(expected: ['stage-1', 'stage-2', 'other-1'], actual: array_keys($this->patchesOf(schema: 'decision-stage')));
+		self::assertCount(expectedCount: 1, haystack: $this->notices[0][0]);
+	}//end testAnActionSeenByTwoRoutesIsWithdrawnOnce()
 
 	/**
 	 * A subject without a uuid reads nothing.
@@ -304,7 +323,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testNoSubjectReadsNothing(): void {
-		self::assertSame(expected: [], actual: $this->service->subjectChanged(subject: ' ', before: [], after: []));
+		self::assertSame(expected: [], actual: $this->service->subjectChanged(change: new SubjectVersions(subject: ' ', before: [], after: [])));
 		self::assertSame(expected: [], actual: $this->reads);
 	}//end testNoSubjectReadsNothing()
 
@@ -322,8 +341,8 @@ final class ApprovalStalenessServiceTest extends TestCase {
 
 		$actions = [['id' => 'a', 'step' => 1], ['id' => 'b', 'step' => 2], ['id' => 'c', 'step' => 1], ['step' => 1]];
 		self::assertSame(
-			expected: [['id' => 'c', 'step' => 1]],
-			actual: ApprovalStalenessService::actionsOfStep(actions: $actions, stage: ['sequence' => 1], skip: ['a' => true])
+			expected: [['id' => 'a', 'step' => 1], ['id' => 'c', 'step' => 1]],
+			actual: ApprovalStalenessService::actionsOfStep(actions: $actions, sequence: 1)
 		);
 	}//end testTheWatchedStagesAndTheStepsActions()
 }//end class

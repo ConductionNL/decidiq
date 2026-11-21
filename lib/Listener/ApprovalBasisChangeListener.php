@@ -38,6 +38,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\Decidiq\Service\ApprovalStalenessService;
+use OCA\Decidiq\Service\SubjectVersions;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -120,9 +121,7 @@ class ApprovalBasisChangeListener implements IEventListener {
 
 		$subject = (string)($entity->getUuid() ?? ($after['id'] ?? ''));
 		$this->staleness->subjectChanged(
-			subject: $subject,
-			before: $reader->payloadOf(entity: $old),
-			after: $after,
+			change: new SubjectVersions(subject: $subject, before: $reader->payloadOf(entity: $old), after: $after)
 		);
 	}//end apply()
 }//end class

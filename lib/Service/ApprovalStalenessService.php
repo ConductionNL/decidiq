@@ -71,46 +71,42 @@ class ApprovalStalenessService {
 	/**
 	 * Apply a change of the subject to the approvals on it.
 	 *
-	 * @param string               $subject The subject's uuid.
-	 * @param array<string, mixed> $before  The subject as it was.
-	 * @param array<string, mixed> $after   The subject as it now is.
+	 * @param SubjectVersions $change The subject as it was and as it now is.
 	 *
 	 * @return array<int, array<string, mixed>> The withdrawn actions, each with its `withdrawnPaths`.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	public function subjectChanged(string $subject, array $before, array $after): array {
-		if (trim($subject) === '') {
+	public function subjectChanged(SubjectVersions $change): array {
+		if (trim($change->subject) === '') {
 			return [];
 		}
 
-		$stages = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => $subject]);
+		$stages = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => $change->subject]);
 		$watched = array_values(array_filter($stages, static fn (array $stage): bool => self::isWatched(stage: $stage)));
 		if ($watched === []) {
 			return [];
 		}
 
-		$actions = $this->store->findAll(schema: 'approval-action', filters: ['subject' => $subject]);
+		$actions = $this->store->findAll(schema: 'approval-action', filters: ['subject' => $change->subject]);
+		$withdrawnAt = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
 		$withdrawn = [];
 		$reopened = [];
-		$withdrawnAt = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
 		foreach ($watched as $stage) {
-			$stepWithdrawals = $this->withdrawOnStage(
-				stage: $stage,
-				actions: self::actionsOfStep(actions: $actions, stage: $stage, skip: $withdrawn),
-				before: $before,
-				after: $after,
+			$stepWithdrawals = $this->watcher->withdrawals(
+				step: $stage,
+				actions: self::actionsOfStep(actions: $actions, sequence: (int)($stage['sequence'] ?? 0)),
+				before: $change->before,
+				after: $change->after,
 				withdrawnAt: $withdrawnAt,
 			);
-			if ($stepWithdrawals === []) {
-				continue;
-			}
-
 			foreach ($stepWithdrawals as $withdrawal) {
+				// Keyed by id: two routes on the subject with a stage at the
+				// same step see the same action, which is written once.
 				$withdrawn[(string)$withdrawal['id']] = $withdrawal;
 			}
 
-			if ((string)($stage['status'] ?? '') === 'decided') {
+			if ($stepWithdrawals !== [] && (string)($stage['status'] ?? '') === 'decided') {
 				$reopened[] = $stage;
 			}
 		}
@@ -119,39 +115,28 @@ class ApprovalStalenessService {
 			return [];
 		}
 
+		$this->writeWithdrawals(withdrawals: $withdrawn, withdrawnAt: $withdrawnAt);
 		$this->advancer->reopenWithdrawnStages(stages: $stages, reopened: $reopened);
 		$this->notifier->notify(
 			withdrawals: array_values($withdrawn),
-			subject: $subject,
-			subjectSchema: (string)($watched[0]['note'] ?? ''),
+			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: $change->subject, subjectSchema: (string)($watched[0]['note'] ?? '')),
 		);
 
 		return array_values($withdrawn);
 	}//end subjectChanged()
 
 	/**
-	 * Withdraw the grants of one stage that the change made stale.
+	 * Write each withdrawal onto its action.
 	 *
-	 * @param array<string, mixed>             $stage       The stage, with its `approvalBasis`.
-	 * @param array<int, array<string, mixed>> $actions     The actions on its step.
-	 * @param array<string, mixed>             $before      The subject as it was.
-	 * @param array<string, mixed>             $after       The subject as it now is.
-	 * @param string                           $withdrawnAt When.
+	 * @param array<string, array<string, mixed>> $withdrawals Per action id, the withdrawn action.
+	 * @param string                              $withdrawnAt When.
 	 *
-	 * @return array<int, array<string, mixed>> The withdrawn actions.
+	 * @return void
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	private function withdrawOnStage(array $stage, array $actions, array $before, array $after, string $withdrawnAt): array {
-		$withdrawals = $this->watcher->withdrawals(
-			step: $stage,
-			actions: $actions,
-			before: $before,
-			after: $after,
-			withdrawnAt: $withdrawnAt,
-		);
-
-		foreach ($withdrawals as $withdrawal) {
+	private function writeWithdrawals(array $withdrawals, string $withdrawnAt): void {
+		foreach (array_keys($withdrawals) as $id) {
 			$this->store->patch(
 				schema: 'approval-action',
 				data: [
@@ -159,12 +144,10 @@ class ApprovalStalenessService {
 					'withdrawnReason' => ApprovalBasisWatcher::REASON_BASIS_CHANGED,
 					'withdrawnAt' => $withdrawnAt,
 				],
-				uuid: (string)$withdrawal['id'],
+				uuid: (string)$id,
 			);
 		}
-
-		return $withdrawals;
-	}//end withdrawOnStage()
+	}//end writeWithdrawals()
 
 	/**
 	 * Whether a stage declares a basis and can hold a standing grant.
@@ -185,27 +168,20 @@ class ApprovalStalenessService {
 	}//end isWatched()
 
 	/**
-	 * The actions recorded on a stage's step that are not already withdrawn
-	 * in this pass and have an id to write to.
+	 * The actions recorded on a step that have an id to write to.
 	 *
-	 * @param array<int, array<string, mixed>> $actions The subject's actions.
-	 * @param array<string, mixed>             $stage   The stage.
-	 * @param array<string, mixed>             $skip    The ids already withdrawn.
+	 * @param array<int, array<string, mixed>> $actions  The subject's actions.
+	 * @param int                              $sequence The step.
 	 *
 	 * @return array<int, array<string, mixed>> The step's actions.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	public static function actionsOfStep(array $actions, array $stage, array $skip): array {
-		$sequence = (int)($stage['sequence'] ?? 0);
-
+	public static function actionsOfStep(array $actions, int $sequence): array {
 		return array_values(
 			array_filter(
 				$actions,
-				static function (array $action) use ($sequence, $skip): bool {
-					$id = trim((string)($action['id'] ?? ''));
-					return $id !== '' && isset($skip[$id]) === false && (int)($action['step'] ?? 0) === $sequence;
-				}
+				static fn (array $action): bool => trim((string)($action['id'] ?? '')) !== '' && (int)($action['step'] ?? 0) === $sequence
 			)
 		);
 	}//end actionsOfStep()
