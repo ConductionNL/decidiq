@@ -29,6 +29,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service\BoardBook;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -166,6 +169,10 @@ class BoardBookAgenda {
 	/**
 	 * Save a new MeetingPack object.
 	 *
+	 * The register and schema go in the save options: OpenRegister's
+	 * saveObject() has no `register:`/`schema:` parameters, so naming them
+	 * was an Error at runtime and no pack was ever stored.
+	 *
 	 * @param array<string, mixed> $pack The pack.
 	 *
 	 * @return array<string, mixed> The pack as saved.
@@ -173,7 +180,10 @@ class BoardBookAgenda {
 	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-003-meetingpack-version-tracking
 	 */
 	public function savePack(array $pack): array {
-		$saved = $this->objectService->saveObject(object: $pack, register: self::REGISTER, schema: self::PACK_SCHEMA);
+		$saved = $this->objectService->saveObject(
+			object: $pack,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::PACK_SCHEMA))
+		);
 
 		return ($this->rowOf(value: $saved) ?? $pack);
 	}//end savePack()
@@ -185,10 +195,12 @@ class BoardBookAgenda {
 	 * @param string $schema The schema slug.
 	 *
 	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-001-one-click-compilation-of-a-complete-meeting-pack
 	 */
 	private function one(string $id, string $schema): ?array {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: board book lookup failed', ['schema' => $schema, 'id' => $id, 'exception' => $e->getMessage()]);
 			return null;
@@ -208,10 +220,14 @@ class BoardBookAgenda {
 	 * @param string $meetingId The meeting uuid.
 	 *
 	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-001-one-click-compilation-of-a-complete-meeting-pack
 	 */
 	private function linkedTo(string $schema, string $meetingId): array {
 		try {
-			$query = ['register' => self::REGISTER, 'schema' => $schema, 'filters' => ['meeting' => $meetingId], 'limit' => 500];
+			// OpenRegister reads the register and schema from `filters` only;
+			// at the top level they were ignored and the read was not scoped.
+			$query = ['filters' => ['register' => self::REGISTER, 'schema' => $schema, 'meeting' => $meetingId], 'limit' => 500];
 			$found = (array)$this->objectService->findAll($query);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: board book lookup failed', ['schema' => $schema, 'meetingId' => $meetingId, 'exception' => $e->getMessage()]);

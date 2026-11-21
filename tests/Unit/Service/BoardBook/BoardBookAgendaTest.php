@@ -25,6 +25,9 @@ namespace OCA\Decidiq\Tests\Unit\Service\BoardBook;
 use OCA\Decidiq\Service\BoardBook\BoardBookAgenda;
 use OCA\Decidiq\Service\BoardBook\BoardBookJobState;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\ICache;
 use OCP\ICacheFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -47,7 +50,7 @@ class BoardBookAgendaTest extends TestCase {
 	public function testReadsTheMeetingsOwnRowsInOrder(): void {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willReturnCallback(
-			static fn (array $query): array => match ($query['schema']) {
+			static fn (array $query): array => match ($query['filters']['schema'] ?? null) {
 				'agenda-item' => [
 					['id' => 'b', 'orderNumber' => 2, 'meeting' => 'm1'],
 					['id' => 'x', 'orderNumber' => 1, 'meeting' => 'other'],
@@ -103,6 +106,83 @@ class BoardBookAgendaTest extends TestCase {
 		$this->assertSame(expected: ['a' => [['id' => '41', 'name' => 'stuk.pdf', 'etag' => 'etag-1', 'mime' => 'application/pdf', 'size' => 1234]], 'b' => []], actual: $attachments['rows']);
 		$this->assertSame(expected: [$file], actual: $attachments['nodes']['a']);
 	}//end testReadsTheMeetingsOwnRowsInOrder()
+
+	/**
+	 * Every read names its register and schema inside `filters`, where
+	 * OpenRegister reads them; at the top level the read was not scoped.
+	 *
+	 * @return void
+	 */
+	public function testTheLinkedReadsAreScopedInTheFilters(): void {
+		$queries = [];
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objects->method('findAll')->willReturnCallback(
+			static function (array $query) use (&$queries): array {
+				$queries[] = $query;
+				return [];
+			}
+		);
+		$agenda = new BoardBookAgenda(
+			objectService: $objects,
+			container: $this->createMock(originalClassName: ContainerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		$agenda->items(meetingId: 'm1');
+		$agenda->packs(meetingId: 'm1');
+
+		$this->assertSame(
+			expected: [
+				['filters' => ['register' => 'decidiq', 'schema' => 'agenda-item', 'meeting' => 'm1'], 'limit' => 500],
+				['filters' => ['register' => 'decidiq', 'schema' => 'meeting-pack', 'meeting' => 'm1'], 'limit' => 500],
+			],
+			actual: $queries
+		);
+	}//end testTheLinkedReadsAreScopedInTheFilters()
+
+	/**
+	 * The meeting and its body are read through the find options, and the
+	 * pack is saved through the save options, on the real contract signature.
+	 *
+	 * @return void
+	 */
+	public function testTheMeetingIsReadAndThePackSavedThroughTheContract(): void {
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objects->method('find')->willReturnCallback(
+			function (int|string $id, ?ObjectFindOptions $options = null): ObjectEntity {
+				$entity = new ObjectEntity();
+				$entity->setObject(
+					match ([(string)$options?->schema, (string)$id]) {
+						['meeting', 'm1'] => ['title' => 'Raadsvergadering', 'governanceBody' => 'raad'],
+						['governance-body', 'raad'] => ['name' => 'Gemeenteraad'],
+					}
+				);
+				self::assertSame(expected: 'decidiq', actual: $options?->register);
+				return $entity;
+			}
+		);
+		$saved = [];
+		$objects->method('saveObject')->willReturnCallback(
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved): ObjectEntity {
+				$saved[] = [$options->target->register, $options->target->schema, $object];
+				$entity = new ObjectEntity();
+				$entity->setObject($object + ['id' => 'pack-3']);
+				return $entity;
+			}
+		);
+		$agenda = new BoardBookAgenda(
+			objectService: $objects,
+			container: $this->createMock(originalClassName: ContainerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		$meeting = $agenda->meeting(meetingId: 'm1');
+		$this->assertEquals(expected: ['title' => 'Raadsvergadering', 'governanceBody' => 'raad', 'id' => 'm1'], actual: $meeting);
+		$this->assertSame(expected: 'Gemeenteraad', actual: $agenda->bodyName(meeting: $meeting));
+
+		$agenda->savePack(pack: ['meeting' => 'm1', 'version' => 3]);
+		$this->assertSame(expected: [['decidiq', 'meeting-pack', ['meeting' => 'm1', 'version' => 3]]], actual: $saved);
+	}//end testTheMeetingIsReadAndThePackSavedThroughTheContract()
 
 	/**
 	 * A state round-trips; nothing recorded reads idle; queued and running are in flight.
