@@ -97,6 +97,9 @@ final class ApprovalStalenessServiceTest extends TestCase {
 		);
 
 		$notifier = $this->createMock(originalClassName: ApprovalWithdrawalNotifier::class);
+		$notifier->method('deepLink')->willReturnCallback(
+			static fn (string $subject, string $subjectSchema): string => $subjectSchema . ':' . $subject
+		);
 		$notifier->method('notify')->willReturnCallback(
 			function (array $withdrawals, string $deepLink): int {
 				$this->notices[] = [$withdrawals, $deepLink];
@@ -183,7 +186,7 @@ final class ApprovalStalenessServiceTest extends TestCase {
 
 		self::assertCount(expectedCount: 1, haystack: $this->notices);
 		self::assertSame(expected: 'j.jansen', actual: $this->notices[0][0][0]['actor']);
-		self::assertSame(expected: '/decisions/dec-1', actual: $this->notices[0][1]);
+		self::assertSame(expected: 'decision:dec-1', actual: $this->notices[0][1]);
 	}//end testEditingWhatWasApprovedWithdrawsTheApprovalAndReopensTheStep()
 
 	/**

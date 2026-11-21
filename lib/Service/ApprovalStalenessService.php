@@ -119,7 +119,7 @@ class ApprovalStalenessService {
 		$this->advancer->reopenWithdrawnStages(stages: $stages, reopened: $reopened);
 		$this->notifier->notify(
 			withdrawals: array_values($withdrawn),
-			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: $change->subject, subjectSchema: (string)($watched[0]['note'] ?? '')),
+			deepLink: $this->notifier->deepLink(subject: $change->subject, subjectSchema: (string)($watched[0]['note'] ?? '')),
 		);
 
 		return array_values($withdrawn);

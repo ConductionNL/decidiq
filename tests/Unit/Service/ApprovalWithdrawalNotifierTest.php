@@ -78,14 +78,15 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 	 * @return void
 	 */
 	public function testEachActorIsToldOnceWithWhatChanged(): void {
-		$notified = $this->notifier()->notify(
+		$notifier = $this->notifier();
+		$notified = $notifier->notify(
 			withdrawals: [
 				['actor' => 'j.jansen', 'step' => 1, 'withdrawnPaths' => ['body']],
 				['actor' => 'j.jansen', 'step' => 1, 'withdrawnPaths' => ['body', 'attachments']],
 				['actor' => 'p.de.vries', 'step' => 2, 'withdrawnPaths' => ['attachments']],
 				['step' => 3, 'withdrawnPaths' => ['body']],
 			],
-			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: 'dec-1', subjectSchema: 'decision'),
+			deepLink: $notifier->deepLink(subject: 'dec-1', subjectSchema: 'decision'),
 		);
 
 		self::assertSame(expected: 2, actual: $notified);
@@ -105,12 +106,13 @@ final class ApprovalWithdrawalNotifierTest extends TestCase {
 	 * @return void
 	 */
 	public function testANoticeThatFailsForOneActorStillReachesTheOthers(): void {
-		$notified = $this->notifier(failFor: 'j.jansen')->notify(
+		$notifier = $this->notifier(failFor: 'j.jansen');
+		$notified = $notifier->notify(
 			withdrawals: [
 				['actor' => 'j.jansen', 'step' => 1],
 				['actor' => 'p.de.vries', 'step' => 1],
 			],
-			deepLink: ApprovalWithdrawalNotifier::deepLink(subject: 'doc-1', subjectSchema: 'digital-document'),
+			deepLink: $notifier->deepLink(subject: 'doc-1', subjectSchema: 'digital-document'),
 		);
 
 		self::assertSame(expected: 1, actual: $notified);

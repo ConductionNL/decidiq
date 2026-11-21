@@ -155,7 +155,7 @@ class ApprovalWithdrawalNotifier {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
-	public static function deepLink(string $subject, string $subjectSchema): string {
+	public function deepLink(string $subject, string $subjectSchema): string {
 		if ($subjectSchema === 'decision' && $subject !== '') {
 			return '/decisions/' . $subject;
 		}
