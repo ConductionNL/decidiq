@@ -15,31 +15,31 @@
 		:data-testid="`confidentiality-${testId}-dialog`"
 		@closing="$emit('close')">
 		<slot />
-		<p v-if="error" class="confidentiality-dialog__error" role="alert">
+		<CnNoteCard v-if="error" type="error">
 			{{ error }}
-		</p>
+		</CnNoteCard>
 		<template #actions>
 			<NcButton
-				variant="primary"
-				:data-testid="`confidentiality-${testId}-confirm`"
-				:disabled="disabled"
-				@click="$emit('confirm')">
-				{{ name }}
-			</NcButton>
-			<NcButton @click="$emit('close')">
-				{{ t('decidiq', 'Cancel') }}
+				v-for="button in buttons"
+				:key="button.event"
+				:variant="button.variant"
+				:disabled="button.disabled"
+				:data-testid="button.testId"
+				@click="$emit(button.event)">
+				{{ button.label }}
 			</NcButton>
 		</template>
 	</NcDialog>
 </template>
 
 <script>
+import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { NcButton, NcDialog } from '@nextcloud/vue'
 
 export default {
 	name: 'ConfidentialityDialogShell',
 
-	components: { NcButton, NcDialog },
+	components: { CnNoteCard, NcButton, NcDialog },
 
 	props: {
 		/** The dialog's title, also the confirm button's label */
@@ -53,11 +53,20 @@ export default {
 	},
 
 	emits: ['confirm', 'close'],
+
+	computed: {
+		/**
+		 * Cancel, then the confirm button named after the dialog.
+		 *
+		 * @return {Array<object>} The buttons.
+		 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
+		 */
+		buttons() {
+			return [
+				{ event: 'close', label: this.t('decidiq', 'Cancel'), variant: 'secondary', disabled: false, testId: `confidentiality-${this.testId}-cancel` },
+				{ event: 'confirm', label: this.name, variant: 'primary', disabled: this.disabled, testId: `confidentiality-${this.testId}-confirm` },
+			]
+		},
+	},
 }
 </script>
-
-<style scoped>
-.confidentiality-dialog__error {
-	color: var(--color-error-text);
-}
-</style>
