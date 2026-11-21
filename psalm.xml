@@ -125,6 +125,12 @@
         <file name="tests/Stubs/Service/Flow/FlowNodeRegistry.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowResumeState.php" preloadClasses="true" />
+        <!-- OpenRegister's object lifecycle events. Without them psalm reads every `instanceof ObjectCreatedEvent` on an OCP Event as impossible. -->
+        <file name="tests/Stubs/Event/ObjectCreatedEvent.php" />
+        <file name="tests/Stubs/Event/ObjectCreatingEvent.php" />
+        <file name="tests/Stubs/Event/ObjectUpdatedEvent.php" />
+        <file name="tests/Stubs/Event/ObjectUpdatingEvent.php" />
+        <file name="tests/Stubs/Event/ObjectDeletedEvent.php" />
         <!-- OpenRegister value objects the leaf registration, flow conclusion and task projection construct. -->
         <file name="tests/Stubs/Service/Flow/RunSignal.php" />
         <file name="tests/Stubs/Service/Task/TaskTrigger.php" />
