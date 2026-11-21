@@ -249,4 +249,21 @@ class ActionItemMigrationServiceTest extends TestCase {
 		self::assertSame('u', ActionItemMigrationService::effectiveAssignee(['delegator' => 'u', 'substitute' => 'p', 'status' => 'revoked']));
 		self::assertSame('p', ActionItemMigrationService::effectiveAssignee(['delegator' => 'u', 'delegate' => 'p']));
 	}//end testAReclaimedDelegationReturnsToTheDelegator()
+
+	/**
+	 * A row given as data counts by its uuid and owner; a row without a uuid, or that is no object, is passed over.
+	 *
+	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 *
+	 * @return void
+	 */
+	public function testRowsGivenAsDataAreReadAndUnusableRowsPassedOver(): void {
+		$this->legacy['task'] = [
+			['title' => 'Als data', '@self' => ['id' => 't-9', 'owner' => 'griffier']],
+			['title' => 'Geen uuid', 'owner' => 'zonder'],
+			'geen object',
+		];
+
+		self::assertSame(expected: ['griffier'], actual: $this->service->pendingOwners());
+	}//end testRowsGivenAsDataAreReadAndUnusableRowsPassedOver()
 }//end class

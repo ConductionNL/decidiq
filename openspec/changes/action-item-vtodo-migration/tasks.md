@@ -43,7 +43,8 @@
 ## Verification
 - [x] `openspec validate action-item-vtodo-migration --strict` passes.
 - [ ] Live on :8080: seed legacy `task`/`delegation`/`ActionItem` for a test user → run `occ decidiq:migrate-action-items` → they appear as that user's VTODOs in the projection; legacy archived+marked; re-run is a no-op; empty instance is a clean no-op.
-- [ ] `composer check:strict` green; Hydra gates (no app-local write store post-migration; admin-only trigger; no hard delete).
+- [x] `composer check:strict` green; Hydra gates (no app-local write store post-migration; admin-only trigger; no hard delete).
+  - 21 Nov: `composer check:strict` run in full. The one finding in this change's files was a phpmd `ElseExpression` in `ActionItemMigrationService::legacyObject()`, now early returns (`testRowsGivenAsDataAreReadAndUnusableRowsPassedOver` covers the data-row and unusable-row paths); PHPUnit green. The suite's remaining phpcs, phpmd and psalm findings, and the hydra `integration-parity` gate, are in files outside this change and fail on development alike. The migration still runs only from the admin-only occ command and archives with `permanent: false` (`testALegacyTaskBecomesAVtodoThenIsMarkedAndArchived`).
 
 ## Acceptance Criteria
 - Legacy task/delegation/ActionItem data is projected onto per-user VTODOs and surfaces in the projection.

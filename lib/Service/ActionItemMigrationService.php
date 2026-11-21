@@ -372,24 +372,41 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 * @param mixed $row An object entity or its data.
 	 *
 	 * @return array{uuid: string, owner: string, data: array<string, mixed>}|null
+	 *
+	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	private function legacyObject(mixed $row): ?array {
 		if ($row instanceof ObjectEntityInterface) {
-			$data  = $row->getObject();
-			$uuid  = (string)$row->getUuid();
-			$owner = (string)$row->getOwner();
-		} else if (is_array($row) === true) {
-			$data  = $row;
-			$uuid  = (string)($row['id'] ?? $row['uuid'] ?? $row['@self']['id'] ?? '');
-			$owner = (string)($row['@self']['owner'] ?? $row['owner'] ?? '');
-		} else {
+			return self::shaped(uuid: (string)$row->getUuid(), owner: (string)$row->getOwner(), data: $row->getObject());
+		}
+
+		if (is_array($row) === false) {
 			return null;
 		}
 
+		return self::shaped(
+			uuid: (string)($row['id'] ?? $row['uuid'] ?? $row['@self']['id'] ?? ''),
+			owner: (string)($row['@self']['owner'] ?? $row['owner'] ?? ''),
+			data: $row
+		);
+	}//end legacyObject()
+
+	/**
+	 * Uuid, owner and data as one legacy object, or null without a uuid.
+	 *
+	 * @param string               $uuid  The object's uuid, '' when it has none.
+	 * @param string               $owner The object's owner.
+	 * @param array<string, mixed> $data  The object's data.
+	 *
+	 * @return array{uuid: string, owner: string, data: array<string, mixed>}|null
+	 *
+	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 */
+	private static function shaped(string $uuid, string $owner, array $data): ?array {
 		if ($uuid === '') {
 			return null;
 		}
 
 		return ['uuid' => $uuid, 'owner' => $owner, 'data' => $data];
-	}//end legacyObject()
+	}//end shaped()
 }//end class
