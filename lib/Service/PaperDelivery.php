@@ -45,6 +45,7 @@ class PaperDelivery {
 	 * @param PaperStamper    $stamper The watermark policy and stamp
 	 * @param LoggerInterface $logger  Logger
 	 * @param RestrictedPaperViews $views Records the opening of a paper under an active restriction
+	 * @param ClosedPaperReads     $reads Records the read of a paper of a non-public item
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
@@ -53,6 +54,7 @@ class PaperDelivery {
 		private readonly PaperStamper $stamper,
 		private readonly LoggerInterface $logger,
 		private readonly RestrictedPaperViews $views,
+		private readonly ClosedPaperReads $reads,
 	) {
 	}//end __construct()
 
@@ -69,6 +71,7 @@ class PaperDelivery {
 	 *
 	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-007-view-audit-trail-for-stukken-under-geheimhouding
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public function deliver(array $located, array $reader): array {
 		$paper = $this->locator->locate(schema: $located['schema'], objectId: $located['objectId'], data: $located['data'], fileId: $located['fileId']);
@@ -78,12 +81,19 @@ class PaperDelivery {
 
 		// The opening of a paper under an active restriction is recorded
 		// before a byte is read; when it cannot be, nothing is sent.
+		$file    = $paper['file'];
 		$refused = $this->views->record(readerUid: $reader['uid'], agendaItemId: $paper['agendaItemId'], fileId: $paper['fileId']);
+		if ($refused === null && $located['schema'] === 'agenda-item') {
+			$refused = $this->reads->record(
+				readerUid: $reader['uid'],
+				paper: ['agendaItemId' => $paper['agendaItemId'], 'item' => $located['data'], 'fileId' => $paper['fileId'], 'name' => $file->getName()]
+			);
+		}
+
 		if ($refused !== null) {
 			return ['refusal' => $refused, 'status' => 503];
 		}
 
-		$file = $paper['file'];
 		try {
 			if ($this->stamper->mustStamp(meeting: $paper['meeting'], agendaItemId: $paper['agendaItemId']) === false) {
 				return ['content' => $file->getContent(), 'name' => $file->getName(), 'mimeType' => $file->getMimetype()];

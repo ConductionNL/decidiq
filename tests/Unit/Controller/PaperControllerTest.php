@@ -30,6 +30,7 @@ use OCA\Decidiq\Exception\PaperStampRefusedException;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\PaperStamper;
 use OCA\Decidiq\Service\RestrictedPaperViews;
+use OCA\Decidiq\Service\ClosedPaperReads;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
@@ -69,6 +70,13 @@ class PaperControllerTest extends TestCase {
 	 * @var RestrictedPaperViews|null
 	 */
 	private ?RestrictedPaperViews $views = null;
+
+	/**
+	 * The closed-paper read log the next controller uses; null for one that records nothing.
+	 *
+	 * @var ClosedPaperReads|null
+	 */
+	private ?ClosedPaperReads $reads = null;
 
 	private const ITEM_DATA = [
 		'meeting'         => self::MEETING,
@@ -130,7 +138,8 @@ class PaperControllerTest extends TestCase {
 				new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class)),
 				$stamper,
 				$this->createMock(LoggerInterface::class),
-				$this->views ?? $this->createMock(RestrictedPaperViews::class)
+				$this->views ?? $this->createMock(RestrictedPaperViews::class),
+				$this->reads ?? $this->createMock(ClosedPaperReads::class)
 			),
 			$objects,
 			$session,
@@ -319,4 +328,45 @@ class PaperControllerTest extends TestCase {
 		self::assertInstanceOf(JSONResponse::class, $response);
 		self::assertSame(503, $response->getStatus());
 	}//end testAnUnrecordedOpeningIsRefused()
+
+	/**
+	 * A read of an item's paper reaches the closed-paper log with the reader, the item's data, the file and its name.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
+	 */
+	public function testAnItemPaperReadReachesTheClosedPaperLog(): void {
+		$this->reads = $this->createMock(ClosedPaperReads::class);
+		$this->reads->expects($this->once())->method('record')->with(
+			'aisha',
+			$this->callback(static fn (array $paper): bool => $paper['agendaItemId'] === self::ITEM && $paper['fileId'] === 42 && $paper['name'] === 'Grondtransactie.pdf' && is_array($paper['item']))
+		)->willReturn(null);
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->method('mustStamp')->willReturn(false);
+
+		$response = $this->controller(stamper: $stamper, item: $this->item(), meeting: ['isPublic' => true])
+			->view(schema: 'agenda-item', objectId: self::ITEM, fileId: 42);
+
+		self::assertInstanceOf(DataDisplayResponse::class, $response);
+	}//end testAnItemPaperReadReachesTheClosedPaperLog()
+
+	/**
+	 * An unrecorded read of a closed paper is refused with 503.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 */
+	public function testAnUnrecordedClosedPaperReadIsRefused(): void {
+		$this->reads = $this->createMock(ClosedPaperReads::class);
+		$this->reads->method('record')->willReturn('This paper is not shown: the read of a closed paper could not be recorded.');
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->expects($this->never())->method('stamped');
+
+		$response = $this->controller(stamper: $stamper, item: $this->item(), meeting: ['isPublic' => true])
+			->view(schema: 'agenda-item', objectId: self::ITEM, fileId: 42);
+
+		self::assertSame(503, $response->getStatus());
+	}//end testAnUnrecordedClosedPaperReadIsRefused()
 }//end class
