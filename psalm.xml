@@ -125,6 +125,12 @@
         <file name="tests/Stubs/Service/Flow/FlowNodeRegistry.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowResumeState.php" preloadClasses="true" />
+        <!-- OpenRegister value objects the leaf registration, flow conclusion and task projection construct. -->
+        <file name="tests/Stubs/Service/Flow/RunSignal.php" />
+        <file name="tests/Stubs/Service/Task/TaskTrigger.php" />
+        <file name="tests/Stubs/Service/Integration/LeafIdentity.php" />
+        <file name="tests/Stubs/Service/Integration/LeafAvailability.php" />
+        <file name="tests/Stubs/Service/Integration/LeafRendering.php" />
         <file name="tests/Stubs/Service/Flow/FlowNodeResumeState.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowSuspension.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowRunService.php" preloadClasses="true" />
