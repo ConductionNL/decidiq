@@ -201,6 +201,8 @@ class FormResponseReader {
 	 * @param int    $formId The form id.
 	 *
 	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/leaf-integrations/tasks.md#task-4-forms-leaf--reaction-intake-on-consultationdetail
 	 */
 	private function rows(string $sql, int $formId): array {
 		// The connection binds parameters as strings; the form id column compares them as integers.
@@ -208,6 +210,6 @@ class FormResponseReader {
 		$rows   = $result->fetchAll();
 		$result->closeCursor();
 
-		return array_values($rows);
+		return $rows;
 	}//end rows()
 }//end class
