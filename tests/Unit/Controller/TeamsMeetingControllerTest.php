@@ -104,7 +104,7 @@ final class TeamsMeetingControllerTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-04-10T10:00:00+02:00'));
 
-		$l10n = $this->createMock(IL10N::class);
+		$l10n = $this->createMock(originalClassName: IL10N::class);
 		$l10n->method('t')->willReturnCallback(fn (string $text): string => ($catalogue[$text] ?? $text));
 
 		return new TeamsMeetingController(
@@ -259,8 +259,8 @@ final class TeamsMeetingControllerTest extends TestCase {
 
 		$response = $this->controller(uid: 'griffier', catalogue: $dutch)->create(meetingId: $this->meeting);
 
-		$this->assertSame(409, $response->getStatus());
-		$this->assertSame('Alleen een digitale of hybride vergadering krijgt een Teams-vergadering', $response->getData()['message']);
+		$this->assertSame(expected: 409, actual: $response->getStatus());
+		$this->assertSame(expected: 'Alleen een digitale of hybride vergadering krijgt een Teams-vergadering', actual: $response->getData()['message']);
 	}//end testAFixedRefusalIsInTheReadersLanguage()
 
 	/**
@@ -275,8 +275,8 @@ final class TeamsMeetingControllerTest extends TestCase {
 
 		$response = $this->controller(uid: 'griffier', catalogue: ['Graph is down' => 'vertaald'])->create(meetingId: $this->meeting);
 
-		$this->assertSame(502, $response->getStatus());
-		$this->assertSame('Graph is down', $response->getData()['message']);
+		$this->assertSame(expected: 502, actual: $response->getStatus());
+		$this->assertSame(expected: 'Graph is down', actual: $response->getData()['message']);
 	}//end testARunTimeRefusalIsPassedOnUnchanged()
 
 	/**
@@ -287,14 +287,14 @@ final class TeamsMeetingControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testEveryFixedRefusalIsInTheCatalogues(): void {
-		$source = (string)file_get_contents(__DIR__ . '/../../../lib/Controller/TeamsMeetingController.php');
-		preg_match_all("/l10n->t\\('([^']+)'\\)/", $source, $matches);
-		$this->assertCount(6, $matches[1]);
+		$source = (string)file_get_contents(filename: __DIR__ . '/../../../lib/Controller/TeamsMeetingController.php');
+		preg_match_all(pattern: "/l10n->t\\('([^']+)'\\)/", subject: $source, matches: $matches);
+		$this->assertCount(expectedCount: 6, haystack: $matches[1]);
 
 		foreach (['en', 'nl'] as $locale) {
-			$catalogue = json_decode((string)file_get_contents(__DIR__ . '/../../../l10n/' . $locale . '.json'), true)['translations'];
+			$catalogue = json_decode(json: (string)file_get_contents(filename: __DIR__ . '/../../../l10n/' . $locale . '.json'), associative: true)['translations'];
 			foreach ($matches[1] as $key) {
-				$this->assertNotSame('', (string)($catalogue[$key] ?? ''), $locale . ' lacks "' . $key . '"');
+				$this->assertNotSame(expected: '', actual: (string)($catalogue[$key] ?? ''), message: $locale . ' lacks "' . $key . '"');
 			}
 		}
 	}//end testEveryFixedRefusalIsInTheCatalogues()
