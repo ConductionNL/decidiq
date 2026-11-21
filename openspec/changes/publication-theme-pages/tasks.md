@@ -11,6 +11,7 @@
   - GIVEN the manifest and modal-isolation gates WHEN run THEN they pass
 - [x] Implement
 - [ ] Test (Playwright)
+  - Written, not run (21 Nov): `tests/e2e/publication-theme-pages.spec.ts` (Add to theme from the decision page and the theme lists it; the staff timeline oldest first with the unpublished entries marked; a theme that is not public is refused when published). It seeds its own objects. Left: running it on an instance.
 
 ### Task 2: The timeline
 - **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it`

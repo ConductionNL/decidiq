@@ -30,6 +30,7 @@
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
 - [x] Implement
 - [ ] Test (Playwright adds an update and sees the status change)
+  - Written, not run (21 Nov): `tests/e2e/followup-implementation-progress.spec.ts` (the update added on the motion page, listed newest first, the status following it; a rejected motion refused with 422). Left: running it on an instance.
 
 ### Task 4: Lists show and filter the status
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-003-the-motions-and-decisions-lists-filter-on-implementation-status`
@@ -38,6 +39,7 @@
   - GIVEN three adopted motions, one delayed WHEN the griffier filters Motions on delayed THEN one row remains
 - [x] Implement
 - [ ] Test (Playwright)
+  - Written, not run (21 Nov): the Motions filter scenario in `tests/e2e/followup-implementation-progress.spec.ts`. Left: running it on an instance.
 
 ### Task 5: The silence reminder reaches the secretariat
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-004-the-secretariat-is-reminded-when-nobody-reported-for-90-days`
