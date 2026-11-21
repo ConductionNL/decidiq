@@ -43,9 +43,16 @@ them reachable is in reachability-scope.md beside this file.
       Proven by ApprovalRouteServiceTest::testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep,
       testTheActorsOwnOpenApprovalIsEndedByTheirAct and
       testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks. -->
-- [ ] 1.3 List open actions in the assignee's task list, with subject, step and due date.
-      <!-- NOT DELIVERED: OpenApprovalGuard::taskListFor() exists and is tested,
-      nothing calls it and no surface renders it. -->
+- [x] 1.3 List open actions in the assignee's task list, with subject, step and due date.
+      <!-- REACHABLE (2026-11-21): the assignee's task list is OpenRegister's
+      task inbox. ApprovalStageTaskProjector opens one person-assigned task per
+      active stage: the subject as its object, the step's sequence, kind and
+      label in its title and description, and now the stage's `dueAt` as the
+      task's own due date, which the inbox sorts and flags overdue on. A due
+      date that does not parse is left off and the task still opens. Proven by
+      ApprovalStageTaskProjectorTest::testTheTaskCarriesSubjectStepAndDueDate,
+      testAStageWithoutADueDateOpensATaskWithoutOne and
+      testAnUnparseableDueDateIsLeftOffAndTheTaskStillOpens. -->
 - [x] 1.4 PHPUnit: an open mandatory action refuses the advance; a closed one allows it.
       <!-- True as written, and worth saying what it covers: the guard in
       isolation, constructed directly by the test. It cannot fail on the engine,

@@ -27,8 +27,12 @@
  * assertStepMayClose() before the completion that would close a step, and
  * writes stateForVerb() onto every action it appends, so a recorded act never reads as an open work item. Stored actions
  * from before that write are backfilled by ApprovalActionStateRepair.
- * taskListFor() still has no surface: nothing writes an open work item with an
- * assignee yet (task 1.3 of the-decision-as-a-walked-process).
+ * The assignee's task list itself is OpenRegister's task inbox:
+ * ApprovalStageTaskProjector opens one task per active assigned stage, with the
+ * subject, the step and the stage's due date (task 1.3 of
+ * the-decision-as-a-walked-process). taskListFor() is the same list worked out
+ * from approval actions, for a caller that holds the actions rather than the
+ * inbox.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
