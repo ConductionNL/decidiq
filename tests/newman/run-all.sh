@@ -26,6 +26,10 @@
 #                                             read of a published delegation, not of an
 #                                             unpublished one, live withdrawal —
 #                                             delegatie-mandaatregister REQ-DMR-005)
+#   - decidiq-records-management.postman_collection.json
+#                                             (archival dossier: form, gather, close
+#                                             with gaps, disposition, own category —
+#                                             records-management-archiving)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /
 #                                             Resolution / BoardVote / RegulatorExport /
@@ -96,6 +100,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-microsoft-365.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-long-term-agenda-tracks.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-delegation-register.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-records-management.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 
