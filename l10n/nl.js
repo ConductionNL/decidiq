@@ -4536,7 +4536,12 @@ OC.L10N.register(
         "Publish this other position?": "Deze nevenfunctie publiceren?",
         "Publish this gift?": "Dit geschenk publiceren?",
         "Anyone can then read it on the public register, including later changes such as its end.": "Iedereen kan het dan lezen in het openbare register, ook latere wijzigingen zoals de beëindiging.",
-        "The public can no longer read it. Its record stays as it is.": "Het publiek kan het niet meer lezen. De registratie blijft zoals die is."
+        "The public can no longer read it. Its record stays as it is.": "Het publiek kan het niet meer lezen. De registratie blijft zoals die is.",
+        "No Microsoft 365 service is connected": "Er is geen Microsoft 365-dienst gekoppeld",
+        "Only a digital or hybrid meeting gets a Teams meeting": "Alleen een digitale of hybride vergadering krijgt een Teams-vergadering",
+        "This meeting already has a Teams meeting": "Deze vergadering heeft al een Teams-vergadering",
+        "The meeting has no start date": "De vergadering heeft geen begindatum",
+        "Microsoft 365 answered without a Teams join address": "Microsoft 365 antwoordde zonder Teams-deelnameadres"
     },
     "nplurals=2; plural=(n != 1);"
 )
