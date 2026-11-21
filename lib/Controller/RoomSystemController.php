@@ -69,7 +69,7 @@ class RoomSystemController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function meeting(string $id): JSONResponse {
-		$denied = $this->guard->forMeeting(meetingId: $id);
+		$denied = $this->requireMeetingStaff(meetingId: $id);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -96,7 +96,7 @@ class RoomSystemController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function apply(string $id): JSONResponse {
-		$denied = $this->guard->forMeeting(meetingId: ($this->messages->meetingOf(messageId: $id) ?? ''));
+		$denied = $this->requireMeetingStaff(meetingId: ($this->messages->meetingOf(messageId: $id) ?? ''));
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -124,7 +124,7 @@ class RoomSystemController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function floor(string $id): JSONResponse {
-		$denied = $this->guard->forMeeting(meetingId: $id);
+		$denied = $this->requireMeetingStaff(meetingId: $id);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -136,4 +136,17 @@ class RoomSystemController extends Controller {
 
 		return new JSONResponse(['sent' => $this->feed->floorGiven(meetingId: $id, participantId: $participant)]);
 	}//end floor()
+
+	/**
+	 * The refusal for a caller who is not the meeting's chair or secretary, or null.
+	 *
+	 * @param string $meetingId The meeting UUID.
+	 *
+	 * @return JSONResponse|null The 403, or null when the caller may act.
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 */
+	private function requireMeetingStaff(string $meetingId): ?JSONResponse {
+		return $this->guard->forMeeting(meetingId: $meetingId);
+	}//end requireMeetingStaff()
 }//end class

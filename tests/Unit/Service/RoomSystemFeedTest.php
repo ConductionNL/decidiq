@@ -340,12 +340,15 @@ final class RoomSystemFeedTest extends TestCase {
 	 * @return void
 	 */
 	public function testGivingTheFloorSendsTheSpeakerWithTheSeat(): void {
-		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
-		self::assertSame([[
-			'/room-system/floor',
-			'POST',
-			['meeting' => 'meet-1', 'participant' => 'p-vries', 'name' => 'J. de Vries', 'seat' => '12'],
-		]], $this->calls);
+		self::assertTrue(condition: $this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
+		self::assertSame(
+			expected: [[
+				'/room-system/floor',
+				'POST',
+				['meeting' => 'meet-1', 'participant' => 'p-vries', 'name' => 'J. de Vries', 'seat' => '12'],
+			]],
+			actual: $this->calls
+		);
 	}//end testGivingTheFloorSendsTheSpeakerWithTheSeat()
 
 	/**
@@ -357,14 +360,14 @@ final class RoomSystemFeedTest extends TestCase {
 	public function testAMemberWithoutASeatGoesOverWithoutOne(): void {
 		$this->store['participant']['p-nieuw'] = ['displayName' => 'S. Jansen'];
 
-		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-nieuw'));
-		self::assertTrue($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-weg'));
+		self::assertTrue(condition: $this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-nieuw'));
+		self::assertTrue(condition: $this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-weg'));
 		self::assertSame(
-			[
+			expected: [
 				['meeting' => 'meet-1', 'participant' => 'p-nieuw', 'name' => 'S. Jansen', 'seat' => null],
 				['meeting' => 'meet-1', 'participant' => 'p-weg', 'name' => '', 'seat' => null],
 			],
-			array_column($this->calls, 2)
+			actual: array_column($this->calls, 2)
 		);
 	}//end testAMemberWithoutASeatGoesOverWithoutOne()
 
@@ -374,12 +377,12 @@ final class RoomSystemFeedTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheFloorIsNotSentWithoutARoomSystemOrAMember(): void {
-		self::assertFalse($this->feed()->floorGiven(meetingId: '', participantId: 'p-vries'));
-		self::assertFalse($this->feed()->floorGiven(meetingId: 'meet-1', participantId: ''));
+		self::assertFalse(condition: $this->feed()->floorGiven(meetingId: '', participantId: 'p-vries'));
+		self::assertFalse(condition: $this->feed()->floorGiven(meetingId: 'meet-1', participantId: ''));
 
 		$this->store['app_connection'] = [];
-		self::assertFalse($this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
-		self::assertSame([], $this->calls);
+		self::assertFalse(condition: $this->feed()->floorGiven(meetingId: 'meet-1', participantId: 'p-vries'));
+		self::assertSame(expected: [], actual: $this->calls);
 	}//end testTheFloorIsNotSentWithoutARoomSystemOrAMember()
 
 	/**

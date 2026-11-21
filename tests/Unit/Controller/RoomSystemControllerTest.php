@@ -69,7 +69,7 @@ class RoomSystemControllerTest extends TestCase {
 			}
 		);
 
-		$request = $this->createMock(IRequest::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(
 			static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default)
 		);
@@ -78,7 +78,7 @@ class RoomSystemControllerTest extends TestCase {
 			request: $request,
 			messages: $messages,
 			guard: $guard,
-			feed: ($feed ?? $this->createMock(RoomSystemFeed::class)),
+			feed: ($feed ?? $this->createMock(originalClassName: RoomSystemFeed::class)),
 		);
 	}//end controller()
 
@@ -167,18 +167,18 @@ class RoomSystemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheChairGivingTheFloorTellsTheRoomSystem(): void {
-		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed = $this->createMock(originalClassName: RoomSystemFeed::class);
 		$feed->expects($this->once())->method('floorGiven')->with('meet-1', 'p-sem')->willReturn(true);
 
 		$response = $this->controller(
-			messages: $this->createMock(RoomSystemMessageService::class),
+			messages: $this->createMock(originalClassName: RoomSystemMessageService::class),
 			denied: null,
 			feed: $feed,
 			params: ['participant' => 'p-sem'],
 		)->floor(id: 'meet-1');
 
-		$this->assertSame(['meet-1'], $this->guarded);
-		$this->assertSame(['sent' => true], $response->getData());
+		$this->assertSame(expected: ['meet-1'], actual: $this->guarded);
+		$this->assertSame(expected: ['sent' => true], actual: $response->getData());
 	}//end testTheChairGivingTheFloorTellsTheRoomSystem()
 
 	/**
@@ -187,18 +187,18 @@ class RoomSystemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testOnlyStaffGiveTheFloor(): void {
-		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed = $this->createMock(originalClassName: RoomSystemFeed::class);
 		$feed->expects($this->never())->method('floorGiven');
 		$denied = new JSONResponse(['message' => 'Forbidden: chair or secretary role required.'], Http::STATUS_FORBIDDEN);
 
 		$response = $this->controller(
-			messages: $this->createMock(RoomSystemMessageService::class),
+			messages: $this->createMock(originalClassName: RoomSystemMessageService::class),
 			denied: $denied,
 			feed: $feed,
 			params: ['participant' => 'p-sem'],
 		)->floor(id: 'meet-1');
 
-		$this->assertSame($denied, $response);
+		$this->assertSame(expected: $denied, actual: $response);
 	}//end testOnlyStaffGiveTheFloor()
 
 	/**
@@ -207,16 +207,16 @@ class RoomSystemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheFloorNeedsAParticipant(): void {
-		$feed = $this->createMock(RoomSystemFeed::class);
+		$feed = $this->createMock(originalClassName: RoomSystemFeed::class);
 		$feed->expects($this->never())->method('floorGiven');
 
 		$response = $this->controller(
-			messages: $this->createMock(RoomSystemMessageService::class),
+			messages: $this->createMock(originalClassName: RoomSystemMessageService::class),
 			denied: null,
 			feed: $feed,
 			params: ['participant' => '  '],
 		)->floor(id: 'meet-1');
 
-		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+		$this->assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $response->getStatus());
 	}//end testTheFloorNeedsAParticipant()
 }//end class
