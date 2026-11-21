@@ -17,9 +17,10 @@
  * `status`, `outcome` and `decidedAt` of a set of sibling stage rows. Splitting
  * anywhere inside that set would have left two classes patching the same three
  * fields, which is how an engine and its helper start to disagree about where a
- * route is. REQ-ARE-004 forbids a second engine, and this is not one: nothing
- * outside `ApprovalRouteService` constructs it, and every rule about whether an
- * action is ALLOWED stayed with the guard.
+ * route is. REQ-ARE-004 forbids a second engine, and this is not one: besides
+ * `ApprovalRouteService`, only `ApprovalStalenessService` holds it, to rewind a
+ * route whose grants went stale through the same stage walk, and every rule
+ * about whether an action is ALLOWED stayed with the guard.
  *
  * WHAT DID NOT MOVE, DELIBERATELY. `appendAction` writes the action row, not a
  * stage, and the ordering promise in `record()` — stage first, action second —
@@ -433,6 +434,80 @@ final class ApprovalRouteAdvancer {
 			);
 		}
 	}//end applyReturn()
+
+	/**
+	 * Open decided stages again after their grants were withdrawn, and put the
+	 * stages that walked on after them back to pending (REQ-DWP-003).
+	 *
+	 * The same rewind a return to an earlier step does, per route: the reopened
+	 * stages go back to `active` and every later stage of THEIR route that is
+	 * active, decided or skipped goes back to `pending`, each with its outcome
+	 * cleared, because a later approval given on top of a withdrawn one rests on
+	 * nothing. Stages of other routes on the same subject are not touched. A
+	 * stage that is already active stays as it is: its withdrawn grant simply
+	 * no longer counts. The actions are not touched here; the caller wrote
+	 * their withdrawal.
+	 *
+	 * @param array<int, array<string, mixed>> $stages   All stages of the subject.
+	 * @param array<int, array<string, mixed>> $reopened The decided stages whose grants were withdrawn.
+	 *
+	 * @return array<int, string> The ids of the stages that changed.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 */
+	public function reopenWithdrawnStages(array $stages, array $reopened): array {
+		$earliest = [];
+		$reopenIds = [];
+		foreach ($reopened as $stage) {
+			$route = (string)($stage['route'] ?? '');
+			$sequence = (int)($stage['sequence'] ?? 0);
+			$earliest[$route] = min($earliest[$route] ?? $sequence, $sequence);
+			$reopenIds[(string)$stage['id']] = true;
+		}
+
+		$plan = ['earliest' => $earliest, 'reopen' => $reopenIds];
+		$changed = [];
+		foreach ($stages as $stage) {
+			$patch = self::rewindPatch(stage: $stage, plan: $plan);
+			if ($patch === null) {
+				continue;
+			}
+
+			$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
+			$changed[] = (string)$stage['id'];
+		}
+
+		return $changed;
+	}//end reopenWithdrawnStages()
+
+	/**
+	 * The patch one stage needs when its route is rewound, or null when none.
+	 *
+	 * @param array<string, mixed>                                                  $stage The stage.
+	 * @param array{earliest: array<string, int>, reopen: array<string, bool>} $plan  Per route the earliest
+	 *        reopened sequence, and the ids of the stages that reopen.
+	 *
+	 * @return array<string, mixed>|null The patch.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 */
+	private static function rewindPatch(array $stage, array $plan): ?array {
+		$earliest = $plan['earliest'];
+		if (isset($plan['reopen'][(string)($stage['id'] ?? '')]) === true) {
+			return ['status' => 'active', 'outcome' => null, 'decidedAt' => null];
+		}
+
+		$route = (string)($stage['route'] ?? '');
+		$status = (string)($stage['status'] ?? '');
+		if (isset($earliest[$route]) === false
+			|| (int)($stage['sequence'] ?? 0) <= $earliest[$route]
+			|| in_array($status, ['active', 'decided', 'skipped'], true) === false
+		) {
+			return null;
+		}
+
+		return ['status' => 'pending', 'outcome' => null, 'decidedAt' => null];
+	}//end rewindPatch()
 
 	/**
 	 * Whether the addressed stage's parallel group still has a live signer.

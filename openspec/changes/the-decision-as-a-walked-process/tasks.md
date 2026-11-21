@@ -67,12 +67,28 @@ them reachable is in reachability-scope.md beside this file.
 ## 3. Staleness
 
 - [x] 3.1 Add `approvalBasis` to a route step.
-- [ ] 3.2 Withdraw grants with `withdrawnReason = basis-changed` when a listed property changes, and reopen the step.
-      <!-- NOT DELIVERED: ApprovalBasisWatcher::withdrawals() computes the
-      withdrawals, nothing calls it, and nothing watches a subject for a change. -->
-- [ ] 3.3 Notify the actor whose grant was withdrawn.
-      <!-- NOT DELIVERED AND NOT BUILT: the watcher takes no notifier and there
-      is no notification code for this anywhere. -->
+- [x] 3.2 Withdraw grants with `withdrawnReason = basis-changed` when a listed property changes, and reopen the step.
+      <!-- REACHABLE (2026-11-21): ApprovalBasisChangeListener, subscribed to
+      every ObjectUpdatedEvent (a subject can be any schema in any register),
+      skips the route's own rows and hands the old and new payloads to
+      ApprovalStalenessService::subjectChanged(). That reads the subject's
+      stages; only an active or decided stage with a non-empty approvalBasis is
+      watched, so a subject without one costs one read. ApprovalBasisWatcher
+      picks the standing grants on the stage's step; each is patched to state
+      `withdrawn`, `withdrawnReason = basis-changed`, `withdrawnAt`. A decided
+      stage is reopened through ApprovalRouteAdvancer::reopenWithdrawnStages():
+      it goes back to active and every later stage of the same route back to
+      pending, outcomes cleared, as a return does; other routes on the subject
+      are not touched. Proven by ApprovalStalenessServiceTest (both spec
+      scenarios, no basis, pending/skipped, a step still signing, only standing
+      grants, the rewind per route) and ApprovalBasisChangeListenerTest (the
+      real ObjectUpdatedEvent, skipped rows, fail-soft, subscription). -->
+- [x] 3.3 Notify the actor whose grant was withdrawn.
+      <!-- REACHABLE (2026-11-21): ApprovalWithdrawalNotifier tells each actor
+      once through the preference-aware dispatcher (toggle `taskAssigned`),
+      naming the changed properties and the step, linking to the decision when
+      the subject is one. Fail-soft per actor. Proven by
+      ApprovalWithdrawalNotifierTest. -->
 - [x] 3.4 PHPUnit: a change inside the basis withdraws, a change outside it does not, an empty basis never does.
       <!-- True of the watcher in isolation. -->
 
