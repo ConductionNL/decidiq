@@ -284,4 +284,77 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 
 		$this->assertSame(expected: [['decision-stage', ['waitingOn' => 'alice'], 's-1']], actual: $this->waitingPatches);
 	}
+
+	/**
+	 * The task carries the subject, the step and the stage's due date, so the
+	 * assignee's inbox can show and sort the approval as a work item.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testTheTaskCarriesSubjectStepAndDueDate(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				[
+					'id' => 's-2',
+					'sequence' => 2,
+					'status' => 'active',
+					'stageType' => 'approval',
+					'assignedPerson' => 'alice',
+					'label' => 'Akkoord',
+					'dueAt' => '2026-09-25T17:00:00Z',
+					'taskUuid' => '',
+				],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$imported = $this->tasks->imported[0];
+		$this->assertSame(expected: 'v-1', actual: $imported['objectUuid']);
+		$this->assertSame(expected: 'Sign-off: Akkoord', actual: $imported['title']);
+		$this->assertSame(expected: 'Approval stage 2 (approval) for subject v-1.', actual: $imported['description']);
+		$this->assertSame(expected: '2026-09-25T17:00:00+00:00', actual: $imported['dueAt']);
+	}
+
+	/**
+	 * A stage with no due date opens a task without one.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testAStageWithoutADueDateOpensATaskWithoutOne(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'sequence' => 1, 'status' => 'active', 'assignedPerson' => 'alice', 'dueAt' => '  ', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$this->assertArrayNotHasKey(key: 'dueAt', array: $this->tasks->imported[0]);
+	}
+
+	/**
+	 * A due date that does not parse is left off, and the task still opens:
+	 * losing the date is better than losing the task.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testAnUnparseableDueDateIsLeftOffAndTheTaskStillOpens(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'sequence' => 1, 'status' => 'active', 'assignedPerson' => 'alice', 'dueAt' => 'next tuesday-ish', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$this->assertArrayNotHasKey(key: 'dueAt', array: $this->tasks->imported[0]);
+		$this->assertSame(expected: [['decision-stage', ['taskUuid' => 'task-1'], 's-1']], actual: $this->stagePatches);
+	}
 }

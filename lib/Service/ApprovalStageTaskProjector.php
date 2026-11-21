@@ -46,6 +46,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use OCA\OpenRegister\Service\Task\TaskTrigger;
 use Psr\Container\ContainerInterface;
@@ -210,6 +212,8 @@ class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface 
 	 * @param array<string, mixed> $stage The active stage.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
 	 */
 	private function openTask(object $tasks, string $subject, array $stage): void {
 		$assignee = trim((string)($stage['assignedPerson'] ?? ''));
@@ -218,24 +222,28 @@ class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface 
 		}
 
 		$label = (string)($stage['label'] ?? '');
-		$task = $tasks->import(
-			data: [
-				'title' => trim('Sign-off: ' . $label),
-				'description' => sprintf(
-					'Approval stage %d (%s) for subject %s.',
-					(int)($stage['sequence'] ?? 0),
-					(string)($stage['stageType'] ?? ''),
-					$subject
-				),
-				'state' => 'enabled',
-				'performerType' => 'user',
-				'assignee' => $assignee,
-				'objectUuid' => $subject,
-				'templateId' => self::TEMPLATE_ID,
-				'nodeId' => (string)($stage['id'] ?? ''),
-			],
-			actor: $assignee,
-		);
+		$data = [
+			'title' => trim('Sign-off: ' . $label),
+			'description' => sprintf(
+				'Approval stage %d (%s) for subject %s.',
+				(int)($stage['sequence'] ?? 0),
+				(string)($stage['stageType'] ?? ''),
+				$subject
+			),
+			'state' => 'enabled',
+			'performerType' => 'user',
+			'assignee' => $assignee,
+			'objectUuid' => $subject,
+			'templateId' => self::TEMPLATE_ID,
+			'nodeId' => (string)($stage['id'] ?? ''),
+		];
+
+		$dueAt = $this->dueAtOf(stage: $stage);
+		if ($dueAt !== null) {
+			$data['dueAt'] = $dueAt;
+		}
+
+		$task = $tasks->import(data: $data, actor: $assignee);
 
 		$uuid = '';
 		if (is_object($task) === true && method_exists($task, 'getUuid') === true) {
@@ -253,6 +261,35 @@ class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface 
 
 		$this->store->patch(schema: 'decision-stage', data: ['taskUuid' => $uuid], uuid: (string)$stage['id']);
 	}//end openTask()
+
+	/**
+	 * The stage's due date as the task surface takes it, or null.
+	 *
+	 * The inbox sorts and flags overdue work on the task's own due date, so a
+	 * stage that is due carries that date onto its task; without it the list
+	 * shows the subject and the step but not when the answer is expected. A
+	 * date that does not parse is left off rather than passed on: the task
+	 * surface refuses an unparseable date, and a refused import would cost the
+	 * approver the whole task instead of only its due date.
+	 *
+	 * @param array<string, mixed> $stage The active stage.
+	 *
+	 * @return string|null The due date in ISO 8601, or null when there is none.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 */
+	private function dueAtOf(array $stage): ?string {
+		$raw = trim((string)($stage['dueAt'] ?? ''));
+		if ($raw === '') {
+			return null;
+		}
+
+		try {
+			return (new DateTimeImmutable($raw))->format(DateTimeInterface::ATOM);
+		} catch (Throwable) {
+			return null;
+		}
+	}//end dueAtOf()
 
 	/**
 	 * Close the ask: the stage no longer waits, so neither should the inbox.
