@@ -37,6 +37,7 @@ use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DecisionTermListener;
+use OCA\Decidiq\Listener\DeclaredGiftThresholdListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\GoverningDocumentVersionGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
@@ -111,6 +112,11 @@ final class SaveGuardSubscriptions {
 		// restriction whose ground requires ratification is not lifted
 		// straight from imposed.
 		['event' => ObjectUpdatingEvent::class, 'listener' => LiftAfterRatificationGuard::class, 'schemas' => ['confidentiality-restriction']],
+		// Gift threshold (interests-and-integrity, REQ-INT-006): a declared
+		// gift is stamped above or below its body's threshold, on create and
+		// on update, so the integrity notification can filter on it.
+		['event' => ObjectCreatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
 		// Confidential agenda items (agenda-item-confidential-papers,
 		// REQ-ACP-003): a paper saved onto a non-public item is not public.
 		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],

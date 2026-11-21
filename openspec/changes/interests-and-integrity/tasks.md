@@ -21,8 +21,9 @@
   - GIVEN a non-terminal Nevenfunctie last reviewed/declared more than 12 months ago WHEN the scheduled trigger evaluates THEN the holder is notified (nl+en subjects); reviewed and `beëindigd` objects trigger nothing
   - GIVEN a new/changed Nevenfunctie or a boven-drempel Geschenk WHEN the created/updated triggers fire THEN the body's configured integrity group (burgemeester/voorzitter/compliance) is notified; below-threshold geschenken trigger nothing
   - GIVEN the notification-dialect gate WHEN it scans the change THEN no imperative dispatch and no bespoke reminder BackgroundJob exists; the D3 recipient fallback is documented if the dialect cannot read the policy group
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (21 Nov): the three notifications were declared earlier (fragment 62, carried by 81 under the English schema names); fragment `136-gift-threshold-and-review-cutoff.json` narrows two of them to the spec. The annual review reminder gets its 12-month cutoff (`reviewedAt` older than P12M, or never reviewed and `declaredAt` older than P12M, in OpenRegister's scheduled-filter grammar as 130-implementation-progress uses it). The gift notification fires only for a gift at or above its body's threshold: a created-trigger filter can only compare for equality, so `DeclaredGiftThresholdListener` (a save guard on `declared-gift`, create and update) stamps `thresholdStatus` `above` or `below` from the body's `giftThresholdAmount`, or EUR 50 when the body has none, and the trigger filters on `above`. The recipient fallback stays as documented (D3): the dialect cannot read `integrityNotificationGroup` from the body's configuration, so the literal integrity group is used, and the holder is reached through object-acl because `person` is a Person uuid and not a user id. No imperative dispatch, no BackgroundJob. Test: `tests/Unit/Listener/DeclaredGiftThresholdListenerTest.php` (default and configured thresholds, the boundary, re-stamp on update, a client's stamp replaced, unreadable configuration, subscription, the merged trigger filters). Firing them on a live instance is part of the e2e pass.
 
 ### Task 3: Seed data — policy, nevenfuncties, and geschenken across both seeded bodies
 - **spec_ref**: `openspec/changes/interests-and-integrity/design.md#seed-data`
