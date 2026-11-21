@@ -85,26 +85,38 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	public function handle(Event $event): void {
-		$entity = null;
 		if ($event instanceof ObjectCreatingEvent) {
-			$entity = $event->getObject();
+			$this->stamp(event: $event, entity: $event->getObject());
+			return;
 		}
 
 		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
+			$this->stamp(event: $event, entity: $event->getNewObject());
 		}
+	}//end handle()
 
+	/**
+	 * Stamp the gift the event saves.
+	 *
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event  The before-save event.
+	 * @param object|null                             $entity The object being saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+	 */
+	private function stamp(ObjectCreatingEvent|ObjectUpdatingEvent $event, ?object $entity): void {
 		if ($entity === null) {
 			return;
 		}
 
-		$gift = array_merge((array)$entity->getObject(), $event->getModifiedData());
+		$gift = array_merge((new EntityPayloadReader())->payloadOf(entity: $entity), $event->getModifiedData());
 		if (strtolower((string)($gift['_schemaSlug'] ?? self::SCHEMA)) !== self::SCHEMA) {
 			return;
 		}
 
 		$event->setModifiedData(array_merge($event->getModifiedData(), ['thresholdStatus' => $this->statusOf(gift: $gift)]));
-	}//end handle()
+	}//end stamp()
 
 	/**
 	 * The gift's status against its body's threshold, or null without a value.
