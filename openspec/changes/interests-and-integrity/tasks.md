@@ -42,8 +42,9 @@
   - GIVEN the built app WHEN navigating the menu THEN MyDeclarations, Nevenfuncties, NevenfunctieDetail, Geschenken, and GeschenkDetail render with the specced columns, quick filters (body, lifecycle/besluit, boven-drempel), and CSV export via the mass-export dialog (schema refs by slug, never PascalCase)
   - GIVEN a logged-in member on MyDeclarations WHEN they add/end a nevenfunctie, register a geschenk, confirm the annual review, or (as staff) publish/withdraw THEN each action is a plain saveObject field write carrying all fields forward (PUT-semantic) and other members' objects are not editable
   - GIVEN the page id `MyDeclarations` WHEN member-onboarding's nevenfuncties-intake step deep-links THEN the target resolves (stable-name contract: capability `interests-and-integrity`, slug `nevenfunctie`, page `MyDeclarations`)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built (21 Nov): `MyDeclarationsPanel` in the below-header slot of `MyDeclarations` lists only the current user's own positions and gifts (the people whose `nextcloudUserId` is the user's) and carries "Declare another position" (`AncillaryPositionDialog`), "Register a gift" (`DeclaredGiftDialog`), "End position" (`AncillaryPositionEndDialog`, offered from `public` and `internal`, the states the lifecycle ends from) and "Still accurate" (sets `reviewedAt` to today and nothing else). Each is a saveObject of the whole object; a refusal is shown as the server gives it. Publish and withdraw are header actions on `AncillaryPositionDetail` and `DeclaredGiftDetail` that PATCH `publicationDate`/`depublicationDate` on the live object, as the delegation register does. Rules in `src/utils/ownDeclarations.js`; `tests/vitest/ownDeclarations.spec.js` checks the rules, every written record against the merged schema, and the manifest and registry wiring. Not checked here: that a member's own update passes OpenRegister's RBAC (the schema's `update` names only the administrator groups; the owner of an object is let through by OpenRegister), which needs a live instance.
 
 ### Task 5: Dashboard KPI and per-body compliance panel
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi`

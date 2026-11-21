@@ -25,6 +25,7 @@
 
 import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import UrgencyBanner from './components/decision/UrgencyBanner.vue'
+import MyDeclarationsPanel from './components/MyDeclarationsPanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
@@ -421,6 +422,8 @@ export default {
 	DecisionFormDialog: page(DecisionFormDialog),
 	// Index-page slot (below-header) on AncillaryPositions.
 	AncillaryCompliancePanel: page(AncillaryCompliancePanel),
+	// Index-page slot (below-header) on MyDeclarations.
+	MyDeclarationsPanel: page(MyDeclarationsPanel),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
