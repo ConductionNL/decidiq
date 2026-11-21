@@ -60,6 +60,7 @@ Prerequisite: the OpenRegister rows in proposal.md. Tasks 1 to 4 can be built ag
 - [x] Implement marking and command
 - [x] Test (red first)
 - [ ] Delete the old engine (separate PR)
+  - Add to the delete list (21 Nov): `ApprovalStalenessService`, `ApprovalWithdrawalNotifier`, `ApprovalBasisChangeListener` (and its subscription in `ObjectListenerRegistrar::subscribeStaleApprovals()`), `SubjectVersions` and their tests. the-decision-as-a-walked-process tasks 3.2 and 3.3 (#2322) wired grant staleness onto the old engine's `decision-stage` rows, and `ApprovalRouteAdvancer::reopenWithdrawnStages()` lives there too, so they only cover routes that still run on the old engine. A route on a flow user task gets no staleness until it is ported (see the open question in that change).
 
 ## Verification
 
