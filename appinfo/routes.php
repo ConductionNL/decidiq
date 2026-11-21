@@ -231,6 +231,8 @@ $extra = [
         // embargo-geheimhouding REQ-EMB-001: impose a confidentiality restriction (the imposing body's chair, vice-chair or secretary, the secretariat or an admin).
         ['name' => 'confidentialityRestriction#impose', 'url' => '/api/confidentiality/restrictions/impose', 'verb' => 'POST'],
         // embargo-geheimhouding REQ-EMB-004: lift a restriction on the body's lifting decision (same authority as imposing).
+        // embargo-geheimhouding REQ-EMB-003: record the ratifying decision (imposing or ratifying body's authority).
+        ['name' => 'confidentialityRestriction#ratify', 'url' => '/api/confidentiality/restrictions/{id}/ratify', 'verb' => 'POST'],
         ['name' => 'confidentialityRestriction#lift', 'url' => '/api/confidentiality/restrictions/{id}/lift', 'verb' => 'POST'],
         ['name' => 'confidentialReader#create',  'url' => '/api/agenda-items/{id}/readers',            'verb' => 'POST'],
         ['name' => 'confidentialReader#destroy', 'url' => '/api/agenda-items/{id}/readers/{personId}', 'verb' => 'DELETE'],

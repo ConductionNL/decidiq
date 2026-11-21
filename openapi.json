@@ -9288,7 +9288,7 @@
             "post": {
                 "operationId": "confidentiality-restriction-impose",
                 "summary": "Impose a confidentiality restriction on a paper, agenda item or decision",
-                "description": "Impose a confidentiality restriction. POST /api/confidentiality/restrictions/impose. Body: { scope, target, ground, imposedBy, imposedByBody }. The restriction is stored as imposed now, and the target's own classifier is set to confidential with every other field kept (an agenda item's confidentiality, a decision's isPublished; a paper has none, every public surface reads the restriction). Returns 201 with { restriction, classifier } where classifier is closed, not-needed or not-updated. Returns 400 for a missing or unknown value, 401 without a user, 403 unless the caller is the imposing body's chair, vice-chair or secretary, in the secretariat or an administrator (checked before anything is read), 404 when the caller cannot read the target, and 422 when the ground does not exist or is no longer in use. Needs a signed-in Nextcloud user.",
+                "description": "Impose a confidentiality restriction. POST /api/confidentiality/restrictions/impose. Body: { scope, target, ground, imposedBy, imposedByBody }. The restriction is stored as imposed now, and the target's own classifier is set to confidential with every other field kept (an agenda item's confidentiality, a decision's isPublished; a paper has none, every public surface reads the restriction). When the ground requires ratification, a closed agenda item is created at the end of the ratifying body's next draft or scheduled meeting and the deadline is that meeting's date (or ratificationDeadline). Returns 201 with { restriction, classifier, ratification } where classifier is closed, not-needed or not-updated and ratification is not-needed, placed, no-meeting or not-placed. Returns 400 for a missing or unknown value, 401 without a user, 403 unless the caller is the imposing body's chair, vice-chair or secretary, in the secretariat or an administrator (checked before anything is read), 404 when the caller cannot read the target, and 422 when the ground does not exist or is no longer in use. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "confidentiality-restriction"
                 ],
@@ -9325,6 +9325,15 @@
                                     "imposedByBody": {
                                         "type": "string",
                                         "description": "The UUID of the imposing governance body."
+                                    },
+                                    "ratifyingBody": {
+                                        "type": "string",
+                                        "description": "The UUID of the body that ratifies, when the ground requires it. Defaults to the imposing body."
+                                    },
+                                    "ratificationDeadline": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "The ratification deadline. Defaults to the date of the ratifying body's next meeting."
                                     }
                                 },
                                 "additionalProperties": false
@@ -9398,6 +9407,65 @@
                 "responses": {
                     "200": {
                         "description": "The restriction was lifted.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/confidentiality/restrictions/{id}/ratify": {
+            "post": {
+                "operationId": "confidentiality-restriction-ratify",
+                "summary": "Record the ratifying decision of a confidentiality restriction",
+                "description": "Record the ratification. POST /api/confidentiality/restrictions/{id}/ratify. Body: { ratificationDecision }. The restriction moves from imposed to ratified with the decision and the time, every other field kept. Returns 200 with { restriction }. Returns 400 without a decision, 401 without a user, 403 unless the caller is the chair, vice-chair or secretary of the imposing body or of the body whose meeting holds the ratification item, in the secretariat or an administrator, 404 when the caller cannot read the restriction, 409 when it is not imposed or its ground needs no ratification, and 422 when the decision is not found. A passed deadline changes nothing on its own. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "confidentiality-restriction"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The UUID of the confidentiality restriction.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "ratificationDecision"
+                                ],
+                                "properties": {
+                                    "ratificationDecision": {
+                                        "type": "string",
+                                        "description": "The UUID of the ratifying decision."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The ratification was recorded.",
                         "headers": {
                             "API-Version": {
                                 "$ref": "#/components/headers/API-Version"
