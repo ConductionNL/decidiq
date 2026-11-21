@@ -21,7 +21,7 @@ const SCHEMA = 'confidentiality-restriction'
 const STRIP = 'geheimhouding-panels'
 const VISIBLE = ['Overview', 'Related', 'History']
 const VISIBLE_NL = ['Overzicht', 'Gerelateerd', 'Historie']
-const OVERFLOW = []
+const OVERFLOW = ['Who opened the papers']
 const SIDE = ['geheimhouding-side-facts']
 const FACTS_LEAD = 'lifecycle'
 

@@ -3393,7 +3393,17 @@ OC.L10N.register(
         "choose files": "válasszon fájlokat",
         "Who opened the papers": "Ki nyitotta meg a dokumentumokat",
         "No one has opened these papers yet.": "Ezeket a dokumentumokat még senki sem nyitotta meg.",
-        "The openings could not be read.": "A megnyitásokat nem sikerült beolvasni."
+        "The openings could not be read.": "A megnyitásokat nem sikerült beolvasni.",
+        "Impose confidentiality": "Titoktartás elrendelése",
+        "Ratify confidentiality": "Titoktartás megerősítése",
+        "Lift confidentiality": "Titoktartás feloldása",
+        "Imposed by": "Elrendelte",
+        "Ratifying decision": "Megerősítő határozat",
+        "Lifting decision": "Feloldó határozat",
+        "Lifting conditions": "A feloldás feltételei",
+        "The confidentiality could not be imposed.": "A titoktartást nem sikerült elrendelni.",
+        "The ratification could not be recorded.": "A megerősítést nem sikerült rögzíteni.",
+        "The confidentiality could not be lifted.": "A titoktartást nem sikerült feloldani."
     },
     "nplurals=2; plural=(n != 1);"
 )

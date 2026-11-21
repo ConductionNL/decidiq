@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "изберете файлове",
         "Who opened the papers": "Кой е отварял документите",
         "No one has opened these papers yet.": "Никой още не е отварял тези документи.",
-        "The openings could not be read.": "Отварянията не можаха да бъдат прочетени."
+        "The openings could not be read.": "Отварянията не можаха да бъдат прочетени.",
+        "Impose confidentiality": "Налагане на поверителност",
+        "Ratify confidentiality": "Потвърждаване на поверителност",
+        "Lift confidentiality": "Отмяна на поверителност",
+        "Imposed by": "Наложена от",
+        "Ratifying decision": "Решение за потвърждаване",
+        "Lifting decision": "Решение за отмяна",
+        "Lifting conditions": "Условия за отмяна",
+        "The confidentiality could not be imposed.": "Поверителността не можа да бъде наложена.",
+        "The ratification could not be recorded.": "Потвърждаването не можа да бъде записано.",
+        "The confidentiality could not be lifted.": "Поверителността не можа да бъде отменена."
     },
     "nplurals=2; plural=(n != 1);"
 )

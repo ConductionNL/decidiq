@@ -3394,7 +3394,17 @@
         "choose files": "dosya seçin",
         "Who opened the papers": "Belgeleri kimler açtı",
         "No one has opened these papers yet.": "Bu belgeleri henüz kimse açmadı.",
-        "The openings could not be read.": "Açılışlar okunamadı."
+        "The openings could not be read.": "Açılışlar okunamadı.",
+        "Impose confidentiality": "Gizlilik uygula",
+        "Ratify confidentiality": "Gizliliği onayla",
+        "Lift confidentiality": "Gizliliği kaldır",
+        "Imposed by": "Uygulayan",
+        "Ratifying decision": "Onay kararı",
+        "Lifting decision": "Kaldırma kararı",
+        "Lifting conditions": "Kaldırma koşulları",
+        "The confidentiality could not be imposed.": "Gizlilik uygulanamadı.",
+        "The ratification could not be recorded.": "Onay kaydedilemedi.",
+        "The confidentiality could not be lifted.": "Gizlilik kaldırılamadı."
     },
     "plurals": null
 }

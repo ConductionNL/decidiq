@@ -3394,7 +3394,17 @@
         "choose files": "scegli i file",
         "Who opened the papers": "Chi ha aperto i documenti",
         "No one has opened these papers yet.": "Nessuno ha ancora aperto questi documenti.",
-        "The openings could not be read.": "Non è stato possibile leggere le aperture."
+        "The openings could not be read.": "Non è stato possibile leggere le aperture.",
+        "Impose confidentiality": "Imporre la riservatezza",
+        "Ratify confidentiality": "Ratificare la riservatezza",
+        "Lift confidentiality": "Revocare la riservatezza",
+        "Imposed by": "Imposta da",
+        "Ratifying decision": "Decisione di ratifica",
+        "Lifting decision": "Decisione di revoca",
+        "Lifting conditions": "Condizioni di revoca",
+        "The confidentiality could not be imposed.": "Non è stato possibile imporre la riservatezza.",
+        "The ratification could not be recorded.": "Non è stato possibile registrare la ratifica.",
+        "The confidentiality could not be lifted.": "Non è stato possibile revocare la riservatezza."
     },
     "plurals": null
 }

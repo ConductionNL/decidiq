@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "veldu skrár",
         "Who opened the papers": "Hver opnaði skjölin",
         "No one has opened these papers yet.": "Enginn hefur enn opnað þessi skjöl.",
-        "The openings could not be read.": "Ekki tókst að lesa opnanirnar."
+        "The openings could not be read.": "Ekki tókst að lesa opnanirnar.",
+        "Impose confidentiality": "Leggja á trúnað",
+        "Ratify confidentiality": "Staðfesta trúnað",
+        "Lift confidentiality": "Aflétta trúnaði",
+        "Imposed by": "Lagt á af",
+        "Ratifying decision": "Staðfestingarákvörðun",
+        "Lifting decision": "Ákvörðun um afléttingu",
+        "Lifting conditions": "Skilyrði afléttingar",
+        "The confidentiality could not be imposed.": "Ekki tókst að leggja á trúnað.",
+        "The ratification could not be recorded.": "Ekki tókst að skrá staðfestinguna.",
+        "The confidentiality could not be lifted.": "Ekki tókst að aflétta trúnaði."
     },
     "nplurals=2; plural=(n != 1);"
 )

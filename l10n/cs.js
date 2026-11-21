@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "vráceno",
         "Who opened the papers": "Kdo otevřel dokumenty",
         "No one has opened these papers yet.": "Tyto dokumenty zatím nikdo neotevřel.",
-        "The openings could not be read.": "Otevření se nepodařilo načíst."
+        "The openings could not be read.": "Otevření se nepodařilo načíst.",
+        "Impose confidentiality": "Uložit utajení",
+        "Ratify confidentiality": "Potvrdit utajení",
+        "Lift confidentiality": "Zrušit utajení",
+        "Imposed by": "Uložil",
+        "Ratifying decision": "Potvrzující usnesení",
+        "Lifting decision": "Zrušující usnesení",
+        "Lifting conditions": "Podmínky zrušení",
+        "The confidentiality could not be imposed.": "Utajení se nepodařilo uložit.",
+        "The ratification could not be recorded.": "Potvrzení se nepodařilo zaznamenat.",
+        "The confidentiality could not be lifted.": "Utajení se nepodařilo zrušit."
     },
     "nplurals=2; plural=(n != 1);"
 )

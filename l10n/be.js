@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "вернута",
         "Who opened the papers": "Хто адкрываў дакументы",
         "No one has opened these papers yet.": "Ніхто яшчэ не адкрываў гэтыя дакументы.",
-        "The openings could not be read.": "Не ўдалося прачытаць адкрыцці."
+        "The openings could not be read.": "Не ўдалося прачытаць адкрыцці.",
+        "Impose confidentiality": "Усталяваць канфідэнцыяльнасць",
+        "Ratify confidentiality": "Зацвердзіць канфідэнцыяльнасць",
+        "Lift confidentiality": "Зняць канфідэнцыяльнасць",
+        "Imposed by": "Усталявана",
+        "Ratifying decision": "Рашэнне аб зацвярджэнні",
+        "Lifting decision": "Рашэнне аб зняцці",
+        "Lifting conditions": "Умовы зняцця",
+        "The confidentiality could not be imposed.": "Не ўдалося ўсталяваць канфідэнцыяльнасць.",
+        "The ratification could not be recorded.": "Не ўдалося запісаць зацвярджэнне.",
+        "The confidentiality could not be lifted.": "Не ўдалося зняць канфідэнцыяльнасць."
     },
     "nplurals=2; plural=(n != 1);"
 )

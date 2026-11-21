@@ -3394,7 +3394,17 @@
         "choose files": "zgjidhni skedarë",
         "Who opened the papers": "Kush i hapi dokumentet",
         "No one has opened these papers yet.": "Askush nuk i ka hapur ende këto dokumente.",
-        "The openings could not be read.": "Hapjet nuk mund të lexoheshin."
+        "The openings could not be read.": "Hapjet nuk mund të lexoheshin.",
+        "Impose confidentiality": "Vendos konfidencialitetin",
+        "Ratify confidentiality": "Ratifiko konfidencialitetin",
+        "Lift confidentiality": "Hiq konfidencialitetin",
+        "Imposed by": "Vendosur nga",
+        "Ratifying decision": "Vendim ratifikimi",
+        "Lifting decision": "Vendim heqjeje",
+        "Lifting conditions": "Kushtet e heqjes",
+        "The confidentiality could not be imposed.": "Konfidencialiteti nuk mund të vendosej.",
+        "The ratification could not be recorded.": "Ratifikimi nuk mund të regjistrohej.",
+        "The confidentiality could not be lifted.": "Konfidencialiteti nuk mund të hiqej."
     },
     "plurals": null
 }

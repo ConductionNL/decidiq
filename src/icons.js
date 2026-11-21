@@ -122,6 +122,7 @@ import LibraryOutline from 'vue-material-design-icons/LibraryOutline.vue'
 import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
 import LightbulbOnOutline from 'vue-material-design-icons/LightbulbOnOutline.vue'
 import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
+import LockOpenVariantOutline from 'vue-material-design-icons/LockOpenVariantOutline.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
 import Marker from 'vue-material-design-icons/Marker.vue'
 import MessageTextOutline from 'vue-material-design-icons/MessageTextOutline.vue'
@@ -274,6 +275,7 @@ export default {
 	Lightbulb,
 	LightbulbOnOutline,
 	LinkVariant,
+	LockOpenVariantOutline,
 	MapMarkerPath,
 	Marker,
 	MessageTextOutline,

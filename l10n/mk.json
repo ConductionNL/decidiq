@@ -3332,7 +3332,17 @@
         "returned": "вратено",
         "Who opened the papers": "Кој ги отворал документите",
         "No one has opened these papers yet.": "Никој сè уште не ги отворил овие документи.",
-        "The openings could not be read.": "Отворањата не можеа да се прочитаат."
+        "The openings could not be read.": "Отворањата не можеа да се прочитаат.",
+        "Impose confidentiality": "Одреди доверливост",
+        "Ratify confidentiality": "Потврди доверливост",
+        "Lift confidentiality": "Укини доверливост",
+        "Imposed by": "Одредено од",
+        "Ratifying decision": "Одлука за потврдување",
+        "Lifting decision": "Одлука за укинување",
+        "Lifting conditions": "Услови за укинување",
+        "The confidentiality could not be imposed.": "Доверливоста не можеше да се одреди.",
+        "The ratification could not be recorded.": "Потврдувањето не можеше да се евидентира.",
+        "The confidentiality could not be lifted.": "Доверливоста не можеше да се укине."
     },
     "plurals": null
 }

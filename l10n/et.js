@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "valige failid",
         "Who opened the papers": "Kes on dokumente avanud",
         "No one has opened these papers yet.": "Keegi pole neid dokumente veel avanud.",
-        "The openings could not be read.": "Avamisi ei õnnestunud lugeda."
+        "The openings could not be read.": "Avamisi ei õnnestunud lugeda.",
+        "Impose confidentiality": "Kehtesta konfidentsiaalsus",
+        "Ratify confidentiality": "Kinnita konfidentsiaalsus",
+        "Lift confidentiality": "Tühista konfidentsiaalsus",
+        "Imposed by": "Kehtestanud",
+        "Ratifying decision": "Kinnitamisotsus",
+        "Lifting decision": "Tühistamisotsus",
+        "Lifting conditions": "Tühistamise tingimused",
+        "The confidentiality could not be imposed.": "Konfidentsiaalsust ei õnnestunud kehtestada.",
+        "The ratification could not be recorded.": "Kinnitamist ei õnnestunud salvestada.",
+        "The confidentiality could not be lifted.": "Konfidentsiaalsust ei õnnestunud tühistada."
     },
     "nplurals=2; plural=(n != 1);"
 )

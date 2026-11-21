@@ -77,6 +77,26 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "confidentiality-restriction",
+				"headerActions": [
+					{
+						"id": "ratify",
+						"label": "Ratify confidentiality",
+						"icon": "ShieldCheckOutline",
+						"type": "open-modal",
+						"target": "ConfidentialityDecisionDialog",
+						"props": { "objectId": "@objectId", "action": "ratify" },
+						"visibleWhen": { "field": "lifecycle", "value": "imposed" }
+					},
+					{
+						"id": "lift",
+						"label": "Lift confidentiality",
+						"icon": "LockOpenVariantOutline",
+						"type": "open-modal",
+						"target": "ConfidentialityDecisionDialog",
+						"props": { "objectId": "@objectId", "action": "lift" },
+						"visibleWhen": { "any": [ { "field": "lifecycle", "value": "imposed" }, { "field": "lifecycle", "value": "ratified" } ] }
+					}
+				],
 				"statusPill": {
 					"field": "lifecycle",
 					"labels": { "imposed": "Imposed", "ratified": "Ratified", "dissolved": "Lifted", "lapsed": "Lapsed" },

@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "zréckgeschéckt",
         "Who opened the papers": "Wien d'Dokumenter opgemaach huet",
         "No one has opened these papers yet.": "Nach keen huet dës Dokumenter opgemaach.",
-        "The openings could not be read.": "D'Ouvertüren konnten net gelies ginn."
+        "The openings could not be read.": "D'Ouvertüren konnten net gelies ginn.",
+        "Impose confidentiality": "Geheimhaltung opleeën",
+        "Ratify confidentiality": "Geheimhaltung bestätegen",
+        "Lift confidentiality": "Geheimhaltung ophiewen",
+        "Imposed by": "Opgeluecht vun",
+        "Ratifying decision": "Bestätegungsbeschloss",
+        "Lifting decision": "Ophiewungsbeschloss",
+        "Lifting conditions": "Konditioune fir d'Ophiewen",
+        "The confidentiality could not be imposed.": "D'Geheimhaltung konnt net opgeluecht ginn.",
+        "The ratification could not be recorded.": "D'Bestätegung konnt net festgehale ginn.",
+        "The confidentiality could not be lifted.": "D'Geheimhaltung konnt net opgehuewe ginn."
     },
     "nplurals=2; plural=(n != 1);"
 )

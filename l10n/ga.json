@@ -3394,7 +3394,17 @@
         "choose files": "roghnaigh comhaid",
         "Who opened the papers": "Cé a d'oscail na páipéir",
         "No one has opened these papers yet.": "Níor oscail aon duine na páipéir seo fós.",
-        "The openings could not be read.": "Níorbh fhéidir na hoscailtí a léamh."
+        "The openings could not be read.": "Níorbh fhéidir na hoscailtí a léamh.",
+        "Impose confidentiality": "Rúndacht a fhorchur",
+        "Ratify confidentiality": "Rúndacht a dhaingniú",
+        "Lift confidentiality": "Rúndacht a chealú",
+        "Imposed by": "Forchurtha ag",
+        "Ratifying decision": "Cinneadh daingnithe",
+        "Lifting decision": "Cinneadh cealaithe",
+        "Lifting conditions": "Coinníollacha cealaithe",
+        "The confidentiality could not be imposed.": "Níorbh fhéidir an rúndacht a fhorchur.",
+        "The ratification could not be recorded.": "Níorbh fhéidir an daingniú a thaifeadadh.",
+        "The confidentiality could not be lifted.": "Níorbh fhéidir an rúndacht a chealú."
     },
     "plurals": null
 }

@@ -3330,7 +3330,17 @@ OC.L10N.register(
         "returned": "återförvisad",
         "Who opened the papers": "Vem har öppnat handlingarna",
         "No one has opened these papers yet.": "Ingen har öppnat dessa handlingar ännu.",
-        "The openings could not be read.": "Öppningarna kunde inte läsas."
+        "The openings could not be read.": "Öppningarna kunde inte läsas.",
+        "Impose confidentiality": "Ålägg sekretess",
+        "Ratify confidentiality": "Bekräfta sekretess",
+        "Lift confidentiality": "Häv sekretess",
+        "Imposed by": "Ålagd av",
+        "Ratifying decision": "Bekräftelsebeslut",
+        "Lifting decision": "Hävningsbeslut",
+        "Lifting conditions": "Villkor för hävning",
+        "The confidentiality could not be imposed.": "Sekretessen kunde inte åläggas.",
+        "The ratification could not be recorded.": "Bekräftelsen kunde inte registreras.",
+        "The confidentiality could not be lifted.": "Sekretessen kunde inte hävas."
     },
     "nplurals=2; plural=(n != 1);"
 )

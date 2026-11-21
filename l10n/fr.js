@@ -3392,7 +3392,17 @@ OC.L10N.register(
         "choose files": "choisissez des fichiers",
         "Who opened the papers": "Qui a ouvert les documents",
         "No one has opened these papers yet.": "Personne n'a encore ouvert ces documents.",
-        "The openings could not be read.": "Les ouvertures n'ont pas pu être lues."
+        "The openings could not be read.": "Les ouvertures n'ont pas pu être lues.",
+        "Impose confidentiality": "Imposer la confidentialité",
+        "Ratify confidentiality": "Ratifier la confidentialité",
+        "Lift confidentiality": "Lever la confidentialité",
+        "Imposed by": "Imposée par",
+        "Ratifying decision": "Décision de ratification",
+        "Lifting decision": "Décision de levée",
+        "Lifting conditions": "Conditions de levée",
+        "The confidentiality could not be imposed.": "La confidentialité n'a pas pu être imposée.",
+        "The ratification could not be recorded.": "La ratification n'a pas pu être enregistrée.",
+        "The confidentiality could not be lifted.": "La confidentialité n'a pas pu être levée."
     },
     "nplurals=2; plural=(n != 1);"
 )

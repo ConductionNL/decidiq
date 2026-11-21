@@ -3809,6 +3809,13 @@
 					}
 				]
 			},
+			"configPatch": {
+				"widgets": {
+					"geheimhouding-views": {
+						"type": "RestrictedPaperViewsTab"
+					}
+				}
+			},
 			"configAppend": {
 				"widgets": [
 					{
@@ -3861,12 +3868,13 @@
 									"label": "Related"
 								},
 								{
-									"widgetId": "geheimhouding-views",
-									"label": "Who opened the papers"
-								},
-								{
 									"widgetId": "geheimhouding-history",
 									"label": "History"
+								},
+								{
+									"widgetId": "geheimhouding-views",
+									"label": "Who opened the papers",
+									"overflow": true
 								}
 							]
 						}

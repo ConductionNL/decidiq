@@ -4517,7 +4517,16 @@
         "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.": "De dag waarop het spoedbesluit voor het eerst is gemeld aan het orgaan dat het bekrachtigt: door de meldactie, of toen het bekrachtigingsagendapunt op een vergadering werd geplaatst, wat het eerst gebeurde. Wordt één keer gezet en nooit gewist.",
         "Who opened the papers": "Wie de stukken heeft geopend",
         "No one has opened these papers yet.": "Nog niemand heeft deze stukken geopend.",
-        "The openings could not be read.": "De openingen konden niet worden gelezen."
+        "The openings could not be read.": "De openingen konden niet worden gelezen.",
+        "Impose confidentiality": "Geheimhouding opleggen",
+        "Ratify confidentiality": "Geheimhouding bekrachtigen",
+        "Lift confidentiality": "Geheimhouding opheffen",
+        "Ratifying decision": "Bekrachtigingsbesluit",
+        "Lifting decision": "Opheffingsbesluit",
+        "Lifting conditions": "Voorwaarden voor opheffing",
+        "The confidentiality could not be imposed.": "De geheimhouding kon niet worden opgelegd.",
+        "The ratification could not be recorded.": "De bekrachtiging kon niet worden vastgelegd.",
+        "The confidentiality could not be lifted.": "De geheimhouding kon niet worden opgeheven."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
