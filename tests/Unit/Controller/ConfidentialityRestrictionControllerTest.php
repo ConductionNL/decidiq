@@ -24,6 +24,7 @@ use OCA\Decidiq\Controller\ConfidentialityRestrictionController;
 use OCA\Decidiq\Exception\ConfidentialityImposeRefusedException;
 use OCA\Decidiq\Service\ConfidentialityImposer;
 use OCA\Decidiq\Service\ConfidentialityLifter;
+use OCA\Decidiq\Service\ConfidentialityRatifier;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\IRequest;
 use OCP\IUser;
@@ -46,6 +47,7 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	private const BODY = [
 		'scope' => 'item', 'target' => 'item-1', 'ground' => 'ground-gw', 'imposedBy' => 'body', 'imposedByBody' => 'body-raad',
 		'dissolutionDecision' => 'dec-lift', 'liftingConditions' => 'na ondertekening', 'extra' => 'ignored',
+		'ratifyingBody' => 'body-ab', 'ratificationDeadline' => '2027-01-31', 'ratificationDecision' => 'dec-ratify',
 	];
 
 	/**
@@ -54,10 +56,16 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 * @param string|null                $uid     The caller, or null when signed out.
 	 * @param ConfidentialityImposer|null $imposer The imposer.
 	 * @param ConfidentialityLifter|null  $lifter  The lifter.
+	 * @param ConfidentialityRatifier|null $ratifier The ratifier.
 	 *
 	 * @return ConfidentialityRestrictionController
 	 */
-	private function controller(?string $uid, ?ConfidentialityImposer $imposer=null, ?ConfidentialityLifter $lifter=null): ConfidentialityRestrictionController {
+	private function controller(
+		?string $uid,
+		?ConfidentialityImposer $imposer=null,
+		?ConfidentialityLifter $lifter=null,
+		?ConfidentialityRatifier $ratifier=null
+	): ConfidentialityRestrictionController {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default=null): mixed => (self::BODY[$key] ?? $default));
 		$session = $this->createMock(originalClassName: IUserSession::class);
@@ -73,7 +81,8 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 			request: $request,
 			userSession: $session,
 			imposer: ($imposer ?? $this->createMock(originalClassName: ConfidentialityImposer::class)),
-			lifter: ($lifter ?? $this->createMock(originalClassName: ConfidentialityLifter::class))
+			lifter: ($lifter ?? $this->createMock(originalClassName: ConfidentialityLifter::class)),
+			ratifier: ($ratifier ?? $this->createMock(originalClassName: ConfidentialityRatifier::class))
 		);
 	}//end controller()
 
@@ -105,10 +114,18 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 			['scope' => 'item', 'target' => 'item-1', 'ground' => 'ground-gw', 'imposedBy' => 'body', 'imposedByBody' => 'body-raad']
 		)->willReturn(['restriction' => ['id' => 'r-1', 'lifecycle' => 'imposed'], 'classifier' => 'closed']);
 
-		$response = $this->controller(uid: 'griffier', imposer: $imposer)->impose();
+		$ratifier = $this->createMock(originalClassName: ConfidentialityRatifier::class);
+		$ratifier->expects($this->once())->method('place')->with(
+			['id' => 'r-1', 'lifecycle' => 'imposed'],
+			['ratifyingBody' => 'body-ab', 'ratificationDeadline' => '2027-01-31']
+		)->willReturn(['status' => 'placed', 'restriction' => ['id' => 'r-1', 'lifecycle' => 'imposed', 'ratificationDeadline' => '2027-01-31']]);
+
+		$response = $this->controller(uid: 'griffier', imposer: $imposer, ratifier: $ratifier)->impose();
 
 		$this->assertSame(201, $response->getStatus());
 		$this->assertSame('closed', $response->getData()['classifier']);
+		$this->assertSame('placed', $response->getData()['ratification']);
+		$this->assertSame('2027-01-31', $response->getData()['restriction']['ratificationDeadline']);
 	}//end testImposedIsCreated()
 
 	/**
@@ -136,7 +153,7 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-001-geheimhouding-record-with-structured-legal-ground
 	 */
 	public function testTheEndpointIsOpenToNonAdministrators(): void {
-		foreach (['impose', 'lift'] as $name) {
+		foreach (['impose', 'ratify', 'lift'] as $name) {
 			$method = new ReflectionMethod(ConfidentialityRestrictionController::class, $name);
 			$this->assertCount(1, $method->getAttributes(NoAdminRequired::class));
 		}
@@ -168,4 +185,28 @@ class ConfidentialityRestrictionControllerTest extends TestCase {
 		$refusing->method('lift')->willThrowException(new ConfidentialityImposeRefusedException(message: 'Needs ratification', status: 409));
 		$this->assertSame(409, $this->controller(uid: 'griffier', lifter: $refusing)->lift(id: 'r-1')->getStatus());
 	}//end testLift()
+
+	/**
+	 * Ratifying: 401 signed out; the decision reaches the ratifier; 200; a refusal keeps its status.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-003-bekrachtiging-workflow-with-fail-visible-overdue-flag
+	 */
+	public function testRatify(): void {
+		$never = $this->createMock(originalClassName: ConfidentialityRatifier::class);
+		$never->expects($this->never())->method('ratify');
+		$this->assertSame(401, $this->controller(uid: null, ratifier: $never)->ratify(id: 'r-1')->getStatus());
+
+		$ratifier = $this->createMock(originalClassName: ConfidentialityRatifier::class);
+		$ratifier->expects($this->once())->method('ratify')->with('griffier', 'r-1', ['ratificationDecision' => 'dec-ratify'])
+			->willReturn(['id' => 'r-1', 'lifecycle' => 'ratified']);
+		$response = $this->controller(uid: 'griffier', ratifier: $ratifier)->ratify(id: 'r-1');
+		$this->assertSame(200, $response->getStatus());
+		$this->assertSame('ratified', $response->getData()['restriction']['lifecycle']);
+
+		$refusing = $this->createMock(originalClassName: ConfidentialityRatifier::class);
+		$refusing->method('ratify')->willThrowException(new ConfidentialityImposeRefusedException(message: 'No ratification needed', status: 409));
+		$this->assertSame(409, $this->controller(uid: 'griffier', ratifier: $refusing)->ratify(id: 'r-1')->getStatus());
+	}//end testRatify()
 }//end class
