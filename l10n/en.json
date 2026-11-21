@@ -4097,7 +4097,10 @@
         "Reported to the ratifying body on": "Reported to the ratifying body on",
         "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there.": "The governance body on whose behalf the decision was declared urgent (the executive board, or the body a single office belongs to). Set by the urgency declaration only; required there.",
         "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only.": "The office that holds the urgency power when it belongs to one person, such as the mayor. The urgent decisions list shows it in place of the body name. Set by the urgency declaration only.",
-        "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.": "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared."
+        "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.": "The day the urgent decision was first reported to the body that ratifies it: by the report action, or when its ratification agenda item was placed on a meeting, whichever came first. Set once, never cleared.",
+        "Who opened the papers": "Who opened the papers",
+        "No one has opened these papers yet.": "No one has opened these papers yet.",
+        "The openings could not be read.": "The openings could not be read."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

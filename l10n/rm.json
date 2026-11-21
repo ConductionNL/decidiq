@@ -3329,7 +3329,10 @@
         "Members' ancillary positions": "Funcziuns accessoricas dals commembers",
         "Return to step": "Returnar al pass",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Il pass al qual returna ina proposta returnada. Vid la returna a quel che l'ha tramessa.",
-        "returned": "returnà"
+        "returned": "returnà",
+        "Who opened the papers": "Tgi ha avert ils documents",
+        "No one has opened these papers yet.": "Anc nagin n'ha avert quests documents.",
+        "The openings could not be read.": "Las averturas n'han betg pudì vegnir legidas."
     },
     "plurals": null
 }

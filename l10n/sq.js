@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Takimi nuk mund të krijohej.",
         "The meeting was created. Finish these steps on the meeting page:": "Takimi u krijua. Përfundoni këto hapa në faqen e takimit:",
         "The papers were not uploaded.": "Dokumentet nuk u ngarkuan.",
-        "choose files": "zgjidhni skedarë"
+        "choose files": "zgjidhni skedarë",
+        "Who opened the papers": "Kush i hapi dokumentet",
+        "No one has opened these papers yet.": "Askush nuk i ka hapur ende këto dokumente.",
+        "The openings could not be read.": "Hapjet nuk mund të lexoheshin."
     },
     "nplurals=2; plural=(n != 1);"
 )

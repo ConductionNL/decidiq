@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Kokousta ei voitu luoda.",
         "The meeting was created. Finish these steps on the meeting page:": "Kokous on luotu. Viimeistele nämä vaiheet kokouksen sivulla:",
         "The papers were not uploaded.": "Asiakirjoja ei ladattu.",
-        "choose files": "valitse tiedostot"
+        "choose files": "valitse tiedostot",
+        "Who opened the papers": "Kuka avasi asiakirjat",
+        "No one has opened these papers yet.": "Kukaan ei ole vielä avannut näitä asiakirjoja.",
+        "The openings could not be read.": "Avauksia ei voitu lukea."
     },
     "nplurals=2; plural=(n != 1);"
 )

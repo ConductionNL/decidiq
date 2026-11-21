@@ -944,7 +944,10 @@ OC.L10N.register(
         "Save decision types": "Save decision types",
         "The decision types were not saved": "The decision types were not saved",
         "The decision types were saved": "The decision types were saved",
-        "Person for option {number} (optional)": "Person for option {number} (optional)"
+        "Person for option {number} (optional)": "Person for option {number} (optional)",
+        "Who opened the papers": "Who opened the papers",
+        "No one has opened these papers yet.": "No one has opened these papers yet.",
+        "The openings could not be read.": "The openings could not be read."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3327,7 +3327,10 @@ OC.L10N.register(
         "Members' ancillary positions": "Побічні посади членів",
         "Return to step": "Повернути на етап",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Етап, на який повертається повернута пропозиція. Порожньо — пропозиція повертається відправникові.",
-        "returned": "повернуто"
+        "returned": "повернуто",
+        "Who opened the papers": "Хто відкривав документи",
+        "No one has opened these papers yet.": "Ще ніхто не відкривав ці документи.",
+        "The openings could not be read.": "Не вдалося прочитати відкриття."
     },
     "nplurals=2; plural=(n != 1);"
 )

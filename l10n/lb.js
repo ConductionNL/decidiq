@@ -3327,7 +3327,10 @@ OC.L10N.register(
         "Members' ancillary positions": "Niewefunktioune vun de Memberen",
         "Return to step": "Zréck op de Schrëtt",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "De Schrëtt, op deen eng zréckgeschéckte Propos zréckgeet. Eidel geet se zréck un deen, deen se geschéckt huet.",
-        "returned": "zréckgeschéckt"
+        "returned": "zréckgeschéckt",
+        "Who opened the papers": "Wien d'Dokumenter opgemaach huet",
+        "No one has opened these papers yet.": "Nach keen huet dës Dokumenter opgemaach.",
+        "The openings could not be read.": "D'Ouvertüren konnten net gelies ginn."
     },
     "nplurals=2; plural=(n != 1);"
 )

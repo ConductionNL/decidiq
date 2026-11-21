@@ -3391,7 +3391,10 @@
         "The meeting could not be created.": "Die Besprechung konnte nicht erstellt werden.",
         "The meeting was created. Finish these steps on the meeting page:": "Die Besprechung wurde erstellt. Schließen Sie diese Schritte auf der Besprechungsseite ab:",
         "The papers were not uploaded.": "Die Unterlagen wurden nicht hochgeladen.",
-        "choose files": "Dateien auswählen"
+        "choose files": "Dateien auswählen",
+        "Who opened the papers": "Wer die Dokumente geöffnet hat",
+        "No one has opened these papers yet.": "Noch niemand hat diese Dokumente geöffnet.",
+        "The openings could not be read.": "Die Öffnungen konnten nicht gelesen werden."
     },
     "plurals": null
 }

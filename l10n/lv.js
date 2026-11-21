@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Sanāksmi neizdevās izveidot.",
         "The meeting was created. Finish these steps on the meeting page:": "Sanāksme ir izveidota. Pabeidziet šīs darbības sanāksmes lapā:",
         "The papers were not uploaded.": "Dokumenti netika augšupielādēti.",
-        "choose files": "izvēlieties failus"
+        "choose files": "izvēlieties failus",
+        "Who opened the papers": "Kas atvēra dokumentus",
+        "No one has opened these papers yet.": "Šos dokumentus vēl neviens nav atvēris.",
+        "The openings could not be read.": "Atvēršanas neizdevās nolasīt."
     },
     "nplurals=2; plural=(n != 1);"
 )

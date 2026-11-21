@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Toplantı oluşturulamadı.",
         "The meeting was created. Finish these steps on the meeting page:": "Toplantı oluşturuldu. Bu adımları toplantı sayfasında tamamlayın:",
         "The papers were not uploaded.": "Belgeler yüklenmedi.",
-        "choose files": "dosya seçin"
+        "choose files": "dosya seçin",
+        "Who opened the papers": "Belgeleri kimler açtı",
+        "No one has opened these papers yet.": "Bu belgeleri henüz kimse açmadı.",
+        "The openings could not be read.": "Açılışlar okunamadı."
     },
     "nplurals=2; plural=(n != 1);"
 )

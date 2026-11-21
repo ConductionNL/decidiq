@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Ekki tókst að búa til fundinn.",
         "The meeting was created. Finish these steps on the meeting page:": "Fundurinn var búinn til. Ljúktu þessum skrefum á síðu fundarins:",
         "The papers were not uploaded.": "Skjölin voru ekki hlaðin upp.",
-        "choose files": "veldu skrár"
+        "choose files": "veldu skrár",
+        "Who opened the papers": "Hver opnaði skjölin",
+        "No one has opened these papers yet.": "Enginn hefur enn opnað þessi skjöl.",
+        "The openings could not be read.": "Ekki tókst að lesa opnanirnar."
     },
     "nplurals=2; plural=(n != 1);"
 )

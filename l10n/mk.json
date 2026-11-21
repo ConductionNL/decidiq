@@ -3329,7 +3329,10 @@
         "Members' ancillary positions": "Споредни функции на членовите",
         "Return to step": "Врати на чекор",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Чекорот на кој се враќа вратениот предлог. Ако е празно, се враќа кај испраќачот.",
-        "returned": "вратено"
+        "returned": "вратено",
+        "Who opened the papers": "Кој ги отворал документите",
+        "No one has opened these papers yet.": "Никој сè уште не ги отворил овие документи.",
+        "The openings could not be read.": "Отворањата не можеа да се прочитаат."
     },
     "plurals": null
 }

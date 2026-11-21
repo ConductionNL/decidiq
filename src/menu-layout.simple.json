@@ -3861,6 +3861,10 @@
 									"label": "Related"
 								},
 								{
+									"widgetId": "geheimhouding-views",
+									"label": "Who opened the papers"
+								},
+								{
 									"widgetId": "geheimhouding-history",
 									"label": "History"
 								}

@@ -133,6 +133,14 @@
 							"register": "decidiq",
 							"groundSchema": "geheimhouding-grond"
 						}
+					},
+					{
+						"id": "geheimhouding-views",
+						"type": "custom",
+						"component": "RestrictedPaperViewsTab",
+						"title": "Who opened the papers",
+						"icon": "EyeOutline",
+						"_note": "embargo-geheimhouding REQ-EMB-007: every opening of a paper under this restriction while it is active, newest first (reader, time, paper, agenda item), from GET /api/confidentiality/restrictions/{id}/views. Only the imposing body's staff may read the list; anyone else sees the server's refusal."
 					}
 				],
 				"layout": [
@@ -175,6 +183,14 @@
 						"gridY": 10,
 						"gridWidth": 12,
 						"gridHeight": 4
+					},
+					{
+						"id": "6",
+						"widgetId": "geheimhouding-views",
+						"gridX": 0,
+						"gridY": 14,
+						"gridWidth": 12,
+						"gridHeight": 5
 					}
 				],
 				"sidebar": {

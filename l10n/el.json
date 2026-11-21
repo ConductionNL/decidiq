@@ -3391,7 +3391,10 @@
         "The meeting could not be created.": "Η σύσκεψη δεν ήταν δυνατό να δημιουργηθεί.",
         "The meeting was created. Finish these steps on the meeting page:": "Η σύσκεψη δημιουργήθηκε. Ολοκληρώστε αυτά τα βήματα στη σελίδα της σύσκεψης:",
         "The papers were not uploaded.": "Τα έγγραφα δεν μεταφορτώθηκαν.",
-        "choose files": "επιλέξτε αρχεία"
+        "choose files": "επιλέξτε αρχεία",
+        "Who opened the papers": "Ποιος άνοιξε τα έγγραφα",
+        "No one has opened these papers yet.": "Κανείς δεν έχει ανοίξει ακόμη αυτά τα έγγραφα.",
+        "The openings could not be read.": "Δεν ήταν δυνατή η ανάγνωση των ανοιγμάτων."
     },
     "plurals": null
 }

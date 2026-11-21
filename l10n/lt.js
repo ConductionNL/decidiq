@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Nepavyko sukurti susitikimo.",
         "The meeting was created. Finish these steps on the meeting page:": "Susitikimas sukurtas. Užbaikite šiuos veiksmus susitikimo puslapyje:",
         "The papers were not uploaded.": "Dokumentai nebuvo įkelti.",
-        "choose files": "pasirinkite failus"
+        "choose files": "pasirinkite failus",
+        "Who opened the papers": "Kas atidarė dokumentus",
+        "No one has opened these papers yet.": "Šių dokumentų dar niekas neatidarė.",
+        "The openings could not be read.": "Atidarymų nepavyko perskaityti."
     },
     "nplurals=2; plural=(n != 1);"
 )

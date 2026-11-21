@@ -3329,7 +3329,10 @@
         "Members' ancillary positions": "Medlemmarnas bisysslor",
         "Return to step": "Återförvisa till steg",
         "The step a returned proposal goes back to. Empty sends it back to the sender.": "Steget som ett återförvisat förslag går tillbaka till. Tomt skickar det tillbaka till avsändaren.",
-        "returned": "återförvisad"
+        "returned": "återförvisad",
+        "Who opened the papers": "Vem har öppnat handlingarna",
+        "No one has opened these papers yet.": "Ingen har öppnat dessa handlingar ännu.",
+        "The openings could not be read.": "Öppningarna kunde inte läsas."
     },
     "plurals": null
 }

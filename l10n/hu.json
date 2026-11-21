@@ -3392,7 +3392,10 @@
         "The meeting could not be created.": "A megbeszélést nem sikerült létrehozni.",
         "The meeting was created. Finish these steps on the meeting page:": "A megbeszélés létrejött. Fejezze be ezeket a lépéseket a megbeszélés oldalán:",
         "The papers were not uploaded.": "A dokumentumok nem lettek feltöltve.",
-        "choose files": "válasszon fájlokat"
+        "choose files": "válasszon fájlokat",
+        "Who opened the papers": "Ki nyitotta meg a dokumentumokat",
+        "No one has opened these papers yet.": "Ezeket a dokumentumokat még senki sem nyitotta meg.",
+        "The openings could not be read.": "A megnyitásokat nem sikerült beolvasni."
     },
     "plurals": null
 }

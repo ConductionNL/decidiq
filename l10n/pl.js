@@ -3389,7 +3389,10 @@ OC.L10N.register(
         "The meeting could not be created.": "Nie udało się utworzyć spotkania.",
         "The meeting was created. Finish these steps on the meeting page:": "Spotkanie zostało utworzone. Dokończ te kroki na stronie spotkania:",
         "The papers were not uploaded.": "Dokumenty nie zostały przesłane.",
-        "choose files": "wybierz pliki"
+        "choose files": "wybierz pliki",
+        "Who opened the papers": "Kto otwierał dokumenty",
+        "No one has opened these papers yet.": "Nikt jeszcze nie otworzył tych dokumentów.",
+        "The openings could not be read.": "Nie udało się odczytać otwarć."
     },
     "nplurals=2; plural=(n != 1);"
 )
