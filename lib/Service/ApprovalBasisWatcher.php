@@ -23,17 +23,16 @@
  * difference between a rule people trust and one they route around.
  *
  *
- * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
- * ------------------------------------------------------------------------
- * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
- * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
- * registration mentions it, no route reaches it. Everything below describes what
- * it WOULD do; none of it runs today, and the green suite beside it tests the
- * class in isolation, so it cannot tell you otherwise.
+ * HOW IT IS REACHED
+ * -----------------
+ * Since 2026-11-21 every object update reaches ApprovalBasisChangeListener,
+ * which hands the subject's old and new versions to ApprovalStalenessService.
+ * That service reads the subject's stages, asks this class which grants each
+ * stage's basis withdraws, writes the withdrawals, reopens the steps through
+ * the engine's stage walk and has ApprovalWithdrawalNotifier tell the actors.
+ * Until then this class was named only by itself and its unit test
+ * (reachability-scope.md beside the change records that state).
  *
- * Read this before believing a present-tense sentence further down. Scope for
- * making it reachable is in
- * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
