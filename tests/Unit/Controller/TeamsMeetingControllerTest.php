@@ -292,7 +292,8 @@ final class TeamsMeetingControllerTest extends TestCase {
 		$this->assertCount(expectedCount: 6, haystack: $matches[1]);
 
 		foreach (['en', 'nl'] as $locale) {
-			$catalogue = json_decode(json: (string)file_get_contents(filename: __DIR__ . '/../../../l10n/' . $locale . '.json'), associative: true)['translations'];
+			$file      = __DIR__ . '/../../../l10n/' . $locale . '.json';
+			$catalogue = json_decode(json: (string)file_get_contents(filename: $file), associative: true)['translations'];
 			foreach ($matches[1] as $key) {
 				$this->assertNotSame(expected: '', actual: (string)($catalogue[$key] ?? ''), message: $locale . ' lacks "' . $key . '"');
 			}
