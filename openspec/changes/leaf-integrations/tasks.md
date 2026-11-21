@@ -73,7 +73,8 @@ change dirs evaporate on archive.
 
 - [x] `python3 -m json.tool lib/Settings/decidesk_register.json` and every touched `manifest*` JSON file parses after each edit.
 - [x] Grep checks: `grep -c '"integrationId": "calendar"' src/manifest.json` = 1; contacts = 2; polls spread over the two named pages; `grep -rc mailObjectTemplate lib/Settings/` = 1.
-- [ ] `composer check:strict` exits zero (touched PHP, if any, is lint-clean; `php -l` on any edited PHP file).
+- [x] `composer check:strict` exits zero (touched PHP, if any, is lint-clean; `php -l` on any edited PHP file).
+  - 2026-11-21: run in full. `php -l` is clean on every file; the one finding in this change's PHP was a psalm `RedundantFunctionCall` in `FormResponseReader::rows()` (an `array_values` over a list), now removed; `FormResponseReaderTest` and `FormResponseImportServiceTest` pass. The suite as a whole still exits 1 on phpcs, phpmd and psalm findings in files outside this change, as development does.
 - [x] Hydra gates pass (`hydra-gates` skill / `scripts/run-hydra-gates.sh` delegator) — no new endpoints, so route-auth/no-admin-idor must show no new findings.
   - 2026-11-14: the same 12 gates fail on development and on this branch, none naming a file of this change; no new finding.
 - [ ] `openspec validate leaf-integrations --type change --strict` passes.
@@ -84,7 +85,8 @@ change dirs evaporate on archive.
 - [x] PHPUnit unit tests — register-JSON assertions (linkedTypes on exactly 4 schemas; mailObjectTemplate on exactly 1; template pins `lifecycle: draft`), reaction-intake idempotency.
 - [ ] Newman/Postman tests — N/A: no new decidiq HTTP endpoints (create-from-email and linking are OpenRegister surfaces).
 - [ ] Browser tests (Playwright MCP) — the four pages render their new widget with the app present; degrade with it absent.
-- [ ] All tests pass (`composer test`), zero new failures against a self-measured baseline.
+- [x] All tests pass (`composer test`), zero new failures against a self-measured baseline.
+  - 2026-11-21: PHPUnit 5556 tests, 0 failures, 8 skipped, on this branch and on development.
 
 ## Documentation (company-wide ADR-010)
 
