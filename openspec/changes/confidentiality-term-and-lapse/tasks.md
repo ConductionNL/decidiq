@@ -41,6 +41,7 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
   - GIVEN a lapsed restriction WHEN its page opens THEN the stepper and timeline show Vervallen
 - [x] Implement (four-step timeline, imposing-decision link, lapse and "uiterlijk" lines in `ConfidentialityStatusTimelineWidget`; the status pill, and through `headerWidget` the `ConfidentialityHeaderWidget` with the line "Bekrachtiging door <body> uiterlijk <date>" while ratification is open and the stepper Opgelegd / Bekrachtigd (Vervallen once lapsed) / Opgeheven; the Geheimhouding card, Waar de geheimhouding op ligt, Grond and Gerelateerd cards, in both structures)
 - [ ] Test (vitest done: per stage, `buildConfidentialityStepper` and `ratificationHeaderLine`, and the simple structure placing every card; the Playwright test on the example needs a live instance)
+  - Written, not run (22 Nov): `tests/e2e/confidentiality-detail-steps.spec.ts` on the municipality example: the restriction imposed on 10 September shows the header line, the stepper (imposed now, ratified and lifted planned) and all four steps with ratification and lifting pending and the lifting conditions; the lapsed one shows Lapsed in stepper and timeline and no header line. The page clock is set to 1 October 2026, the scenario's "before the council meets". Left: running it on an instance.
 
 ### Task 5: Align embargo-geheimhouding REQ-EMB-003 and example data
 - **files**: `lib/Settings/profiles/municipality.json`
