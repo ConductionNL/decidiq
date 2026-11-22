@@ -33,6 +33,13 @@ use RuntimeException;
 class AppointmentPositionHoldsTest extends TestCase {
 
 	/**
+	 * An appointment of body b-1, effective 10 April 2026, by decision d-1.
+	 *
+	 * @var array{body: string, startDate: string, decision: string}
+	 */
+	private const APPOINTMENT = ['body' => 'b-1', 'startDate' => '2026-04-10', 'decision' => 'd-1'];
+
+	/**
 	 * The hold names the membership, the position, the body, the day and the decision.
 	 *
 	 * @return void
@@ -52,9 +59,7 @@ class AppointmentPositionHoldsTest extends TestCase {
 			actual: AppointmentPositionHolds::payload(
 				membershipId: 'm-1',
 				positionId: 'pt-chair',
-				bodyId: 'body-1',
-				startDate: '2026-04-10T19:00:00+02:00',
-				decisionId: 'dec-1'
+				appointment: ['body' => 'body-1', 'startDate' => '2026-04-10T19:00:00+02:00', 'decision' => 'dec-1']
 			)
 		);
 
@@ -68,10 +73,11 @@ class AppointmentPositionHoldsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testNoPositionOrNoStartWritesNothing(): void {
-		self::assertNull(AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: null, bodyId: 'b', startDate: '2026-04-10', decisionId: 'd'));
-		self::assertNull(AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: '', bodyId: 'b', startDate: '2026-04-10', decisionId: 'd'));
-		self::assertNull(AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: 'pt', bodyId: 'b', startDate: '', decisionId: 'd'));
-		self::assertNull(AppointmentPositionHolds::payload(membershipId: '', positionId: 'pt', bodyId: 'b', startDate: '2026-04-10', decisionId: 'd'));
+		self::assertNull(actual: AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: null, appointment: self::APPOINTMENT));
+		self::assertNull(actual: AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: '', appointment: self::APPOINTMENT));
+		$undated = ['startDate' => ''] + self::APPOINTMENT;
+		self::assertNull(actual: AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: 'pt', appointment: $undated));
+		self::assertNull(actual: AppointmentPositionHolds::payload(membershipId: '', positionId: 'pt', appointment: self::APPOINTMENT));
 
 	}//end testNoPositionOrNoStartWritesNothing()
 
@@ -83,9 +89,9 @@ class AppointmentPositionHoldsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testAnUnknownBodyIsLeftOff(): void {
-		$hold = AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: 'pt', bodyId: null, startDate: '2026-04-10', decisionId: 'd');
+		$hold = AppointmentPositionHolds::payload(membershipId: 'm-1', positionId: 'pt', appointment: ['body' => null] + self::APPOINTMENT);
 
-		self::assertIsArray($hold);
+		self::assertIsArray(actual: $hold);
 		self::assertArrayNotHasKey(key: 'governanceBody', array: $hold);
 
 	}//end testAnUnknownBodyIsLeftOff()
@@ -98,10 +104,10 @@ class AppointmentPositionHoldsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testWriteSavesOnThePositionHoldSchema(): void {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn(['id' => 'hold-1']);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->expects(self::once())->method('saveObject')->willReturnCallback(
 			static function (array $object, ObjectSaveOptions $options) use ($entity) {
 				self::assertSame(expected: 'decidiq', actual: $options->target->register);
@@ -111,11 +117,11 @@ class AppointmentPositionHoldsTest extends TestCase {
 			}
 		);
 
-		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(LoggerInterface::class));
+		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(originalClassName: LoggerInterface::class));
 
 		self::assertSame(
 			expected: 'hold-1',
-			actual: $holds->write(membershipId: 'm-1', positionId: 'pt-1', bodyId: 'b-1', startDate: '2026-04-10', decisionId: 'd-1')
+			actual: $holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT)
 		);
 
 	}//end testWriteSavesOnThePositionHoldSchema()
@@ -128,12 +134,12 @@ class AppointmentPositionHoldsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testWriteWithoutAPositionSavesNothing(): void {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->expects(self::never())->method('saveObject');
 
-		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(LoggerInterface::class));
+		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(originalClassName: LoggerInterface::class));
 
-		self::assertNull($holds->write(membershipId: 'm-1', positionId: null, bodyId: 'b-1', startDate: '2026-04-10', decisionId: 'd-1'));
+		self::assertNull(actual: $holds->write(membershipId: 'm-1', positionId: null, appointment: self::APPOINTMENT));
 
 	}//end testWriteWithoutAPositionSavesNothing()
 
@@ -145,15 +151,15 @@ class AppointmentPositionHoldsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testAFailedSaveIsLoggedNotThrown(): void {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('saveObject')->willThrowException(new RuntimeException('position not on this body'));
 
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects(self::once())->method('error');
 
 		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $logger);
 
-		self::assertNull($holds->write(membershipId: 'm-1', positionId: 'pt-1', bodyId: 'b-1', startDate: '2026-04-10', decisionId: 'd-1'));
+		self::assertNull(actual: $holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT));
 
 	}//end testAFailedSaveIsLoggedNotThrown()
 }//end class

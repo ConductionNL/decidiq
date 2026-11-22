@@ -733,7 +733,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				if ($schema === 'position-hold') {
 					$buckets->positionHold[] = $object;
-					return $this->entity(array_merge(['id' => 'hold-' . count($buckets->positionHold)], $object));
+					return $this->entity(data: array_merge(['id' => 'hold-' . count($buckets->positionHold)], $object));
 				}
 
 				if ($schema === 'decision' && (string)($uuid ?? '') !== '') {

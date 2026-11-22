@@ -32,12 +32,32 @@ use Psr\Log\LoggerInterface;
  */
 class MigratePostsToPositionsTest extends TestCase {
 
+	/**
+	 * Reports OpenRegister as available or not.
+	 *
+	 * @var SettingsService
+	 */
 	private SettingsService $settingsService;
 
+	/**
+	 * Hands the migration the fake store.
+	 *
+	 * @var ContainerInterface
+	 */
 	private ContainerInterface $container;
 
+	/**
+	 * Progress reporting.
+	 *
+	 * @var IOutput
+	 */
 	private IOutput $output;
 
+	/**
+	 * The migration under test.
+	 *
+	 * @var MigratePostsToPositions
+	 */
 	private MigratePostsToPositions $migration;
 
 	/**
@@ -51,9 +71,9 @@ class MigratePostsToPositionsTest extends TestCase {
 		$this->output          = $this->createMock(originalClassName: IOutput::class);
 
 		$this->migration = new MigratePostsToPositions(
-			$this->settingsService,
-			$this->container,
-			$this->createMock(originalClassName: LoggerInterface::class),
+			settingsService: $this->settingsService,
+			container: $this->container,
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 		);
 
 	}//end setUp()
@@ -212,7 +232,7 @@ class MigratePostsToPositionsTest extends TestCase {
 					['id' => 'post-1', 'label' => 'Chair', 'governanceBody' => 'raad'],
 					['id' => 'post-2', 'label' => 'Secretary', 'governanceBody' => 'raad'],
 				],
-				// post-2 was copied on an earlier run.
+				// The second post was copied on an earlier run.
 				'position-type' => [['id' => 'pt-2', 'migratedFromObject' => 'post-2']],
 				'decision' => [
 					['id' => 'd-1', '@self' => ['id' => 'd-1'], 'title' => 'Benoeming', 'targetPosts' => ['post-1', 'post-2']],
@@ -238,9 +258,9 @@ class MigratePostsToPositionsTest extends TestCase {
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	public function testAHalfMappableListIsLeftWhole(): void {
-		self::assertNull(MigratePostsToPositions::repointedTargets(targets: ['post-1', 'post-gone'], positions: ['post-1' => 'pt-1']));
-		self::assertNull(MigratePostsToPositions::repointedTargets(targets: [], positions: ['post-1' => 'pt-1']));
-		self::assertNull(MigratePostsToPositions::repointedTargets(targets: ['pt-1'], positions: ['post-1' => 'pt-1']));
+		self::assertNull(actual: MigratePostsToPositions::repointedTargets(targets: ['post-1', 'post-gone'], positions: ['post-1' => 'pt-1']));
+		self::assertNull(actual: MigratePostsToPositions::repointedTargets(targets: [], positions: ['post-1' => 'pt-1']));
+		self::assertNull(actual: MigratePostsToPositions::repointedTargets(targets: ['pt-1'], positions: ['post-1' => 'pt-1']));
 		self::assertSame(
 			expected: ['pt-1', 'pt-1'],
 			actual: MigratePostsToPositions::repointedTargets(targets: ['post-1', 'pt-1'], positions: ['post-1' => 'pt-1'])
@@ -418,7 +438,12 @@ class MigratePostsToPositionsTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+			public function saveObject(
+				array $object,
+				ObjectSaveOptions $options=new ObjectSaveOptions(),
+				bool $_rbac=true,
+				bool $_multitenancy=true
+			): array {
 				$schema        = $options->target->schema;
 				$this->saves[] = [$schema, $object];
 				if ($options->uuid !== null) {
@@ -426,7 +451,7 @@ class MigratePostsToPositionsTest extends TestCase {
 					return $object;
 				}
 
-				return ($object + ['id' => $schema . '-' . count($this->savedFor($schema))]);
+				return ($object + ['id' => $schema . '-' . count($this->savedFor(schema: $schema))]);
 
 			}//end saveObject()
 		};

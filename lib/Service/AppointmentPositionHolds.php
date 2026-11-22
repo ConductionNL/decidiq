@@ -68,24 +68,19 @@ class AppointmentPositionHolds {
 	 * No position means a role-only appointment, and no start date means the
 	 * hold would carry an invented one, so both write nothing.
 	 *
-	 * @param string      $membershipId The membership just created.
-	 * @param string|null $positionId   The position the appointment targets.
-	 * @param string|null $bodyId       The body the membership sits on.
-	 * @param string      $startDate    When the appointment took effect (date or date-time).
-	 * @param string      $decisionId   The appointing decision.
+	 * @param string                                                           $membershipId The membership just created.
+	 * @param string|null                                                      $positionId   The position the appointment targets.
+	 * @param array{body?: string|null, startDate?: string, decision?: string} $appointment  The body the membership sits on,
+	 *                                                                                       when the appointment took effect
+	 *                                                                                       (date or date-time) and the
+	 *                                                                                       appointing decision.
 	 *
 	 * @return array<string,string>|null The payload.
 	 *
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
-	public static function payload(
-		string $membershipId,
-		?string $positionId,
-		?string $bodyId,
-		string $startDate,
-		string $decisionId
-	): ?array {
-		$day = self::day(value: $startDate);
+	public static function payload(string $membershipId, ?string $positionId, array $appointment): ?array {
+		$day = self::day(value: (string)($appointment['startDate'] ?? ''));
 		if ($membershipId === '' || $positionId === null || $positionId === '' || $day === '') {
 			return null;
 		}
@@ -94,10 +89,10 @@ class AppointmentPositionHolds {
 			[
 				'membership' => $membershipId,
 				'position' => $positionId,
-				'governanceBody' => ($bodyId ?? ''),
+				'governanceBody' => (string)($appointment['body'] ?? ''),
 				'holdType' => self::DEFAULT_HOLD_TYPE,
 				'startDate' => $day,
-				'appointedBy' => $decisionId,
+				'appointedBy' => (string)($appointment['decision'] ?? ''),
 			],
 			static fn (string $value): bool => $value !== ''
 		);
@@ -110,30 +105,16 @@ class AppointmentPositionHolds {
 	 * The appointment's lifecycle write has already persisted, so a hold that
 	 * cannot be written must not undo it.
 	 *
-	 * @param string      $membershipId The membership just created.
-	 * @param string|null $positionId   The position the appointment targets.
-	 * @param string|null $bodyId       The body the membership sits on.
-	 * @param string      $startDate    When the appointment took effect.
-	 * @param string      $decisionId   The appointing decision.
+	 * @param string                                                           $membershipId The membership just created.
+	 * @param string|null                                                      $positionId   The position the appointment targets.
+	 * @param array{body?: string|null, startDate?: string, decision?: string} $appointment  See payload().
 	 *
 	 * @return string|null The new hold's id, or null when none was written.
 	 *
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
-	public function write(
-		string $membershipId,
-		?string $positionId,
-		?string $bodyId,
-		string $startDate,
-		string $decisionId
-	): ?string {
-		$hold = self::payload(
-			membershipId: $membershipId,
-			positionId: $positionId,
-			bodyId: $bodyId,
-			startDate: $startDate,
-			decisionId: $decisionId
-		);
+	public function write(string $membershipId, ?string $positionId, array $appointment): ?string {
+		$hold = self::payload(membershipId: $membershipId, positionId: $positionId, appointment: $appointment);
 		if ($hold === null) {
 			return null;
 		}
@@ -148,7 +129,12 @@ class AppointmentPositionHolds {
 		} catch (Throwable $e) {
 			$this->logger->error(
 				'Decidiq: appointment enacted but its position hold could not be written',
-				['decision' => $decisionId, 'membership' => $membershipId, 'position' => $positionId, 'exception' => $e->getMessage()]
+				[
+					'decision' => ($appointment['decision'] ?? null),
+					'membership' => $membershipId,
+					'position' => $positionId,
+					'exception' => $e->getMessage(),
+				]
 			);
 			return null;
 		}

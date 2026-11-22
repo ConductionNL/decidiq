@@ -829,9 +829,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				$this->positionHolds->write(
 					membershipId: $membershipId,
 					positionId: $position,
-					bodyId: $targetBody,
-					startDate: $enactedAt,
-					decisionId: $decisionId
+					appointment: ['body' => $targetBody, 'startDate' => $enactedAt, 'decision' => $decisionId]
 				);
 			}
 
