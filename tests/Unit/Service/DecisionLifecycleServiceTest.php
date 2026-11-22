@@ -710,6 +710,13 @@ class DecisionLifecycleServiceTest extends TestCase {
 			 * @var array<int, array<string, mixed>>
 			 */
 			public array $membership = [];
+
+			/**
+			 * `position-hold` schema saves — the position each appointed membership fills.
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $positionHold = [];
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
@@ -722,6 +729,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 					$id = 'membership-' . (count($buckets->membership) + 1);
 					$buckets->membership[] = $object;
 					return $this->entity(array_merge(['id' => $id], $object));
+				}
+
+				if ($schema === 'position-hold') {
+					$buckets->positionHold[] = $object;
+					return $this->entity(array_merge(['id' => 'hold-' . count($buckets->positionHold)], $object));
 				}
 
 				if ($schema === 'decision' && (string)($uuid ?? '') !== '') {
@@ -823,6 +835,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertSame(expected: 'body-1', actual: $membership['governanceBody']);
 		self::assertArrayNotHasKey(key: 'post', array: $membership);
 		self::assertArrayNotHasKey(key: 'label', array: $membership);
+		// Role-only: no position, so no hold.
+		self::assertCount(expectedCount: 0, haystack: $buckets->positionHold);
 
 		// Exactly two uuid-bearing decision saves: the lifecycle write
 		// (enacted + enactedAt), then the appointedMemberships patch.
@@ -876,7 +890,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	/**
 	 * Multiple candidates paired with multiple `targetPosts` by array index.
 	 *
+	 * Each membership gets a position hold on its own paired position; the
+	 * membership itself no longer carries a `post`.
+	 *
 	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 *
 	 * @return void
 	 */
@@ -908,9 +926,19 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
 		self::assertSame(expected: 'person-a', actual: $buckets->membership[0]['person']);
-		self::assertSame(expected: 'post-a', actual: $buckets->membership[0]['post']);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[0]);
 		self::assertSame(expected: 'Candidate B', actual: $buckets->membership[1]['label']);
-		self::assertSame(expected: 'post-b', actual: $buckets->membership[1]['post']);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[1]);
+
+		self::assertCount(expectedCount: 2, haystack: $buckets->positionHold);
+		self::assertSame(expected: 'membership-1', actual: $buckets->positionHold[0]['membership']);
+		self::assertSame(expected: 'post-a', actual: $buckets->positionHold[0]['position']);
+		self::assertSame(expected: 'membership-2', actual: $buckets->positionHold[1]['membership']);
+		self::assertSame(expected: 'post-b', actual: $buckets->positionHold[1]['position']);
+		self::assertSame(expected: 'body-3', actual: $buckets->positionHold[0]['governanceBody']);
+		self::assertSame(expected: 'regular', actual: $buckets->positionHold[0]['holdType']);
+		self::assertSame(expected: 'dec-1', actual: $buckets->positionHold[0]['appointedBy']);
+		self::assertMatchesRegularExpression(pattern: '/^\d{4}-\d{2}-\d{2}$/', string: $buckets->positionHold[0]['startDate']);
 		self::assertSame(expected: ['membership-1', 'membership-2'], actual: $buckets->decision[1]['appointedMemberships']);
 
 	}//end testMaterializesMultipleCandidatesPairedByIndex()
@@ -950,8 +978,9 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[0]['post']);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[1]['post']);
+		self::assertCount(expectedCount: 2, haystack: $buckets->positionHold);
+		self::assertSame(expected: 'post-shared', actual: $buckets->positionHold[0]['position']);
+		self::assertSame(expected: 'post-shared', actual: $buckets->positionHold[1]['position']);
 
 	}//end testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost()
 

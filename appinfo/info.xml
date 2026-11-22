@@ -439,6 +439,16 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateParticipationsToCompositions</step>
             <!--
+                configurable-types-domain-model task 3.5: after InitializeSettings imports the register
+                (99-positions-replace-posts.json points Decision.targetPosts at position-type). Copies
+                each post onto a position-type (label becomes name, role becomes key), gives every
+                membership naming a post a position-hold from the post's start date or else the
+                membership's (none is invented), and rewrites an appointment's targetPosts only when
+                every entry maps. Identity is the post's uuid on migratedFromObject, and a hold is
+                keyed on membership and position. Counted. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigratePostsToPositions</step>
+            <!--
                 plain-words-for-groups-and-the-installation-step: swearing-in is a council's
                 ceremony; a board signs a deed instead. The stepType enum now says installation, so
                 stored steps have to follow or they hold a value the schema no longer offers. NOT in

@@ -77,6 +77,13 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	private readonly DecisionContextResolver $contextResolver;
 
 	/**
+	 * Writes the position hold an appointment gives each new member that fills a position.
+	 *
+	 * @var AppointmentPositionHolds
+	 */
+	private readonly AppointmentPositionHolds $positionHolds;
+
+	/**
 	 * Constructor for DecisionLifecycleService.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -97,6 +104,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
+		$this->positionHolds = new AppointmentPositionHolds(objectService: $objectService, logger: $logger);
 
 	}//end __construct()
 
@@ -737,14 +745,17 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 * is adopted and enacted, and write the created ids back onto the
 	 * decision's `appointedMemberships` field.
 	 *
-	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`, the
-	 * paired `post` (design.md D1: no post when `targetPosts` is empty, the
-	 * one entry shared by every candidate when it has exactly one, else the
-	 * post at `index % count($targetPosts)` — a no-op modulo once the
-	 * enact-time pairing gate above has confirmed the lengths match, so
-	 * every candidate lands on its own index), `governanceBody=targetBody`
-	 * when resolvable, and either `person` (when the candidate carries one)
-	 * or `label=externalName` for a not-yet-registered candidate. Absent
+	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`,
+	 * `governanceBody=targetBody` when resolvable, and either `person` (when
+	 * the candidate carries one) or `label=externalName` for a
+	 * not-yet-registered candidate. The paired position (design.md D1: none
+	 * when `targetPosts` is empty, the one entry shared by every candidate
+	 * when it has exactly one, else the position at
+	 * `index % count($targetPosts)` — a no-op modulo once the enact-time
+	 * pairing gate above has confirmed the lengths match) is no longer a
+	 * `post` on the membership: it becomes a `position-hold` on that
+	 * membership, from the enactment day, appointed by this decision
+	 * (configurable-types-domain-model, REQ-CTM-006). Absent
 	 * fields are dropped rather than written as null (`array_filter`),
 	 * matching how every other guarded write in this file only sets what it
 	 * knows.
@@ -762,6 +773,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 * @param string $decisionId UUID of the enacted decision
 	 *
 	 * @spec openspec/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 *
 	 * @return void
 	 */
@@ -783,8 +795,8 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 
 				// D1 pairing: an empty `targetPosts` never has index 0, so the
 				// null-coalesce below is what makes the empty case a role-only
-				// Membership (no post) without a separate branch for it.
-				$post = $this->contextResolver->resolveRelationId(
+				// Membership (no position hold) without a separate branch for it.
+				$position = $this->contextResolver->resolveRelationId(
 					value: ($targetPosts[($index % max(count($targetPosts), 1))] ?? null)
 				);
 
@@ -800,7 +812,6 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 						'role' => $targetRole,
 						'startDate' => $enactedAt,
 						'governanceBody' => $targetBody,
-						'post' => $post,
 						'person' => $personId,
 						'label' => $label,
 					],
@@ -812,7 +823,16 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'membership'))
 				);
 
-				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
+				$membershipId = (string)($created->jsonSerialize()['id'] ?? '');
+				$membershipIds[] = $membershipId;
+
+				$this->positionHolds->write(
+					membershipId: $membershipId,
+					positionId: $position,
+					bodyId: $targetBody,
+					startDate: $enactedAt,
+					decisionId: $decisionId
+				);
 			}
 
 			$this->objectService->saveObject(
