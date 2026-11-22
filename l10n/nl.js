@@ -4541,7 +4541,12 @@ OC.L10N.register(
         "Only a digital or hybrid meeting gets a Teams meeting": "Alleen een digitale of hybride vergadering krijgt een Teams-vergadering",
         "This meeting already has a Teams meeting": "Deze vergadering heeft al een Teams-vergadering",
         "The meeting has no start date": "De vergadering heeft geen begindatum",
-        "Microsoft 365 answered without a Teams join address": "Microsoft 365 antwoordde zonder Teams-deelnameadres"
+        "Microsoft 365 answered without a Teams join address": "Microsoft 365 antwoordde zonder Teams-deelnameadres",
+        "Confidentiality in force": "Geheimhouding van kracht",
+        "Ratification overdue": "Bekrachtiging te laat",
+        "Confidential now": "Nu geheim",
+        "To be ratified": "Te bekrachtigen",
+        "Ratification late": "Bekrachtiging laat"
     },
     "nplurals=2; plural=(n != 1);"
 )

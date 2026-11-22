@@ -231,6 +231,27 @@
 						"content": { "label": "To ratify", "icon": "AlertDecagramOutline", "variant": "warning", "route": { "name": "UrgentDecisions", "query": { "isUrgent": true, "awaitingRatification": true } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "decision", "metric": "count", "filter": { "awaitingRatification": true } } }
 					},
 					{
+						"id": "confidentiality-in-force",
+						"type": "stat",
+						"title": "Confidentiality in force",
+						"_note": "embargo-geheimhouding task 8 (REQ-EMB-006): the confidentiality workload on the base Dashboard, because a fragment cannot add a widget to it (mergePages replaces a same-id page). Restrictions that are imposed or ratified: every state but dissolved and lapsed. A list of states is not countable by the aggregation endpoint, so `via: list` counts through the list endpoint's total, the same query the pre-filtered register runs.",
+						"content": { "label": "Confidential now", "icon": "ShieldLockOutline", "route": { "name": "ConfidentialityRestrictions", "query": { "lifecycle": ["imposed", "ratified"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "confidentiality-restriction", "metric": "count", "via": "list", "filter": { "lifecycle": ["imposed", "ratified"] } } }
+					},
+					{
+						"id": "confidentiality-awaiting-ratification",
+						"type": "stat",
+						"title": "Awaiting ratification",
+						"_note": "embargo-geheimhouding task 8 (REQ-EMB-006): the confidentiality workload on the base Dashboard, because a fragment cannot add a widget to it (mergePages replaces a same-id page). Restrictions still imposed and not yet ratified, a scalar-equality count the aggregation endpoint honours. Whether the ground requires ratification lives on the referenced ground, which a widget filter cannot dereference; a ground that needs none is lifted or ratified straight away, so an imposed restriction is the workload.",
+						"content": { "label": "To be ratified", "icon": "ShieldAlertOutline", "route": { "name": "ConfidentialityRestrictions", "query": { "lifecycle": "imposed" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "confidentiality-restriction", "metric": "count", "filter": { "lifecycle": "imposed" } } }
+					},
+					{
+						"id": "confidentiality-ratification-overdue",
+						"type": "stat",
+						"title": "Ratification overdue",
+						"_note": "embargo-geheimhouding task 8 (REQ-EMB-006): the confidentiality workload on the base Dashboard, because a fragment cannot add a widget to it (mergePages replaces a same-id page). Imposed restrictions whose ratificationDeadline lies before today. `@today` is resolved when the widget fetches, and `via: list` counts through the list endpoint, which understands the date operator the aggregation endpoint does not.",
+						"content": { "label": "Ratification late", "icon": "AlertOutline", "variant": "warning", "route": { "name": "ConfidentialityRestrictions", "query": { "lifecycle": "imposed", "ratificationDeadline[lt]": "@today" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "confidentiality-restriction", "metric": "count", "via": "list", "filter": { "lifecycle": "imposed", "ratificationDeadline": { "lt": "@today" } } } }
+					},
+					{
 						"id": "open-commitments-overdue",
 						"type": "stat",
 						"title": "Commitments over deadline",
@@ -626,7 +647,7 @@
 						"id": "18",
 						"widgetId": "onboarding-open",
 						"gridX": 0,
-						"gridY": 28,
+						"gridY": 30,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -636,7 +657,7 @@
 						"id": "19",
 						"widgetId": "offboarding-open",
 						"gridX": 3,
-						"gridY": 28,
+						"gridY": 30,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -646,10 +667,40 @@
 						"id": "20",
 						"widgetId": "member-pathways-by-status",
 						"gridX": 6,
-						"gridY": 28,
+						"gridY": 30,
 						"gridWidth": 6,
 						"gridHeight": 2,
 						"showTitle": true
+					},
+					{
+						"id": "21",
+						"widgetId": "confidentiality-in-force",
+						"gridX": 0,
+						"gridY": 28,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "22",
+						"widgetId": "confidentiality-awaiting-ratification",
+						"gridX": 3,
+						"gridY": 28,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "23",
+						"widgetId": "confidentiality-ratification-overdue",
+						"gridX": 6,
+						"gridY": 28,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
