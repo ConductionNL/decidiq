@@ -158,13 +158,10 @@ class AppointmentMemberships {
 				);
 			}
 
-			$this->objectService->saveObject(
-				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				options: new ObjectSaveOptions(
-					target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
-					uuid: $decisionId
-				)
-			);
+			// The appointed memberships go back onto the decision they came from.
+			$decisionTarget = new ObjectFindTarget(register: 'decidiq', schema: 'decision');
+			$decision['appointedMemberships'] = $membershipIds;
+			$this->objectService->saveObject(object: $decision, options: new ObjectSaveOptions(target: $decisionTarget, uuid: $decisionId));
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidiq: decision enacted but appointment Membership materialization failed',
