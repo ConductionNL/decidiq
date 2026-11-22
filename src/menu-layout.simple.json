@@ -2819,10 +2819,40 @@
 						"dateChip": false
 					},
 					{
+						"id": "21",
+						"widgetId": "confidentiality-in-force",
+						"gridX": 0,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "22",
+						"widgetId": "confidentiality-awaiting-ratification",
+						"gridX": 3,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "23",
+						"widgetId": "confidentiality-ratification-overdue",
+						"gridX": 6,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
 						"id": "18",
 						"widgetId": "onboarding-open",
 						"gridX": 0,
-						"gridY": 40,
+						"gridY": 42,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -2832,7 +2862,7 @@
 						"id": "19",
 						"widgetId": "offboarding-open",
 						"gridX": 3,
-						"gridY": 40,
+						"gridY": 42,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -2842,7 +2872,7 @@
 						"id": "20",
 						"widgetId": "member-pathways-by-status",
 						"gridX": 6,
-						"gridY": 40,
+						"gridY": 42,
 						"gridWidth": 6,
 						"gridHeight": 2,
 						"showTitle": true

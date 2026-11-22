@@ -4132,7 +4132,12 @@ OC.L10N.register(
         "Only a digital or hybrid meeting gets a Teams meeting": "Only a digital or hybrid meeting gets a Teams meeting",
         "This meeting already has a Teams meeting": "This meeting already has a Teams meeting",
         "The meeting has no start date": "The meeting has no start date",
-        "Microsoft 365 answered without a Teams join address": "Microsoft 365 answered without a Teams join address"
+        "Microsoft 365 answered without a Teams join address": "Microsoft 365 answered without a Teams join address",
+        "Confidentiality in force": "Confidentiality in force",
+        "Ratification overdue": "Ratification overdue",
+        "Confidential now": "Confidential now",
+        "To be ratified": "To be ratified",
+        "Ratification late": "Ratification late"
     },
     "nplurals=2; plural=(n != 1);"
 )
