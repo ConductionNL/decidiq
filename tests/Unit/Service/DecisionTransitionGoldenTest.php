@@ -373,18 +373,28 @@ class DecisionTransitionGoldenTest extends TestCase {
 	/**
 	 * Mask the enactment time, the only value that differs per run.
 	 *
+	 * A position hold starts on the enactment DAY, so a startDate that is
+	 * today's date is masked too.
+	 *
 	 * @param array<string, mixed> $value A recorded value
 	 *
 	 * @return array<string, mixed> The value with every fresh enactedAt masked.
+	 *
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
 	private function masked(array $value): array {
+		$today = date('Y-m-d');
 		array_walk_recursive(
 			$value,
-			static function (mixed &$item, int|string $key): void {
+			static function (mixed &$item, int|string $key) use ($today): void {
 				if (in_array($key, ['enactedAt', 'startDate', 'effectiveDate'], true) === true && is_string($item) === true
 					&& $item !== '2026-06-13T10:00:00+00:00' && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/', $item) === 1
 				) {
 					$item = '<atom>';
+				}
+
+				if ($key === 'startDate' && $item === $today) {
+					$item = '<day>';
 				}
 			}
 		);

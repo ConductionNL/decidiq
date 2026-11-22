@@ -1617,7 +1617,6 @@
                         "role": "member",
                         "startDate": "<atom>",
                         "governanceBody": "body-1",
-                        "post": "post-1",
                         "person": "person-1"
                     },
                     "register": "decidiq",
@@ -1628,10 +1627,24 @@
             {
                 "save": {
                     "object": {
+                        "membership": "new-4",
+                        "position": "post-1",
+                        "governanceBody": "body-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
                         "role": "member",
                         "startDate": "<atom>",
                         "governanceBody": "body-1",
-                        "post": "post-2",
                         "person": "person-2"
                     },
                     "register": "decidiq",
@@ -1642,14 +1655,43 @@
             {
                 "save": {
                     "object": {
+                        "membership": "new-6",
+                        "position": "post-2",
+                        "governanceBody": "body-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
                         "role": "member",
                         "startDate": "<atom>",
                         "governanceBody": "body-1",
-                        "post": "post-3",
                         "label": "Extern Lid"
                     },
                     "register": "decidiq",
                     "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "membership": "new-8",
+                        "position": "post-3",
+                        "governanceBody": "body-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
                     "uuid": null
                 }
             },
@@ -1688,8 +1730,8 @@
                         "enactedAt": "<atom>",
                         "appointedMemberships": [
                             "new-4",
-                            "new-5",
-                            "new-6"
+                            "new-6",
+                            "new-8"
                         ]
                     },
                     "register": "decidiq",
@@ -1817,7 +1859,6 @@
                     "object": {
                         "role": "chair",
                         "startDate": "<atom>",
-                        "post": "post-1",
                         "person": "person-1"
                     },
                     "register": "decidiq",
@@ -1828,9 +1869,22 @@
             {
                 "save": {
                     "object": {
+                        "membership": "new-4",
+                        "position": "post-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint-one"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
                         "role": "chair",
                         "startDate": "<atom>",
-                        "post": "post-1",
                         "person": "person-2"
                     },
                     "register": "decidiq",
@@ -1841,13 +1895,40 @@
             {
                 "save": {
                     "object": {
+                        "membership": "new-6",
+                        "position": "post-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint-one"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
                         "role": "chair",
                         "startDate": "<atom>",
-                        "post": "post-1",
                         "label": "Extern Lid"
                     },
                     "register": "decidiq",
                     "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "membership": "new-8",
+                        "position": "post-1",
+                        "holdType": "regular",
+                        "startDate": "<day>",
+                        "appointedBy": "d-appoint-one"
+                    },
+                    "register": "decidiq",
+                    "schema": "position-hold",
                     "uuid": null
                 }
             },
@@ -1879,8 +1960,8 @@
                         "enactedAt": "<atom>",
                         "appointedMemberships": [
                             "new-4",
-                            "new-5",
-                            "new-6"
+                            "new-6",
+                            "new-8"
                         ]
                     },
                     "register": "decidiq",

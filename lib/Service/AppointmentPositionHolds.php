@@ -109,23 +109,21 @@ class AppointmentPositionHolds {
 	 * @param string|null                                                      $positionId   The position the appointment targets.
 	 * @param array{body?: string|null, startDate?: string, decision?: string} $appointment  See payload().
 	 *
-	 * @return string|null The new hold's id, or null when none was written.
+	 * @return void
 	 *
 	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 */
-	public function write(string $membershipId, ?string $positionId, array $appointment): ?string {
+	public function write(string $membershipId, ?string $positionId, array $appointment): void {
 		$hold = self::payload(membershipId: $membershipId, positionId: $positionId, appointment: $appointment);
 		if ($hold === null) {
-			return null;
+			return;
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(
+			$this->objectService->saveObject(
 				object: $hold,
 				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'position-hold'))
 			);
-
-			return (string)($saved->jsonSerialize()['id'] ?? '');
 		} catch (Throwable $e) {
 			$this->logger->error(
 				'Decidiq: appointment enacted but its position hold could not be written',
@@ -136,7 +134,6 @@ class AppointmentPositionHolds {
 					'exception' => $e->getMessage(),
 				]
 			);
-			return null;
 		}
 
 	}//end write()

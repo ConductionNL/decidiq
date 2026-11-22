@@ -97,7 +97,7 @@ class AppointmentPositionHoldsTest extends TestCase {
 	}//end testAnUnknownBodyIsLeftOff()
 
 	/**
-	 * The hold is saved on the position-hold schema and its id returned.
+	 * The hold is saved on the position-hold schema.
 	 *
 	 * @return void
 	 *
@@ -119,10 +119,7 @@ class AppointmentPositionHoldsTest extends TestCase {
 
 		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(originalClassName: LoggerInterface::class));
 
-		self::assertSame(
-			expected: 'hold-1',
-			actual: $holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT)
-		);
+		$holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT);
 
 	}//end testWriteSavesOnThePositionHoldSchema()
 
@@ -139,12 +136,12 @@ class AppointmentPositionHoldsTest extends TestCase {
 
 		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $this->createMock(originalClassName: LoggerInterface::class));
 
-		self::assertNull(actual: $holds->write(membershipId: 'm-1', positionId: null, appointment: self::APPOINTMENT));
+		$holds->write(membershipId: 'm-1', positionId: null, appointment: self::APPOINTMENT);
 
 	}//end testWriteWithoutAPositionSavesNothing()
 
 	/**
-	 * A failed save is logged and answered with null, never thrown.
+	 * A failed save is logged, never thrown.
 	 *
 	 * @return void
 	 *
@@ -159,7 +156,7 @@ class AppointmentPositionHoldsTest extends TestCase {
 
 		$holds = new AppointmentPositionHolds(objectService: $objectService, logger: $logger);
 
-		self::assertNull(actual: $holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT));
+		$holds->write(membershipId: 'm-1', positionId: 'pt-1', appointment: self::APPOINTMENT);
 
 	}//end testAFailedSaveIsLoggedNotThrown()
 }//end class
