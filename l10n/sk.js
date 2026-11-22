@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Podmienky zrušenia",
         "The confidentiality could not be imposed.": "Utajenie sa nepodarilo uložiť.",
         "The ratification could not be recorded.": "Potvrdenie sa nepodarilo zaznamenať.",
-        "The confidentiality could not be lifted.": "Utajenie sa nepodarilo zrušiť."
+        "The confidentiality could not be lifted.": "Utajenie sa nepodarilo zrušiť.",
+        "Only for members of {body} and the people the clerk adds.": "Len pre členov {body} a osoby, ktoré pridá sekretariát.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Len pre členov orgánu zasadnutia a osoby, ktoré pridá sekretariát."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Условия за отмяна",
         "The confidentiality could not be imposed.": "Поверителността не можа да бъде наложена.",
         "The ratification could not be recorded.": "Потвърждаването не можа да бъде записано.",
-        "The confidentiality could not be lifted.": "Поверителността не можа да бъде отменена."
+        "The confidentiality could not be lifted.": "Поверителността не можа да бъде отменена.",
+        "Only for members of {body} and the people the clerk adds.": "Само за членовете на {body} и хората, добавени от секретариата.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Само за членовете на органа на заседанието и хората, добавени от секретариата."
     },
     "nplurals=2; plural=(n != 1);"
 )

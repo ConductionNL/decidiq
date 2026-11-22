@@ -4137,7 +4137,9 @@ OC.L10N.register(
         "Ratification overdue": "Ratification overdue",
         "Confidential now": "Confidential now",
         "To be ratified": "To be ratified",
-        "Ratification late": "Ratification late"
+        "Ratification late": "Ratification late",
+        "Only for members of {body} and the people the clerk adds.": "Only for members of {body} and the people the clerk adds.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Only for members of the meeting's body and the people the clerk adds."
     },
     "nplurals=2; plural=(n != 1);"
 )

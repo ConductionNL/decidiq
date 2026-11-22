@@ -3403,7 +3403,9 @@ OC.L10N.register(
         "Lifting conditions": "A feloldás feltételei",
         "The confidentiality could not be imposed.": "A titoktartást nem sikerült elrendelni.",
         "The ratification could not be recorded.": "A megerősítést nem sikerült rögzíteni.",
-        "The confidentiality could not be lifted.": "A titoktartást nem sikerült feloldani."
+        "The confidentiality could not be lifted.": "A titoktartást nem sikerült feloldani.",
+        "Only for members of {body} and the people the clerk adds.": "Csak a(z) {body} tagjainak és a titkárság által hozzáadott személyeknek.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Csak az ülés testületének tagjainak és a titkárság által hozzáadott személyeknek."
     },
     "nplurals=2; plural=(n != 1);"
 )

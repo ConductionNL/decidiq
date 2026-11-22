@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Kundizzjonijiet tat-tneħħija",
         "The confidentiality could not be imposed.": "Il-kunfidenzjalità ma setgħetx tiġi imposta.",
         "The ratification could not be recorded.": "Ir-ratifika ma setgħetx tiġi rreġistrata.",
-        "The confidentiality could not be lifted.": "Il-kunfidenzjalità ma setgħetx titneħħa."
+        "The confidentiality could not be lifted.": "Il-kunfidenzjalità ma setgħetx titneħħa.",
+        "Only for members of {body} and the people the clerk adds.": "Għall-membri ta' {body} biss u għan-nies li jżid is-segretarjat.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Għall-membri tal-korp tal-laqgħa biss u għan-nies li jżid is-segretarjat."
     },
     "nplurals=2; plural=(n != 1);"
 )

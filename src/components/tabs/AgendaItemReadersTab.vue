@@ -25,6 +25,16 @@
 				}}
 			</p>
 			<p
+				v-if="audience"
+				class="confidential-readers__audience"
+				data-testid="confidential-readers-audience">
+				{{
+					audience.bodyName
+						? t('decidiq', 'Only for members of {body} and the people the clerk adds.', { body: audience.bodyName })
+						: t('decidiq', 'Only for members of the meeting\'s body and the people the clerk adds.')
+				}}
+			</p>
+			<p
 				v-if="readers.length === 0"
 				class="confidential-readers__hint"
 				data-testid="confidential-readers-none">
@@ -127,10 +137,12 @@ import {
 } from '@nextcloud/vue'
 import {
 	addBody,
+	closedItemAudience,
 	personOptions,
 	readerRows,
 	readersOpen,
 	readersUrl,
+	relationId,
 } from '../../utils/confidentialReaders.js'
 import { objectIdLoader } from './objectIdLoader.js'
 
@@ -155,6 +167,7 @@ export default {
 			busy: false,
 			error: '',
 			item: null,
+			body: null,
 			persons: [],
 			person: null,
 			identityType: 'bsn',
@@ -189,6 +202,15 @@ export default {
 		options() {
 			return personOptions(this.item, this.persons)
 		},
+
+		/**
+		 * @return {{bodyName: string}|null} Who may read the item while it is closed.
+		 *
+		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+		 */
+		audience() {
+			return closedItemAudience(this.item, this.body)
+		},
 	},
 
 	methods: {
@@ -212,6 +234,28 @@ export default {
 				this.error = this.t('decidiq', 'The readers could not be loaded.')
 			} finally {
 				this.loading = false
+			}
+			await this.loadBody()
+		},
+
+		/**
+		 * Read the governance body of a closed item's meeting, for its name.
+		 * Fail-soft: without it the line names no body.
+		 *
+		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+		 */
+		async loadBody() {
+			this.body = null
+			const meetingId = relationId(this.item?.meeting)
+			if (!readersOpen(this.item) || !meetingId) return
+			try {
+				const meeting = await axios.get(`${OBJECTS}/meeting/${encodeURIComponent(meetingId)}`)
+				const bodyId = relationId(meeting.data?.governanceBody)
+				if (!bodyId) return
+				const body = await axios.get(`${OBJECTS}/governance-body/${encodeURIComponent(bodyId)}`)
+				this.body = body.data || null
+			} catch {
+				this.body = null
 			}
 		},
 
@@ -310,6 +354,10 @@ export default {
 
 .confidential-readers__hint {
 	color: var(--color-text-maxcontrast);
+}
+
+.confidential-readers__audience {
+	font-weight: bold;
 }
 
 .confidential-readers__error {

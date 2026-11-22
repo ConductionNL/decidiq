@@ -3342,7 +3342,9 @@
         "Lifting conditions": "Cundiziuns da l'aboliziun",
         "The confidentiality could not be imposed.": "La confidenzialitad n'ha betg pudì vegnir imponida.",
         "The ratification could not be recorded.": "La ratificaziun n'ha betg pudì vegnir registrada.",
-        "The confidentiality could not be lifted.": "La confidenzialitad n'ha betg pudì vegnir abolida."
+        "The confidentiality could not be lifted.": "La confidenzialitad n'ha betg pudì vegnir abolida.",
+        "Only for members of {body} and the people the clerk adds.": "Mo per ils commembers da {body} e las persunas che la secretaria agiunta.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Mo per ils commembers da l'organ da la sesida e las persunas che la secretaria agiunta."
     },
     "plurals": null
 }

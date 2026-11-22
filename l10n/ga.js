@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Coinníollacha cealaithe",
         "The confidentiality could not be imposed.": "Níorbh fhéidir an rúndacht a fhorchur.",
         "The ratification could not be recorded.": "Níorbh fhéidir an daingniú a thaifeadadh.",
-        "The confidentiality could not be lifted.": "Níorbh fhéidir an rúndacht a chealú."
+        "The confidentiality could not be lifted.": "Níorbh fhéidir an rúndacht a chealú.",
+        "Only for members of {body} and the people the clerk adds.": "Do bhaill {body} amháin agus do na daoine a chuireann an rúnaíocht leis.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Do bhaill chomhlacht an chruinnithe amháin agus do na daoine a chuireann an rúnaíocht leis."
     },
     "nplurals=2; plural=(n != 1);"
 )

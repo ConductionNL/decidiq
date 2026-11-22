@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Villkor för hävning",
         "The confidentiality could not be imposed.": "Sekretessen kunde inte åläggas.",
         "The ratification could not be recorded.": "Bekräftelsen kunde inte registreras.",
-        "The confidentiality could not be lifted.": "Sekretessen kunde inte hävas."
+        "The confidentiality could not be lifted.": "Sekretessen kunde inte hävas.",
+        "Only for members of {body} and the people the clerk adds.": "Endast för ledamöter i {body} och de personer som sekretariatet lägger till.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Endast för ledamöter i mötets organ och de personer som sekretariatet lägger till."
     },
     "nplurals=2; plural=(n != 1);"
 )

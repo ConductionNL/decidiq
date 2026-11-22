@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Умови зняття",
         "The confidentiality could not be imposed.": "Не вдалося встановити конфіденційність.",
         "The ratification could not be recorded.": "Не вдалося записати затвердження.",
-        "The confidentiality could not be lifted.": "Не вдалося зняти конфіденційність."
+        "The confidentiality could not be lifted.": "Не вдалося зняти конфіденційність.",
+        "Only for members of {body} and the people the clerk adds.": "Лише для членів {body} і тих, кого додасть секретаріат.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Лише для членів органу засідання і тих, кого додасть секретаріат."
     },
     "nplurals=2; plural=(n != 1);"
 )

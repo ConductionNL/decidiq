@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Uslovi ukidanja",
         "The confidentiality could not be imposed.": "Povjerljivost nije bilo moguće odrediti.",
         "The ratification could not be recorded.": "Potvrdu nije bilo moguće zabilježiti.",
-        "The confidentiality could not be lifted.": "Povjerljivost nije bilo moguće ukinuti."
+        "The confidentiality could not be lifted.": "Povjerljivost nije bilo moguće ukinuti.",
+        "Only for members of {body} and the people the clerk adds.": "Samo za članove {body} i osobe koje doda sekretarijat.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Samo za članove tijela sjednice i osobe koje doda sekretarijat."
     },
     "nplurals=2; plural=(n != 1);"
 )

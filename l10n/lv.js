@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Atcelšanas nosacījumi",
         "The confidentiality could not be imposed.": "Konfidencialitāti neizdevās noteikt.",
         "The ratification could not be recorded.": "Apstiprināšanu neizdevās reģistrēt.",
-        "The confidentiality could not be lifted.": "Konfidencialitāti neizdevās atcelt."
+        "The confidentiality could not be lifted.": "Konfidencialitāti neizdevās atcelt.",
+        "Only for members of {body} and the people the clerk adds.": "Tikai {body} locekļiem un personām, ko pievieno sekretariāts.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Tikai sēdes institūcijas locekļiem un personām, ko pievieno sekretariāts."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -13,10 +13,12 @@ import {
 } from '../../src/utils/confidentialPapers.js'
 import {
 	addBody,
+	closedItemAudience,
 	personOptions,
 	readerRows,
 	readersOpen,
 	readersUrl,
+	relationId,
 } from '../../src/utils/confidentialReaders.js'
 
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
@@ -74,5 +76,34 @@ describe('confidential papers trust setting', () => {
 		expect(confidentialTrust({ portal_confidential_min_trust: 'low' })).toBe('high')
 		expect(confidentialTrustPayload('substantial')).toEqual({ portal_confidential_min_trust: 'substantial' })
 		expect(confidentialTrustPayload('nonsense')).toEqual({ portal_confidential_min_trust: 'high' })
+	})
+})
+
+/**
+ * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ */
+describe('who may read a closed item (board DcAgendapunt)', () => {
+	it('says nothing while the item is public or unknown', () => {
+		expect(closedItemAudience({ public: true }, { name: 'Gemeenteraad' })).toBeNull()
+		expect(closedItemAudience({}, { name: 'Gemeenteraad' })).toBeNull()
+		expect(closedItemAudience(null, null)).toBeNull()
+	})
+
+	it('names the body of the meeting once the item is closed', () => {
+		expect(closedItemAudience({ public: false }, { name: ' Gemeenteraad ' })).toEqual({ bodyName: 'Gemeenteraad' })
+	})
+
+	it('still says it when the body could not be read, without a name', () => {
+		expect(closedItemAudience({ public: false }, null)).toEqual({ bodyName: '' })
+		expect(closedItemAudience({ public: false }, { name: 42 })).toEqual({ bodyName: '' })
+	})
+
+	it('reads a relation stored as an id or as an object', () => {
+		expect(relationId('meeting-1')).toBe('meeting-1')
+		expect(relationId({ id: 'meeting-2', name: 'x' })).toBe('meeting-2')
+		expect(relationId({ '@self': { id: 'meeting-3' } })).toBe('meeting-3')
+		expect(relationId({})).toBe('')
+		expect(relationId(null)).toBe('')
+		expect(relationId(7)).toBe('')
 	})
 })

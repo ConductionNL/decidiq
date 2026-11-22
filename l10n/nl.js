@@ -4546,7 +4546,9 @@ OC.L10N.register(
         "Ratification overdue": "Bekrachtiging te laat",
         "Confidential now": "Nu geheim",
         "To be ratified": "Te bekrachtigen",
-        "Ratification late": "Bekrachtiging laat"
+        "Ratification late": "Bekrachtiging laat",
+        "Only for members of {body} and the people the clerk adds.": "Alleen voor leden van {body} en wie de griffie toevoegt.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Alleen voor leden van het orgaan van de vergadering en wie de griffie toevoegt."
     },
     "nplurals=2; plural=(n != 1);"
 )

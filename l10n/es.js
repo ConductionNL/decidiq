@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Condiciones de levantamiento",
         "The confidentiality could not be imposed.": "No se pudo imponer la confidencialidad.",
         "The ratification could not be recorded.": "No se pudo registrar la ratificación.",
-        "The confidentiality could not be lifted.": "No se pudo levantar la confidencialidad."
+        "The confidentiality could not be lifted.": "No se pudo levantar la confidencialidad.",
+        "Only for members of {body} and the people the clerk adds.": "Solo para los miembros de {body} y las personas que añada la secretaría.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Solo para los miembros del órgano de la reunión y las personas que añada la secretaría."
     },
     "nplurals=2; plural=(n != 1);"
 )

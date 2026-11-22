@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Kumoamisen ehdot",
         "The confidentiality could not be imposed.": "Salassapitoa ei voitu määrätä.",
         "The ratification could not be recorded.": "Vahvistusta ei voitu kirjata.",
-        "The confidentiality could not be lifted.": "Salassapitoa ei voitu kumota."
+        "The confidentiality could not be lifted.": "Salassapitoa ei voitu kumota.",
+        "Only for members of {body} and the people the clerk adds.": "Vain toimielimen {body} jäsenille ja sihteeristön lisäämille henkilöille.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Vain kokouksen toimielimen jäsenille ja sihteeristön lisäämille henkilöille."
     },
     "nplurals=2; plural=(n != 1);"
 )

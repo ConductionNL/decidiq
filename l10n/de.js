@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Bedingungen der Aufhebung",
         "The confidentiality could not be imposed.": "Die Geheimhaltung konnte nicht auferlegt werden.",
         "The ratification could not be recorded.": "Die Bestätigung konnte nicht erfasst werden.",
-        "The confidentiality could not be lifted.": "Die Geheimhaltung konnte nicht aufgehoben werden."
+        "The confidentiality could not be lifted.": "Die Geheimhaltung konnte nicht aufgehoben werden.",
+        "Only for members of {body} and the people the clerk adds.": "Nur für Mitglieder von {body} und die Personen, die das Sekretariat hinzufügt.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Nur für Mitglieder des Gremiums der Sitzung und die Personen, die das Sekretariat hinzufügt."
     },
     "nplurals=2; plural=(n != 1);"
 )

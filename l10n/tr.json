@@ -3404,7 +3404,9 @@
         "Lifting conditions": "Kaldırma koşulları",
         "The confidentiality could not be imposed.": "Gizlilik uygulanamadı.",
         "The ratification could not be recorded.": "Onay kaydedilemedi.",
-        "The confidentiality could not be lifted.": "Gizlilik kaldırılamadı."
+        "The confidentiality could not be lifted.": "Gizlilik kaldırılamadı.",
+        "Only for members of {body} and the people the clerk adds.": "Yalnızca {body} üyeleri ve sekreterliğin eklediği kişiler için.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Yalnızca toplantının kurulunun üyeleri ve sekreterliğin eklediği kişiler için."
     },
     "plurals": null
 }

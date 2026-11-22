@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Konditioune fir d'Ophiewen",
         "The confidentiality could not be imposed.": "D'Geheimhaltung konnt net opgeluecht ginn.",
         "The ratification could not be recorded.": "D'Bestätegung konnt net festgehale ginn.",
-        "The confidentiality could not be lifted.": "D'Geheimhaltung konnt net opgehuewe ginn."
+        "The confidentiality could not be lifted.": "D'Geheimhaltung konnt net opgehuewe ginn.",
+        "Only for members of {body} and the people the clerk adds.": "Nëmme fir Membere vu(n) {body} an d'Leit, déi de Sekretariat derbäisetzt.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Nëmme fir Membere vum Gremium vun der Sëtzung an d'Leit, déi de Sekretariat derbäisetzt."
     },
     "nplurals=2; plural=(n != 1);"
 )
