@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Condiții de ridicare",
         "The confidentiality could not be imposed.": "Confidențialitatea nu a putut fi impusă.",
         "The ratification could not be recorded.": "Ratificarea nu a putut fi înregistrată.",
-        "The confidentiality could not be lifted.": "Confidențialitatea nu a putut fi ridicată."
+        "The confidentiality could not be lifted.": "Confidențialitatea nu a putut fi ridicată.",
+        "Only for members of {body} and the people the clerk adds.": "Doar pentru membrii {body} și persoanele adăugate de secretariat.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Doar pentru membrii organului ședinței și persoanele adăugate de secretariat."
     },
     "nplurals=2; plural=(n != 1);"
 )

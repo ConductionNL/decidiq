@@ -3404,7 +3404,9 @@
         "Lifting conditions": "Condições de levantamento",
         "The confidentiality could not be imposed.": "Não foi possível impor a confidencialidade.",
         "The ratification could not be recorded.": "Não foi possível registar a ratificação.",
-        "The confidentiality could not be lifted.": "Não foi possível levantar a confidencialidade."
+        "The confidentiality could not be lifted.": "Não foi possível levantar a confidencialidade.",
+        "Only for members of {body} and the people the clerk adds.": "Apenas para os membros de {body} e as pessoas que a secretaria adicionar.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Apenas para os membros do órgão da reunião e as pessoas que a secretaria adicionar."
     },
     "plurals": null
 }

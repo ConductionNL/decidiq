@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Betingelser for ophævelse",
         "The confidentiality could not be imposed.": "Fortroligheden kunne ikke pålægges.",
         "The ratification could not be recorded.": "Ratifikationen kunne ikke registreres.",
-        "The confidentiality could not be lifted.": "Fortroligheden kunne ikke ophæves."
+        "The confidentiality could not be lifted.": "Fortroligheden kunne ikke ophæves.",
+        "Only for members of {body} and the people the clerk adds.": "Kun for medlemmer af {body} og de personer, sekretariatet tilføjer.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Kun for medlemmer af mødets organ og de personer, sekretariatet tilføjer."
     },
     "nplurals=2; plural=(n != 1);"
 )

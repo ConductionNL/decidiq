@@ -3340,7 +3340,9 @@ OC.L10N.register(
         "Lifting conditions": "Pogoji odprave",
         "The confidentiality could not be imposed.": "Zaupnosti ni bilo mogoče naložiti.",
         "The ratification could not be recorded.": "Potrditve ni bilo mogoče zabeležiti.",
-        "The confidentiality could not be lifted.": "Zaupnosti ni bilo mogoče odpraviti."
+        "The confidentiality could not be lifted.": "Zaupnosti ni bilo mogoče odpraviti.",
+        "Only for members of {body} and the people the clerk adds.": "Samo za člane {body} in osebe, ki jih doda tajništvo.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Samo za člane organa seje in osebe, ki jih doda tajništvo."
     },
     "nplurals=2; plural=(n != 1);"
 )

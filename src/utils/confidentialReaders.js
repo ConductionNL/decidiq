@@ -95,3 +95,32 @@ export function addBody(person, identityType, number) {
 		number: String(number || '').replace(/\s+/g, ''),
 	}
 }
+
+/**
+ * The id a relation field holds, whether it is stored as an id or as an object.
+ *
+ * @param {string|object|null|undefined} value The relation value.
+ * @return {string} The id, or '' when there is none.
+ * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ */
+export function relationId(value) {
+	if (typeof value === 'string') return value
+	if (value && typeof value === 'object') return idsOf(value)[0] || ''
+	return ''
+}
+
+/**
+ * Who may read a closed item, as the item page says it under Kerngegevens
+ * (board DcAgendapunt: "Alleen voor leden van {orgaan} en wie de griffie
+ * toevoegt"). Null while the item is public, so nothing is shown.
+ *
+ * @param {object} item The agenda item.
+ * @param {object|null} body The governance body of the item's meeting, when it could be read.
+ * @return {{bodyName: string}|null} The body's name, '' when it is not known.
+ * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ */
+export function closedItemAudience(item, body) {
+	if (!readersOpen(item)) return null
+	const name = typeof body?.name === 'string' ? body.name.trim() : ''
+	return { bodyName: name }
+}

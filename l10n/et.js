@@ -3402,7 +3402,9 @@ OC.L10N.register(
         "Lifting conditions": "Tühistamise tingimused",
         "The confidentiality could not be imposed.": "Konfidentsiaalsust ei õnnestunud kehtestada.",
         "The ratification could not be recorded.": "Kinnitamist ei õnnestunud salvestada.",
-        "The confidentiality could not be lifted.": "Konfidentsiaalsust ei õnnestunud tühistada."
+        "The confidentiality could not be lifted.": "Konfidentsiaalsust ei õnnestunud tühistada.",
+        "Only for members of {body} and the people the clerk adds.": "Ainult {body} liikmetele ja inimestele, kelle sekretariaat lisab.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Ainult koosoleku organi liikmetele ja inimestele, kelle sekretariaat lisab."
     },
     "nplurals=2; plural=(n != 1);"
 )

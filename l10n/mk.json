@@ -3342,7 +3342,9 @@
         "Lifting conditions": "Услови за укинување",
         "The confidentiality could not be imposed.": "Доверливоста не можеше да се одреди.",
         "The ratification could not be recorded.": "Потврдувањето не можеше да се евидентира.",
-        "The confidentiality could not be lifted.": "Доверливоста не можеше да се укине."
+        "The confidentiality could not be lifted.": "Доверливоста не можеше да се укине.",
+        "Only for members of {body} and the people the clerk adds.": "Само за членовите на {body} и луѓето што ги додава секретаријатот.",
+        "Only for members of the meeting's body and the people the clerk adds.": "Само за членовите на телото на седницата и луѓето што ги додава секретаријатот."
     },
     "plurals": null
 }
