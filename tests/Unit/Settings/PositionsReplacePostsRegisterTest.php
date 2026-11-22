@@ -86,7 +86,7 @@ final class PositionsReplacePostsRegisterTest extends TestCase {
 	}//end testTheLandedDecisionVersionIsTheHighest()
 
 	/**
-	 * Post stays readable but says what replaced it.
+	 * Post is inactive but stays readable, and says what replaced it.
 	 *
 	 * @return void
 	 *
@@ -96,10 +96,37 @@ final class PositionsReplacePostsRegisterTest extends TestCase {
 		$post = self::$schemas['Post'];
 
 		self::assertStringStartsWith(prefix: 'SUPERSEDED', string: $post['description']);
+		self::assertFalse(condition: $post['x-openregister']['active']);
 		self::assertFalse(condition: $post['x-openregister']['hardDelete']);
 		self::assertSame(expected: 'post', actual: $post['slug']);
 
 	}//end testPostIsMarkedSupersededAndKept()
+
+	/**
+	 * No example set seeds a post or a membership's post any more; each seeds the position and the hold.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
+	 */
+	public function testNoExampleSetSeedsAPost(): void {
+		$settings = dirname(path: SettingsService::baseDescriptorPath());
+		foreach (['corporate', 'municipality', 'works-council'] as $profile) {
+			$objects = json_decode(
+				(string)file_get_contents($settings . '/profiles/' . $profile . '.json'),
+				true
+			)['x-openregister']['seedData']['objects'];
+
+			self::assertArrayNotHasKey(key: 'post', array: $objects, message: $profile);
+			self::assertSame(expected: [], actual: array_filter(array_column($objects['membership'], 'post')), message: $profile);
+			self::assertNotEmpty(actual: $objects['position-hold'], message: $profile);
+		}
+
+		$zuiddrecht = (string)file_get_contents($settings . '/example-sets/zuiddrecht.json');
+		self::assertStringNotContainsString(needle: '"schema": "post"', haystack: $zuiddrecht);
+		self::assertStringContainsString(needle: '"schema": "position-hold"', haystack: $zuiddrecht);
+
+	}//end testNoExampleSetSeedsAPost()
 
 	/**
 	 * The schemas the migration and the writer fill exist with the fields they write.

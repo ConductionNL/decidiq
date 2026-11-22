@@ -1399,13 +1399,13 @@
 			}
 		},
 		{
-			"key": "post-griffier",
+			"key": "position-griffier",
 			"register": "decidiq",
-			"schema": "post",
+			"schema": "position-type",
 			"data": {
-				"label": "Griffier",
-				"role": "secretary",
-				"startDate": "{{datetime:-210 00:00}}",
+				"name": "Griffier",
+				"key": "secretary",
+				"seats": 1,
 				"governanceBody": "{{object:body-gemeenteraad.id}}"
 			}
 		},
@@ -1446,8 +1446,19 @@
 				"governanceBody": "{{object:body-gemeenteraad.id}}",
 				"startDate": "{{datetime:-210 00:00}}",
 				"votingWeight": 1,
-				"label": "Griffier",
-				"post": "{{object:post-griffier.id}}"
+				"label": "Griffier"
+			}
+		},
+		{
+			"key": "position-hold-gemeenteraad-bram",
+			"register": "decidiq",
+			"schema": "position-hold",
+			"data": {
+				"membership": "{{object:membership-gemeenteraad-bram.id}}",
+				"position": "{{object:position-griffier.id}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"holdType": "regular",
+				"startDate": "{{date:-210}}"
 			}
 		},
 		{
