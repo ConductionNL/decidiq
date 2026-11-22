@@ -607,32 +607,6 @@
 						"integrityNotificationGroup": "decidesk-compliance"
 					}
 				],
-				"post": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "post"
-						},
-						"slug": "post-griffier-amsterdam",
-						"label": "Raadsgriffier",
-						"role": "secretary",
-						"startDate": "2021-01-15T00:00:00Z",
-						"governanceBody": "gemeenteraad-amsterdam"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "post"
-						},
-						"slug": "post-voorzitter-rvc",
-						"label": "Voorzitter RvC",
-						"role": "chair",
-						"startDate": "2022-04-01T00:00:00Z",
-						"governanceBody": "rvc-waterschap-amstel"
-					}
-				],
 				"membership": [
 					{
 						"@self": {
@@ -646,8 +620,7 @@
 						"votingWeight": 0,
 						"startDate": "2021-01-15T00:00:00Z",
 						"person": "jan-de-vries",
-						"governanceBody": "rvc-waterschap-amstel",
-						"post": "post-griffier-amsterdam"
+						"governanceBody": "rvc-waterschap-amstel"
 					},
 					{
 						"@self": {
@@ -666,8 +639,7 @@
 							"Bestuur Stichting Concertgebouw"
 						],
 						"person": "janneke-de-bruin",
-						"governanceBody": "rvc-waterschap-amstel",
-						"post": "post-voorzitter-rvc"
+						"governanceBody": "rvc-waterschap-amstel"
 					},
 					{
 						"@self": {
@@ -2017,6 +1989,18 @@
 						"governanceBody": "rvc-waterschap-amstel",
 						"termDurationMonths": 48,
 						"maxConsecutiveTerms": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-rvc-amstel-secretary",
+						"name": "Secretaris",
+						"key": "secretary",
+						"governanceBody": "rvc-waterschap-amstel",
+						"seats": 1
 					}
 				],
 				"position-hold": [
@@ -2047,6 +2031,19 @@
 						"holdType": "regular",
 						"startDate": "2020-01-01",
 						"termNumber": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-jan-rvc-secretary",
+						"membership": "m-jan-amstel",
+						"position": "position-rvc-amstel-secretary",
+						"governanceBody": "rvc-waterschap-amstel",
+						"holdType": "regular",
+						"startDate": "2021-01-15"
 					}
 				],
 				"mandate-remuneration": [
