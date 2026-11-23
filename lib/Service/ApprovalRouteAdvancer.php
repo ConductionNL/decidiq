@@ -90,6 +90,16 @@ final class ApprovalRouteAdvancer {
 	private readonly OpenApprovalGuard $openGuard;
 
 	/**
+	 * Closes a step at its threshold (REQ-DWP-002).
+	 *
+	 * Built here, like the open-approval guard: it writes the same stage rows
+	 * this class walks, so it travels with the walk instead of being injected.
+	 *
+	 * @var StepThresholdSettler
+	 */
+	private readonly StepThresholdSettler $threshold;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the stage rows.
@@ -104,6 +114,7 @@ final class ApprovalRouteAdvancer {
 		private readonly ?ApprovalStageActivator $activator = null,
 	) {
 		$this->openGuard = new OpenApprovalGuard();
+		$this->threshold = new StepThresholdSettler(store: $store);
 	}//end __construct()
 
 	/**
@@ -273,19 +284,22 @@ final class ApprovalRouteAdvancer {
 	 * @return void
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
 	public function completeWithOutcome(array $stages, array $active, string $outcome, string $status = 'decided'): void {
-		$this->store->patch(
-			schema: 'decision-stage',
-			data: [
-				'status' => $status,
-				'outcome' => $outcome,
-				'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
-			],
-			uuid: (string)$active['id'],
-		);
+		$completion = [
+			'status' => $status,
+			'outcome' => $outcome,
+			'decidedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
+		];
+		$this->store->patch(schema: 'decision-stage', data: $completion, uuid: (string)$active['id']);
 
-		if ($this->groupStillSigning(stages: $stages, active: $active) === true) {
+		// A step with a count or share threshold closes as soon as enough of
+		// its approvers granted; the siblings still waiting are closed by the
+		// threshold, so the group is done even though they never answered.
+		$settled = $this->threshold->settle(stages: $stages, active: ($completion + $active));
+		$closedByThreshold = (($settled['outcome'] ?? '') === ApprovalThresholdCalculator::OUTCOME_GRANTED);
+		if ($closedByThreshold === false && $this->groupStillSigning(stages: $stages, active: $active) === true) {
 			// A parallel sibling is still signing; the group is not done.
 			return;
 		}

@@ -61,9 +61,24 @@ them reachable is in reachability-scope.md beside this file.
 ## 2. The threshold
 
 - [x] 2.1 Add `thresholdKind` and `thresholdValue` to a route step.
-- [ ] 2.2 Compute a step's outcome from its actions, and cache it with the inputs it came from.
-      <!-- NOT DELIVERED: ApprovalThresholdCalculator::outcome() computes it,
-      nothing calls it, and nothing caches anything. -->
+- [x] 2.2 Compute a step's outcome from its actions, and cache it with the inputs it came from.
+      <!-- REACHABLE (2026-11-23): ApprovalRouteAdvancer::completeWithOutcome()
+      asks StepThresholdSettler::settle() after every completion. On a stage
+      whose thresholdKind is `count` or `share`, the step (the stages of the
+      same route and sequence, one per approver) is counted through
+      ApprovalThresholdCalculator::outcome(): a decided approved or endorsed
+      stage is a grant, a returned one a refusal. The result is cached on every
+      stage of the step as `thresholdResult` with its inputs (granted, refused,
+      required, approvers, thresholdKind, thresholdValue, computedAt; fragment
+      138-a-step-closes-at-its-threshold). On `granted` the stages still
+      waiting close as `skipped` with `closedByThreshold` and the route walks
+      on. `all`, and a threshold the calculator cannot read, keep waiting for
+      everyone. Stored-stage engine only: a route compiled to a flow refuses a
+      partial threshold where OpenRegister lacks it (ApprovalRouteRefusals).
+      Proven by ApprovalRouteServiceTest::testAStepClosesOnceItsShareIsReached,
+      testAStepClosesOnItsCount, testAStepWithoutAThresholdWaitsForEveryone,
+      testAnUnreadableThresholdWaitsForEveryone, StepThresholdSettlerTest and
+      StepThresholdResultRegisterTest. -->
 - [ ] 2.3 Recompute on a threshold change and record the change as an action.
       <!-- NOT DELIVERED: recomputationAction() builds the row, no caller, and
       nothing watches a threshold for changes. -->

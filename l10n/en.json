@@ -4150,7 +4150,22 @@
         "To be ratified": "To be ratified",
         "Ratification late": "Ratification late",
         "Only for members of {body} and the people the clerk adds.": "Only for members of {body} and the people the clerk adds.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Only for members of the meeting's body and the people the clerk adds."
+        "Only for members of the meeting's body and the people the clerk adds.": "Only for members of the meeting's body and the people the clerk adds.",
+        "Threshold result": "Threshold result",
+        "The step's outcome as last computed from its stages, with the inputs it came from: the grants and refusals counted, the grants required, the approvers, and the threshold kind and value it was computed under. Written by the engine on every stage of a step that declares a `count` or `share` threshold; never read back as the truth, because the stages are.": "The step's outcome as last computed from its stages, with the inputs it came from: the grants and refusals counted, the grants required, the approvers, and the threshold kind and value it was computed under. Written by the engine on every stage of a step that declares a `count` or `share` threshold; never read back as the truth, because the stages are.",
+        "Whether the step was still waiting, had enough grants, or could no longer reach them.": "Whether the step was still waiting, had enough grants, or could no longer reach them.",
+        "Granted": "Granted",
+        "How many approvers of the step granted.": "How many approvers of the step granted.",
+        "How many approvers of the step refused.": "How many approvers of the step refused.",
+        "How many grants the threshold asked for.": "How many grants the threshold asked for.",
+        "Approvers": "Approvers",
+        "How many approvers the step has: one per stage of the step.": "How many approvers the step has: one per stage of the step.",
+        "The threshold kind the result was computed under.": "The threshold kind the result was computed under.",
+        "The count or share the result was computed under.": "The count or share the result was computed under.",
+        "Computed at": "Computed at",
+        "When the result was computed.": "When the result was computed.",
+        "Closed by threshold": "Closed by threshold",
+        "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it.": "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

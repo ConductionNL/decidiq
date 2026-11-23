@@ -1,0 +1,74 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process task 2.2 (REQ-DWP-002). A stage whose thresholdKind is `count` or `share` closes its step as soon as enough of the step's approvers granted. StepThresholdSettler writes the computed result onto every stage of the step, with the inputs it came from, and closes the stages still waiting as `skipped` with `closedByThreshold`, so a reader can tell a stage nobody needed any more from one an approver chose to skip. Properties only, so no schema version moves, as in 137-a-committee-step-names-its-body.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-002-a-step-accepts-a-share-of-its-approvers",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "properties": {
+          "thresholdResult": {
+            "title": "Threshold result",
+            "type": "object",
+            "description": "The step's outcome as last computed from its stages, with the inputs it came from: the grants and refusals counted, the grants required, the approvers, and the threshold kind and value it was computed under. Written by the engine on every stage of a step that declares a `count` or `share` threshold; never read back as the truth, because the stages are.",
+            "properties": {
+              "outcome": {
+                "title": "Outcome",
+                "type": "string",
+                "enum": [
+                  "open",
+                  "granted",
+                  "refused"
+                ],
+                "description": "Whether the step was still waiting, had enough grants, or could no longer reach them."
+              },
+              "granted": {
+                "title": "Granted",
+                "type": "integer",
+                "description": "How many approvers of the step granted."
+              },
+              "refused": {
+                "title": "Refused",
+                "type": "integer",
+                "description": "How many approvers of the step refused."
+              },
+              "required": {
+                "title": "Required",
+                "type": "integer",
+                "description": "How many grants the threshold asked for."
+              },
+              "approvers": {
+                "title": "Approvers",
+                "type": "integer",
+                "description": "How many approvers the step has: one per stage of the step."
+              },
+              "thresholdKind": {
+                "title": "Threshold kind",
+                "type": "string",
+                "description": "The threshold kind the result was computed under."
+              },
+              "thresholdValue": {
+                "title": "Threshold value",
+                "type": "number",
+                "description": "The count or share the result was computed under."
+              },
+              "computedAt": {
+                "title": "Computed at",
+                "type": "string",
+                "format": "date-time",
+                "description": "When the result was computed."
+              }
+            }
+          },
+          "closedByThreshold": {
+            "title": "Closed by threshold",
+            "type": "boolean",
+            "description": "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it."
+          }
+        }
+      }
+    }
+  }
+}
