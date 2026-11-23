@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Contract\ObjectServiceInterface as ObjectService;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
@@ -41,12 +41,12 @@ final class SavedObjectLookup {
 	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface $objectService Reads the register.
+	 * @param ObjectService $objectService Reads the register.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		private readonly ObjectService $objectService,
 	) {
 	}//end __construct()
 
