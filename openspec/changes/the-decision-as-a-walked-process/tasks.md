@@ -63,7 +63,7 @@ them reachable is in reachability-scope.md beside this file.
 - [x] 2.1 Add `thresholdKind` and `thresholdValue` to a route step.
 - [x] 2.2 Compute a step's outcome from its actions, and cache it with the inputs it came from.
       <!-- REACHABLE (2026-11-23): ApprovalRouteAdvancer::completeWithOutcome()
-      asks ApprovalStepThreshold::settle() after every completion. On a stage
+      asks StepThresholdSettler::settle() after every completion. On a stage
       whose thresholdKind is `count` or `share`, the step (the stages of the
       same route and sequence, one per approver) is counted through
       ApprovalThresholdCalculator::outcome(): a decided approved or endorsed
@@ -77,7 +77,7 @@ them reachable is in reachability-scope.md beside this file.
       partial threshold where OpenRegister lacks it (ApprovalRouteRefusals).
       Proven by ApprovalRouteServiceTest::testAStepClosesOnceItsShareIsReached,
       testAStepClosesOnItsCount, testAStepWithoutAThresholdWaitsForEveryone,
-      testAnUnreadableThresholdWaitsForEveryone, ApprovalStepThresholdTest and
+      testAnUnreadableThresholdWaitsForEveryone, StepThresholdSettlerTest and
       StepThresholdResultRegisterTest. -->
 - [ ] 2.3 Recompute on a threshold change and record the change as an action.
       <!-- NOT DELIVERED: recomputationAction() builds the row, no caller, and

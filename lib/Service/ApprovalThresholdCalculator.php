@@ -27,7 +27,7 @@
  *
  * WHERE IT RUNS
  * -------------
- * ApprovalStepThreshold asks outcome() after every completion on a stage that
+ * StepThresholdSettler asks outcome() after every completion on a stage that
  * declares a `count` or `share` threshold (ApprovalRouteAdvancer), counting
  * each stage of the step as one approver, and closes the step once it reads
  * `granted`. recomputationAction() still has no caller: recomputing on a

@@ -95,9 +95,9 @@ final class ApprovalRouteAdvancer {
 	 * Built here, like the open-approval guard: it writes the same stage rows
 	 * this class walks, so it travels with the walk instead of being injected.
 	 *
-	 * @var ApprovalStepThreshold
+	 * @var StepThresholdSettler
 	 */
-	private readonly ApprovalStepThreshold $threshold;
+	private readonly StepThresholdSettler $threshold;
 
 	/**
 	 * Constructor.
@@ -114,7 +114,7 @@ final class ApprovalRouteAdvancer {
 		private readonly ?ApprovalStageActivator $activator = null,
 	) {
 		$this->openGuard = new OpenApprovalGuard();
-		$this->threshold = new ApprovalStepThreshold(store: $store);
+		$this->threshold = new StepThresholdSettler(store: $store);
 	}//end __construct()
 
 	/**

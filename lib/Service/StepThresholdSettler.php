@@ -55,7 +55,7 @@ use InvalidArgumentException;
  *
  * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
  */
-final class ApprovalStepThreshold {
+final class StepThresholdSettler {
 	/**
 	 * Stage outcomes that count as a grant.
 	 *

@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Service\ApprovalStepThreshold;
+use OCA\Decidiq\Service\StepThresholdSettler;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
  */
-class ApprovalStepThresholdTest extends TestCase {
+class StepThresholdSettlerTest extends TestCase {
 	/**
 	 * The patches written, as [uuid => data].
 	 *
@@ -36,9 +36,9 @@ class ApprovalStepThresholdTest extends TestCase {
 	/**
 	 * The settler over a store that records its patches.
 	 *
-	 * @return ApprovalStepThreshold The settler.
+	 * @return StepThresholdSettler The settler.
 	 */
-	private function settler(): ApprovalStepThreshold {
+	private function settler(): StepThresholdSettler {
 		$store = $this->createMock(originalClassName: RegisterObjectStore::class);
 		$store->method('patch')->willReturnCallback(
 			function (string $schema, array $data, string $uuid): array {
@@ -49,7 +49,7 @@ class ApprovalStepThresholdTest extends TestCase {
 			}
 		);
 
-		return new ApprovalStepThreshold(store: $store);
+		return new StepThresholdSettler(store: $store);
 	}
 
 	/**
@@ -77,10 +77,10 @@ class ApprovalStepThresholdTest extends TestCase {
 	 * @return void
 	 */
 	public function testOnlyCountAndShareDeclareAThreshold(): void {
-		$this->assertTrue(condition: ApprovalStepThreshold::declares(stage: ['thresholdKind' => 'count']));
-		$this->assertTrue(condition: ApprovalStepThreshold::declares(stage: ['thresholdKind' => 'share']));
-		$this->assertFalse(condition: ApprovalStepThreshold::declares(stage: ['thresholdKind' => 'all']));
-		$this->assertFalse(condition: ApprovalStepThreshold::declares(stage: []));
+		$this->assertTrue(condition: StepThresholdSettler::declares(stage: ['thresholdKind' => 'count']));
+		$this->assertTrue(condition: StepThresholdSettler::declares(stage: ['thresholdKind' => 'share']));
+		$this->assertFalse(condition: StepThresholdSettler::declares(stage: ['thresholdKind' => 'all']));
+		$this->assertFalse(condition: StepThresholdSettler::declares(stage: []));
 	}
 
 	/**
@@ -108,7 +108,7 @@ class ApprovalStepThresholdTest extends TestCase {
 			['id' => 'later', 'route' => 'r1', 'sequence' => 2, 'status' => 'pending'],
 		];
 
-		$group = ApprovalStepThreshold::groupOf(stages: $stages, stage: $stages[0]);
+		$group = StepThresholdSettler::groupOf(stages: $stages, stage: $stages[0]);
 
 		$this->assertSame(expected: ['s1', 's2'], actual: array_column($group, 'id'));
 	}
