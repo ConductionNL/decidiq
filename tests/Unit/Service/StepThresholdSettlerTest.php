@@ -108,7 +108,7 @@ class StepThresholdSettlerTest extends TestCase {
 			['id' => 'later', 'route' => 'r1', 'sequence' => 2, 'status' => 'pending'],
 		];
 
-		$group = StepThresholdSettler::groupOf(stages: $stages, stage: $stages[0]);
+		$group = $this->settler()->groupOf(stages: $stages, stage: $stages[0]);
 
 		$this->assertSame(expected: ['s1', 's2'], actual: array_column($group, 'id'));
 	}

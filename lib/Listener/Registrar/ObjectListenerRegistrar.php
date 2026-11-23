@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ApprovalBasisChangeListener;
+use OCA\Decidiq\Listener\StepThresholdChangeListener;
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\GoalProgressRefreshListener;
@@ -348,11 +349,15 @@ class ObjectListenerRegistrar {
 	 * first, and the service stops after one stage read on a subject whose
 	 * stages declare no approval basis.
 	 *
+	 * Beside it, a changed step threshold recomputes its step and is recorded
+	 * (REQ-DWP-002): that listener reads decision-stage updates only.
+	 *
 	 * @param IEventDispatcher $dispatcher The live event dispatcher.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
 	private function subscribeStaleApprovals(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
@@ -361,6 +366,13 @@ class ObjectListenerRegistrar {
 			listener: ApprovalBasisChangeListener::class,
 			registers: null,
 			schemas: null
+		);
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: StepThresholdChangeListener::class,
+			registers: null,
+			schemas: [StepThresholdChangeListener::SCHEMA]
 		);
 	}//end subscribeStaleApprovals()
 

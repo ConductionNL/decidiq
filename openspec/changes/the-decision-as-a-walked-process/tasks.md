@@ -79,12 +79,32 @@ them reachable is in reachability-scope.md beside this file.
       testAStepClosesOnItsCount, testAStepWithoutAThresholdWaitsForEveryone,
       testAnUnreadableThresholdWaitsForEveryone, StepThresholdSettlerTest and
       StepThresholdResultRegisterTest. -->
-- [ ] 2.3 Recompute on a threshold change and record the change as an action.
-      <!-- NOT DELIVERED: recomputationAction() builds the row, no caller, and
-      nothing watches a threshold for changes. -->
+- [x] 2.3 Recompute on a threshold change and record the change as an action.
+      <!-- REACHABLE (2026-11-23): StepThresholdChangeListener, subscribed to
+      decision-stage updates, hands the stage as it was and as it is to
+      StepThresholdRecomputer::stageChanged(). When thresholdKind or
+      thresholdValue changed, the new threshold is copied onto every stage of
+      the step with a `thresholdResult` computed under it. A step now granted
+      closes its waiting stages (`closedByThreshold`) and walks on
+      (ApprovalRouteAdvancer::walkOnFrom()); a step the threshold had closed
+      and that no longer reaches it reopens those stages, and the later stages
+      of its route go back to pending (reopenWithdrawnStages(), the rewind a
+      withdrawn grant uses). One `threshold-changed` action records
+      thresholdBefore, thresholdAfter and the actor (fragment
+      139-a-threshold-change-is-an-action). An update whose threshold equals
+      the one its cached result was computed under is the recomputer's own
+      copy, or no change, and is left alone, so nothing is recorded twice.
+      Proven by ApprovalRouteServiceTest::testLoweringTheThresholdClosesAnOpenStep,
+      testRaisingTheThresholdReopensAClosedStep,
+      testOnlyAChangedThresholdIsRecomputedAndRecorded,
+      testAnUnreadableNewThresholdIsRecordedOnceAndClosesNothing,
+      StepThresholdChangeListenerTest (the real ObjectUpdatedEvent, the actor,
+      skipped events, fail-soft, subscription) and
+      StepThresholdResultRegisterTest::testAThresholdChangeIsAnAction. -->
 - [x] 2.4 PHPUnit: lowering a share closes an open step, raising it reopens a closed one.
-      <!-- True of the calculator in isolation. No step is closed or reopened by
-      it in production. -->
+      <!-- True of the calculator in isolation, and since 2.3 of the engine too:
+      ApprovalRouteServiceTest::testLoweringTheThresholdClosesAnOpenStep and
+      testRaisingTheThresholdReopensAClosedStep. -->
 
 ## 3. Staleness
 

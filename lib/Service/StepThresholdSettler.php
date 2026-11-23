@@ -108,7 +108,7 @@ final class StepThresholdSettler {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
-	public static function groupOf(array $stages, array $stage): array {
+	public function groupOf(array $stages, array $stage): array {
 		$route    = (string)($stage['route'] ?? '');
 		$sequence = (int)($stage['sequence'] ?? 0);
 
@@ -136,7 +136,7 @@ final class StepThresholdSettler {
 		}
 
 		$group = [];
-		foreach (self::groupOf(stages: $stages, stage: $active) as $stage) {
+		foreach ($this->groupOf(stages: $stages, stage: $active) as $stage) {
 			if ((string)($stage['id'] ?? '') === (string)($active['id'] ?? '')) {
 				$stage = $active;
 			}

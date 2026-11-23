@@ -4165,7 +4165,8 @@
         "Computed at": "Computed at",
         "When the result was computed.": "When the result was computed.",
         "Closed by threshold": "Closed by threshold",
-        "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it.": "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it."
+        "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it.": "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it.",
+        "Widened with `threshold-changed`: an administrator changed the threshold of the step, which recomputed its outcome. The action carries the old and the new value in `thresholdBefore` and `thresholdAfter` (REQ-DWP-002).": "Widened with `threshold-changed`: an administrator changed the threshold of the step, which recomputed its outcome. The action carries the old and the new value in `thresholdBefore` and `thresholdAfter` (REQ-DWP-002)."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
