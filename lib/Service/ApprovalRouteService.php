@@ -92,7 +92,18 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	private readonly IntakeVerdictRecorder $intake;
 
 	/**
+	 * Refuses a single actor closing a committee step.
+	 *
+	 * Built here like the intake recorder: it needs only the store.
+	 *
+	 * @var CommitteeStepGuard
+	 */
+	private readonly CommitteeStepGuard $committee;
+
+	/**
 	 * Constructor.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 *
 	 * @param RegisterObjectStore $store Reads and writes the objects a route is made of.
 	 * @param ApprovalStageGuard $guard The fail-closed gate every action passes through.
@@ -131,6 +142,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
 		$this->openGuard = new OpenApprovalGuard();
 		$this->intake    = new IntakeVerdictRecorder(store: $store, advancer: $this->advancer);
+		$this->committee = new CommitteeStepGuard(store: $store);
 	}//end __construct()
 
 	/**
@@ -573,6 +585,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md
 	 * @spec openspec/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
 	public function record(array $action): array {
 		$subject = (string)($action['subject'] ?? '');
@@ -605,6 +618,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		if (IntakeVerdictRecorder::isIntakeStage(stage: $active) === true) {
 			return $this->recordVerdict(action: $action, stages: $stages, active: $active);
 		}
+
+		// A committee step is decided by its body in a meeting; no single
+		// actor's act closes it (REQ-DWP-010). Refused before any write.
+		$this->committee->assertNotClosedByOneActor(stage: $active);
 
 		if (isset(ApprovalRouteAdvancer::COMPLETING_ACTIONS[$verb]) === false) {
 			throw new RuntimeException('Unknown action: ' . $verb);
