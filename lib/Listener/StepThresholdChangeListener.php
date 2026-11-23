@@ -96,7 +96,13 @@ class StepThresholdChangeListener implements IEventListener {
 		}
 
 		try {
-			$this->recomputer->stageChanged(before: $versions[0], after: $versions[1], actor: $this->actor());
+			$recorded = $this->recomputer->stageChanged(before: $versions[0], after: $versions[1], actor: $this->actor());
+			if ($recorded !== null) {
+				$this->logger->info(
+					'Decidiq: step threshold changed and its step recomputed',
+					['stage' => $versions[1]['id'], 'actor' => $recorded['actor']]
+				);
+			}
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: threshold change not applied to its step', ['exception' => $e->getMessage()]);
 		}
@@ -133,7 +139,7 @@ class StepThresholdChangeListener implements IEventListener {
 	 * @return string The signed-in user's id, or the system actor.
 	 */
 	private function actor(): string {
-		$uid = (string)($this->userSession->getUser()?->getUID() ?? '');
+		$uid = ($this->userSession->getUser()?->getUID() ?? '');
 		if ($uid === '') {
 			return self::SYSTEM_ACTOR;
 		}

@@ -73,7 +73,7 @@ final class StepThresholdChangeListenerTest extends TestCase {
 				}
 
 				$this->calls[] = [$before, $after, $actor];
-				return null;
+				return ['action' => 'threshold-changed', 'actor' => $actor];
 			}
 		);
 
@@ -119,7 +119,12 @@ final class StepThresholdChangeListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAStageUpdateReachesTheRecomputer(): void {
-		$this->listener()->handle(
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())->method('info')->with(
+			'Decidiq: step threshold changed and its step recomputed',
+			['stage' => 'stage-1', 'actor' => 'admin']
+		);
+		$this->listener(logger: $logger)->handle(
 			new ObjectUpdatedEvent($this->entity(payload: ['thresholdValue' => 0.6]), $this->entity(payload: ['thresholdValue' => 0.8]))
 		);
 
