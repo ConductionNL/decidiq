@@ -3404,7 +3404,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Nepavyko užregistruoti patvirtinimo.",
         "The confidentiality could not be lifted.": "Nepavyko panaikinti konfidencialumo.",
         "Only for members of {body} and the people the clerk adds.": "Tik {body} nariams ir sekretoriato pridėtiems asmenims.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Tik posėdžio organo nariams ir sekretoriato pridėtiems asmenims."
+        "Only for members of the meeting's body and the people the clerk adds.": "Tik posėdžio organo nariams ir sekretoriato pridėtiems asmenims.",
+        "Risk band {band}": "Rizikos lygis {band}",
+        "No risk band": "Nėra rizikos lygio",
+        "Score {score}, from:": "Balas {score}, iš:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} tšk.)"
     },
     "nplurals=2; plural=(n != 1);"
 )

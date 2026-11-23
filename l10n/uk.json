@@ -3344,7 +3344,11 @@
         "The ratification could not be recorded.": "Не вдалося записати затвердження.",
         "The confidentiality could not be lifted.": "Не вдалося зняти конфіденційність.",
         "Only for members of {body} and the people the clerk adds.": "Лише для членів {body} і тих, кого додасть секретаріат.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Лише для членів органу засідання і тих, кого додасть секретаріат."
+        "Only for members of the meeting's body and the people the clerk adds.": "Лише для членів органу засідання і тих, кого додасть секретаріат.",
+        "Risk band {band}": "Рівень ризику {band}",
+        "No risk band": "Немає рівня ризику",
+        "Score {score}, from:": "Бал {score}, з:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)"
     },
     "plurals": null
 }

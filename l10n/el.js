@@ -3404,7 +3404,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Δεν ήταν δυνατή η καταχώριση της επικύρωσης.",
         "The confidentiality could not be lifted.": "Δεν ήταν δυνατή η άρση της εμπιστευτικότητας.",
         "Only for members of {body} and the people the clerk adds.": "Μόνο για τα μέλη του {body} και όσους προσθέτει η γραμματεία.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Μόνο για τα μέλη του οργάνου της συνεδρίασης και όσους προσθέτει η γραμματεία."
+        "Only for members of the meeting's body and the people the clerk adds.": "Μόνο για τα μέλη του οργάνου της συνεδρίασης και όσους προσθέτει η γραμματεία.",
+        "Risk band {band}": "Επίπεδο κινδύνου {band}",
+        "No risk band": "Χωρίς επίπεδο κινδύνου",
+        "Score {score}, from:": "Βαθμολογία {score}, από:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} μον.)"
     },
     "nplurals=2; plural=(n != 1);"
 )

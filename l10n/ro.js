@@ -3404,7 +3404,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Ratificarea nu a putut fi înregistrată.",
         "The confidentiality could not be lifted.": "Confidențialitatea nu a putut fi ridicată.",
         "Only for members of {body} and the people the clerk adds.": "Doar pentru membrii {body} și persoanele adăugate de secretariat.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Doar pentru membrii organului ședinței și persoanele adăugate de secretariat."
+        "Only for members of the meeting's body and the people the clerk adds.": "Doar pentru membrii organului ședinței și persoanele adăugate de secretariat.",
+        "Risk band {band}": "Nivel de risc {band}",
+        "No risk band": "Fără nivel de risc",
+        "Score {score}, from:": "Scor {score}, din:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} puncte)"
     },
     "nplurals=2; plural=(n != 1);"
 )

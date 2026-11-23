@@ -3406,7 +3406,11 @@
         "The ratification could not be recorded.": "Apstiprināšanu neizdevās reģistrēt.",
         "The confidentiality could not be lifted.": "Konfidencialitāti neizdevās atcelt.",
         "Only for members of {body} and the people the clerk adds.": "Tikai {body} locekļiem un personām, ko pievieno sekretariāts.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Tikai sēdes institūcijas locekļiem un personām, ko pievieno sekretariāts."
+        "Only for members of the meeting's body and the people the clerk adds.": "Tikai sēdes institūcijas locekļiem un personām, ko pievieno sekretariāts.",
+        "Risk band {band}": "Riska līmenis {band}",
+        "No risk band": "Nav riska līmeņa",
+        "Score {score}, from:": "Punkti {score}, no:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} p.)"
     },
     "plurals": null
 }

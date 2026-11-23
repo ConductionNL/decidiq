@@ -3407,7 +3407,11 @@
         "The ratification could not be recorded.": "A megerősítést nem sikerült rögzíteni.",
         "The confidentiality could not be lifted.": "A titoktartást nem sikerült feloldani.",
         "Only for members of {body} and the people the clerk adds.": "Csak a(z) {body} tagjainak és a titkárság által hozzáadott személyeknek.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Csak az ülés testületének tagjainak és a titkárság által hozzáadott személyeknek."
+        "Only for members of the meeting's body and the people the clerk adds.": "Csak az ülés testületének tagjainak és a titkárság által hozzáadott személyeknek.",
+        "Risk band {band}": "Kockázati szint: {band}",
+        "No risk band": "Nincs kockázati szint",
+        "Score {score}, from:": "Pontszám {score}, ebből:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} pont)"
     },
     "plurals": null
 }

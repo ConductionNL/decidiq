@@ -3406,7 +3406,11 @@
         "The ratification could not be recorded.": "Ekki tókst að skrá staðfestinguna.",
         "The confidentiality could not be lifted.": "Ekki tókst að aflétta trúnaði.",
         "Only for members of {body} and the people the clerk adds.": "Aðeins fyrir meðlimi {body} og þá sem skrifstofan bætir við.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Aðeins fyrir meðlimi stofnunar fundarins og þá sem skrifstofan bætir við."
+        "Only for members of the meeting's body and the people the clerk adds.": "Aðeins fyrir meðlimi stofnunar fundarins og þá sem skrifstofan bætir við.",
+        "Risk band {band}": "Áhættustig {band}",
+        "No risk band": "Ekkert áhættustig",
+        "Score {score}, from:": "Stig {score}, út frá:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} stig)"
     },
     "plurals": null
 }

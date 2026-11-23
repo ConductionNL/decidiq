@@ -3344,7 +3344,11 @@
         "The ratification could not be recorded.": "Potvrdenie sa nepodarilo zaznamenať.",
         "The confidentiality could not be lifted.": "Utajenie sa nepodarilo zrušiť.",
         "Only for members of {body} and the people the clerk adds.": "Len pre členov {body} a osoby, ktoré pridá sekretariát.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Len pre členov orgánu zasadnutia a osoby, ktoré pridá sekretariát."
+        "Only for members of the meeting's body and the people the clerk adds.": "Len pre členov orgánu zasadnutia a osoby, ktoré pridá sekretariát.",
+        "Risk band {band}": "Úroveň rizika {band}",
+        "No risk band": "Bez úrovne rizika",
+        "Score {score}, from:": "Skóre {score}, z:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} b.)"
     },
     "plurals": null
 }

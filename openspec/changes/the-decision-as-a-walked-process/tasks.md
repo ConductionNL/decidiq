@@ -233,7 +233,14 @@ them reachable is in reachability-scope.md beside this file.
       sends is replaced; a type without an expression, or a decision without a
       type, clears it; an unreadable type or a malformed expression leaves the
       save alone and is logged. Proven by DecisionRiskScoreListenerTest. -->
-- [ ] 8.3 Show the band and the properties it came from to the approver.
+- [x] 8.3 Show the band and the properties it came from to the approver.
+      <!-- DONE (2026-11-23): the decision's Approval route widget
+      (DecisionApprovalTab) reads `riskAssessment` and shows, above the chain,
+      the band ("No risk band" below every band), the score and each property
+      it came from with the value read and the points added; a decision
+      without a score shows nothing. Shaping in src/utils/riskAssessment.js,
+      proven by tests/vitest/riskAssessment.spec.js; four strings in all 38
+      catalogues. -->
 - [x] 8.4 PHPUnit on the expression evaluator.
       <!-- RiskScoreEvaluatorTest: the spec's amount-and-category scenario, the
       band chosen whatever the declared order, every operator, a missing
