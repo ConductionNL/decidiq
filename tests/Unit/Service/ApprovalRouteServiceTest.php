@@ -1331,4 +1331,148 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertSame(expected: ['active', 'pending'], actual: $this->statuses());
 		$this->assertSame(expected: [], actual: $this->objectService->rows['approval-action']);
 	}
+
+	/**
+	 * A route whose first step is one parallel group of approvers under a threshold.
+	 *
+	 * @param array<string, mixed> $threshold The step's thresholdKind and thresholdValue.
+	 * @param int                  $approvers How many approvers the step has.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function thresholdRoute(array $threshold, int $approvers = 5): array {
+		$steps = [];
+		foreach (array_slice(['anna', 'bram', 'cor', 'dina', 'eva'], 0, $approvers) as $person) {
+			$steps[] = $threshold + [
+				'order' => 1, 'stageType' => 'decisive', 'actorType' => 'person', 'actor' => $person, 'label' => 'Board',
+			];
+		}
+
+		$steps[] = ['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'secretary', 'label' => 'Sign-off'];
+
+		return ['name' => 'Threshold route', 'steps' => $steps];
+	}
+
+	/**
+	 * The stages of the board step, keyed by the person each one waits on.
+	 *
+	 * @return array<string, array<string, mixed>> The stages.
+	 */
+	private function boardStages(): array {
+		$out = [];
+		foreach ($this->stages() as $stage) {
+			if ((int)$stage['sequence'] === 1) {
+				$out[(string)$stage['assignedPerson']] = $stage;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * A share of 0.6 of five approvers closes the step on the third grant (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepClosesOnceItsShareIsReached(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.6]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$service->record(['subject' => 'dec-1', 'actor' => 'bram', 'action' => 'approved']);
+
+		$board = $this->boardStages();
+		$this->assertSame(expected: 'active', actual: $board['cor']['status'], message: 'Two of five is below a share of 0.6.');
+		$this->assertSame(expected: 'open', actual: $board['cor']['thresholdResult']['outcome']);
+		$this->assertSame(expected: 2, actual: $board['cor']['thresholdResult']['granted']);
+		$this->assertSame(expected: 3, actual: $board['cor']['thresholdResult']['required']);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'cor', 'action' => 'approved']);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'skipped', actual: $board[$person]['status'], message: $person . ' was still asked after the share was reached.');
+			$this->assertTrue(condition: $board[$person]['closedByThreshold']);
+		}
+
+		$this->assertArrayNotHasKey(key: 'closedByThreshold', array: $board['cor'], message: 'An approver who answered was not closed by the threshold.');
+		foreach ($board as $stage) {
+			$this->assertSame(expected: 'granted', actual: $stage['thresholdResult']['outcome']);
+			$this->assertSame(
+				expected: ['granted' => 3, 'refused' => 0, 'required' => 3, 'approvers' => 5, 'thresholdKind' => 'share', 'thresholdValue' => 0.6],
+				actual: array_intersect_key($stage['thresholdResult'], array_flip(['granted', 'refused', 'required', 'approvers', 'thresholdKind', 'thresholdValue']))
+			);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'The route did not walk on to the next step.');
+	}
+
+	/**
+	 * A count threshold closes the step on that many grants (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepClosesOnItsCount(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 2], approvers: 3),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$this->assertSame(expected: ['decided', 'active', 'active', 'pending'], actual: $this->statuses());
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'cor', 'action' => 'approved']);
+		$this->assertSame(expected: ['decided', 'skipped', 'decided', 'active'], actual: $this->statuses());
+		$this->assertTrue(condition: $this->boardStages()['bram']['closedByThreshold']);
+	}
+
+	/**
+	 * A step without a threshold still waits for every approver, and caches nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepWithoutAThresholdWaitsForEveryone(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->thresholdRoute(threshold: [], approvers: 3), subject: 'dec-1', subjectSchema: 'decision');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$service->record(['subject' => 'dec-1', 'actor' => 'bram', 'action' => 'approved']);
+
+		$this->assertSame(expected: ['decided', 'decided', 'active', 'pending'], actual: $this->statuses());
+		foreach ($this->boardStages() as $stage) {
+			$this->assertArrayNotHasKey(key: 'thresholdResult', array: $stage);
+		}
+	}
+
+	/**
+	 * A threshold the calculator cannot read falls back to waiting for everyone.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAnUnreadableThresholdWaitsForEveryone(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share'], approvers: 2),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+
+		$this->assertSame(expected: ['decided', 'active', 'pending'], actual: $this->statuses());
+	}
 }
