@@ -36,6 +36,7 @@ use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
+use OCA\Decidiq\Listener\DecisionRiskScoreListener;
 use OCA\Decidiq\Listener\DecisionTermListener;
 use OCA\Decidiq\Listener\DeclaredGiftThresholdListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
@@ -166,6 +167,12 @@ final class SaveGuardSubscriptions {
 		// the moment the type counts it from, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionTermListener::class, 'schemas' => ['decision']],
+		// Risk score (the-decision-as-a-walked-process, REQ-DWP-008): a
+		// decision whose type declares a risk expression is scored on every
+		// save, so the send that opens its route scores it and a change to a
+		// property the expression reads scores it again.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionRiskScoreListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionRiskScoreListener::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[

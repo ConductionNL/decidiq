@@ -217,12 +217,28 @@ them reachable is in reachability-scope.md beside this file.
 
 ## 8. The risk score
 
-<!-- DEFERRED: a declarative expression evaluator is its own change; nothing here half-builds one. -->
-
-- [ ] 8.1 Add a declarative `riskScore` expression to the decision type.
-- [ ] 8.2 Compute on route open, recompute when a read property changes.
+- [x] 8.1 Add a declarative `riskScore` expression to the decision type.
+      <!-- DONE (2026-11-23): fragment 141-a-decision-type-scores-its-risk adds
+      `riskScore` to DecisionTemplate (rules: property, operator, value or
+      values, points; bands: band, min) and the server-written `riskAssessment`
+      (score, band, basis) to Decision. The operators are eq, neq, gt, gte, lt,
+      lte, in, notIn and present; a dotted property reads into an object. No
+      model and no service call. Proven by RiskScoreRegisterTest. -->
+- [x] 8.2 Compute on route open, recompute when a read property changes.
+      <!-- DONE (2026-11-23): DecisionRiskScoreListener, subscribed to decision
+      creates and updates, writes `riskAssessment` from the type's expression on
+      every save. The send that opens a route writes the decision (the flow
+      starter records `approvalRun`), so the route opens scored, and a save that
+      changes a property the expression reads scores it again. A score a client
+      sends is replaced; a type without an expression, or a decision without a
+      type, clears it; an unreadable type or a malformed expression leaves the
+      save alone and is logged. Proven by DecisionRiskScoreListenerTest. -->
 - [ ] 8.3 Show the band and the properties it came from to the approver.
-- [ ] 8.4 PHPUnit on the expression evaluator.
+- [x] 8.4 PHPUnit on the expression evaluator.
+      <!-- RiskScoreEvaluatorTest: the spec's amount-and-category scenario, the
+      band chosen whatever the declared order, every operator, a missing
+      property, a dotted path, no rules means no score, and a malformed rule or
+      band refused naming which one. -->
 
 ## 9. The nominated approver
 
