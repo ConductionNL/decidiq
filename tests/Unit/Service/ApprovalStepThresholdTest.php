@@ -39,7 +39,7 @@ class ApprovalStepThresholdTest extends TestCase {
 	 * @return ApprovalStepThreshold The settler.
 	 */
 	private function settler(): ApprovalStepThreshold {
-		$store = $this->createMock(RegisterObjectStore::class);
+		$store = $this->createMock(originalClassName: RegisterObjectStore::class);
 		$store->method('patch')->willReturnCallback(
 			function (string $schema, array $data, string $uuid): array {
 				$this->assertSame(expected: 'decision-stage', actual: $schema);

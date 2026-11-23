@@ -1402,11 +1402,12 @@ class ApprovalRouteServiceTest extends TestCase {
 		}
 
 		$this->assertArrayNotHasKey(key: 'closedByThreshold', array: $board['cor'], message: 'An approver who answered was not closed by the threshold.');
+		$expected = ['granted' => 3, 'refused' => 0, 'required' => 3, 'approvers' => 5, 'thresholdKind' => 'share', 'thresholdValue' => 0.6];
 		foreach ($board as $stage) {
 			$this->assertSame(expected: 'granted', actual: $stage['thresholdResult']['outcome']);
 			$this->assertSame(
-				expected: ['granted' => 3, 'refused' => 0, 'required' => 3, 'approvers' => 5, 'thresholdKind' => 'share', 'thresholdValue' => 0.6],
-				actual: array_intersect_key($stage['thresholdResult'], array_flip(['granted', 'refused', 'required', 'approvers', 'thresholdKind', 'thresholdValue']))
+				expected: $expected,
+				actual: array_intersect_key($stage['thresholdResult'], $expected)
 			);
 		}
 
