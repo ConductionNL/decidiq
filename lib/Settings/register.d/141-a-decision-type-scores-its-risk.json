@@ -76,7 +76,8 @@
                       "description": "What the rule adds to the score when it matches."
                     }
                   }
-                }
+                },
+                "description": "The rules, each adding its points when the decision's property matches."
               },
               "bands": {
                 "title": "Bands",
@@ -92,7 +93,8 @@
                       "title": "Band",
                       "type": "string",
                       "maxLength": 64,
-                      "example": "high"
+                      "example": "high",
+                      "description": "The name the approver sees, such as low, medium or high."
                     },
                     "min": {
                       "title": "From score",
@@ -101,7 +103,8 @@
                       "description": "The lowest score in this band."
                     }
                   }
-                }
+                },
+                "description": "The names of score ranges; a decision falls in the band with the highest minimum its score reaches."
               }
             }
           }
@@ -117,11 +120,13 @@
             "properties": {
               "score": {
                 "title": "Score",
-                "type": "number"
+                "type": "number",
+                "description": "The points of every rule that matched, added up."
               },
               "band": {
                 "title": "Band",
-                "type": "string"
+                "type": "string",
+                "description": "The band the score falls in; empty when it falls below every band."
               },
               "basis": {
                 "title": "Basis",
@@ -130,17 +135,23 @@
                   "type": "object",
                   "properties": {
                     "property": {
-                      "type": "string"
+                      "title": "Property",
+                      "type": "string",
+                      "description": "The decision's property the rule read."
                     },
                     "value": {
+                      "title": "Value",
                       "type": "string",
                       "description": "The value the rule read, as text."
                     },
                     "points": {
-                      "type": "number"
+                      "title": "Points",
+                      "type": "number",
+                      "description": "What the rule added to the score."
                     }
                   }
-                }
+                },
+                "description": "The rules that matched: which property, the value read and the points added."
               }
             }
           }

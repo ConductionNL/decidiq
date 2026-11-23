@@ -86,13 +86,13 @@ class DecisionTermListener implements IEventListener {
 		}
 
 		try {
-			$decision = SavedObjectLookup::saved(event: $event);
-			$type     = $this->lookup->load(id: SavedObjectLookup::reference(value: ($decision['type'] ?? null)), schema: 'decision-template');
+			$decision = $this->lookup->saved(event: $event);
+			$type     = $this->lookup->load(id: $this->lookup->reference(value: ($decision['type'] ?? null)), schema: 'decision-template');
 			if ($type === null) {
 				return;
 			}
 
-			$contested = $this->lookup->load(id: SavedObjectLookup::reference(value: ($decision['contests'] ?? null)), schema: 'decision');
+			$contested = $this->lookup->load(id: $this->lookup->reference(value: ($decision['contests'] ?? null)), schema: 'decision');
 			$termEnd = (new DecisionTermCalculator())->termEnd(decision: $decision, type: $type, contested: $contested);
 			$event->setModifiedData(array_merge($event->getModifiedData(), ['termEndsAt' => $termEnd]));
 		} catch (Throwable $e) {

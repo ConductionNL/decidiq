@@ -24,6 +24,8 @@ namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\Listener\DecisionRiskScoreListener;
 use OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions;
+use OCA\Decidiq\Listener\SavedObjectLookup;
+use OCA\Decidiq\Service\RiskScoreEvaluator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
@@ -84,7 +86,11 @@ class DecisionRiskScoreListenerTest extends TestCase {
 			}
 		);
 
-		return new DecisionRiskScoreListener(objectService: $objectService, logger: new NullLogger());
+		return new DecisionRiskScoreListener(
+			lookup: new SavedObjectLookup(objectService: $objectService),
+			evaluator: new RiskScoreEvaluator(),
+			logger: new NullLogger()
+		);
 	}//end listener()
 
 	/**

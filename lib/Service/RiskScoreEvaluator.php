@@ -280,19 +280,11 @@ final class RiskScoreEvaluator {
 	 * @return string '' for null, an array or an object.
 	 */
 	private static function asText(mixed $value): string {
-		if ($value === true) {
-			return 'true';
-		}
-
-		if ($value === false) {
-			return 'false';
-		}
-
-		if (is_scalar($value) === false) {
-			return '';
-		}
-
-		return trim((string)$value);
+		return match (true) {
+			is_bool($value)   => json_encode($value),
+			is_scalar($value) => trim((string)$value),
+			default           => '',
+		};
 	}//end asText()
 
 	/**

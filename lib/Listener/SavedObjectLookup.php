@@ -3,9 +3,8 @@
 /**
  * Decidiq Saved Object Lookup
  *
- * What a before-save listener reads about the object being saved: the object
- * as it will be saved, the id a stored reference holds, and one object of the
- * register that reference points at.
+ * The reads a before-save listener makes: the object as it will be saved,
+ * the id one of its references holds, and the register object it points at.
  *
  * @category Listener
  * @package  OCA\Decidiq\Listener
@@ -61,14 +60,13 @@ final class SavedObjectLookup {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
-	public static function saved(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
+	public function saved(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
+		$reader = new EntityPayloadReader();
 		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
-		} else {
-			$entity = $event->getObject();
+			return array_merge($reader->payloadOf(entity: $event->getNewObject()), $event->getModifiedData());
 		}
 
-		return array_merge((new EntityPayloadReader())->payloadOf(entity: $entity), $event->getModifiedData());
+		return array_merge($reader->payloadOf(entity: $event->getObject()), $event->getModifiedData());
 	}//end saved()
 
 	/**
@@ -80,16 +78,16 @@ final class SavedObjectLookup {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
-	public static function reference(mixed $value): string {
+	public function reference(mixed $value): string {
+		$held = $value;
 		if (is_array($value) === true) {
-			$value = ($value['id'] ?? ($value['uuid'] ?? null));
+			$held = ($value['id'] ?? ($value['uuid'] ?? ''));
 		}
 
-		if (is_string($value) === false) {
-			return '';
-		}
-
-		return trim($value);
+		return match (is_string($held)) {
+			true    => trim($held),
+			default => '',
+		};
 	}//end reference()
 
 	/**
@@ -104,24 +102,20 @@ final class SavedObjectLookup {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function load(string $id, string $schema): ?array {
-		if ($id === '') {
+		$found = null;
+		if ($id !== '') {
+			try {
+				$found = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema), _rbac: false);
+			} catch (Throwable) {
+				// An object that cannot be read counts as not there.
+				$found = null;
+			}
+		}
+
+		if ($found === null) {
 			return null;
 		}
 
-		try {
-			$entity = $this->objectService->find(
-				id: $id,
-				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
-				_rbac: false
-			);
-		} catch (Throwable) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return (new EntityPayloadReader())->payloadOf(entity: $entity);
+		return (new EntityPayloadReader())->payloadOf(entity: $found);
 	}//end load()
 }//end class

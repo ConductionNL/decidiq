@@ -25,14 +25,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
+use InvalidArgumentException;
 use OCA\Decidiq\Service\RiskScoreEvaluator;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Scores a decision before approval.
@@ -57,25 +56,19 @@ class DecisionRiskScoreListener implements IEventListener {
 	public const FIELD = 'riskAssessment';
 
 	/**
-	 * Reads the decision and its type.
-	 *
-	 * @var SavedObjectLookup
-	 */
-	private readonly SavedObjectLookup $lookup;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface $objectService Reads the decision type.
-	 * @param LoggerInterface        $logger        Logs a decision that could not be scored.
+	 * @param SavedObjectLookup  $lookup    Reads the decision as saved and its type.
+	 * @param RiskScoreEvaluator $evaluator Scores the decision.
+	 * @param LoggerInterface    $logger    Logs a decision that could not be scored.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function __construct(
-		ObjectServiceInterface $objectService,
+		private readonly SavedObjectLookup $lookup,
+		private readonly RiskScoreEvaluator $evaluator,
 		private readonly LoggerInterface $logger,
 	) {
-		$this->lookup = new SavedObjectLookup(objectService: $objectService);
 	}//end __construct()
 
 	/**
@@ -88,12 +81,12 @@ class DecisionRiskScoreListener implements IEventListener {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
+		if (($event instanceof ObjectCreatingEvent || $event instanceof ObjectUpdatingEvent) === false) {
 			return;
 		}
 
-		$decision = SavedObjectLookup::saved(event: $event);
-		$typeId   = SavedObjectLookup::reference(value: ($decision['type'] ?? null));
+		$decision = $this->lookup->saved(event: $event);
+		$typeId   = $this->lookup->reference(value: ($decision['type'] ?? null));
 		if ($typeId === '') {
 			// Nothing to be scored by, so a score left from an earlier type goes.
 			if (($decision[self::FIELD] ?? null) !== null) {
@@ -128,8 +121,8 @@ class DecisionRiskScoreListener implements IEventListener {
 		}
 
 		try {
-			return (new RiskScoreEvaluator())->evaluate(expression: ($type['riskScore'] ?? null), subject: $decision);
-		} catch (Throwable $e) {
+			return $this->evaluator->evaluate(expression: ($type['riskScore'] ?? null), subject: $decision);
+		} catch (InvalidArgumentException $e) {
 			$this->logger->warning(
 				message: 'Decidiq: the decision type\'s risk score is malformed, so the decision was not scored',
 				context: ['type' => $typeId, 'reason' => $e->getMessage()]
