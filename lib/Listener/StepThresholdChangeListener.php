@@ -81,7 +81,7 @@ class StepThresholdChangeListener implements IEventListener {
 	}//end __construct()
 
 	/**
-	 * Handle an object update.
+	 * Recompute the step of an updated stage; never break the save.
 	 *
 	 * @param Event $event The event.
 	 *
@@ -90,45 +90,42 @@ class StepThresholdChangeListener implements IEventListener {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectUpdatedEvent) === false) {
+		$versions = $this->versionsOf(event: $event);
+		if ($versions === null) {
 			return;
 		}
 
 		try {
-			$this->apply(event: $event);
+			$this->recomputer->stageChanged(before: $versions[0], after: $versions[1], actor: $this->actor());
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: threshold change not applied to its step', ['exception' => $e->getMessage()]);
 		}
 	}//end handle()
 
 	/**
-	 * Read both versions of the stage and hand them to the recomputer.
+	 * The stage as it was and as it now is, or null when the event is not a stage update.
 	 *
-	 * @param ObjectUpdatedEvent $event The update.
+	 * @param Event $event The event.
 	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 * @return array{0: array<string, mixed>, 1: array<string, mixed>}|null The two versions.
 	 */
-	private function apply(ObjectUpdatedEvent $event): void {
-		$entity = $event->getObject();
-		$old = $event->getOldObject();
-		if ($entity === null || $old === null) {
-			return;
+	private function versionsOf(Event $event): ?array {
+		if (($event instanceof ObjectUpdatedEvent) === false || $event->getOldObject() === null || $event->getObject() === null) {
+			return null;
 		}
 
-		$reader = new EntityPayloadReader();
-		$after = $reader->payloadOf(entity: $entity);
-		if ($this->schemaResolver->schemaSlug(entity: $entity, row: $after) !== self::SCHEMA) {
-			return;
+		$current = $event->getObject();
+		$reader  = new EntityPayloadReader();
+		$stage   = $reader->payloadOf(entity: $current);
+		if ($this->schemaResolver->schemaSlug(entity: $current, row: $stage) !== self::SCHEMA) {
+			return null;
 		}
 
-		if (isset($after['id']) === false) {
-			$after['id'] = (string)$entity->getUuid();
-		}
+		// The payload is the object's own data; its identity lives on the entity.
+		$stage['id'] = (string)($stage['id'] ?? $current->getUuid());
 
-		$this->recomputer->stageChanged(before: $reader->payloadOf(entity: $old), after: $after, actor: $this->actor());
-	}//end apply()
+		return [$reader->payloadOf(entity: $event->getOldObject()), $stage];
+	}//end versionsOf()
 
 	/**
 	 * Who is acting.

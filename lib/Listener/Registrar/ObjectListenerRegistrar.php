@@ -200,7 +200,6 @@ class ObjectListenerRegistrar {
 		$this->subscribeUrgentReport(dispatcher: $dispatcher);
 
 		$this->subscribeStaleApprovals(dispatcher: $dispatcher);
-		$this->subscribeStepThresholds(dispatcher: $dispatcher);
 
 		$this->subscribeGoalProgress(dispatcher: $dispatcher);
 
@@ -350,11 +349,15 @@ class ObjectListenerRegistrar {
 	 * first, and the service stops after one stage read on a subject whose
 	 * stages declare no approval basis.
 	 *
+	 * Beside it, a changed step threshold recomputes its step and is recorded
+	 * (REQ-DWP-002): that listener reads decision-stage updates only.
+	 *
 	 * @param IEventDispatcher $dispatcher The live event dispatcher.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
 	 */
 	private function subscribeStaleApprovals(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
@@ -364,19 +367,6 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: null
 		);
-	}//end subscribeStaleApprovals()
-
-	/**
-	 * A changed step threshold recomputes its step and is recorded
-	 * (the-decision-as-a-walked-process, REQ-DWP-002).
-	 *
-	 * @param IEventDispatcher $dispatcher The live event dispatcher.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
-	 */
-	private function subscribeStepThresholds(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
 			dispatcher: $dispatcher,
 			event: ObjectUpdatedEvent::class,
@@ -384,7 +374,7 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [StepThresholdChangeListener::SCHEMA]
 		);
-	}//end subscribeStepThresholds()
+	}//end subscribeStaleApprovals()
 
 	/**
 	 * A ratification item placed on a meeting sets the urgent decision's

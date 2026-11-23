@@ -102,29 +102,19 @@ class StepThresholdRecomputer {
 		}
 
 		$stages = $this->stepContext(after: $after);
-		$group  = StepThresholdSettler::groupOf(stages: $stages, stage: $after);
-		$result = $this->settler->resultOf(stage: ($after + ['thresholdKind' => ApprovalThresholdCalculator::KIND_ALL]), group: $group);
-		if ($result === null) {
-			// A threshold the calculator cannot read closes nothing: the step
-			// waits for everyone. The result is still cached under it, so the
-			// copies onto the other stages read as computed and do not each
-			// record the change again.
-			[$kind, $value] = self::thresholdOf(stage: $after);
-			$result = [
-				'outcome' => ApprovalThresholdCalculator::OUTCOME_OPEN,
-				'thresholdKind' => $kind,
-				'thresholdValue' => $value,
-				'computedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
-			];
-		}
+		$group  = $this->settler->groupOf(stages: $stages, stage: $after);
+		$result = $this->resultUnder(after: $after, group: $group);
 
-		$this->applyToStep(stages: $stages, group: $group, after: $after, result: $result);
+		$reopen = $this->reopens(group: $group, result: $result);
+		$this->writeThreshold(group: $group, after: $after, result: $result, reopen: $reopen);
+		$this->moveRoute(stages: $stages, group: $group, result: $result, reopen: $reopen);
 
 		return $this->recordChange(before: $before, after: $after, actor: $actor);
 	}//end stageChanged()
 
 	/**
-	 * The subject's stages, ordered, with the changed stage as it now is.
+	 * The subject's stages, ordered, with the changed stage as it now is and
+	 * its step under the new threshold.
 	 *
 	 * @param array<string, mixed> $after The changed stage.
 	 *
@@ -132,9 +122,20 @@ class StepThresholdRecomputer {
 	 */
 	private function stepContext(array $after): array {
 		$stages = [];
+		$threshold = [
+			'thresholdKind'  => ($after['thresholdKind'] ?? ApprovalThresholdCalculator::KIND_ALL),
+			'thresholdValue' => ($after['thresholdValue'] ?? null),
+		];
 		foreach ($this->store->findAll(schema: 'decision-stage', filters: ['decision' => (string)$after['decision']]) as $stage) {
 			if ((string)($stage['id'] ?? '') === (string)($after['id'] ?? '')) {
 				$stage = $after;
+			}
+
+			if ((string)($stage['route'] ?? '') === (string)($after['route'] ?? '')
+				&& (int)($stage['sequence'] ?? 0) === (int)($after['sequence'] ?? 0)
+			) {
+				// The whole step counts under the new threshold from now on.
+				$stage = ($threshold + $stage);
 			}
 
 			$stages[] = $stage;
@@ -146,48 +147,125 @@ class StepThresholdRecomputer {
 	}//end stepContext()
 
 	/**
-	 * Write the new threshold and its result onto the step, and move the route.
+	 * The step's outcome under the new threshold, with the inputs it came from.
 	 *
-	 * @param array<int, array<string, mixed>> $stages The subject's stages.
+	 * A threshold the calculator cannot read closes nothing: the step waits for
+	 * everyone. The result is still cached under it, so the copies onto the
+	 * other stages read as computed and do not each record the change again.
+	 *
+	 * @param array<string, mixed>             $after The changed stage.
+	 * @param array<int, array<string, mixed>> $group The step's stages.
+	 *
+	 * @return array<string, mixed> The result.
+	 */
+	private function resultUnder(array $after, array $group): array {
+		$result = $this->settler->resultOf(stage: ($after + ['thresholdKind' => ApprovalThresholdCalculator::KIND_ALL]), group: $group);
+		if ($result !== null) {
+			return $result;
+		}
+
+		[$kind, $value] = self::thresholdOf(stage: $after);
+
+		return [
+			'outcome'        => ApprovalThresholdCalculator::OUTCOME_OPEN,
+			'thresholdKind'  => $kind,
+			'thresholdValue' => $value,
+			'computedAt'     => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
+		];
+	}//end resultUnder()
+
+	/**
+	 * Whether the step reopens: the threshold had closed it and it no longer reaches it.
+	 *
+	 * @param array<int, array<string, mixed>> $group  The step's stages.
+	 * @param array<string, mixed>             $result The step's outcome under the new threshold.
+	 *
+	 * @return bool True when the stages the threshold closed go back to active.
+	 */
+	private function reopens(array $group, array $result): bool {
+		if ($result['outcome'] === ApprovalThresholdCalculator::OUTCOME_GRANTED || self::waiting(group: $group) !== []) {
+			return false;
+		}
+
+		return self::closedByThreshold(group: $group) !== [];
+	}//end reopens()
+
+	/**
+	 * Copy the new threshold and its result onto every stage of the step.
+	 *
 	 * @param array<int, array<string, mixed>> $group  The step's stages.
 	 * @param array<string, mixed>             $after  The changed stage.
 	 * @param array<string, mixed>             $result The step's outcome under the new threshold.
+	 * @param bool                             $reopen Whether the stages the threshold closed reopen.
 	 *
 	 * @return void
 	 */
-	private function applyToStep(array $stages, array $group, array $after, array $result): void {
-		$granted  = (($result['outcome'] ?? '') === ApprovalThresholdCalculator::OUTCOME_GRANTED);
-		$closed   = array_values(array_filter($group, static fn (array $s): bool => ($s['closedByThreshold'] ?? false) === true));
-		$waiting  = array_values(array_filter($group, static fn (array $s): bool => (string)($s['status'] ?? '') === 'active'));
-		$reopen   = ($granted === false && $closed !== [] && $waiting === []);
-		$walkOn   = ($granted === true && $waiting !== []);
-		$decided  = ($result['computedAt'] ?? null);
-
+	private function writeThreshold(array $group, array $after, array $result, bool $reopen): void {
 		foreach ($group as $stage) {
 			$patch = [
 				'thresholdKind'   => ($after['thresholdKind'] ?? ApprovalThresholdCalculator::KIND_ALL),
 				'thresholdValue'  => ($after['thresholdValue'] ?? null),
 				'thresholdResult' => $result,
 			];
-			if ($walkOn === true && (string)($stage['status'] ?? '') === 'active') {
-				$patch += ['status' => 'skipped', 'outcome' => 'skipped', 'decidedAt' => $decided, 'closedByThreshold' => true];
-			}
-
 			if ($reopen === true && ($stage['closedByThreshold'] ?? false) === true) {
 				$patch['closedByThreshold'] = null;
 			}
 
 			$this->store->patch(schema: 'decision-stage', data: $patch, uuid: (string)$stage['id']);
 		}
+	}//end writeThreshold()
 
-		if ($walkOn === true) {
-			$this->advancer->walkOnFrom(stages: $stages, stage: $after);
-		}
-
+	/**
+	 * Walk the route on from a step that is now granted, or rewind it to a step that reopened.
+	 *
+	 * A granted step still waiting closes through the engine's own completion:
+	 * one waiting stage completes as skipped, and the settler closes the rest
+	 * and walks on, exactly as when a grant reaches the threshold.
+	 *
+	 * @param array<int, array<string, mixed>> $stages The subject's stages, the step under the new threshold.
+	 * @param array<int, array<string, mixed>> $group  The step's stages.
+	 * @param array<string, mixed>             $result The step's outcome under the new threshold.
+	 * @param bool                             $reopen Whether the stages the threshold closed reopen.
+	 *
+	 * @return void
+	 */
+	private function moveRoute(array $stages, array $group, array $result, bool $reopen): void {
 		if ($reopen === true) {
-			$this->advancer->reopenWithdrawnStages(stages: $stages, reopened: $closed);
+			$this->advancer->reopenWithdrawnStages(stages: $stages, reopened: self::closedByThreshold(group: $group));
+
+			return;
 		}
-	}//end applyToStep()
+
+		$waiting = self::waiting(group: $group);
+		if ($result['outcome'] !== ApprovalThresholdCalculator::OUTCOME_GRANTED || $waiting === []) {
+			return;
+		}
+
+		$this->advancer->completeWithOutcome(stages: $stages, active: $waiting[0], outcome: 'skipped', status: 'skipped');
+		$this->store->patch(schema: 'decision-stage', data: ['closedByThreshold' => true], uuid: (string)$waiting[0]['id']);
+	}//end moveRoute()
+
+	/**
+	 * The stages of the step still waiting for their approver.
+	 *
+	 * @param array<int, array<string, mixed>> $group The step's stages.
+	 *
+	 * @return array<int, array<string, mixed>> The active stages.
+	 */
+	private static function waiting(array $group): array {
+		return array_values(array_filter($group, static fn (array $stage): bool => (string)($stage['status'] ?? '') === 'active'));
+	}//end waiting()
+
+	/**
+	 * The stages of the step the threshold closed.
+	 *
+	 * @param array<int, array<string, mixed>> $group The step's stages.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 */
+	private static function closedByThreshold(array $group): array {
+		return array_values(array_filter($group, static fn (array $stage): bool => ($stage['closedByThreshold'] ?? false) === true));
+	}//end closedByThreshold()
 
 	/**
 	 * Append the action that records the change.
