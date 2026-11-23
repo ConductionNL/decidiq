@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalPrincipal;
+use OCA\Decidiq\Service\ApprovalRouteAdvancer;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
@@ -24,6 +25,7 @@ use OCA\Decidiq\Service\DecisionStageLabelRepair;
 use OCA\Decidiq\Service\HeldRouteRequest;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\Decidiq\Service\StepThresholdRecomputer;
 use OCA\Decidiq\Service\WorkingDayDeadlineSplitter;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -1475,5 +1477,168 @@ class ApprovalRouteServiceTest extends TestCase {
 		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
 
 		$this->assertSame(expected: ['decided', 'active', 'pending'], actual: $this->statuses());
+	}
+
+	/**
+	 * Change the threshold of one board stage as an administrator would, and
+	 * hand the update to the recomputer as the listener does.
+	 *
+	 * @param string $person The person whose stage is edited.
+	 * @param float  $value  The new share or count.
+	 *
+	 * @return array<string, mixed>|null The recorded action.
+	 */
+	private function changeThreshold(string $person, float $value): ?array {
+		$before = $this->boardStages()[$person];
+		$after = (['thresholdValue' => $value] + $before);
+		$this->objectService->rows['decision-stage'][(string)$before['id']] = $after;
+
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+
+		return $recomputer->stageChanged(before: $before, after: $after, actor: 'admin');
+	}
+
+	/**
+	 * Lowering a share closes a waiting step and records the change (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testLoweringTheThresholdClosesAnOpenStep(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.8]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		foreach (['anna', 'bram', 'cor'] as $person) {
+			$service->record(['subject' => 'dec-1', 'actor' => $person, 'action' => 'approved']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->boardStages()['dina']['status'], message: 'Three of five is below 0.8.');
+
+		$action = $this->changeThreshold(person: 'anna', value: 0.6);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'skipped', actual: $board[$person]['status']);
+			$this->assertTrue(condition: $board[$person]['closedByThreshold']);
+		}
+
+		foreach ($board as $stage) {
+			$this->assertSame(expected: 0.6, actual: $stage['thresholdValue'], message: 'The new share was not copied onto the whole step.');
+			$this->assertSame(expected: 'granted', actual: $stage['thresholdResult']['outcome']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'The route did not walk on.');
+		$this->assertSame(expected: 'threshold-changed', actual: $action['action']);
+		$this->assertSame(expected: 0.8, actual: $action['thresholdBefore']);
+		$this->assertSame(expected: 0.6, actual: $action['thresholdAfter']);
+		$this->assertSame(expected: 'admin', actual: $action['actor']);
+		$this->assertSame(expected: 'dec-1', actual: $action['subject']);
+		$this->assertSame(expected: 1, actual: $action['step']);
+		$this->assertSame(expected: 'Threshold changed from share 0.8 to share 0.6.', actual: $action['comment']);
+	}
+
+	/**
+	 * Raising a share reopens a step the threshold closed, and the subject is blocked again (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testRaisingTheThresholdReopensAClosedStep(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.5]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		foreach (['anna', 'bram', 'cor'] as $person) {
+			$service->record(['subject' => 'dec-1', 'actor' => $person, 'action' => 'approved']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'Three of five closes a share of 0.5.');
+
+		$action = $this->changeThreshold(person: 'anna', value: 0.8);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'active', actual: $board[$person]['status'], message: $person . ' was not asked again.');
+			$this->assertArrayNotHasKey(key: 'closedByThreshold', array: $board[$person]);
+		}
+
+		$this->assertSame(expected: 'decided', actual: $board['anna']['status'], message: 'A grant already given stays given.');
+		$this->assertSame(expected: 'open', actual: $board['anna']['thresholdResult']['outcome']);
+		$this->assertSame(expected: 'pending', actual: $this->stages()[5]['status'], message: 'The subject was not blocked again.');
+		$this->assertSame(expected: 0.5, actual: $action['thresholdBefore']);
+		$this->assertSame(expected: 0.8, actual: $action['thresholdAfter']);
+	}
+
+	/**
+	 * An update that does not change the threshold, and the recomputer's own copy onto a sibling, record nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testOnlyAChangedThresholdIsRecomputedAndRecorded(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 3]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+		$stage = $this->boardStages()['anna'];
+
+		$this->assertNull(actual: $recomputer->stageChanged(before: $stage, after: (['label' => 'Renamed'] + $stage), actor: 'admin'));
+
+		$siblingBefore = $this->boardStages()['bram'];
+		$this->changeThreshold(person: 'anna', value: 2);
+		$siblingAfter = $this->boardStages()['bram'];
+
+		$this->assertSame(expected: 2.0, actual: (float)$siblingAfter['thresholdValue']);
+		$this->assertNull(
+			actual: $recomputer->stageChanged(before: $siblingBefore, after: $siblingAfter, actor: 'admin'),
+			message: 'The copy onto a sibling recorded the change a second time.'
+		);
+		$recorded = array_filter(
+			$this->objectService->rows['approval-action'],
+			static fn (array $row): bool => $row['action'] === 'threshold-changed'
+		);
+		$this->assertCount(expectedCount: 1, haystack: $recorded);
+	}
+
+	/**
+	 * A threshold changed to one the calculator cannot read is recorded once and closes nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAnUnreadableNewThresholdIsRecordedOnceAndClosesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 3], approvers: 3),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+
+		$before = $this->boardStages()['anna'];
+		$after = (['thresholdKind' => 'share', 'thresholdValue' => 1.5] + $before);
+		$this->objectService->rows['decision-stage'][(string)$before['id']] = $after;
+		$siblingBefore = $this->boardStages()['bram'];
+
+		$action = $recomputer->stageChanged(before: $before, after: $after, actor: 'admin');
+
+		$this->assertSame(expected: 'Threshold changed from count 3 to share 1.5.', actual: $action['comment']);
+		$this->assertSame(expected: ['decided', 'active', 'active', 'pending'], actual: $this->statuses());
+		$sibling = $this->boardStages()['bram'];
+		$this->assertSame(expected: 'open', actual: $sibling['thresholdResult']['outcome']);
+		$this->assertNull(actual: $recomputer->stageChanged(before: $siblingBefore, after: $sibling, actor: 'admin'));
 	}
 }

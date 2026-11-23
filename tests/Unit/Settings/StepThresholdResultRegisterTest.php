@@ -20,7 +20,8 @@ use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A stage keeps its step's threshold result and says when the threshold closed it (REQ-DWP-002).
+ * A stage keeps its step's threshold result and says when the threshold closed it,
+ * and a threshold change is recorded as an action (REQ-DWP-002).
  *
  * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
  */
@@ -31,13 +32,39 @@ class StepThresholdResultRegisterTest extends TestCase {
 	 * @return array<string, mixed> The properties.
 	 */
 	private function stageProperties(): array {
+		return $this->schemas()['DecisionStage']['properties'];
+	}
+
+	/**
+	 * Every schema with every fragment merged, as the app loads them.
+	 *
+	 * @return array<string, mixed> The schemas.
+	 */
+	private function schemas(): array {
 		$settings = __DIR__ . '/../../../lib/Settings';
 		$base = json_decode((string)file_get_contents($settings . '/decidesk_register.json'), true);
 		$this->assertIsArray(actual: $base);
 
 		[$merged] = (new RegisterFragmentMerger())->mergeDirectory(configData: $base, fragmentDir: $settings . '/register.d');
 
-		return $merged['components']['schemas']['DecisionStage']['properties'];
+		return $merged['components']['schemas'];
+	}
+
+	/**
+	 * A threshold change is an action verb, beside every verb that was already there.
+	 *
+	 * @return void
+	 */
+	public function testAThresholdChangeIsAnAction(): void {
+		$properties = $this->schemas()['ApprovalAction']['properties'];
+		$verbs = $properties['action']['enum'];
+
+		foreach (['threshold-changed', 'approved', 'endorsed', 'advised', 'returned', 'skipped', 'lapsed', 'ontvankelijk', 'niet-ontvankelijk'] as $verb) {
+			$this->assertContains(needle: $verb, haystack: $verbs, message: $verb . ' is not an action verb.');
+		}
+
+		$this->assertSame(expected: 'number', actual: $properties['thresholdBefore']['type']);
+		$this->assertSame(expected: 'number', actual: $properties['thresholdAfter']['type']);
 	}
 
 	/**

@@ -313,6 +313,29 @@ final class ApprovalRouteAdvancer {
 	}//end completeWithOutcome()
 
 	/**
+	 * Make the next pending step after the given stage's live.
+	 *
+	 * For a step that closed without a completion of its own: a threshold
+	 * lowered until the grants already given were enough (REQ-DWP-002). When
+	 * no later stage remains the route is finished.
+	 *
+	 * @param array<int, array<string, mixed>> $stages All stages, in order.
+	 * @param array<string, mixed>             $stage  A stage of the step that closed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function walkOnFrom(array $stages, array $stage): void {
+		$nextSequence = $this->nextPendingSequence(stages: $stages, after: (int)($stage['sequence'] ?? 0));
+		if ($nextSequence === null) {
+			return;
+		}
+
+		$this->activateSequence(stages: $stages, active: $stage, sequence: $nextSequence);
+	}//end walkOnFrom()
+
+	/**
 	 * Make the pending stages of one sequence live.
 	 *
 	 * @param array<int, array<string, mixed>> $stages   All stages, in order.
