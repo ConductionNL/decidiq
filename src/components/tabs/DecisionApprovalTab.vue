@@ -74,6 +74,12 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/**
+			 * Read the risk again for another decision.
+			 *
+			 * @return {void}
+			 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
+			 */
 			handler() {
 				this.loadRisk()
 			},
@@ -122,6 +128,7 @@ export default {
 	gap: calc(var(--default-grid-baseline) * 2);
 	align-items: flex-start;
 }
+
 .decision-approval__risk {
 	display: flex;
 	flex-direction: column;
