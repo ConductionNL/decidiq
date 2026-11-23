@@ -1,0 +1,151 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process tasks 8.1 and 8.2 (REQ-DWP-008). A decision type may declare `riskScore`, a declarative expression over the decision's own properties: rules that each add points when a property matches, and bands that name the total. DecisionRiskScoreListener evaluates it on every save of a decision (so a send, which writes the decision, scores it, and a change to a property the expression reads scores it again) and writes `riskAssessment`: the score, the band and the properties that produced it. No model and no service call. Properties only, so no schema version moves, as in 140-a-step-may-take-a-nominated-approver.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval",
+  "components": {
+    "schemas": {
+      "DecisionTemplate": {
+        "slug": "decision-template",
+        "properties": {
+          "riskScore": {
+            "title": "Risk score",
+            "type": "object",
+            "description": "How a decision of this type is scored before approval. Each rule adds its points when the decision's property matches; the band is the highest one whose minimum the total reaches. When empty, decisions of this type carry no score.",
+            "properties": {
+              "rules": {
+                "title": "Rules",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "property",
+                    "operator",
+                    "points"
+                  ],
+                  "properties": {
+                    "property": {
+                      "title": "Property",
+                      "type": "string",
+                      "maxLength": 255,
+                      "example": "amount",
+                      "description": "The decision's property the rule reads; a dotted path reads into an object."
+                    },
+                    "operator": {
+                      "title": "Operator",
+                      "type": "string",
+                      "enum": [
+                        "eq",
+                        "neq",
+                        "gt",
+                        "gte",
+                        "lt",
+                        "lte",
+                        "in",
+                        "notIn",
+                        "present"
+                      ],
+                      "example": "gte",
+                      "description": "How the property is compared with the value."
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string",
+                      "maxLength": 255,
+                      "example": "100000",
+                      "description": "What the property is compared with. `gt`, `gte`, `lt` and `lte` compare as numbers; `eq` and `neq` compare as text. Not read by `in`, `notIn` or `present`."
+                    },
+                    "values": {
+                      "title": "Values",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "example": [
+                        "subsidy",
+                        "grant"
+                      ],
+                      "description": "The list `in` and `notIn` compare the property with, as text."
+                    },
+                    "points": {
+                      "title": "Points",
+                      "type": "number",
+                      "example": 3,
+                      "description": "What the rule adds to the score when it matches."
+                    }
+                  }
+                }
+              },
+              "bands": {
+                "title": "Bands",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "band",
+                    "min"
+                  ],
+                  "properties": {
+                    "band": {
+                      "title": "Band",
+                      "type": "string",
+                      "maxLength": 64,
+                      "example": "high"
+                    },
+                    "min": {
+                      "title": "From score",
+                      "type": "number",
+                      "example": 5,
+                      "description": "The lowest score in this band."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "properties": {
+          "riskAssessment": {
+            "title": "Risk assessment",
+            "type": "object",
+            "description": "Written by the server from the type's `riskScore` on every save; empty when the type declares none. `basis` lists the properties that produced the score, each with the value read and the points it added, so the approver sees why (REQ-DWP-008).",
+            "properties": {
+              "score": {
+                "title": "Score",
+                "type": "number"
+              },
+              "band": {
+                "title": "Band",
+                "type": "string"
+              },
+              "basis": {
+                "title": "Basis",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value the rule read, as text."
+                    },
+                    "points": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
