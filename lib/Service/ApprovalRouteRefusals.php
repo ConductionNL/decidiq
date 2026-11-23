@@ -70,6 +70,7 @@ class ApprovalRouteRefusals {
 	 * @return list<string> The refusals.
 	 *
 	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-009-a-route-that-needs-a-missing-openregister-feature-is-refused-when-saved
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function ofStep(array $step, int $number): array {
 		$where    = sprintf('Step %d', $number);
@@ -94,6 +95,10 @@ class ApprovalRouteRefusals {
 
 		if (in_array((string)($step['thresholdKind'] ?? 'all'), ['count', 'share'], true) === true) {
 			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::PARTIAL_THRESHOLD, where: $where);
+		}
+
+		if (trim((string)($step[ApprovalNomination::BOUND_FIELD] ?? '')) !== '') {
+			$refusals[] = $this->missing(feature: ApprovalRouteFlowCapabilities::NOMINATION, where: $where);
 		}
 
 		return array_values(array_filter($refusals));

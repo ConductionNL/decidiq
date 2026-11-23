@@ -129,6 +129,10 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	 *        does not run is the state this parameter exists to end. It defaults
 	 *        to a real instance because the policy is a pure value object with
 	 *        no dependencies of its own, so there is nothing to inject.
+	 * @param ApprovalNomination|null $nomination Checks the approvers a requester
+	 *        names against their step's group (REQ-DWP-009). Nullable and last,
+	 *        so existing callers keep working; without it a route whose step
+	 *        takes a nominee is refused, never travelled unchecked.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -138,6 +142,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 		private readonly ?ApprovalStageActivator $activator = null,
 		private readonly ?WorkingDayDeadlineSplitter $splitter = null,
 		private readonly StageLapsePolicy $policy = new StageLapsePolicy(),
+		private readonly ?ApprovalNomination $nomination = null,
 	) {
 		$this->advancer = new ApprovalRouteAdvancer(store: $store, activator: $activator);
 		$this->openGuard = new OpenApprovalGuard();
@@ -418,6 +423,9 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	 * @param ApprovalPrincipal $principal Who is asking. Defaults to Ordinary,
 	 *        which is the fail-closed answer: a caller that says nothing about
 	 *        who it is does not get to declare that silence approves.
+	 * @param array<mixed, mixed> $nominations The approvers the requester named,
+	 *        keyed by step order; only steps that declare a nomination group read them.
+	 * @param string $requester Who sends the route and names the approvers.
 	 *
 	 * @return array<int, array<string, mixed>> The stages, existing or created.
 	 *
@@ -427,18 +435,22 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	 * @spec openspec/specs/approval-routes/spec.md
 	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function instantiate(
 		array $route,
 		string $subject,
 		string $subjectSchema,
 		ApprovalPrincipal $principal = ApprovalPrincipal::Ordinary,
+		array $nominations = [],
+		string $requester = '',
 	): array {
 		$existing = $this->stagesFor(subject: $subject);
 		if ($existing !== []) {
 			return $existing;
 		}
 
+		$route = $this->withNominations(route: $route, nominations: $nominations, requester: $requester);
 		$steps = $this->travellableSteps(route: $route, principal: $principal);
 
 		$run = new RouteStagesRun(subject: $subject, subjectSchema: $subjectSchema);
@@ -458,6 +470,37 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 
 		return $created;
 	}//end instantiate()
+
+	/**
+	 * The route with each nominated approver on their step.
+	 *
+	 * Without the nomination checker a step that takes a nominee is refused
+	 * rather than travelled: the bound could not be checked, and a step
+	 * assigned to its own actor would drop the person the requester named.
+	 *
+	 * @param array<string, mixed> $route       The route.
+	 * @param array<mixed, mixed>  $nominations The nominees, keyed by step order.
+	 * @param string               $requester   Who named them.
+	 *
+	 * @return array<string, mixed> The route.
+	 *
+	 * @throws RuntimeException When a nomination is refused or cannot be checked.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function withNominations(array $route, array $nominations, string $requester): array {
+		if ($this->nomination !== null) {
+			return $this->nomination->applyTo(route: $route, nominations: $nominations, requester: $requester);
+		}
+
+		foreach ($this->mapper->orderedSteps(route: $route) as $step) {
+			if (trim((string)($step[ApprovalNomination::BOUND_FIELD] ?? '')) !== '') {
+				throw new RuntimeException('This route lets the requester name an approver, and the nomination cannot be checked here.');
+			}
+		}
+
+		return $route;
+	}//end withNominations()
 
 	/**
 	 * The route's steps in order, once every declared silence is one this

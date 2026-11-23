@@ -167,6 +167,8 @@ class ApprovalRouteController extends Controller {
 	 * @param string $subjectSchema The subject's schema slug.
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
 		if ((string)($route['origin'] ?? '') === 'adhoc') {
@@ -180,13 +182,57 @@ class ApprovalRouteController extends Controller {
 			);
 		}
 
+		// A step that lets the requester name its approver gets that person,
+		// inside the step's group, before any stage is written (REQ-DWP-009).
+		$nominations = $this->nominations();
+
 		return $this->service->instantiate(
 			route: $route,
 			subject: $subject,
 			subjectSchema: $subjectSchema,
 			principal: $this->callerPrincipal(),
+			nominations: $nominations,
+			requester: $this->requester(nominations: $nominations),
 		);
 	}//end stagesFor()
+
+	/**
+	 * The approvers the requester named, keyed by step order.
+	 *
+	 * @return array<mixed, mixed> The nominations; empty when none were sent.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function nominations(): array {
+		$nominations = $this->request->getParam('nominations', []);
+		if (is_array($nominations) === false) {
+			return [];
+		}
+
+		return $nominations;
+	}//end nominations()
+
+	/**
+	 * Who names the approvers: the signed-in user, read only when someone was named.
+	 *
+	 * @param array<mixed, mixed> $nominations The nominations sent.
+	 *
+	 * @return string The user id, or empty.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function requester(array $nominations): string {
+		if ($nominations === []) {
+			return '';
+		}
+
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end requester()
 
 	/**
 	 * When a held route asks each approver's substitute too, as a fraction of

@@ -225,11 +225,12 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function declaredStepFields(array $step): array {
 		$fields = [];
 
-		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind', 'committeeBody'] as $key) {
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind', 'committeeBody', 'nominationGroup', 'nominatedBy'] as $key) {
 			$value = trim((string)($step[$key] ?? ''));
 			if ($value !== '') {
 				$fields[$key] = $value;
