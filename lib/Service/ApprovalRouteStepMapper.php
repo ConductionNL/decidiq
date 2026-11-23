@@ -31,12 +31,71 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCP\IGroupManager;
+
 /**
  * Shapes route steps into stage fields.
  *
  * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalRouteStepMapper {
+	/**
+	 * The route key the approvers a requester named travel under, keyed by step order.
+	 *
+	 * @var string
+	 */
+	public const NOMINATIONS = 'nominations';
+
+	/**
+	 * The route key naming who sent the nominations.
+	 *
+	 * @var string
+	 */
+	public const NOMINATED_BY = 'nominatedBy';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param IGroupManager|null $groups Checks a nominee against their step's
+	 *        group (REQ-DWP-009). Nullable so the mapper stays constructible
+	 *        without it; a route whose step takes a nominee is then refused,
+	 *        never travelled unchecked.
+	 */
+	public function __construct(
+		private readonly ?IGroupManager $groups = null,
+	) {
+	}//end __construct()
+
+	/**
+	 * The route with each nominated approver written onto their step.
+	 *
+	 * The nominations and who sent them are read off the route, where the
+	 * controller put them, and taken off it again.
+	 *
+	 * @param array<string, mixed> $route The route.
+	 *
+	 * @return array<string, mixed> The route, its nomination steps assigned.
+	 *
+	 * @throws \RuntimeException When a nomination is refused or cannot be checked.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	public function withNominations(array $route): array {
+		$nominations = ($route[self::NOMINATIONS] ?? []);
+		$requester   = (string)($route[self::NOMINATED_BY] ?? '');
+		unset($route[self::NOMINATIONS], $route[self::NOMINATED_BY]);
+
+		if (is_array($nominations) === false) {
+			$nominations = [];
+		}
+
+		return (new ApprovalNomination(groups: $this->groups))->applyTo(
+			route: $route,
+			nominations: $nominations,
+			requester: $requester,
+		);
+	}//end withNominations()
+
 
 	/**
 	 * A route's steps, ordered.
@@ -225,11 +284,12 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function declaredStepFields(array $step): array {
 		$fields = [];
 
-		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind', 'committeeBody'] as $key) {
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind', 'committeeBody', 'nominationGroup', 'nominatedBy'] as $key) {
 			$value = trim((string)($step[$key] ?? ''));
 			if ($value !== '') {
 				$fields[$key] = $value;

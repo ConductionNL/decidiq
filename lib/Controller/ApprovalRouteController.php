@@ -167,6 +167,8 @@ class ApprovalRouteController extends Controller {
 	 * @param string $subjectSchema The subject's schema slug.
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
 		if ((string)($route['origin'] ?? '') === 'adhoc') {
@@ -180,6 +182,15 @@ class ApprovalRouteController extends Controller {
 			);
 		}
 
+		// The approvers the requester named travel on the route, and who named
+		// them is the session's user, never what the body says (REQ-DWP-009).
+		unset($route['nominations'], $route['nominatedBy']);
+		$nominations = $this->nominations();
+		if ($nominations !== []) {
+			$route['nominations'] = $nominations;
+			$route['nominatedBy'] = $this->requester();
+		}
+
 		return $this->service->instantiate(
 			route: $route,
 			subject: $subject,
@@ -187,6 +198,38 @@ class ApprovalRouteController extends Controller {
 			principal: $this->callerPrincipal(),
 		);
 	}//end stagesFor()
+
+	/**
+	 * The approvers the requester named, keyed by step order.
+	 *
+	 * @return array<mixed, mixed> The nominations; empty when none were sent.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function nominations(): array {
+		$nominations = $this->request->getParam('nominations', []);
+		if (is_array($nominations) === false) {
+			return [];
+		}
+
+		return $nominations;
+	}//end nominations()
+
+	/**
+	 * Who names the approvers: the signed-in user.
+	 *
+	 * @return string The user id, or empty.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function requester(): string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end requester()
 
 	/**
 	 * When a held route asks each approver's substitute too, as a fraction of

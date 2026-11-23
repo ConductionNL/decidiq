@@ -427,6 +427,7 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	 * @spec openspec/specs/approval-routes/spec.md
 	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function instantiate(
 		array $route,
@@ -439,6 +440,9 @@ class ApprovalRouteService implements ApprovalRouteServiceInterface {
 			return $existing;
 		}
 
+		// A step that lets the requester name its approver gets that person,
+		// checked against the step's group before any stage is written (REQ-DWP-009).
+		$route = $this->mapper->withNominations(route: $route);
 		$steps = $this->travellableSteps(route: $route, principal: $principal);
 
 		$run = new RouteStagesRun(subject: $subject, subjectSchema: $subjectSchema);

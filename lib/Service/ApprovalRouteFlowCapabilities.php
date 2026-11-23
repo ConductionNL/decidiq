@@ -74,6 +74,11 @@ class ApprovalRouteFlowCapabilities {
 	public const PARTIAL_THRESHOLD = 'threshold of some of the parallel steps';
 
 	/**
+	 * An approver the requester names, bounded by a group.
+	 */
+	public const NOMINATION = 'approver named by the requester';
+
+	/**
 	 * Every feature, in the order a refusal lists them.
 	 *
 	 * @var list<string>
@@ -87,6 +92,7 @@ class ApprovalRouteFlowCapabilities {
 		self::PERFORMER_RULE,
 		self::EXCLUSION_LIST,
 		self::PARTIAL_THRESHOLD,
+		self::NOMINATION,
 	];
 
 	/**
