@@ -4575,7 +4575,11 @@
         "When the result was computed.": "Wanneer de uitkomst is berekend.",
         "Closed by threshold": "Gesloten door de drempel",
         "True on a stage the engine closed because its step had already reached its threshold: the approver was not needed any more and never answered. A stage an approver skipped on purpose does not carry it.": "Waar op een fase die de engine sloot omdat de stap zijn drempel al had gehaald: de goedkeurder was niet meer nodig en heeft nooit geantwoord. Een fase die een goedkeurder bewust oversloeg heeft dit niet.",
-        "Widened with `threshold-changed`: an administrator changed the threshold of the step, which recomputed its outcome. The action carries the old and the new value in `thresholdBefore` and `thresholdAfter` (REQ-DWP-002).": "Uitgebreid met `threshold-changed`: een beheerder wijzigde de drempel van de stap, waardoor de uitkomst opnieuw is berekend. De actie draagt de oude en de nieuwe waarde in `thresholdBefore` en `thresholdAfter` (REQ-DWP-002)."
+        "Widened with `threshold-changed`: an administrator changed the threshold of the step, which recomputed its outcome. The action carries the old and the new value in `thresholdBefore` and `thresholdAfter` (REQ-DWP-002).": "Uitgebreid met `threshold-changed`: een beheerder wijzigde de drempel van de stap, waardoor de uitkomst opnieuw is berekend. De actie draagt de oude en de nieuwe waarde in `thresholdBefore` en `thresholdAfter` (REQ-DWP-002).",
+        "Risk band {band}": "Risicoklasse {band}",
+        "No risk band": "Geen risicoklasse",
+        "Score {score}, from:": "Score {score}, op basis van:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} punten)"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

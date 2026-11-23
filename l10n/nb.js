@@ -3404,7 +3404,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Stadfestingen kunne ikke registreres.",
         "The confidentiality could not be lifted.": "Taushetsplikten kunne ikke oppheves.",
         "Only for members of {body} and the people the clerk adds.": "Bare for medlemmer av {body} og personene sekretariatet legger til.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Bare for medlemmer av møtets organ og personene sekretariatet legger til."
+        "Only for members of the meeting's body and the people the clerk adds.": "Bare for medlemmer av møtets organ og personene sekretariatet legger til.",
+        "Risk band {band}": "Risikonivå {band}",
+        "No risk band": "Ingen risikonivå",
+        "Score {score}, from:": "Poengsum {score}, ut fra:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} poeng)"
     },
     "nplurals=2; plural=(n != 1);"
 )

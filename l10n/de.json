@@ -3406,7 +3406,11 @@
         "The ratification could not be recorded.": "Die Bestätigung konnte nicht erfasst werden.",
         "The confidentiality could not be lifted.": "Die Geheimhaltung konnte nicht aufgehoben werden.",
         "Only for members of {body} and the people the clerk adds.": "Nur für Mitglieder von {body} und die Personen, die das Sekretariat hinzufügt.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Nur für Mitglieder des Gremiums der Sitzung und die Personen, die das Sekretariat hinzufügt."
+        "Only for members of the meeting's body and the people the clerk adds.": "Nur für Mitglieder des Gremiums der Sitzung und die Personen, die das Sekretariat hinzufügt.",
+        "Risk band {band}": "Risikostufe {band}",
+        "No risk band": "Keine Risikostufe",
+        "Score {score}, from:": "Punktzahl {score}, aus:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkte)"
     },
     "plurals": null
 }

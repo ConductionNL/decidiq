@@ -3342,7 +3342,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "No s'ha pogut registrar la ratificació.",
         "The confidentiality could not be lifted.": "No s'ha pogut aixecar la confidencialitat.",
         "Only for members of {body} and the people the clerk adds.": "Només per als membres de {body} i les persones que afegeixi la secretaria.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Només per als membres de l'òrgan de la reunió i les persones que afegeixi la secretaria."
+        "Only for members of the meeting's body and the people the clerk adds.": "Només per als membres de l'òrgan de la reunió i les persones que afegeixi la secretaria.",
+        "Risk band {band}": "Nivell de risc {band}",
+        "No risk band": "Sense nivell de risc",
+        "Score {score}, from:": "Puntuació {score}, a partir de:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} punts)"
     },
     "nplurals=2; plural=(n != 1);"
 )

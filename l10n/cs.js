@@ -3342,7 +3342,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Potvrzení se nepodařilo zaznamenat.",
         "The confidentiality could not be lifted.": "Utajení se nepodařilo zrušit.",
         "Only for members of {body} and the people the clerk adds.": "Jen pro členy {body} a osoby, které přidá sekretariát.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Jen pro členy orgánu zasedání a osoby, které přidá sekretariát."
+        "Only for members of the meeting's body and the people the clerk adds.": "Jen pro členy orgánu zasedání a osoby, které přidá sekretariát.",
+        "Risk band {band}": "Úroveň rizika {band}",
+        "No risk band": "Bez úrovně rizika",
+        "Score {score}, from:": "Skóre {score}, z:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} b.)"
     },
     "nplurals=2; plural=(n != 1);"
 )

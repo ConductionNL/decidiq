@@ -3344,7 +3344,11 @@
         "The ratification could not be recorded.": "D'Bestätegung konnt net festgehale ginn.",
         "The confidentiality could not be lifted.": "D'Geheimhaltung konnt net opgehuewe ginn.",
         "Only for members of {body} and the people the clerk adds.": "Nëmme fir Membere vu(n) {body} an d'Leit, déi de Sekretariat derbäisetzt.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Nëmme fir Membere vum Gremium vun der Sëtzung an d'Leit, déi de Sekretariat derbäisetzt."
+        "Only for members of the meeting's body and the people the clerk adds.": "Nëmme fir Membere vum Gremium vun der Sëtzung an d'Leit, déi de Sekretariat derbäisetzt.",
+        "Risk band {band}": "Risikostuf {band}",
+        "No risk band": "Keng Risikostuf",
+        "Score {score}, from:": "Punkten {score}, aus:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkten)"
     },
     "plurals": null
 }

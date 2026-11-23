@@ -3404,7 +3404,11 @@ OC.L10N.register(
         "The ratification could not be recorded.": "Потвърждаването не можа да бъде записано.",
         "The confidentiality could not be lifted.": "Поверителността не можа да бъде отменена.",
         "Only for members of {body} and the people the clerk adds.": "Само за членовете на {body} и хората, добавени от секретариата.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Само за членовете на органа на заседанието и хората, добавени от секретариата."
+        "Only for members of the meeting's body and the people the clerk adds.": "Само за членовете на органа на заседанието и хората, добавени от секретариата.",
+        "Risk band {band}": "Рисково ниво {band}",
+        "No risk band": "Няма рисково ниво",
+        "Score {score}, from:": "Резултат {score}, от:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} т.)"
     },
     "nplurals=2; plural=(n != 1);"
 )

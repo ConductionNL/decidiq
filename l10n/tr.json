@@ -3406,7 +3406,11 @@
         "The ratification could not be recorded.": "Onay kaydedilemedi.",
         "The confidentiality could not be lifted.": "Gizlilik kaldırılamadı.",
         "Only for members of {body} and the people the clerk adds.": "Yalnızca {body} üyeleri ve sekreterliğin eklediği kişiler için.",
-        "Only for members of the meeting's body and the people the clerk adds.": "Yalnızca toplantının kurulunun üyeleri ve sekreterliğin eklediği kişiler için."
+        "Only for members of the meeting's body and the people the clerk adds.": "Yalnızca toplantının kurulunun üyeleri ve sekreterliğin eklediği kişiler için.",
+        "Risk band {band}": "Risk düzeyi {band}",
+        "No risk band": "Risk düzeyi yok",
+        "Score {score}, from:": "Puan {score}, kaynak:",
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} puan)"
     },
     "plurals": null
 }
