@@ -35,9 +35,15 @@ class CommitteeStepGuardTest extends TestCase {
 	 * @return CommitteeStepGuard The guard.
 	 */
 	private function guard(?array $body): CommitteeStepGuard {
-		$store = $this->createMock(RegisterObjectStore::class);
+		$store = $this->createMock(originalClassName: RegisterObjectStore::class);
 		$store->method('find')->willReturnCallback(
-			static fn (string $schema, string $uuid): ?array => ($schema === 'governance-body' && $uuid === 'body-1') ? $body : null
+			static function (string $schema, string $uuid) use ($body): ?array {
+				if ($schema !== 'governance-body' || $uuid !== 'body-1') {
+					return null;
+				}
+
+				return $body;
+			}
 		);
 
 		return new CommitteeStepGuard(store: $store);
@@ -49,8 +55,8 @@ class CommitteeStepGuardTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheRefusalNamesTheBody(): void {
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('This is a committee step: College van B&W decides it in a meeting. One person cannot close it.');
+		$this->expectException(exception: RuntimeException::class);
+		$this->expectExceptionMessage(message: 'This is a committee step: College van B&W decides it in a meeting. One person cannot close it.');
 
 		$this->guard(body: ['name' => 'College van B&W'])->assertNotClosedByOneActor(
 			stage: ['stepKind' => 'committee', 'committeeBody' => 'body-1']
@@ -63,7 +69,7 @@ class CommitteeStepGuardTest extends TestCase {
 	 * @return void
 	 */
 	public function testABodyStoredAsAnObjectIsRead(): void {
-		$this->expectExceptionMessage('College van B&W decides it');
+		$this->expectExceptionMessage(message: 'College van B&W decides it');
 
 		$this->guard(body: ['name' => 'College van B&W'])->assertNotClosedByOneActor(
 			stage: ['stepKind' => 'committee', 'committeeBody' => ['id' => 'body-1']]
@@ -76,7 +82,7 @@ class CommitteeStepGuardTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableBodyIsNamedByItsId(): void {
-		$this->expectExceptionMessage('This is a committee step: body-1 decides it');
+		$this->expectExceptionMessage(message: 'This is a committee step: body-1 decides it');
 
 		$this->guard(body: null)->assertNotClosedByOneActor(
 			stage: ['stepKind' => 'committee', 'committeeBody' => 'body-1']
@@ -89,7 +95,7 @@ class CommitteeStepGuardTest extends TestCase {
 	 * @return void
 	 */
 	public function testACommitteeStepWithoutABodyIsStillRefused(): void {
-		$this->expectExceptionMessage('but it names no body. One person cannot close it.');
+		$this->expectExceptionMessage(message: 'but it names no body. One person cannot close it.');
 
 		$this->guard(body: null)->assertNotClosedByOneActor(stage: ['stepKind' => 'committee']);
 	}
@@ -104,9 +110,9 @@ class CommitteeStepGuardTest extends TestCase {
 
 		foreach ([[], ['stepKind' => 'approval'], ['stepKind' => 'intake']] as $stage) {
 			$guard->assertNotClosedByOneActor(stage: $stage);
-			$this->assertFalse($guard->isCommitteeStage(stage: $stage));
+			$this->assertFalse(condition: $guard->isCommitteeStage(stage: $stage));
 		}
 
-		$this->assertTrue($guard->isCommitteeStage(stage: ['stepKind' => 'committee']));
+		$this->assertTrue(condition: $guard->isCommitteeStage(stage: ['stepKind' => 'committee']));
 	}
 }

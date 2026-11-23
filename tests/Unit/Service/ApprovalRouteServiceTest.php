@@ -1282,7 +1282,10 @@ class ApprovalRouteServiceTest extends TestCase {
 		return [
 			'name' => 'Committee route',
 			'steps' => [
-				['order' => 1, 'stageType' => 'decisive', 'stepKind' => 'committee', 'committeeBody' => 'body-college', 'actorType' => 'person', 'actor' => 'alice', 'label' => 'College'],
+				[
+					'order' => 1, 'stageType' => 'decisive', 'stepKind' => 'committee', 'committeeBody' => 'body-college',
+					'actorType' => 'person', 'actor' => 'alice', 'label' => 'College',
+				],
 				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
 			],
 		];
@@ -1299,9 +1302,9 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->service()->instantiate(route: $this->committeeRoute(), subject: 'dec-1', subjectSchema: 'decision');
 
 		$stages = $this->stages();
-		$this->assertSame('committee', $stages[0]['stepKind']);
-		$this->assertSame('body-college', $stages[0]['committeeBody']);
-		$this->assertArrayNotHasKey('committeeBody', $stages[1]);
+		$this->assertSame(expected: 'committee', actual: $stages[0]['stepKind']);
+		$this->assertSame(expected: 'body-college', actual: $stages[0]['committeeBody']);
+		$this->assertArrayNotHasKey(key: 'committeeBody', array: $stages[1]);
 	}
 
 	/**
@@ -1318,14 +1321,14 @@ class ApprovalRouteServiceTest extends TestCase {
 		foreach (['approved', 'skipped'] as $verb) {
 			try {
 				$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => $verb]);
-				$this->fail('A single actor closed a committee step with "' . $verb . '".');
+				$this->fail(message: 'A single actor closed a committee step with "' . $verb . '".');
 			} catch (RuntimeException $e) {
-				$this->assertStringContainsString('committee step', $e->getMessage());
-				$this->assertStringContainsString('body-college', $e->getMessage());
+				$this->assertStringContainsString(needle: 'committee step', haystack: $e->getMessage());
+				$this->assertStringContainsString(needle: 'body-college', haystack: $e->getMessage());
 			}
 		}
 
-		$this->assertSame(['active', 'pending'], $this->statuses());
-		$this->assertSame([], $this->objectService->rows['approval-action']);
+		$this->assertSame(expected: ['active', 'pending'], actual: $this->statuses());
+		$this->assertSame(expected: [], actual: $this->objectService->rows['approval-action']);
 	}
 }

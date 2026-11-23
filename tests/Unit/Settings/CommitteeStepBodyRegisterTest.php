@@ -33,7 +33,7 @@ class CommitteeStepBodyRegisterTest extends TestCase {
 	private function schemas(): array {
 		$settings = __DIR__ . '/../../../lib/Settings';
 		$base = json_decode((string)file_get_contents($settings . '/decidesk_register.json'), true);
-		$this->assertIsArray($base);
+		$this->assertIsArray(actual: $base);
 
 		[$merged] = (new RegisterFragmentMerger())->mergeDirectory(configData: $base, fragmentDir: $settings . '/register.d');
 
@@ -52,13 +52,13 @@ class CommitteeStepBodyRegisterTest extends TestCase {
 		$stage = $schemas['DecisionStage']['properties'];
 
 		foreach (['route step' => $step, 'stage' => $stage] as $where => $properties) {
-			$this->assertArrayHasKey('committeeBody', $properties, 'The ' . $where . ' cannot name a committee body.');
-			$this->assertSame('governance-body', $properties['committeeBody']['$ref']);
-			$this->assertSame('string', $properties['committeeBody']['type']);
+			$this->assertArrayHasKey(key: 'committeeBody', array: $properties, message: 'The ' . $where . ' cannot name a committee body.');
+			$this->assertSame(expected: 'governance-body', actual: $properties['committeeBody']['$ref']);
+			$this->assertSame(expected: 'string', actual: $properties['committeeBody']['type']);
 		}
 
-		$this->assertContains('committee', $step['stepKind']['enum']);
-		$this->assertContains('committee', $stage['stepKind']['enum']);
+		$this->assertContains(needle: 'committee', haystack: $step['stepKind']['enum']);
+		$this->assertContains(needle: 'committee', haystack: $stage['stepKind']['enum']);
 	}
 
 	/**
@@ -70,7 +70,7 @@ class CommitteeStepBodyRegisterTest extends TestCase {
 		$step = $this->schemas()['ApprovalRoute']['properties']['steps']['items']['properties'];
 
 		foreach (['thresholdKind', 'thresholdValue', 'approvalBasis', 'stepKind'] as $field) {
-			$this->assertArrayHasKey($field, $step, $field . ' was lost when the committee body was merged in.');
+			$this->assertArrayHasKey(key: $field, array: $step, message: $field . ' was lost when the committee body was merged in.');
 		}
 	}
 }

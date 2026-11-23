@@ -10,6 +10,9 @@
         "slug": "approval-route",
         "properties": {
           "steps": {
+            "title": "Steps",
+            "type": "array",
+            "description": "The ordered steps, with the walked-process additions. Every addition defaults to today's behaviour, so no stored route changes meaning.",
             "items": {
               "type": "object",
               "properties": {
