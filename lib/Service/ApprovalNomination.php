@@ -51,10 +51,11 @@ final class ApprovalNomination {
 	/**
 	 * Constructor.
 	 *
-	 * @param IGroupManager $groups Answers whether the nominee is in the bound.
+	 * @param IGroupManager|null $groups Answers whether the nominee is in the
+	 *        bound; without it every nomination step is refused.
 	 */
 	public function __construct(
-		private readonly IGroupManager $groups,
+		private readonly ?IGroupManager $groups,
 	) {
 	}//end __construct()
 
@@ -137,6 +138,12 @@ final class ApprovalNomination {
 		if ($nominee === '') {
 			throw new RuntimeException(
 				sprintf('%s asks you to name its approver from the group %s, and nobody was named.', $label, $bound)
+			);
+		}
+
+		if ($this->groups === null) {
+			throw new RuntimeException(
+				sprintf('%s lets you name its approver, and the nomination cannot be checked here.', $label)
 			);
 		}
 

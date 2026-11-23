@@ -226,11 +226,30 @@ them reachable is in reachability-scope.md beside this file.
 
 ## 9. The nominated approver
 
-<!-- DEFERRED: `could`, one documented passer. -->
-
-- [ ] 9.1 Add `nomination` with an eligibility bound to a route step.
-- [ ] 9.2 Assign the action to the nominated actor, refuse a nomination outside the bound.
-- [ ] 9.3 PHPUnit on both paths.
+- [x] 9.1 Add `nomination` with an eligibility bound to a route step.
+      <!-- DONE (2026-11-23): the bound is a Nextcloud group (design's open
+      question: group, not role, because a group is what Nextcloud can check
+      for any user). Fragment 140-a-step-may-take-a-nominated-approver adds
+      `nominationGroup` to the ApprovalRoute step, and `nominationGroup` plus
+      `nominatedBy` to DecisionStage; ApprovalRouteStepMapper copies both onto
+      the stage. Proven by NominatedApproverRegisterTest. -->
+- [x] 9.2 Assign the action to the nominated actor, refuse a nomination outside the bound.
+      <!-- DONE (2026-11-23): `POST /api/approval-routes/instantiate` takes
+      `nominations` (step order -> user id). The controller puts them on the
+      route with the session user as `nominatedBy` (a caller-sent one is
+      dropped); ApprovalRouteStepMapper::withNominations() hands them to
+      ApprovalNomination before any stage is written. A nominee outside the
+      group is refused naming the group, a nomination step with nobody named
+      is refused, a step without a bound ignores a nomination, and an accepted
+      nominee becomes the step's person (any actor rule gives way). Without a
+      group manager the step is refused, never travelled unchecked. Stored-stage
+      engine only: a route compiled to a flow refuses a nomination step
+      (ApprovalRouteRefusals, feature "approver named by the requester") until
+      OpenRegister offers one. -->
+- [x] 9.3 PHPUnit on both paths.
+      <!-- ApprovalNominationTest, ApprovalRouteControllerNominationTest (assigned
+      to the nominee; outside the bound refused and nothing written; no checker
+      refused). -->
 
 ## 10. The committee step
 

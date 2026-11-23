@@ -182,17 +182,20 @@ class ApprovalRouteController extends Controller {
 			);
 		}
 
-		// A step that lets the requester name its approver gets that person,
-		// inside the step's group, before any stage is written (REQ-DWP-009).
+		// The approvers the requester named travel on the route, and who named
+		// them is the session's user, never what the body says (REQ-DWP-009).
+		unset($route['nominations'], $route['nominatedBy']);
 		$nominations = $this->nominations();
+		if ($nominations !== []) {
+			$route['nominations'] = $nominations;
+			$route['nominatedBy'] = $this->requester();
+		}
 
 		return $this->service->instantiate(
 			route: $route,
 			subject: $subject,
 			subjectSchema: $subjectSchema,
 			principal: $this->callerPrincipal(),
-			nominations: $nominations,
-			requester: $this->requester(nominations: $nominations),
 		);
 	}//end stagesFor()
 
@@ -213,19 +216,13 @@ class ApprovalRouteController extends Controller {
 	}//end nominations()
 
 	/**
-	 * Who names the approvers: the signed-in user, read only when someone was named.
-	 *
-	 * @param array<mixed, mixed> $nominations The nominations sent.
+	 * Who names the approvers: the signed-in user.
 	 *
 	 * @return string The user id, or empty.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
-	private function requester(array $nominations): string {
-		if ($nominations === []) {
-			return '';
-		}
-
+	private function requester(): string {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return '';

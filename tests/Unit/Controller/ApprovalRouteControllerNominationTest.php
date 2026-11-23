@@ -18,7 +18,6 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use ArrayObject;
 use OCA\Decidiq\Controller\ApprovalRouteController;
-use OCA\Decidiq\Service\ApprovalNomination;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
@@ -83,6 +82,8 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 					'nominationGroup' => 'tekenbevoegden',
 				],
 			],
+			// Sent by the caller and ignored: who nominated is the session's user.
+			'nominatedBy' => 'eve',
 		];
 	}
 
@@ -94,10 +95,10 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 	 * @return ApprovalRouteController The controller.
 	 */
 	private function controller(array $nominations): ApprovalRouteController {
-		$this->facade = $this->createMock(ObjectServiceInterface::class);
+		$this->facade = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$this->saved  = new ArrayObject();
 
-		$subject = $this->createMock(ObjectEntityInterface::class);
+		$subject = $this->createMock(originalClassName: ObjectEntityInterface::class);
 		$subject->method('jsonSerialize')->willReturn(['id' => 'subj-1', 'owner' => 'bea']);
 		$this->facade->method('find')->willReturn($subject);
 		$this->facade->method('findAll')->willReturn([]);
@@ -106,14 +107,14 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 		$this->facade->method('saveObject')->willReturnCallback(
 			function (array $object) use ($saved): ObjectEntityInterface {
 				$saved->append($object);
-				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity = $this->createMock(originalClassName: ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($object + ['id' => 'stage-' . count($saved)]);
 				return $entity;
 			}
 		);
 		$this->facade->method('patchObject')->willReturnCallback(
 			function (ObjectPatch $patch): ObjectEntityInterface {
-				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity = $this->createMock(originalClassName: ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($patch->data + ['id' => $patch->objectId]);
 				return $entity;
 			}
@@ -125,38 +126,52 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 			'subjectSchema' => 'decision',
 			'nominations' => $nominations,
 		];
-		$request = $this->createMock(IRequest::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(
 			static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default)
 		);
 
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('bea');
-		$session = $this->createMock(IUserSession::class);
+		$session = $this->createMock(originalClassName: IUserSession::class);
 		$session->method('getUser')->willReturn($user);
 
-		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
 		$groupManager->method('isAdmin')->willReturn(false);
 		$groupManager->method('isInGroup')->willReturnCallback(
 			static fn (string $uid, string $group): bool => ($uid === 'dirk' && $group === 'tekenbevoegden')
 		);
 
-		$store = new RegisterObjectStore($this->facade);
+		$store = new RegisterObjectStore(objectService: $this->facade);
 
 		return new ApprovalRouteController(
 			request: $request,
 			service: new ApprovalRouteService(
 				store: $store,
-				guard: new ApprovalStageGuard(new MandateDirectory($store)),
-				mapper: new ApprovalRouteStepMapper(),
-				nomination: $this->withChecker ? new ApprovalNomination(groups: $groupManager) : null,
+				guard: new ApprovalStageGuard(mandates: new MandateDirectory(store: $store)),
+				mapper: new ApprovalRouteStepMapper(groups: $this->checkerGroups(groupManager: $groupManager)),
 			),
-			announcer: $this->createMock(ApprovalRouteConclusionAnnouncer::class),
+			announcer: $this->createMock(originalClassName: ApprovalRouteConclusionAnnouncer::class),
 			clearanceService: new SubjectClearanceService(),
 			userSession: $session,
 			groupManager: $groupManager,
-			logger: $this->createMock(LoggerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 		);
+	}
+
+	/**
+	 * The group manager the engine checks nominees with, or none.
+	 *
+	 * @param IGroupManager $groupManager The group manager.
+	 *
+	 * @return IGroupManager|null The checker.
+	 */
+	private function checkerGroups(IGroupManager $groupManager): ?IGroupManager {
+		if ($this->withChecker === false) {
+			return null;
+		}
+
+		return $groupManager;
 	}
 
 	/**
@@ -167,12 +182,12 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 	public function testTheOpenActionIsAssignedToTheNominatedMember(): void {
 		$response = $this->controller(nominations: ['1' => 'dirk'])->instantiate();
 
-		$this->assertSame(Http::STATUS_CREATED, $response->getStatus(), (string)json_encode($response->getData()));
+		$this->assertSame(expected: Http::STATUS_CREATED, actual: $response->getStatus(), message: (string)json_encode(value: $response->getData()));
 		$stages = array_values(array_filter((array)$this->saved, static fn (array $row): bool => isset($row['sequence'])));
-		$this->assertCount(1, $stages);
-		$this->assertSame('dirk', $stages[0]['assignedPerson']);
-		$this->assertSame('tekenbevoegden', $stages[0]['nominationGroup']);
-		$this->assertSame('bea', $stages[0]['nominatedBy']);
+		$this->assertCount(expectedCount: 1, haystack: $stages);
+		$this->assertSame(expected: 'dirk', actual: $stages[0]['assignedPerson']);
+		$this->assertSame(expected: 'tekenbevoegden', actual: $stages[0]['nominationGroup']);
+		$this->assertSame(expected: 'bea', actual: $stages[0]['nominatedBy']);
 	}
 
 	/**
@@ -183,9 +198,9 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 	public function testANominationOutsideTheBoundIsRefusedAndWritesNothing(): void {
 		$response = $this->controller(nominations: ['1' => 'mallory'])->instantiate();
 
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-		$this->assertStringContainsString('tekenbevoegden', (string)($response->getData()['message'] ?? ''));
-		$this->assertCount(0, $this->saved, 'A refused nomination still wrote a stage.');
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'tekenbevoegden', haystack: (string)($response->getData()['message'] ?? ''));
+		$this->assertCount(expectedCount: 0, haystack: $this->saved, message: 'A refused nomination still wrote a stage.');
 	}
 
 	/**
@@ -197,8 +212,8 @@ class ApprovalRouteControllerNominationTest extends TestCase {
 		$this->withChecker = false;
 		$response = $this->controller(nominations: ['1' => 'dirk'])->instantiate();
 
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-		$this->assertStringContainsString('cannot be checked', (string)($response->getData()['message'] ?? ''));
-		$this->assertCount(0, $this->saved);
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'cannot be checked', haystack: (string)($response->getData()['message'] ?? ''));
+		$this->assertCount(expectedCount: 0, haystack: $this->saved);
 	}
 }

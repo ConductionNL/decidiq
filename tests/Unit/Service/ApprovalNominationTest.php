@@ -36,7 +36,7 @@ class ApprovalNominationTest extends TestCase {
 	 * @return ApprovalNomination The service.
 	 */
 	private function nomination(): ApprovalNomination {
-		$groups = $this->createMock(IGroupManager::class);
+		$groups = $this->createMock(originalClassName: IGroupManager::class);
 		$groups->method('isInGroup')->willReturnCallback(
 			static fn (string $user, string $group): bool => ($user === 'dirk' && $group === 'tekenbevoegden')
 		);
@@ -94,8 +94,8 @@ class ApprovalNominationTest extends TestCase {
 	 * @return void
 	 */
 	public function testANomineeOutsideTheGroupIsRefusedNamingTheBound(): void {
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('tekenbevoegden');
+		$this->expectException(exception: RuntimeException::class);
+		$this->expectExceptionMessage(message: 'tekenbevoegden');
 
 		$this->nomination()->applyTo(route: $this->route(), nominations: [2 => 'mallory'], requester: 'bea');
 	}
@@ -106,8 +106,8 @@ class ApprovalNominationTest extends TestCase {
 	 * @return void
 	 */
 	public function testANominationStepWithNobodyNamedIsRefused(): void {
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('nobody was named');
+		$this->expectException(exception: RuntimeException::class);
+		$this->expectExceptionMessage(message: 'nobody was named');
 
 		$this->nomination()->applyTo(route: $this->route(), nominations: [], requester: 'bea');
 	}
@@ -176,5 +176,35 @@ class ApprovalNominationTest extends TestCase {
 
 		$with = new ApprovalRouteRefusals(capabilities: new ApprovalRouteFlowCapabilities(offered: ApprovalRouteFlowCapabilities::ALL));
 		$this->assertSame(expected: [], actual: $with->ofStep(step: $step, number: 2));
+	}
+
+	/**
+	 * The engine's mapper reads the nominations off the route, applies them and takes them off.
+	 *
+	 * @return void
+	 */
+	public function testTheMapperAppliesTheNominationsTheRouteCarries(): void {
+		$groups = $this->createMock(originalClassName: IGroupManager::class);
+		$groups->method('isInGroup')->willReturn(true);
+
+		$route = $this->route() + ['nominations' => ['2' => 'dirk'], 'nominatedBy' => 'bea'];
+		$applied = (new ApprovalRouteStepMapper(groups: $groups))->withNominations(route: $route);
+
+		$this->assertSame(expected: 'dirk', actual: $applied['steps'][1]['actor']);
+		$this->assertSame(expected: 'bea', actual: $applied['steps'][1]['nominatedBy']);
+		$this->assertArrayNotHasKey(key: 'nominations', array: $applied);
+		$this->assertArrayNotHasKey(key: 'nominatedBy', array: $applied);
+	}
+
+	/**
+	 * A mapper built without a group manager refuses a nomination step rather than skip the check.
+	 *
+	 * @return void
+	 */
+	public function testWithoutAGroupManagerANominationIsRefused(): void {
+		$this->expectException(exception: RuntimeException::class);
+		$this->expectExceptionMessage(message: 'cannot be checked');
+
+		(new ApprovalRouteStepMapper())->withNominations(route: $this->route() + ['nominations' => ['2' => 'dirk']]);
 	}
 }

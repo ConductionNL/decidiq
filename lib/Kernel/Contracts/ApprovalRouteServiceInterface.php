@@ -121,9 +121,6 @@ interface ApprovalRouteServiceInterface {
 	 * @param ApprovalPrincipal $principal Who is asking. Defaults to Ordinary,
 	 *        which is the fail-closed answer: a caller that says nothing about
 	 *        who it is does not get to declare that silence approves.
-	 * @param array<mixed, mixed> $nominations The approvers the requester named,
-	 *        keyed by step order; only steps that declare a nomination group read them.
-	 * @param string $requester Who sends the route and names the approvers.
 	 *
 	 * @return array<int, array<string, mixed>> The stages, existing or created.
 	 *
@@ -133,15 +130,12 @@ interface ApprovalRouteServiceInterface {
 	 * @spec openspec/specs/approval-routes/spec.md
 	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
-	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function instantiate(
 		array $route,
 		string $subject,
 		string $subjectSchema,
 		ApprovalPrincipal $principal = ApprovalPrincipal::Ordinary,
-		array $nominations = [],
-		string $requester = '',
 	): array;
 
 	/**
