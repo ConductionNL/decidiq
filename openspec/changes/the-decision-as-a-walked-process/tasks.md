@@ -201,10 +201,26 @@ them reachable is in reachability-scope.md beside this file.
 
 <!-- DEFERRED: needs the governance-body agenda seam; the step kind is declared in the schema so the route can already carry one. -->
 
-- [ ] 10.1 Add a `committee` step kind referencing a governance body.
+- [x] 10.1 Add a `committee` step kind referencing a governance body.
+      <!-- DONE (2026-11-23): `committee` was already a stepKind value; fragment
+      137-a-committee-step-names-its-body adds `committeeBody` (a governance-body
+      reference) to the ApprovalRoute step and to DecisionStage, and
+      ApprovalRouteStepMapper::declaredStepFields() copies it onto the stage.
+      Proven by CommitteeStepBodyRegisterTest and
+      ApprovalRouteServiceTest::testACommitteeStageCarriesItsBody. -->
 - [ ] 10.2 Place the subject on the body's agenda and read the decision back with meeting and date.
-- [ ] 10.3 Refuse a single-actor grant on a committee step.
+      <!-- OPEN: needs the governance-body agenda seam (which meeting the item
+      goes on is not decided anywhere yet). -->
+- [x] 10.3 Refuse a single-actor grant on a committee step.
+      <!-- DONE (2026-11-23): ApprovalRouteService::record() hands every
+      completing act to CommitteeStepGuard before any write; on a committee
+      stage it is refused with the body's name (its id when the body cannot be
+      read). A return is still allowed. Stored-stage engine only: a route
+      compiled to a flow does not read stepKind. -->
 - [ ] 10.4 PHPUnit on the return path and on the refusal.
+      <!-- HALF: the refusal is proven by CommitteeStepGuardTest and
+      ApprovalRouteServiceTest::testOneActorCannotCloseACommitteeStep. The
+      return path waits on 10.2. -->
 
 ## 11. Handover
 

@@ -1272,4 +1272,63 @@ class ApprovalRouteServiceTest extends TestCase {
 
 		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'ontvankelijk']);
 	}
+
+	/**
+	 * A route whose first step is decided by a governance body.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function committeeRoute(): array {
+		return [
+			'name' => 'Committee route',
+			'steps' => [
+				[
+					'order' => 1, 'stageType' => 'decisive', 'stepKind' => 'committee', 'committeeBody' => 'body-college',
+					'actorType' => 'person', 'actor' => 'alice', 'label' => 'College',
+				],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A committee stage carries the body that decides it, copied from the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 */
+	public function testACommitteeStageCarriesItsBody(): void {
+		$this->service()->instantiate(route: $this->committeeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$stages = $this->stages();
+		$this->assertSame(expected: 'committee', actual: $stages[0]['stepKind']);
+		$this->assertSame(expected: 'body-college', actual: $stages[0]['committeeBody']);
+		$this->assertArrayNotHasKey(key: 'committeeBody', array: $stages[1]);
+	}
+
+	/**
+	 * One actor's grant on a committee step is refused, names the body, and writes nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 */
+	public function testOneActorCannotCloseACommitteeStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->committeeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		foreach (['approved', 'skipped'] as $verb) {
+			try {
+				$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => $verb]);
+				$this->fail(message: 'A single actor closed a committee step with "' . $verb . '".');
+			} catch (RuntimeException $e) {
+				$this->assertStringContainsString(needle: 'committee step', haystack: $e->getMessage());
+				$this->assertStringContainsString(needle: 'body-college', haystack: $e->getMessage());
+			}
+		}
+
+		$this->assertSame(expected: ['active', 'pending'], actual: $this->statuses());
+		$this->assertSame(expected: [], actual: $this->objectService->rows['approval-action']);
+	}
 }

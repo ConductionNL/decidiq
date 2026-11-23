@@ -1,0 +1,45 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process task 10.1 (REQ-DWP-010). `committee` was already a stepKind value (fragments 80 and 89), but a committee step had no way to say WHICH governance body decides it. This adds `committeeBody` to the ApprovalRoute step and to DecisionStage; ApprovalRouteStepMapper copies it onto the stage at instantiation, like stepKind, and CommitteeStepGuard names the body when it refuses a single actor's act on the stage. Properties only, so no schema version moves, as in 134-decision-authority-basis.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-010-a-case-reaches-a-committee-and-the-decision-returns",
+  "components": {
+    "schemas": {
+      "ApprovalRoute": {
+        "slug": "approval-route",
+        "properties": {
+          "steps": {
+            "title": "Steps",
+            "type": "array",
+            "description": "The ordered steps, with the walked-process additions. Every addition defaults to today's behaviour, so no stored route changes meaning.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "committeeBody": {
+                  "title": "Committee body",
+                  "type": "string",
+                  "format": "uuid",
+                  "$ref": "governance-body",
+                  "description": "The governance body that decides a step of kind `committee`, in a meeting. Ignored on any other step kind. One person cannot close a committee step (REQ-DWP-010)."
+                }
+              }
+            }
+          }
+        }
+      },
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "properties": {
+          "committeeBody": {
+            "title": "Committee body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "description": "The governance body that decides this stage when its stepKind is `committee`. COPIED onto the stage at instantiation, not read back off the route: editing a route must never change what a stage already in flight means (REQ-AR-012)."
+          }
+        }
+      }
+    }
+  }
+}
