@@ -62,7 +62,7 @@ class RiskScoreEvaluatorTest extends TestCase {
 		);
 
 		self::assertSame(
-			[
+			expected: [
 				'score' => 5,
 				'band'  => 'high',
 				'basis' => [
@@ -70,7 +70,7 @@ class RiskScoreEvaluatorTest extends TestCase {
 					['property' => 'category', 'value' => 'subsidy', 'points' => 2],
 				],
 			],
-			$result
+			actual: $result
 		);
 	}//end testAHighAmountInARiskyCategoryScoresHighAndSaysWhy()
 
@@ -83,10 +83,10 @@ class RiskScoreEvaluatorTest extends TestCase {
 	public function testTheBandIsTheHighestReached(): void {
 		$evaluator = new RiskScoreEvaluator();
 
-		self::assertSame('low', $evaluator->evaluate(expression: self::EXPRESSION, subject: ['amount' => '500'])['band']);
-		self::assertSame('medium', $evaluator->evaluate(expression: self::EXPRESSION, subject: ['amount' => '100000'])['band']);
-		self::assertNull($evaluator->bandFor(bands: [['band' => 'high', 'min' => 5]], score: 2));
-		self::assertNull($evaluator->bandFor(bands: [], score: 9));
+		self::assertSame(expected: 'low', actual: $evaluator->evaluate(expression: self::EXPRESSION, subject: ['amount' => '500'])['band']);
+		self::assertSame(expected: 'medium', actual: $evaluator->evaluate(expression: self::EXPRESSION, subject: ['amount' => '100000'])['band']);
+		self::assertNull(actual: $evaluator->bandFor(bands: [['band' => 'high', 'min' => 5]], score: 2));
+		self::assertNull(actual: $evaluator->bandFor(bands: [], score: 9));
 	}//end testTheBandIsTheHighestReached()
 
 	/**
@@ -119,12 +119,13 @@ class RiskScoreEvaluatorTest extends TestCase {
 		foreach ($cases as $index => [$rule, $value, $expected]) {
 			$expression = ['rules' => [array_merge(['property' => 'p', 'points' => 1], $rule)]];
 			$result     = (new RiskScoreEvaluator())->evaluate(expression: $expression, subject: ['p' => $value]);
-			self::assertSame($expected === true ? 1 : 0, $result['score'], 'case ' . $index);
+			self::assertSame(expected: $expected, actual: $result['score'] === 1, message: 'case ' . $index);
 		}
 
 		$nested = ['rules' => [['property' => 'applicant.kind', 'operator' => 'eq', 'value' => 'company', 'points' => 2]]];
-		self::assertSame(2, (new RiskScoreEvaluator())->evaluate(expression: $nested, subject: ['applicant' => ['kind' => 'company']])['score']);
-		self::assertSame(0, (new RiskScoreEvaluator())->evaluate(expression: $nested, subject: ['applicant' => 'company'])['score']);
+		$evaluator = new RiskScoreEvaluator();
+		self::assertSame(expected: 2, actual: $evaluator->evaluate(expression: $nested, subject: ['applicant' => ['kind' => 'company']])['score']);
+		self::assertSame(expected: 0, actual: $evaluator->evaluate(expression: $nested, subject: ['applicant' => 'company'])['score']);
 	}//end testEveryOperator()
 
 	/**
@@ -135,9 +136,9 @@ class RiskScoreEvaluatorTest extends TestCase {
 	public function testAnExpressionWithoutRulesGivesNoScore(): void {
 		$evaluator = new RiskScoreEvaluator();
 
-		self::assertNull($evaluator->evaluate(expression: null, subject: ['amount' => 1]));
-		self::assertNull($evaluator->evaluate(expression: ['rules' => []], subject: ['amount' => 1]));
-		self::assertNull($evaluator->evaluate(expression: 'amount > 5', subject: ['amount' => 9]));
+		self::assertNull(actual: $evaluator->evaluate(expression: null, subject: ['amount' => 1]));
+		self::assertNull(actual: $evaluator->evaluate(expression: ['rules' => []], subject: ['amount' => 1]));
+		self::assertNull(actual: $evaluator->evaluate(expression: 'amount > 5', subject: ['amount' => 9]));
 	}//end testAnExpressionWithoutRulesGivesNoScore()
 
 	/**
@@ -150,7 +151,10 @@ class RiskScoreEvaluatorTest extends TestCase {
 			[['rules' => ['amount']], 'Risk rule 1'],
 			[['rules' => [['property' => 'amount', 'operator' => 'between', 'points' => 1]]], 'Risk rule 1'],
 			[['rules' => [['property' => '', 'operator' => 'eq', 'points' => 1]]], 'Risk rule 1'],
-			[['rules' => [['property' => 'a', 'operator' => 'present', 'points' => 1], ['property' => 'a', 'operator' => 'eq', 'points' => 'many']]], 'Risk rule 2'],
+			[
+				['rules' => [['property' => 'a', 'operator' => 'present', 'points' => 1], ['property' => 'a', 'operator' => 'eq', 'points' => 'many']]],
+				'Risk rule 2',
+			],
 			[['rules' => [['property' => 'a', 'operator' => 'gte', 'value' => 'lots', 'points' => 1]]], 'Risk rule 1'],
 			[['rules' => [['property' => 'a', 'operator' => 'present', 'points' => 1]], 'bands' => [['band' => 'high']]], 'Risk band 1'],
 		];
@@ -158,9 +162,9 @@ class RiskScoreEvaluatorTest extends TestCase {
 		foreach ($malformed as [$expression, $named]) {
 			try {
 				(new RiskScoreEvaluator())->evaluate(expression: $expression, subject: ['a' => 'x', 'amount' => 1]);
-				self::fail('A malformed expression was evaluated: ' . json_encode($expression));
+				self::fail(message: 'A malformed expression was evaluated: ' . json_encode($expression));
 			} catch (InvalidArgumentException $e) {
-				self::assertStringStartsWith($named, $e->getMessage());
+				self::assertStringStartsWith(prefix: $named, string: $e->getMessage());
 			}
 		}
 	}//end testAMalformedExpressionIsRefusedNamingThePart()
@@ -174,7 +178,7 @@ class RiskScoreEvaluatorTest extends TestCase {
 		$expression = self::EXPRESSION;
 		$expression['rules'][] = ['property' => 'amount', 'operator' => 'gte', 'value' => '1000000', 'points' => 2];
 
-		self::assertSame(['amount', 'category', 'urgent'], (new RiskScoreEvaluator())->readProperties(expression: $expression));
-		self::assertSame([], (new RiskScoreEvaluator())->readProperties(expression: null));
+		self::assertSame(expected: ['amount', 'category', 'urgent'], actual: (new RiskScoreEvaluator())->readProperties(expression: $expression));
+		self::assertSame(expected: [], actual: (new RiskScoreEvaluator())->readProperties(expression: null));
 	}//end testThePropertiesTheExpressionReads()
 }//end class

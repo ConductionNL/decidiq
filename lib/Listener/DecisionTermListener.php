@@ -31,7 +31,6 @@ use OCA\Decidiq\Service\DecisionTermCalculator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -47,15 +46,25 @@ use Throwable;
 class DecisionTermListener implements IEventListener {
 
 	/**
+	 * Reads the decision, its type and the decision it contests.
+	 *
+	 * @var SavedObjectLookup
+	 */
+	private readonly SavedObjectLookup $lookup;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService Reads the decision type and the contested decision.
 	 * @param LoggerInterface        $logger        The log.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		ObjectServiceInterface $objectService,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->lookup = new SavedObjectLookup(objectService: $objectService);
 	}//end __construct()
 
 	/**
@@ -69,6 +78,7 @@ class DecisionTermListener implements IEventListener {
 	 * @return void
 	 *
 	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
+	* @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
@@ -76,82 +86,17 @@ class DecisionTermListener implements IEventListener {
 		}
 
 		try {
-			$decision = array_merge($this->payloadOf(event: $event), $event->getModifiedData());
-			$type = $this->load(id: self::reference(value: ($decision['type'] ?? null)), schema: 'decision-template');
+			$decision = SavedObjectLookup::saved(event: $event);
+			$type     = $this->lookup->load(id: SavedObjectLookup::reference(value: ($decision['type'] ?? null)), schema: 'decision-template');
 			if ($type === null) {
 				return;
 			}
 
-			$contested = $this->load(id: self::reference(value: ($decision['contests'] ?? null)), schema: 'decision');
+			$contested = $this->lookup->load(id: SavedObjectLookup::reference(value: ($decision['contests'] ?? null)), schema: 'decision');
 			$termEnd = (new DecisionTermCalculator())->termEnd(decision: $decision, type: $type, contested: $contested);
 			$event->setModifiedData(array_merge($event->getModifiedData(), ['termEndsAt' => $termEnd]));
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: the decision term was not worked out', ['exception' => $e->getMessage()]);
 		}
 	}//end handle()
-
-	/**
-	 * The decision as the event carries it: the new object on an update.
-	 *
-	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function payloadOf(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
-		if ($event instanceof ObjectUpdatingEvent) {
-			return (new EntityPayloadReader())->payloadOf(entity: $event->getNewObject());
-		}
-
-		return (new EntityPayloadReader())->payloadOf(entity: $event->getObject());
-	}//end payloadOf()
-
-	/**
-	 * One object of the register by id, or null when it is not there or cannot be read.
-	 *
-	 * @param string $id     The uuid or slug; '' reads nothing.
-	 * @param string $schema The schema slug.
-	 *
-	 * @return array<string, mixed>|null
-	 */
-	private function load(string $id, string $schema): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		try {
-			$entity = $this->objectService->find(
-				id: $id,
-				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
-				_rbac: false
-			);
-		} catch (Throwable) {
-			// Not there, or not readable: the term counts as not known.
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return (new EntityPayloadReader())->payloadOf(entity: $entity);
-	}//end load()
-
-	/**
-	 * The id a reference holds: a uuid or slug string, or an expanded object.
-	 *
-	 * @param mixed $value The stored reference.
-	 *
-	 * @return string
-	 */
-	private static function reference(mixed $value): string {
-		if (is_array($value) === true) {
-			$value = ($value['id'] ?? ($value['uuid'] ?? null));
-		}
-
-		if (is_string($value) === false) {
-			return '';
-		}
-
-		return trim($value);
-	}//end reference()
 }//end class

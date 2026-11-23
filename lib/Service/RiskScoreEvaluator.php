@@ -101,7 +101,11 @@ final class RiskScoreEvaluator {
 	public function readProperties(mixed $expression): array {
 		$read = [];
 		foreach (self::listOf(expression: $expression, key: 'rules') as $rule) {
-			$property = (is_array($rule) === true ? trim((string)($rule['property'] ?? '')) : '');
+			if (is_array($rule) === false) {
+				continue;
+			}
+
+			$property = trim((string)($rule['property'] ?? ''));
 			if ($property !== '' && in_array($property, $read, true) === false) {
 				$read[] = $property;
 			}
@@ -126,8 +130,12 @@ final class RiskScoreEvaluator {
 		$band = null;
 		$best = null;
 		foreach ($bands as $index => $declared) {
-			$name = (is_array($declared) === true ? trim((string)($declared['band'] ?? '')) : '');
-			$min  = (is_array($declared) === true ? ($declared['min'] ?? null) : null);
+			if (is_array($declared) === false) {
+				$declared = [];
+			}
+
+			$name = trim((string)($declared['band'] ?? ''));
+			$min  = ($declared['min'] ?? null);
 			if ($name === '' || is_numeric($min) === false) {
 				throw new InvalidArgumentException('Risk band ' . ((int)$index + 1) . ' needs a name and a numeric minimum.');
 			}
@@ -170,7 +178,10 @@ final class RiskScoreEvaluator {
 			throw new InvalidArgumentException($label . ' compares as a number, so its value must be a number.');
 		}
 
-		$values = (is_array($rule['values'] ?? null) === true ? array_map(self::asText(...), array_values($rule['values'])) : []);
+		$values = [];
+		if (is_array($rule['values'] ?? null) === true) {
+			$values = array_map(self::asText(...), array_values($rule['values']));
+		}
 
 		return [
 			'property' => $property,
@@ -269,8 +280,12 @@ final class RiskScoreEvaluator {
 	 * @return string '' for null, an array or an object.
 	 */
 	private static function asText(mixed $value): string {
-		if (is_bool($value) === true) {
-			return ($value === true ? 'true' : 'false');
+		if ($value === true) {
+			return 'true';
+		}
+
+		if ($value === false) {
+			return 'false';
 		}
 
 		if (is_scalar($value) === false) {

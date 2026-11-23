@@ -66,18 +66,21 @@ class DecisionRiskScoreListenerTest extends TestCase {
 	 * @return DecisionRiskScoreListener
 	 */
 	private function listener(bool $broken = false): DecisionRiskScoreListener {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true) use ($broken): ?ObjectEntity {
-				self::assertSame('decidiq', $options?->register);
-				self::assertSame('decision-template', $options?->schema);
-				self::assertFalse($_rbac);
+				self::assertSame(expected: 'decidiq', actual: $options?->register);
+				self::assertSame(expected: 'decision-template', actual: $options?->schema);
+				self::assertFalse(condition: $_rbac);
 				if ($broken === true) {
 					throw new RuntimeException('register down');
 				}
 
-				$row = (self::TYPES[(string)$id] ?? null);
-				return $row === null ? null : $this->entity(row: $row);
+				if (isset(self::TYPES[(string)$id]) === false) {
+					return null;
+				}
+
+				return $this->entity(row: self::TYPES[(string)$id]);
 			}
 		);
 
@@ -92,7 +95,7 @@ class DecisionRiskScoreListenerTest extends TestCase {
 	 * @return ObjectEntity
 	 */
 	private function entity(array $row): ObjectEntity {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('getObject')->willReturn($row);
 		$entity->method('jsonSerialize')->willReturn($row);
 		return $entity;
@@ -114,7 +117,7 @@ class DecisionRiskScoreListenerTest extends TestCase {
 		$this->listener()->handle($event);
 
 		self::assertSame(
-			[
+			expected: [
 				'score' => 5,
 				'band'  => 'high',
 				'basis' => [
@@ -122,9 +125,9 @@ class DecisionRiskScoreListenerTest extends TestCase {
 					['property' => 'category', 'value' => 'innovation', 'points' => 2],
 				],
 			],
-			$event->getModifiedData()['riskAssessment']
+			actual: $event->getModifiedData()['riskAssessment']
 		);
-		self::assertSame('run-1', $event->getModifiedData()['approvalRun']);
+		self::assertSame(expected: 'run-1', actual: $event->getModifiedData()['approvalRun']);
 	}//end testTheSendThatOpensTheRouteScoresTheDecision()
 
 	/**
@@ -141,7 +144,7 @@ class DecisionRiskScoreListenerTest extends TestCase {
 
 		$this->listener()->handle($event);
 
-		self::assertSame(['score' => 0, 'band' => 'low', 'basis' => []], $event->getModifiedData()['riskAssessment']);
+		self::assertSame(expected: ['score' => 0, 'band' => 'low', 'basis' => []], actual: $event->getModifiedData()['riskAssessment']);
 	}//end testAChangedPropertyScoresTheDecisionAgain()
 
 	/**
@@ -155,7 +158,7 @@ class DecisionRiskScoreListenerTest extends TestCase {
 
 		$this->listener()->handle($event);
 
-		self::assertSame('medium', $event->getModifiedData()['riskAssessment']['band']);
+		self::assertSame(expected: 'medium', actual: $event->getModifiedData()['riskAssessment']['band']);
 	}//end testASentScoreIsReplaced()
 
 	/**
@@ -168,15 +171,15 @@ class DecisionRiskScoreListenerTest extends TestCase {
 
 		$retyped = new ObjectCreatingEvent($this->entity(row: ['type' => 'raadsbesluit', 'riskAssessment' => $old]));
 		$this->listener()->handle($retyped);
-		self::assertSame(['riskAssessment' => null], $retyped->getModifiedData());
+		self::assertSame(expected: ['riskAssessment' => null], actual: $retyped->getModifiedData());
 
 		$untyped = new ObjectCreatingEvent($this->entity(row: ['riskAssessment' => $old]));
 		$this->listener()->handle($untyped);
-		self::assertSame(['riskAssessment' => null], $untyped->getModifiedData());
+		self::assertSame(expected: ['riskAssessment' => null], actual: $untyped->getModifiedData());
 
 		$plain = new ObjectCreatingEvent($this->entity(row: ['title' => 'No type, no score']));
 		$this->listener()->handle($plain);
-		self::assertSame([], $plain->getModifiedData());
+		self::assertSame(expected: [], actual: $plain->getModifiedData());
 	}//end testWithoutAnExpressionTheScoreIsCleared()
 
 	/**
@@ -190,8 +193,8 @@ class DecisionRiskScoreListenerTest extends TestCase {
 
 			$this->listener(broken: $broken)->handle($event);
 
-			self::assertSame([], $event->getModifiedData());
-			self::assertFalse($event->isPropagationStopped());
+			self::assertSame(expected: [], actual: $event->getModifiedData());
+			self::assertFalse(condition: $event->isPropagationStopped());
 		}
 	}//end testAnUnreadableTypeOrExpressionLeavesTheSaveAlone()
 
@@ -205,10 +208,10 @@ class DecisionRiskScoreListenerTest extends TestCase {
 		foreach (SaveGuardSubscriptions::ALL as $subscription) {
 			if ($subscription['listener'] === DecisionRiskScoreListener::class) {
 				$events[] = $subscription['event'];
-				self::assertSame(['decision'], $subscription['schemas']);
+				self::assertSame(expected: ['decision'], actual: $subscription['schemas']);
 			}
 		}
 
-		self::assertSame([ObjectCreatingEvent::class, ObjectUpdatingEvent::class], $events);
+		self::assertSame(expected: [ObjectCreatingEvent::class, ObjectUpdatingEvent::class], actual: $events);
 	}//end testTheListenerIsSubscribedOnCreateAndUpdate()
 }//end class

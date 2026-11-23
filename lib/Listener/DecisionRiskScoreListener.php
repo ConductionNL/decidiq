@@ -29,7 +29,6 @@ use OCA\Decidiq\Service\RiskScoreEvaluator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -39,12 +38,12 @@ use Throwable;
  * Scores a decision before approval.
  *
  * Sending a decision for approval writes the decision (the flow starter
- * records its route and run), so the score is computed when the route opens;
- * a later save that changes a property the expression reads scores it again.
+ * records its route and run), so the route opens on a scored decision; a
+ * later save that changes a property the expression reads scores it again.
  * The server always writes the assessment, so a client cannot set its own.
- * A type without an expression, or a decision without a type, clears it. A type that cannot be read, or an
- * expression that is malformed, leaves the save alone and is logged: the
- * score informs the approver, it does not guard the save.
+ * A type without an expression, or a decision without a type, clears it. A
+ * type that cannot be read, or a malformed expression, leaves the save alone
+ * and is logged: the score informs the approver, it does not guard the save.
  *
  * @template-implements IEventListener<Event>
  *
@@ -58,17 +57,25 @@ class DecisionRiskScoreListener implements IEventListener {
 	public const FIELD = 'riskAssessment';
 
 	/**
+	 * Reads the decision and its type.
+	 *
+	 * @var SavedObjectLookup
+	 */
+	private readonly SavedObjectLookup $lookup;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService Reads the decision type.
-	 * @param LoggerInterface        $logger        The log.
+	 * @param LoggerInterface        $logger        Logs a decision that could not be scored.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-008-a-risk-score-is-computed-before-approval
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		ObjectServiceInterface $objectService,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->lookup = new SavedObjectLookup(objectService: $objectService);
 	}//end __construct()
 
 	/**
@@ -85,10 +92,10 @@ class DecisionRiskScoreListener implements IEventListener {
 			return;
 		}
 
-		$decision = array_merge($this->payloadOf(event: $event), $event->getModifiedData());
-		if (self::reference(value: ($decision['type'] ?? null)) === '') {
-			// A decision without a type has nothing to be scored by, so an
-			// assessment left from an earlier type goes.
+		$decision = SavedObjectLookup::saved(event: $event);
+		$typeId   = SavedObjectLookup::reference(value: ($decision['type'] ?? null));
+		if ($typeId === '') {
+			// Nothing to be scored by, so a score left from an earlier type goes.
 			if (($decision[self::FIELD] ?? null) !== null) {
 				$event->setModifiedData(array_merge($event->getModifiedData(), [self::FIELD => null]));
 			}
@@ -96,86 +103,38 @@ class DecisionRiskScoreListener implements IEventListener {
 			return;
 		}
 
-		$type = $this->typeOf(decision: $decision);
-		if ($type === null) {
-			return;
+		$assessment = $this->assess(decision: $decision, typeId: $typeId);
+		if ($assessment !== false) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), [self::FIELD => $assessment]));
 		}
-
-		try {
-			$assessment = (new RiskScoreEvaluator())->evaluate(expression: ($type['riskScore'] ?? null), subject: $decision);
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				message: 'Decidiq: the decision type\'s risk score is malformed, so the decision was not scored',
-				context: ['type' => self::reference(value: ($decision['type'] ?? null)), 'reason' => $e->getMessage()]
-			);
-			return;
-		}
-
-		$event->setModifiedData(array_merge($event->getModifiedData(), [self::FIELD => $assessment]));
 	}//end handle()
 
 	/**
-	 * The decision as the event carries it: the new object on an update.
+	 * The decision's assessment under its type, or false when it cannot be worked out.
 	 *
-	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
+	 * @param array<string, mixed> $decision The decision as it will be saved.
+	 * @param string               $typeId   Its type's id.
 	 *
-	 * @return array<string, mixed>
+	 * @return array<string, mixed>|null|false Null when the type declares no expression.
 	 */
-	private function payloadOf(ObjectCreatingEvent|ObjectUpdatingEvent $event): array {
-		if ($event instanceof ObjectUpdatingEvent) {
-			return (new EntityPayloadReader())->payloadOf(entity: $event->getNewObject());
+	private function assess(array $decision, string $typeId): array|null|false {
+		$type = $this->lookup->load(id: $typeId, schema: 'decision-template');
+		if ($type === null) {
+			$this->logger->warning(
+				message: 'Decidiq: the decision type was not found or could not be read, so the decision was not scored',
+				context: ['type' => $typeId]
+			);
+			return false;
 		}
-
-		return (new EntityPayloadReader())->payloadOf(entity: $event->getObject());
-	}//end payloadOf()
-
-	/**
-	 * The decision's type, or null when it is not there or cannot be read.
-	 *
-	 * @param array<string, mixed> $decision The merged decision payload.
-	 *
-	 * @return array<string, mixed>|null
-	 */
-	private function typeOf(array $decision): ?array {
-		$typeId = self::reference(value: ($decision['type'] ?? null));
 
 		try {
-			$entity = $this->objectService->find(
-				id: $typeId,
-				options: new ObjectFindOptions(register: 'decidiq', schema: 'decision-template'),
-				_rbac: false
-			);
+			return (new RiskScoreEvaluator())->evaluate(expression: ($type['riskScore'] ?? null), subject: $decision);
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				message: 'Decidiq: the decision type could not be read, so the decision was not scored',
+				message: 'Decidiq: the decision type\'s risk score is malformed, so the decision was not scored',
 				context: ['type' => $typeId, 'reason' => $e->getMessage()]
 			);
-			return null;
+			return false;
 		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return (new EntityPayloadReader())->payloadOf(entity: $entity);
-	}//end typeOf()
-
-	/**
-	 * The id a reference holds: a uuid or slug string, or an expanded object.
-	 *
-	 * @param mixed $value The stored reference.
-	 *
-	 * @return string
-	 */
-	private static function reference(mixed $value): string {
-		if (is_array($value) === true) {
-			$value = ($value['id'] ?? ($value['uuid'] ?? null));
-		}
-
-		if (is_string($value) === false) {
-			return '';
-		}
-
-		return trim($value);
-	}//end reference()
+	}//end assess()
 }//end class
