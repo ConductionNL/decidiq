@@ -23,7 +23,7 @@ When a decision is declared urgent, the system SHALL store the governance body o
 
 ### Requirement: REQ-021 The report to the ratifying body is recorded once
 
-The system SHALL record on an urgent decision the date it was first reported to the ratifying body (`reportedToRatifyingBodyAt`), set by the first of: the action Gemeld aan de raad, placing the ratification agenda item, or linking a raadsinformatiebrief to the decision. A later step SHALL NOT overwrite or clear it. Only the roles allowed to declare urgency for the body SHALL run the action. The list SHALL add "gemeld aan de raad op <date>" to the line under the title, naming the ratifying body.
+The system SHALL record on an urgent decision the date it was first reported to the ratifying body (`reportedToRatifyingBodyAt`), set by the first of: the action Gemeld aan de raad, placing the ratification agenda item, or saving an agenda item whose kind declares the type field `reportsOnDecision` (a letter from the executive to the body, such as a raadsinformatiebrief) naming the decision. A later step SHALL NOT overwrite or clear it. Only the roles allowed to declare urgency for the body SHALL run the action. The list SHALL add "gemeld aan de raad op <date>" to the line under the title, naming the ratifying body.
 
 #### Scenario: Reported before the ratifying meeting
 - GIVEN the urgent decision "Noodverordening Havenfestival 2026" without a report date
@@ -35,6 +35,13 @@ The system SHALL record on an urgent decision the date it was first reported to 
 - GIVEN a decision reported on 6 October
 - WHEN the ratification agenda item is placed on 15 October
 - THEN the report date stays 6 October
+
+#### Scenario: A letter reports the decision
+- GIVEN the urgent decision "Noodverordening Havenfestival 2026" without a report date
+- AND the kind Raadsinformatiebrief declares the type field `reportsOnDecision`
+- WHEN the griffie registers a raadsinformatiebrief on 8 October whose `reportsOnDecision` names the decision
+- THEN the decision stores 8 October
+- AND a later letter naming it leaves 8 October
 
 #### Scenario: A member without the role
 - GIVEN a council member who may not declare urgency
