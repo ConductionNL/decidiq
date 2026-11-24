@@ -119,8 +119,13 @@ class ConfidentialityPublishedListener implements IEventListener {
 			new: (array)$after->getObject(),
 			old: (array)($event->getOldObject()?->getObject() ?? [])
 		);
-		if ($kind !== null) {
-			$this->publishedOn(kind: $kind, targetId: (string)$after->getUuid());
+		if ($kind === null) {
+			return;
+		}
+
+		$marked = $this->publishedOn(kind: $kind, targetId: (string)$after->getUuid());
+		if ($marked > 0) {
+			$this->logger->info('Decidiq: lifted restrictions marked published', ['target' => $after->getUuid(), 'count' => $marked]);
 		}
 	}//end onUpdate()
 
