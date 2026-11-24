@@ -90,6 +90,9 @@ export function checklistRows(kind, record) {
 				mandatory,
 				canComplete: open,
 				canSkip: open && !mandatory,
+				// The personal-data step points at the member's own-annotations
+				// export (document-annotations) rather than repeating it.
+				...(step.stepType === 'personal-data-note' ? { annotationsExport: true } : {}),
 			}
 		})
 }

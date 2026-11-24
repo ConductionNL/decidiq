@@ -67,10 +67,8 @@ import {
 } from './support/api-actors.ts'
 import { openRow } from './support/open-row.ts'
 
-// Scenarios no test below can reach from a page, each with the reason:
-// @e2e exclude member-onboarding::overdue-step-reminder — the reminder is a declarative x-openregister-notifications rule evaluated by OpenRegister's scheduled job, which no page triggers; no PHPUnit test covers fragment 88's notification rules either: genuine gap.
-// @e2e exclude member-onboarding::no-imperative-dispatch-exists — a static property of the codebase, checked by hydra gate 18 (check_notification_dialect.py), not by a running instance.
-// @e2e exclude member-onboarding::personal-data-step-points-at-the-annotations-export-not-a-bespoke-one — the checklist (OnboardingChecklistTab) shows a step's title and status only and renders no link to the document-annotations export; the pointer exists only as the seeded step's note: genuine gap, no covering test.
+// The overdue reminder and the absence of imperative dispatch carry their
+// reason-bearing @e2e exclude in the change spec, where gate 19 reads it.
 
 const APP = `${BASE}/index.php/apps/decidiq`
 const OCS = `${BASE}/ocs/v2.php/cloud`
@@ -348,6 +346,8 @@ test('the register carries both pathway schemas with their fields', async () => 
 // @e2e member-onboarding::provisioning-an-incoming-member
 // @e2e member-onboarding::welcome-bundle-delivery
 // @e2e member-onboarding::undeliverable-item-is-skipped-not-fatal
+// @e2e member-onboarding::installation-creates-the-membership
+// @e2e member-onboarding::the-last-open-step-is-marked-done
 test('onboarding: installation, provisioning and the induction pack complete the record', async ({
 	page,
 	playwright,
@@ -605,6 +605,7 @@ test('onboarding: a group that does not exist keeps the provisioning step open',
 
 // @e2e member-onboarding::offboarding-traject-created-for-a-departing-member
 // @e2e member-onboarding::revocation-removes-access
+// @e2e member-onboarding::offboarding-ends-it
 test('offboarding: end date, revocation and exit confirmation complete the record', async ({
 	page,
 	playwright,
@@ -803,6 +804,60 @@ test('offboarding: the record stays open while the revocation is open', async ({
 	)
 	expect(skipped.status()).toBe(409)
 	expect((await reread(OFFBOARDING, id)).lifecycle).toBe('in-execution')
+})
+
+// @e2e member-onboarding::personal-data-step-points-at-the-annotations-export-not-a-bespoke-one
+test('offboarding: the personal-data step links to the own-annotations export', async ({
+	page,
+}) => {
+	const body = await seedBody()
+	const person = await seedPerson('Leaver')
+	const offboarding = await createObject(admin, ledger, OFFBOARDING, {
+		person: uuidOf(person),
+		body: uuidOf(body),
+		trigger: 'individual',
+		endDate: '2026-03-29',
+		endReason: 'end-of-council-membership',
+		lifecycle: 'started',
+		steps: [
+			{ stepType: 'personal-data-note', title: 'Personal data note', status: 'open' },
+			{ stepType: 'exit-confirmation', title: 'Confirm the exit', status: 'open' },
+		],
+	})
+
+	const checklist = await openChecklist(page, OFFBOARDING, uuidOf(offboarding))
+	const link = stepRow(checklist, 'Personal data note').getByTestId('onboarding-checklist-annotations-export')
+	await expect(link).toBeVisible()
+	await expect(link).toHaveAttribute('href', /\/apps\/decidiq\/api\/annotations\/export\?format=csv$/)
+	await expect(stepRow(checklist, 'Confirm the exit').getByTestId('onboarding-checklist-annotations-export')).toHaveCount(0)
+
+	// No offboarding-owned export exists: the step points at the document-annotations one.
+	const own = await admin.ctx.get(`${APP}/api/onboarding/offboarding/${uuidOf(offboarding)}/export`)
+	expect(own.status()).toBe(404)
+})
+
+// @e2e member-onboarding::a-plain-member-cannot-tick-steps
+test('onboarding: a plain member cannot tick a step', async ({ playwright }) => {
+	const body = await seedBody()
+	const person = await seedPerson('Joiner')
+	const onboarding = await createObject(admin, ledger, ONBOARDING, {
+		person: uuidOf(person),
+		targetBody: uuidOf(body),
+		targetRole: 'member',
+		trigger: 'new-member',
+		lifecycle: 'started',
+		steps: [{ stepType: 'custom', title: 'Sign the code of conduct', status: 'open', mandatory: true }],
+	})
+	const id = uuidOf(onboarding)
+	const kees = await seedAccount(playwright, 'kees')
+
+	const answer = await kees.ctx.put(`${APP_API}/onboarding/onboarding/${id}/steps/0`, {
+		data: { status: 'completed' },
+	})
+	expect(answer.status()).toBe(403)
+	const stored = await reread(ONBOARDING, id)
+	expect(stored.steps[0].status).toBe('open')
+	expect(stored.lifecycle).toBe('started')
 })
 
 // @e2e member-onboarding::traject-cannot-complete-with-open-mandatory-steps

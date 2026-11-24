@@ -2076,6 +2076,8 @@ OC.L10N.register(
         "Proposals": "Voorstellen",
         "Checklist": "Checklist",
         "This checklist has no steps.": "Deze checklist heeft geen stappen.",
+        "The member downloads their own annotations themselves:": "Het lid downloadt de eigen annotaties zelf:",
+        "Own-annotations export": "Export van eigen annotaties",
         "(optional)": "(optioneel)",
         "Mark as done": "Markeren als gereed",
         "Skip": "Overslaan",

@@ -149,11 +149,17 @@ The system SHALL offer a raadswisseling run for a governance body that diffs a c
 Step reminders SHALL be declared exclusively via the canonical `x-openregister-notifications` dialect (ADR-031) on both schemas: a trigger when a traject is created (to the griffie group), a scheduled trigger when a non-terminal traject has a step whose `dueDate` is approaching, and a scheduled trigger when a step is past its `dueDate`, each with Dutch and English subjects. The app SHALL NOT dispatch these notifications imperatively and SHALL NOT introduce a bespoke reminder BackgroundJob.
 
 #### Scenario: Overdue step reminder
+
+@e2e exclude the reminder is a scheduled rule fired by OpenRegister's cron, which no page triggers; ChecklistSaveListenerTest asserts the overdue and due-soon filters read the server-stamped nextStepDueDate and name the step, and the stamping itself
+
 - GIVEN an OnboardingTraject in `in-uitvoering` with a step whose dueDate is in the past
 - WHEN the scheduled notification evaluation runs
 - THEN the griffie group receives the overdue notification with the traject and step named
 
 #### Scenario: No imperative dispatch exists
+
+@e2e exclude a static property of the codebase, checked by hydra gate 18 (check_notification_dialect.py), not by a running instance
+
 - GIVEN the shipped change
 - WHEN the codebase is inspected
 - THEN no imperative object-notification dispatch for traject reminders exists; all reminders are declarative rules in fragment 59

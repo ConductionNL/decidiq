@@ -64,6 +64,21 @@ describe('the onboarding checklist (REQ-MOBW-001)', () => {
 		expect(row.canSkip).toBe(false)
 	})
 
+	it('the personal-data step of an offboarding points at the own-annotations export', () => {
+		const rows = checklistRows('offboarding', {
+			lifecycle: 'in-execution',
+			steps: [
+				{ stepType: 'personal-data-note', title: 'Personal data note', status: 'open' },
+				{ stepType: 'exit-confirmation', title: 'Confirm the exit', status: 'open' },
+			],
+		})
+		expect(rows[0].annotationsExport).toBe(true)
+		expect(rows[1].annotationsExport).toBeUndefined()
+		// No export of its own: the checklist links the document-annotations one.
+		expect(read('src/components/tabs/OnboardingChecklistTab.vue')).toContain("exportUrl('csv')")
+		expect(read('appinfo/routes.php')).not.toMatch(/offboarding[^\n]*export/)
+	})
+
 	it('puts to the step route of the record kind', () => {
 		expect(kindOf('member-onboarding')).toBe('onboarding')
 		expect(kindOf('member-offboarding')).toBe('offboarding')
