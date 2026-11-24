@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Records that a lifted restriction's target has been published.
+ * Ends the wait of a lifted confidentiality once its target is published.
  *
  * @category Listener
  * @package  OCA\Decidiq\Listener
@@ -22,26 +22,24 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use DateTimeImmutable;
-use DateTimeInterface;
-use OCA\Decidiq\Service\SystemObjectRows;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * When an agenda item or decision becomes public, every lifted restriction on
  * it that was waiting for that stops waiting: `awaitingPublication` goes to
- * false and `targetPublishedAt` records the moment. The Dashboard's "Lifted,
- * awaiting publication" tile counts the restrictions still waiting.
+ * false and `targetPublishedAt` records the moment. The Dashboard tile
+ * "Lifted, awaiting publication" counts the restrictions still waiting.
  *
- * A restriction that cannot be read or saved is left as it is and logged: the
- * flag only feeds a counter, it guards nothing.
+ * Restrictions are read and written in system context: the person publishing
+ * may not be allowed to edit a restriction. One that cannot be read or saved
+ * is left as it is and logged; the flag feeds a counter and guards nothing.
  *
  * @template-implements IEventListener<Event>
  *
@@ -50,31 +48,21 @@ use Throwable;
 class ConfidentialityPublishedListener implements IEventListener {
 
 	/**
-	 * The schema slug of an agenda item.
+	 * Agenda items are one kind of target.
 	 *
 	 * @var string
 	 */
 	public const SCHEMA_AGENDA_ITEM = 'agenda-item';
 
 	/**
-	 * The schema slug of a decision.
+	 * Decisions are the other.
 	 *
 	 * @var string
 	 */
 	public const SCHEMA_DECISION = 'decision';
 
 	/**
-	 * The schema slug of a restriction.
-	 *
-	 * @var string
-	 */
-	private const SCHEMA_RESTRICTION = 'confidentiality-restriction';
-
-	/**
-	 * Per target kind: the field that says it is public, and the restriction field naming it.
-	 *
-	 * An agenda item carries `confidentiality`, a decision `isPublished`; both
-	 * read `public` once published.
+	 * Per target kind: the field that reads `public` once published, and the restriction field naming the target.
 	 *
 	 * @var array<string, array{classifier: string, target: string}>
 	 */
@@ -84,21 +72,23 @@ class ConfidentialityPublishedListener implements IEventListener {
 	];
 
 	/**
-	 * Constructor.
+	 * Wire the object service, the clock and the log.
 	 *
-	 * @param ObjectServiceInterface $objectService The OpenRegister object service.
-	 * @param LoggerInterface        $logger        The logger.
+	 * @param ObjectServiceInterface $objectService Reads and writes the restrictions.
+	 * @param ITimeFactory           $clock         Says when the target was published.
+	 * @param LoggerInterface        $logger        Records a restriction that could not be read or marked.
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
+		private readonly ITimeFactory $clock,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
 
 	/**
-	 * Stop the waiting of the lifted restrictions on a target that just became public.
+	 * React to a saved agenda item or decision.
 	 *
 	 * @param Event $event The event.
 	 *
@@ -107,27 +97,22 @@ class ConfidentialityPublishedListener implements IEventListener {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectUpdatedEvent) === false || $event->getNewObject() === null) {
+		$after = null;
+		if ($event instanceof ObjectUpdatedEvent) {
+			$after = $event->getNewObject();
+		}
+
+		if ($after === null) {
 			return;
 		}
 
-		$new  = (array)$event->getNewObject()->getObject();
-		$old  = (array)($event->getOldObject()?->getObject() ?? []);
-		$kind = $this->justPublished(new: $new, old: $old);
-		if ($kind === null) {
-			return;
+		$kind = $this->justPublished(
+			new: (array)$after->getObject(),
+			old: (array)($event->getOldObject()?->getObject() ?? [])
+		);
+		if ($kind !== null) {
+			$this->publishedOn(kind: $kind, targetId: (string)$after->getUuid());
 		}
-
-		$targetId = (string)($new['id'] ?? ($new['@self']['id'] ?? ''));
-		if ($targetId === '' && method_exists($event->getNewObject(), 'getUuid') === true) {
-			$targetId = (string)$event->getNewObject()->getUuid();
-		}
-
-		if ($targetId === '') {
-			return;
-		}
-
-		$this->publishedOn(kind: $kind, targetId: $targetId, now: new DateTimeImmutable());
 	}//end handle()
 
 	/**
@@ -157,63 +142,95 @@ class ConfidentialityPublishedListener implements IEventListener {
 	/**
 	 * Mark every lifted restriction on the target that still waits as published.
 	 *
-	 * @param string            $kind     `item` or `decision`.
-	 * @param string            $targetId The agenda item or decision.
-	 * @param DateTimeImmutable $now      When it was published.
+	 * @param string $kind     `item` or `decision`.
+	 * @param string $targetId The agenda item or decision.
 	 *
 	 * @return int How many restrictions were marked.
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
-	public function publishedOn(string $kind, string $targetId, DateTimeImmutable $now): int {
-		$field = self::KINDS[$kind]['target'];
-		$rows  = SystemObjectRows::read(
-			objectService: $this->objectService,
-			logger: $this->logger,
-			filters: ['schema' => self::SCHEMA_RESTRICTION, $field => $targetId],
-			warning: 'Decidiq: lifted restrictions could not be read; none is marked published'
-		);
+	public function publishedOn(string $kind, string $targetId): int {
+		if ($targetId === '' || isset(self::KINDS[$kind]) === false) {
+			return 0;
+		}
 
+		$field  = self::KINDS[$kind]['target'];
+		$stamp  = $this->clock->getDateTime()->format('c');
 		$marked = 0;
-		foreach ($rows as $restriction) {
-			if ((string)($restriction[$field] ?? '') !== $targetId || ($restriction['awaitingPublication'] ?? null) !== true) {
-				continue;
+		foreach ($this->restrictionsOn(field: $field, targetId: $targetId) as $restriction) {
+			if ((string)($restriction[$field] ?? '') === $targetId && ($restriction['awaitingPublication'] ?? null) === true) {
+				$marked += $this->mark(restriction: $restriction, stamp: $stamp);
 			}
-
-			$marked += $this->mark(restriction: $restriction, now: $now);
 		}
 
 		return $marked;
 	}//end publishedOn()
 
 	/**
+	 * The restrictions naming the target, read in system context; none when they cannot be read.
+	 *
+	 * @param string $field    The restriction field naming the target.
+	 * @param string $targetId The target.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function restrictionsOn(string $field, string $targetId): array {
+		try {
+			$found = $this->objectService->findAll(
+				config: ['filters' => ['register' => 'decidiq', 'schema' => 'confidentiality-restriction', $field => $targetId]],
+				_rbac: false,
+				_multitenancy: false
+			);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: lifted restrictions could not be read; none is marked published',
+				['target' => $targetId, 'error' => $e->getMessage()]
+			);
+			return [];
+		}
+
+		$rows = [];
+		foreach (($found['results'] ?? $found) as $row) {
+			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+				$row = $row->jsonSerialize();
+			}
+
+			if (is_array($row) === true) {
+				$rows[] = $row;
+			}
+		}
+
+		return $rows;
+	}//end restrictionsOn()
+
+	/**
 	 * Write the publication onto one restriction.
 	 *
 	 * @param array<string, mixed> $restriction The restriction.
-	 * @param DateTimeImmutable    $now         When its target was published.
+	 * @param string               $stamp       When its target was published (ISO 8601).
 	 *
 	 * @return int 1 when saved, 0 when not.
 	 */
-	private function mark(array $restriction, DateTimeImmutable $now): int {
-		$id = (string)($restriction['id'] ?? ($restriction['@self']['id'] ?? ''));
+	private function mark(array $restriction, string $stamp): int {
+		$uuid = (string)($restriction['id'] ?? ($restriction['@self']['id'] ?? ''));
 		unset($restriction['@self']);
 		$restriction['awaitingPublication'] = false;
-		$restriction['targetPublishedAt']   = $now->format(DateTimeInterface::ATOM);
+		$restriction['targetPublishedAt']   = $stamp;
 
 		try {
 			$this->objectService->saveObject(
 				object: $restriction,
 				options: new ObjectSaveOptions(
-					target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA_RESTRICTION),
-					uuid: $id
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'confidentiality-restriction'),
+					uuid: $uuid
 				),
 				_rbac: false,
 				_multitenancy: false
 			);
-		} catch (Throwable $e) {
+		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: a lifted restriction could not be marked published',
-				['restriction' => $id, 'error' => $e->getMessage()]
+				['restriction' => $uuid, 'error' => $e->getMessage()]
 			);
 			return 0;
 		}
