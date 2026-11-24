@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -48,7 +48,7 @@ use Throwable;
 /**
  * The Teams meeting on a meeting: whether one can be created, and creating it.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	/**
@@ -92,7 +92,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 * @param IUserSession           $userSession   Who creates the Teams meeting.
 	 * @param ITimeFactory           $time          When it is created.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -109,7 +109,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 *
 	 * @param string $meetingId The meeting
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @throws TeamsMeetingRefusedException When the meeting does not exist (404).
 	 *
@@ -133,7 +133,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 *
 	 * @param string $meetingId The meeting
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @throws TeamsMeetingRefusedException When the meeting cannot carry one (404, 409) or the service refuses (502).
 	 *
@@ -185,7 +185,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 *
 	 * @param array<string, mixed> $meeting The meeting
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @throws TeamsMeetingRefusedException When the meeting cannot carry one (409).
 	 *
@@ -259,7 +259,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 *
 	 * @param string $value The date as stored on the meeting.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @return DateTimeImmutable|null
 	 */
@@ -316,7 +316,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 *
 	 * @param mixed $response The answer of the call service.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @return array<string, mixed>
 	 */

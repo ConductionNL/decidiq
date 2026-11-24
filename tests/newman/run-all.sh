@@ -105,6 +105,7 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-paper-summaries.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-implementation-progress.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-mandate-remuneration.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-room-system-link.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 

@@ -8,7 +8,7 @@
  * meeting page read from `Meeting.teamsMeeting`. Pure helpers, so the
  * components stay thin and vitest covers the rules.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 import { generateUrl } from '@nextcloud/router'
 
@@ -23,7 +23,7 @@ const ONLINE_MODES = ['digital', 'hybrid']
  *
  * @param {string} meetingId The meeting.
  * @return {string} The URL.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 export function teamsMeetingUrl(meetingId) {
 	return generateUrl(
@@ -36,7 +36,7 @@ export function teamsMeetingUrl(meetingId) {
  *
  * @param {string|null|undefined} value The address.
  * @return {boolean} True when it starts with https://teams.microsoft.com/.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 export function isTeamsJoinUrl(value) {
 	return typeof value === 'string' && value.startsWith(TEAMS_JOIN_PREFIX)
@@ -47,7 +47,7 @@ export function isTeamsJoinUrl(value) {
  *
  * @param {object|null} meeting The meeting.
  * @return {string} The join address.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
  */
 export function teamsJoinUrl(meeting) {
 	const url = meeting?.teamsMeeting?.joinUrl
@@ -59,7 +59,7 @@ export function teamsJoinUrl(meeting) {
  *
  * @param {object|null} meeting The meeting.
  * @return {boolean} True for a digital or hybrid meeting.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 export function isOnlineMeeting(meeting) {
 	return ONLINE_MODES.includes(meeting?.meetingMode)
@@ -73,7 +73,7 @@ export function isOnlineMeeting(meeting) {
  * @param {object|null} meeting The meeting.
  * @param {object|null} status The answer of the status route, null when refused.
  * @return {boolean} True when the button is shown.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 export function canCreateTeams(meeting, status) {
 	return (

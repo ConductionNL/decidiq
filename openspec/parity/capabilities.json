@@ -2018,8 +2018,8 @@
 				"owner": "ConductionNL/openregister",
 				"change": "platform-microsoft-365-calendar-and-teams",
 				"requirement": [
-					"openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-001 A meeting's dates reach openregister's calendar feed",
-					"openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings"
+					"openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-001 A meeting's dates reach openregister's calendar feed",
+					"openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings"
 				]
 			},
 			"reachedOn": "nothing reaches it: no calendar sync or ICS export; the only hook is a guarded call to an OpenRegister method that does not exist",
@@ -2027,7 +2027,7 @@
 			"providerHow": "read-from-code",
 			"feature": "app-integrations",
 			"featureConfidence": "high",
-			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route. Specified in ConductionNL/openregister openspec/changes/object-dates-as-a-calendar-feed (OpenSpec pass 2026-09-27). decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is specified in openspec/changes/platform-microsoft-365-calendar-and-teams.",
+			"note": "Meetings do not appear in Nextcloud Calendar or Outlook. The one code path is a forward-compatible stub behind method_exists() on an API-only route. Specified in ConductionNL/openregister openspec/changes/object-dates-as-a-calendar-feed (OpenSpec pass 2026-09-27). decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is specified in openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -8174,9 +8174,9 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-microsoft-365-calendar-and-teams",
 				"requirement": [
-					"openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings",
-					"openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-004 A digital or hybrid meeting can carry a Teams meeting",
-					"openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-005 Members join the Teams meeting from decidiq"
+					"openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings",
+					"openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-004 A digital or hybrid meeting can carry a Teams meeting",
+					"openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-005 Members join the Teams meeting from decidiq"
 				]
 			},
 			"reachedOn": "nothing reaches it: no Microsoft 365 integration",
@@ -8184,7 +8184,7 @@
 			"providerHow": "read-from-code",
 			"feature": "app-integrations",
 			"featureConfidence": "high",
-			"note": "No Outlook, Teams or Graph integration. Action items are CalDAV tasks, which an Outlook client could only reach through generic CalDAV sync, not verified. Specified in openspec/changes/platform-microsoft-365-calendar-and-teams (OpenSpec pass 2026-09-27).",
+			"note": "No Outlook, Teams or Graph integration. Action items are CalDAV tasks, which an Outlook client could only reach through generic CalDAV sync, not verified. Specified in openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -10231,14 +10231,14 @@
 				"evidence": "grep -rliE 'conference system|microphone|delegate system|bosch|televic|speakerSystem' lib src: only an icon name (lib/Settings/decidesk_register.json:3279 'Microphone') and the video-conference link field (:937); the room display endpoint GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
 				"owner": "ConductionNL/decidiq",
 				"change": "live-room-conference-system-link",
-				"requirement": "openspec/changes/live-room-conference-system-link/specs/room-system-link :: REQ-RCSL-007 The room system receives the agenda, the speakers and the vote results"
+				"requirement": "openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link :: REQ-RCSL-007 The room system receives the agenda, the speakers and the vote results"
 			},
 			"reachedOn": "nothing reaches it",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "live-meeting-mode",
 			"featureConfidence": "high",
-			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only. Specified in openspec/changes/live-room-conference-system-link (OpenSpec pass 2026-09-27).",
+			"note": "There is no link with a room's conference or voting hardware. Speakers and votes are handled in decidiq only. Specified in openspec/changes/archive/2026-11-24-live-room-conference-system-link (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -10471,7 +10471,7 @@
 			"decidiq": "no",
 			"built": {
 				"state": "specified",
-				"evidence": "Read 2026-10-30: the speaker queue lives in the browser (src/utils/speakerQueue.js, src/components/liveMeeting/SpeakerQueuePanel.vue); nothing sends the current speaker anywhere. openspec/changes/live-room-conference-system-link adds the inbound room-system connection (integriq) and Participant.roomSeat, not the outbound speaker signal.",
+				"evidence": "Read 2026-10-30: the speaker queue lives in the browser (src/utils/speakerQueue.js, src/components/liveMeeting/SpeakerQueuePanel.vue); nothing sends the current speaker anywhere. openspec/changes/archive/2026-11-24-live-room-conference-system-link adds the inbound room-system connection (integriq) and Participant.roomSeat, not the outbound speaker signal.",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
 				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-006 The room's cameras and microphones follow the speaker",

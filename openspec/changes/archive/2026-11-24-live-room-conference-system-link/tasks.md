@@ -3,27 +3,27 @@
 ## Implementation tasks
 
 ### Task 1: The connection and the seat field
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-002-a-members-seat-is-recorded-on-the-member`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-002-a-members-seat-is-recorded-on-the-member`
 - **files**: `lib/Settings/connections.json` (`room-system` with `sourceTemplate`), `lib/Settings/register.d/92-room-system-link.json` (`Participant.roomSeat`, read grant for the synchronisation user), `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the connections file WHEN hydra gate `connections-declaration` runs THEN it passes
   - GIVEN the synchronisation user WHEN it lists participants (Newman) THEN `roomSeat` is present
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); tests/integration/decidiq-room-system-link.postman_collection.json reads roomSeat as the synchronisation user
   - Built: `Participant.roomSeat` and the `room-system` connection. The fragment is `lib/Settings/register.d/99-room-system-link.json`, not 92-: fragments merge in sorted name order, so 99- is needed for its Participant and Vote version bumps to win. The synchronisation user already reads participant, meeting and agenda-item through the register's `read: authenticated`, so no grant was added. Unit: `RoomSystemLinkRegisterTest`, `ConnectionsDeclarationTest`. Seats in `profiles/municipality.json`: every demo member has one, distinct within its body (`RoomSystemLinkRegisterTest::testTheDemoMembersHaveDistinctSeats`). Open: the Newman request as the synchronisation user.
 
 ### Task 2: The inbox schema and who may write it
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-003-only-the-integriq-synchronisation-user-writes-room-system-messages`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-003-only-the-integriq-synchronisation-user-writes-room-system-messages`
 - **files**: `lib/Settings/register.d/92-room-system-link.json` (`RoomSystemMessage`, `authorization`, register `schemas` list), `tests/Unit/Settings/RegisterDescriptorTest.php`
 - **acceptance_criteria**:
   - GIVEN a member session WHEN it creates a message (Newman) THEN 403, red before the rule and green after
   - GIVEN the descriptor test WHEN it runs THEN the new schema is attached
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); RoomSystemLinkRegisterTest (PHPUnit, green here) and the decidiq-room-system-link collection: a member is refused, the synchronisation user writes
   - Built: `RoomSystemMessage`, attached to the register. `create` is open only to the new group `integriq-synchronisation` (OpenRegister provisions it; an administrator adds integriq's user), and update and delete are closed. Unit: `RoomSystemLinkRegisterTest`, plus `RegisterAuthorizationTest`, which classifies the new block. Open: the Newman 403 as a member.
 
 ### Task 3: Apply a speech
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record`
 - **files**: `lib/Listener/RoomSystemMessageListener.php`, `lib/Service/RoomSystemMessageService.php`, `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - GIVEN a real `OCA\OpenRegister\Event\ObjectCreatedEvent` for a speech from a linked seat WHEN handled THEN the engagement record gains the speech (PHPUnit, red then green)
@@ -33,7 +33,7 @@
   - `RoomSystemMessageService::apply()` with `RoomSystemMessageListener` on `ObjectCreatedEvent`, registered in `lib/Listener/Registrar/ObjectListenerRegistrar.php`. `RoomSystemMessageServiceTest` uses the real ObjectCreatedEvent; it errors without the service.
 
 ### Task 4: Apply a vote, with `castVia`
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-005-a-desk-vote-becomes-a-named-vote-under-the-normal-voting-rules`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-005-a-desk-vote-becomes-a-named-vote-under-the-normal-voting-rules`
 - **files**: `lib/Service/RoomSystemMessageService.php`, `lib/Settings/register.d/92-room-system-link.json` (`Vote.castVia`, or a value on the field `voting-named-paper-vote-entry` adds if it landed first)
 - **acceptance_criteria**:
   - GIVEN an open round and a linked seat WHEN a vote message is handled THEN one vote with `castVia: room-system` (PHPUnit with the real event)
@@ -43,14 +43,14 @@
   - A desk vote goes through `castVote()`. The saved vote is then stamped `castAs: in-person`, `castVia: room-system` (`Vote.castVia` added, since `voting-named-paper-vote-entry` had not landed). Secret rounds, an already applied `externalId`, and voting-rule refusals are rejected with their reason.
 
 ### Task 5: Apply again, and the widget
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again`
 - **files**: `lib/Controller/RoomSystemController.php`, `appinfo/routes.php`, `src/components/tabs/MeetingRoomSystemTab.vue`, `src/registry.js`, `src/manifest.json` (`MeetingDetail` widget, layout and slot), `tests/e2e/room-system-link.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a non-staff member WHEN they call the apply route THEN 403 (PHPUnit and Newman)
   - GIVEN hydra gates `route-auth`, `no-admin-idor` and `route-reachability` WHEN they run THEN they pass
   - GIVEN the Playwright spec WHEN it runs THEN it references the UI scenarios of REQ-RCSL-001 and REQ-RCSL-006
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); RoomSystemControllerTest (PHPUnit 403, green here), the decidiq-room-system-link collection (member apply 403) and tests/e2e/room-system-link.spec.ts
   - Built: `RoomSystemController` (`GET /api/meetings/{id}/room-system`, `POST /api/room-system-messages/{id}/apply`), both behind `TranscriptionStaffGuard::forMeeting()` on the message's own meeting before anything is read or applied; `RoomSystemMessageService` gains `isConnected()`, `forMeeting()` (rejected first) and `meetingOf()`, and refuses to apply while no source is linked ("No room system is connected", REQ-RCSL-001). `MeetingRoomSystemTab` on `MeetingDetail` (widget, layout, slot, simple-profile tab under More), both routes in `openapi.json`. Unit: `RoomSystemControllerTest` (403 before apply, 404 after the guard, read after the guard), `RoomSystemMessageServiceTest` (not connected, rejected first); vitest `meetingRoomSystemTab.spec.js`. route-auth and route-reachability pass; no-admin-idor lists `meeting()` as it lists `CaseSystemController::send()`, the same guard through the injected staff guard. Open: running the Playwright spec and the Newman 403. Written, not run (21 Nov): `tests/e2e/room-system-link.spec.ts` (REQ-RCSL-001: the widget says No room system is connected when none is linked; REQ-RCSL-006: a rejected desk vote from an unlinked seat is applied again once the seat is linked, and comes back applied for the participant). Each case skips with the reason when the instance is linked the other way.
 
 ### Task 6: Strings and docs
@@ -61,7 +61,7 @@
   - English and Dutch strings for the widget; the schema strings of the fragment are all in the catalogue (`check:schema-l10n` adds no uncovered string; development already sits above its baseline). `test:l10n` passes. `docs/features/room-system-link.md` covers linking, seats, what the room sends and applying again.
 
 ### Task 7: Send the agenda, speakers and vote results to the room
-- **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results`
 - **files**: `lib/Service/RoomSystemMessageService.php` (outgoing messages through the `room-system` connection), `lib/Listener/RoomSystemMessageListener.php`, `tests/Unit/Service/RoomSystemMessageServiceTest.php`
 - [x] Implement
 - [x] Test

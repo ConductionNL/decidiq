@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use OCP\IRequest;
  * Access control on every route: TranscriptionStaffGuard::forMeeting() on the
  * meeting id, so only the chair, the secretary or an admin reaches integriq.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 class TeamsMeetingController extends Controller {
 
@@ -54,7 +54,7 @@ class TeamsMeetingController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 */
 	public function __construct(
 		IRequest $request,
@@ -76,7 +76,7 @@ class TeamsMeetingController extends Controller {
 	 *
 	 * @return JSONResponse 200 { connected, teamsMeeting }; 401, 403 or 404
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 */
 	#[NoAdminRequired]
 	public function status(string $meetingId): JSONResponse {
@@ -94,7 +94,7 @@ class TeamsMeetingController extends Controller {
 	 *
 	 * @return JSONResponse 201 the teamsMeeting; 401, 403, 404, 409 or 502 with a message
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 */
 	#[NoAdminRequired]
 	public function create(string $meetingId): JSONResponse {
@@ -114,7 +114,7 @@ class TeamsMeetingController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 */
 	private function guarded(string $meetingId, Closure $action, int $status=Http::STATUS_OK): JSONResponse {
 		$denied = $this->guard->forMeeting(meetingId: $meetingId);
@@ -142,7 +142,7 @@ class TeamsMeetingController extends Controller {
 	 *
 	 * @return string The refusal as the reader reads it
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 */
 	private function refusal(string $message): string {
 		return match ($message) {

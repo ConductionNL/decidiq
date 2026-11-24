@@ -10,7 +10,7 @@
  member copies the address, sees when each subscription was made, and stops
  one, after which its address answers 404.
 
- @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 -->
 <template>
 	<div class="user-settings-section" data-testid="calendar-subscription-section">
@@ -121,7 +121,7 @@ export default {
 		 * Find the meeting schema, then list the member's subscriptions over it.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 		 */
 		async load() {
 			this.loading = true
@@ -149,7 +149,7 @@ export default {
 		 * Mint a feed token over the meeting schema and show its address.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 		 */
 		async subscribe() {
 			this.saving = true
@@ -172,7 +172,7 @@ export default {
 		 *
 		 * @param {object} feed The subscription.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 		 */
 		async stop(feed) {
 			this.saving = true
@@ -195,7 +195,7 @@ export default {
 		 *
 		 * @param {object} feed The subscription.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 		 */
 		async copy(feed) {
 			try {
@@ -214,7 +214,7 @@ export default {
 		 *
 		 * @param {string} value An ISO date-time.
 		 * @return {string} The date.
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
 		 */
 		formatDate(value) {
 			const date = new Date(value)
