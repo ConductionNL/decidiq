@@ -25,7 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\VotingRoundLiveController;
 use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\ProxyHoldings;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingRoundGuard;
 use OCA\Decidiq\Service\VotingRoundResults;
@@ -99,11 +99,9 @@ class VotingRoundLiveControllerTest extends TestCase {
 				participantResolver: $this->createMock(ParticipantResolver::class),
 				container: $container,
 			),
-			proxyService: new ProxyDelegationService(
-				container: $container,
-				logger: new NullLogger(),
+			proxyHoldings: new ProxyHoldings(
 				objectService: $this->createMock(ObjectServiceInterface::class),
-				appConfig: $this->createMock(IAppConfig::class),
+				logger: new NullLogger(),
 			),
 			errors: new VotingErrorResponder(logger: new NullLogger()),
 		);

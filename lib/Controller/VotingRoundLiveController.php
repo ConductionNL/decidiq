@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\ProxyHoldings;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingRoundGuard;
 use OCA\Decidiq\Service\VotingRoundResults;
@@ -55,7 +55,7 @@ class VotingRoundLiveController extends Controller {
 	 * @param VotingRoundResults $results Running counts of an open round
 	 * @param IUserSession $userSession The user session
 	 * @param VotingRoundGuard $guard Per-meeting authorisation guard
-	 * @param ProxyDelegationService $proxyService Proxy (volmacht) lookups
+	 * @param ProxyHoldings $proxyHoldings Which proxies a participant holds and gave
 	 * @param VotingErrorResponder $errors Exception-to-status mapping
 	 *
 	 * @return void
@@ -68,7 +68,7 @@ class VotingRoundLiveController extends Controller {
 		private readonly VotingRoundResults $results,
 		private readonly IUserSession $userSession,
 		private readonly VotingRoundGuard $guard,
-		private readonly ProxyDelegationService $proxyService,
+		private readonly ProxyHoldings $proxyHoldings,
 		private readonly VotingErrorResponder $errors,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
@@ -148,7 +148,7 @@ class VotingRoundLiveController extends Controller {
 
 		return $this->errors->badRequestOrNotFound(
 			fn (): JSONResponse => new JSONResponse(
-				$this->proxyService->proxiesFor(votingRoundId: $id, participantId: $participantId)
+				$this->proxyHoldings->proxiesFor(votingRoundId: $id, participantId: $participantId)
 			)
 		);
 

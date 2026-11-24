@@ -628,7 +628,7 @@ class NotificationPreferenceService implements NotificationPreferenceServiceInte
 				return 0;
 			}
 
-			$mailer = $this->container->get(\OCP\Mail\IMailer::class);
+			$mailer = $this->container->get('OCP\Mail\IMailer');
 			$emailMessage = $mailer->createMessage();
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);

@@ -173,7 +173,12 @@ class FilinqSigningRequest {
 	 */
 	private function record(string $schema, string $uuid): ?array {
 		try {
-			$entity = $this->objectService->find(id: $uuid, options: new ObjectFindOptions(register: 'decidiq', schema: $schema), _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $uuid,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable) {
 			return null;
 		}
