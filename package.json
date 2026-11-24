@@ -62,7 +62,7 @@
     "pdfjs-dist": "4.10.38",
     "pinia": "^3.0.3",
     "sass": "^1.105.0",
-    "sass-loader": "^17.0.1",
+    "sass-loader": "^17.1.1",
     "vue": "^3.5.43",
     "vue-material-design-icons": "^5.3.0",
     "vue-router": "^4.6.4"
