@@ -122,8 +122,21 @@ class CommitmentsRegisterTest extends TestCase {
 		);
 		foreach (['toezeggingRappelBeforeDeadline', 'toezeggingRappelOverdue'] as $reminder) {
 			self::assertSame(expected: 'scheduled', actual: $rules[$reminder]['trigger']['type']);
-			self::assertSame(expected: ['open', 'in-execution'], actual: $rules[$reminder]['trigger']['filter']['lifecycle']);
+			// The `in` operator: a bare list of states is not in OpenRegister's filter grammar and matches nothing.
+			self::assertSame(
+				expected: ['operator' => 'in', 'values' => ['open', 'in-execution']],
+				actual: $rules[$reminder]['trigger']['filter']['lifecycle']
+			);
 		}
+
+		self::assertSame(
+			expected: ['operator' => 'withinNext', 'value' => 'P14D'],
+			actual: $rules['toezeggingRappelBeforeDeadline']['trigger']['filter']['deadline']
+		);
+		self::assertSame(
+			expected: ['operator' => 'before', 'value' => 'now'],
+			actual: $rules['toezeggingRappelOverdue']['trigger']['filter']['deadline']
+		);
 
 		foreach ($rules as $name => $rule) {
 			self::assertNotSame(expected: '', actual: (string)($rule['subject']['nl'] ?? ''), message: $name . ' has no Dutch subject');

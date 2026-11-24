@@ -218,7 +218,7 @@ final class DeclaredGiftThresholdListenerTest extends TestCase {
 		$schema = MergedRegisterSchema::forSlug(slug: 'ancillary-position');
 		$filter = $schema['x-openregister-notifications']['nevenfunctieJaarlijkseReview']['trigger']['filter'];
 
-		self::assertSame(expected: ['reported', 'public', 'internal'], actual: $filter['lifecycle']);
+		self::assertSame(expected: ['operator' => 'in', 'values' => ['reported', 'public', 'internal']], actual: $filter['lifecycle']);
 		self::assertSame(
 			expected: [
 				['reviewedAt' => ['operator' => 'olderThan', 'value' => 'P12M']],
