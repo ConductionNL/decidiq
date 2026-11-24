@@ -71,7 +71,8 @@ class MeetingRequestedEvent extends Event {
 	 * @param string               $subjectId       Uuid of the producer's object; with the schema the key a repeat resolves on
 	 * @param string               $title           Meeting title
 	 * @param string               $scheduledDate   ISO-8601 start
-	 * @param array<string, mixed> $attributes      Further meeting fields (endDate, location, meetingType, meetingMode, governanceBody, virtualLocation, isPublic)
+	 * @param array<string, mixed> $attributes      Further meeting fields: endDate, location, meetingType, meetingMode,
+	 *                                              governanceBody, virtualLocation, isPublic
 	 * @param string               $actorId         Nextcloud UID on whose behalf the command runs
 	 *
 	 * @SuppressWarnings(PHPMD.ExcessiveParameterList) A PUBLISHED CROSS-APP
