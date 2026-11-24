@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\OriPublicationService;
@@ -96,7 +97,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			NotificationPreferenceService::class => $prefService,
+			NotificationPreferenceServiceInterface::class => $prefService,
 		];
 
 		$container = $this->createMock(ContainerInterface::class);
@@ -309,7 +310,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			NotificationPreferenceService::class => $prefService,
+			NotificationPreferenceServiceInterface::class => $prefService,
 		];
 
 		$container = $this->createMock(ContainerInterface::class);

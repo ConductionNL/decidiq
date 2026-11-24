@@ -3408,7 +3408,12 @@ OC.L10N.register(
         "Risk band {band}": "Risikoniveau {band}",
         "No risk band": "Intet risikoniveau",
         "Score {score}, from:": "Score {score}, ud fra:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} point)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} point)",
+        "This decision has been withdrawn.": "Denne beslutning er trukket tilbage.",
+        "Withdraw decision": "Træk beslutning tilbage",
+        "Withdrawal failed.": "Tilbagetrækning mislykkedes.",
+        "Withdrawn by the deciding body": "Trukket tilbage af det besluttende organ",
+        "Withdrawn by the party who asked": "Trukket tilbage af den part, der anmodede"
     },
     "nplurals=2; plural=(n != 1);"
 )

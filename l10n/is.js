@@ -3408,7 +3408,12 @@ OC.L10N.register(
         "Risk band {band}": "Áhættustig {band}",
         "No risk band": "Ekkert áhættustig",
         "Score {score}, from:": "Stig {score}, út frá:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} stig)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} stig)",
+        "This decision has been withdrawn.": "Þessi ákvörðun hefur verið dregin til baka.",
+        "Withdraw decision": "Draga ákvörðun til baka",
+        "Withdrawal failed.": "Ekki tókst að draga til baka.",
+        "Withdrawn by the deciding body": "Dregin til baka af ákvörðunaraðila",
+        "Withdrawn by the party who asked": "Dregin til baka af umsækjanda"
     },
     "nplurals=2; plural=(n != 1);"
 )

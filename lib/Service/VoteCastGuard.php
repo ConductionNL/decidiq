@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
@@ -324,8 +325,8 @@ class VoteCastGuard {
 	 */
 	private function hasAbsenceDelegation(string $delegatorId, string $participantId, ?string $callerUid): bool {
 		try {
-			$prefService = $this->container->get(NotificationPreferenceService::class);
-			if ($prefService instanceof NotificationPreferenceService === false) {
+			$prefService = $this->container->get(NotificationPreferenceServiceInterface::class);
+			if ($prefService instanceof NotificationPreferenceServiceInterface === false) {
 				return false;
 			}
 

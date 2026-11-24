@@ -216,9 +216,42 @@ class MeetingFolderService implements MeetingFolderServiceInterface {
 			return null;
 		}
 
+		return $this->fileNode(folderPath: $meetingPath . '/' . $this->sanitize(name: $subfolder), name: $this->sanitize(name: $fileName));
+
+	}//end meetingFile()
+
+	/**
+	 * Find a file this service wrote, by the path writeMeetingFile() returned.
+	 *
+	 * @param string $path The path.
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return \OCP\Files\File|null The file, or null when it is not there or Files is unavailable.
+	 */
+	public function fileAt(string $path): ?\OCP\Files\File {
+		$slash = strrpos($path, '/');
+		if ($slash === false) {
+			return null;
+		}
+
+		return $this->fileNode(folderPath: substr($path, 0, $slash), name: substr($path, ($slash + 1)));
+
+	}//end fileAt()
+
+	/**
+	 * The file with this name in this folder, or null when it is not a file or Files is unavailable.
+	 *
+	 * @param string $folderPath The folder path, created when missing
+	 * @param string $name       The file name
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return \OCP\Files\File|null The file, or null.
+	 */
+	private function fileNode(string $folderPath, string $name): ?\OCP\Files\File {
 		try {
-			$folder = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder($meetingPath . '/' . $this->sanitize(name: $subfolder));
-			$node   = $folder->get($this->sanitize(name: $fileName));
+			$node = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder($folderPath)->get($name);
 		} catch (\Throwable) {
 			return null;
 		}
@@ -229,7 +262,7 @@ class MeetingFolderService implements MeetingFolderServiceInterface {
 
 		return $node;
 
-	}//end meetingFile()
+	}//end fileNode()
 
 	/**
 	 * Read back a file this service wrote, by the path writeMeetingFile() returned.

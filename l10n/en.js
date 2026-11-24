@@ -4165,7 +4165,16 @@ OC.L10N.register(
         "Risk band {band}": "Risk band {band}",
         "No risk band": "No risk band",
         "Score {score}, from:": "Score {score}, from:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points})"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points})",
+        "Vote on behalf of": "Vote on behalf of",
+        "Myself": "Myself",
+        "Your vote on behalf of {name} has been recorded.": "Your vote on behalf of {name} has been recorded.",
+        "Failed to grant proxy": "Failed to grant proxy",
+        "This decision has been withdrawn.": "This decision has been withdrawn.",
+        "Withdraw decision": "Withdraw decision",
+        "Withdrawal failed.": "Withdrawal failed.",
+        "Withdrawn by the deciding body": "Withdrawn by the deciding body",
+        "Withdrawn by the party who asked": "Withdrawn by the party who asked"
     },
     "nplurals=2; plural=(n != 1);"
 )

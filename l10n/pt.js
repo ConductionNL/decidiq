@@ -3408,7 +3408,12 @@ OC.L10N.register(
         "Risk band {band}": "Nível de risco {band}",
         "No risk band": "Sem nível de risco",
         "Score {score}, from:": "Pontuação {score}, a partir de:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} pontos)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} pontos)",
+        "This decision has been withdrawn.": "Esta decisão foi retirada.",
+        "Withdraw decision": "Retirar decisão",
+        "Withdrawal failed.": "Falha ao retirar.",
+        "Withdrawn by the deciding body": "Retirada pelo órgão decisor",
+        "Withdrawn by the party who asked": "Retirada pela parte requerente"
     },
     "nplurals=2; plural=(n != 1);"
 )

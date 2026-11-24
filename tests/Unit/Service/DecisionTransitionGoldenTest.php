@@ -176,7 +176,7 @@ class DecisionTransitionGoldenTest extends TestCase {
 		$result    = ['outcome' => 'adopted', 'decisionDate' => '2026-06-12'];
 		$candidate = [['person' => 'person-1'], ['person' => ['id' => 'person-2']], ['externalName' => 'Extern Lid']];
 
-		return [
+		$store = [
 			'meet-leg'           => ['id' => 'meet-leg', 'domain' => 'legislative', 'chair' => 'chair-p', 'quorumWith' => true],
 			'meet-noquorum'      => ['id' => 'meet-noquorum', 'domain' => 'legislative', 'chair' => ['id' => 'chair-p'], 'quorumWith' => false],
 			'meet-nochair'       => ['id' => 'meet-nochair', 'domain' => 'legislative', 'quorumWith' => true],
@@ -224,7 +224,46 @@ class DecisionTransitionGoldenTest extends TestCase {
 			'd-delegated-boom'   => ['id' => 'd-delegated-boom', 'lifecycle' => 'voting', 'sourceApp' => 'dossiq'] + $result,
 			'd-delegated-delib'  => ['id' => 'd-delegated-delib', 'lifecycle' => 'deliberating', 'sourceApp' => 'dossiq'],
 		];
+
+		return self::withBodies(store: $store);
 	}//end store()
+
+	/**
+	 * Give every domain its governance body (#1291).
+	 *
+	 * The domain is read from the decision's governance body only, so each
+	 * fixture's `domain` (on the decision, else on its meeting, else the old
+	 * `operations` default) becomes a link to a body declaring that domain.
+	 * A decision whose meeting already links a body keeps that body.
+	 *
+	 * @param array<string, array<string, mixed>> $store The seeded objects
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function withBodies(array $store): array {
+		foreach ($store as $id => $object) {
+			if (str_starts_with($id, 'd-') === false) {
+				continue;
+			}
+
+			$meetingRef = ($object['meeting'] ?? ($object['relations']['Meeting'][0] ?? null));
+			$meetingId = $meetingRef;
+			if (is_array($meetingRef) === true) {
+				$meetingId = ($meetingRef['id'] ?? null);
+			}
+
+			$meeting    = ($store[(string)$meetingId] ?? []);
+			if (isset($meeting['governanceBody']) === true) {
+				continue;
+			}
+
+			$domain = (string)($object['domain'] ?? ($meeting['domain'] ?? 'operations'));
+			$store[$id]['governanceBody'] = 'body-' . $domain;
+			$store['body-' . $domain]     = ['id' => 'body-' . $domain, 'domain' => $domain];
+		}
+
+		return $store;
+	}//end withBodies()
 
 	/**
 	 * The lifecycle service with every collaborator recording.

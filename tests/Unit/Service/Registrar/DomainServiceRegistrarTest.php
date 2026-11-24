@@ -25,7 +25,7 @@ use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\LogEIDASSignatureService;
-use OCA\Decidiq\Service\LogTranslationAdapter;
+use OCA\Decidiq\Service\NextcloudTranslationAdapter;
 use OCA\Decidiq\Service\Registrar\DomainServiceRegistrar;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use PHPUnit\Framework\TestCase;
@@ -42,7 +42,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\Registrar\DomainServiceRegistrar
  * @uses   \OCA\Decidiq\Service\ContractBindings
  * @uses   \OCA\Decidiq\Support\FleetAppId
- * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
+ * @uses   \OCA\Decidiq\Service\NextcloudTranslationAdapter
  */
 class DomainServiceRegistrarTest extends TestCase {
 
@@ -120,11 +120,11 @@ class DomainServiceRegistrarTest extends TestCase {
 	}//end testEidasIsDormantWithoutIntegriq()
 
 	/**
-	 * The translation adapter is the log adapter.
+	 * The translation adapter is the Nextcloud TaskProcessing adapter.
 	 *
 	 * @return void
 	 */
-	public function testTheTranslationAdapterIsTheLogAdapter(): void {
+	public function testTheTranslationAdapterIsTheNextcloudAdapter(): void {
 		$container = $this->container(
 			services: [ContainerInterface::class => $this->createMock(ContainerInterface::class), LoggerInterface::class => $this->createMock(LoggerInterface::class)],
 			callService: false
@@ -132,8 +132,8 @@ class DomainServiceRegistrarTest extends TestCase {
 
 		$adapter = ($this->factories[ITranslationAdapter::class])($container);
 
-		$this->assertInstanceOf(LogTranslationAdapter::class, $adapter);
-	}//end testTheTranslationAdapterIsTheLogAdapter()
+		$this->assertInstanceOf(expected: NextcloudTranslationAdapter::class, actual: $adapter);
+	}//end testTheTranslationAdapterIsTheNextcloudAdapter()
 
 	/**
 	 * A container holding the given services; any CallService id resolves only when asked to.

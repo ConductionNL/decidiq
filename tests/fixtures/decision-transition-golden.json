@@ -7,7 +7,8 @@
                 "domain": "legislative",
                 "lifecycle": "voting",
                 "meeting": "meet-leg",
-                "title": "Motie"
+                "title": "Motie",
+                "governanceBody": "body-legislative"
             },
             "message": "Decision transitioned to 'voting'."
         },
@@ -28,6 +29,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -40,7 +51,8 @@
                         "domain": "legislative",
                         "lifecycle": "voting",
                         "meeting": "meet-leg",
-                        "title": "Motie"
+                        "title": "Motie",
+                        "governanceBody": "body-legislative"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -99,6 +111,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -126,6 +148,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             },
             {
                 "find": {
@@ -159,6 +191,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -186,6 +228,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             },
             {
                 "find": {
@@ -219,6 +271,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -249,6 +311,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -263,7 +335,8 @@
                 "id": "d-owner-chair",
                 "domain": "legislative",
                 "lifecycle": "voting",
-                "meeting": "meet-owner"
+                "meeting": "meet-owner",
+                "governanceBody": "body-legislative"
             },
             "message": "Decision transitioned to 'voting'."
         },
@@ -284,6 +357,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "owner-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -295,7 +378,8 @@
                         "id": "d-owner-chair",
                         "domain": "legislative",
                         "lifecycle": "voting",
-                        "meeting": "meet-owner"
+                        "meeting": "meet-owner",
+                        "governanceBody": "body-legislative"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -354,6 +438,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "blank-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -381,6 +475,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             },
             {
                 "find": {
@@ -423,6 +527,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "gone-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -450,6 +564,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             }
         ]
     },
@@ -466,6 +590,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             }
         ]
     },
@@ -492,6 +626,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -510,7 +654,8 @@
                     "id": "meet-leg"
                 },
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-legislative"
             },
             "message": "Decision transitioned to 'decided'."
         },
@@ -531,6 +676,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -546,7 +701,8 @@
                             "id": "meet-leg"
                         },
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-legislative"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -605,6 +761,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -635,6 +801,16 @@
             },
             {
                 "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -651,7 +827,8 @@
                 "lifecycle": "decided",
                 "meeting": "meet-leg",
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-association"
             },
             "message": "Decision transitioned to 'decided'."
         },
@@ -671,6 +848,16 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-association",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-association"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-assoc-voting",
@@ -678,7 +865,8 @@
                         "lifecycle": "decided",
                         "meeting": "meet-leg",
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-association"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -737,6 +925,16 @@
             },
             {
                 "find": {
+                    "id": "body-association",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-association"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -767,6 +965,16 @@
             },
             {
                 "find": {
+                    "id": "body-corporate",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-corporate"
+            },
+            {
+                "find": {
                     "id": "chair-p",
                     "register": "decidiq",
                     "schema": "participant"
@@ -780,7 +988,8 @@
             "decision": {
                 "id": "d-odd-domain",
                 "domain": "pirate",
-                "lifecycle": "proposed"
+                "lifecycle": "proposed",
+                "governanceBody": "body-pirate"
             },
             "message": "Decision transitioned to 'proposed'."
         },
@@ -793,11 +1002,22 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-pirate",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-pirate"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-odd-domain",
                         "domain": "pirate",
-                        "lifecycle": "proposed"
+                        "lifecycle": "proposed",
+                        "governanceBody": "body-pirate"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -855,6 +1075,22 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-t",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq DecisionLifecycleService: governance body not readable, applying restricted policy",
+                    {
+                        "governanceBodyId": "body-t"
+                    }
+                ]
+            },
+            {
                 "policy": "body-t"
             },
             {
@@ -890,6 +1126,22 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-t",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq DecisionLifecycleService: governance body not readable, applying restricted policy",
+                    {
+                        "governanceBodyId": "body-t"
+                    }
+                ]
             },
             {
                 "policy": "body-t"
@@ -969,6 +1221,22 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-t",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq DecisionLifecycleService: governance body not readable, applying restricted policy",
+                    {
+                        "governanceBodyId": "body-t"
+                    }
+                ]
+            },
+            {
                 "policy": "body-t"
             },
             {
@@ -1033,6 +1301,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
             }
         ]
     },
@@ -1056,6 +1334,16 @@
                     "register": "decidiq",
                     "schema": "meeting"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-association",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-association"
             }
         ]
     },
@@ -1065,6 +1353,7 @@
             "decision": {
                 "id": "d-ops-draft",
                 "title": "Operationeel",
+                "governanceBody": "body-operations",
                 "lifecycle": "proposed"
             },
             "message": "Decision transitioned to 'proposed'."
@@ -1078,10 +1367,21 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-ops-draft",
                         "title": "Operationeel",
+                        "governanceBody": "body-operations",
                         "lifecycle": "proposed"
                     },
                     "register": "decidiq",
@@ -1216,10 +1516,21 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-readonly",
-                        "lifecycle": "proposed"
+                        "lifecycle": "proposed",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -1245,6 +1556,7 @@
             "decision": {
                 "id": "d-ops-draft",
                 "title": "Operationeel",
+                "governanceBody": "body-operations",
                 "lifecycle": "proposed"
             },
             "message": "Decision transitioned to 'proposed'."
@@ -1258,10 +1570,21 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-ops-draft",
                         "title": "Operationeel",
+                        "governanceBody": "body-operations",
                         "lifecycle": "proposed"
                     },
                     "register": "decidiq",
@@ -1321,6 +1644,7 @@
                 "meeting": "meet-leg",
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-legislative",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -1341,6 +1665,16 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-legislative",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-legislative"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-decided",
@@ -1351,6 +1685,7 @@
                         "meeting": "meet-leg",
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-legislative",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -1417,6 +1752,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             }
         ]
     },
@@ -1429,6 +1774,7 @@
                 "title": "nosave",
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -1442,6 +1788,16 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-decided-nosave",
@@ -1449,6 +1805,7 @@
                         "title": "nosave",
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -1544,6 +1901,7 @@
                 },
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -1555,6 +1913,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             },
             {
                 "save": {
@@ -1588,6 +1956,7 @@
                         },
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -1627,7 +1996,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-4",
+                        "membership": "new-6",
                         "position": "post-1",
                         "governanceBody": "body-1",
                         "holdType": "regular",
@@ -1655,7 +2024,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-6",
+                        "membership": "new-8",
                         "position": "post-2",
                         "governanceBody": "body-1",
                         "holdType": "regular",
@@ -1683,7 +2052,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-8",
+                        "membership": "new-10",
                         "position": "post-3",
                         "governanceBody": "body-1",
                         "holdType": "regular",
@@ -1727,11 +2096,12 @@
                         },
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>",
                         "appointedMemberships": [
-                            "new-4",
                             "new-6",
-                            "new-8"
+                            "new-8",
+                            "new-10"
                         ]
                     },
                     "register": "decidiq",
@@ -1794,6 +2164,7 @@
                 "targetRole": "chair",
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -1805,6 +2176,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             },
             {
                 "save": {
@@ -1831,6 +2212,7 @@
                         "targetRole": "chair",
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -1869,7 +2251,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-4",
+                        "membership": "new-6",
                         "position": "post-1",
                         "holdType": "regular",
                         "startDate": "<day>",
@@ -1895,7 +2277,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-6",
+                        "membership": "new-8",
                         "position": "post-1",
                         "holdType": "regular",
                         "startDate": "<day>",
@@ -1921,7 +2303,7 @@
             {
                 "save": {
                     "object": {
-                        "membership": "new-8",
+                        "membership": "new-10",
                         "position": "post-1",
                         "holdType": "regular",
                         "startDate": "<day>",
@@ -1957,11 +2339,12 @@
                         "targetRole": "chair",
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>",
                         "appointedMemberships": [
-                            "new-4",
                             "new-6",
-                            "new-8"
+                            "new-8",
+                            "new-10"
                         ]
                     },
                     "register": "decidiq",
@@ -2011,6 +2394,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             }
         ]
     },
@@ -2039,6 +2432,7 @@
                 ],
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -2050,6 +2444,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             },
             {
                 "save": {
@@ -2075,6 +2479,7 @@
                         ],
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -2140,6 +2545,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             }
         ]
     },
@@ -2168,6 +2583,7 @@
                 ],
                 "outcome": "adopted",
                 "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations",
                 "enactedAt": "<atom>"
             },
             "message": "Decision transitioned to 'enacted'."
@@ -2179,6 +2595,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             },
             {
                 "save": {
@@ -2204,6 +2630,7 @@
                         ],
                         "outcome": "adopted",
                         "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations",
                         "enactedAt": "<atom>"
                     },
                     "register": "decidiq",
@@ -2269,6 +2696,16 @@
                     "register": "decidiq",
                     "schema": "decision"
                 }
+            },
+            {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
             }
         ]
     },
@@ -2280,7 +2717,8 @@
                 "lifecycle": "archived",
                 "enactedAt": "2026-06-13T10:00:00+00:00",
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations"
             },
             "message": "Decision transitioned to 'archived'."
         },
@@ -2293,13 +2731,24 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-enacted",
                         "lifecycle": "archived",
                         "enactedAt": "2026-06-13T10:00:00+00:00",
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -2344,7 +2793,8 @@
                 "sourceApp": "dossiq",
                 "externalReference": "zaak-7",
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations"
             },
             "message": "Decision transitioned to 'decided'."
         },
@@ -2357,6 +2807,16 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-delegated",
@@ -2364,7 +2824,8 @@
                         "sourceApp": "dossiq",
                         "externalReference": "zaak-7",
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -2445,7 +2906,8 @@
                 "lifecycle": "decided",
                 "sourceApp": "dossiq",
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations"
             },
             "message": "Decision transitioned to 'decided'."
         },
@@ -2458,13 +2920,24 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-delegated-none",
                         "lifecycle": "decided",
                         "sourceApp": "dossiq",
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -2511,7 +2984,8 @@
                 "lifecycle": "decided",
                 "sourceApp": "dossiq",
                 "outcome": "adopted",
-                "decisionDate": "2026-06-12"
+                "decisionDate": "2026-06-12",
+                "governanceBody": "body-operations"
             },
             "message": "Decision transitioned to 'decided'."
         },
@@ -2524,13 +2998,24 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-delegated-boom",
                         "lifecycle": "decided",
                         "sourceApp": "dossiq",
                         "outcome": "adopted",
-                        "decisionDate": "2026-06-12"
+                        "decisionDate": "2026-06-12",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",
@@ -2585,7 +3070,8 @@
             "decision": {
                 "id": "d-delegated-delib",
                 "lifecycle": "voting",
-                "sourceApp": "dossiq"
+                "sourceApp": "dossiq",
+                "governanceBody": "body-operations"
             },
             "message": "Decision transitioned to 'voting'."
         },
@@ -2598,11 +3084,22 @@
                 }
             },
             {
+                "find": {
+                    "id": "body-operations",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "policy": "body-operations"
+            },
+            {
                 "save": {
                     "object": {
                         "id": "d-delegated-delib",
                         "lifecycle": "voting",
-                        "sourceApp": "dossiq"
+                        "sourceApp": "dossiq",
+                        "governanceBody": "body-operations"
                     },
                     "register": "decidiq",
                     "schema": "decision",

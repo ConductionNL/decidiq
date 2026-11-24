@@ -142,6 +142,7 @@ class VoteBreakdownService implements VoteBreakdownServiceInterface {
 			'name' => $member['name'],
 			'faction' => $member['faction'],
 			'value' => $this->valueOf(ballot: $ballot),
+			'weight' => (int)($ballot['weight'] ?? 1),
 			'castBy' => null,
 			'castAt' => null,
 			'ranking' => null,
@@ -284,7 +285,8 @@ class VoteBreakdownService implements VoteBreakdownServiceInterface {
 			$factions[$faction] ??= ['faction' => $faction, 'for' => 0, 'against' => 0, 'abstain' => 0];
 			$value = (string)$member['value'];
 			if (isset($factions[$faction][$value]) === true && $value !== 'faction') {
-				$factions[$faction][$value]++;
+				// Weighted like the round totals (vot-09); 1 on any other method.
+				$factions[$faction][$value] += $member['weight'];
 			}
 		}
 

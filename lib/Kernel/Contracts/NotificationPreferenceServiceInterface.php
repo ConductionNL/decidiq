@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Kernel\Contracts;
 
+use DateTimeImmutable;
+
 /**
  * Contract of NotificationPreferenceService.
  *
@@ -102,4 +104,17 @@ interface NotificationPreferenceServiceInterface {
 	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function updatePreference(string $personId, array $preferences): array;
+
+	/**
+	 * Check whether $delegatorId currently has an active absence delegation to $delegateId.
+	 *
+	 * @param string                 $delegatorId The absent user (preference owner)
+	 * @param string                 $delegateId  The acting user (NC UID or participant UUID)
+	 * @param DateTimeImmutable|null $today       Clock override for tests
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?DateTimeImmutable $today = null): bool;
 }//end interface

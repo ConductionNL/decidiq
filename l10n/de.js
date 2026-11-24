@@ -3408,7 +3408,16 @@ OC.L10N.register(
         "Risk band {band}": "Risikostufe {band}",
         "No risk band": "Keine Risikostufe",
         "Score {score}, from:": "Punktzahl {score}, aus:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkte)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkte)",
+        "Vote on behalf of": "Abstimmen im Namen von",
+        "Myself": "Mich selbst",
+        "Your vote on behalf of {name} has been recorded.": "Ihre Stimme im Namen von {name} wurde erfasst.",
+        "Failed to grant proxy": "Vollmacht konnte nicht erteilt werden",
+        "This decision has been withdrawn.": "Dieser Beschluss wurde zurückgezogen.",
+        "Withdraw decision": "Beschluss zurückziehen",
+        "Withdrawal failed.": "Zurückziehen fehlgeschlagen.",
+        "Withdrawn by the deciding body": "Zurückgezogen vom beschließenden Organ",
+        "Withdrawn by the party who asked": "Zurückgezogen von der antragstellenden Partei"
     },
     "nplurals=2; plural=(n != 1);"
 )

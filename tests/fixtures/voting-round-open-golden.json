@@ -510,6 +510,7 @@
                     "id": "mot-2"
                 }
             ],
+            "votingDeadline": "2026-06-12T18:00:00+00:00",
             "meeting": "meet-1",
             "id": "round-new"
         },
@@ -625,6 +626,7 @@
                                 "id": "mot-2"
                             }
                         ],
+                        "votingDeadline": "2026-06-12T18:00:00+00:00",
                         "meeting": "meet-1"
                     }
                 }

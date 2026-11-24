@@ -3408,7 +3408,12 @@ OC.L10N.register(
         "Risk band {band}": "Уровень риска {band}",
         "No risk band": "Нет уровня риска",
         "Score {score}, from:": "Балл {score}, из:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)",
+        "This decision has been withdrawn.": "Это решение отозвано.",
+        "Withdraw decision": "Отозвать решение",
+        "Withdrawal failed.": "Не удалось отозвать.",
+        "Withdrawn by the deciding body": "Отозвано принимающим решение органом",
+        "Withdrawn by the party who asked": "Отозвано заявителем"
     },
     "nplurals=2; plural=(n != 1);"
 )

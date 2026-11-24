@@ -846,16 +846,6 @@
                 }
             },
             {
-                "findAll": {
-                    "schema": "vote",
-                    "config": {
-                        "filters": {
-                            "_relations.relations": "round-open"
-                        }
-                    }
-                }
-            },
-            {
                 "find": {
                     "id": "p-1",
                     "register": "decidiq",
@@ -1468,16 +1458,6 @@
                 }
             },
             {
-                "findAll": {
-                    "schema": "vote",
-                    "config": {
-                        "filters": {
-                            "_relations.relations": "round-open"
-                        }
-                    }
-                }
-            },
-            {
                 "find": {
                     "id": "p-1",
                     "register": "decidiq",
@@ -1604,16 +1584,6 @@
                         "filters": {
                             "_relations.relations": "round-open",
                             "isProxy": true
-                        }
-                    }
-                }
-            },
-            {
-                "findAll": {
-                    "schema": "vote",
-                    "config": {
-                        "filters": {
-                            "_relations.relations": "round-open"
                         }
                     }
                 }
@@ -2149,7 +2119,7 @@
     "secret-proxy-with-grant": {
         "returns": {
             "@self": {
-                "slug": "2fc4678a6d4eeb5a7d7f48d7aef2cd99fabc71587fe2b08536e34827eb284662"
+                "slug": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810"
             },
             "value": "for",
             "weight": 1,
@@ -2163,7 +2133,7 @@
                     "id": "round-secret"
                 }
             ],
-            "voterToken": "2fc4678a6d4eeb5a7d7f48d7aef2cd99fabc71587fe2b08536e34827eb284662",
+            "voterToken": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810",
             "delegatorToken": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810",
             "saved": true
         },
@@ -2226,17 +2196,6 @@
                 }
             },
             {
-                "findAll": {
-                    "schema": "vote",
-                    "config": {
-                        "filters": {
-                            "_relations.relations": "round-secret",
-                            "voterToken": "2fc4678a6d4eeb5a7d7f48d7aef2cd99fabc71587fe2b08536e34827eb284662"
-                        }
-                    }
-                }
-            },
-            {
                 "find": {
                     "id": "p-1",
                     "register": "decidiq",
@@ -2249,7 +2208,7 @@
                     "schema": "vote",
                     "object": {
                         "@self": {
-                            "slug": "2fc4678a6d4eeb5a7d7f48d7aef2cd99fabc71587fe2b08536e34827eb284662"
+                            "slug": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810"
                         },
                         "value": "for",
                         "weight": 1,
@@ -2263,7 +2222,7 @@
                                 "id": "round-secret"
                             }
                         ],
-                        "voterToken": "2fc4678a6d4eeb5a7d7f48d7aef2cd99fabc71587fe2b08536e34827eb284662",
+                        "voterToken": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810",
                         "delegatorToken": "eda3e2e87e4ea37e593a0a7cccf097a525580ea3445f53199421aa8e6e785810"
                     }
                 }
@@ -2852,16 +2811,6 @@
                         "filters": {
                             "_relations.relations": "round-ranked",
                             "isProxy": true
-                        }
-                    }
-                }
-            },
-            {
-                "findAll": {
-                    "schema": "vote",
-                    "config": {
-                        "filters": {
-                            "_relations.relations": "round-ranked"
                         }
                     }
                 }

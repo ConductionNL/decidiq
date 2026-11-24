@@ -91,14 +91,16 @@ class NotificationPreferenceService implements NotificationPreferenceServiceInte
 	/**
 	 * Construct the NotificationPreferenceService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
-	 * @param LoggerInterface $logger Logger interface
+	 * @param ContainerInterface                     $container        DI container (lazy-loads OR services)
+	 * @param LoggerInterface                        $logger           Logger interface
+	 * @param OpenRegisterNotificationPreferenceSync $openRegisterSync Mirrors the switches onto OpenRegister's declared notices
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly OpenRegisterNotificationPreferenceSync $openRegisterSync,
 	) {
 	}//end __construct()
 
@@ -221,6 +223,10 @@ class NotificationPreferenceService implements NotificationPreferenceServiceInte
 		);
 
 		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);
+
+		// A switch turned off here also silences the notices OpenRegister
+		// sends from the schema declarations (issue #1381).
+		$this->openRegisterSync->sync(personId: $personId, merged: $merged);
 
 		if (is_array($saved) === true) {
 			return $saved;
@@ -622,7 +628,7 @@ class NotificationPreferenceService implements NotificationPreferenceServiceInte
 				return 0;
 			}
 
-			$mailer = $this->container->get(\OCP\Mail\IMailer::class);
+			$mailer = $this->container->get('OCP\Mail\IMailer');
 			$emailMessage = $mailer->createMessage();
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);
