@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/tasks.md#task-1-declare-options-ranking-and-the-ranked-result-fields
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/tasks.md#task-1-declare-options-ranking-and-the-ranked-result-fields
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2

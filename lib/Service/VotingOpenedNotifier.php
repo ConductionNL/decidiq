@@ -97,7 +97,7 @@ class VotingOpenedNotifier {
 	 *
 	 * @return int How many members were notified.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
 	 */
 	public function announceWritten(array $round, string $decisionId, string $decisionTitle): int {
 		$this->publishActivity(round: $round);
@@ -125,7 +125,7 @@ class VotingOpenedNotifier {
 	 *
 	 * @return int How many members were notified.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
 	 */
 	private function dispatchToElectorate(array $uids, array $notice): int {
 		$prefService = $this->preferenceService();

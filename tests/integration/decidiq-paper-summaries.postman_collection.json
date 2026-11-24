@@ -1,7 +1,7 @@
 {
  "info": {
   "name": "Decidiq Paper Summaries Contract Suite",
-  "description": "Newman contract tests for agenda-ai-paper-summaries task 1 (REQ-APS-001): the PaperSummary schema's read rule and lifecycle through OpenRegister's object API. A clerk (admin) and a member of decidesk-members read the same collection and get different counts: the member sees only shown summaries. A draft summary cannot be saved back to requested. Self-contained: seeds a probe member, an agenda item and two summaries, and tears them down.\n\n@spec openspec/changes/agenda-ai-paper-summaries/tasks.md#task-1",
+  "description": "Newman contract tests for agenda-ai-paper-summaries task 1 (REQ-APS-001): the PaperSummary schema's read rule and lifecycle through OpenRegister's object API. A clerk (admin) and a member of decidesk-members read the same collection and get different counts: the member sees only shown summaries. A draft summary cannot be saved back to requested. Self-contained: seeds a probe member, an agenda item and two summaries, and tears them down.\n\n@spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/tasks.md#task-1",
   "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
  },
  "auth": {

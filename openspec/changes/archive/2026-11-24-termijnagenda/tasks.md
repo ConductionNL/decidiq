@@ -3,7 +3,7 @@
 ## Implementation Tasks
 
 ### Task 1: Register fragment 50 — TermijnagendaItem schema with declarative dialects and publication predicate
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister` (+ REQ-LTA-002/REQ-LTA-003/REQ-LTA-008/REQ-LTA-009)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister` (+ REQ-LTA-002/REQ-LTA-003/REQ-LTA-008/REQ-LTA-009)
 - **files**: `lib/Settings/register.d/50-termijnagenda.json`
 - **acceptance_criteria**:
   - GIVEN the fragment is loaded WHEN the register imports THEN the `termijnagenda-item` schema exists with all required fields, property titles, the `x-schema-org: schema:PlanAction` annotation, and no existing schema is modified (fragment number 50 exactly; 40–49/51–65 belong to siblings)
@@ -15,7 +15,7 @@
 - [x] Test
 
 ### Task 2: Seed data — realistic Dutch municipal termijnagenda objects
-- **spec_ref**: `openspec/changes/termijnagenda/design.md#seed-data`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/design.md#seed-data`
 - **files**: `lib/Settings/register.d/50-termijnagenda.json` (seed section / `_registers.json` entries)
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 5 termijnagenda items exist per the design table (one `verschoven` with a populated shift history, one `vervallen` with reason, mixed expectedType/ownerType, origin links via nil-UUID placeholders, four published) linked to seeded governance-body/meeting/person objects
@@ -25,7 +25,7 @@
 - [x] Test
 
 ### Task 3: Manifest fragment — index page, detail page, menu, CSV export
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-007-list-view-and-csv-export` (+ REQ-LTA-006 detail rendering)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-007-list-view-and-csv-export` (+ REQ-LTA-006 detail rendering)
 - **files**: `src/manifest.d/termijnagenda.json`
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the Termijnagenda index renders with columns onderwerp/governanceBody/plannedPeriod/expectedType/owner/lifecycle and quick filters on body, lifecycle, expectedType, and period (schema referenced by slug `termijnagenda-item`, never PascalCase)
@@ -35,7 +35,7 @@
 - [x] Test
 
 ### Task 4: Board view — per-body period columns with drag-to-reschedule and mandatory-reason dialog
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule` (+ REQ-LTA-004)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule` (+ REQ-LTA-004)
 - **files**: `src/manifest.d/termijnagenda.json`, `src/dialogs/` or `src/modals/` (reschedule-reason dialog)
 - **acceptance_criteria**:
   - GIVEN the board for one governance body WHEN it renders THEN items group into period columns ordered by the design D2 last-day sort key (mixed month/quarter granularity sorts chronologically)
@@ -46,7 +46,7 @@
 - [x] Test
 
 ### Task 5: Realisation and vervallen flows — assistive linking, never auto-scheduling
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision` (+ REQ-LTA-003)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision` (+ REQ-LTA-003)
 - **files**: `src/dialogs/` or `src/modals/` (realise dialog, vervallen dialog), detail-page action wiring
 - **acceptance_criteria**:
   - GIVEN an open item WHEN the griffier marks it `gerealiseerd` THEN the dialog suggests matching agenda items of the same body (standard OR list query), the confirmed link sets `realisedAgendaItem`/`realisedDecision`, and no meeting or agenda item is ever created or modified by the flow
@@ -56,7 +56,7 @@
 - [x] Test
 
 ### Task 6: Dashboard KPI — overdue termijnagenda items
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items`
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN the "Termijnagenda over termijn" stat widget counts non-terminal unrealised items whose period's last day is past, via a declarative source aggregation, and clicking routes to the pre-filtered Termijnagenda index
@@ -66,7 +66,7 @@
 - [x] Test
 
 ### Task 7: E2E coverage — Playwright scenarios for the termijnagenda register
-- **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md`
 - **files**: `tests/e2e/`
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed spec THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude` (the notification-dialect convention scenario is already excluded in-spec)

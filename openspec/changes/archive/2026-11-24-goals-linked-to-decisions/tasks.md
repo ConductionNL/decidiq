@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: Decision goal reference and corrected aggregations
-- **spec_ref**: `openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves`, `#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves`, `#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts`
 - **files**: `lib/Settings/register.d/127-goals-linked-to-decisions.json` (next free number at build time; `slug` on every schema), `lib/Settings/register.d/66-organisation-goals.json`
 - **acceptance_criteria**:
   - GIVEN the register is imported WHEN `decision` is read THEN it has an optional `goal` (`$ref` goal, uuid, nullable) and the import log has no `PARTIAL IMPORT` line
@@ -13,7 +13,7 @@
 - Build note: fragments merge in lexical filename order and the last one wins, so a `132-` fragment loads BEFORE `66-` and could not override the goal's aggregations. They are corrected in `66-organisation-goals.json` itself (goal version 0.2.0); `132-goals-linked-to-decisions.json` adds only `Decision.goal`. Proven by `tests/Unit/Settings/GoalsLinkedToDecisionsRegisterTest.php` over `SettingsService::shippedRegisterDescriptor()`.
 
 ### Task 2: Refresh goal progress when a contribution changes
-- **spec_ref**: `openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-013-progress-stays-current-when-a-contribution-changes`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-013-progress-stays-current-when-a-contribution-changes`
 - **files**: `lib/Listener/GoalProgressRefreshListener.php`, `lib/AppInfo/Application.php` (register on OpenRegister's object created, updated and deleted events)
 - **acceptance_criteria**:
   - GIVEN a disposed commitment WHEN saved THEN its goal's `commitmentSettlementRate` and counts are recomputed through OpenRegister's materialise path
@@ -49,7 +49,7 @@
 - Build note: four registered widgets, declared as `custom` blocks in `src/manifest.d/organisation-goals.json` and by type in the simple structure: `GoalStepBar` (Draft, Active, Reached, dated by creation, `startDate` and `deadline`), `GoalProgressWidget` (target value, commitments settled, action items done, sub-goals reached as "x of y", a zero total hidden), `GoalContributionsWidget` (commitments, action items, planned agenda items and decisions that name the goal, Kind/What/Term/Status, the total in the heading, View all n; a planned agenda item's Term is its `plannedPeriod`, the schema has no meeting reference) and `GoalParentWidget` ("3 sub-goals, of which 1 reached"). Sub-goals stay the shared object list with Add sub-goal, which seeds `parentGoal` from its filter. The counts are read from the objects that name the goal (`src/services/goalContributions.js`, outside the shared object store), so they do not wait for the materialised rates. The rules are pure functions in `src/utils/goalPage.js`, covered by `tests/vitest/goalPage.spec.js`; `simpleGoalTabs.spec.js` and `goalSubgoalsAndContributions.spec.js` follow the new layout. Left: the Playwright test on the example goal (needs a live instance), and the count on the Related tab: the shared tabs widget counts one list (`count`, `countField`, `countFrom`), and this total spans four schemas.
 
 ### Task 5: Example data
-- **spec_ref**: `openspec/changes/goals-linked-to-decisions/design.md#example-data`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-goals-linked-to-decisions/design.md#example-data`
 - **files**: `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the municipality example set WHEN loaded THEN the board's goal, its parent, two subgoals, four commitments, five action items, one planned agenda item and one decision exist with the board's values

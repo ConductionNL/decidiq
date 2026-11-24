@@ -73,7 +73,7 @@ class AmendmentTextMerger {
 	 * @throws RuntimeException When the amendment carries no replacement, or its passage is not in the text
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 	 *
 	 * @return array{text: string, originalText: string, amendmentHistory: list<array<string, string>>}|null
 	 */

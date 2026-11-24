@@ -5,7 +5,7 @@
  * The goal a decision serves, as the decision page shows it
  * (goals-linked-to-decisions REQ-010).
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
  */
 
 /** The goal states a decision may be linked to: a finished goal is not offered. */
@@ -16,7 +16,7 @@ export const OFFERED_GOAL_STATES = ['draft', 'active', 'at-risk']
  *
  * @param {?object} decision The decision.
  * @return {string} The goal UUID.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
  */
 export function goalIdOf(decision) {
 	const id = decision && decision.goal
@@ -28,7 +28,7 @@ export function goalIdOf(decision) {
  *
  * @param {string} goalId The goal UUID.
  * @return {?object} A router location, null without a goal.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
  */
 export function goalLocation(goalId) {
 	if (!goalId) {
@@ -43,7 +43,7 @@ export function goalLocation(goalId) {
  * @param {?object} goal The goal, null while it loads or when it is gone.
  * @param {string} goalId The goal UUID.
  * @return {string} The label.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
  */
 export function goalLabel(goal, goalId) {
 	const title = goal && typeof goal.title === 'string' ? goal.title.trim() : ''

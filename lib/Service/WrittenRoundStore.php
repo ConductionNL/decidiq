@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -34,7 +34,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * Reads run in system context: who may open, answer or read a round is decided
  * by the opener and the answerer before they call this store, never here.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 class WrittenRoundStore implements WrittenRoundStoreInterface {
 
@@ -70,7 +70,7 @@ class WrittenRoundStore implements WrittenRoundStoreInterface {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public function find(string $id, string $schema): ?array {
 		if ($id === '') {
@@ -95,7 +95,7 @@ class WrittenRoundStore implements WrittenRoundStoreInterface {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public function findAll(string $schema, array $filters): array {
 		$rows   = [];
@@ -132,7 +132,7 @@ class WrittenRoundStore implements WrittenRoundStoreInterface {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public function save(string $schema, array $object): array {
 		$saved = $this->objectService->saveObject(
@@ -152,7 +152,7 @@ class WrittenRoundStore implements WrittenRoundStoreInterface {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public static function idOf(mixed $value): ?string {
 		if (is_array($value) === true) {

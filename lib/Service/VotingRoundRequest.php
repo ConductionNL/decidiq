@@ -122,7 +122,7 @@ final class VotingRoundRequest {
 	 *
 	 * @return self The request.
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function withVotingGroup(?string $votingGroupId): self {
 		$request = clone $this;
@@ -135,7 +135,7 @@ final class VotingRoundRequest {
 	 *
 	 * @return string|null The group's id, or null when the round names none.
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function votingGroupId(): ?string {
 		return $this->votingGroupId;

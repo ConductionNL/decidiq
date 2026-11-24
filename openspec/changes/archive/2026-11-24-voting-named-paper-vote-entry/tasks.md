@@ -2,7 +2,7 @@
 
 ### Task 1: Declare the roll call method and the recorded vote fields
 
-- **spec_ref**: `openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name`
 - **files**: `lib/Settings/register.d/NN-named-paper-vote-entry.json` (new), `lib/Settings/profiles/municipality.json` (seed), `tests/Unit/RegisterJsonTest.php`
 - **acceptance_criteria**:
   - GIVEN the merged register WHEN read THEN `voting-round.votingMethod` contains `roll-call` and still contains the four existing values
@@ -15,7 +15,7 @@
 
 ### Task 2: Record named votes on a roll call round
 
-- **spec_ref**: `openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice`
 - **files**: `lib/Controller/VotingController.php` (`recordVotes()`), `appinfo/routes.php` (`voting#recordVotes`), `lib/Service/VotingService.php`, `lib/Service/RecordedVoteWriter.php` (new), `tests/Unit/Service/RecordedVoteWriterTest.php` (new), `tests/newman/`
 - **acceptance_criteria**:
   - GIVEN an open roll-call round and a list of three members WHEN the meeting secretary posts it THEN three votes exist with `entryMode: recorded` and `recordedBy` set
@@ -28,7 +28,7 @@
 
 ### Task 3: Refuse a wrong list as a whole
 
-- **spec_ref**: `openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong`
 - **files**: `lib/Service/RecordedVoteWriter.php`, `tests/Unit/Service/RecordedVoteWriterTest.php`
 - **acceptance_criteria**:
   - GIVEN one unknown participant in a list of four WHEN posted THEN 400 names it and zero votes are written
@@ -42,7 +42,7 @@
 
 ### Task 4: Closing keeps a show-of-hands result
 
-- **spec_ref**: `openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered`
 - **files**: `lib/Service/VotingRoundResults.php` (`tally()`), `tests/Unit/Service/VotingServiceTallyMatrixTest.php`
 - **acceptance_criteria**:
   - GIVEN a show-of-hands round with saved totals 14, 9, 2 WHEN it closes THEN the totals are unchanged and the result is `adopted`
@@ -54,7 +54,7 @@
 
 ### Task 5: The entry sheet on the voting round panel
 
-- **spec_ref**: `openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name`
 - **files**: `src/components/VotingRoundPanel.vue` (method option, hide cast buttons, open the modal), `src/modals/RecordedVotesModal.vue` (new), `tests/e2e/spec-coverage/voting-rules.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a presiding user on an open roll-call round WHEN they open "Record votes by name" THEN each active participant is listed with name and party

@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Runs the lifting sweep once a day.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/tasks.md#task-3
  */
 class ConfidentialityLiftByJob extends TimedJob {
 	/**
@@ -67,7 +67,7 @@ class ConfidentialityLiftByJob extends TimedJob {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The TimedJob signature.
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/tasks.md#task-3
 	 */
 	protected function run(mixed $argument): void {
 		try {

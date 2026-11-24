@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md
  */
 
 declare(strict_types=1);

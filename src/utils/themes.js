@@ -34,7 +34,7 @@ export const KIND_LABELS = {
  *
  * @param {string} themeId The theme.
  * @return {string} The URL.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
  */
 export function timelineUrl(themeId) {
 	return generateUrl(`/apps/decidiq/api/themes/${encodeURIComponent(themeId)}/timeline`)
@@ -45,7 +45,7 @@ export function timelineUrl(themeId) {
  *
  * @param {string} [themeId] The theme; omitted for the list.
  * @return {string} The URL.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function themeUrl(themeId = '') {
 	if (themeId) {
@@ -60,7 +60,7 @@ export function themeUrl(themeId = '') {
  * @param {Array|undefined} value The link array.
  * @return {string[]} The ids.
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function idsOf(value) {
 	if (!Array.isArray(value)) return []
@@ -75,7 +75,7 @@ export function idsOf(value) {
  * @param {object} theme The theme.
  * @return {string} The id, '' when it has none.
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function themeIdOf(theme) {
 	return String(theme?.id || theme?.uuid || theme?.['@self']?.id || '')
@@ -88,7 +88,7 @@ export function themeIdOf(theme) {
  * @param {string} kind The object's kind (a key of LINK_PROPERTIES).
  * @param {string} objectId The object.
  * @return {boolean} Whether it is.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function isLinked(theme, kind, objectId) {
 	const property = LINK_PROPERTIES[kind]
@@ -103,7 +103,7 @@ export function isLinked(theme, kind, objectId) {
  * @param {string} kind The object's kind.
  * @param {string} objectId The object.
  * @return {object[]} The themes holding it.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function themesHolding(themes, kind, objectId) {
 	return (themes || []).filter((theme) => isLinked(theme, kind, objectId))
@@ -119,7 +119,7 @@ export function themesHolding(themes, kind, objectId) {
  * @param {string} objectId The object to add.
  * @return {object} The theme to PUT.
  * @throws {Error} When the kind is not one a theme links.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
  */
 export function withLink(theme, kind, objectId) {
 	const property = LINK_PROPERTIES[kind]
@@ -140,7 +140,7 @@ export function withLink(theme, kind, objectId) {
  *
  * @param {object[]} entries The entries from the timeline endpoint, oldest first.
  * @return {object[]} The rows, in the same order.
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
  */
 export function timelineRows(entries) {
 	return (entries || []).map((entry) => ({

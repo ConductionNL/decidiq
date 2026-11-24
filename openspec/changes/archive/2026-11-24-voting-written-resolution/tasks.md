@@ -2,7 +2,7 @@
 
 ### Task 1: Declare the written round fields
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing`
 - **files**: `lib/Settings/register.d/NN-written-resolution.json` (new), `lib/Settings/profiles/corporate.json` (seed), `tests/Unit/RegisterJsonTest.php`
 - **acceptance_criteria**:
   - GIVEN the merged register WHEN read THEN `voting-round` declares `procedure` (default `in-meeting`), `governanceBody`, `electorate`, `electorateUserIds`, `writtenRule` (default `unanimous`) and `closedReason`, each with a `title`
@@ -14,7 +14,7 @@
 
 ### Task 2: Open a written round on a decision
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing`
 - **files**: `lib/Service/VotingOpenRequestParser.php`, `lib/Service/VotingRoundOpener.php`, `lib/Service/VotingRoundPreflight.php`, `lib/Service/WrittenElectorateResolver.php` (new), `lib/Controller/VotingController.php` (`open()` guard branch), `tests/Unit/Service/WrittenElectorateResolverTest.php` (new)
 - **acceptance_criteria**:
   - GIVEN a signatory of the body and a decision without a meeting in `proposed` WHEN they open a written round THEN it stores the body, the deadline and the active members except observers and guests
@@ -26,7 +26,7 @@
 
 ### Task 3: Answer a written round
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page`
 - **files**: `lib/Controller/VotingController.php` (`cast()`), `lib/Service/VoteCastGuard.php`, `lib/Service/VoteCastingService.php`, `lib/Service/VoteBallotFactory.php`, `tests/Unit/Service/WrittenVoteCastTest.php` (new), `tests/newman/`
 - **acceptance_criteria**:
   - GIVEN an entitled member WHEN they answer for THEN a vote related to their membership is stored
@@ -39,7 +39,7 @@
 
 ### Task 4: Count against the whole electorate and close early
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate`
 - **files**: `lib/Service/VotingResultCalculator.php`, `lib/Service/VotingRoundResults.php`, `lib/Service/VoteCastingService.php` (settle check after a save), `lib/Service/VotingRoundCloser.php` (`subjectOf()` learns `decision`, `decisionDate`), `tests/Unit/Service/VotingServiceTallyMatrixTest.php`
 - **acceptance_criteria**:
   - GIVEN the three scenarios of REQ-WRS-003 WHEN counted THEN rejected, adopted and rejected with reason objection
@@ -52,7 +52,7 @@
 
 ### Task 5: Close at the deadline
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline`
 - **files**: `lib/BackgroundJob/WrittenResolutionDeadlineJob.php` (new), `appinfo/info.xml`, `tests/Unit/BackgroundJob/WrittenResolutionDeadlineJobTest.php` (new)
 - **acceptance_criteria**:
   - GIVEN an open written round past its deadline WHEN the job runs THEN it closes with reason `deadline` and silence counts as not agreeing
@@ -64,7 +64,7 @@
 
 ### Task 6: The written resolution widget and its notification
 
-- **spec_ref**: `openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure`
 - **files**: `src/components/tabs/WrittenResolutionTab.vue` (new), `src/modals/WrittenResolutionModal.vue` (new), `src/registry.js`, `src/manifest.json` (`DecisionDetail` widget, layout cell, slot), `lib/Settings/register.d/NN-written-resolution.json` (notification), `tests/e2e/workflows/written-resolution.spec.ts` (new)
 - **acceptance_criteria**:
   - GIVEN a signatory on a decision without a meeting WHEN the page renders THEN "Decide in writing" opens the modal

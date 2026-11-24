@@ -314,7 +314,7 @@ class ObjectListenerRegistrar {
 	 * @return void
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers
-	 * @spec openspec/changes/confidentiality-term-and-lapse
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
 	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {

@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -35,7 +35,7 @@ use RuntimeException;
  * The real VotingGroupResolver and ParticipantResolver over an ObjectService
  * double that answers like OpenRegister.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 class VotingGroupResolverTest extends TestCase {
 
@@ -136,7 +136,7 @@ class VotingGroupResolverTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
 	 */
 	public function testTenOfElevenAreEligibleAndTheEleventhIsReported(): void {
 		$this->councilOfTen();
@@ -152,7 +152,7 @@ class VotingGroupResolverTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testAPersonIsMatchedOnTheEmailAddressWhenThereIsNoUserId(): void {
 		$this->councilOfTen(group: ['members' => ['person-x', 'person-x']]);
@@ -170,7 +170,7 @@ class VotingGroupResolverTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testAGroupThatCannotBeUsedIsRefused(): void {
 		$cases = [
@@ -198,7 +198,7 @@ class VotingGroupResolverTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testTheRoundsNamedBodyIsTheOneThatCounts(): void {
 		$this->councilOfTen();
@@ -212,7 +212,7 @@ class VotingGroupResolverTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testAGroupThatLeavesNobodyIsRefused(): void {
 		$this->councilOfTen(group: ['members' => ['person-10', 'unreadable-person']]);

@@ -2131,8 +2131,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "termijnagenda",
 				"requirement": [
-					"openspec/changes/termijnagenda/specs/termijnagenda-register :: REQ-LTA-001 TermijnagendaItem schema on OpenRegister",
-					"openspec/changes/termijnagenda/specs/termijnagenda-register :: REQ-LTA-002 Planned period at month or quarter granularity"
+					"openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register :: REQ-LTA-001 TermijnagendaItem schema on OpenRegister",
+					"openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register :: REQ-LTA-002 Planned period at month or quarter granularity"
 				]
 			},
 			"reachedOn": "PlannedAgenda (/planned-agenda), under 'Tasks & Commitments' in the menu",
@@ -3045,8 +3045,8 @@
 				"change": "agenda-ai-paper-summaries",
 				"readOn": "2026-10-03",
 				"requirement": [
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper",
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper",
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
 				]
 			},
 			"reachedOn": "nothing reaches it: no AI summary of meeting papers",
@@ -3054,7 +3054,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-paper-summaries",
 			"featureConfidence": "high",
-			"note": "decidiq uses Nextcloud's AI task processing to draft minutes from a transcript, but not to summarise meeting papers. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
+			"note": "decidiq uses Nextcloud's AI task processing to draft minutes from a transcript, but not to summarise meeting papers. Specified in openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
@@ -4313,8 +4313,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "voting-named-paper-vote-entry",
 				"requirement": [
-					"openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-001 A chair opens a roll call round whose votes are recorded by name",
-					"openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
+					"openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-001 A chair opens a roll call round whose votes are recorded by name",
+					"openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
 				]
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget (open ballot)",
@@ -4391,7 +4391,7 @@
 			"providerHow": "read-from-code",
 			"feature": "preferential-ballot",
 			"featureConfidence": "medium",
-			"note": "Ranked voting is an enum value with no implementation. Specified in openspec/changes/voting-ranked-preference-ballot (OpenSpec pass 2026-09-27).",
+			"note": "Ranked voting is an enum value with no implementation. Specified in openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4684,8 +4684,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "voting-written-resolution",
 				"requirement": [
-					"openspec/changes/voting-written-resolution/specs/written-resolution :: REQ-WRS-001 The chair or secretary of a body puts a decision to the body in writing",
-					"openspec/changes/voting-written-resolution/specs/written-resolution :: REQ-WRS-003 The result is counted against the whole electorate"
+					"openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution :: REQ-WRS-001 The chair or secretary of a body puts a decision to the body in writing",
+					"openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution :: REQ-WRS-003 The result is counted against the whole electorate"
 				]
 			},
 			"reachedOn": "nothing reaches it: no written-consent procedure",
@@ -4693,7 +4693,7 @@
 			"providerHow": "read-from-code",
 			"feature": "voting-system",
 			"featureConfidence": "high",
-			"note": "A decision can be recorded without a meeting, but members cannot adopt it by written consent in the app. Specified in openspec/changes/voting-written-resolution (OpenSpec pass 2026-09-27).",
+			"note": "A decision can be recorded without a meeting, but members cannot adopt it by written consent in the app. Specified in openspec/changes/archive/2026-11-24-voting-written-resolution (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -5659,8 +5659,8 @@
 				"readOn": "2026-10-08",
 				"change": "goals-linked-to-decisions",
 				"requirement": [
-					"openspec/changes/goals-linked-to-decisions/specs/organisation-goals :: REQ-010 A decision can name the goal it serves",
-					"openspec/changes/goals-linked-to-decisions/specs/organisation-goals :: REQ-012 Goal progress counts the live schemas and reads as counts"
+					"openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals :: REQ-010 A decision can name the goal it serves",
+					"openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals :: REQ-012 Goal progress counts the live schemas and reads as counts"
 				]
 			},
 			"reachedOn": "Goals index (/goals) and GoalDetail (/goals/:id)",
@@ -6149,14 +6149,14 @@
 				"evidence": "lib/Service/DecisionTypeRegistry.php:88 seeds a 'bezwaar-decision' decision type; lib/Settings/register.d/80-decision-as-a-walked-process.json:197-269 legal remedy kind 'bezwaar'; advice from an advisory committee can be recorded as a Consultation (register.d/79). No objection record (objector, grounds, hearing) schema, page or service found (grep bezwaar/objection in lib/Service and manifests).",
 				"owner": "ConductionNL/decidiq",
 				"change": "objection-advisory-committee",
-				"requirement": "openspec/changes/objection-advisory-committee/specs/objection-advisory-committee :: REQ-OAC-008 An objection runs as a decision through its configured route"
+				"requirement": "openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee :: REQ-OAC-008 An objection runs as a decision through its configured route"
 			},
 			"reachedOn": "nothing dedicated reaches it: a 'bezwaar-decision' type Decision on /decisions plus a Consultation on /governance-consultations",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "decision-management",
 			"featureConfidence": "high",
-			"note": "Only generic pieces exist: a decision type for the ruling on an objection and a consultation for the committee's advice. There is no objection case handling. Specified in openspec/changes/objection-advisory-committee (OpenSpec pass 2026-09-27).",
+			"note": "Only generic pieces exist: a decision type for the ruling on an objection and a consultation for the committee's advice. There is no objection case handling. Specified in openspec/changes/archive/2026-11-24-objection-advisory-committee (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6493,7 +6493,7 @@
 				"readOn": "2026-10-08",
 				"change": "confidentiality-term-and-lapse",
 				"requirement": [
-					"openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-020 A restriction records its imposing decision and planned end date",
+					"openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-020 A restriction records its imposing decision and planned end date",
 					"openspec/specs/embargo-geheimhouding :: REQ-EMB-011 Confidentiality ground resolves with legacy citation on GeheimhoudingDetail"
 				]
 			},
@@ -6532,7 +6532,7 @@
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
 				"change": "confidentiality-term-and-lapse",
-				"requirement": "openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-022 The planned end date puts the lifting on the agenda",
+				"requirement": "openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-022 The planned end date puts the lifting on the agenda",
 				"note": "decision 392 (12 Nov): reworded to the spec; the body decides on lifting, the date never changes the restriction. Before: Lift a confidentiality restriction automatically when it expires."
 			},
 			"reachedOn": "nothing reaches it: no job or trigger lifts a restriction, and there is no expiry-date field to lift on",
@@ -9411,9 +9411,9 @@
 				"owner": "ConductionNL/portaliq",
 				"change": "publication-theme-pages",
 				"requirement": [
-					"openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-001 The griffie gathers a long-running topic in a theme",
-					"openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-002 A theme shows a timeline of what belongs to it",
-					"openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-003 A published theme carries only published items"
+					"openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication :: REQ-THP-001 The griffie gathers a long-running topic in a theme",
+					"openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication :: REQ-THP-002 A theme shows a timeline of what belongs to it",
+					"openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication :: REQ-THP-003 A published theme carries only published items"
 				]
 			},
 			"reachedOn": "nothing reaches it: no theme page; staff can link decisions to a goal on GoalDetail (/goals/:id)",
@@ -9421,7 +9421,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "high",
-			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page. Specified in openspec/changes/publication-theme-pages (OpenSpec pass 2026-09-27). corrections round 9 (2026-09-28): owner moved to ConductionNL/portaliq, which draws the public publication page (opencatalogi decided no in opencatalogi#1657). At portaliq development 8934e73be3, src/site/components/PublicationDetailBlock.vue:38-90 lists every field of the OpenCatalogi publication as a label and a value, and an array as plain list items (:57-64, each object JSON-stringified by src/site/lib/publicationDetail.js:166-175), so a theme's timeline array would show as raw text; no portaliq change draws a publication timeline. The decidiq half (the Theme record, the staff page and the published payload with its timeline) stays specified in openspec/changes/publication-theme-pages.",
+			"note": "There is no public page that gathers meetings, documents and motions on one topic with a timeline. Staff can relate decisions to an organisation goal, which is a record with a Related list, not a published theme page. Specified in openspec/changes/archive/2026-11-24-publication-theme-pages (OpenSpec pass 2026-09-27). corrections round 9 (2026-09-28): owner moved to ConductionNL/portaliq, which draws the public publication page (opencatalogi decided no in opencatalogi#1657). At portaliq development 8934e73be3, src/site/components/PublicationDetailBlock.vue:38-90 lists every field of the OpenCatalogi publication as a label and a value, and an array as plain list items (:57-64, each object JSON-stringified by src/site/lib/publicationDetail.js:166-175), so a theme's timeline array would show as raw text; no portaliq change draws a publication timeline. The decidiq half (the Theme record, the staff page and the published payload with its timeline) stays specified in openspec/changes/archive/2026-11-24-publication-theme-pages.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -9580,14 +9580,14 @@
 				"evidence": "src/components/VotingRoundPanel.vue:50 'Show of hands' voting method, :859 posts totals to /api/voting-rounds/{id}/tally -> lib/Controller/VotingController.php:327 tally() (chair or secretary) saves only votesFor, votesAgainst and votesAbstain via saveShowOfHandsTally; no endpoint records a choice per named member afterwards",
 				"owner": "ConductionNL/decidiq",
 				"change": "voting-named-paper-vote-entry",
-				"requirement": "openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
+				"requirement": "openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Show of hands method, tally entry by chair or secretary",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "voting-system",
 			"featureConfidence": "high",
-			"note": "A vote held outside the system can be entered afterwards, but only as totals for, against and abstain. Each member's choice cannot be recorded by name. Specified in openspec/changes/voting-named-paper-vote-entry (OpenSpec pass 2026-09-27).",
+			"note": "A vote held outside the system can be entered afterwards, but only as totals for, against and abstain. Each member's choice cannot be recorded by name. Specified in openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -9647,9 +9647,9 @@
 				"change": "motion-change-recommendations",
 				"readOn": "2026-10-07",
 				"requirement": [
-					"openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-002 A recommendation names its lines, its passage and its new wording",
-					"openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-003 The chair or secretary accepts a recommendation into the text without a vote",
-					"openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-004 A rejected recommendation changes nothing"
+					"openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment :: REQ-MCR-002 A recommendation names its lines, its passage and its new wording",
+					"openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment :: REQ-MCR-003 The chair or secretary accepts a recommendation into the text without a vote",
+					"openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment :: REQ-MCR-004 A rejected recommendation changes nothing"
 				]
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Amendments widget, AmendmentDetail (/amendments/:id) Text changes widget",
@@ -9960,8 +9960,8 @@
 				"change": "agenda-ai-paper-summaries",
 				"readOn": "2026-10-03",
 				"requirement": [
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-005 Members see a summary only after a clerk shows it",
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-001 An AI summary is a record with a review status"
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-005 Members see a summary only after a clerk shows it",
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-001 An AI summary is a record with a review status"
 				]
 			},
 			"reachedOn": "nothing reaches it: no AI summaries exist to review",
@@ -9969,7 +9969,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-paper-summaries",
 			"featureConfidence": "high",
-			"note": "decidiq makes no AI summaries of meeting papers, so there is nothing to review, edit or hide. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
+			"note": "decidiq makes no AI summaries of meeting papers, so there is nothing to review, edit or hide. Specified in openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -10037,8 +10037,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "agenda-paper-watermark",
 				"requirement": [
-					"openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-002 A paper opened through decidiq carries the reader's name and the date",
-					"openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-003 The meeting package is stamped for the person who takes it"
+					"openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-002 A paper opened through decidiq carries the reader's name and the date",
+					"openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-003 The meeting package is stamped for the person who takes it"
 				]
 			},
 			"reachedOn": "nothing reaches it",
@@ -10046,7 +10046,7 @@
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "decidiq puts no watermark on papers or exports. Nextcloud Office has a secure view with watermarks of its own, which decidiq neither sets up nor was checked here. Specified in openspec/changes/agenda-paper-watermark (OpenSpec pass 2026-09-27).",
+			"note": "decidiq puts no watermark on papers or exports. Nextcloud Office has a secure view with watermarks of its own, which decidiq neither sets up nor was checked here. Specified in openspec/changes/archive/2026-11-24-agenda-paper-watermark (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -10268,7 +10268,7 @@
 				"evidence": "lib/Settings/decidesk_register.json:62 register authorization lets any authenticated user create objects (create: authenticated) while update and delete are for decidiq-administrators; Meetings index (/meetings) create form, agenda and Documents widgets on MeetingDetail; src/dialogs/MeetingParticipantAddDialog.vue:23 picks participants from existing participant records only, no invite for people outside the organisation",
 				"owner": "ConductionNL/decidiq",
 				"change": "meeting-ad-hoc-with-guests",
-				"requirement": "openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management :: REQ-MAH-001 An organiser runs their own ad hoc meeting"
+				"requirement": "openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management :: REQ-MAH-001 An organiser runs their own ad hoc meeting"
 			},
 			"reachedOn": "Meetings index (/meetings) create, then MeetingDetail (/meetings/:id) Agenda, Participants and Documents widgets",
 			"provider": "decidiq",
@@ -10307,8 +10307,8 @@
 				"change": "agenda-ai-paper-summaries",
 				"readOn": "2026-10-03",
 				"requirement": [
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper",
-					"openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper",
+					"openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
 				]
 			},
 			"reachedOn": "nothing reaches it: only AmendmentDetail (/amendments/:id) shows a plain text diff of an amendment",
@@ -10316,7 +10316,7 @@
 			"providerHow": "read-from-code",
 			"feature": "ai-paper-summaries",
 			"featureConfidence": "high",
-			"note": "There is no AI comparison of documents or versions. An amendment is shown as tracked changes against its motion, which is a plain diff and not AI. Specified in openspec/changes/agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
+			"note": "There is no AI comparison of documents or versions. An amendment is shown as tracked changes against its motion, which is a plain diff and not AI. Specified in openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "yes",
@@ -10408,11 +10408,11 @@
 				"evidence": "Read 2026-10-30: voting groups exist as register objects (lib/Settings/register.d/127-voting-groups.json VotingGroup: name, governanceBody, members as person ids) kept on the admin page Stemgroepen (src/views/settings/VotingGroupsSettings.vue, src/manifest.d/voting-groups.json, #1776); the server accepts presetParticipantIds when a round opens and leaves out anyone without an active membership (lib/Service/VotingRoundOpener.php:215 seatHoldersFor, lib/Service/VotingRoundPreflight.php splitPresetParticipants, excludedPresetUuids). Missing half: nothing turns a group into the meeting's participants, and src/components/VotingRoundPanel.vue offers no group to pick.",
 				"spec": "openspec/specs/voting-group-presets",
 				"change": "voting-groups-chosen-when-a-round-opens",
-				"plan": "openspec/changes/voting-groups-chosen-when-a-round-opens",
+				"plan": "openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens",
 				"readOn": "2026-10-30",
 				"requirement": [
 					"openspec/specs/voting-group-presets :: REQ-VGP-002 Chair can select a voting group preset when opening a VotingRound",
-					"openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets :: REQ-VGP-005 The chair sees who a voting group left out"
+					"openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets :: REQ-VGP-005 The chair sees who a voting group left out"
 				]
 			},
 			"feature": "voting-system",

@@ -7,7 +7,7 @@
  * mailed server side (GuestInvitationController), so the organiser's
  * rights and the share of the papers are checked in one place.
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 
 import { generateUrl } from '@nextcloud/router'
@@ -18,7 +18,7 @@ import { generateUrl } from '@nextcloud/router'
  * @param {string} meetingId The meeting.
  * @return {string} The path.
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function guestPath(meetingId) {
 	return `/apps/decidiq/api/meetings/${encodeURIComponent(meetingId)}/guests`
@@ -31,7 +31,7 @@ export function guestPath(meetingId) {
  * @param {object} participant A participant row.
  * @return {boolean} True for a guest.
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function isGuest(participant) {
 	return participant?.role === 'guest' && !participant?.nextcloudUserId
@@ -46,7 +46,7 @@ export function isGuest(participant) {
  * @param {string} guest.email The guest's email.
  * @return {Promise<object>} The created guest ({ participant, attendance, mailed }).
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export async function inviteGuest(meetingId, { name, email }) {
 	const response = await fetch(generateUrl(guestPath(meetingId)), {

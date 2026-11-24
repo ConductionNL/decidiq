@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Throwable;
  * member's membership, one per member: a second answer replaces the first
  * until the round closes. After each answer the round is settled.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
  */
 class WrittenRoundAnswerer {
 
@@ -68,7 +68,7 @@ class WrittenRoundAnswerer {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function writtenRound(string $roundId): ?array {
 		try {
@@ -100,7 +100,7 @@ class WrittenRoundAnswerer {
 	 * @throws AccessDeniedException When the user is not in its electorate.
 	 * @throws InvalidArgumentException When the answer is unknown or the round is closed.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function answer(string $roundId, string $userId, string $value): array {
 		$round = $this->writtenRound(roundId: $roundId);
@@ -134,7 +134,7 @@ class WrittenRoundAnswerer {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public static function memberOf(array $round, string $userId): ?array {
 		if ($userId === '' || in_array($userId, (array)($round['electorateUserIds'] ?? []), true) === false) {

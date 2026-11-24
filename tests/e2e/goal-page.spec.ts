@@ -21,7 +21,7 @@
  *
  * Written, not run: it needs a live instance with the municipality example set.
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md
  * @e2e organisation-goals::four-kinds-of-contribution
  * @e2e organisation-goals::commitments-on-the-renamed-schema-count
  * @e2e organisation-goals::the-target-value

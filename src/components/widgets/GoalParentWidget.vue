@@ -6,7 +6,7 @@
  parent's title as a link and how many of its sub-goals are reached ("3
  sub-goals, of which 1 reached"). A top-level goal says it has no parent.
 
- @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
 -->
 <template>
 	<div class="goal-parent" data-testid="goal-parent">
@@ -62,7 +62,7 @@ export default {
 		 * The parent's sub-goals, counted.
 		 *
 		 * @return {{count: number, achieved: number}}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
 		 */
 		summary() {
 			return parentSummary(this.siblings)
@@ -78,7 +78,7 @@ export default {
 		 * Read the parent and its sub-goals.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
 		 */
 		async load() {
 			this.parent = null

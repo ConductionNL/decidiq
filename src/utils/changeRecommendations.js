@@ -7,7 +7,7 @@
  * request that decides one. The server decides whether a recommendation may
  * be accepted; these only shape what the page shows.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
  */
 
 /** The statuses a recommendation can have. */
@@ -25,7 +25,7 @@ export const RECOMMENDATION_STATUSES = Object.freeze([
  *
  * @return {Array<object>} A sorted copy.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
  */
 export function oldestFirst(rows) {
 	const created = (row) => String(row?.['@self']?.created || row?.created || '')
@@ -46,7 +46,7 @@ export function oldestFirst(rows) {
  *
  * @return {boolean} True when it can no longer be accepted.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
  */
 export function isPassageChanged(recommendation, motionText) {
 	if ((recommendation?.status || 'pending') !== 'pending') return false
@@ -61,7 +61,7 @@ export function isPassageChanged(recommendation, motionText) {
  *
  * @return {string} The range, or '' without line numbers.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
  */
 export function lineRange(recommendation) {
 	const from = Number(recommendation?.lineFrom)
@@ -79,7 +79,7 @@ export function lineRange(recommendation) {
  *
  * @return {string} The path to pass to generateUrl().
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
  */
 export function decisionPath(id, action) {
 	const verb = action === 'accept' ? 'accept' : 'reject'
@@ -94,7 +94,7 @@ export function decisionPath(id, action) {
  *
  * @return {object} The object to save.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
  */
 export function newRecommendation(motionId, answer) {
 	return {

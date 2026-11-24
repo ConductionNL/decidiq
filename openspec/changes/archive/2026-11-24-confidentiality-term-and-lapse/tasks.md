@@ -5,7 +5,7 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
 ## Implementation tasks
 
 ### Task 1: Fields and the lapsed state
-- **spec_ref**: `openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date`, `#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date`, `#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses`
 - **files**: `lib/Settings/register.d/129-confidentiality-term-and-lapse.json` (next free number at build time, `slug: confidentiality-restriction`)
 - **acceptance_criteria**:
   - GIVEN the import WHEN the restriction schema is read THEN `imposingDecision`, `liftBy`, `sentToBodyAt`, `sentWithAgendaItem` exist, optional; the lifecycle has `lapsed` (from imposed, terminal) in the canonical dialect; no `PARTIAL IMPORT`

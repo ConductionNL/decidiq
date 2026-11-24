@@ -14,7 +14,7 @@
  * five lines of text, opened by a user who is chair or secretary of its
  * meeting.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

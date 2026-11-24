@@ -18,7 +18,7 @@
  * removes them afterwards, so it runs on any instance with decidiq
  * installed, without an example set.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md
  */
 import type { Page } from '@playwright/test'
 import type { Actor } from './support/api-actors.ts'

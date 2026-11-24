@@ -8,7 +8,7 @@
  * (the same VotingRoundGuard that refuses the accept and reject routes), so
  * the page never works out a role itself.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
  */
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
@@ -32,12 +32,12 @@ export const motionRecommendationContext = {
 	},
 
 	computed: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
 		motionId() {
 			return String(this.objectId || this.$route?.params?.id || '')
 		},
 
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
 		motionText() {
 			return String(this.motion?.text || '')
 		},
@@ -48,7 +48,7 @@ export const motionRecommendationContext = {
 		 * Read the motion and the caller's chair-or-secretary answer; on any
 		 * failure the controls stay hidden.
 		 *
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
 		 */
 		async loadMotionContext() {
 			this.canDecide = false

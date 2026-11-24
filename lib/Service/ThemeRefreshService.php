@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use Throwable;
 /**
  * Republishes active public themes whose timeline changed.
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
  */
 class ThemeRefreshService implements ThemeRefreshServiceInterface {
 	/**
@@ -78,7 +78,7 @@ class ThemeRefreshService implements ThemeRefreshServiceInterface {
 	 *
 	 * @return array{republished: list<string>, unchanged: list<string>, failed: list<string>} Theme ids by outcome.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
 	 */
 	public function refresh(): array {
 		$outcome = ['republished' => [], 'unchanged' => [], 'failed' => []];

@@ -5,7 +5,7 @@
  Themes on the agenda item detail page — delegates to ThemeLinkTab with
  kind="agendaItem" (publication-theme-pages, REQ-THP-001).
 
- @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 -->
 <template>
 	<ThemeLinkTab :objectId="objectId" kind="agendaItem" />

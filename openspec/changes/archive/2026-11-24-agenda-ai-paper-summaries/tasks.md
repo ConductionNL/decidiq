@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: PaperSummary schema with its lifecycle and read rule
-- **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status`
 - **files**: `lib/Settings/register.d/92-paper-summaries.json`, `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the register is imported WHEN `paper-summary` is read THEN the schema, its lifecycle and its read rule are present
@@ -13,7 +13,7 @@
 - [x] Test (Newman: member and clerk read the same collection and get different counts; `tests/integration/decidiq-paper-summaries.postman_collection.json`, written, not run: needs the live instance. It seeds a `decidesk-members` probe user, an agenda item and two summaries, asserts the clerk lists 2 and the member only the shown one, and that a draft cannot be saved back to requested) (written, runs in nightly: not run here, no live instance)
 
 ### Task 2: Request a summary or a comparison
-- **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper`
 - **files**: `lib/Service/PaperSummaryService.php`, `lib/Controller/PaperSummaryController.php`, `appinfo/routes.php`, `tests/Unit/Service/PaperSummaryServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN a clerk and a paper attached to the item WHEN she posts a summary request THEN a TaskProcessing task is scheduled and a `requested` summary exists
@@ -24,7 +24,7 @@
 - [x] Test (PHPUnit red-then-green over the real PaperSummaryAccess, PaperText and OCP Task: PaperSummaryServiceTest, PaperTextTest)
 
 ### Task 3: Confidential papers stay inside their circle
-- **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle`
 - **files**: `lib/Service/PaperSummaryService.php`, `tests/Unit/Service/PaperSummaryServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN an active restriction on the agenda item WHEN a clerk outside its circle requests THEN 403 naming the restriction
@@ -33,7 +33,7 @@
 - [x] Test
 
 ### Task 4: The task result lands as a draft
-- **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts`
 - **files**: `lib/Listener/PaperSummaryTaskListener.php`, `lib/AppInfo/Registrar/*`, `tests/Unit/Listener/PaperSummaryTaskListenerTest.php`
 - **acceptance_criteria**:
   - GIVEN a real `TaskSuccessfulEvent` with custom id `paper-summary:<uuid>` WHEN handled THEN that summary becomes `draft` with the output text and the provider id
@@ -43,7 +43,7 @@
 - [x] Test (construct the real OCP event classes, not a fake)
 
 ### Task 5: Review and show on the agenda item page
-- **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it`
 - **files**: `src/components/tabs/AgendaPaperSummariesTab.vue`, `src/registry.js`, `src/manifest.json`, `tests/e2e/paper-summaries.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a draft summary WHEN the clerk edits the text and chooses Show to members THEN it is `shown` with her name and the time

@@ -8,7 +8,7 @@
  when the server refuses it; the dialog stays open until then. Lives in
  src/modals/ per the modal-isolation rule.
 
- @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 -->
 <template>
 	<NcDialog
@@ -71,14 +71,14 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		options() {
 			return this.themes
 		},
 	},
 
 	methods: {
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		confirm() {
 			this.error = ''
 			this.busy = true
@@ -91,7 +91,7 @@ export default {
 		 * @param {string} message The server's message.
 		 * @return {void}
 		 *
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 		 */
 		setError(message) {
 			this.error = message

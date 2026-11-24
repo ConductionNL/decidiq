@@ -163,53 +163,53 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		title() {
 			if (this.round && !this.open) return this.t('decidiq', 'Decided in writing')
 			return this.t('decidiq', 'Written resolution')
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		open() {
 			return isOpen(this.round)
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		waiting() {
 			return waitsToClose(this.round, new Date())
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		rows() {
 			return this.round ? recordRows(this.round, this.votes, this.names) : []
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
 		progress() {
 			return progressOf(this.rows)
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
 		uid() {
 			return getCurrentUser()?.uid || ''
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
 		canAnswer() {
 			return this.open && (this.round.electorateUserIds || []).includes(this.uid)
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
 		myAnswer() {
 			return this.rows.find((row) => row.userId === this.uid)?.value || null
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing */
 		canOpen() {
 			return this.bodies.length > 0 && canPutInWriting(this.decision) && !this.open
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page */
 		answers() {
 			return [
 				{ id: 'for', label: this.t('decidiq', 'For') },
@@ -219,7 +219,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		columns() {
 			return [
 				{ key: 'name', label: this.t('decidiq', 'Member') },
@@ -228,7 +228,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		ruleLabel() {
 			if (this.round?.writtenRule === 'threshold') {
 				return this.t('decidiq', 'threshold {threshold} of the whole body', { threshold: this.round.voteThreshold || 'simple-majority' })
@@ -236,7 +236,7 @@ export default {
 			return this.t('decidiq', 'unanimous')
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		reasonLabel() {
 			return {
 				'all-answered': this.t('decidiq', 'All answered'),
@@ -246,12 +246,12 @@ export default {
 			}[this.round?.closedReason] || ''
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		answerColors() {
 			return { [this.answerLabel('for')]: 'success', [this.answerLabel('against')]: 'error', [this.answerLabel('objection')]: 'warning' }
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		resultColors() {
 			return { adopted: 'success', rejected: 'error' }
 		},
@@ -260,7 +260,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+			/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 			handler() {
 				this.refresh()
 			},
@@ -268,7 +268,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -286,7 +286,7 @@ export default {
 		/**
 		 * The decision's latest written round, its votes, member names and body.
 		 *
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
 		 */
 		async loadRound() {
 			const rounds = await ensureRelationType('voting-round').fetchCollection('voting-round', {
@@ -305,7 +305,7 @@ export default {
 		/**
 		 * The names of the electorate and the body.
 		 *
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
 		 */
 		async loadNames() {
 			const personStore = ensureRelationType('person')
@@ -325,7 +325,7 @@ export default {
 		/**
 		 * The bodies the signed-in user presides over, for the open button.
 		 *
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 		 */
 		async loadBodies() {
 			this.bodies = []
@@ -348,7 +348,7 @@ export default {
 		 * Answer as the signed-in member; the server refuses anyone outside the electorate.
 		 *
 		 * @param {string} value The answer.
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 		 */
 		async answerWith(value) {
 			this.saving = true
@@ -366,7 +366,7 @@ export default {
 		/**
 		 * After the round opened: close the modal and read it back.
 		 *
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 		 */
 		async onOpened() {
 			this.showModal = false

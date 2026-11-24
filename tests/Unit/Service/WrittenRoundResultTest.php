@@ -13,7 +13,7 @@
  * @license   EUPL-1.2
  * @link      https://github.com/ConductionNL/decidiq
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 
 declare(strict_types=1);

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ namespace OCA\Decidiq\Exception;
 /**
  * A refused recommendation decision and its HTTP status.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
  */
 class ChangeRecommendationRefusedException extends \RuntimeException {
 	/**
@@ -51,7 +51,7 @@ class ChangeRecommendationRefusedException extends \RuntimeException {
 	 *
 	 * @return int The status.
 	 *
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-005-a-recommendation-whose-passage-has-changed-cannot-be-accepted
 	 */
 	public function getStatus(): int {
 		return $this->status;

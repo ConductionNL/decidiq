@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use InvalidArgumentException;
 /**
  * Options of a ranked round, and the ranking a ballot on it must hold.
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  */
 class RankedBallotRules {
 
@@ -80,7 +80,7 @@ class RankedBallotRules {
 	 *
 	 * @throws InvalidArgumentException With the reason, when the options do not fit the method.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function openingOptions(string $votingMethod, array $options, string $tieBreakRule): array {
 		if ($votingMethod !== self::METHOD) {
@@ -130,7 +130,7 @@ class RankedBallotRules {
 	 *
 	 * @throws InvalidArgumentException With the reason, when the ballot does not fit the round.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function ballotValue(array $round, string $value, ?array $ranking): string {
 		if ($this->isRanked(round: $round) === false) {
@@ -165,7 +165,7 @@ class RankedBallotRules {
 	 *
 	 * @return bool True for a ranked ballot round.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function isRanked(array $round): bool {
 		return ($round['votingMethod'] ?? '') === self::METHOD && (array)($round['options'] ?? []) !== [];
@@ -180,7 +180,7 @@ class RankedBallotRules {
 	 *
 	 * @throws InvalidArgumentException When it has no key or no label.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	private function option(mixed $option): array {
 		$key = '';

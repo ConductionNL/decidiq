@@ -3,7 +3,7 @@
 
 // Screens that list votes show a ranked ballot as its ordered options
 // (issue #1419, REQ-RPB-002), and any other vote as before.
-// @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-002-screens-that-list-votes-show-a-ranked-ballot-as-its-ranking
+// @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-002-screens-that-list-votes-show-a-ranked-ballot-as-its-ranking
 
 import { describe, expect, it } from 'vitest'
 import { rankingText, withRankingText } from '../../src/utils/rankedBallot.js'

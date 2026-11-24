@@ -22,7 +22,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -35,7 +35,7 @@ namespace OCA\Decidiq\Service;
 /**
  * A Borda count over full rankings.
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
  */
 class BordaCount {
 
@@ -59,7 +59,7 @@ class BordaCount {
 	 *     counted: int
 	 * } The ranking, the winner ('' on a tie or with no ballots) and the result.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function count(array $options, array $ballots): array {
 		$labels = [];
@@ -96,7 +96,7 @@ class BordaCount {
 	 *
 	 * @return bool True for a full ranking.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function isFullRanking(mixed $ranking, array $keys): bool {
 		if (is_array($ranking) === false || count($ranking) !== count($keys)) {
@@ -127,7 +127,7 @@ class BordaCount {
 	 *
 	 * @return array<int, string> The option keys in ranking order.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function orderByPoints(array $points): array {
 		// Stable: equal points keep the order the options were declared in.
@@ -156,7 +156,7 @@ class BordaCount {
 	 *
 	 * @return array<int, array{key: string, label: string, points: int, rank: int}> The rows, first rank first.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function rankRows(array $labels, array $points): array {
 		$ranking = [];
@@ -189,7 +189,7 @@ class BordaCount {
 	 *     counted: int
 	 * } The outcome.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function outcomeOf(array $ranking, int $counted): array {
 		$outcome = ['rankingResult' => $ranking, 'winningOption' => '', 'tiedOptions' => [], 'result' => 'invalid', 'counted' => $counted];

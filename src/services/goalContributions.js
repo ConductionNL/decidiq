@@ -11,7 +11,7 @@
  * same page holds (see AgendaBuilder.loadRecurringItems for the defect this
  * caused once).
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
  */
 
 import axios from '@nextcloud/axios'
@@ -45,7 +45,7 @@ export async function fetchObjects(register, schema, filter) {
  * @param {string} goalId The goal's UUID.
  * @param {string} [register] The register slug.
  * @return {Promise<Object<string, Array<object>>>} The objects per kind.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
  */
 export async function fetchContributions(goalId, register = 'decidiq') {
 	const lists = await Promise.all(CONTRIBUTION_KINDS.map(async (kind) => {
@@ -68,7 +68,7 @@ export async function fetchContributions(goalId, register = 'decidiq') {
  * @param {string} goalId The goal's UUID.
  * @param {string} [register] The register slug.
  * @return {Promise<Array<object>>} The sub-goals; empty when unreadable.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
  */
 export async function fetchSubgoals(goalId, register = 'decidiq') {
 	try {
@@ -84,7 +84,7 @@ export async function fetchSubgoals(goalId, register = 'decidiq') {
  * @param {string} goalId The goal's UUID.
  * @param {string} [register] The register slug.
  * @return {Promise<?object>} The goal, or null when it cannot be read.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
  */
 export async function fetchGoal(goalId, register = 'decidiq') {
 	try {

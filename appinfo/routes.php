@@ -77,7 +77,7 @@ $extra = [
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
         // Theme pages (publication-theme-pages, REQ-THP-002): the staff timeline of a theme.
         // Theme CRUD and its links stay on the OpenRegister object API (ADR-022).
-        // @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+        // @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
         ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
         // On-demand accessibility scan of one paper (document-accessibility-check REQ-001); reports stay on the OR object API.

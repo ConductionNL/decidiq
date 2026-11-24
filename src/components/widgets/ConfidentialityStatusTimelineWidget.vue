@@ -522,7 +522,7 @@ export default {
 		 *
 		 * @param {object} stage The dissolution stage.
 		 * @return {string}
-		 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
+		 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
 		 */
 		liftingLine(stage) {
 			if (!stage.liftBy) return stage.conditions || ''

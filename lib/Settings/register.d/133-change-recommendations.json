@@ -1,6 +1,6 @@
 {
 	"_note": "motion-change-recommendations (mot-19, recommendation half): a text change the griffie or committee recommends for a motion, line by line, which the chair or secretary accepts or rejects without a vote. The record and its pending -> accepted / pending -> rejected lifecycle are declarative. Accepting is imperative (ChangeRecommendationService): it writes the motion text through AmendmentTextMerger and the recommendation status together, and refuses when the passage no longer occurs. Numbered 133, the next free number, not the 125 the design names.",
-	"_spec": "openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md",
 	"components": {
 		"registers": {
 			"decidiq": {

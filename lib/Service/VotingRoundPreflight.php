@@ -252,7 +252,7 @@ class VotingRoundPreflight {
 	 *
 	 * @return array<int, array<string, mixed>>|null The tied options, or null.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
 	 */
 	public function tiedOptionsOf(string $revoteOfRoundId): ?array {
 		$entity = $this->objectService->find(id: $revoteOfRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));

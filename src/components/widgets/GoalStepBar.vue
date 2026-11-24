@@ -6,7 +6,7 @@
  across the goal page (board DcDoel, goals-linked-to-decisions REQ-014).
  Display only: it reads the goal the page already loaded.
 
- @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
 -->
 <template>
 	<nav
@@ -51,7 +51,7 @@ export default {
 		 * The three steps, each done, current or upcoming.
 		 *
 		 * @return {Array<object>} The steps.
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
 		 */
 		steps() {
 			return goalSteps(this.objectData)
