@@ -101,7 +101,10 @@ class CommitteeStepAgendaListener implements IEventListener {
 
 		$schema = $this->schemaResolver->schemaSlug(entity: $entity, row: $row);
 		try {
-			$this->apply(schema: $schema, row: $row, created: ($event instanceof ObjectCreatedEvent));
+			$changed = $this->apply(schema: $schema, row: $row, created: ($event instanceof ObjectCreatedEvent));
+			if (count($changed) > 1) {
+				$this->logger->info('Decidiq: a committee step was placed on or closed from the agenda', $changed);
+			}
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: a committee step was not placed on or closed from the agenda',
@@ -117,21 +120,24 @@ class CommitteeStepAgendaListener implements IEventListener {
 	 * @param array<string, mixed> $row     The saved object.
 	 * @param bool                 $created Whether the object was just created.
 	 *
-	 * @return void
+	 * @return array<string, mixed> What changed, for the log; empty when nothing did.
 	 */
-	private function apply(string $schema, array $row, bool $created): void {
+	private function apply(string $schema, array $row, bool $created): array {
 		if ($schema === 'decision-stage') {
-			$this->placement->placeStage(stage: $row);
-			return;
+			$item = $this->placement->placeStage(stage: $row);
+			return array_filter(['stage' => $row['id'], 'placedAs' => ($item['id'] ?? null)]);
 		}
 
 		if ($schema === 'meeting' && $created === true) {
-			$this->placement->placePending(meeting: $row);
-			return;
+			$placed = $this->placement->placePending(meeting: $row);
+			return array_filter(['meeting' => $row['id'], 'placed' => $placed]);
 		}
 
 		if ($schema === 'decision') {
-			$this->placement->closeFromDecision(decision: $row);
+			$closed = $this->placement->closeFromDecision(decision: $row);
+			return array_filter(['decision' => $row['id'], 'closed' => ($closed['id'] ?? null)]);
 		}
+
+		return [];
 	}//end apply()
 }//end class
