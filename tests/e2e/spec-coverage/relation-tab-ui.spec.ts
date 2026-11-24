@@ -6,7 +6,6 @@
  *
  * @e2e openspec/specs/relation-tab-ui/spec.md#add-a-motion-from-the-agenda-item-motions-tab
  * @e2e openspec/specs/relation-tab-ui/spec.md#delete-a-child-object-refreshes-the-list
- * @e2e openspec/specs/relation-tab-ui/spec.md#empty-parent-issues-no-fetch
  * @e2e openspec/specs/relation-tab-ui/spec.md#adopted-motion-renders-a-success-badge
  * @e2e openspec/specs/relation-tab-ui/spec.md#against-vote-renders-an-error-badge
  * @e2e openspec/specs/relation-tab-ui/spec.md#add-dialog-excludes-already-linked-participants
@@ -87,7 +86,6 @@ function noObject(v: Record<string, unknown> | string): v is string {
 
 // @e2e openspec/specs/relation-tab-ui/spec.md#add-a-motion-from-the-agenda-item-motions-tab
 // @e2e openspec/specs/relation-tab-ui/spec.md#delete-a-child-object-refreshes-the-list
-// @e2e openspec/specs/relation-tab-ui/spec.md#empty-parent-issues-no-fetch
 test('agenda item detail page renders with motions sidebar tab', async ({
 	page,
 }) => {

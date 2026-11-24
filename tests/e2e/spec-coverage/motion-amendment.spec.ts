@@ -12,8 +12,6 @@
  * @e2e openspec/specs/motion-amendment/spec.md#submit-multiple-amendments-to-the-same-motion
  * @e2e openspec/specs/motion-amendment/spec.md#vote-on-amendments-before-the-main-motion
  * @e2e openspec/specs/motion-amendment/spec.md#chair-sets-amendment-voting-order
- * @e2e openspec/specs/motion-amendment/spec.md#reject-opening-an-amendment-round-out-of-order
- * @e2e openspec/specs/motion-amendment/spec.md#reject-submission-after-the-meeting-deadline
  * @e2e openspec/specs/motion-amendment/spec.md#withdraw-a-motion-before-voting
  */
 import { expect, test } from '@playwright/test'
@@ -194,8 +192,6 @@ test('amendment detail route renders for the diff view', async ({ page }) => {
 
 // @e2e openspec/specs/motion-amendment/spec.md#vote-on-amendments-before-the-main-motion
 // @e2e openspec/specs/motion-amendment/spec.md#chair-sets-amendment-voting-order
-// @e2e openspec/specs/motion-amendment/spec.md#reject-opening-an-amendment-round-out-of-order
-// @e2e openspec/specs/motion-amendment/spec.md#reject-submission-after-the-meeting-deadline
 // Out-of-order amendment-round rejection and submission-deadline rejection are
 // server-enforced (VotingService::openVotingRound / SubmissionDeadlineListener)
 // and contract-tested in Newman + PHPUnit. The chair-facing voting-order UI is

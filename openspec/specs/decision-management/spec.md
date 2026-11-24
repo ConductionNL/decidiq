@@ -751,8 +751,6 @@ The Decision Detail page MUST render three declarative `object-list` widgets, ea
 - WHEN a user opens Decision D's detail page
 - THEN the "Member consultations" widget renders its configured empty-state text instead of an empty table
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "No member consultations reference this decision yet."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 #### Scenario: A decision referenced by a WOR consultation request
 
 - GIVEN a `ConsultationRequest` object whose `relatedDecision` field is set to Decision D
@@ -806,8 +804,6 @@ The Decision Detail page MUST render a declarative `object-list` widget listing 
 - WHEN a user opens Decision D's detail page
 - THEN the "Commitments" widget lists that commitment with its deadline and lifecycle status
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: commitments facet lists a toezegging linked via relatedMotion" — creates a real toezegging referencing the decision and asserts it renders); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 ### Requirement: Decision detail surfaces confidentiality status (REQ-DFC-005)
 
 The Decision Detail page MUST render a read-only declarative `object-list` widget listing `geheimhouding` objects whose `targetDecision` property equals the current decision's id (the case where this decision, or the content it represents, is itself under geheimhouding), showing the resolved ground, the lifecycle state, and the `ratificationDeadline`. This widget MUST NOT offer create/edit actions (`allowCreate: false`) — geheimhouding is imposed through the geheimhoudingenregister's own imposing flow, not from the Decision detail page. Widgets for `Geheimhouding.ratificationDecision` and `Geheimhouding.dissolutionDecision` (this decision acting as another record's confirming or lifting besluit) are explicitly out of scope for this requirement.
@@ -826,8 +822,6 @@ The Decision Detail page MUST render a read-only declarative `object-list` widge
 - GIVEN Decision D has no `Geheimhouding` object referencing it as `targetDecision`
 - WHEN a user opens Decision D's detail page
 - THEN the "Confidentiality" widget renders its configured empty-state text
-
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "This decision has no confidentiality restriction."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 ### Requirement: REQ-SDP-001 The next step is the one primary button
 

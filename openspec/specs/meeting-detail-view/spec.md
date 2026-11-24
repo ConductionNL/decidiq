@@ -264,8 +264,6 @@ Dutch wording is a mode label, not a schema name.
 - THEN the audit statement facet does not render any content
 - AND no other facet on the page is affected
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-meeting-detail.spec.ts, which asserts `getByTestId('meeting-audit-statements-tab')` has count 0 in gov mode.
-
 ### Requirement: REQ-MDV-013 — Routed incoming documents facet (read-only)
 The Meeting detail page SHALL show a single read-only facet listing every
 `raadsinformatiebrief` object whose `agendaItem` resolves to one of the
