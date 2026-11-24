@@ -204,7 +204,8 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna', 'p-bas' => 'm-bas']
 		);
 
-		self::assertSame(expected: 40, actual: self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, delegatorId: 'p-bas')['weight']);
+		$ballot = self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, delegatorId: 'p-bas');
+		self::assertSame(expected: 40, actual: $ballot['weight']);
 	}//end testAProxyBallotCarriesTheDelegatorWeight()
 
 	/**

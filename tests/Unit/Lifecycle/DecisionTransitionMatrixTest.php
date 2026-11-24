@@ -242,7 +242,11 @@ class DecisionTransitionMatrixTest extends TestCase {
 		$expected = DecisionTransitionGuard::WITHDRAWABLE_STATES;
 		sort($expected);
 
-		self::assertSame(expected: $expected, actual: $declared, message: "{$file}: the guard's withdrawable states must match the schema's withdraw edges");
+		self::assertSame(
+			expected: $expected,
+			actual: $declared,
+			message: "{$file}: the guard's withdrawable states must match the schema's withdraw edges"
+		);
 		self::assertFalse(condition: $this->guard->isWithdrawable(lifecycle: 'enacted'));
 		self::assertFalse(condition: $this->guard->isWithdrawable(lifecycle: 'withdrawn'));
 		self::assertTrue(condition: $this->guard->isWithdrawable(lifecycle: 'deliberating'));

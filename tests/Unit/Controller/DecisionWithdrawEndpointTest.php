@@ -160,7 +160,8 @@ class DecisionWithdrawEndpointTest extends TestCase {
 		$this->signIn(uid: 'member', admin: false);
 		$this->flow->expects($this->never())->method('withdraw');
 
-		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
+		$response = $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1');
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}
 
 	/**
@@ -172,6 +173,7 @@ class DecisionWithdrawEndpointTest extends TestCase {
 		$this->signIn(uid: null, admin: false);
 		$this->flow->expects($this->never())->method('withdraw');
 
-		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
+		$response = $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1');
+		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $response->getStatus());
 	}
 }

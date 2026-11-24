@@ -127,7 +127,8 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 */
 	public function testARankedBallotCountsAsCast(): void {
 		$round = ['id' => 'round-1', 'votingMethod' => 'ranked-choice'];
-		$counts = $this->results(round: $round, ballots: [self::ballot(value: 'ranked'), self::ballot(value: 'ranked')])->liveCounts(votingRoundId: 'round-1');
+		$ballots = [self::ballot(value: 'ranked'), self::ballot(value: 'ranked')];
+		$counts  = $this->results(round: $round, ballots: $ballots)->liveCounts(votingRoundId: 'round-1');
 
 		self::assertSame(expected: ['votesFor' => 0, 'votesAgainst' => 0, 'votesAbstain' => 0, 'cast' => 2], actual: $counts);
 
