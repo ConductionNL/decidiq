@@ -222,7 +222,11 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	public function testALetterNamingTheDecisionSetsTheReportDate(): void {
 		$this->decisionIs(decision: ['title' => 'Noodverordening Havenfestival 2026', 'isUrgent' => true]);
 
-		$payload = ['title' => 'Raadsinformatiebrief noodverordening', 'type' => 'type-raadsinformatiebrief', 'typeFields' => ['reportsOnDecision' => 'dec-1']];
+		$payload = [
+			'title'      => 'Raadsinformatiebrief noodverordening',
+			'type'       => 'type-raadsinformatiebrief',
+			'typeFields' => ['reportsOnDecision' => 'dec-1'],
+		];
 		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'letter-1', schemaId: '41', payload: $payload)));
 
 		self::assertCount(expectedCount: 1, haystack: $this->saved);
@@ -257,10 +261,18 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
 	 */
 	public function testReportedDecisions(): void {
-		self::assertSame(expected: ['dec-1'], actual: $this->listener->reportedDecisions(item: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => 'dec-1']]));
-		self::assertSame(expected: ['dec-1', 'dec-2'], actual: $this->listener->reportedDecisions(item: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => 'dec-2']]));
-		self::assertSame(expected: ['dec-2'], actual: $this->listener->reportedDecisions(item: ['ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => ['uuid' => 'dec-2']]]));
-		self::assertSame(expected: [], actual: $this->listener->reportedDecisions(item: ['typeFields' => ['relatedDecision' => 'dec-1', 'reportsOnDecision' => '']]));
+		$placed = ['meeting' => 'm', 'ratifiesDecision' => 'dec-1'];
+		$same   = $placed + ['typeFields' => ['reportsOnDecision' => 'dec-1']];
+		self::assertSame(expected: ['dec-1'], actual: $this->listener->reportedDecisions(item: $same));
+
+		$both = $placed + ['typeFields' => ['reportsOnDecision' => 'dec-2']];
+		self::assertSame(expected: ['dec-1', 'dec-2'], actual: $this->listener->reportedDecisions(item: $both));
+
+		$offMeeting = ['ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => ['uuid' => 'dec-2']]];
+		self::assertSame(expected: ['dec-2'], actual: $this->listener->reportedDecisions(item: $offMeeting));
+
+		$otherFields = ['typeFields' => ['relatedDecision' => 'dec-1', 'reportsOnDecision' => '']];
+		self::assertSame(expected: [], actual: $this->listener->reportedDecisions(item: $otherFields));
 		self::assertSame(expected: [], actual: $this->listener->reportedDecisions(item: ['typeFields' => 'dec-1']));
 	}//end testReportedDecisions()
 
