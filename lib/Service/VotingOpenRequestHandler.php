@@ -76,7 +76,7 @@ class VotingOpenRequestHandler implements VotingOpenRequestHandlerInterface {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function handle(array $params): JSONResponse {
 		$request = $this->parser->parse(params: $params);

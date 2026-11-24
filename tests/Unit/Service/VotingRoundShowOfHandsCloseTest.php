@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
  */
 
 declare(strict_types=1);

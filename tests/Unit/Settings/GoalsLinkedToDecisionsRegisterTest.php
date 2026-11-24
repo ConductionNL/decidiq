@@ -14,8 +14,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -112,7 +112,7 @@ class GoalsLinkedToDecisionsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/goals-linked-to-decisions/design.md#example-data
+	 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/design.md#example-data
 	 */
 	public function testTheMunicipalityExampleSetHoldsTheBoardsGoal(): void {
 		$profile = json_decode((string)file_get_contents(__DIR__ . '/../../../lib/Settings/profiles/municipality.json'), true);

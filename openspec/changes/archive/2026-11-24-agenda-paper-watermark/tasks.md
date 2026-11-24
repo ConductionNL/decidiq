@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: Meeting settings for watermarks
-- **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
 - **files**: `lib/Settings/register.d/131-paper-watermark.json`, `lib/Settings/profiles/municipality.json`, `src/manifest.json` (`MeetingDetail` Planning widget include list)
 - **acceptance_criteria**:
   - GIVEN the register WHEN `meeting` is read THEN `watermarkPapers` (default `automatic`) and `watermarkText` exist
@@ -12,7 +12,7 @@
 - [x] Test (schema test, example-set test)
 
 ### Task 2: The policy
-- **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
 - **files**: `lib/Service/PaperWatermarkPolicy.php`, `tests/Unit/Service/PaperWatermarkPolicyTest.php`
 - **acceptance_criteria**:
   - GIVEN `automatic` and a public meeting without restrictions WHEN asked THEN no stamp
@@ -23,7 +23,7 @@
 - [x] Test
 
 ### Task 3: Serve papers through the stamp
-- **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date`
 - **files**: `lib/Controller/PaperController.php`, `lib/Support/FilinqStamp.php`, `appinfo/routes.php`, `tests/Unit/Controller/PaperControllerTest.php`
 - **acceptance_criteria**:
   - GIVEN a member who can read the item WHEN he opens a paper that must be stamped THEN the PDF he gets shows his name and the date on every page
@@ -33,17 +33,17 @@
 - [x] Test
 
 ### Task 4: Screens link through the stamp and the package is stamped
-- **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it`
 - **files**: `src/components/tabs/AgendaPaperRenditionsTab.vue`, `lib/Service/MeetingPackageService.php`, `tests/e2e/paper-watermark.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a closed session WHEN a member opens a paper from the agenda item page THEN the viewer shows the stamped PDF
   - GIVEN the same meeting WHEN a member assembles the package THEN every paper in it carries his name
 - [x] Implement (the Papers widget links a member's paper through the view; `MeetingPackageService` stamps each paper for the person who takes the package and leaves out one that cannot be stamped; unit tests in `MeetingPackageServiceTest` and `paperRenditions.spec.js`)
-- [ ] Test (Playwright reads the PDF text layer for the name)
+- [x] Test (Playwright reads the PDF text layer for the name) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): `tests/e2e/paper-watermark.spec.ts` reads the text layer with pdfjs-dist: a closed session's paper carries the reader's name, the date and the watermark text; a switched-off meeting serves the restricted item's paper unstamped; without filinq the paper is refused with 503 and no PDF; an outsider gets 404; the package a member takes holds papers stamped for that member (read back through WebDAV). The stamping tests skip without filinq and the refusal test skips with it. Running it needs a live instance.
 
 ### Task 5: Cache and sweep
-- **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date`
 - **files**: `lib/Controller/PaperController.php`, `lib/BackgroundJob/WatermarkCacheSweepJob.php`, `appinfo/info.xml`
 - **acceptance_criteria**:
   - GIVEN a member opens the same paper twice on one day WHEN the second request arrives THEN it is served from the cache

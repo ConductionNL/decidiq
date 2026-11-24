@@ -7,7 +7,7 @@
  deadline and the rule; the server checks their scope, the decision and the
  electorate, and its refusal is shown here as it is.
 
- @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 -->
 <template>
 	<NcDialog
@@ -107,7 +107,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate */
 		ruleOptions() {
 			return [
 				{ id: 'unanimous', label: this.t('decidiq', 'Every member agrees') },
@@ -115,7 +115,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate */
+		/** @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-003-the-result-is-counted-against-the-whole-electorate */
 		thresholdOptions() {
 			return [
 				{ id: 'simple-majority', label: this.t('decidiq', 'Simple majority') },
@@ -135,7 +135,7 @@ export default {
 		 * Open the written round through the guarded route.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+		 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 		 */
 		async save() {
 			this.saving = true

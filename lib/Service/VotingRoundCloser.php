@@ -470,7 +470,7 @@ class VotingRoundCloser {
 	 * @return void
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-005-ranked-choice-rounds-inherit-secret-ballot-rules
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-005-ranked-choice-rounds-inherit-secret-ballot-rules
 	 */
 	private function anonymiseVotes(string $votingRoundId): void {
 		try {

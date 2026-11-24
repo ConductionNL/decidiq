@@ -68,7 +68,7 @@ export function fileUrl(fileId) {
  * @param {{schema: string, objectId: string}} [page] The meeting or agenda item the papers are on.
  * @return {Array<{key: number, title: string, pdfUrl: string, originalUrl: string, originalKind: string, failure: string, canRetry: boolean}>} The entries.
  * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf
- * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+ * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
  */
 export function paperEntries(renditions, canManage, page) {
 	const open = (fileId) =>
@@ -105,7 +105,7 @@ export function paperEntries(renditions, canManage, page) {
  * @param {string} objectId The object uuid.
  * @param {number} fileId The paper's file id.
  * @return {string} The URL.
- * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+ * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
  */
 export function viewUrl(schema, objectId, fileId) {
 	return generateUrl(

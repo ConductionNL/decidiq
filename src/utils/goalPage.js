@@ -9,7 +9,7 @@
  * the rules without a Vue transform. Every label is an English source string
  * the widget passes through `t('decidiq', …)`.
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
  */
 
 /** How many contributions the list shows before "View all n". */
@@ -82,7 +82,7 @@ function countWhere(list, test) {
  * @param {?object} goal The goal.
  * @param {{commitments?: Array, actionItems?: Array, subgoals?: Array}} lists What points at the goal.
  * @return {Array<{key: string, label: string, current: number, total: number, unit: string}>} The lines.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
  */
 export function progressLines(goal, lists = {}) {
 	const g = goal || {}
@@ -135,7 +135,7 @@ function unitOf(goal) {
  *
  * @param {{current: number, total: number}} line The line.
  * @return {number} The percentage, capped at 100.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
  */
 export function linePercent(line) {
 	if (!line || !(line.total > 0)) {
@@ -151,7 +151,7 @@ export function linePercent(line) {
  *
  * @param {Object<string, Array<object>>} byKind The objects per kind (`commitment`, `action-item`, …).
  * @return {Array<{id: string, kind: string, kindLabel: string, what: string, term: string, status: string, location: ?object}>} The rows.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
  */
 export function contributionRows(byKind = {}) {
 	const rows = []
@@ -211,7 +211,7 @@ function contributionRow(kind, object) {
  *
  * @param {Array<object>} subgoals The parent's sub-goals.
  * @return {{count: number, achieved: number}} The counts.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
  */
 export function parentSummary(subgoals) {
 	return {
@@ -225,7 +225,7 @@ export function parentSummary(subgoals) {
  *
  * @param {?object} goal The goal.
  * @return {string} The parent's UUID.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
  */
 export function parentGoalIdOf(goal) {
 	const id = goal && goal.parentGoal
@@ -245,7 +245,7 @@ const STATUS_STEP = { draft: 0, active: 1, 'at-risk': 1, achieved: 2 }
  *
  * @param {?object} goal The goal.
  * @return {Array<{key: string, label: string, date: string, status: string}>} The steps.
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal
  */
 export function goalSteps(goal) {
 	const g = goal || {}

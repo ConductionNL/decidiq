@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -35,7 +35,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 /**
  * Find, page, filter, save and reference resolution of the written-round store.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 #[CoversClass(WrittenRoundStore::class)]
 class WrittenRoundStoreTest extends TestCase {

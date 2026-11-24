@@ -21,7 +21,7 @@
  * one outside it), two people, the voting group, a motion and the round. All
  * of it is removed in afterAll.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 
 import type { Actor } from './support/api-actors.ts'

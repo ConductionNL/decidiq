@@ -8,7 +8,7 @@
  * Every object the page writes is validated against the merged register
  * schema it is written into.
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

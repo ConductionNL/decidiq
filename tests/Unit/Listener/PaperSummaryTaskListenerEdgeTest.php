@@ -41,7 +41,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Listener\PaperSummaryTaskListener
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
 class PaperSummaryTaskListenerEdgeTest extends TestCase {
 

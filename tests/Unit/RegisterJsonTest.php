@@ -1433,7 +1433,7 @@ class RegisterJsonTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function testAVotingRoundCanBeHeldInWriting(): void {
 		$json = file_get_contents(filename: __DIR__ . '/../../lib/Settings/register.d/132-written-resolution.json');
@@ -1472,7 +1472,7 @@ class RegisterJsonTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
 	 */
 	public function testTheCompanyBoardSetHoldsAWrittenResolution(): void {
 		$json = file_get_contents(filename: __DIR__ . '/../../lib/Settings/profiles/corporate.json');

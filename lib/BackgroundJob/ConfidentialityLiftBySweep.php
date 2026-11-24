@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Throwable;
  * ratification. The restriction then reads `liftStatus: preparing`; once
  * `liftBy` has passed it reads `overdue`. Its lifecycle never changes here.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/tasks.md#task-3
  */
 class ConfidentialityLiftBySweep {
 	/**
@@ -117,7 +117,7 @@ class ConfidentialityLiftBySweep {
 	 *
 	 * @return array{placed: int, overdue: int} What changed.
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/tasks.md#task-3
 	 */
 	public function sweep(DateTimeImmutable $today): array {
 		$day    = $today->format('Y-m-d');
@@ -147,7 +147,7 @@ class ConfidentialityLiftBySweep {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/tasks.md#task-3
 	 */
 	public function leadDays(): int {
 		$days = $this->appConfig->getValueInt('decidiq', self::LEAD_DAYS_KEY, self::LEAD_DAYS_DEFAULT);

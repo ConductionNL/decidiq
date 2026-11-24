@@ -9,7 +9,7 @@
  Each action saves the whole item once; OpenRegister's transition map has the
  last word and its refusal is shown as the message.
 
- @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+ @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
 -->
 <template>
 	<div class="decidiq-tab" data-testid="planned-agenda-actions-tab">
@@ -103,7 +103,7 @@ export default {
 		/**
 		 * Whether the item is in a terminal state.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 		 */
 		settled() {
 			return isTerminal(this.item)
@@ -112,7 +112,7 @@ export default {
 		/**
 		 * Whether the owner reference needs attention.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
 		 */
 		ownerWarning() {
 			return ownerProblem(this.item) !== null
@@ -121,7 +121,7 @@ export default {
 		/**
 		 * The sentence that says where the item stands.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 		 */
 		stateText() {
 			const lifecycle = this.item?.lifecycle
@@ -137,7 +137,7 @@ export default {
 		/**
 		 * Read the item.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
 		 */
 		async load() {
 			this.item = null
@@ -157,7 +157,7 @@ export default {
 		 * Open the realise dialog and look up the body's agenda items and
 		 * decisions to suggest. Read-only: nothing is created.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
 		 */
 		async openRealise() {
 			this.open = 'realise'
@@ -178,7 +178,7 @@ export default {
 		 *
 		 * @param {Function} build Builds the item to save from the current one.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 		 */
 		async save(build) {
 			this.error = ''
@@ -197,7 +197,7 @@ export default {
 
 		/**
 		 * @param {{toPeriod: string, reason: string}} shift The new period and reason.
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
 		 */
 		reschedule({ toPeriod, reason }) {
 			return this.save((item) => buildReschedule(item, {
@@ -210,7 +210,7 @@ export default {
 
 		/**
 		 * @param {{agendaItem: string, decision: string}} links The confirmed links.
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
 		 */
 		realise(links) {
 			return this.save((item) => buildRealise(item, links))
@@ -218,7 +218,7 @@ export default {
 
 		/**
 		 * @param {string} reason Why it lapses.
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 		 */
 		lapse(reason) {
 			return this.save((item) => buildLapse(item, reason))

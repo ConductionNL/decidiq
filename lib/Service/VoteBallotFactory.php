@@ -90,7 +90,7 @@ class VoteBallotFactory {
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function buildVote(VoteCast $cast, ?array $existingVote): array {

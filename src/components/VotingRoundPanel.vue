@@ -54,7 +54,7 @@
 					</option>
 				</select>
 				<!-- Options of a ranked round (REQ-PRF-001, issue #1419) -->
-				<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice -->
+				<!-- @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice -->
 				<fieldset
 					v-if="newRound.votingMethod === 'ranked-choice'"
 					class="decidiq-ranked-options"
@@ -270,7 +270,7 @@
 			<!-- Vote casting buttons -->
 			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 -->
 			<!-- Ranked ballot (REQ-PRF-002, issue #1419) -->
-			<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
+			<!-- @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
 			<template v-if="isRoundOpen && isRankedRound && !voteCast">
 				<RankedBallot
 					:options="currentRound.options || []"
@@ -325,7 +325,7 @@
 			</div>
 
 			<!-- A roll call: members do not cast, the chair or secretary records each choice by name -->
-			<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+			<!-- @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
 			<p
 				v-if="isRoundOpen && isRollCallRound"
 				class="decidiq-roll-call-notice"
@@ -481,7 +481,7 @@
 					<strong>{{ t('decidiq', 'Result:') }}</strong>
 					<CnStatusBadge :status="currentRound.result" />
 				</p>
-				<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table -->
+				<!-- @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table -->
 				<RankedResultsCard v-if="isRankedRound" :round="currentRound" />
 				<p v-else>
 					{{
@@ -797,7 +797,7 @@ export default {
 		 * round, not a show of hands, a ranked or a secret one.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		canEnterPaperVotes() {
 			const round = this.currentRound || {}
@@ -814,7 +814,7 @@ export default {
 		 * the secretary records by name.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		isRollCallRound() {
 			return isRollCall(this.currentRound)
@@ -868,7 +868,7 @@ export default {
 		 * Tie-break rules the open dialog offers: a ranked round cannot use
 		 * chair-decides, because a casting vote cannot name an option.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 * @return {Array<string>} The rules
 		 */
 		openTieBreakRuleOptions() {
@@ -879,7 +879,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 		 * @return {boolean} Whether the displayed round is a ranked preference round
 		 */
 		isRankedRound() {
@@ -935,7 +935,7 @@ export default {
 		/**
 		 * Load the voting groups when the open-round dialog opens for a fresh round.
 		 *
-		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 		 * @param {boolean} open Whether the dialog is open.
 		 */
 		showOpenRoundDialog(open) {
@@ -950,7 +950,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 * @param {string} method The picked voting method
 		 */
 		'newRound.votingMethod': function (method) {
@@ -1175,7 +1175,7 @@ export default {
 		 * narrow by its property and keep only rows that reference the body.
 		 *
 		 * @return {Promise<Array<object>|null>} The participants, or null without a meeting.
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 		 */
 		async meetingParticipants() {
 			if (!this.meetingId) {
@@ -1202,7 +1202,7 @@ export default {
 		 * Nothing to choose from when the meeting or its body cannot be read:
 		 * the round then opens for every member of the body, as before.
 		 *
-		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 		 * @return {Promise<void>}
 		 */
 		async loadVotingGroups() {
@@ -1277,7 +1277,7 @@ export default {
 		 * from each label (unique within the round), the label and the picked
 		 * Person, if any. Empty for every other method, which takes no options.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 * @return {Array<{key: string, label: string, person?: string}>} The options
 		 */
 		rankedOptions() {
@@ -1292,7 +1292,7 @@ export default {
 		 * ranked method is first picked. A failed load leaves the picker empty;
 		 * typed labels still work.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 */
 		async loadPeople() {
 			if (this.personOptions.length > 0 || this.loadingPeople) {
@@ -1323,7 +1323,7 @@ export default {
 		/**
 		 * The picker's value for an editor row.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 		 * @param {{person?: string}} option The editor row
 		 * @return {object|null} The picked person option
 		 */
@@ -1342,7 +1342,7 @@ export default {
 		/**
 		 * Cast a ranked ballot.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 		 * @param {Array<string>} ranking The option keys, first preference first
 		 */
 		async castRanking(ranking) {

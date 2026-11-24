@@ -23,7 +23,7 @@
  *
  * Written, not run: it needs a live instance with the municipality example set.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  * @e2e embargo-geheimhouding::an-imposed-restriction-before-the-council-meets
  */
 

@@ -22,7 +22,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -47,7 +47,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Requests AI summaries and comparisons of meeting papers.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
 class PaperSummaryService implements PaperSummaryServiceInterface {
 
@@ -96,7 +96,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @return array{available: bool, summary: bool, comparison: bool} Per kind, and whether any.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	public function availability(): array {
 		try {
@@ -117,7 +117,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @return bool True for a clerk.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 	 */
 	public function canRequest(): bool {
 		return $this->access->currentUserIsClerk();
@@ -135,7 +135,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @throws PaperSummaryRefusedException 401, 403, 422 or 503 with the reason
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
 	 */
 	public function request(string $agendaItemId, int $fileId, string $kind, ?int $comparedFileId=null): array {
 		$files = $this->papersOf(fileId: $fileId, kind: $kind, comparedFileId: $comparedFileId);
@@ -194,7 +194,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @throws PaperSummaryRefusedException 422 for another kind or a comparison without a second paper
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	private function papersOf(int $fileId, string $kind, ?int $comparedFileId): array {
 		if (isset(self::TASK_TYPES[$kind]) === false) {
@@ -222,7 +222,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @return array{0: string, 1: bool} The input, and whether a paper was summarised in parts.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
 	 */
 	private function taskInput(array $files, array $titles, string $uid): array {
 		if (count($files) === 1) {
@@ -251,7 +251,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @throws PaperSummaryRefusedException 422 without text, 503 when a part cannot be summarised
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
 	 */
 	private function condensed(int $fileId, string $uid): array {
 		$parts = $this->paperText->parts(fileId: $fileId);
@@ -283,7 +283,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 	 *
 	 * @return string The uuid.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	private function uuid(): string {
 		$bytes = random_bytes(16);

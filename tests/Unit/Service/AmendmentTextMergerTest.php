@@ -125,7 +125,7 @@ class AmendmentTextMergerTest extends TestCase {
 	 * A recommendation's entry names it under its own key, never as an
 	 * amendment, and the same id is only "applied" for its own kind.
 	 *
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 	 *
 	 * @return void
 	 */

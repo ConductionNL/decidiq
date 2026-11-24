@@ -23,7 +23,7 @@
  *
  * Written, not run: it needs a live instance.
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  * @e2e preferential-ballot/requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice/chair-opens-a-ranked-choice-round-for-a-board-election
  * @e2e preferential-ballot/requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice/one-option-is-not-a-choice
  * @e2e preferential-ballot/requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting/member-casts-a-ranked-choice-vote

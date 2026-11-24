@@ -3,7 +3,7 @@
 ## Implementation Tasks
 
 ### Task 1: Additive schema fields on GovernanceBody and Membership
-- **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-001-governancebody-carries-an-operational-active-flag` (+ REQ-OAC-002/REQ-OAC-003/REQ-OAC-004)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-001-governancebody-carries-an-operational-active-flag` (+ REQ-OAC-002/REQ-OAC-003/REQ-OAC-004)
 - **files**: `lib/Settings/decidesk_register.json`
 - **acceptance_criteria**:
   - GIVEN the register WHEN it imports THEN `GovernanceBody` carries `active` (boolean, default true), `quorum` (integer, minimum 2, NO default), `jurisdiction` (string) and `statutoryBasis` (string), each with a `title`
@@ -16,7 +16,7 @@
   - Already on development: the fields in `lib/Settings/decidesk_register.json`, `tests/Unit/Settings/ObjectionAdvisoryCommitteeFieldsTest.php`.
 
 ### Task 2: A scoped write path for governance bodies on the cross-app API
-- **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-005-governance-bodies-are-writable-through-the-cross-app-api`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-005-governance-bodies-are-writable-through-the-cross-app-api`
 - **files**: `lib/Controller/ApiController.php`, `appinfo/routes.php`
 - **acceptance_criteria**:
   - GIVEN a caller with `governance-bodies:write` WHEN it POSTs a valid body THEN the object is created and returned
@@ -28,7 +28,7 @@
   - Already on development: `ApiController::create()/update()` for `governance-bodies` only (`RESOURCE_WRITABLE`), authorised by OpenRegister RBAC as the acting user; the docblock records why not a scope (SCOPE_MAP enforces nothing).
 
 ### Task 3: Seed one objection advisory committee and surface the fields
-- **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-006-the-new-fields-are-seeded-and-surfaced`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-006-the-new-fields-are-seeded-and-surfaced`
 - **files**: `lib/Settings/decidesk_register.json` (seed objects), `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeded THEN a body exists with `bodyType: advisory-body`, `statutoryBasis` naming Awb 7:13, `quorum >= 2`, `active: true`, and a `jurisdiction`
@@ -50,7 +50,7 @@
   - Already on development: `ObjectionAdvisoryCommitteeFieldsTest` (fields, no default on quorum, additive), `ApiControllerWriteTest` (write path).
 
 ### Task 5: The objection flow as configuration
-- **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route`
 - **files**: `lib/Settings/profiles/municipality.json` (the `bezwaar-decision` decision template with its approval route: intake step with admissibility verdict, hearing, advice, decision, sending; the seeded advisory committee as adviser; the term period), `lib/Settings/register.d/80-decision-as-a-walked-process.json` (a `termPeriod` on the decision template if no existing field carries it), `src/manifest.json` (`DecisionDetail` shows the route steps and the term through the existing route widget), `tests/Unit/Settings/RegisterDescriptorTest.php`, `tests/e2e/objection-route.spec.ts` (new)
 - **acceptance_criteria**:
   - GIVEN the municipality profile WHEN imported THEN `bezwaar-decision` carries the five steps and a term period
@@ -58,5 +58,5 @@
   - GIVEN `grep -rniE 'bezwaar|objection' lib/Service` WHEN run after this task THEN no new class or method is named after objections
 - [x] Implement
   - Done: the configuration half. `lib/Settings/register.d/132-decision-type-term-period.json` adds `termPeriod` (ISO 8601 duration) and `termStartsAt` to the decision type; the municipality example set seeds the `bezwaar-decision` type (P12W from the end of the objection period) and its default route `bezwaar-standaard` with the five steps (intake with admissibility, hearing, the committee's advice, decision, sending), the seeded advisory committee as adviser; `ObjectionRouteConfigurationTest`. Then the page half: `register.d/133-decision-term.json` gives a decision `receivedAt`, `contests` (the decision it contests) and the server-written `termEndsAt`; `DecisionTermCalculator` works the term out from the type's `termPeriod` and `termStartsAt` (for `objection-period-end`: the contested decision's remedy term in days after it was published, else decided), and `DecisionTermListener` writes it on every create and update. `DecisionDetail` shows `contests`, `receivedAt` and `termEndsAt` (read-only) beside the route widget that already draws the steps, their dates and the current step. Nothing in `lib/Service` is named after objections. Unit tests: `DecisionTermCalculatorTest`, `DecisionTermListenerTest`.
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance)
   - Written: `tests/e2e/objection-route.spec.ts` (the seeded type and route, the term counted from the end of the objection period and not from receipt, the route on the decision page with receipt current). Left: running it against an instance with the municipality set.

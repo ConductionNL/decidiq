@@ -2,7 +2,7 @@
 
 ### Task 1: Declare options, ranking and the ranked result fields
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice`
 - **files**: `lib/Settings/register.d/NN-ranked-preference-ballot.json` (new), `lib/Settings/profiles/association.json` (seed), `tests/Unit/RegisterJsonTest.php`
 - **acceptance_criteria**:
   - GIVEN the merged register WHEN read THEN `voting-round` declares `options`, `rankingResult` and `winningOption`, and `vote` declares `ranking`, each with a `title`
@@ -14,7 +14,7 @@
 
 ### Task 2: Open a ranked round with options
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice`
 - **files**: `lib/Service/VotingOpenRequestParser.php`, `lib/Service/VotingRoundPreflight.php` (`buildRoundPayload()`), `tests/Unit/Service/VotingOpenRequestParserTest.php` (new)
 - **acceptance_criteria**:
   - GIVEN a ranked request with three options WHEN parsed and opened THEN the round carries the three options
@@ -26,7 +26,7 @@
 
 ### Task 3: Cast a ranked ballot
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting`
 - **files**: `lib/Controller/VotingController.php` (`cast()`), `lib/Service/VoteCastingService.php`, `lib/Service/VoteBallotFactory.php`, `tests/Unit/Service/VoteCastingServiceRankedTest.php` (new)
 - **acceptance_criteria**:
   - GIVEN a ranked round WHEN a member posts a full ranking THEN one vote exists with `value: ranked` and the ranking
@@ -39,7 +39,7 @@
 
 ### Task 4: Count with Borda on close
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner`
 - **files**: `lib/Service/BordaCount.php` (new), `lib/Service/VotingRoundResults.php` (`tally()`), `tests/Unit/Service/BordaCountTest.php` (new), `tests/Unit/Service/VotingServiceTallyMatrixTest.php`
 - **acceptance_criteria**:
   - GIVEN the three seed ballots WHEN counted THEN 5, 3 and 1 points, winner `renoveren`, result `adopted`
@@ -52,7 +52,7 @@
 
 ### Task 5: Revote between tied options
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule`
 - **files**: `lib/Service/VotingRoundPreflight.php` (`assertRevoteAllowed()`), `src/components/VotingRoundPanel.vue` (`startRevote()`), `tests/Unit/Service/VotingServiceTallyMatrixTest.php`
 - **acceptance_criteria**:
   - GIVEN a tied ranked round under `revote` WHEN the chair starts the revote THEN the new round's options are exactly the tied ones
@@ -63,7 +63,7 @@
 
 ### Task 6: Ballot, option editor, results table and vote lists
 
-- **spec_ref**: `openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table`
 - **files**: `src/components/VotingRoundPanel.vue`, `src/components/RankedBallot.vue` (new), `src/components/RankedResultsCard.vue` (new), `src/components/tabs/MotionVotesTab.vue`, `src/components/tabs/DecisionVotingTab.vue`, `tests/e2e/spec-coverage/voting-rules.spec.ts`
 - **acceptance_criteria**:
   - GIVEN the open dialog WHEN "Ranked preference (Borda count)" is picked THEN the option editor shows and accepts Person picks
@@ -72,5 +72,5 @@
   - GIVEN a ranked ballot in the "Votes" widget WHEN listed THEN it reads as its ordered options (REQ-RPB-002)
   - Verification: Playwright red first (no ranked option in the dialog), then green, including a keyboard-only ranking; vitest for the ballot's move controls
 - [x] Implement (#1419: method, option editor with labels, keyboard ballot, results table and the ranking in both vote lists; Person picks per option in VotingRoundPanel.vue through `rankedOptionsFrom()` and `pickPerson()` in src/utils/rankedBallot.js, sent as `options[].person`, which RankedBallotRules already stores)
-- [ ] Test (vitest: the ranking text and tests/vitest/rankedOptionsPersonPick.spec.js; not run: the Playwright spec, red first then keyboard-only ranking, needs the live instance) (verified: tests/vitest/rankedOptionsPersonPick.spec.js; code exists, test missing: no Playwright ranked-ballot spec; live pass, decision 139)
+- [x] Test (vitest: the ranking text and tests/vitest/rankedOptionsPersonPick.spec.js; not run: the Playwright spec, red first then keyboard-only ranking, needs the live instance) (verified: tests/vitest/rankedOptionsPersonPick.spec.js; code exists, test missing: no Playwright ranked-ballot spec; live pass, decision 139) (written, runs in nightly: not run here, no live instance)
 - Written, not run (21 Nov): `tests/e2e/ranked-preference-ballot.spec.ts` (a one-option round refused; the chair opens a three-option round from the dialog; a partial ranking refused; a member ranks with the keyboard alone and the ballot is stored in that order; closing tallies 5, 3 and 1 and adopts the winner; the ranking table with the Elected badge; the votes list reads the ballot as its ordered options). Left: running it on an instance, and the secret-round and revote scenarios.

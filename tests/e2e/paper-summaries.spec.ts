@@ -13,7 +13,7 @@
  * who counts as the secretariat. The provider-dependent tests skip with a
  * named reason on an instance without (or with) a TaskProcessing provider.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

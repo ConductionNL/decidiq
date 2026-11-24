@@ -13,7 +13,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -39,7 +39,7 @@ use OCP\EventDispatcher\IEventListener;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
  */
 class PlannedAgendaItemRulesGuardListener implements IEventListener {
 
@@ -72,7 +72,7 @@ class PlannedAgendaItemRulesGuardListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
@@ -116,7 +116,7 @@ class PlannedAgendaItemRulesGuardListener implements IEventListener {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
 	 */
 	public function refusal(array $row, array $old=[]): ?string {
 		if (($row['ownerType'] ?? null) === self::PERSON_OWNER_TYPE && $this->isEmpty(value: ($row['owner'] ?? null)) === true) {
@@ -140,7 +140,7 @@ class PlannedAgendaItemRulesGuardListener implements IEventListener {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+	 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 	 */
 	private function isEmpty(mixed $value): bool {
 		if ($value === null || $value === []) {
@@ -160,7 +160,7 @@ class PlannedAgendaItemRulesGuardListener implements IEventListener {
 	 *
 	 * @return bool True when it is clearly another schema.
 	 *
-	 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
 	 */
 	private function isAnotherSchema(array $row): bool {
 		foreach (['_schemaSlug', '_schema', 'schema'] as $key) {

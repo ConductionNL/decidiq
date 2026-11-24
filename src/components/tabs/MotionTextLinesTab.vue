@@ -9,7 +9,7 @@
  @custom-widget-ratchet exclude The line view computes numbered lines from the
  motion text; no data widget numbers lines or opens a dialog per line range.
 
- @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
+ @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
 -->
 <template>
 	<div
@@ -112,7 +112,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
 		lines() {
 			return numberLines(this.motionText)
 		},
@@ -121,7 +121,7 @@ export default {
 	watch: {
 		motionId: {
 			immediate: true,
-			/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
+			/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
 			handler() {
 				this.refresh()
 			},
@@ -129,7 +129,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers */
 		async refresh() {
 			this.loading = true
 			this.error = ''
@@ -147,7 +147,7 @@ export default {
 		 * Save the dialog's answer as a pending recommendation on this motion.
 		 *
 		 * @param {object} answer The dialog's answer.
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
 		 */
 		async recommend(answer) {
 			this.saving = true

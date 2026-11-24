@@ -16,7 +16,7 @@
 			"route": "/planned-agenda",
 			"type": "index",
 			"title": "Long-term agenda",
-			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
+			"_note": "spec: openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md",
 			"config": {
 				"register": "decidiq",
 				"schema": "planned-agenda-item",
@@ -167,14 +167,14 @@
 			"type": "custom",
 			"title": "Long-term agenda board",
 			"component": "PlannedAgendaBoard",
-			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule. Design D5 fallback: the shared board component binds lanes to an enum, not to a value-derived period axis, so the board is a custom page. Columns are the body's distinct planned periods plus two empty quarters, ordered by each period's last day (src/utils/plannedAgenda.js)."
+			"_note": "spec: openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule. Design D5 fallback: the shared board component binds lanes to an enum, not to a value-derived period axis, so the board is a custom page. Columns are the body's distinct planned periods plus two empty quarters, ordered by each period's last day (src/utils/plannedAgenda.js)."
 		},
 		{
 			"id": "PlannedAgendaDetail",
 			"route": "/planned-agenda/:id",
 			"type": "detail",
 			"title": "Long-term agenda item",
-			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md",
+			"_note": "spec: openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md",
 			"config": {
 				"register": "decidiq",
 				"schema": "planned-agenda-item",

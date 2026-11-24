@@ -8,7 +8,7 @@
  motion's meeting, and only on a pending recommendation; the server refuses
  anyone else (motion-change-recommendations).
 
- @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+ @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
 -->
 <template>
 	<div
@@ -137,7 +137,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
 		statusColors() {
 			return {
 				[this.t('decidiq', 'Pending')]: 'info',
@@ -150,7 +150,7 @@ export default {
 	watch: {
 		motionId: {
 			immediate: true,
-			/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
+			/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
 			handler() {
 				this.refresh()
 			},
@@ -161,7 +161,7 @@ export default {
 		isPassageChanged,
 		lineRange,
 
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status */
 		async refresh() {
 			if (!this.motionId) return
 			this.loading = true
@@ -187,7 +187,7 @@ export default {
 		/**
 		 * @param {object} row The recommendation.
 		 * @return {boolean} Whether it still waits for a decision.
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
 		 */
 		isPending(row) {
 			return (row?.status || 'pending') === 'pending'
@@ -196,7 +196,7 @@ export default {
 		/**
 		 * @param {object} row The recommendation.
 		 * @return {string} Its status as shown.
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
 		 */
 		statusLabel(row) {
 			if (row?.status === 'accepted') return this.t('decidiq', 'Accepted')
@@ -207,7 +207,7 @@ export default {
 		/**
 		 * @param {object} row The recommendation.
 		 * @return {string} The first words of the new wording, or of the passage it deletes.
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-006-the-motion-page-lists-every-recommendation-with-its-status
 		 */
 		firstWords(row) {
 			const words = String(row?.proposedText || row?.targetPassage || '')
@@ -223,7 +223,7 @@ export default {
 		 *
 		 * @param {object} row The recommendation.
 		 * @param {'accept'|'reject'} action What to do.
-		 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+		 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 		 */
 		async decide(row, action) {
 			this.busy = true

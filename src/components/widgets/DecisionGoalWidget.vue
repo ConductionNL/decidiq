@@ -8,7 +8,7 @@
  A custom widget because the shared data widget shows a reference by name,
  not as a link.
 
- @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
 -->
 <template>
 	<div class="decision-goal" data-testid="decision-goal">
@@ -63,7 +63,7 @@ export default {
 		 * Read the decision, then its goal.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
 		 */
 		async load() {
 			this.goalId = ''

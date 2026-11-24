@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use OCP\IRequest;
 /**
  * Paper summary requests and provider availability.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
 class PaperSummaryController extends Controller {
 
@@ -74,7 +74,7 @@ class PaperSummaryController extends Controller {
 	 *
 	 * @return JSONResponse 201 the requested summary; 401, 403, 422 or 503 with a message
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
 	 */
 	#[NoAdminRequired]
 	public function create(string $id): JSONResponse {
@@ -110,7 +110,7 @@ class PaperSummaryController extends Controller {
 	 *
 	 * @return JSONResponse 200 { available, summary, comparison, canRequest }
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	#[NoAdminRequired]
 	public function availability(): JSONResponse {

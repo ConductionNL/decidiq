@@ -51,7 +51,7 @@ interface GuestInvitationServiceInterface {
 	 *
 	 * @throws GuestInvitationRefusedException When the invitation cannot be sent as asked
 	 *
-	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 	 */
 	public function invite(string $meetingId, string $name, string $email, string $userId): array;
 
@@ -68,7 +68,7 @@ interface GuestInvitationServiceInterface {
 	 *
 	 * @throws GuestInvitationRefusedException 404 when absent, 403 when not the organiser
 	 *
-	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 	 */
 	public function requireOrganiserOf(string $meetingId, string $userId): array;
 }//end interface

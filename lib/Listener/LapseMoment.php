@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -27,7 +27,7 @@ use DateTimeImmutable;
 /**
  * The meeting, agenda item and moment of a lapse, and whether the meeting just closed.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */
 final class LapseMoment {
 
@@ -56,7 +56,7 @@ final class LapseMoment {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
 	 */
 	public function forItem(string $itemId): self {
 		return new self(meetingId: $this->meetingId, now: $this->now, atClose: $this->atClose, itemId: $itemId);

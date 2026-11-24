@@ -5,7 +5,7 @@
  Lapse dialog for a long-term agenda item. A lapsed item is final, and the
  reason is mandatory: the confirm button stays disabled without one.
 
- @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+ @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
 -->
 <template>
 	<NcDialog

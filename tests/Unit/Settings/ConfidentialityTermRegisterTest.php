@@ -26,7 +26,7 @@ use ReflectionClassConstant;
 /**
  * Register test for confidentiality-term-and-lapse task 1.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
  */
 class ConfidentialityTermRegisterTest extends TestCase {
 
@@ -35,7 +35,7 @@ class ConfidentialityTermRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
 	 */
 	public function testTheRestrictionCarriesItsTermFields(): void {
 		$schema     = MergedRegisterSchema::forSlug(slug: 'confidentiality-restriction');
@@ -68,7 +68,7 @@ class ConfidentialityTermRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
 	 */
 	public function testLapsedIsTerminalAndReachedFromImposedOnly(): void {
 		$schema    = MergedRegisterSchema::forSlug(slug: 'confidentiality-restriction');
@@ -96,7 +96,7 @@ class ConfidentialityTermRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
 	 */
 	public function testALapsedRestrictionIsNotActive(): void {
 		$active = (new ReflectionClassConstant(ConfidentialityRestrictions::class, 'ACTIVE_STATES'))->getValue();
@@ -111,7 +111,7 @@ class ConfidentialityTermRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
 	 */
 	public function testTheSecretariatIsNotifiedOnLapse(): void {
 		$rule = (MergedRegisterSchema::forSlug(slug: 'confidentiality-restriction')['x-openregister-notifications']['confidentialityLapsed'] ?? null);
@@ -128,7 +128,7 @@ class ConfidentialityTermRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
 	 */
 	public function testTheMunicipalitySetSeedsTheBoardRestrictionAndALapsedOne(): void {
 		$profile = json_decode(

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -34,7 +34,7 @@ use OCP\TaskProcessing\Events\TaskSuccessfulEvent;
 /**
  * Wires the TaskProcessing success and failure events to the paper summary listener.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
 final class TaskProcessingEventRegistrar {
 	/**
@@ -44,7 +44,7 @@ final class TaskProcessingEventRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
 	 */
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(event: TaskSuccessfulEvent::class, listener: PaperSummaryTaskListener::class);

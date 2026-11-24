@@ -7,7 +7,7 @@
  * vote per member, marked as recorded, and refuses the whole list when any
  * entry is wrong, naming the members concerned.
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 
 import axios from '@nextcloud/axios'
@@ -24,7 +24,7 @@ export const ROLL_CALL = 'roll-call'
  *
  * @param {?object} round The voting round.
  * @return {boolean} True for an open or closed roll call round.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
  */
 export function isRollCall(round) {
 	return round?.votingMethod === ROLL_CALL
@@ -35,7 +35,7 @@ export function isRollCall(round) {
  *
  * @param {Array<object>} participants The participants: `{ id, displayName, party, leftAt }`.
  * @return {Array<object>} The active ones, in the order given.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 export function activeMembers(participants) {
 	return (participants || []).filter(
@@ -48,7 +48,7 @@ export function activeMembers(participants) {
  *
  * @param {Array<object>} members The listed members.
  * @return {string[]} The party names; a member without one adds none.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 export function partiesOf(members) {
 	const parties = []
@@ -68,7 +68,7 @@ export function partiesOf(members) {
  * @param {string} party The party.
  * @param {string} value for, against, abstain, or empty for "did not vote".
  * @return {Record<string, string>} A new choice map.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 export function applyPartyChoice(choices, members, party, value) {
 	const next = { ...(choices || {}) }
@@ -87,7 +87,7 @@ export function applyPartyChoice(choices, members, party, value) {
  * @param {Record<string, string>} choices The choice per participant id.
  * @param {Array<object>} members The listed members.
  * @return {Array<{participantId: string, value: string}>} The entries.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 export function namedVoteEntries(choices, members) {
 	return (members || [])
@@ -104,7 +104,7 @@ export function namedVoteEntries(choices, members) {
  * @param {?object} refusal The server's answer: `{ message, participantIds }`.
  * @param {Array<object>} members The listed members.
  * @return {string[]} The names, in the order the server gave them.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
  */
 export function refusedNames(refusal, members) {
 	const ids = Array.isArray(refusal?.participantIds)
@@ -124,7 +124,7 @@ export function refusedNames(refusal, members) {
  * @param {Array<{participantId: string, value: string}>} entries The entries.
  * @param {string} [heldAt] When the vote was held (ISO 8601); now when left out.
  * @return {Promise<object>} The server's answer: `{ votingRoundId, recorded }`.
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 export async function recordNamedVotes(roundId, entries, heldAt) {
 	const body = { entries }

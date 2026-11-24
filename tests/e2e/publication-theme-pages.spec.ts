@@ -13,7 +13,7 @@
  * set. The nightly republication (REQ-THP-004) has no browser surface; it is
  * covered by tests/Unit/BackgroundJob/ThemeRefreshJobTest.php.
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

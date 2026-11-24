@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 
 declare(strict_types=1);
@@ -38,7 +38,7 @@ use Throwable;
  * relations are the same and a corrected list replaces the earlier recorded
  * votes instead of adding to them. A member left out has no vote.
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 class RecordedVoteWriter {
 
@@ -92,7 +92,7 @@ class RecordedVoteWriter {
 	 *
 	 * @throws RecordedVotesRefusedException When the round or any entry is wrong; nothing is written then.
 	 *
-	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
+	 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
 	 */
 	public function record(string $votingRoundId, array $entries, ?string $heldAt, string $recordedBy): array {
 		$round = $this->openRollCall(votingRoundId: $votingRoundId);

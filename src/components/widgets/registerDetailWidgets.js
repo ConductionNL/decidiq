@@ -135,7 +135,7 @@ export function findChildren(all, parentField, currentId) {
  * @param {object} record The geheimhouding object.
  * @param {number} [now] Epoch ms "now" (injectable for deterministic tests).
  * @return {Array<object>} The four ordered stage descriptors.
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 export function buildConfidentialityStages(record, now = Date.now()) {
 	const r = record || {}
@@ -156,7 +156,7 @@ export function buildConfidentialityStages(record, now = Date.now()) {
  *
  * @param {object} record The confidentiality restriction.
  * @return {Array<{key: string, state: string}>} The three steps in order.
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 export function buildConfidentialityStepper(record) {
 	const r = record || {}
@@ -184,7 +184,7 @@ export function buildConfidentialityStepper(record) {
  *
  * @param {object} record The confidentiality restriction.
  * @return {{deadline: string, bodyId: string|null}|null} The deadline and the ratifying body.
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 export function ratificationHeaderLine(record) {
 	const r = record || {}
@@ -218,7 +218,7 @@ function imposedStage(r) {
  *
  * @param {object} r The geheimhouding object.
  * @return {object} The stage descriptor.
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 function sentStage(r) {
 	const populated = Boolean(r.sentToBodyAt)
@@ -314,7 +314,7 @@ function dissolutionStage(r, now) {
  * @param {number} now Epoch ms "now".
  * @param {boolean} lifted Whether a lifting is recorded.
  * @return {boolean} True when overdue.
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
  */
 export function isLiftingOverdue(r, now, lifted = false) {
 	if (lifted || !['imposed', 'ratified'].includes(r?.lifecycle)) return false

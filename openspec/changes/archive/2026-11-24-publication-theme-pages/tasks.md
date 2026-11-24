@@ -3,18 +3,18 @@
 ## Implementation tasks
 
 ### Task 1: The theme and its links
-- **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme`
 - **files**: `lib/Settings/register.d/92-theme-pages.json`, `lib/Settings/profiles/municipality.json`, `src/manifest.d/theme-pages.json`, `src/modals/AddToThemeModal.vue`, `src/registry.js`, `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN the register WHEN imported THEN `governance-theme` exists and `PublicationRecord.sourceType` accepts `theme`
   - GIVEN a decision page WHEN the griffier chooses Add to theme and picks the swimming pool theme THEN the decision appears on the theme page
   - GIVEN the manifest and modal-isolation gates WHEN run THEN they pass
 - [x] Implement
-- [ ] Test (Playwright)
+- [x] Test (Playwright) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): `tests/e2e/publication-theme-pages.spec.ts` (Add to theme from the decision page and the theme lists it; the staff timeline oldest first with the unpublished entries marked; a theme that is not public is refused when published). It seeds its own objects. Left: running it on an instance.
 
 ### Task 2: The timeline
-- **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it`
 - **files**: `lib/Service/ThemeTimelineBuilder.php`, `src/components/tabs/ThemeTimelineTab.vue`, `tests/Unit/Service/ThemeTimelineBuilderTest.php`
 - **acceptance_criteria**:
   - GIVEN the seeded theme WHEN its timeline is built THEN five entries come out oldest first with the right dates per kind
@@ -23,7 +23,7 @@
 - [x] Test
 
 ### Task 3: Publish a theme
-- **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items`
 - **files**: `lib/Service/PublicationEligibilityService.php`, `lib/Service/PublicationPayloadService.php`, `tests/Unit/Service/PublicationPayloadServiceTest.php`, `tests/newman/theme-pages.json`
 - **acceptance_criteria**:
   - GIVEN a public theme with three published and two unpublished linked items WHEN published THEN the payload's timeline holds three entries, each with its publication link, and is readable anonymously
@@ -33,7 +33,7 @@
 - [x] Test (red first: `assertEligible('theme', ...)` throws "Unknown publication source type" today)
 
 ### Task 4: Keep published themes current
-- **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current`
 - **files**: `lib/BackgroundJob/ThemeRefreshJob.php`, `appinfo/info.xml`
 - **acceptance_criteria**:
   - GIVEN an active public theme and a newly published linked decision WHEN the nightly job runs THEN a new payload version includes it
