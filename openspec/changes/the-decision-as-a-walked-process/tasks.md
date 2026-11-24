@@ -159,11 +159,14 @@ them reachable is in reachability-scope.md beside this file.
       approval step, are refused too. Proven by
       ApprovalRouteServiceTest::testAVerdictWithoutAGroundIsRefusedAndWritesNothing,
       testASignOffOnAnIntakeStepIsRefused and testAVerdictOnAnApprovalStepIsRefused. -->
-- [ ] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
-      <!-- HALF: the PHPUnit is there, on the service and on both engine paths.
-      The verdict now lands on the decision (`ontvankelijkheid*`) and on the
-      action trail, but no controller, route or projection exposes it to
-      dossiq yet: that consumer contract is the dossiq lane's (11.1). -->
+- [x] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
+      <!-- DONE (2026-11-24): the PHPUnit is there, on the service and on both
+      engine paths. The read seam is the clearance answer dossiq already asks
+      (`GET /api/approval-routes/clearance`): it now carries `admissibility`,
+      the newest verdict on the subject's action trail (`ontvankelijkheid`,
+      `ground`, `decidedBy`, `decidedAt`), or null when no intake step answered.
+      AdmissibilityTrail; ApprovalRouteClearanceContractTest. Reading it on the
+      case is the dossiq lane's half (11.1). -->
 
 ## 5. Withdrawal
 

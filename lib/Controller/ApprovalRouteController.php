@@ -345,6 +345,7 @@ class ApprovalRouteController extends Controller {
 	 * @return JSONResponse The clearance answer, or an error.
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
 	 */
 	#[NoAdminRequired]
 	public function clearance(): JSONResponse {
@@ -375,6 +376,9 @@ class ApprovalRouteController extends Controller {
 		}
 
 		$clearance['reason'] = $this->clearanceService->describe(clearance: $clearance);
+		// The case app reads the intake verdict here too: the verdict, its
+		// ground and who gave it, or null when no intake step answered yet.
+		$clearance['admissibility'] = $this->clearanceService->admissibilityOn(subject: $subject);
 
 		return new JSONResponse($clearance, Http::STATUS_OK);
 	}//end clearance()

@@ -33,6 +33,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
+use OCA\Decidiq\Service\AdmissibilityTrail;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
@@ -59,6 +60,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 	 * @param array<int, array<string, mixed>> $stages The subject's stages.
 	 * @param array<string, mixed> $params The request parameters.
 	 * @param bool $authenticated Whether anybody is signed in.
+	 * @param array<int, array<string, mixed>> $actions The subject's approval actions.
 	 *
 	 * @return ApprovalRouteController The controller.
 	 */
@@ -66,6 +68,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 		array $stages,
 		array $params = ['subject' => 'subj-1', 'subjectSchema' => 'decision'],
 		bool $authenticated = true,
+		array $actions = [],
 	): ApprovalRouteController {
 		$facade = $this->createMock(ObjectServiceInterface::class);
 
@@ -73,9 +76,13 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 		$entity->method('jsonSerialize')->willReturn(['id' => 'subj-1', 'name' => 'Review']);
 		$facade->method('find')->willReturn($entity);
 		$facade->method('findAll')->willReturnCallback(
-			static function (array $config = []) use ($stages): array {
+			static function (array $config = []) use ($stages, $actions): array {
 				if (($config['filters']['schema'] ?? '') === 'decision-stage') {
 					return $stages;
+				}
+
+				if (($config['filters']['schema'] ?? '') === 'approval-action') {
+					return $actions;
 				}
 
 				return [];
@@ -106,7 +113,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 				mapper: new ApprovalRouteStepMapper(),
 			),
 			announcer: $this->createMock(ApprovalRouteConclusionAnnouncer::class),
-			clearanceService: new SubjectClearanceService(),
+			clearanceService: new SubjectClearanceService(admissibility: new AdmissibilityTrail(store: $store)),
 			userSession: $session,
 			groupManager: $this->createMock(IGroupManager::class),
 			logger: $this->createMock(LoggerInterface::class),
@@ -203,5 +210,55 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 		$this->assertTrue($body['cleared'], 'A finished route did not clear its subject.');
 		$this->assertSame([], $body['waitingOn']);
 		$this->assertSame('Every required sign-off has been given.', (string)$body['reason']);
+	}
+
+	/**
+	 * The case app reads the newest intake verdict, its ground and who gave it,
+	 * off the clearance answer it already asks (REQ-DWP-004).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testTheClearanceAnswerCarriesTheAdmissibilityVerdict(): void {
+		$stages = [
+			['id' => 'stage-1', 'sequence' => 1, 'status' => 'decided', 'label' => 'Intake', 'decision' => 'subj-1', 'route' => 'route-1'],
+		];
+		$actions = [
+			['action' => 'niet-ontvankelijk', 'comment' => 'Te laat ingediend', 'actor' => 'bob', 'recordedAt' => '2026-03-01T10:00:00+00:00'],
+			['action' => 'approved', 'comment' => '', 'actor' => 'carol', 'recordedAt' => '2026-03-03T10:00:00+00:00'],
+			['action' => 'ontvankelijk', 'comment' => 'Na herstel compleet', 'actor' => 'alice', 'recordedAt' => '2026-03-02T10:00:00+00:00'],
+		];
+
+		$body = $this->controller(stages: $stages, actions: $actions)->clearance()->getData();
+
+		$this->assertSame(
+			expected: [
+				'ontvankelijkheid' => 'ontvankelijk',
+				'ground'           => 'Na herstel compleet',
+				'decidedBy'        => 'alice',
+				'decidedAt'        => '2026-03-02T10:00:00+00:00',
+			],
+			actual: $body['admissibility']
+		);
+	}
+
+	/**
+	 * Without an intake verdict the answer says so with null, not with a guess.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testWithoutAVerdictTheAdmissibilityIsNull(): void {
+		$stages = [
+			['id' => 'stage-1', 'sequence' => 1, 'status' => 'decided', 'label' => 'Parafering', 'decision' => 'subj-1', 'route' => 'route-1'],
+		];
+		$actions = [['action' => 'approved', 'actor' => 'carol', 'recordedAt' => '2026-03-03T10:00:00+00:00']];
+
+		$body = $this->controller(stages: $stages, actions: $actions)->clearance()->getData();
+
+		$this->assertArrayHasKey(key: 'admissibility', array: $body);
+		$this->assertNull(actual: $body['admissibility']);
 	}
 }
