@@ -3,7 +3,7 @@
 ## Implementation Tasks
 
 ### Task 1: Register fragment 47 — ConsultationRequest schema with declarative dialects + bodyType enum value
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-001-consultationrequest-schema-on-openregister` (+ REQ-WCC-002/REQ-WCC-006/REQ-WCC-007/REQ-WCC-009)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-001-consultationrequest-schema-on-openregister` (+ REQ-WCC-002/REQ-WCC-006/REQ-WCC-007/REQ-WCC-009)
 - **files**: `lib/Settings/register.d/47-works-council-consultation.json`, `lib/Settings/decidesk_register.json` (one additive `bodyType` enum value)
 - **acceptance_criteria**:
   - GIVEN the fragment is loaded WHEN the register imports THEN the `consultation-request` schema exists with all required fields, property titles, and the `x-schema-org` annotation, no existing schema is modified by the fragment, and the GovernanceBody `bodyType` enum includes `works-council`
@@ -13,7 +13,7 @@
 - [x] Test (`tests/Unit/Service/WorksCouncilConsultationRegisterTest.php`, on the merged register)
 
 ### Task 2: Seed data — realistic Dutch WOR trajecten and the ondernemingsraad body
-- **spec_ref**: `openspec/changes/works-council-consultation/design.md#seed-data`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/design.md#seed-data`
 - **files**: `lib/Settings/register.d/47-works-council-consultation.json` (seed section / `_registers.json` entries)
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN the "Ondernemingsraad Voorbeeldingen B.V." governance body (`bodyType=works-council`) exists with Person + Membership members, and 3 consultation-request objects per the design tables (one overdue non-terminal adviesaanvraag, one instemmingsverzoek in achterbanraadpleging, one afgerond adviesaanvraag with response, afwijkend besluit, and derived `opschortingTot`) exist with only nil-UUID placeholders for unresolved refs
@@ -22,7 +22,7 @@
 - [x] Test (`tests/Unit/Settings/WorksCouncilSeedTest.php`)
 
 ### Task 3: Manifest fragment — WOR-trajecten index/detail pages + menu
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis` (+ REQ-WCC-003/REQ-WCC-004)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis` (+ REQ-WCC-003/REQ-WCC-004)
 - **files**: `src/manifest.d/works-council-consultation.json`
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the WOR-trajecten index renders with the specced columns and quick filters (type, lifecycle, governance body), and row click opens the detail page (schema ref by slug `consultation-request`, never PascalCase)
@@ -31,7 +31,7 @@
 - [x] Test (`tests/vitest/worksCouncilPages.spec.js`)
 
 ### Task 4: Dashboard KPIs — open trajecten and responses past requested date
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis`
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN "Open WOR-trajecten" counts non-terminal trajecten and "Reactie over gevraagde datum" counts non-terminal trajecten before `verzonden` with `requestedResponseDate` in the past, both via declarative source aggregations (no imperative counting endpoint), and clicking each routes to the pre-filtered index
@@ -40,7 +40,7 @@
 - [x] Test (`tests/vitest/worksCouncilKpis.spec.js`, and the simple dashboard spec)
 
 ### Task 5: ConsultationResponseDocumentService — formal advies/instemming document generation
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage`
 - **files**: `lib/Service/ConsultationResponseDocumentService.php`, controller wiring, `appinfo/routes.php`, `tests/Unit/Service/ConsultationResponseDocumentServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN a traject in `vastgesteld` with response fields WHEN generation is triggered THEN a markdown document persists to the traject's Files folder, Docudesk PDF renders when available, the document links as `responseDocument`, and the save carries all fields forward (PUT-semantic)
@@ -50,7 +50,7 @@
 - [x] Test (`tests/Unit/Service/ConsultationResponseDocumentServiceTest.php`: markdown, PDF, fallback, refusals, and the controller's 401/403/404/201)
 
 ### Task 6: UI wiring — besluit recording, achterban link, and advisory-stage handoff
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn` (+ REQ-WCC-003/REQ-WCC-005)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn` (+ REQ-WCC-003/REQ-WCC-005)
 - **files**: `src/` (detail actions, dialogs in `src/dialogs`/`src/modals` per modal-isolation gate)
 - **acceptance_criteria**:
   - GIVEN a traject in `verzonden` WHEN the secretaris records the bestuurder besluit via an explicit dialog THEN `besluitOutcome`/`besluitText`/`besluitDate` are stored with the transition to `besluit-ontvangen`, an afwijkend besluit on an adviesaanvraag shows the derived opschortingstermijn, and the OR-members notification fires declaratively
@@ -60,13 +60,13 @@
 - [x] Test (`tests/vitest/worksCouncilResponse.spec.js`, the saved payload checked against the shipped schema)
 
 ### Task 7: E2E coverage — Playwright scenarios for the WOR traject
-- **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md`
 - **files**: `tests/e2e/works-council-consultation.spec.ts`
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed spec THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude`
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → behandel → agendeer op overlegvergadering → stel advies vast → genereer document → verzend → registreer afwijkend besluit (opschorting zichtbaar) → afgerond passes end-to-end, and the KPI deep-links land on correctly pre-filtered indexes
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for this spec on 24 Nov: every scenario tagged in tests/e2e/works-council-consultation.spec.ts or excluded in the spec with its PHPUnit evidence)
+- [x] Test (written, runs in nightly: not run here, no live instance)
 - Written, not run (20 Nov): `tests/e2e/works-council-consultation.spec.ts` (17 scenarios tagged: the statutory walk register → in progress → consultation meeting → adopted → document → sent → dissenting decision with suspension → completed, the KPI tiles and their lists, links, conform and consent paths; the two reminder scenarios and the additive-fragment one are register contracts covered by `WorksCouncilConsultationRegisterTest`). State moves go through the object API because the detail page declares no lifecycle buttons. Running it needs a live instance.
 
 ## Quality checklist

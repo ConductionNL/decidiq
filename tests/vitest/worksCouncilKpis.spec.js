@@ -4,7 +4,7 @@
 /**
  * works-council-consultation task 4: the two WOR KPIs on the dashboard.
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis
  */
 import { needsListEndpoint } from '@conduction/nextcloud-vue/src/utils/fetchFilterCounts.js'
 import { resolveFilterTokens } from '@conduction/nextcloud-vue/src/utils/resolveFilterTokens.js'

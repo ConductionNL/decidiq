@@ -1,18 +1,10 @@
 # works-council-consultation Specification
 
-**Status**: planned
-**Scope**: decidiq
-**OpenSpec changes**:
-- [works-council-consultation](../../changes/works-council-consultation/)
-
 ## Purpose
 
-WOR consultation trajecten for ondernemingsraden: an adviesaanvraag (art. 25 WOR) or instemmingsverzoek (art. 27 WOR) submitted by the bestuurder is registered, treated in overlegvergaderingen, optionally preceded by an achterbanraadpleging, formally answered with an advies or instemming document, and closed by recording the bestuurder's decision — including the art. 25 lid 6 one-month opschortingstermijn when the bestuurder deviates from the advice. The traject is a declarative lifecycle on one `ConsultationRequest` schema (ADR-031), with deadline rappels following the toezeggingen-register notification pattern and document generation following the resolution-minutes Docudesk delegation pattern. It is explicitly not the citizen-participation `PublicConsultation` (public opinion gathering) and not a Decision subtype (the traject is a statutory request/response exchange, not a governance outcome; it may *link* to a routed Decision via `method=advice`).
+Requirements introduced by the works-council-consultation change.
 
-**Standards**: WOR art. 25/27 (art. 25 lid 6 opschorting), Schema.org (`Action`), OpenRegister dialects (ADR-031)
-**Legal reference**: Wet op de ondernemingsraden art. 25, 27, 30
-
-## ADDED Requirements
+## Requirements
 
 ### Requirement: REQ-WCC-001 ConsultationRequest schema on OpenRegister
 
@@ -26,6 +18,8 @@ The system SHALL define a `ConsultationRequest` schema (slug `consultation-reque
 - AND a create missing `type`, `subject`, `bestuurder`, or `receivedDate` is rejected by OpenRegister schema validation
 
 #### Scenario: Register fragment is additive
+
+@e2e exclude "no existing schema is modified" is a property of the merged register file, not of a page; WorksCouncilConsultationRegisterTest::testTheRequestIsInTheMergedRegister (the carried-schema half is asserted below) (recorded in tests/e2e/works-council-consultation.spec.ts)
 
 - GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
@@ -144,11 +138,15 @@ Deadline reminders on `requestedResponseDate` SHALL be declared exclusively via 
 
 #### Scenario: Rappel before the requested response date
 
+@e2e exclude a scheduled notification trigger fires from OpenRegister's cron, not from a page; declared and checked in WorksCouncilConsultationRegisterTest::testTheNotificationsAreDeclared (recorded in tests/e2e/works-council-consultation.spec.ts)
+
 - GIVEN a ConsultationRequest in `in-behandeling` whose `requestedResponseDate` is within the configured rappel window
 - WHEN the scheduled notification trigger evaluates
 - THEN the recipients receive a Nextcloud notification referencing the traject
 
 #### Scenario: Overdue rappel
+
+@e2e exclude a scheduled notification trigger, as above; WorksCouncilConsultationRegisterTest::testTheNotificationsAreDeclared checks its non-terminal filter (recorded in tests/e2e/works-council-consultation.spec.ts)
 
 - GIVEN a ConsultationRequest in a non-terminal lifecycle before `verzonden` whose `requestedResponseDate` is in the past
 - WHEN the scheduled notification trigger evaluates
@@ -196,27 +194,3 @@ The `GovernanceBody` schema's `bodyType` enum SHALL include the value `works-cou
 - GIVEN the register is imported on a clean instance
 - WHEN the schemas are listed
 - THEN no separate `works-council` or `ondernemingsraad` schema exists; the OR is a `governance-body` object
-
-## Non-Functional Requirements
-
-- **Performance:** the trajecten index paginates via the standard OR list API; both KPIs are single count aggregations (no N+1).
-- **Accessibility:** Target WCAG 2.2 AA; pages use standard manifest-v2 components (index/detail/stat) which carry the fleet's gate-checked semantics; no dragging, no auth flows, no new help surfaces introduced by this capability.
-- **Internationalization:** Dutch and English MUST be supported (ADR-005); notification subjects declared in both languages; i18n keys in English.
-
-## Acceptance Criteria
-
-- [ ] ConsultationRequest schema registers from fragment 47 and validates required fields; every property carries a title
-- [ ] Lifecycle transitions are enforced by x-openregister-lifecycle only (canonical `initial` keyword; no app-side state machine)
-- [ ] Achterbanraadpleging step links to constituency-consultation objects and degrades gracefully; no poll mechanics duplicated
-- [ ] Overlegvergadering/agenda linkage uses the universal Meeting/AgendaItem schemas
-- [ ] Response document generation follows the Docudesk-with-honest-fallback pattern; method=advice linkage sets the advisory stage outcome without new derivation machinery
-- [ ] Afwijkend besluit on an adviesaanvraag derives opschortingTot (+1 month) and notifies the OR; conform besluiten and instemmingsverzoeken derive nothing
-- [ ] Rappels fire declaratively before and after requestedResponseDate and at opschorting expiry, never for terminal states
-- [ ] Index/detail pages render from the manifest fragment; both dashboard KPIs count declaratively and deep-link pre-filtered
-- [ ] `works-council` bodyType exists and an ondernemingsraad body is seeded
-
-## Notes
-
-- Related: `constituency-consultation` (achterbanraadpleging poll mechanics — referenced, never duplicated), `decision-route`/`decision-methods` (`method=advice` advisory-stage semantics — reused, not modified), `resolution-minutes` (Docudesk delegation pattern), `toezeggingen-register` (declarative rappel + lifecycle dialect pattern), `governance-bodies` (the OR is a GovernanceBody).
-- Distinct from citizen-participation's `PublicConsultation`: that schema gathers public reactions; `ConsultationRequest` is a statutory bestuurder→OR request with a legal response obligation.
-- Out of scope (proposal): Ondernemingskamer beroep (art. 26), nietigheid/kantonrechter after geweigerde instemming, CAO interpretation, employer-side tooling.
