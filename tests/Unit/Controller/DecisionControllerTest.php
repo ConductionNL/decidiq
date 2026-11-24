@@ -38,6 +38,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for DecisionController.
@@ -346,13 +347,11 @@ class DecisionControllerTest extends TestCase {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
 			->willReturnCallback(
-				function (
-					array $object,
-					?array $extend = [],
-					string|int|null $register = null,
-					string|int|null $schema = null,
-					?string $uuid = null,
-				) use (&$saves): ObjectEntity {
+				function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saves): ObjectEntity {
+					$extend = $options->extend ?? [];
+					$register = $options->target->register;
+					$schema = $options->target->schema;
+					$uuid = $options->uuid;
 					$saves[] = ['object' => $object, 'schema' => $schema, 'uuid' => $uuid];
 
 					// What OpenRegister STORES is not what it was handed:

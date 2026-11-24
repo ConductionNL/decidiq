@@ -47,6 +47,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for the archival dossier of a meeting.
@@ -57,6 +59,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\Records\OpenRegisterArchive
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
  * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class ArchivalDossierServiceTest extends TestCase {
 
@@ -183,7 +186,11 @@ class ArchivalDossierServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
 					return null;
@@ -208,7 +215,11 @@ class ArchivalDossierServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [(string)$schema, $object, $uuid, $_rbac, $_multitenancy];
 				$id = ($uuid ?? sprintf('5d1f0a10-0000-4000-8000-%012d', count($this->saves)));
 				$this->store[(string)$schema][$id] = $object;

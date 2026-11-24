@@ -30,7 +30,11 @@ namespace OCA\Decidiq\Service\Records;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DossierCategoryInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IL10N;
 
 /**
@@ -38,7 +42,7 @@ use OCP\IL10N;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
  */
-class DossierCategory {
+class DossierCategory implements DossierCategoryInterface {
 	/**
 	 * The dossier schema's key in the register, where its category lives.
 	 */
@@ -105,9 +109,10 @@ class DossierCategory {
 
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $dossierId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA),
+				uuid: $dossierId
+			),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -129,7 +134,12 @@ class DossierCategory {
 	private function dossier(string $dossierId): array {
 		$entity = null;
 		if ($dossierId !== '') {
-			$entity = $this->objectService->find(id: $dossierId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $dossierId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+				_rbac: false,
+				_multitenancy: false
+			);
 		}
 
 		if ($entity === null) {

@@ -24,19 +24,78 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCP\IGroupManager;
+
 /**
  * Shapes route steps into stage fields.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalRouteStepMapper {
+	/**
+	 * The route key the approvers a requester named travel under, keyed by step order.
+	 *
+	 * @var string
+	 */
+	public const NOMINATIONS = 'nominations';
+
+	/**
+	 * The route key naming who sent the nominations.
+	 *
+	 * @var string
+	 */
+	public const NOMINATED_BY = 'nominatedBy';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param IGroupManager|null $groups Checks a nominee against their step's
+	 *        group (REQ-DWP-009). Nullable so the mapper stays constructible
+	 *        without it; a route whose step takes a nominee is then refused,
+	 *        never travelled unchecked.
+	 */
+	public function __construct(
+		private readonly ?IGroupManager $groups = null,
+	) {
+	}//end __construct()
+
+	/**
+	 * The route with each nominated approver written onto their step.
+	 *
+	 * The nominations and who sent them are read off the route, where the
+	 * controller put them, and taken off it again.
+	 *
+	 * @param array<string, mixed> $route The route.
+	 *
+	 * @return array<string, mixed> The route, its nomination steps assigned.
+	 *
+	 * @throws \RuntimeException When a nomination is refused or cannot be checked.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	public function withNominations(array $route): array {
+		$nominations = ($route[self::NOMINATIONS] ?? []);
+		$requester   = (string)($route[self::NOMINATED_BY] ?? '');
+		unset($route[self::NOMINATIONS], $route[self::NOMINATED_BY]);
+
+		if (is_array($nominations) === false) {
+			$nominations = [];
+		}
+
+		return (new ApprovalNomination(groups: $this->groups))->applyTo(
+			route: $route,
+			nominations: $nominations,
+			requester: $requester,
+		);
+	}//end withNominations()
+
 
 	/**
 	 * A route's steps, ordered.
@@ -44,7 +103,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $route The route.
 	 *
 	 * @return array<int, array<string, mixed>> The steps.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function orderedSteps(array $route): array {
 		$steps = ($route['steps'] ?? []);
@@ -85,7 +144,7 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @return int The sequence.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sequenceOf(array $step, int $index): int {
 		$order = (int)($step['order'] ?? 0);
@@ -102,7 +161,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string Either `person` or `body`.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function decisionMakerType(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') === 'body') {
@@ -123,7 +182,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The person, or ''.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedPerson(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'person') {
@@ -139,7 +198,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The body, or ''.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedBody(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'body') {
@@ -170,7 +229,7 @@ class ApprovalRouteStepMapper {
 	 * @param int $sequence The stage's sequence.
 	 *
 	 * @return string A non-empty label.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function labelOf(array $step, int $sequence): string {
 		$label = trim((string)($step['label'] ?? ''));
@@ -192,7 +251,7 @@ class ApprovalRouteStepMapper {
 	 * @param int $firstSequence The route's first (lowest) sequence.
 	 *
 	 * @return string Either `active` or `pending`.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function initialStatus(int $sequence, int $firstSequence): string {
 		if ($sequence === $firstSequence) {
@@ -223,12 +282,14 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @return array<string, mixed> The stage fields.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	public function declaredStepFields(array $step): array {
 		$fields = [];
 
-		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind'] as $key) {
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind', 'committeeBody', 'nominationGroup', 'nominatedBy'] as $key) {
 			$value = trim((string)($step[$key] ?? ''));
 			if ($value !== '') {
 				$fields[$key] = $value;
@@ -263,5 +324,47 @@ class ApprovalRouteStepMapper {
 
 		return $fields;
 	}//end declaredStepFields()
+
+	/**
+	 * The people an ad-hoc route's steps name, in step order.
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 *
+	 * @return array<int, string> The people.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function actorsOf(array $route): array {
+		$steps = ($route['steps'] ?? []);
+		if (is_array($steps) === false) {
+			return [];
+		}
+
+		usort(
+			$steps,
+			static function (mixed $first, mixed $second): int {
+				$orderOfFirst = 0;
+				if (is_array($first) === true) {
+					$orderOfFirst = (int)($first['order'] ?? 0);
+				}
+
+				$orderOfSecond = 0;
+				if (is_array($second) === true) {
+					$orderOfSecond = (int)($second['order'] ?? 0);
+				}
+
+				return ($orderOfFirst <=> $orderOfSecond);
+			}
+		);
+
+		$actors = [];
+		foreach ($steps as $step) {
+			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
+				$actors[] = trim((string)$step['actor']);
+			}
+		}
+
+		return $actors;
+	}//end actorsOf()
 
 }//end class

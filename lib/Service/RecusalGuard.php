@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -223,7 +224,7 @@ class RecusalGuard {
 	private function loadDecision(string $decisionId): ?array {
 		// No catch: a read that fails refuses the ballot (the caller answers
 		// 400) rather than letting a recused member through unchecked.
-		$entity = $this->objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+		$entity = $this->objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($entity === null) {
 			return null;
 		}
@@ -239,14 +240,6 @@ class RecusalGuard {
 	 * @return string
 	 */
 	private function refId(mixed $ref): string {
-		if (is_string($ref) === true) {
-			return $ref;
-		}
-
-		if (is_array($ref) === true) {
-			return (string)($ref['id'] ?? $ref['uuid'] ?? '');
-		}
-
-		return '';
+		return (new ReferenceId())->referencedId(ref: $ref);
 	}//end refId()
 }//end class

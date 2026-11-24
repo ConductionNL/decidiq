@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -32,6 +32,7 @@ use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\IDateTimeZone;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -61,10 +62,11 @@ class ParallelSessionListenerTest extends TestCase {
 	 *
 	 * @param array<string, array<string, mixed>> $store    Meetings by id
 	 * @param array<int, array<string, mixed>>    $children What a parentMeeting search returns
+	 * @param string                              $zone     The reader's time zone
 	 *
 	 * @return ParallelSessionListener
 	 */
-	private function listener(array $store, array $children=[]): ParallelSessionListener {
+	private function listener(array $store, array $children=[], string $zone='Europe/Amsterdam'): ParallelSessionListener {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id) use ($store): ?ObjectEntity {
@@ -88,9 +90,23 @@ class ParallelSessionListenerTest extends TestCase {
 			}
 		);
 
-		return new ParallelSessionListener(logger: new NullLogger(), objectService: $objectService);
+		return new ParallelSessionListener(logger: new NullLogger(), objectService: $objectService, timeZone: $this->zone(name: $zone));
 
 	}//end listener()
+
+	/**
+	 * A time zone service answering the given zone.
+	 *
+	 * @param string $name The zone
+	 *
+	 * @return IDateTimeZone
+	 */
+	private function zone(string $name): IDateTimeZone {
+		$zone = $this->createMock(originalClassName: IDateTimeZone::class);
+		$zone->method('getTimeZone')->willReturn(new \DateTimeZone(timezone: $name));
+		return $zone;
+
+	}//end zone()
 
 	/**
 	 * An OR entity double that serialises to the given row.
@@ -236,6 +252,28 @@ class ParallelSessionListenerTest extends TestCase {
 	}//end testSessionOutsideItsEveningIsRefused()
 
 	/**
+	 * OpenRegister hands the evening back in UTC; the refusal still names the
+	 * evening's times as the reader keeps them.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 *
+	 * @return void
+	 */
+	public function testRefusalNamesTheEveningInTheReadersZoneWhenStoredInUtc(): void {
+		$stored = array_merge(self::EVENING, ['scheduledDate' => '2026-11-03T17:00:00+00:00', 'endDate' => '2026-11-03T22:00:00+00:00']);
+		$late   = $this->session(extra: ['scheduledDate' => '2026-11-03T22:30:00+00:00', 'endDate' => null]);
+		$create = new ObjectCreatingEvent($this->entity(row: $late));
+		$this->listener(store: ['evening-1' => $stored])->handle($create);
+
+		self::assertTrue(condition: $create->isPropagationStopped());
+		self::assertSame(
+			expected: 'A session must take place within its evening, 3 November 2026 from 18:00 to 23:00.',
+			actual: $create->getErrors()['message']
+		);
+
+	}//end testRefusalNamesTheEveningInTheReadersZoneWhenStoredInUtc()
+
+	/**
 	 * A session that points at an evening that does not exist is refused.
 	 *
 	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
@@ -263,7 +301,7 @@ class ParallelSessionListenerTest extends TestCase {
 	public function testOtherEventsAndOtherSchemasAreNotLookedAt(): void {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->expects(self::never())->method('find');
-		$listener = new ParallelSessionListener(logger: new NullLogger(), objectService: $objectService);
+		$listener = new ParallelSessionListener(logger: new NullLogger(), objectService: $objectService, timeZone: $this->zone(name: 'UTC'));
 
 		$other = new Event();
 		$listener->handle($other);
@@ -350,7 +388,7 @@ class ParallelSessionListenerTest extends TestCase {
 		};
 
 		$event = new ObjectCreatingEvent($this->entity(row: $this->session()));
-		(new ParallelSessionListener(logger: $logger, objectService: $objectService))->handle($event);
+		(new ParallelSessionListener(logger: $logger, objectService: $objectService, timeZone: $this->zone(name: 'UTC')))->handle($event);
 
 		self::assertFalse($event->isPropagationStopped());
 		self::assertSame([], $event->getModifiedData());

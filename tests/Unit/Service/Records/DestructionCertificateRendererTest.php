@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
+use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Service\Records\ArchivistGuard;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
@@ -51,6 +52,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for rendering OpenRegister's verklaring van vernietiging.
@@ -61,6 +64,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
  * @uses   \OCA\Decidiq\Exception\DossierRefusedException
+ * @uses   \OCA\Decidiq\Service\SystemObjectStore
  */
 class DestructionCertificateRendererTest extends TestCase {
 
@@ -136,7 +140,11 @@ class DestructionCertificateRendererTest extends TestCase {
 	private function renderer(): DestructionCertificateRenderer {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
 					return null;
@@ -149,7 +157,11 @@ class DestructionCertificateRendererTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = $object;
 				$this->store[(string)$schema][(string)$uuid] = $object;
 				$entity = new ObjectEntity();
@@ -363,6 +375,44 @@ class DestructionCertificateRendererTest extends TestCase {
 		$this->expectException(AccessDeniedException::class);
 		$this->renderer()->render(dossierId: self::DOSSIER);
 	}//end testOnlyAnArchivistRendersIt()
+
+	/**
+	 * A list that skipped nothing says so, a false field reads `false`, and a
+	 * dossier without a meeting is still filed.
+	 *
+	 * @return void
+	 */
+	public function testNothingSkippedIsSaidAndFalseIsWrittenOut(): void {
+		$this->lists[self::LIST] = ['status' => 'executed', 'destroyedCount' => 3, 'certificateUuid' => self::CERT];
+		$this->certificates[self::CERT]['immutable'] = false;
+		unset($this->store['archival-dossier'][self::DOSSIER]['meeting']);
+
+		$dossier = $this->renderer()->render(dossierId: self::DOSSIER);
+
+		$content = $this->files[0][2];
+		self::assertStringContainsString("- OpenRegister reported no skipped records.\n", $content);
+		self::assertStringContainsString("- **immutable**: false\n", $content);
+		self::assertSame([], $dossier['destructionCertificate']['skipped']);
+	}//end testNothingSkippedIsSaidAndFalseIsWrittenOut()
+
+	/**
+	 * An unknown or empty dossier id is missing, and nothing is filed or written.
+	 *
+	 * @return void
+	 */
+	public function testAnUnknownDossierIsMissing(): void {
+		foreach (['7a1f0a10-0000-4000-8000-00000000dead', ''] as $id) {
+			try {
+				$this->renderer()->render(dossierId: $id);
+				self::fail('A dossier that does not exist is missing: ' . $id);
+			} catch (MissingObjectException $e) {
+				self::assertSame('Dossier not found.', $e->getMessage());
+			}
+		}
+
+		self::assertSame([], $this->files);
+		self::assertSame([], $this->saves);
+	}//end testAnUnknownDossierIsMissing()
 
 	/**
 	 * Rendering is refused with the given reason.

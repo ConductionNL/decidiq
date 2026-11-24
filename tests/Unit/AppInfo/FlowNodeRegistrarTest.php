@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\AppInfo;
 
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
-use OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\FlowNodeRegistrar;
 use OCA\Decidiq\Event\DecisionConcludedEvent;
 use OCA\Decidiq\Flow\DecidiqFlowNodeListener;
 use OCA\Decidiq\Listener\FlowDecisionConcludedListener;
@@ -37,11 +37,11 @@ use PHPUnit\Framework\TestCase;
  * Application.php itself is excluded from unit coverage (it extends the
  * server's App), so a source check pins that it calls that registrar.
  *
- * @covers \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
+ * @covers \OCA\Decidiq\Listener\Registrar\FlowNodeRegistrar
  * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
- * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
- * @uses   \OCA\Decidiq\AppInfo\Registrar\TaskProcessingEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\FilesEventRegistrar
+ * @uses   \OCA\Decidiq\Listener\Registrar\TaskProcessingEventRegistrar
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
  */

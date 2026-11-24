@@ -25,7 +25,11 @@
  Nextcloud CSS variables only so the nldesign overrides apply (ADR-010).
 -->
 <template>
-	<CnDetailCard :title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+	<CnDetailCard
+		v-if="!summarised"
+		:title="cardTitle"
+		:icon="cardIcon"
+		:collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-decisions-widget__error" role="alert">
@@ -44,7 +48,41 @@
 			<!-- Detail-page (and fallback) surface: grouped list. -->
 			<template v-else>
 				<div
-					v-if="decisions.length === 0"
+					v-if="decisions.length === 0 && wording.emptyTitle"
+					class="cn-decisions-widget__empty-panel">
+					<span class="cn-decisions-widget__empty-icon" aria-hidden="true">
+						<Gavel :size="32" />
+					</span>
+					<h3 class="cn-decisions-widget__empty-title">
+						{{ wording.emptyTitle }}
+					</h3>
+					<p
+						v-if="wording.emptyText"
+						class="cn-decisions-widget__empty-text">
+						{{ wording.emptyText }}
+					</p>
+					<div class="cn-decisions-widget__empty-actions">
+						<NcButton
+							variant="primary"
+							:disabled="!objectId"
+							@click="openCreate">
+							<template #icon>
+								<Plus :size="18" />
+							</template>
+							{{ createProposalLabel }}
+						</NcButton>
+						<a
+							:href="appUrl"
+							target="_blank"
+							rel="noopener"
+							class="cn-decisions-widget__empty-link">
+							<OpenInNew :size="18" />
+							{{ openInDecidiqLabel }}
+						</a>
+					</div>
+				</div>
+				<div
+					v-else-if="decisions.length === 0"
 					class="cn-decisions-widget__empty">
 					{{ emptyLabel }}
 				</div>
@@ -78,7 +116,9 @@
 					</ul>
 				</div>
 
-				<div class="cn-decisions-widget__actions">
+				<div
+					v-if="!(decisions.length === 0 && wording.emptyTitle)"
+					class="cn-decisions-widget__actions">
 					<NcButton
 						variant="primary"
 						:disabled="!objectId"
@@ -110,20 +150,15 @@
 <script>
 import { CnDetailCard, CnFormDialog, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import {
-	createHostDecision,
-	decisionBucket,
-	isProposal,
-	listDecisionTypes,
-	listHostDecisions,
-	objId,
-	proposalFormSchema,
-} from './decisionLink.js'
+import { decisionBucket } from './decisionLink.js'
+import { hostDecisionsMixin } from './hostDecisions.js'
+import { hostProposalMixin } from './hostProposalCreate.js'
+import { hostWording } from './hostWording.js'
+import { leafReportMixin } from './leafReport.js'
 
 const DASHBOARD_SURFACES = ['user-dashboard', 'app-dashboard']
 
@@ -139,71 +174,73 @@ export default {
 		CnDetailCard,
 		CnStatusBadge,
 		CnFormDialog,
+		Gavel,
 		NcButton,
 		NcLoadingIcon,
 		OpenInNew,
 		Plus,
 	},
 
+	mixins: [leafReportMixin, hostDecisionsMixin, hostProposalMixin],
+
 	props: {
-		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
-		integrationId: { type: String, default: 'decidesk-decisions' },
-		/** OpenRegister register id of the HOST object (slug or uuid). */
-		register: { type: String, default: '' },
-		/** OpenRegister schema id of the HOST object (slug or uuid). */
-		schema: { type: String, default: '' },
-		/** UUID of the HOST object the decisions are linked to. */
-		objectId: { type: [String, Number], default: '' },
-		/** Whole integration context — used as a fallback when discrete props are absent. */
-		integrationContext: { type: Object, default: () => ({}) },
 		/** Rendering surface (AD-19). */
 		surface: { type: String, default: 'detail-page' },
-		/** Human label for the host object (shown as subjectLabel on created decisions). */
-		objectLabel: { type: String, default: '' },
 		/** Whether the card body is collapsible. */
 		collapsible: { type: Boolean, default: true },
-	},
-
-	data() {
-		return {
-			decisions: [],
-			decisionTypes: null,
-			loading: false,
-			creating: false,
-			error: '',
-			createOpen: false,
-		}
+		/**
+		 * The card title the host gives (CnDetailWidgetHost passes the widget's
+		 * translated `title`). A page that mounts this leaf twice, such as a
+		 * ticket that lists its own decisions and those on the case it became,
+		 * can so tell the two cards apart. Empty keeps "Besluitvorming".
+		 */
+		title: { type: String, default: '' },
+		/**
+		 * The empty state's title in the host's words, already translated
+		 * (nextcloud-vue `labels`). Given, an empty list draws the panel.
+		 */
+		emptyTitle: { type: String, default: '' },
+		/** The host's line under the empty state's title, already translated. */
+		emptyText: { type: String, default: '' },
+		/** The create-proposal button in the host's words, already translated. */
+		createLabel: { type: String, default: '' },
 	},
 
 	computed: {
+		/**
+		 * What this leaf reports to a "linked" card.
+		 *
+		 * @return {object} The report.
+		 * @spec openspec/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 */
+		leafReport() {
+			return {
+				count: this.decisions.length,
+				emptyLabel: this.emptyLabel,
+				noun: t('decidiq', 'decisions'),
+				rows: this.decisions.map((decision) => ({
+					label: this.rowTitle(decision),
+					href: this.decisionUrl(decision),
+					icon: 'Gavel',
+				})),
+
+				actions: [
+					{
+						label: this.openInDecidiqLabel,
+						run: () => window.location.assign(this.appUrl),
+					},
+				],
+			}
+		},
+
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
-			return t('decidiq', 'Besluitvorming')
+			return this.title || t('decidiq', 'Besluitvorming')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget icon. */
 		cardIcon() {
 			return Gavel
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
-		appUrl() {
-			return generateUrl('/apps/decidiq/decisions')
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostObjectId() {
-			return String(this.objectId || this.integrationContext.objectId || '')
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostRegister() {
-			return this.register || this.integrationContext.register || ''
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostSchema() {
-			return this.schema || this.integrationContext.schema || ''
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — adapt widget layout to the host surface. */
@@ -216,14 +253,30 @@ export default {
 			return t('decidiq', 'No decision-making linked to this object yet.')
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
-		createProposalLabel() {
-			return t('decidiq', 'Create proposal for this object')
+		/**
+		 * The host's words over the leaf's own.
+		 *
+		 * @return {object} emptyTitle, emptyText and createLabel.
+		 * @spec openspec/changes/decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
+		 */
+		wording() {
+			return hostWording(
+				{
+					emptyTitle: this.emptyTitle,
+					emptyText: this.emptyText,
+					createLabel: this.createLabel,
+				},
+				{
+					emptyTitle: '',
+					emptyText: '',
+					createLabel: t('decidiq', 'Create proposal for this object'),
+				},
+			)
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
-		openInDecidiqLabel() {
-			return t('decidiq', 'Open in decidiq')
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
+		createProposalLabel() {
+			return this.wording.createLabel
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — linked-decision count label. */
@@ -271,191 +324,13 @@ export default {
 		nonEmptyGroups() {
 			return this.groups.filter((g) => g.items.length > 0)
 		},
-
-		/**
-		 * The picker offers the REGISTRY's vocabulary, not a hardcoded list:
-		 * a type an administrator adds appears here without a release.
-		 *
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
-		 */
-		createSchema() {
-			return proposalFormSchema(this.decisionTypes)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			handler() {
-				this.refresh()
-			},
-		},
-
-		integrationContext: {
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
-	created() {
-		this.loadDecisionTypes()
 	},
 
 	methods: {
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — stable list-row key.
-		 */
-		rowKey(decision) {
-			return objId(decision)
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback.
-		 */
-		rowTitle(decision) {
-			return (
-				String(decision?.title ?? decision?.data?.title ?? '').trim()
-				|| t('decidiq', 'Untitled decision')
-			)
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label.
-		 */
-		lifecycleLabel(decision) {
-			if (isProposal(decision)) {
-				return t('decidiq', 'Proposal')
-			}
-			const lifecycle = String(
-				decision?.lifecycle ?? decision?.data?.lifecycle ?? 'decided',
-			)
-			switch (lifecycle) {
-				case 'decided':
-					return t('decidiq', 'Decided')
-				case 'enacted':
-					return t('decidiq', 'Enacted')
-				case 'archived':
-					return t('decidiq', 'Archived')
-				case 'withdrawn':
-					return t('decidiq', 'Withdrawn')
-				default:
-					return lifecycle
-			}
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
-		 */
-		lifecycleVariant(decision) {
-			if (isProposal(decision)) {
-				return 'info'
-			}
-			const lifecycle = String(
-				decision?.lifecycle ?? decision?.data?.lifecycle ?? '',
-			)
-			switch (lifecycle) {
-				case 'decided':
-				case 'enacted':
-					return 'success'
-				case 'withdrawn':
-					return 'error'
-				default:
-					return 'default'
-			}
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision.
-		 */
-		decisionUrl(decision) {
-			const id = objId(decision)
-			return id
-				? generateUrl(`/apps/decidiq/decisions/${encodeURIComponent(id)}`)
-				: this.appUrl
-		},
-
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open decidiq decisions app. */
 		openApp() {
 			if (typeof window !== 'undefined') {
 				window.open(this.appUrl, '_blank', 'noopener')
-			}
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 open create-proposal dialog. */
-		openCreate() {
-			if (this.hostObjectId) {
-				this.createOpen = true
-			}
-		},
-
-		/**
-		 * Load the decisionType vocabulary from the registry endpoint.
-		 *
-		 * Fire-and-forget from created(): until it answers, the picker offers
-		 * the shipped seed, and the schema is reactive so the configured
-		 * vocabulary replaces it the moment it arrives.
-		 *
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
-		 */
-		async loadDecisionTypes() {
-			this.decisionTypes = await listDecisionTypes()
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 load decisions for the host object. */
-		async refresh() {
-			if (!this.hostObjectId) {
-				this.decisions = []
-				return
-			}
-			this.loading = true
-			this.error = ''
-			try {
-				this.decisions = await listHostDecisions(this.hostObjectId, 100)
-			} catch (e) {
-				this.error =
-					e?.message || t('decidiq', 'Could not load decision-making.')
-			} finally {
-				this.loading = false
-			}
-		},
-
-		/**
-		 * @param formData
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
-		 */
-		async onCreate(formData) {
-			if (!this.hostObjectId || this.creating) {
-				return
-			}
-			this.creating = true
-			this.error = ''
-			try {
-				await createHostDecision({
-					title: formData.title || t('decidiq', 'Proposal'),
-					text: formData.text || '',
-					decisionType: formData.decisionType || 'motion',
-					lifecycle: 'proposed',
-					decisionDate: new Date().toISOString(),
-					outcome: 'pending',
-					// Case-linking back-reference (REQ-DCDH-001).
-					sourceApp: this.hostSchema || 'openregister',
-					subjectRegister: this.hostRegister,
-					subjectSchema: this.hostSchema,
-					subjectId: this.hostObjectId,
-					subjectLabel: this.objectLabel || this.hostObjectId,
-				})
-				this.createOpen = false
-				await this.refresh()
-			} catch (e) {
-				this.error = e?.message || t('decidiq', 'Could not create proposal.')
-			} finally {
-				this.creating = false
 			}
 		},
 	},
@@ -473,6 +348,61 @@ export default {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9em;
 	padding: 8px 0;
+}
+
+.cn-decisions-widget__empty-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 40px 24px 44px;
+	text-align: center;
+	border: 1px dashed var(--color-border-maxcontrast);
+	border-radius: var(--border-radius-container-large, 12px);
+}
+
+.cn-decisions-widget__empty-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: var(--color-background-dark);
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-widget__empty-title {
+	margin: 4px 0 0;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.cn-decisions-widget__empty-text {
+	max-width: 460px;
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-widget__empty-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.cn-decisions-widget__empty-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	height: 40px;
+	padding: 0 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-primary-element);
 }
 
 .cn-decisions-widget__headline {

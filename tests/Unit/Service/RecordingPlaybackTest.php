@@ -223,6 +223,13 @@ class RecordingPlaybackTest extends TestCase {
 	 */
 	public function testTheRecordingRouteReachesTheController(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$byName = array_column($routes['routes'], 'url', 'name');
 
 		$this->assertSame('/api/transcripts/{transcriptId}/recording', ($byName['recording#play'] ?? null));

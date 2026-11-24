@@ -20,6 +20,34 @@ export {
 } from '../../services/processTemplateGraph.js'
 
 /**
+ * Ask the server to delete one process template.
+ *
+ * @param {string} id The template id.
+ * @return {Promise<Response>} The response.
+ */
+function requestTemplateDelete(id) {
+	return fetch(
+		generateUrl('/apps/decidiq/api/process-templates/' + encodeURIComponent(id)),
+		{
+			method: 'DELETE',
+			headers: { requesttoken: getRequestToken() },
+		},
+	)
+}
+
+/**
+ * The error to keep when a delete is refused: the server's message, or the
+ * status.
+ *
+ * @param {Response} response The refused response.
+ * @return {Promise<string>} The message.
+ */
+async function deleteFailureMessage(response) {
+	const body = await response.json().catch(() => ({}))
+	return body?.message || `Delete failed (${response.status})`
+}
+
+/**
  * Admin store for process-template CRUD.
  *
  * @spec openspec/specs/process-configuration/spec.md
@@ -115,22 +143,12 @@ export const useProcessTemplatesStore = defineStore('decidiq-process-templates',
 		async deleteTemplate(id) {
 			this.error = ''
 			try {
-				const response = await fetch(
-					generateUrl(
-						'/apps/decidiq/api/process-templates/'
-							+ encodeURIComponent(id),
-					),
-					{
-						method: 'DELETE',
-						headers: { requesttoken: getRequestToken() },
-					},
-				)
+				const response = await requestTemplateDelete(id)
 				if (response.ok) {
 					await this.fetchTemplates()
 					return true
 				}
-				const body = await response.json().catch(() => ({}))
-				this.error = body?.message || `Delete failed (${response.status})`
+				this.error = await deleteFailureMessage(response)
 			} catch (e) {
 				this.error = String(e?.message || e)
 			}

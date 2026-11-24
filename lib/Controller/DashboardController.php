@@ -30,7 +30,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.1
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -38,7 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -74,7 +74,7 @@ class DashboardController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -142,11 +142,11 @@ class DashboardController extends Controller {
 	 *
 	 * @return string `simple` or `full`.
 	 *
-	 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	protected function menuStructure(): string {
 		return (new MenuStructure())->normalise(
-			stored: $this->appConfig->getValueString(Application::APP_ID, MenuStructure::KEY, '')
+			stored: $this->appConfig->getValueString(AppIdentity::APP_ID, MenuStructure::KEY, '')
 		);
 	}//end menuStructure()
 }//end class

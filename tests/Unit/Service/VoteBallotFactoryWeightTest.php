@@ -24,8 +24,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\Decidiq\Service\VoteBallotFactory;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -53,7 +55,8 @@ class VoteBallotFactoryWeightTest extends TestCase {
 	private function factory(array $objects, array $memberships = []): VoteBallotFactory {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			static function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null) use ($objects): ?ObjectEntity {
+			static function (int|string $id, ?ObjectFindOptions $options = null) use ($objects): ?ObjectEntity {
+				$schema = $options?->schema;
 				$row = ($objects[(string)$id] ?? null);
 				if ($row === null || $row['schema'] !== $schema) {
 					return null;
@@ -113,16 +116,12 @@ class VoteBallotFactoryWeightTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private static function build(VoteBallotFactory $factory, string $votingMethod, bool $isSecret = false, ?string $delegatorId = null): array {
-		return $factory->buildVote(
-			votingRoundId: 'round-1',
-			participantId: 'p-anna',
-			value: 'for',
-			isProxy: $delegatorId !== null,
-			delegatorId: $delegatorId,
-			isSecret: $isSecret,
-			existingVote: null,
-			votingMethod: $votingMethod
-		);
+		$cast = (new VoteCast(votingRoundId: 'round-1', participantId: 'p-anna', value: 'for'))->forRound(value: 'for', isSecret: $isSecret);
+		if ($delegatorId !== null) {
+			$cast = $cast->asProxy(delegatorId: $delegatorId);
+		}
+
+		return $factory->buildVote(cast: $cast, existingVote: null, votingMethod: $votingMethod);
 	}//end build()
 
 	/**

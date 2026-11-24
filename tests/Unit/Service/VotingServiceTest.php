@@ -41,6 +41,7 @@ use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantUuidLookup;
 use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteCastingService;
 use OCA\Decidiq\Service\VotingOpenedNotifier;
 use OCA\Decidiq\Service\VotingRoundCloser;
@@ -56,6 +57,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for VotingService.
@@ -63,6 +66,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
  */
 class VotingServiceTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() calls, in order.
@@ -200,13 +205,11 @@ class VotingServiceTest extends TestCase {
 		);
 
 		$objectService->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($store): ?ObjectEntity {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($store): ?ObjectEntity {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($store[(string)$id] ?? null);
 				if ($row === null || ($schema !== null && $row['schema'] !== $schema)) {
 					return null;
@@ -242,13 +245,11 @@ class VotingServiceTest extends TestCase {
 		);
 
 		$objectService->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($store, $saves): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($store, $saves): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saves->append(['schema' => (string)$schema, 'object' => $object]);
 				$id = (string)($uuid ?? $object['id'] ?? $object['uuid'] ?? ('new-' . count($saves)));
 				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
@@ -429,7 +430,7 @@ class VotingServiceTest extends TestCase {
 		// try would be swallowed by this catch.
 		$refusal = null;
 		try {
-			$service->openVotingRound('motion-uuid', 'meeting-uuid', 'for-against-abstain', false, null);
+			$this->openRoundOn($service, 'motion-uuid', 'meeting-uuid', 'for-against-abstain', false, null);
 		} catch (\RuntimeException $e) {
 			$refusal = $e;
 		}
@@ -466,7 +467,7 @@ class VotingServiceTest extends TestCase {
 			)
 		);
 
-		$result = $service->castVote('round-uuid', 'participant-uuid', 'for', false, null);
+		$result = $this->castVoteOn($service, 'round-uuid', 'participant-uuid', 'for', false, null);
 
 		$votes = $this->savesFor('vote');
 		self::assertCount(1, $votes);
@@ -519,7 +520,7 @@ class VotingServiceTest extends TestCase {
 
 		$refusal = null;
 		try {
-			$service->castVote('round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
+			$this->castVoteOn($service, 'round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
 		} catch (\RuntimeException $e) {
 			$refusal = $e;
 		}
@@ -697,7 +698,7 @@ class VotingServiceTest extends TestCase {
 			)
 		);
 
-		$service->castVote('round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
+		$service->castVote((new VoteCast(votingRoundId: 'round-uuid', participantId: 'delegate-uuid', value: 'for'))->asProxy(delegatorId: 'delegator-uuid'));
 
 		$votes = $this->savesFor('vote');
 		self::assertCount(1, $votes);
@@ -706,7 +707,7 @@ class VotingServiceTest extends TestCase {
 		self::assertStringContainsString('-proxy-', $votes[0]['@self']['slug']);
 
 		// The holder now changes their own vote: it updates their own ballot only.
-		$service->castVote('round-uuid', 'delegate-uuid', 'abstain', false, null);
+		$service->castVote(new VoteCast(votingRoundId: 'round-uuid', participantId: 'delegate-uuid', value: 'abstain'));
 
 		$votes = $this->savesFor('vote');
 		self::assertCount(2, $votes);

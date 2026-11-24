@@ -459,33 +459,50 @@ describe('the decision page in the simple structure', () => {
 		}
 	})
 
-	it('puts the blocks behind five tabs and More', () => {
+	it('puts the board tabs in the strip, History last, the rest under More', () => {
 		const strip = widgets.get('decision-panels')
 		expect(strip.type).toBe('tabs')
 		const tabs = strip.content.tabs
-		expect(strip.content.maxVisibleTabs).toBe(5)
+		expect(strip.content.maxVisibleTabs).toBe(7)
+		// Board DcBesluit: Overzicht, Route en stemming, Documenten,
+		// Consultatie, Publicatie, Historie. Responses shows on a written
+		// resolution only (writtenResolutionResponses.spec.js).
 		expect(tabs.filter((tab) => !tab.overflow).map((tab) => tab.label)).toEqual([
-			'Content',
+			'Overview',
+			'Responses',
 			'Route and voting',
 			'Documents',
 			'Consultation',
 			'Publication',
+			'History',
 		])
 		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual([
 			'Action items',
 			'Commitments',
 			'Related decisions',
+			// An amendment can target a proposal too (mot-02).
+			'Amendments',
+			'Cited governing documents',
 			'Lifecycle',
+			// followup-implementation-progress: on an adopted decision only.
+			'Implementation',
 		])
 		expect(
 			tabs.filter((tab) => !tab.overflow).map((tab) => dutch[tab.label]),
 		).toEqual([
-			'Inhoud',
+			'Overzicht',
+			'Reacties',
 			'Route en stemming',
 			'Documenten',
 			'Consultatie',
 			'Publicatie',
+			'Historie',
 		])
+		expect(widgets.get(tabs[0].widgetId).id).toBe('decision-panel-content')
+		expect(
+			widgets.get(tabs.find((tab) => tab.label === 'History').widgetId).type,
+		).toBe('audit-trail')
+		expect(LIBRARY_WIDGET_KEYS).toContain('audit-trail')
 		for (const tab of tabs) {
 			expect(widgets.has(tab.widgetId), tab.widgetId).toBe(true)
 		}
@@ -495,7 +512,16 @@ describe('the decision page in the simple structure', () => {
 		const declared = pageOf(full, 'DecisionDetail').config.widgets.map(
 			(item) => item.id,
 		)
-		expect(declared).toHaveLength(15)
+		// routes-send-proposal-along-route added the approval route block,
+		// goals-linked-to-decisions the goal block,
+		// voting-written-resolution the written resolution block,
+		// governing-documents-register the cited governing documents,
+		// publication-theme-pages the themes block,
+		// delegatie-mandaatregister the authority basis block,
+		// capability-rows-get-requirements the amendments (mot-02),
+		// followup-implementation-progress the Implementation block, and
+		// urgent-decision-procedure the urgency block.
+		expect(declared).toHaveLength(24)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {
@@ -592,10 +618,12 @@ describe('the motion page in the simple structure', () => {
 	const config = page.config
 	const actions = new Map(config.headerActions.map((item) => [item.id, item]))
 
-	it('keeps every block and its place', () => {
-		const before = pageOf(full, 'MotionDetail').config
-		expect(config.widgets).toEqual(before.widgets)
-		expect(config.layout).toEqual(before.layout)
+	it('keeps every block the manifest declares', () => {
+		// Where each block sits (tabs, side column) is simpleMotionTabs.spec.js.
+		const ids = config.widgets.map((widget) => widget.id)
+		for (const widget of pageOf(full, 'MotionDetail').config.widgets) {
+			expect(ids, widget.id).toContain(widget.id)
+		}
 	})
 
 	it('has one primary button per state, shown in that state only', () => {

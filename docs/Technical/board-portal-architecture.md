@@ -99,7 +99,7 @@ routes updated to reference universal entity IDs:
 |---|---|---|---|
 | Conflict of interest | `/api/conflicts` + `/api/conflicts/{id}/action` | POST/PUT | user |
 | eIDAS signatures | `/api/minutes/{minutesId}/eidas/*` | POST | user (signer cert) |
-| Proxy vote | `/api/proxies[/{id}/suspend\|/{id}]` | POST/GET/PUT/DELETE | user |
+| Proxy vote | `/api/proxies[/{id}/suspend\|/{id}]` | GET/PUT/DELETE | user |
 | Governance report | `/api/governance-reports[/{id}[/export/{fmt}]]` | POST/GET | user |
 | Regulator export | `/api/regulator-exports[/{id}]` | POST/GET | admin |
 | Multilingual | `/api/multilingual/queue[/process]` | POST/GET | admin |

@@ -87,6 +87,7 @@ import {
 	draftPath,
 	withDraft,
 } from '../../utils/minutesDraft.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -201,7 +202,8 @@ export default {
 			this.notice = ''
 			try {
 				const answer = await this.post(draftPath(this.minutesId))
-				const saved = await ensureRelationType('minutes').saveObject(
+				const saved = await saveOrThrow(
+					ensureRelationType('minutes'),
 					'minutes',
 					withDraft(this.minutes, answer?.preview),
 				)

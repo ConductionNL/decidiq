@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -26,6 +26,7 @@ use DateTime;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -44,8 +45,10 @@ use Psr\Log\LoggerInterface;
  * surface fails LOUDLY (error log + success=false), never silently.
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
+ * @uses   \OCA\Decidiq\Service\AuditRowFormat
+ * @uses   \OCA\Decidiq\Service\CsvCell
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 class AuditLogServiceTest extends TestCase {
 
@@ -55,6 +58,14 @@ class AuditLogServiceTest extends TestCase {
 	 * @var array<int, AuditTrail>
 	 */
 	private array $trail = [];
+
+	/**
+	 * Every findAll() the service issued against the in-memory trail, as
+	 * [limit, sort] pairs.
+	 *
+	 * @var array<int, array{limit: int|null, sort: array|null}>
+	 */
+	private array $reads = [];
 
 	/**
 	 * Mock logger, exposed so tests can assert loud failures.
@@ -78,6 +89,7 @@ class AuditLogServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->trail = [];
+		$this->reads = [];
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->hashService = $this->createMock(AuditHashService::class);
 
@@ -109,24 +121,26 @@ class AuditLogServiceTest extends TestCase {
 		);
 
 		$trail = &$this->trail;
-		$mapper = new class($trail) extends AuditTrailMapper {
+		$reads = &$this->reads;
+		$mapper = new class($trail, $reads) extends AuditTrailMapper {
 			/**
 			 * @param array<int, AuditTrail> $trail Shared entry store
+			 * @param array<int, array{limit: int|null, sort: array|null}> $reads Shared read log
 			 */
-			public function __construct(private array &$trail) {
+			public function __construct(private array &$trail, private array &$reads) {
 			}
 
 			/**
-			 * In-memory createAuditTrailEntry (production signature).
+			 * In-memory recordObjectEvent (production signature).
 			 *
-			 * @param ObjectEntity $object The object the entry relates to
-			 * @param string $action The namespaced action string
-			 * @param array $context Context payload
+			 * @param ObjectAuditEvent $event The object, action and context
 			 *
 			 * @return AuditTrail
 			 */
-			public function createAuditTrailEntry(ObjectEntity $object, string $action, array $context = [],): AuditTrail {
-				$entry = new AuditTrail();
+			public function recordObjectEvent(ObjectAuditEvent $event): AuditTrail {
+				$action  = $event->action;
+				$context = $event->context;
+				$entry   = new AuditTrail();
 				$entry->setId(count($this->trail) + 1);
 				$entry->setUuid('trail-' . (count($this->trail) + 1));
 				$entry->setAction($action);
@@ -150,6 +164,7 @@ class AuditLogServiceTest extends TestCase {
 			 * @return array
 			 */
 			public function findAll(?int $limit = null, ?int $offset = null, ?array $filters = [], ?array $sort = ['created' => 'DESC'], ?string $search = null,): array {
+				$this->reads[] = ['limit' => $limit, 'sort' => $sort];
 				$rows = $this->trail;
 
 				$actionFilter = ($filters['action'] ?? null);
@@ -276,7 +291,7 @@ class AuditLogServiceTest extends TestCase {
 		$objectService->method('find')->willReturn($this->createMock(ObjectEntity::class));
 
 		$mapper = $this->createMock(AuditTrailMapper::class);
-		$mapper->method('createAuditTrailEntry')->willThrowException(
+		$mapper->method('recordObjectEvent')->willThrowException(
 			new \RuntimeException('audit surface unavailable')
 		);
 
@@ -380,6 +395,25 @@ class AuditLogServiceTest extends TestCase {
 	}//end testExportCsvIncludesHeader()
 
 	/**
+	 * export() quotes a cell with a semicolon, so a semicolon-separated
+	 * spreadsheet keeps it in one inert cell, and keeps a formula behind
+	 * leading spaces inert.
+	 *
+	 * @return void
+	 */
+	public function testExportCsvQuotesSemicolonCells(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		$service->append(actor: 'x;=1+1;', action: 'decision-transition', objectUids: ['dec-1']);
+		$service->append(actor: '  =2+2', action: 'decision-transition', objectUids: ['dec-1']);
+
+		$lines = explode("\n", $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', 'csv')['body']);
+
+		self::assertStringContainsString(",\"x;'=1+1;\",", $lines[1]);
+		self::assertStringContainsString(",'  =2+2,", $lines[2]);
+
+	}//end testExportCsvQuotesSemicolonCells()
+
+	/**
 	 * verify() delegates to the platform chain verification and maps its
 	 * result onto the decidiq shape.
 	 *
@@ -464,4 +498,101 @@ class AuditLogServiceTest extends TestCase {
 		self::assertSame(0, $unknown['checked']);
 
 	}//end testVerifyWithEntryUuidBoundsTheChainWalk()
+
+	/**
+	 * Appending never reads the trail back, however long it already is: the
+	 * previous hash is the platform's to resolve inside recordObjectEvent(),
+	 * so the write path costs the same at row 6 as at row 10,001. Guards
+	 * against a return of the whole-chain read the old app-local writer did
+	 * on every append.
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-audit-log-chain-tail-hash/tasks.md#task-1-the-write-path-reads-nothing-back
+	 *
+	 * @return void
+	 */
+	public function testAppendNeverReadsTheTrailHowLongItIs(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		for ($i = 0; $i < 5; $i++) {
+			$service->append(actor: 'alice', action: 'vote', objectUids: ['dec-1']);
+		}
+
+		$this->hashService->expects(self::never())->method('verifyChain');
+		$this->reads = [];
+
+		for ($i = 0; $i < 3; $i++) {
+			self::assertTrue(condition: $service->append(actor: 'bob', action: 'signature', objectUids: ['dec-1'])['success']);
+		}
+
+		self::assertSame(expected: [], actual: $this->reads, message: 'append() must not read the audit trail');
+		self::assertCount(expectedCount: 8, haystack: $this->trail);
+		$appended = array_map(static fn (AuditTrail $row): string => (string)$row->getUuid(), array_slice($this->trail, 5));
+		self::assertSame(expected: ['trail-6', 'trail-7', 'trail-8'], actual: $appended);
+
+	}//end testAppendNeverReadsTheTrailHowLongItIs()
+
+	/**
+	 * A refused append reads nothing either: an unknown action, no uids and
+	 * no resolvable object all answer before the trail is touched.
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-audit-log-chain-tail-hash/tasks.md#task-1-the-write-path-reads-nothing-back
+	 *
+	 * @return void
+	 */
+	public function testRefusedAppendReadsNothing(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'not-an-action', objectUids: ['dec-1'])['success']);
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'vote', objectUids: [])['success']);
+		self::assertFalse(condition: $service->append(actor: 'alice', action: 'vote', objectUids: ['missing'])['success']);
+
+		self::assertSame(expected: [], actual: $this->reads);
+		self::assertSame(expected: [], actual: $this->trail);
+
+	}//end testRefusedAppendReadsNothing()
+
+	/**
+	 * export() keeps reading the whole decidiq slice oldest-first in one
+	 * bounded query: whole-chain reads stay on the read path.
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-audit-log-chain-tail-hash/tasks.md#task-2-whole-chain-reads-stay-on-the-read-path
+	 *
+	 * @return void
+	 */
+	public function testExportReadsTheWholeSliceOldestFirst(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		for ($i = 0; $i < 5; $i++) {
+			$service->append(actor: 'alice', action: 'vote', objectUids: ['dec-1']);
+		}
+
+		$result = $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z');
+
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: 5, actual: $result['count']);
+		self::assertSame(expected: [['limit' => 10000, 'sort' => ['created' => 'ASC']]], actual: $this->reads);
+
+	}//end testExportReadsTheWholeSliceOldestFirst()
+
+	/**
+	 * verify() never walks the trail itself: it hands the whole chain to the
+	 * platform's verifyChain() and reads no rows.
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-audit-log-chain-tail-hash/tasks.md#task-2-whole-chain-reads-stay-on-the-read-path
+	 *
+	 * @return void
+	 */
+	public function testWholeChainVerifyReadsNoRows(): void {
+		$this->hashService->expects(self::once())->method('verifyChain')->with(null)->willReturn(
+			['valid' => true, 'entriesVerified' => 3, 'brokenAt' => null, 'skippedNullHashes' => 0, 'purgedTombstones' => 0]
+		);
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		for ($i = 0; $i < 3; $i++) {
+			$service->append(actor: 'alice', action: 'vote', objectUids: ['dec-1']);
+		}
+
+		$this->reads = [];
+		self::assertSame(expected: 3, actual: $service->verify()['checked']);
+		self::assertSame(expected: [], actual: $this->reads);
+
+	}//end testWholeChainVerifyReadsNoRows()
+
 }//end class

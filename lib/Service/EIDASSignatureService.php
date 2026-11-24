@@ -31,7 +31,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,6 +42,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -49,8 +52,8 @@ use RuntimeException;
 /**
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
- * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
  */
 class EIDASSignatureService implements IEIDASSignatureService {
 
@@ -100,7 +103,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
 	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
@@ -181,7 +184,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $value The raw field value
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return string|null
 	 */
@@ -199,7 +202,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param object $entity Entity returned by ObjectService
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -217,7 +220,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $requestId UUID of the signing request
 	 * @param string $signature Base-64 encoded signature blob
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
 	 */
@@ -276,7 +279,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the BoardMinutes record
 	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
 	 */
@@ -360,7 +363,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $certThumbprint SHA-256 thumbprint of the cert
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
 	 */
@@ -554,8 +557,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the finalised Minutes record
 	 * @param string|null $signingReference Optional signing reference (docudesk signingRequest id) to store on the stage
 	 *
-	 * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-3
+	 * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
 	 *
 	 * @return void
 	 */
@@ -587,40 +590,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
 
 			foreach ($results as $stage) {
-				$current = $this->toObjectArray(entity: $stage);
-
-				$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
-				if ($stageId === '') {
-					continue;
-				}
-
-				$patch = [
-					'outcome' => 'adopted',
-					'decidedAt' => $decidedAt,
-					'status' => 'decided',
-				];
-				if ($signingReference !== null) {
-					$patch['signingReference'] = $signingReference;
-				}
-
-				$this->objectService->saveObject(
-					object: array_merge($current, $patch),
-					register: 'decidiq',
-					schema: 'decision-stage',
-					uuid: $stageId
-				);
-
-				$this->auditLogService->append(
-					actor: 'system',
-					action: 'signature',
-					objectUids: [$minutesId, $stageId],
-					payload: [
-						'phase' => 'resolve-signature-stage',
-						'stageId' => $stageId,
-						'decidedAt' => $decidedAt,
-					]
-				);
-			}//end foreach
+				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
+			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: failed to resolve method=signature DecisionStage after finalizeMinutes',
@@ -629,6 +600,53 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		}//end try
 
 	}//end resolveSignatureStage()
+
+	/**
+	 * Mark one signature stage adopted and decided, and audit it.
+	 *
+	 * @param mixed                $stage   The DecisionStage as found.
+	 * @param array<string, mixed> $signing minutesId, signingReference (or null) and decidedAt.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
+	 */
+	private function decideStage(mixed $stage, array $signing): void {
+		$current = $this->toObjectArray(entity: $stage);
+
+		$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+		if ($stageId === '') {
+			return;
+		}
+
+		$patch = [
+			'outcome' => 'adopted',
+			'decidedAt' => $signing['decidedAt'],
+			'status' => 'decided',
+		];
+		if ($signing['signingReference'] !== null) {
+			$patch['signingReference'] = $signing['signingReference'];
+		}
+
+		$this->objectService->saveObject(
+			object: array_merge($current, $patch),
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
+				uuid: $stageId
+			)
+		);
+
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$signing['minutesId'], $stageId],
+			payload: [
+				'phase' => 'resolve-signature-stage',
+				'stageId' => $stageId,
+				'decidedAt' => $signing['decidedAt'],
+			]
+		);
+	}//end decideStage()
 
 	/**
 	 * Compose a docudesk signingRequest via the ADR-019 integration registry
@@ -739,7 +757,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @throws RuntimeException When the response carries no decodable JSON body.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array<string, mixed> The decoded response body
 	 */
@@ -772,8 +790,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		try {
 			$entity = $this->objectService->find(
 				id: $minutesId,
-				register: 'decidiq',
-				schema: 'minutes'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes')
 			);
 			if ($entity === null) {
 				return;
@@ -781,9 +798,10 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 			$this->objectService->saveObject(
 				object: array_merge($this->toObjectArray(entity: $entity), $patch),
-				register: 'decidiq',
-				schema: 'minutes',
-				uuid: $minutesId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
+					uuid: $minutesId
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

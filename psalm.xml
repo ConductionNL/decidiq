@@ -36,7 +36,29 @@
             shape without putting the class back into the runtime autoloader,
             which is what caused the original defect.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectServiceInterface.php" />
+        <!--
+            The object facade as decidiq calls it today: find/findAll/saveObject
+            and patchObject take the Kernel value objects (ObjectFindOptions,
+            ObjectSaveOptions, ObjectPatch, ...). The shared hydra-gates contract
+            still declares the older positional signature, so psalm read every
+            named `options:` argument as InvalidNamedArgument and every value
+            object as UndefinedClass. These are the same stubs the unit suite
+            loads.
+        -->
+        <file name="tests/Stubs/Contract/ObjectServiceInterface.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectFindOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectFindTarget.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectSaveOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectPatch.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectDeletion.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/SaveActor.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/SavePolicy.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/BulkSaveOptions.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/BulkBatchDefaults.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/LockRequest.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/LockRunStep.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/UnlockRequest.php" />
+        <file name="tests/Stubs/Kernel/Contracts/Value/ObjectValidationVerdict.php" />
         <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectEntityInterface.php" />
 
         <!--
@@ -73,7 +95,9 @@
             Shared, not vendored per app: filinq and planninq adopted the same
             route table and carry the same call.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php" />
+        <!-- openregister #9078: aliasStoreController() takes a LeafAdoption; until the shared hydra-gates stub follows, psalm reads these. -->
+        <file name="tests/Stubs/AppHost/Bootstrap.php" preloadClasses="true" />
+        <file name="tests/Stubs/AppHost/LeafAdoption.php" preloadClasses="true" />
         <!--
             Integriq's connection-registry events (adopt-connection-registry).
             ConnectionReportService names them by string behind class_exists
@@ -101,6 +125,18 @@
         <file name="tests/Stubs/Service/Flow/FlowNodeRegistry.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowResumeState.php" preloadClasses="true" />
+        <!-- OpenRegister's object lifecycle events. Without them psalm reads every `instanceof ObjectCreatedEvent` on an OCP Event as impossible. -->
+        <file name="tests/Stubs/Event/ObjectCreatedEvent.php" />
+        <file name="tests/Stubs/Event/ObjectCreatingEvent.php" />
+        <file name="tests/Stubs/Event/ObjectUpdatedEvent.php" />
+        <file name="tests/Stubs/Event/ObjectUpdatingEvent.php" />
+        <file name="tests/Stubs/Event/ObjectDeletedEvent.php" />
+        <!-- OpenRegister value objects the leaf registration, flow conclusion and task projection construct. -->
+        <file name="tests/Stubs/Service/Flow/RunSignal.php" />
+        <file name="tests/Stubs/Service/Task/TaskTrigger.php" />
+        <file name="tests/Stubs/Service/Integration/LeafIdentity.php" />
+        <file name="tests/Stubs/Service/Integration/LeafAvailability.php" />
+        <file name="tests/Stubs/Service/Integration/LeafRendering.php" />
         <file name="tests/Stubs/Service/Flow/FlowNodeResumeState.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowSuspension.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowRunService.php" preloadClasses="true" />
@@ -110,6 +146,14 @@
         <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
         <!-- OpenRegister's validator for a lifecycle kept as data (#4291); ProcessTemplateService resolves it from the container. -->
         <file name="tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php" preloadClasses="true" />
+        <!-- Value objects of the openregister surface this branch follows (verbatim copies). -->
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleGraph.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleGraphCheck.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeCall.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/ICallFlowNode.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/NamedActor.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEventOptions.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEvent.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
@@ -168,7 +212,7 @@
         -->
         <MissingDependency>
             <errorLevel type="suppress">
-                <file name="lib/AppInfo/Registrar/DomainServiceRegistrar.php"/>
+                <file name="lib/Service/Registrar/DomainServiceRegistrar.php"/>
             </errorLevel>
         </MissingDependency>
         <PossiblyUnusedParam>
@@ -194,7 +238,7 @@
         -->
         <InvalidArgument>
             <errorLevel type="suppress">
-                <file name="lib/AppInfo/Registrar/IntegrationLeafRegistrar.php"/>
+                <file name="lib/Listener/Registrar/IntegrationLeafRegistrar.php"/>
                 <file name="lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php"/>
             </errorLevel>
         </InvalidArgument>

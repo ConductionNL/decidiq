@@ -34,6 +34,8 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
 
@@ -224,21 +226,22 @@ class DecisionWithdrawFlow {
 		// write access on this specific object (caught by withdraw(), generic error).
 		$updated = $this->objectService->saveObject(
 			object: array_merge($decision, $patch),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $decisionId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $decisionId
+			)
 		);
 
-		$this->lifecycleService->applyPostTransitionEffects(
-			objectService: $this->objectService,
-			decision: array_merge($decision, $patch),
+		$run = (new DecisionTransitionRun(
 			decisionId: $decisionId,
 			action: 'withdraw',
-			currentLifecycle: $currentLifecycle,
-			newState: 'withdrawn',
 			currentUserId: $currentUserId,
 			comment: $patch['withdrawnBy'] . ': ' . $patch['withdrawnReason']
+		))->entering(
+			transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
+			currentLifecycle: $currentLifecycle
 		);
+		$this->lifecycleService->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
 
 		return [
 			'success' => true,

@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -220,7 +221,7 @@ class VotingReminderAudience {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
+			$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		} catch (\Throwable) {
 			return null;
 		}

@@ -76,37 +76,9 @@ class AgendaPapers {
 	 * @return array<string,true> Restricted item ids as keys.
 	 */
 	public function restrictedItemIds(): array {
-		try {
-			$rows = $this->objectService->findAll(
-				config: [
-					'filters' => [
-						'register' => 'decidiq',
-						'schema' => 'confidentiality-restriction',
-						'scope' => 'item',
-					],
-				],
-				_rbac: false,
-				_multitenancy: false
-			);
-		} catch (\Throwable $e) {
-			throw new ConfidentialityUnreadableException(
-				message: 'The agenda was not published: the confidential items could not be checked. Try again in a moment.',
-				previous: $e
-			);
-		}
-
 		$restricted = [];
-		foreach (($rows['results'] ?? $rows) as $row) {
-			$data = $row;
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$data = $row->jsonSerialize();
-			}
-
-			if (is_array($data) === false || in_array(($data['lifecycle'] ?? ''), self::ACTIVE_STATES, true) === false) {
-				continue;
-			}
-
-			$target = (string)($data['targetAgendaItem'] ?? '');
+		foreach ($this->restrictionRows() as $row) {
+			$target = $this->activeRestrictionTarget(row: $row);
 			if ($target !== '') {
 				$restricted[$target] = true;
 			}
@@ -114,6 +86,76 @@ class AgendaPapers {
 
 		return $restricted;
 	}//end restrictedItemIds()
+
+	/**
+	 * Every item-scoped confidentiality restriction row.
+	 *
+	 * @return iterable<mixed>
+	 *
+	 * @throws ConfidentialityUnreadableException When the restrictions cannot be read.
+	 */
+	private function restrictionRows(): iterable {
+		try {
+			$rows = $this->readRestrictions();
+		} catch (\Throwable $e) {
+			throw new ConfidentialityUnreadableException(
+				message: 'The agenda was not published: the confidential items could not be checked. Try again in a moment.',
+				previous: $e
+			);
+		}
+
+		return ($rows['results'] ?? $rows);
+	}//end restrictionRows()
+
+	/**
+	 * Read the item-scoped restrictions, past RBAC and multitenancy.
+	 *
+	 * @return mixed The findAll() answer.
+	 */
+	private function readRestrictions(): mixed {
+		return $this->objectService->findAll(
+			config: [
+				'filters' => [
+					'register' => 'decidiq',
+					'schema' => 'confidentiality-restriction',
+					'scope' => 'item',
+				],
+			],
+			_rbac: false,
+			_multitenancy: false
+		);
+	}//end readRestrictions()
+
+	/**
+	 * The agenda item an active restriction row targets, or '' when it targets none.
+	 *
+	 * @param mixed $row A restriction row or entity.
+	 *
+	 * @return string
+	 */
+	private function activeRestrictionTarget(mixed $row): string {
+		$data = $this->rowData(row: $row);
+		if (is_array($data) === false || in_array(($data['lifecycle'] ?? ''), self::ACTIVE_STATES, true) === false) {
+			return '';
+		}
+
+		return (string)($data['targetAgendaItem'] ?? '');
+	}//end activeRestrictionTarget()
+
+	/**
+	 * A row's data: an entity's serialisation, else the row itself.
+	 *
+	 * @param mixed $row A restriction row or entity.
+	 *
+	 * @return mixed
+	 */
+	private function rowData(mixed $row): mixed {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			return $row->jsonSerialize();
+		}
+
+		return $row;
+	}//end rowData()
 
 	/**
 	 * Make the papers of one public agenda item public.
@@ -128,40 +170,14 @@ class AgendaPapers {
 	 * @return array{papers: list<array{title:string,url:string,type:string}>, refs: list<array{agendaItem:string,file:int}>}
 	 */
 	public function publish(string $itemId): array {
-		$result = ['papers' => [], 'refs' => []];
 		$fileService = $this->fileService();
 		if ($fileService === null || $itemId === '') {
-			return $result;
+			return ['papers' => [], 'refs' => []];
 		}
 
-		try {
-			$nodes = $fileService->getFiles($itemId);
-		} catch (\Throwable $e) {
-			$this->logger->warning('Decidiq publication: papers of an agenda item could not be listed', ['item' => $itemId, 'exception' => $e->getMessage()]);
-			return $result;
-		}
+		$publisher = new ItemPaperPublisher(fileService: $fileService, itemId: $itemId, logger: $this->logger);
 
-		foreach ((array)$nodes as $node) {
-			if (is_object($node) === false || $this->isLabelledConfidential(file: $fileService->formatFile($node)) === true) {
-				continue;
-			}
-
-			try {
-				$formatted = $fileService->formatFile($fileService->publishFile($itemId, $node->getId()));
-			} catch (\Throwable $e) {
-				$this->logger->warning('Decidiq publication: a paper could not be made public', ['item' => $itemId, 'exception' => $e->getMessage()]);
-				continue;
-			}
-
-			$result['papers'][] = [
-				'title' => (string)($formatted['title'] ?? ''),
-				'url' => (string)($formatted['downloadUrl'] ?? ''),
-				'type' => (string)($formatted['type'] ?? ''),
-			];
-			$result['refs'][]   = ['agendaItem' => $itemId, 'file' => (int)$node->getId()];
-		}//end foreach
-
-		return $result;
+		return $publisher->publishAll();
 	}//end publish()
 
 	/**
@@ -175,53 +191,71 @@ class AgendaPapers {
 	 * @return int The number of papers that could not be taken offline.
 	 */
 	public function unpublish(array $refs, array $keep=[]): int {
-		$kept = [];
-		foreach ($keep as $ref) {
-			if (is_array($ref) === true) {
-				$kept[($ref['agendaItem'] ?? '') . '/' . ($ref['file'] ?? '')] = true;
-			}
-		}
-
+		$kept        = $this->refKeys(refs: $keep);
 		$fileService = $this->fileService();
 		$failed      = 0;
 		foreach ($refs as $ref) {
-			if (is_array($ref) === false || isset($kept[($ref['agendaItem'] ?? '') . '/' . ($ref['file'] ?? '')]) === true) {
+			if (is_array($ref) === false || isset($kept[$this->refKey(ref: $ref)]) === true) {
 				continue;
 			}
 
-			try {
-				if ($fileService === null) {
-					throw new RuntimeException('OpenRegister FileService unavailable');
-				}
-
-				$fileService->unpublishFile((string)$ref['agendaItem'], (int)$ref['file']);
-			} catch (\Throwable $e) {
-				$failed++;
-				$this->logger->warning('Decidiq publication: a paper could not be taken offline', ['ref' => $ref, 'exception' => $e->getMessage()]);
-			}
+			$failed += $this->takeOffline(fileService: $fileService, ref: $ref);
 		}
 
 		return $failed;
 	}//end unpublish()
 
 	/**
-	 * Whether a formatted file carries a confidential label.
+	 * The keys of the well-formed refs, as a set.
 	 *
-	 * @param array<string,mixed> $file The formatted file.
+	 * @param array<int, mixed> $refs The refs.
 	 *
-	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
-	 *
-	 * @return bool
+	 * @return array<string, true>
 	 */
-	private function isLabelledConfidential(array $file): bool {
-		foreach ((array)($file['labels'] ?? []) as $label) {
-			if (in_array(strtolower((string)$label), ['confidential', 'vertrouwelijk', 'geheim'], true) === true) {
-				return true;
+	private function refKeys(array $refs): array {
+		$keys = [];
+		foreach ($refs as $ref) {
+			if (is_array($ref) === true) {
+				$keys[$this->refKey(ref: $ref)] = true;
 			}
 		}
 
-		return false;
-	}//end isLabelledConfidential()
+		return $keys;
+	}//end refKeys()
+
+	/**
+	 * One ref's key: its agenda item and file id.
+	 *
+	 * @param array<string, mixed> $ref The ref.
+	 *
+	 * @return string
+	 */
+	private function refKey(array $ref): string {
+		return ($ref['agendaItem'] ?? '') . '/' . ($ref['file'] ?? '');
+	}//end refKey()
+
+	/**
+	 * Take one paper offline; 1 when that failed (logged), else 0.
+	 *
+	 * @param object|null          $fileService OpenRegister's FileService, or null when unavailable.
+	 * @param array<string, mixed> $ref         The ref.
+	 *
+	 * @return int
+	 */
+	private function takeOffline(?object $fileService, array $ref): int {
+		try {
+			if ($fileService === null) {
+				throw new RuntimeException('OpenRegister FileService unavailable');
+			}
+
+			$fileService->unpublishFile((string)$ref['agendaItem'], (int)$ref['file']);
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq publication: a paper could not be taken offline', ['ref' => $ref, 'exception' => $e->getMessage()]);
+			return 1;
+		}
+
+		return 0;
+	}//end takeOffline()
 
 	/**
 	 * OpenRegister's FileService, or null when it is not there.

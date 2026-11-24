@@ -27,15 +27,15 @@ The system SHALL offer `roll-call` as a voting method when a round is opened. On
 
 ### Requirement: REQ-NPV-002 The chair or secretary records each member's choice
 
-The system SHALL expose `POST /api/voting-rounds/{id}/recorded-votes` to the chair and secretary of the round's meeting. It SHALL store one vote per listed participant with the given value, `entryMode: recorded`, `recordedBy` set to the caller, and `castAt` set to the time the vote was held. Posting a corrected list SHALL replace the earlier recorded votes of the same members, never add to them. A participant left out of the list SHALL have no vote.
+The system SHALL expose `POST /api/voting-rounds/{id}/named-votes` to the chair and secretary of the round's meeting. It SHALL store one vote per listed participant with the given value, `entryMode: recorded`, `recordedBy` set to the caller, and `castAt` set to the time the vote was held. Posting a corrected list SHALL replace the earlier recorded votes of the same members, never add to them. A participant left out of the list SHALL have no vote.
 
 #### Scenario: The griffier enters a paper roll call
 
-- GIVEN a closed paper vote in meeting M where Halsema and Bakker voted for and Yilmaz against
+- GIVEN a closed paper vote in meeting M where Doornbos and Bakker voted for and Yilmaz against
 - AND `griffier1` is the secretary of M
 - WHEN `griffier1` opens "Record votes by name" on the open `roll-call` round, sets the three choices and saves
 - THEN three votes exist on the round, each naming its participant, with `entryMode: recorded` and `recordedBy: griffier1`
-- AND the motion's "Votes" widget lists Halsema for, Bakker for and Yilmaz against
+- AND the motion's "Votes" widget lists Doornbos for, Bakker for and Yilmaz against
 
 #### Scenario: A whole party at once
 

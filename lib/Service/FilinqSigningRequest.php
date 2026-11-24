@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -172,7 +173,7 @@ class FilinqSigningRequest {
 	 */
 	private function record(string $schema, string $uuid): ?array {
 		try {
-			$entity = $this->objectService->find(id: $uuid, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(id: $uuid, options: new ObjectFindOptions(register: 'decidiq', schema: $schema), _rbac: false, _multitenancy: false);
 		} catch (\Throwable) {
 			return null;
 		}

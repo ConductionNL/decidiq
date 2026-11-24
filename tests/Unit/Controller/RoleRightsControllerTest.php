@@ -41,6 +41,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Controller\RoleRightsController
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  */
 class RoleRightsControllerTest extends TestCase {
 

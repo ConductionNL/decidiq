@@ -40,6 +40,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Kernel\Contracts\MeetingBroadcastServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IUserSession;
@@ -49,7 +50,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-004-a-closed-session-pauses-the-broadcast-and-closes-the-public-window
  */
-class MeetingBroadcastService {
+class MeetingBroadcastService implements MeetingBroadcastServiceInterface {
 	/**
 	 * The broadcast schema.
 	 */
@@ -488,18 +489,7 @@ class MeetingBroadcastService {
 	 * @return array<string, mixed>|null
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['id'], $data['@self']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 
 	/**
@@ -518,17 +508,6 @@ class MeetingBroadcastService {
 		}
 
 		unset($broadcast['id'], $broadcast['@self']);
-		$saved = $this->objectService->saveObject(
-			object: $broadcast,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $uuid,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: self::SCHEMA, object: $broadcast, uuid: $uuid);
 	}//end write()
 }//end class

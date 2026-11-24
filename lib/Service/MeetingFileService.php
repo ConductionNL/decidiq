@@ -24,10 +24,10 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCP\App\IAppManager;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
-use Psr\Container\ContainerInterface;
 use Throwable;
 
 /**
@@ -61,9 +61,8 @@ class MeetingFileService {
 	 * @param ProofPackageService    $proofPackage  The proof package.
 	 * @param MeetingFolderService   $folders       The meeting folder.
 	 * @param FilinqPdf              $pdf           PDF rendering through filinq.
-	 * @param ContainerInterface     $container     DI container (OpenRegister FileService, lazily).
+	 * @param OpenRegisterFiles      $files         OpenRegister, which holds the files, and its FileService.
 	 * @param IL10N                  $l10n          Translations.
-	 * @param IAppManager            $appManager    Tells whether OpenRegister is installed.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 	 */
@@ -74,9 +73,8 @@ class MeetingFileService {
 		private readonly ProofPackageService $proofPackage,
 		private readonly MeetingFolderService $folders,
 		private readonly FilinqPdf $pdf,
-		private readonly ContainerInterface $container,
+		private readonly OpenRegisterFiles $files,
 		private readonly IL10N $l10n,
-		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -114,7 +112,12 @@ class MeetingFileService {
 	 */
 	public function assemble(string $meetingId): array {
 		$minutes = $this->approvedMinutes(meetingId: $meetingId);
-		$entity  = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+		$entity  = $this->objectService->find(
+			id: $meetingId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Meeting not found', status: 404);
 		}
@@ -154,12 +157,12 @@ class MeetingFileService {
 	 */
 	private function itemDocuments(array $items): array {
 		// A meeting file without its papers would look complete and not be.
-		if ($this->appManager->isInstalled('openregister') === false) {
+		if ($this->files->installed() === false) {
 			throw new CaseSystemException(message: 'The agenda item files could not be read: OpenRegister is not installed', status: 503);
 		}
 
 		$documents = [];
-		$files     = $this->container->get('OCA\OpenRegister\Service\FileService');
+		$files     = $this->files->fileService();
 		foreach (array_keys($items) as $itemId) {
 			foreach ((array)$files->getFiles($itemId) as $node) {
 				$fileId      = (int)$node->getId();
@@ -372,7 +375,12 @@ class MeetingFileService {
 
 		$documentId = (string)($restriction['targetDocument'] ?? '');
 		if ($documentId !== '') {
-			$document = $this->objectService->find(id: $documentId, register: 'decidiq', schema: 'digital-document', _rbac: false, _multitenancy: false);
+			$document = $this->objectService->find(
+				id: $documentId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'digital-document'),
+				_rbac: false,
+				_multitenancy: false
+			);
 			$fileId   = (string)(((array)$document?->getObject())['fileId'] ?? '');
 			if ($fileId !== '') {
 				$keys[] = 'file:' . $fileId;
@@ -396,7 +404,12 @@ class MeetingFileService {
 			return '';
 		}
 
-		$ground = $this->objectService->find(id: $groundId, register: 'decidiq', schema: 'confidentiality-ground', _rbac: false, _multitenancy: false);
+		$ground = $this->objectService->find(
+			id: $groundId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'confidentiality-ground'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		$data   = (array)$ground?->getObject();
 		return (string)($data['citation'] ?? ($data['name'] ?? $groundId));
 	}//end groundName()

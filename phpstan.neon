@@ -32,6 +32,8 @@ parameters:
         # OpenRegister's flow engine (flow-request-decision-node): decidiq's
         # request-decision node implements IFlowNode, so the same reason applies.
         - tests/Stubs/Service/Flow/IFlowNode.php
+        - tests/Stubs/Service/Flow/ICallFlowNode.php
+        - tests/Stubs/Service/Flow/FlowNodeCall.php
         - tests/Stubs/Service/Flow/IFlowNodeConfigKeys.php
         - tests/Stubs/Service/Flow/FlowNodeRegistry.php
         - tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php

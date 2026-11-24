@@ -29,14 +29,13 @@
  * keep, so none is invented: the history entry records `outcomeAtWithdrawal`
  * as null. A taken decision keeps its outcome exactly as before.
  *
- * HOW IT IS REACHED
- * -----------------
- * POST /api/decisions/{decisionId}/withdraw (DecisionController::withdraw)
- * → DecisionWithdrawFlow::withdraw(), which checks the lifecycle edge,
- * calls this class, persists the decision as `withdrawn` and appends the
- * hash-chained audit entry. The decision's Lifecycle widget offers the action
- * (#1380).
- *
+ * REACHABLE THROUGH decision#withdraw
+ * -----------------------------------
+ * POST /api/decisions/{decisionId}/withdraw (DecisionController::withdraw,
+ * administrators only) → DecisionWithdrawFlow::withdraw(), which checks the
+ * lifecycle edge, calls this class, persists the decision as `withdrawn` and
+ * appends the hash-chained audit entry. The decision's Lifecycle widget offers
+ * the action (#1380). readFrom() still has no caller.
  * @category Service
  * @package  OCA\Decidiq\Service
  *

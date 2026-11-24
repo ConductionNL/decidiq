@@ -1,0 +1,1643 @@
+{
+ "info": {
+  "name": "Decidiq Mandate Remuneration Read Contract Suite",
+  "description": "Newman contract tests for change bodies-director-remuneration task 1 (REQ-DRM-001). A remuneration record is read by the secretariat and administrators in full; an ordinary member does not read it; the public group reads it only when disclosed and its publicationDate has passed. Three callers: the secretariat probe user, a member probe user and an anonymous caller. Written, not yet run: it needs a live instance (run with tests/integration/run-newman.sh and decidiq-environment.json). positionHold carries the nil UUID: the read rule does not depend on it, and building a membership and position type only to satisfy the reference would test something else.",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Create the secretariat group (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidiq-secretariat"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const tag = 'newman-drm-' + Date.now();",
+         "pm.collectionVariables.set('runTag', tag);",
+         "pm.collectionVariables.set('pastDate', new Date(Date.now() - 86400000).toISOString());",
+         "pm.collectionVariables.set('futureDate', new Date(Date.now() + 30*86400000).toISOString());",
+         "pm.collectionVariables.set('year', new Date().getFullYear());"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('group exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Create the secretary probe user (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{mrSecretaryUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{mrSecretaryPass}}"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('user exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Add the secretary to decidiq-secretariat (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{mrSecretaryUser}}/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{mrSecretaryUser}}",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidiq-secretariat"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('added', () => pm.expect(pm.response.code).to.equal(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Create the member group (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidesk-members"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('group exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Create the member probe user (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{mrMemberUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{mrMemberPass}}"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('user exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Add the member to decidesk-members (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{mrMemberUser}}/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{mrMemberUser}}",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidesk-members"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('added', () => pm.expect(pm.response.code).to.equal(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Seed a supervisory board (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"{{runTag}} board\",\n  \"bodyType\": \"supervisory-board\",\n  \"domain\": \"corporate\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('body created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'bodyId captured').to.be.a('string');",
+         "pm.collectionVariables.set('bodyId', id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Seed a board member (admin)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "person"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"{{runTag}} member\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('person created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'personId captured').to.be.a('string');",
+         "pm.collectionVariables.set('personId', id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Secretary records an undisclosed remuneration",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrSecretaryUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrSecretaryPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"positionHold\": \"00000000-0000-0000-0000-000000000000\",\n  \"person\": \"{{personId}}\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"year\": {{year}},\n  \"fixedFee\": 24000,\n  \"currency\": \"EUR\",\n  \"disclosed\": false\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the secretariat may record remuneration', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'hiddenId captured').to.be.a('string');",
+         "pm.collectionVariables.set('hiddenId', id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Secretary records a disclosed remuneration published yesterday",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrSecretaryUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrSecretaryPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"positionHold\": \"00000000-0000-0000-0000-000000000000\",\n  \"person\": \"{{personId}}\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"year\": {{year}},\n  \"fixedFee\": 18000,\n  \"meetingFee\": 350,\n  \"currency\": \"EUR\",\n  \"disclosed\": true,\n  \"publicationDate\": \"{{pastDate}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('disclosed record created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'disclosedId captured').to.be.a('string');",
+         "pm.collectionVariables.set('disclosedId', id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Secretary records a disclosed remuneration published next month",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrSecretaryUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrSecretaryPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"positionHold\": \"00000000-0000-0000-0000-000000000000\",\n  \"person\": \"{{personId}}\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"year\": {{year}},\n  \"fixedFee\": 12000,\n  \"currency\": \"EUR\",\n  \"disclosed\": true,\n  \"publicationDate\": \"{{futureDate}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('scheduled record created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'scheduledId captured').to.be.a('string');",
+         "pm.collectionVariables.set('scheduledId', id);"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "1. Who reads remuneration",
+   "item": [
+    {
+     "name": "Secretariat lists every record of the board",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration?governanceBody={{bodyId}}&_limit=50",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ],
+       "query": [
+        {
+         "key": "governanceBody",
+         "value": "{{bodyId}}"
+        },
+        {
+         "key": "_limit",
+         "value": "50"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrSecretaryUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrSecretaryPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const rows = (pm.response.json().results || []);",
+         "const ids = rows.map(r => (r['@self'] && r['@self'].id) || r.id);",
+         "pm.test('200', () => pm.expect(pm.response.code).to.equal(200));",
+         "pm.test('all three records return', () => { pm.expect(ids).to.include(pm.collectionVariables.get('hiddenId')); pm.expect(ids).to.include(pm.collectionVariables.get('disclosedId')); pm.expect(ids).to.include(pm.collectionVariables.get('scheduledId')); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "An ordinary member does not see undisclosed remuneration",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration?governanceBody={{bodyId}}&_limit=50",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ],
+       "query": [
+        {
+         "key": "governanceBody",
+         "value": "{{bodyId}}"
+        },
+        {
+         "key": "_limit",
+         "value": "50"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const rows = (pm.response.json().results || []);",
+         "const ids = rows.map(r => (r['@self'] && r['@self'].id) || r.id);",
+         "pm.test('answered', () => pm.expect(pm.response.code).to.be.oneOf([200,403]));",
+         "pm.test('the undisclosed record is not returned', () => pm.expect(ids).to.not.include(pm.collectionVariables.get('hiddenId')));",
+         "pm.test('the not-yet-published record is not returned', () => pm.expect(ids).to.not.include(pm.collectionVariables.get('scheduledId')));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Anonymous reads the disclosed, published record",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{disclosedId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{disclosedId}}"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('200', () => pm.expect(pm.response.code).to.equal(200));",
+         "pm.test('fee shown', () => pm.expect(pm.response.json().fixedFee).to.equal(18000));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Anonymous cannot read the undisclosed record",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{hiddenId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{hiddenId}}"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('refused', () => pm.expect(pm.response.code).to.be.oneOf([401,403,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Anonymous cannot read a record published in the future",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{scheduledId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{scheduledId}}"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('refused', () => pm.expect(pm.response.code).to.be.oneOf([401,403,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "A member cannot record remuneration",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{mrMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{mrMemberPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"positionHold\": \"00000000-0000-0000-0000-000000000000\",\n  \"person\": \"{{personId}}\",\n  \"governanceBody\": \"{{bodyId}}\",\n  \"year\": 2026,\n  \"fixedFee\": 1,\n  \"disclosed\": false\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('refused', () => pm.expect(pm.response.code).to.be.oneOf([401,403]));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete hiddenId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{hiddenId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{hiddenId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete disclosedId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{disclosedId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{disclosedId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete scheduledId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/mandate-remuneration/{{scheduledId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "mandate-remuneration",
+        "{{scheduledId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete personId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person/{{personId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "person",
+        "{{personId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete bodyId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{bodyId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body",
+        "{{bodyId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete the secretary probe user",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{mrSecretaryUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{mrSecretaryUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,404]));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Delete the member probe user",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{mrMemberUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{mrMemberUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,404]));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "runTag",
+   "value": ""
+  },
+  {
+   "key": "pastDate",
+   "value": ""
+  },
+  {
+   "key": "futureDate",
+   "value": ""
+  },
+  {
+   "key": "year",
+   "value": ""
+  },
+  {
+   "key": "bodyId",
+   "value": ""
+  },
+  {
+   "key": "personId",
+   "value": ""
+  },
+  {
+   "key": "hiddenId",
+   "value": ""
+  },
+  {
+   "key": "disclosedId",
+   "value": ""
+  },
+  {
+   "key": "scheduledId",
+   "value": ""
+  },
+  {
+   "key": "mrSecretaryUser",
+   "value": "newman-drm-secretary"
+  },
+  {
+   "key": "mrSecretaryPass",
+   "value": "Newman-drm-Secretary-1!"
+  },
+  {
+   "key": "mrMemberUser",
+   "value": "newman-drm-member"
+  },
+  {
+   "key": "mrMemberPass",
+   "value": "Newman-drm-Member-1!"
+  }
+ ]
+}

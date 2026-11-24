@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\DecisionLifecycleService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Service\DecisionPublicationService;
 use OCA\Decidiq\Service\DecisionWithdrawFlow;
 use OCA\Decidiq\Settings\AdminSettings;
@@ -45,9 +45,10 @@ use Psr\Log\LoggerInterface;
  * and validates outcome/publication state before persisting — preventing the
  * frontend-only guard bypass described in OWASP A01:2021 / ADR-005.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  */
 class DecisionController extends Controller {
+	use GovernanceControllerTrait;
 
 	/**
 	 * Owns the server-side publication pipeline (load, validate, persist, activity).
@@ -55,6 +56,7 @@ class DecisionController extends Controller {
 	 * @var DecisionPublicationService
 	 */
 	private readonly DecisionPublicationService $publicationService;
+
 
 	/**
 	 * Constructor for DecisionController.
@@ -64,10 +66,10 @@ class DecisionController extends Controller {
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
-	 * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
+	 * @param DecisionLifecycleServiceInterface $lifecycleService Guarded decision state machine
 	 * @param DecisionWithdrawFlow $withdrawFlow Guarded decision withdrawal (REQ-DWP-005)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -75,10 +77,10 @@ class DecisionController extends Controller {
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
 		LoggerInterface $logger,
-		private DecisionLifecycleService $lifecycleService,
+		private DecisionLifecycleServiceInterface $lifecycleService,
 		private DecisionWithdrawFlow $withdrawFlow,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
 
 	}//end __construct()
@@ -135,61 +137,11 @@ class DecisionController extends Controller {
 		);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
+			return $this->refused(result: $result);
 		}
 
 		return new JSONResponse($result);
 	}//end transition()
-
-	/**
-	 * Withdraw a decision.
-	 *
-	 * POST /api/decisions/{decisionId}/withdraw
-	 *
-	 * Expects JSON body: { "withdrawnBy": "<bestuursorgaan|belanghebbende>",
-	 * "reason": "<why, for the person who receives it>" }
-	 *
-	 * Access control is the same as transition(): OpenRegister ObjectService
-	 * RBAC inside DecisionWithdrawFlow (find/saveObject) plus the
-	 * chair-only gate when the body's policy restricts the edge.
-	 *
-	 * Returns 200 with the withdrawn decision, 401 unauthenticated, 422 when
-	 * the actor kind is missing, the decision cannot be withdrawn from its
-	 * current state, or it is not accessible.
-	 *
-	 * @param string $decisionId UUID of the Decision object
-	 *
-	 * @spec openspec/specs/decision-management/spec.md
-	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function withdraw(string $decisionId): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$result = $this->withdrawFlow->withdraw(
-			decisionId: $decisionId,
-			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
-			reason: (string)$this->request->getParam('reason', ''),
-			currentUserId: $user->getUID()
-		);
-
-		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
-		}
-
-		return new JSONResponse($result);
-	}//end withdraw()
 
 	/**
 	 * Return the current lifecycle state and allowed next transitions for a
@@ -250,10 +202,7 @@ class DecisionController extends Controller {
 		$result = $this->lifecycleService->getAvailableTransitions(decisionId: $decisionId);
 
 		if ($result['success'] === false) {
-			return new JSONResponse(
-				['message' => $result['message']],
-				Http::STATUS_NOT_FOUND
-			);
+			return $this->refused(result: $result, status: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse($result);
@@ -295,7 +244,7 @@ class DecisionController extends Controller {
 	 * in-body `isAdmin()` check is kept as defence in depth for any non-HTTP
 	 * caller that bypasses the middleware.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
 	#[AuthorizedAdminSetting(AdminSettings::class)]
 	public function publish(string $decisionId): JSONResponse {
@@ -325,4 +274,45 @@ class DecisionController extends Controller {
 
 		return new JSONResponse($result['data'], $result['status']);
 	}//end publish()
+
+	/**
+	 * Withdraw a decision, keeping its original outcome readable beside the withdrawal.
+	 *
+	 * Body: `withdrawnBy` (`bestuursorgaan` or `belanghebbende`) and `reason`.
+	 * Administrators only, as publishing is: a withdrawal changes what people
+	 * may rely on, so it is not open to every authenticated user. The
+	 * withdrawal itself runs through DecisionWithdrawFlow: the declared
+	 * `lifecycle → withdrawn` edge, the chair gate when the body's policy
+	 * restricts it, OpenRegister RBAC and the hash-chained audit entry.
+	 *
+	 * @param string $decisionId The decision.
+	 *
+	 * @return JSONResponse The withdrawn decision, or the refusal.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function withdraw(string $decisionId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		if ($this->groupManager->isAdmin($user->getUID()) === false) {
+			return new JSONResponse(['message' => 'Forbidden: only administrators may withdraw decisions.'], Http::STATUS_FORBIDDEN);
+		}
+
+		$result = $this->withdrawFlow->withdraw(
+			decisionId: $decisionId,
+			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
+			reason: (string)$this->request->getParam('reason', ''),
+			currentUserId: $user->getUID()
+		);
+
+		if ($result['success'] === false) {
+			return new JSONResponse(['message' => $result['message']], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		return new JSONResponse($result);
+	}//end withdraw()
 }//end class

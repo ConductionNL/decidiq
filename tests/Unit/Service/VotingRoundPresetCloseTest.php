@@ -32,10 +32,9 @@ use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\OriPublicationService;
-use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\Decidiq\Service\ProcessTemplateService;
 use OCA\Decidiq\Service\VotingRoundCloser;
-use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundRequest;
+use OCA\Decidiq\Service\VotingRoundResolution;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
@@ -57,25 +56,14 @@ class VotingRoundPresetCloseTest extends TestCase {
 	 * @return array<string, mixed> The voting-round payload
 	 */
 	private function payload(?string $closedAt): array {
-		$preflight = new VotingRoundPreflight(
-			logger: new NullLogger(),
-			motionService: $this->createMock(MotionService::class),
-			participantResolver: $this->createMock(ParticipantResolver::class),
-			templateService: $this->createMock(ProcessTemplateService::class),
-			objectService: $this->createMock(ObjectServiceInterface::class),
-		);
+		$request = (new VotingRoundRequest(motionId: 'mot-1', meetingId: '', votingMethod: 'for-against-abstain', isSecret: false))
+			->opening(closedAt: $closedAt, presetParticipantIds: [], revoteOfRoundId: null, rules: null);
 
-		return $preflight->buildRoundPayload(
-			motionId: 'mot-1',
-			subjectType: 'motion',
-			votingMethod: 'for-against-abstain',
-			isSecret: false,
-			closedAt: $closedAt,
-			quorumWith: true,
+		return (new VotingRoundResolution(
 			rules: ['voteThreshold' => 'simple-majority', 'abstentionHandling' => 'exclude', 'tieBreakRule' => 'rejected'],
-			revoteOfRoundId: null,
+			quorumWith: true,
 			participantIds: []
-		);
+		))->roundPayload(request: $request);
 	}//end payload()
 
 	/**

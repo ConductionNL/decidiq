@@ -263,10 +263,7 @@
                             "path": {
                                 "title": "File",
                                 "description": "Where the copy is filed in the meeting's Archive folder.",
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
+                                "type": "string"
                             },
                             "skipped": {
                                 "title": "Skipped records",

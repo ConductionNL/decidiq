@@ -23,7 +23,10 @@
 					{ "id": "dossiers-awaiting-transfer", "type": "stat", "title": "Waiting for transfer", "content": { "label": "Waiting for transfer", "icon": "ArchiveArrowUpOutline", "variant": "warning", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "closed", "disposition": "transfer" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "closed", "disposition": "transfer" } } } },
 					{ "id": "dossiers-awaiting-destruction", "type": "stat", "title": "On a destruction list", "content": { "label": "On a destruction list", "icon": "DeleteClockOutline", "variant": "warning", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "closed", "disposition": "destruction" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "closed", "disposition": "destruction" } } } },
 					{ "id": "dossiers-transferred", "type": "stat", "title": "Transferred", "content": { "label": "Transferred", "icon": "ArchiveArrowUpOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "transferred" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "transferred" } } } },
-					{ "id": "dossiers-destroyed", "type": "stat", "title": "Destroyed", "content": { "label": "Destroyed", "icon": "DeleteClockOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "destroyed" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "destroyed" } } } }
+					{ "id": "dossiers-destroyed", "type": "stat", "title": "Destroyed", "content": { "label": "Destroyed", "icon": "DeleteClockOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "destroyed" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "destroyed" } } } },
+					{ "id": "archive-ready-for-destruction", "type": "object-list", "title": "Ready for destruction", "icon": "DeleteClockOutline", "content": { "register": "decidiq", "schema": "archival-dossier", "filter": { "lifecycle": "closed", "disposition": "destruction" }, "sort": { "field": "closedAt", "dir": "asc" }, "columns": [{ "key": "title", "label": "Title" }, { "key": "governanceBody", "label": "Body" }, { "key": "closedAt", "label": "Closed" }, { "key": "selectielijstCategorie", "label": "Selection list category" }], "limit": 10, "allowCreate": false, "rowRoute": "ArchivalDossierDetail" } },
+					{ "id": "archive-disposed", "type": "object-list", "title": "Destroyed and transferred", "icon": "ArchiveArrowUpOutline", "content": { "register": "decidiq", "schema": "archival-dossier", "filter": { "lifecycle": ["destroyed", "transferred"] }, "sort": { "field": "closedAt", "dir": "desc" }, "columns": [{ "key": "title", "label": "Title" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "closedBy", "label": "Closed by" }, { "key": "closedAt", "label": "Closed" }], "limit": 10, "allowCreate": false, "rowRoute": "ArchivalDossierDetail" } },
+					{ "id": "archive-log", "type": "audit-trail", "title": "Log", "icon": "History", "content": { "scope": "app", "register": "decidiq", "maxDisplay": 20 } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "dossiers-forming", "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
@@ -31,7 +34,10 @@
 					{ "id": "3", "widgetId": "dossiers-awaiting-transfer", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "4", "widgetId": "dossiers-awaiting-destruction", "gridX": 0, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "5", "widgetId": "dossiers-transferred", "gridX": 4, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
-					{ "id": "6", "widgetId": "dossiers-destroyed", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 }
+					{ "id": "6", "widgetId": "dossiers-destroyed", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "7", "widgetId": "archive-ready-for-destruction", "gridX": 0, "gridY": 4, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "8", "widgetId": "archive-disposed", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "9", "widgetId": "archive-log", "gridX": 0, "gridY": 12, "gridWidth": 12, "gridHeight": 5 }
 				]
 			}
 		},

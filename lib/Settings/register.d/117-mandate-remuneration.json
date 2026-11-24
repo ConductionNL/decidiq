@@ -130,7 +130,8 @@
 								"publicationDate": {
 									"$lte": "$now"
 								}
-							}
+							},
+							"crossOrganisation": true
 						}
 					],
 					"update": [

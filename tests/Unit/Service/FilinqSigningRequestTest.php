@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Service\FilinqSigningRequest;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -51,7 +52,8 @@ class FilinqSigningRequestTest extends TestCase {
 	private function makeRequest(array $objects, MeetingFolderService $folders): FilinqSigningRequest {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			static function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($objects): ?ObjectEntity {
+			static function (int|string $id, ?ObjectFindOptions $options = null, mixed ...$_rest) use ($objects): ?ObjectEntity {
+				$schema = $options?->schema;
 				$key = (string)$schema . '/' . (string)$id;
 				if (isset($objects[$key]) === false) {
 					return null;

@@ -21,17 +21,19 @@
  * absent would let the subject walk past an approval that was meant to happen.
  *
  *
- * NOT REACHABLE YET, AND THAT IS THE FIRST THING TO KNOW ABOUT THIS CLASS
- * ------------------------------------------------------------------------
- * Measured 2026-09-18 with `git grep -l`: this class is named by exactly two
- * files, its own and its own unit test. Nothing in lib/ constructs it, no DI
- * registration mentions it, no route reaches it. Everything below describes what
- * it WOULD do; none of it runs today, and the green suite beside it tests the
- * class in isolation, so it cannot tell you otherwise.
+ * WHERE IT RUNS
+ * -------------
+ * ApprovalRouteService::record() has ApprovalRouteAdvancer ask
+ * assertStepMayClose() before the completion that would close a step, and
+ * writes stateForVerb() onto every action it appends, so a recorded act never reads as an open work item. Stored actions
+ * from before that write are backfilled by ApprovalActionStateRepair.
+ * The assignee's task list itself is OpenRegister's task inbox:
+ * ApprovalStageTaskProjector opens one task per active assigned stage, with the
+ * subject, the step and the stage's due date (task 1.3 of
+ * the-decision-as-a-walked-process). taskListFor() is the same list worked out
+ * from approval actions, for a caller that holds the actions rather than the
+ * inbox.
  *
- * Read this before believing a present-tense sentence further down. Scope for
- * making it reachable is in
- * openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -65,6 +67,151 @@ final class OpenApprovalGuard {
 	 * @var string
 	 */
 	public const STATE_OPEN = 'open';
+
+	/**
+	 * The state of an action that let its step pass.
+	 *
+	 * @var string
+	 */
+	public const STATE_GRANTED = 'granted';
+
+	/**
+	 * The state of an action that turned its step down or sent it back.
+	 *
+	 * @var string
+	 */
+	public const STATE_REFUSED = 'refused';
+
+	/**
+	 * The state each recorded verb ends its action in.
+	 *
+	 * A skip and a lapse let the step pass without a signature, so they end
+	 * granted, the same as StageLapsePolicy::lapseAction() writes for a lapse
+	 * that does not reject. A return sends the subject back, so it ends refused.
+	 *
+	 * @var array<string, string>
+	 */
+	private const VERB_STATES = [
+		'approved' => self::STATE_GRANTED,
+		'endorsed' => self::STATE_GRANTED,
+		'advised' => self::STATE_GRANTED,
+		'skipped' => self::STATE_GRANTED,
+		'lapsed' => self::STATE_GRANTED,
+		'rejected' => self::STATE_REFUSED,
+		'returned' => self::STATE_REFUSED,
+		// An admissibility verdict on an intake step (REQ-DWP-004).
+		'ontvankelijk' => self::STATE_GRANTED,
+		'niet-ontvankelijk' => self::STATE_REFUSED,
+	];
+
+	/**
+	 * The terminal state a recorded verb leaves its action in.
+	 *
+	 * @param string $verb The recorded verb (`approved`, `returned`, ...).
+	 *
+	 * @return string The state, or an empty string for a verb this does not know.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function stateForVerb(string $verb): string {
+		return (self::VERB_STATES[$verb] ?? '');
+	}//end stateForVerb()
+
+	/**
+	 * The open work items on a stage's step that wait on somebody other than the actor.
+	 *
+	 * A work item is an action with state `open` and no recorded verb: a row
+	 * carrying a verb is the record of something somebody did, whatever its
+	 * stored state says, so a row written before the state existed never
+	 * blocks. The actor's own open items are not counted, because the act the
+	 * actor is recording is what ends them.
+	 *
+	 * @param array<string, mixed>     $stage   The stage being completed (its `sequence` is the step).
+	 * @param array<int, mixed>        $actions The subject's actions.
+	 * @param string                   $actor   Who is acting.
+	 *
+	 * @return list<array<string, mixed>> The open items on that step waiting on others.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function othersOpenOnStep(array $stage, array $actions, string $actor): array {
+		$others = [];
+		foreach ($this->openOnStep(stage: $stage, actions: $actions) as $action) {
+			if ((string)($action['assignee'] ?? '') !== $actor) {
+				$others[] = $action;
+			}
+		}
+
+		return $others;
+	}//end othersOpenOnStep()
+
+	/**
+	 * The actor's own open work items on a stage's step, which the act ends.
+	 *
+	 * @param array<string, mixed> $stage   The stage being completed.
+	 * @param array<int, mixed>    $actions The subject's actions.
+	 * @param string               $actor   Who is acting.
+	 *
+	 * @return list<array<string, mixed>> The actor's open items on that step.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function ownOpenOnStep(array $stage, array $actions, string $actor): array {
+		$own = [];
+		foreach ($this->openOnStep(stage: $stage, actions: $actions) as $action) {
+			if ((string)($action['assignee'] ?? '') === $actor) {
+				$own[] = $action;
+			}
+		}
+
+		return $own;
+	}//end ownOpenOnStep()
+
+	/**
+	 * Refuse to close a stage's step while a mandatory open item waits on somebody else.
+	 *
+	 * @param array<string, mixed> $stage   The stage being completed.
+	 * @param array<int, mixed>    $actions The subject's actions.
+	 * @param string               $actor   Who is acting.
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException Naming each open item and its assignee.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function assertStepMayClose(array $stage, array $actions, string $actor): void {
+		$this->assertCanAdvance(
+			step: $stage,
+			actions: $this->othersOpenOnStep(stage: $stage, actions: $actions, actor: $actor)
+		);
+	}//end assertStepMayClose()
+
+	/**
+	 * The open work items recorded against a stage's step.
+	 *
+	 * @param array<string, mixed> $stage   The stage.
+	 * @param array<int, mixed>    $actions The subject's actions.
+	 *
+	 * @return list<array<string, mixed>> The open items on the stage's step.
+	 */
+	private function openOnStep(array $stage, array $actions): array {
+		$step = (int)($stage['sequence'] ?? 0);
+		$open = [];
+		foreach ($actions as $action) {
+			if (is_array($action) === false
+				|| (string)($action['state'] ?? '') !== self::STATE_OPEN
+				|| trim((string)($action['action'] ?? '')) !== ''
+				|| (int)($action['step'] ?? 0) !== $step
+			) {
+				continue;
+			}
+
+			$open[] = $action;
+		}
+
+		return $open;
+	}//end openOnStep()
 
 	/**
 	 * The open mandatory actions standing on a step.

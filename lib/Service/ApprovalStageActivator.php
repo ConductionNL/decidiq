@@ -31,7 +31,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Resolves a stage's actor rule when the stage becomes live.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012)
  */
 class ApprovalStageActivator {
 	/**
@@ -99,7 +99,7 @@ class ApprovalStageActivator {
 	 *
 	 * @throws \RuntimeException When the stage names a rule that cannot be resolved.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
 	 */
 	public function activationPatch(array $stage, string $subjectOwner = '', ?DateTimeImmutable $now = null): array {
 		$clock = ($now ?? new DateTimeImmutable());
@@ -115,17 +115,18 @@ class ApprovalStageActivator {
 			);
 		}
 
-		$resolved = $this->resolver->resolve(
+		$resolution = new ActorResolution(
 			step: [
 				'actor' => '',
 				'actorRule' => $rule,
 				'actorRuleSubject' => (string)($stage['actorRuleSubject'] ?? ''),
 			],
 			people: $this->people(),
-			subjectOwner: $subjectOwner,
-			hasAccount: $this->accountCheck(),
-			resolvedAt: $stampedAt,
 		);
+		$resolution->subjectOwner = $subjectOwner;
+		$resolution->hasAccount = $this->accountCheck();
+		$resolution->resolvedAt = $stampedAt;
+		$resolved = $this->resolver->resolve(resolution: $resolution);
 
 		$patch['assignedPerson'] = $resolved['actor'];
 		$patch['actorResolvedBy'] = $resolved['actorResolvedBy'];
@@ -153,23 +154,8 @@ class ApprovalStageActivator {
 	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away
 	 */
 	private function withAbsenceSubstitute(array $patch, string $actor, DateTimeImmutable $now): array {
-		if ($this->preferences === null || trim($actor) === '') {
-			return $patch;
-		}
-
-		try {
-			$delegate = $this->preferences->getActiveDelegate(personId: $actor, today: $now);
-		} catch (\Throwable $e) {
-			// An unreadable preference is not an absence: the stage waits on
-			// the person it names, as it did before this rule existed.
-			$this->logger?->warning(
-				'Decidiq: could not read the absence of an approval stage actor',
-				['actor' => $actor, 'reason' => $e->getMessage()]
-			);
-			return $patch;
-		}
-
-		if ($delegate === null || $delegate === '' || $delegate === $actor) {
+		$delegate = $this->absenceDelegateOf(person: $actor, now: $now);
+		if ($delegate === null) {
 			return $patch;
 		}
 
@@ -180,6 +166,43 @@ class ApprovalStageActivator {
 	}//end withAbsenceSubstitute()
 
 	/**
+	 * Who stands in for a person who is away at a moment, or null.
+	 *
+	 * An unreadable preference is not an absence: the work waits on the person
+	 * it names, as it did before this rule existed.
+	 *
+	 * @param string            $person The person the stage or step names.
+	 * @param DateTimeImmutable $now    The moment the absence must cover.
+	 *
+	 * @return string|null The delegate; null when the person is not away or names nobody else.
+	 *
+	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-001-a-substitute-approves-while-someone-is-away
+	 */
+	public function absenceDelegateOf(string $person, DateTimeImmutable $now): ?string {
+		$person = trim($person);
+		if ($this->preferences === null || $person === '') {
+			return null;
+		}
+
+		try {
+			$delegate = $this->preferences->getActiveDelegate(personId: $person, today: $now);
+		} catch (\Throwable $e) {
+			$this->logger?->warning(
+				'Decidiq: could not read the absence of an approval stage actor',
+				['actor' => $person, 'reason' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		$delegate = trim((string)$delegate);
+		if ($delegate === '' || $delegate === $person) {
+			return null;
+		}
+
+		return $delegate;
+	}//end absenceDelegateOf()
+
+	/**
 	 * The substitute of a person, or null when the record does not name exactly
 	 * one.
 	 *
@@ -187,7 +210,7 @@ class ApprovalStageActivator {
 	 *
 	 * @return string|null The substitute.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function substituteOf(string $person): ?string {
 		if (trim($person) === '') {
@@ -208,7 +231,7 @@ class ApprovalStageActivator {
 	 *
 	 * @return string|null The manager.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function managerOf(string $person): ?string {
 		if (trim($person) === '') {
@@ -216,14 +239,15 @@ class ApprovalStageActivator {
 		}
 
 		try {
-			$resolved = $this->resolver->resolve(
+			$resolution = new ActorResolution(
 				step: [
 					'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 					'actorRuleSubject' => $person,
 				],
 				people: $this->people(),
-				hasAccount: $this->accountCheck(),
 			);
+			$resolution->hasAccount = $this->accountCheck();
+			$resolved = $this->resolver->resolve(resolution: $resolution);
 		} catch (\Throwable $e) {
 			$this->logger?->info(
 				'Decidiq: no manager resolved for an escalating approval stage',
@@ -259,9 +283,9 @@ class ApprovalStageActivator {
 	/**
 	 * Whether a resolved person can sign on this instance.
 	 *
-	 * @return callable(string): bool|null The check, or null when there is no user manager.
+	 * @return \Closure(string): bool|null The check, or null when there is no user manager.
 	 */
-	private function accountCheck(): ?callable {
+	private function accountCheck(): ?\Closure {
 		if ($this->userManager === null) {
 			return null;
 		}

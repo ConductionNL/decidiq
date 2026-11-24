@@ -25,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Who is asking for a route.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
  */
 enum ApprovalPrincipal: string {
 	// Anybody else, including an ordinary signed-in user. The default
@@ -54,7 +54,7 @@ enum ApprovalPrincipal: string {
 	 *
 	 * @return bool True for an administrator.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function isAdministrator(): bool {
 		return ($this === self::Administrator);

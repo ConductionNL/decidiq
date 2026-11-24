@@ -31,8 +31,12 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 
@@ -41,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
-class BoardEvaluationResponseService {
+class BoardEvaluationResponseService implements BoardEvaluationResponseServiceInterface {
 
 	/**
 	 * App-config key holding the HMAC secret. Deliberately the SAME key
@@ -100,8 +104,7 @@ class BoardEvaluationResponseService {
 		try {
 			$entity = $this->objectService()->find(
 				id: $evaluationId,
-				register: 'decidiq',
-				schema: 'board-evaluation'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation')
 			);
 			if ($entity !== null) {
 				$evaluation = $entity->jsonSerialize();
@@ -146,29 +149,22 @@ class BoardEvaluationResponseService {
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 	 */
 	public function submitResponse(string $evaluationId, string $participantId, array $answers): array {
-		if ($evaluationId === '' || $participantId === '') {
-			return ['success' => false, 'message' => 'An evaluation id and participant id are required.'];
-		}
-
-		if (empty($answers) === true) {
-			return ['success' => false, 'message' => 'At least one answer is required.'];
+		$missing = $this->missingInput(input: ['evaluationId' => $evaluationId, 'participantId' => $participantId, 'answers' => $answers]);
+		if ($missing !== null) {
+			return $missing;
 		}
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
 
 			$evaluation = $entity->jsonSerialize();
-			if ((string)($evaluation['lifecycle'] ?? '') !== 'open') {
-				return ['success' => false, 'message' => 'This evaluation is not open for responses.'];
-			}
-
-			$invited = (array)($evaluation['invitedParticipantIds'] ?? []);
-			if (in_array($participantId, $invited, true) === false) {
-				return ['success' => false, 'message' => 'This participant is not invited to this evaluation cycle.'];
+			$refusal = $this->evaluationRefusal(evaluation: $evaluation, participantId: $participantId);
+			if ($refusal !== null) {
+				return $refusal;
 			}
 
 			$responseToken = $this->responseToken(participantId: $participantId, evaluationId: $evaluationId);
@@ -191,7 +187,10 @@ class BoardEvaluationResponseService {
 				],
 			];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'evaluation-response', object: $response);
+			$saved = $objectService->saveObject(
+				object: $response,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'evaluation-response'))
+			);
 
 			// Completion tracking lives on the BoardEvaluation roster, entirely
 			// separate from the response content saved above.
@@ -207,6 +206,50 @@ class BoardEvaluationResponseService {
 		}//end try
 
 	}//end submitResponse()
+
+	/**
+	 * The failure when the evaluation id, participant id or answers are missing, else null.
+	 *
+	 * @param array<string, mixed> $input evaluationId, participantId and answers.
+	 *
+	 * @return array{success: false, message: string}|null
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+	 */
+	private function missingInput(array $input): ?array {
+		if ($input['evaluationId'] === '' || $input['participantId'] === '') {
+			return ['success' => false, 'message' => 'An evaluation id and participant id are required.'];
+		}
+
+		if (empty($input['answers']) === true) {
+			return ['success' => false, 'message' => 'At least one answer is required.'];
+		}
+
+		return null;
+	}//end missingInput()
+
+	/**
+	 * The failure when the evaluation is not open or the participant is not invited, else null.
+	 *
+	 * @param array<string, mixed> $evaluation    The BoardEvaluation.
+	 * @param string               $participantId The responding participant.
+	 *
+	 * @return array{success: false, message: string}|null
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+	 */
+	private function evaluationRefusal(array $evaluation, string $participantId): ?array {
+		if ((string)($evaluation['lifecycle'] ?? '') !== 'open') {
+			return ['success' => false, 'message' => 'This evaluation is not open for responses.'];
+		}
+
+		$invited = (array)($evaluation['invitedParticipantIds'] ?? []);
+		if (in_array($participantId, $invited, true) === false) {
+			return ['success' => false, 'message' => 'This participant is not invited to this evaluation cycle.'];
+		}
+
+		return null;
+	}//end evaluationRefusal()
 
 	/**
 	 * Reduce raw submitted answers to the persisted answer shape.
@@ -299,7 +342,7 @@ class BoardEvaluationResponseService {
 
 		// Re-fetch to reduce (not eliminate) a lost-update race between the
 		// response write above and this roster update.
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity !== null) {
 			$evaluation = $entity->jsonSerialize();
 		}
@@ -312,7 +355,10 @@ class BoardEvaluationResponseService {
 		$evaluation['respondedParticipantIds'] = array_values($responded);
 		$evaluation['respondedCount'] = count($responded);
 
-		$objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+		$objectService->saveObject(
+			object: $evaluation,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+		);
 
 	}//end recordCompletion()
 
@@ -343,10 +389,10 @@ class BoardEvaluationResponseService {
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 	 */
 	private function tokenSecret(): string {
-		$secret = $this->appConfig->getValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, '');
+		$secret = $this->appConfig->getValueString(AppIdentity::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, $secret);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, $secret);
 		}
 
 		return $secret;
@@ -361,15 +407,7 @@ class BoardEvaluationResponseService {
 	 * @return array<string, mixed>
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**

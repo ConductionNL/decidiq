@@ -20,24 +20,25 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
 use OCA\Decidiq\Service\ApprovalPrincipal;
-use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
-use OCA\Decidiq\Service\ApprovalRouteService;
-use OCA\Decidiq\Service\SubjectClearanceService;
+use OCA\Decidiq\Service\ApprovalRouteFlowStarter;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IRequest;
 use OCP\IGroupManager;
+use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -45,32 +46,35 @@ use Throwable;
 /**
  * Instantiate and advance approval routes.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 class ApprovalRouteController extends Controller {
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param ApprovalRouteService $service The route engine.
-	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
-	 * @param SubjectClearanceService $clearanceService Answers whether a subject is cleared.
+	 * @param ApprovalRouteServiceInterface $service The route engine.
+	 * @param ApprovalRouteConclusionAnnouncerInterface $announcer The one door a conclusion leaves by.
+	 * @param SubjectClearanceServiceInterface $clearanceService Answers whether a subject is cleared.
 	 * @param IUserSession $userSession The session.
 	 * @param IGroupManager $groupManager Group manager, used only to answer
 	 *        whether the caller may declare that a step's silence approves
 	 *        (REQ-AR-015).
 	 * @param LoggerInterface $logger Logger.
+	 * @param ApprovalRouteFlowStarter|null $flows Starts a template route as an OpenRegister flow run;
+	 *        null keeps every send on the old engine.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ApprovalRouteService $service,
-		private readonly ApprovalRouteConclusionAnnouncer $announcer,
-		private readonly SubjectClearanceService $clearanceService,
+		private readonly ApprovalRouteServiceInterface $service,
+		private readonly ApprovalRouteConclusionAnnouncerInterface $announcer,
+		private readonly SubjectClearanceServiceInterface $clearanceService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
+		private readonly ?ApprovalRouteFlowStarter $flows = null,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -78,7 +82,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The created stages, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function instantiate(): JSONResponse {
@@ -105,19 +109,50 @@ class ApprovalRouteController extends Controller {
 
 			// Held or instantiated, depending on the route's origin. See
 			// stagesFor() for why an adhoc route writes no template row.
+			if ($this->runsAsFlow(route: $route, subject: $subject, subjectSchema: $subjectSchema) === true) {
+				$started = $this->flows->start(route: $route, decision: $subject);
+
+				return new JSONResponse(['stages' => [], 'run' => $started['run']], Http::STATUS_CREATED);
+			}
+
 			$stages = $this->stagesFor(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
 			// gets the reason rather than a generic failure.
 			$this->logger->warning(
 				'Decidiq: could not instantiate an approval route',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * Whether this send starts an OpenRegister flow run instead of the old engine.
+	 *
+	 * A template route sent for a decision runs as a flow. An ad-hoc route, a
+	 * route on another kind of subject, and a decision whose route is already
+	 * under way on the old engine stay where they are: a half-way route is never
+	 * restarted from step one (REQ-ARF-008).
+	 *
+	 * @param array<string, mixed> $route         The route as the caller sent it.
+	 * @param string               $subject       The subject's UUID.
+	 * @param string               $subjectSchema The subject's schema slug.
+	 *
+	 * @return bool True when the send starts a flow run.
+	 *
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-002-sending-a-proposal-starts-one-flow-run-with-the-decision-as-its-subject
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-008-routes-that-run-on-the-old-engine-finish-there
+	 */
+	private function runsAsFlow(array $route, string $subject, string $subjectSchema): bool {
+		if ($this->flows === null || $subjectSchema !== 'decision' || (string)($route['origin'] ?? '') === 'adhoc') {
+			return false;
+		}
+
+		return $this->service->stagesFor(subject: $subject) === [];
+	}//end runsAsFlow()
 
 	/**
 	 * The stages this route produces, held or instantiated.
@@ -132,17 +167,28 @@ class ApprovalRouteController extends Controller {
 	 * @param string $subjectSchema The subject's schema slug.
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
 	 */
 	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
 		if ((string)($route['origin'] ?? '') === 'adhoc') {
+			$held = $this->service->heldRouteFrom(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+
 			return $this->service->holdFor(
-				subject: $subject,
-				actors: $this->actorsOf(route: $route),
-				subjectSchema: $subjectSchema,
-				deadline: (string)$this->request->getParam('deadline', ''),
-				name: (string)($route['name'] ?? 'Review'),
-				askSubstituteAfter: $this->askSubstituteAfter(),
+				request: $held->due(
+					deadline: (string)$this->request->getParam('deadline', ''),
+					askSubstituteAfter: $this->askSubstituteAfter()
+				)
 			);
+		}
+
+		// The approvers the requester named travel on the route, and who named
+		// them is the session's user, never what the body says (REQ-DWP-009).
+		unset($route['nominations'], $route['nominatedBy']);
+		$nominations = $this->nominations();
+		if ($nominations !== []) {
+			$route['nominations'] = $nominations;
+			$route['nominatedBy'] = $this->requester();
 		}
 
 		return $this->service->instantiate(
@@ -154,12 +200,44 @@ class ApprovalRouteController extends Controller {
 	}//end stagesFor()
 
 	/**
+	 * The approvers the requester named, keyed by step order.
+	 *
+	 * @return array<mixed, mixed> The nominations; empty when none were sent.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function nominations(): array {
+		$nominations = $this->request->getParam('nominations', []);
+		if (is_array($nominations) === false) {
+			return [];
+		}
+
+		return $nominations;
+	}//end nominations()
+
+	/**
+	 * Who names the approvers: the signed-in user.
+	 *
+	 * @return string The user id, or empty.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function requester(): string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end requester()
+
+	/**
 	 * When a held route asks each approver's substitute too, as a fraction of
 	 * the step's term, or null when the request asks none (#1397).
 	 *
 	 * @return float|null
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	private function askSubstituteAfter(): ?float {
 		$value = $this->request->getParam('askSubstituteAfter');
@@ -185,7 +263,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return ApprovalPrincipal The caller, as the route rules see them.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	private function callerPrincipal(): ApprovalPrincipal {
 		$user = $this->userSession->getUser();
@@ -201,48 +279,6 @@ class ApprovalRouteController extends Controller {
 	}//end callerPrincipal()
 
 	/**
-	 * The people an ad-hoc route's steps name, in step order.
-	 *
-	 * @param array<string, mixed> $route The route as the caller sent it.
-	 *
-	 * @return array<int, string> The people.
-	 *
-	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
-	 */
-	private function actorsOf(array $route): array {
-		$steps = ($route['steps'] ?? []);
-		if (is_array($steps) === false) {
-			return [];
-		}
-
-		usort(
-			$steps,
-			static function (mixed $first, mixed $second): int {
-				$orderOfFirst = 0;
-				if (is_array($first) === true) {
-					$orderOfFirst = (int)($first['order'] ?? 0);
-				}
-
-				$orderOfSecond = 0;
-				if (is_array($second) === true) {
-					$orderOfSecond = (int)($second['order'] ?? 0);
-				}
-
-				return ($orderOfFirst <=> $orderOfSecond);
-			}
-		);
-
-		$actors = [];
-		foreach ($steps as $step) {
-			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
-				$actors[] = trim((string)$step['actor']);
-			}
-		}
-
-		return $actors;
-	}//end actorsOf()
-
-	/**
 	 * Record an action on a subject's active stage.
 	 *
 	 * The ACTOR IS TAKEN FROM THE SESSION, never from the body. Reading it from
@@ -251,7 +287,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The recorded action, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function record(): JSONResponse {
@@ -279,7 +315,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: an approval action was refused',
-				['app' => Application::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -308,7 +344,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The clearance answer, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	#[NoAdminRequired]
 	public function clearance(): JSONResponse {
@@ -333,7 +369,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not answer a clearance question',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}

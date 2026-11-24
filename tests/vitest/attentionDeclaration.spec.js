@@ -125,7 +125,10 @@ describe('the declared item is the dashboard\'s own "First today" card', () => {
 		expect(item.reason).toBe(card.reason)
 		expect(item.op ?? 'gt').toBe(card.visibleWhen.op)
 		expect(item.value ?? 0).toBe(card.visibleWhen.value)
-		expect(item.action.label).toBe(card.actions[0].label)
+		// The card's primary action (drawn last since the board), not its first.
+		const primary =
+			card.actions.find((action) => action.primary) ?? card.actions[0]
+		expect(item.action.label).toBe(primary.label)
 	})
 
 	it('ranks as a warning in LaunchPad, though the card is drawn in the error colour', () => {
@@ -183,7 +186,9 @@ describe('the declared item is the dashboard\'s own "First today" card', () => {
 	})
 
 	it("opens the list the card's button opens, with the filter the card links with", () => {
-		const route = card.actions[0].route
+		const primary =
+			card.actions.find((action) => action.primary) ?? card.actions[0]
+		const route = primary.route
 		const target = builtSimple.pages.find((page) => page.id === route.name)
 		expect(target, route.name).toBeTruthy()
 		expect(item.action.path).toBe(target.route)

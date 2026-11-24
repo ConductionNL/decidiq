@@ -23,7 +23,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\CaseDocumentServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
@@ -33,7 +37,7 @@ use Throwable;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-003-the-griffier-fetches-case-documents-onto-the-item-once-each
  */
-class CaseDocumentService {
+class CaseDocumentService implements CaseDocumentServiceInterface {
 	/**
 	 * Constructor.
 	 *
@@ -78,7 +82,10 @@ class CaseDocumentService {
 
 		$item['caseReference'] = $case;
 		unset($item['id'], $item['@self']);
-		$this->objectService->saveObject(object: $item, register: 'decidiq', schema: 'agenda-item', uuid: $itemId);
+		$this->objectService->saveObject(
+			object: $item,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'agenda-item'), uuid: $itemId)
+		);
 
 		return $case;
 	}//end link()
@@ -229,7 +236,7 @@ class CaseDocumentService {
 	 * @return array<string,mixed>
 	 */
 	private function item(string $itemId): array {
-		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $itemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Agenda item not found', status: 404);
 		}

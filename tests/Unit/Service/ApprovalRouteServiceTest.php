@@ -17,17 +17,23 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalPrincipal;
+use OCA\Decidiq\Service\ApprovalRouteAdvancer;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
 use OCA\Decidiq\Service\DecisionStageLabelRepair;
+use OCA\Decidiq\Service\HeldRouteRequest;
 use OCA\Decidiq\Service\MandateDirectory;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\Decidiq\Service\StepThresholdRecomputer;
 use OCA\Decidiq\Service\WorkingDayDeadlineSplitter;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the approval-route engine.
@@ -230,11 +236,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testARouteIsHeldFromNamedPeopleInOrder(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-1',
-			actors: ['j.jansen', 'd.devries', 'b.bakker'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-1', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']));
 
 		$this->assertCount(3, $stages);
 		$this->assertSame(
@@ -259,11 +261,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testAHeldRouteIsMarkedAdhoc(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-2',
-			actors: ['j.jansen'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-2', subjectSchema: 'decision', actors: ['j.jansen']));
 
 		$this->assertSame('adhoc', (string)$stages[0]['origin']);
 	}//end testAHeldRouteIsMarkedAdhoc()
@@ -278,12 +276,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	public function testOneDeadlineIsDividedOverTheSteps(): void {
 		$deadline = (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM);
 
-		$stages = $this->service()->holdFor(
-			subject: 'document-3',
-			actors: ['j.jansen', 'd.devries', 'b.bakker'],
-			subjectSchema: 'decision',
-			deadline: $deadline,
-		);
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'b.bakker']))->due(deadline: $deadline, askSubstituteAfter: null));
 
 		$dueDates = array_map(static fn (array $stage): string => (string)$stage['dueAt'], $stages);
 
@@ -299,16 +292,10 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function testAHeldRouteCanAskTheSubstitute(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-3b',
-			actors: ['j.jansen', 'd.devries'],
-			subjectSchema: 'decision',
-			deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM),
-			askSubstituteAfter: 0.5,
-		);
+		$stages = $this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-3b', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']))->due(deadline: (new \DateTimeImmutable('+30 days'))->format(\DateTimeImmutable::ATOM), askSubstituteAfter: 0.5));
 
 		foreach ($this->stages() as $stage) {
 			$this->assertSame(0.5, $stage['askSubstituteAfter'] ?? null, 'Every held step must carry askSubstituteAfter');
@@ -325,11 +312,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-009)
 	 */
 	public function testNoDeadlineWritesNoDueDates(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-4',
-			actors: ['j.jansen', 'd.devries'],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-4', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries']));
 
 		foreach ($stages as $stage) {
 			$this->assertSame('', (string)($stage['dueAt'] ?? ''));
@@ -345,11 +328,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
 	 */
 	public function testAPersonNamedTwiceIsAskedOnce(): void {
-		$stages = $this->service()->holdFor(
-			subject: 'document-5',
-			actors: ['j.jansen', 'd.devries', 'j.jansen', ''],
-			subjectSchema: 'decision',
-		);
+		$stages = $this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-5', subjectSchema: 'decision', actors: ['j.jansen', 'd.devries', 'j.jansen', '']));
 
 		$this->assertCount(2, $stages);
 	}//end testAPersonNamedTwiceIsAskedOnce()
@@ -365,7 +344,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('needs at least one person');
 
-		$this->service()->holdFor(subject: 'document-6', actors: ['', '  '], subjectSchema: 'decision');
+		$this->service()->holdFor(request: new HeldRouteRequest(subject: 'document-6', subjectSchema: 'decision', actors: ['', '  ']));
 	}//end testAHeldRouteWithNobodyOnItIsRefused()
 
 	/**
@@ -379,12 +358,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('could not be read as a date');
 
-		$this->service()->holdFor(
-			subject: 'document-7',
-			actors: ['j.jansen'],
-			subjectSchema: 'decision',
-			deadline: 'end of the month',
-		);
+		$this->service()->holdFor(request: (new HeldRouteRequest(subject: 'document-7', subjectSchema: 'decision', actors: ['j.jansen']))->due(deadline: 'end of the month', askSubstituteAfter: null));
 	}//end testAnUnreadableDeadlineIsRefused()
 
 	/**
@@ -424,13 +398,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 
 				// saveObject returns an ENTITY, not an array. The store already
@@ -446,12 +418,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 
 				$entity = $this->createMock(ObjectEntityInterface::class);
@@ -466,13 +437,11 @@ class ApprovalRouteServiceTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -898,7 +867,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnOrdinaryUserCannotDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -928,7 +897,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testTheRefusedRouteWritesNoStageAtAll(): void {
 		$route = $this->route();
@@ -954,7 +923,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnAdministratorMayDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -980,7 +949,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAStoredRouteWithoutAnApprovingSilenceStillInstantiates(): void {
 		$route = $this->route();
@@ -1062,4 +1031,614 @@ class ApprovalRouteServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('approvalBasis', $this->stages()[0]);
 	}
 
+
+	/**
+	 * Seed an approval action row straight into the fake, as a stored row.
+	 *
+	 * @param string               $uuid The row's uuid.
+	 * @param array<string, mixed> $row  The row.
+	 *
+	 * @return void
+	 */
+	private function seedAction(string $uuid, array $row): void {
+		$this->objectService->rows['approval-action'][$uuid] = ($row + ['id' => $uuid]);
+	}
+
+	/**
+	 * Every recorded act carries the state it ends in, so none reads as open.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testARecordedActCarriesItsTerminalState(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'returned', 'returnToStep' => 2, 'comment' => 'Onvolledig']);
+
+		$states = array_map(
+			static fn (array $a): string => (string)$a['action'] . ':' . (string)$a['state'],
+			array_values($this->objectService->rows['approval-action'])
+		);
+		$this->assertSame(['advised:granted', 'endorsed:granted', 'returned:refused'], $states);
+	}
+
+	/**
+	 * An open mandatory approval assigned to somebody else holds the step, and
+	 * the refusal names it; nothing is written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$before = $this->statuses();
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+			$this->fail('An open mandatory approval must hold the step.');
+		} catch (RuntimeException $e) {
+			$this->assertSame('This subject is waiting on an approval: j.jansen at step 1.', $e->getMessage());
+		}
+
+		$this->assertSame($before, $this->statuses(), 'A refused advance changes no stage.');
+		$this->assertSame(['open-1'], array_keys($this->objectService->rows['approval-action']), 'A refused advance records no action.');
+	}
+
+	/**
+	 * The actor's own open approval does not hold them up; their act ends it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testTheActorsOwnOpenApprovalIsEndedByTheirAct(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'open-1', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'bob']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+		$this->assertSame('granted', $this->objectService->rows['approval-action']['open-1']['state']);
+	}
+
+	/**
+	 * Open approvals on another step, on an optional step, or rows that record
+	 * an act but still read `open` (stored before the state was written) never
+	 * hold the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-001)
+	 */
+	public function testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(thirdMandatory: false), subject: 'subj-1', subjectSchema: 'proposal');
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'legacy', row: ['subject' => 'subj-1', 'step' => 1, 'actor' => 'x', 'action' => 'advised', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$this->seedAction(uuid: 'other-subject', row: ['subject' => 'subj-2', 'step' => 1, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'advised', 'advice' => 'Akkoord']);
+		$this->assertSame(['decided', 'active', 'pending'], $this->statuses());
+
+		try {
+			$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+			$this->fail('The open approval on step 2 must hold step 2.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('j.jansen at step 2', $e->getMessage());
+		}
+
+		// An optional step is never held: skipping it is already allowed.
+		$this->seedAction(uuid: 'later', row: ['subject' => 'subj-1', 'step' => 2, 'actor' => 'alice', 'action' => 'endorsed', 'state' => 'granted']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'alice', 'action' => 'endorsed']);
+		$this->seedAction(uuid: 'optional', row: ['subject' => 'subj-1', 'step' => 3, 'actor' => '', 'action' => '', 'state' => 'open', 'assignee' => 'j.jansen']);
+		$service->record(['subject' => 'subj-1', 'actor' => 'carol', 'action' => 'skipped']);
+		$this->assertSame(['decided', 'decided', 'skipped'], $this->statuses());
+	}
+
+	/**
+	 * A route opening with an intake step, on a decision.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function intakeRoute(): array {
+		return [
+			'name' => 'Intake route',
+			'steps' => [
+				['order' => 1, 'stageType' => 'decisive', 'stepKind' => 'intake', 'actorType' => 'person', 'actor' => 'alice', 'label' => 'Ontvankelijkheid'],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict closes the route at intake and no later step becomes live.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnInadmissibleRequestEndsTheRouteAtIntake(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => 'Artikel 4:5 Awb']);
+
+		$this->assertSame(['decided', 'pending'], $this->statuses());
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('outcome', $this->stages()[1]);
+		$this->assertSame('niet-ontvankelijk', $recorded['action']);
+		$this->assertSame('refused', $recorded['state']);
+		$this->assertSame('Artikel 4:5 Awb', $recorded['comment']);
+		$this->assertSame(
+			['ontvankelijkheid' => 'niet-ontvankelijk', 'ontvankelijkheidGround' => 'Artikel 4:5 Awb', 'ontvankelijkheidDecidedBy' => 'alice', 'id' => 'dec-1'],
+			$this->objectService->rows['decision']['dec-1']
+		);
+	}
+
+	/**
+	 * An ontvankelijk verdict completes the intake step and the route walks on.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAnAdmissibleRequestWalksOn(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$recorded = $service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'ontvankelijk']);
+
+		$this->assertSame(['decided', 'active'], $this->statuses());
+		$this->assertSame('ontvankelijk', $this->stages()[0]['outcome']);
+		$this->assertSame('granted', $recorded['state']);
+		$this->assertSame('ontvankelijk', $this->objectService->rows['decision']['dec-1']['ontvankelijkheid']);
+	}
+
+	/**
+	 * The verdict is written onto the subject only when the subject is a decision.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnotherSubjectStaysOnTheRoute(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'case-1', subjectSchema: 'proposal');
+
+		$service->record(['subject' => 'case-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'comment' => 'Te laat ingediend']);
+
+		$this->assertSame('ended-at-intake', $this->stages()[0]['outcome']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * A niet-ontvankelijk verdict without a ground is refused and leaves no trace.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictWithoutAGroundIsRefusedAndWritesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		try {
+			$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'niet-ontvankelijk', 'ground' => '  ']);
+			$this->fail('A verdict without a ground was accepted.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('needs the ground it rests on', $e->getMessage());
+		}
+
+		$this->assertSame(['active', 'pending'], $this->statuses());
+		$this->assertSame([], $this->objectService->rows['approval-action']);
+		$this->assertArrayNotHasKey('decision', $this->objectService->rows);
+	}
+
+	/**
+	 * An intake step takes a verdict, not a sign-off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testASignOffOnAnIntakeStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->intakeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown verdict "approved"');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => 'approved']);
+	}
+
+	/**
+	 * A verdict on an approval step is no action that step knows.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function testAVerdictOnAnApprovalStepIsRefused(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->route(), subject: 'subj-1', subjectSchema: 'proposal');
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Unknown action: ontvankelijk');
+
+		$service->record(['subject' => 'subj-1', 'actor' => 'bob', 'action' => 'ontvankelijk']);
+	}
+
+	/**
+	 * A route whose first step is decided by a governance body.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function committeeRoute(): array {
+		return [
+			'name' => 'Committee route',
+			'steps' => [
+				[
+					'order' => 1, 'stageType' => 'decisive', 'stepKind' => 'committee', 'committeeBody' => 'body-college',
+					'actorType' => 'person', 'actor' => 'alice', 'label' => 'College',
+				],
+				['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'bob', 'label' => 'Parafering'],
+			],
+		];
+	}
+
+	/**
+	 * A committee stage carries the body that decides it, copied from the step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 */
+	public function testACommitteeStageCarriesItsBody(): void {
+		$this->service()->instantiate(route: $this->committeeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		$stages = $this->stages();
+		$this->assertSame(expected: 'committee', actual: $stages[0]['stepKind']);
+		$this->assertSame(expected: 'body-college', actual: $stages[0]['committeeBody']);
+		$this->assertArrayNotHasKey(key: 'committeeBody', array: $stages[1]);
+	}
+
+	/**
+	 * One actor's grant on a committee step is refused, names the body, and writes nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
+	 */
+	public function testOneActorCannotCloseACommitteeStep(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->committeeRoute(), subject: 'dec-1', subjectSchema: 'decision');
+
+		foreach (['approved', 'skipped'] as $verb) {
+			try {
+				$service->record(['subject' => 'dec-1', 'actor' => 'alice', 'action' => $verb]);
+				$this->fail(message: 'A single actor closed a committee step with "' . $verb . '".');
+			} catch (RuntimeException $e) {
+				$this->assertStringContainsString(needle: 'committee step', haystack: $e->getMessage());
+				$this->assertStringContainsString(needle: 'body-college', haystack: $e->getMessage());
+			}
+		}
+
+		$this->assertSame(expected: ['active', 'pending'], actual: $this->statuses());
+		$this->assertSame(expected: [], actual: $this->objectService->rows['approval-action']);
+	}
+
+	/**
+	 * A route whose first step is one parallel group of approvers under a threshold.
+	 *
+	 * @param array<string, mixed> $threshold The step's thresholdKind and thresholdValue.
+	 * @param int                  $approvers How many approvers the step has.
+	 *
+	 * @return array<string, mixed> The route.
+	 */
+	private function thresholdRoute(array $threshold, int $approvers = 5): array {
+		$steps = [];
+		foreach (array_slice(['anna', 'bram', 'cor', 'dina', 'eva'], 0, $approvers) as $person) {
+			$steps[] = $threshold + [
+				'order' => 1, 'stageType' => 'decisive', 'actorType' => 'person', 'actor' => $person, 'label' => 'Board',
+			];
+		}
+
+		$steps[] = ['order' => 2, 'stageType' => 'endorsement', 'actorType' => 'person', 'actor' => 'secretary', 'label' => 'Sign-off'];
+
+		return ['name' => 'Threshold route', 'steps' => $steps];
+	}
+
+	/**
+	 * The stages of the board step, keyed by the person each one waits on.
+	 *
+	 * @return array<string, array<string, mixed>> The stages.
+	 */
+	private function boardStages(): array {
+		$out = [];
+		foreach ($this->stages() as $stage) {
+			if ((int)$stage['sequence'] === 1) {
+				$out[(string)$stage['assignedPerson']] = $stage;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * A share of 0.6 of five approvers closes the step on the third grant (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepClosesOnceItsShareIsReached(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.6]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$service->record(['subject' => 'dec-1', 'actor' => 'bram', 'action' => 'approved']);
+
+		$board = $this->boardStages();
+		$this->assertSame(expected: 'active', actual: $board['cor']['status'], message: 'Two of five is below a share of 0.6.');
+		$this->assertSame(expected: 'open', actual: $board['cor']['thresholdResult']['outcome']);
+		$this->assertSame(expected: 2, actual: $board['cor']['thresholdResult']['granted']);
+		$this->assertSame(expected: 3, actual: $board['cor']['thresholdResult']['required']);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'cor', 'action' => 'approved']);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'skipped', actual: $board[$person]['status'], message: $person . ' was still asked after the share was reached.');
+			$this->assertTrue(condition: $board[$person]['closedByThreshold']);
+		}
+
+		$this->assertArrayNotHasKey(key: 'closedByThreshold', array: $board['cor'], message: 'An approver who answered was not closed by the threshold.');
+		$expected = ['granted' => 3, 'refused' => 0, 'required' => 3, 'approvers' => 5, 'thresholdKind' => 'share', 'thresholdValue' => 0.6];
+		foreach ($board as $stage) {
+			$this->assertSame(expected: 'granted', actual: $stage['thresholdResult']['outcome']);
+			$this->assertSame(
+				expected: $expected,
+				actual: array_intersect_key($stage['thresholdResult'], $expected)
+			);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'The route did not walk on to the next step.');
+	}
+
+	/**
+	 * A count threshold closes the step on that many grants (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepClosesOnItsCount(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 2], approvers: 3),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$this->assertSame(expected: ['decided', 'active', 'active', 'pending'], actual: $this->statuses());
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'cor', 'action' => 'approved']);
+		$this->assertSame(expected: ['decided', 'skipped', 'decided', 'active'], actual: $this->statuses());
+		$this->assertTrue(condition: $this->boardStages()['bram']['closedByThreshold']);
+	}
+
+	/**
+	 * A step without a threshold still waits for every approver, and caches nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAStepWithoutAThresholdWaitsForEveryone(): void {
+		$service = $this->service();
+		$service->instantiate(route: $this->thresholdRoute(threshold: [], approvers: 3), subject: 'dec-1', subjectSchema: 'decision');
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$service->record(['subject' => 'dec-1', 'actor' => 'bram', 'action' => 'approved']);
+
+		$this->assertSame(expected: ['decided', 'decided', 'active', 'pending'], actual: $this->statuses());
+		foreach ($this->boardStages() as $stage) {
+			$this->assertArrayNotHasKey(key: 'thresholdResult', array: $stage);
+		}
+	}
+
+	/**
+	 * A threshold the calculator cannot read falls back to waiting for everyone.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAnUnreadableThresholdWaitsForEveryone(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share'], approvers: 2),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+
+		$this->assertSame(expected: ['decided', 'active', 'pending'], actual: $this->statuses());
+	}
+
+	/**
+	 * Change the threshold of one board stage as an administrator would, and
+	 * hand the update to the recomputer as the listener does.
+	 *
+	 * @param string $person The person whose stage is edited.
+	 * @param float  $value  The new share or count.
+	 *
+	 * @return array<string, mixed>|null The recorded action.
+	 */
+	private function changeThreshold(string $person, float $value): ?array {
+		$before = $this->boardStages()[$person];
+		$after = (['thresholdValue' => $value] + $before);
+		$this->objectService->rows['decision-stage'][(string)$before['id']] = $after;
+
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+
+		return $recomputer->stageChanged(before: $before, after: $after, actor: 'admin');
+	}
+
+	/**
+	 * Lowering a share closes a waiting step and records the change (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testLoweringTheThresholdClosesAnOpenStep(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.8]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		foreach (['anna', 'bram', 'cor'] as $person) {
+			$service->record(['subject' => 'dec-1', 'actor' => $person, 'action' => 'approved']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->boardStages()['dina']['status'], message: 'Three of five is below 0.8.');
+
+		$action = $this->changeThreshold(person: 'anna', value: 0.6);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'skipped', actual: $board[$person]['status']);
+			$this->assertTrue(condition: $board[$person]['closedByThreshold']);
+		}
+
+		foreach ($board as $stage) {
+			$this->assertSame(expected: 0.6, actual: $stage['thresholdValue'], message: 'The new share was not copied onto the whole step.');
+			$this->assertSame(expected: 'granted', actual: $stage['thresholdResult']['outcome']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'The route did not walk on.');
+		$this->assertSame(expected: 'threshold-changed', actual: $action['action']);
+		$this->assertSame(expected: 0.8, actual: $action['thresholdBefore']);
+		$this->assertSame(expected: 0.6, actual: $action['thresholdAfter']);
+		$this->assertSame(expected: 'admin', actual: $action['actor']);
+		$this->assertSame(expected: 'dec-1', actual: $action['subject']);
+		$this->assertSame(expected: 1, actual: $action['step']);
+		$this->assertSame(expected: 'Threshold changed from share 0.8 to share 0.6.', actual: $action['comment']);
+	}
+
+	/**
+	 * Raising a share reopens a step the threshold closed, and the subject is blocked again (REQ-DWP-002).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testRaisingTheThresholdReopensAClosedStep(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'share', 'thresholdValue' => 0.5]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		foreach (['anna', 'bram', 'cor'] as $person) {
+			$service->record(['subject' => 'dec-1', 'actor' => $person, 'action' => 'approved']);
+		}
+
+		$this->assertSame(expected: 'active', actual: $this->stages()[5]['status'], message: 'Three of five closes a share of 0.5.');
+
+		$action = $this->changeThreshold(person: 'anna', value: 0.8);
+
+		$board = $this->boardStages();
+		foreach (['dina', 'eva'] as $person) {
+			$this->assertSame(expected: 'active', actual: $board[$person]['status'], message: $person . ' was not asked again.');
+			$this->assertArrayNotHasKey(key: 'closedByThreshold', array: $board[$person]);
+		}
+
+		$this->assertSame(expected: 'decided', actual: $board['anna']['status'], message: 'A grant already given stays given.');
+		$this->assertSame(expected: 'open', actual: $board['anna']['thresholdResult']['outcome']);
+		$this->assertSame(expected: 'pending', actual: $this->stages()[5]['status'], message: 'The subject was not blocked again.');
+		$this->assertSame(expected: 0.5, actual: $action['thresholdBefore']);
+		$this->assertSame(expected: 0.8, actual: $action['thresholdAfter']);
+	}
+
+	/**
+	 * An update that does not change the threshold, and the recomputer's own copy onto a sibling, record nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testOnlyAChangedThresholdIsRecomputedAndRecorded(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 3]),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+		$stage = $this->boardStages()['anna'];
+
+		$this->assertNull(actual: $recomputer->stageChanged(before: $stage, after: (['label' => 'Renamed'] + $stage), actor: 'admin'));
+
+		$siblingBefore = $this->boardStages()['bram'];
+		$this->changeThreshold(person: 'anna', value: 2);
+		$siblingAfter = $this->boardStages()['bram'];
+
+		$this->assertSame(expected: 2.0, actual: (float)$siblingAfter['thresholdValue']);
+		$this->assertNull(
+			actual: $recomputer->stageChanged(before: $siblingBefore, after: $siblingAfter, actor: 'admin'),
+			message: 'The copy onto a sibling recorded the change a second time.'
+		);
+		$recorded = array_filter(
+			$this->objectService->rows['approval-action'],
+			static fn (array $row): bool => $row['action'] === 'threshold-changed'
+		);
+		$this->assertCount(expectedCount: 1, haystack: $recorded);
+	}
+
+	/**
+	 * A threshold changed to one the calculator cannot read is recorded once and closes nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 */
+	public function testAnUnreadableNewThresholdIsRecordedOnceAndClosesNothing(): void {
+		$service = $this->service();
+		$service->instantiate(
+			route: $this->thresholdRoute(threshold: ['thresholdKind' => 'count', 'thresholdValue' => 3], approvers: 3),
+			subject: 'dec-1',
+			subjectSchema: 'decision'
+		);
+		$service->record(['subject' => 'dec-1', 'actor' => 'anna', 'action' => 'approved']);
+		$recomputer = new StepThresholdRecomputer(store: $this->store(), advancer: new ApprovalRouteAdvancer(store: $this->store()));
+
+		$before = $this->boardStages()['anna'];
+		$after = (['thresholdKind' => 'share', 'thresholdValue' => 1.5] + $before);
+		$this->objectService->rows['decision-stage'][(string)$before['id']] = $after;
+		$siblingBefore = $this->boardStages()['bram'];
+
+		$action = $recomputer->stageChanged(before: $before, after: $after, actor: 'admin');
+
+		$this->assertSame(expected: 'Threshold changed from count 3 to share 1.5.', actual: $action['comment']);
+		$this->assertSame(expected: ['decided', 'active', 'active', 'pending'], actual: $this->statuses());
+		$sibling = $this->boardStages()['bram'];
+		$this->assertSame(expected: 'open', actual: $sibling['thresholdResult']['outcome']);
+		$this->assertNull(actual: $recomputer->stageChanged(before: $siblingBefore, after: $sibling, actor: 'admin'));
+	}
 }

@@ -113,3 +113,48 @@ decidiq SHALL remind the members of a body once, 48 hours before a meeting's sub
 - GIVEN the submission deadline for motions is Friday 12:00
 - WHEN the reminder job runs on Wednesday after 12:00
 - THEN members get one reminder naming the deadline and the meeting
+
+### Requirement: A notice sent with nobody signed in runs as the system (REQ-MRD-010)
+
+A notice that writes to a meeting (the agenda change notice, the meeting reminder) SHALL run as the system when no user is signed in, as from cron or `occ`, and SHALL run as the signed-in user otherwise.
+
+#### Scenario: The cron reminder stamps the meeting
+- **GIVEN** a scheduled meeting whose reminder is due, and no signed-in user
+- **WHEN** the hourly reminder job runs
+- **THEN** the member SHALL be reminded and the meeting SHALL be stamped, and no "Anonymous does not have permission" SHALL be logged
+- @e2e exclude {background job; covered by MeetingReminderServiceTest}
+
+#### Scenario: An example set writing agenda items from occ
+- **GIVEN** a meeting with a published agenda, and `occ` writing agenda items to it with nobody signed in
+- **WHEN** each item is written
+- **THEN** the agenda change notice SHALL run as the system and record its version
+- @e2e exclude {occ path; covered by AgendaItemChangeListenerTest}
+
+#### Scenario: A signed-in user keeps their rights
+- **GIVEN** a signed-in user editing an agenda item
+- **WHEN** the notice runs
+- **THEN** it SHALL NOT be elevated to the system
+- @e2e exclude {covered by SystemWhenNobodySignedInTest}
+
+### Requirement: Urgency notification rules in the verified dialect
+
+The `Decision` schema's `x-openregister-notifications` block SHALL gain two rules using only verified keys (`trigger.type`, `channels[]`, `recipients[]`, inline `subject{nl,en}`): (1) `urgentDecisionDeclared` — `trigger.type: "updated"` with condition `isUrgent equals true`, notifying on the urgency declaration; (2) `urgentRatificationDue` — `trigger.type: "scheduled"` (intervalSec ≥ 60) filtered on `awaitingRatification equals true`, reminding while ratification is outstanding. Both rules SHALL route recipients via `kind:object-acl` and `kind:groups` (group `decidesk-members`) — covering members of the deciding and ratifying bodies through object access — and SHALL NOT use `kind:field` on any non-uid property. Subjects SHALL carry `{nl,en}` variants (e.g. nl "Spoedbesluit: {{title}}" / en "Urgent decision: {{title}}", and nl "Bekrachtiging vereist: {{title}}" / en "Ratification due: {{title}}"). A precise per-body-membership recipient form is documented as deferred (same deferral posture as the lifecycle-entered trigger in the base spec).
+
+#### Scenario: Members notified on urgency declaration
+
+- GIVEN the `Decision` schema's notification rules after this change
+- WHEN a decision is updated with `isUrgent=true`
+- THEN the `urgentDecisionDeclared` rule fires an NC notification to `object-acl` readers and the `decidesk-members` group with the nl/en urgent-decision subject
+
+#### Scenario: Ratification-due reminder while outstanding
+
+- GIVEN an urgent decision with `awaitingRatification=true`
+- WHEN the scheduled `urgentRatificationDue` rule interval elapses
+- THEN recipients receive a ratification-due NC notification
+- AND once the ratifying stage is decided (`awaitingRatification=false`) the rule no longer matches and no further reminders are sent
+
+#### Scenario: No field-recipient on non-uid properties
+
+- GIVEN the two new rules
+- WHEN their `recipients` are inspected
+- THEN no `kind:field` recipient references `urgencyDeclaredBy` or any participant-name property; only `kind:object-acl` and `kind:groups` are used

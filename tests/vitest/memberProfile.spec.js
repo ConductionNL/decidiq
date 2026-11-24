@@ -34,7 +34,7 @@ describe('member profile helpers', () => {
 
 	it('shows initials when there is no photo', () => {
 		expect(initials('Marie Janssen')).toBe('MJ')
-		expect(initials('Femke')).toBe('F')
+		expect(initials('Wieteke')).toBe('W')
 		expect(initials('W. van Dam')).toBe('WD')
 		expect(initials('')).toBe('?')
 	})
@@ -140,11 +140,11 @@ describe('member profile helpers', () => {
 		expect(
 			participantPersonQueries({
 				nextcloudUserId: 'mjanssen',
-				email: 'm@x.nl',
+				email: 'm@x.example',
 			}),
-		).toEqual([{ nextcloudUserId: 'mjanssen' }, { email: 'm@x.nl' }])
-		expect(participantPersonQueries({ email: 'm@x.nl' })).toEqual([
-			{ email: 'm@x.nl' },
+		).toEqual([{ nextcloudUserId: 'mjanssen' }, { email: 'm@x.example' }])
+		expect(participantPersonQueries({ email: 'm@x.example' })).toEqual([
+			{ email: 'm@x.example' },
 		])
 		expect(participantPersonQueries({})).toEqual([])
 	})

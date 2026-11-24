@@ -12,7 +12,7 @@
  Stored values under keys the type does not declare (for example from a
  migration) are listed read-only so they are not invisible.
 
- @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ @spec openspec/specs/questions-as-agenda-items/spec.md
 -->
 <template>
 	<div
@@ -88,6 +88,8 @@ import {
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -98,9 +100,8 @@ export default {
 		NcButton,
 	},
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/questions-as-agenda-items/spec.md */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -115,17 +116,17 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		itemType() {
 			return findItemType(this.types, this.item?.type)
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		inputs() {
 			return typeFieldInputs(this.itemType)
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		dirty() {
 			return (
 				JSON.stringify(this.values)
@@ -133,7 +134,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		undeclared() {
 			const declared = new Set(this.inputs.map((input) => input.key))
 			return Object.entries(this.item?.typeFields || {})
@@ -148,18 +149,8 @@ export default {
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
-			handler() {
-				this.load()
-			},
-		},
-	},
-
 	methods: {
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		async load() {
 			if (!this.objectId) return
 			this.loading = true
@@ -182,7 +173,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		async save() {
 			this.saveError = ''
 			const missing = missingRequiredTypeFields(this.inputs, this.values)
@@ -195,7 +186,7 @@ export default {
 			this.saving = true
 			try {
 				const store = ensureRelationType('agenda-item')
-				const saved = await store.saveObject('agenda-item', {
+				const saved = await saveOrThrow(store, 'agenda-item', {
 					...this.item,
 					typeFields: this.values,
 				})

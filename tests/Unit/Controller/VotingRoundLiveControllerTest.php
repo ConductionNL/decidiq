@@ -103,6 +103,7 @@ class VotingRoundLiveControllerTest extends TestCase {
 				container: $container,
 				logger: new NullLogger(),
 				objectService: $this->createMock(ObjectServiceInterface::class),
+				appConfig: $this->createMock(IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: new NullLogger()),
 		);

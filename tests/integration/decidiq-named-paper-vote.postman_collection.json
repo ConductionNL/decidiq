@@ -1,0 +1,1583 @@
+{
+ "info": {
+  "name": "Decidiq Named Paper Vote Entry",
+  "description": "Newman contract tests for voting-named-paper-vote-entry: POST /api/voting-rounds/{id}/named-votes records each member's choice on an open roll-call round by name (REQ-NPV-002), refuses a wrong list as a whole (REQ-NPV-003), and the closed round's totals match the recorded votes (REQ-NPV-004). Self-contained: seeds and tears down its own objects.",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Seed governance body",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: governance-body created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvGovBodyId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvGovBodyId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Newman NPV GB\",\n  \"bodyType\": \"legislative\",\n  \"domain\": \"newman-named-paper-vote\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed participant Newman NPV Chair",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: participant created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvChairId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvChairId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"displayName\": \"Newman NPV Chair\",\n  \"name\": \"Newman NPV Chair\",\n  \"nextcloudUserId\": \"{{adminUser}}\",\n  \"role\": \"chair\",\n  \"participantType\": \"in-person\",\n  \"governanceBody\": \"{{npvGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed participant Newman NPV Member A",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: participant created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvMemberAId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvMemberAId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"displayName\": \"Newman NPV Member A\",\n  \"name\": \"Newman NPV Member A\",\n  \"nextcloudUserId\": \"newman-npv-a\",\n  \"role\": \"member\",\n  \"participantType\": \"in-person\",\n  \"governanceBody\": \"{{npvGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed participant Newman NPV Member B",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: participant created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvMemberBId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvMemberBId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"displayName\": \"Newman NPV Member B\",\n  \"name\": \"Newman NPV Member B\",\n  \"nextcloudUserId\": \"newman-npv-b\",\n  \"role\": \"member\",\n  \"participantType\": \"in-person\",\n  \"governanceBody\": \"{{npvGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed meeting (opened)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: meeting created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvMeetingId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvMeetingId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman NPV Meeting\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-06-20T10:00:00+00:00\",\n  \"meetingMode\": \"in-person\",\n  \"lifecycle\": \"opened\",\n  \"quorumRequired\": 1,\n  \"governanceBody\": \"{{npvGovBodyId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed motion (voting, meeting-linked)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: decision created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvMotionId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvMotionId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "decision"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman NPV Motion\",\n  \"text\": \"That the votes be recorded by name.\",\n  \"motionType\": \"motion\",\n  \"proposer\": \"Newman NPV Chair\",\n  \"lifecycle\": \"voting\",\n  \"submittedAt\": \"2026-06-19T09:00:00+00:00\",\n  \"meeting\": \"{{npvMeetingId}}\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed open roll-call round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: voting-round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvRollCallRoundId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvRollCallRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "voting-round"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"roll-call\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{npvMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed open for-against-abstain round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: voting-round created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id;",
+         "pm.expect(id, 'npvCastRoundId captured').to.be.a('string');",
+         "pm.collectionVariables.set('npvCastRoundId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "voting-round"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"votingMethod\": \"for-against-abstain\",\n  \"isSecret\": false,\n  \"openedAt\": \"2026-06-20T10:05:00+00:00\",\n  \"voteThreshold\": \"simple-majority\",\n  \"abstentionHandling\": \"exclude\",\n  \"tieBreakRule\": \"rejected\",\n  \"relations\": [\n    {\n      \"register\": \"decidiq\",\n      \"schema\": \"motion\",\n      \"id\": \"{{npvMotionId}}\"\n    }\n  ]\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "1. Record by name",
+   "item": [
+    {
+     "name": "Record three named votes (200, three recorded)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Record: 200', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('Record: names the round', () => pm.expect(b.votingRoundId).to.eql(pm.collectionVariables.get('npvRollCallRoundId')));",
+         "pm.test('Record: three votes recorded', () => pm.expect(b.recorded).to.eql(3));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/named-votes",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"heldAt\": \"2026-06-20T10:10:00+00:00\",\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberAId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberBId}}\",\n      \"value\": \"against\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Record the same list again with one value changed (still three)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Re-record: 200', () => pm.response.to.have.status(200));",
+         "pm.test('Re-record: still three votes, not six', () => pm.expect(pm.response.json().recorded).to.eql(3));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/named-votes",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"heldAt\": \"2026-06-20T10:10:00+00:00\",\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberAId}}\",\n      \"value\": \"against\"\n    },\n    {\n      \"participantId\": \"{{npvMemberBId}}\",\n      \"value\": \"against\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "A list with an unknown participant is refused as a whole (400 names it)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Refusal: 400', () => pm.response.to.have.status(400));",
+         "pm.test('Refusal: names the unknown entry', () => pm.expect(pm.response.json().participantIds).to.include('00000000-0000-4000-8000-000000000000'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/named-votes",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"abstain\"\n    },\n    {\n      \"participantId\": \"00000000-0000-4000-8000-000000000000\",\n      \"value\": \"for\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "A round that is not a roll call is refused (400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Refusal: 400 on a non roll-call round', () => pm.response.to.have.status(400));",
+         "pm.test('Refusal: says why', () => pm.expect(pm.response.json().message).to.include('roll call'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvCastRoundId}}/named-votes",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvCastRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"heldAt\": \"2026-06-20T10:10:00+00:00\",\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberAId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberBId}}\",\n      \"value\": \"for\"\n    }\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Recording requires auth (401)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Authz: 401 without credentials', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/named-votes",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"heldAt\": \"2026-06-20T10:10:00+00:00\",\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberAId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberBId}}\",\n      \"value\": \"for\"\n    }\n  ]\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "2. Close",
+   "item": [
+    {
+     "name": "Close the roll-call round: totals match the recorded votes",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Close: 200', () => pm.response.to.have.status(200));",
+         "const r = pm.response.json();",
+         "pm.test('Close: the refused list changed nothing, the re-recorded one counts', () => {",
+         "  pm.expect(r.votesFor).to.eql(1);",
+         "  pm.expect(r.votesAgainst).to.eql(2);",
+         "  pm.expect(r.votesAbstain || 0).to.eql(0);",
+         "});",
+         "pm.test('Close: a 1-2 roll call is rejected', () => pm.expect(r.result).to.eql('rejected'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "close"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"anonymise\": false\n}"
+      }
+     }
+    },
+    {
+     "name": "A closed round takes no more named votes (400)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Refusal: 400 once closed', () => pm.response.to.have.status(400));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/voting-rounds/{{npvRollCallRoundId}}/named-votes",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "voting-rounds",
+        "{{npvRollCallRoundId}}",
+        "named-votes"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"heldAt\": \"2026-06-20T10:10:00+00:00\",\n  \"entries\": [\n    {\n      \"participantId\": \"{{npvChairId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberAId}}\",\n      \"value\": \"for\"\n    },\n    {\n      \"participantId\": \"{{npvMemberBId}}\",\n      \"value\": \"for\"\n    }\n  ]\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete voting-round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{npvRollCallRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "voting-round",
+        "{{npvRollCallRoundId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete voting-round",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/voting-round/{{npvCastRoundId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "voting-round",
+        "{{npvCastRoundId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete decision",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{npvMotionId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "decision",
+        "{{npvMotionId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete meeting",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{npvMeetingId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting",
+        "{{npvMeetingId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete participant",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{npvMemberBId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant",
+        "{{npvMemberBId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete participant",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{npvMemberAId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant",
+        "{{npvMemberAId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete participant",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{npvChairId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "participant",
+        "{{npvChairId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete governance-body",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{npvGovBodyId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "governance-body",
+        "{{npvGovBodyId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8080"
+  },
+  {
+   "key": "noAuthBase",
+   "value": "http://127.0.0.1:8080"
+  },
+  {
+   "key": "adminUser",
+   "value": "admin"
+  },
+  {
+   "key": "adminPass",
+   "value": "admin"
+  },
+  {
+   "key": "npvGovBodyId",
+   "value": ""
+  },
+  {
+   "key": "npvChairId",
+   "value": ""
+  },
+  {
+   "key": "npvMemberAId",
+   "value": ""
+  },
+  {
+   "key": "npvMemberBId",
+   "value": ""
+  },
+  {
+   "key": "npvMeetingId",
+   "value": ""
+  },
+  {
+   "key": "npvMotionId",
+   "value": ""
+  },
+  {
+   "key": "npvRollCallRoundId",
+   "value": ""
+  },
+  {
+   "key": "npvCastRoundId",
+   "value": ""
+  }
+ ]
+}

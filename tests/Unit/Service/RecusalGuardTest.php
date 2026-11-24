@@ -31,6 +31,7 @@ use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\Decidiq\Service\RecusalGuard;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteCastingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -301,7 +302,7 @@ class RecusalGuardTest extends TestCase {
 		$this->declare(member: 'M-anna', subject: 'M-12', action: 'recused-from-vote');
 
 		try {
-			$this->caster()->castVote(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for', isProxy: false, delegatorId: null);
+			$this->caster()->castVote(cast: new VoteCast(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for'));
 			$this->fail('A recused member cast a ballot.');
 		} catch (RuntimeException $e) {
 			$this->assertStringContainsString('recused from the vote', $e->getMessage());
@@ -319,7 +320,7 @@ class RecusalGuardTest extends TestCase {
 		$this->readFails = true;
 
 		try {
-			$this->caster()->castVote(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for', isProxy: false, delegatorId: null);
+			$this->caster()->castVote(cast: new VoteCast(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for'));
 			$this->fail('A ballot was cast while the declarations could not be read.');
 		} catch (RuntimeException $e) {
 			$this->assertStringContainsString('could not be checked', $e->getMessage());

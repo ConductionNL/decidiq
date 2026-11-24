@@ -1,0 +1,1696 @@
+{
+  "info": {
+    "name": "Decidiq Embargo and Confidentiality Contract Suite",
+    "description": "Newman contract tests for embargo-geheimhouding (REQ-EMB-005): the public ORI documents feed leaves out a document under an imposed confidentiality restriction and a document whose embargo is still active, lists a released one, and lists a document again once its restriction is dissolved. Run with --env-var baseUrl=<instance> --env-var adminUser=<user> --env-var adminPass=<password>; there is no default instance. Section 3 covers the impose, ratify and lift endpoints (REQ-EMB-001, -003, -004): 401, 400 and 422 on impose, an imposed paper with no classifier write, 400 and 422 on ratify, 409 on lifting before ratification and 404 on an unknown restriction.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "adminUser",
+      "value": ""
+    },
+    {
+      "key": "adminPass",
+      "value": ""
+    },
+    {
+      "key": "bodyId",
+      "value": ""
+    },
+    {
+      "key": "meetingId",
+      "value": ""
+    },
+    {
+      "key": "plainDoc",
+      "value": ""
+    },
+    {
+      "key": "embargoedDoc",
+      "value": ""
+    },
+    {
+      "key": "releasedDoc",
+      "value": ""
+    },
+    {
+      "key": "restrictedDoc",
+      "value": ""
+    },
+    {
+      "key": "itemId",
+      "value": ""
+    },
+    {
+      "key": "groundId",
+      "value": ""
+    },
+    {
+      "key": "restrictionId",
+      "value": ""
+    },
+    {
+      "key": "imposedId",
+      "value": ""
+    },
+    {
+      "key": "ratificationItemId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "Seed governing body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed governing body: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('bodyId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman embargo raad\",\n  \"bodyType\": \"legislative\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body"
+            }
+          }
+        },
+        {
+          "name": "Seed public meeting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed public meeting: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('meetingId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Newman embargo meeting\",\n  \"meetingType\": \"regular\",\n  \"meetingMode\": \"in-person\",\n  \"scheduledDate\": \"2026-12-10T19:30:00Z\",\n  \"lifecycle\": \"scheduled\",\n  \"isPublic\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting"
+            }
+          }
+        },
+        {
+          "name": "Seed plain document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed plain document: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('plainDoc', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman plain\",\n  \"documentType\": \"report\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document"
+            }
+          }
+        },
+        {
+          "name": "Seed embargoed document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed embargoed document: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('embargoedDoc', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman embargoed\",\n  \"documentType\": \"report\",\n  \"embargoActive\": true,\n  \"embargoUntil\": \"2099-01-01T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document"
+            }
+          }
+        },
+        {
+          "name": "Seed released document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed released document: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('releasedDoc', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman released\",\n  \"documentType\": \"report\",\n  \"embargoActive\": false,\n  \"embargoUntil\": \"2020-01-01T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document"
+            }
+          }
+        },
+        {
+          "name": "Seed restricted document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed restricted document: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('restrictedDoc', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman restricted\",\n  \"documentType\": \"report\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document"
+            }
+          }
+        },
+        {
+          "name": "Seed agenda item with the four documents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed agenda item with the four documents: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('itemId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Newman grondexploitatie\",\n  \"itemType\": \"discussion\",\n  \"orderNumber\": 1,\n  \"meeting\": \"{{meetingId}}\",\n  \"documents\": [\n    \"{{plainDoc}}\",\n    \"{{embargoedDoc}}\",\n    \"{{releasedDoc}}\",\n    \"{{restrictedDoc}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item"
+            }
+          }
+        },
+        {
+          "name": "Seed confidentiality ground",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Seed confidentiality ground: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('groundId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Newman financial interests\",\n  \"citation\": \"Gemeentewet art. 87\",\n  \"category\": \"municipalities-act\",\n  \"requiresRatification\": true,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-ground"
+            }
+          }
+        },
+        {
+          "name": "Impose a restriction on the restricted document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Impose a restriction on the restricted document: created (201)', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+                  "pm.expect(id, 'id captured').to.be.a('string');",
+                  "pm.collectionVariables.set('restrictionId', id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"targetDocument\": \"{{restrictedDoc}}\",\n  \"ground\": \"{{groundId}}\",\n  \"imposedBy\": \"body\",\n  \"imposedByBody\": \"{{bodyId}}\",\n  \"imposedAt\": \"2026-11-17T12:00:00Z\",\n  \"lifecycle\": \"imposed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Public feed while restricted and embargoed",
+      "item": [
+        {
+          "name": "Feed while restricted",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Feed while restricted: the feed answers 200 without a session', () => pm.response.to.have.status(200));",
+                  "const guids = [...pm.response.text().matchAll(/<guid[^>]*>([^<]+)<\\/guid>/g)].map((m) => m[1].trim());",
+                  "pm.test('Feed while restricted: lists {{plainDoc}}', () => pm.expect(guids).to.include(pm.collectionVariables.get('plainDoc')));",
+                  "pm.test('Feed while restricted: lists {{releasedDoc}}', () => pm.expect(guids).to.include(pm.collectionVariables.get('releasedDoc')));",
+                  "pm.test('Feed while restricted: leaves out {{embargoedDoc}}', () => pm.expect(guids).to.not.include(pm.collectionVariables.get('embargoedDoc')));",
+                  "pm.test('Feed while restricted: leaves out {{restrictedDoc}}', () => pm.expect(guids).to.not.include(pm.collectionVariables.get('restrictedDoc')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/feed/ori/documents.rss"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. A dissolved restriction no longer holds back",
+      "item": [
+        {
+          "name": "Dissolve the restriction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dissolve: saved', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"targetDocument\": \"{{restrictedDoc}}\",\n  \"ground\": \"{{groundId}}\",\n  \"imposedBy\": \"body\",\n  \"imposedByBody\": \"{{bodyId}}\",\n  \"imposedAt\": \"2026-11-17T12:00:00Z\",\n  \"lifecycle\": \"dissolved\",\n  \"liftingDate\": \"2026-11-18\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction/{{restrictionId}}"
+            }
+          }
+        },
+        {
+          "name": "Feed after dissolving",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Feed after dissolving: the feed answers 200 without a session', () => pm.response.to.have.status(200));",
+                  "const guids = [...pm.response.text().matchAll(/<guid[^>]*>([^<]+)<\\/guid>/g)].map((m) => m[1].trim());",
+                  "pm.test('Feed after dissolving: lists {{plainDoc}}', () => pm.expect(guids).to.include(pm.collectionVariables.get('plainDoc')));",
+                  "pm.test('Feed after dissolving: lists {{releasedDoc}}', () => pm.expect(guids).to.include(pm.collectionVariables.get('releasedDoc')));",
+                  "pm.test('Feed after dissolving: lists {{restrictedDoc}}', () => pm.expect(guids).to.include(pm.collectionVariables.get('restrictedDoc')));",
+                  "pm.test('Feed after dissolving: leaves out {{embargoedDoc}}', () => pm.expect(guids).to.not.include(pm.collectionVariables.get('embargoedDoc')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/feed/ori/documents.rss"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Impose, ratify and lift through decidiq",
+      "description": "embargo-geheimhouding REQ-EMB-001, REQ-EMB-003 and REQ-EMB-004: the guarded endpoints. Runs after section 2, so the plain document has no restriction yet.",
+      "item": [
+        {
+          "name": "Impose without a session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Impose: 401 without a session', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/impose"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"target\": \"{{plainDoc}}\",\n  \"ground\": \"{{groundId}}\",\n  \"imposedBy\": \"executive-board\",\n  \"imposedByBody\": \"{{bodyId}}\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Impose without a ground",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Impose: 400 without a ground', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/impose"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"target\": \"{{plainDoc}}\",\n  \"imposedBy\": \"executive-board\",\n  \"imposedByBody\": \"{{bodyId}}\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Impose on an unknown ground",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Impose: 422 on a ground that does not exist', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/impose"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"target\": \"{{plainDoc}}\",\n  \"ground\": \"00000000-0000-4000-8000-000000000000\",\n  \"imposedBy\": \"executive-board\",\n  \"imposedByBody\": \"{{bodyId}}\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Impose on the plain document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Impose: 201', () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.test('Impose: the restriction is imposed on the document', () => {",
+                  "  pm.expect(b.restriction.lifecycle).to.eql('imposed');",
+                  "  pm.expect(b.restriction.targetDocument).to.eql(pm.collectionVariables.get('plainDoc'));",
+                  "  pm.expect(b.restriction.ground).to.eql(pm.collectionVariables.get('groundId'));",
+                  "});",
+                  "pm.test('Impose: a paper has no classifier of its own', () => pm.expect(b.classifier).to.eql('not-needed'));",
+                  "pm.test('Impose: the ground needs ratification, so placement was tried', () => pm.expect(b.ratification).to.be.oneOf(['placed', 'no-meeting']));",
+                  "pm.collectionVariables.set('imposedId', b.restriction.id);",
+                  "pm.collectionVariables.set('ratificationItemId', b.restriction.ratificationAgendaItem || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/impose"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"document\",\n  \"target\": \"{{plainDoc}}\",\n  \"ground\": \"{{groundId}}\",\n  \"imposedBy\": \"executive-board\",\n  \"imposedByBody\": \"{{bodyId}}\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ratify without a decision",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ratify: 400 without a decision', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/{{imposedId}}/ratify"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ratify on an unknown decision",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ratify: 422 on a decision that does not exist', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/{{imposedId}}/ratify"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ratificationDecision\": \"00000000-0000-4000-8000-000000000000\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lift before ratification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lift: 409 while a ground that needs ratification is not ratified', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/{{imposedId}}/lift"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dissolutionDecision\": \"00000000-0000-4000-8000-000000000000\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lift an unknown restriction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lift: 404 for a restriction that does not exist', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/confidentiality/restrictions/00000000-0000-4000-8000-000000000000/lift"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dissolutionDecision\": \"00000000-0000-4000-8000-000000000000\"\n}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Cleanup",
+      "item": [
+        {
+          "name": "Delete confidentiality-restriction {{imposedId}}",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('imposedId')) { pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: confidentiality-restriction removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction/{{imposedId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete agenda-item {{ratificationItemId}}",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('ratificationItemId')) { pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: agenda-item removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{ratificationItemId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete confidentiality-restriction {{restrictionId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: confidentiality-restriction removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction/{{restrictionId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete confidentiality-ground {{groundId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: confidentiality-ground removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/confidentiality-ground/{{groundId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete agenda-item {{itemId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: agenda-item removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{itemId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete digital-document {{plainDoc}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: digital-document removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document/{{plainDoc}}"
+            }
+          }
+        },
+        {
+          "name": "Delete digital-document {{embargoedDoc}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: digital-document removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document/{{embargoedDoc}}"
+            }
+          }
+        },
+        {
+          "name": "Delete digital-document {{releasedDoc}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: digital-document removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document/{{releasedDoc}}"
+            }
+          }
+        },
+        {
+          "name": "Delete digital-document {{restrictedDoc}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: digital-document removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/digital-document/{{restrictedDoc}}"
+            }
+          }
+        },
+        {
+          "name": "Delete meeting {{meetingId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: meeting removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}"
+            }
+          }
+        },
+        {
+          "name": "Delete governance-body {{bodyId}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cleanup: governance-body removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{bodyId}}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

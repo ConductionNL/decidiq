@@ -35,11 +35,17 @@
  *           panel that names a widget by `widgetId` gets that widget's
  *           definition written in. An overlay never adds a page and never
  *           removes one.
+ *   nav     Merged over the manifest's `nav` (the brand block and the primary
+ *           action CnAppNav draws). A string value `@theming.<key>` is read
+ *           from the instance's theming capabilities (`name`, `logo`, ...),
+ *           so a profile can show the municipality's own name and logo
+ *           without naming one. A placeholder the instance cannot answer is
+ *           left empty, never invented.
  *
  * Nothing here deletes anything. The pages, the routes and the fragments are
  * the same in both profiles, which is what keeps every deep link working.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md
+ * @spec openspec/specs/app-navigation/spec.md
  */
 
 /** The profile a fresh instance gets. */
@@ -69,7 +75,7 @@ const LAYOUT_KEYS = [
  * @param {unknown} raw The stored setting, as initial state hands it over.
  * @return {string} `simple` or `full`.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
  */
 export function resolveStructureProfile(raw) {
 	return raw === STRUCTURE_FULL ? STRUCTURE_FULL : STRUCTURE_SIMPLE
@@ -83,15 +89,65 @@ export function resolveStructureProfile(raw) {
  *   The order is fixed: replace keys, patch items by name, append, then order.
  * @return {object} A new page object.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
  */
 export function applyPageOverlay(page, overlay) {
 	const config = { ...(page.config || {}), ...(overlay.config || {}) }
+	patchLists(config, overlay)
+	appendLists(config, overlay)
+	orderLists(config, overlay)
+	if (Array.isArray(config.widgets)) {
+		config.widgets = inlineSectionWidgets(config.widgets)
+	}
+	return withOverlaySlots({ ...page, config }, overlay)
+}
+
+/**
+ * The page with the overlay's slots beside its own. A `custom` widget
+ * resolves through the page's own top-level `slots` map, so a page that
+ * gains one needs its slot beside it.
+ *
+ * @param {object} page The overlaid page.
+ * @param {object} overlay The page overlay.
+ * @return {object} The page, with slots when the overlay brings them.
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function withOverlaySlots(page, overlay) {
+	if (!overlay.slots || typeof overlay.slots !== 'object') {
+		return page
+	}
+	return { ...page, slots: { ...(page.slots || {}), ...overlay.slots } }
+}
+
+/**
+ * The list a config holds under a key, or an empty list.
+ *
+ * @param {object} config The page config.
+ * @param {string} key The config key.
+ * @return {Array} The list.
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function listAt(config, key) {
+	return Array.isArray(config[key]) ? config[key] : []
+}
+
+/**
+ * Patch list items by name: a `null` change takes the item out, an object
+ * change is merged into an object item.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configPatch` holds, per config key, the changes by item name.
+ * @return {void}
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function patchLists(config, overlay) {
 	const patch = overlay.configPatch || {}
 	for (const key of Object.keys(patch)) {
 		const byName = patch[key] || {}
-		const current = Array.isArray(config[key]) ? config[key] : []
-		config[key] = current
+		config[key] = listAt(config, key)
 			.filter((item) => byName[overlayItemName(item)] !== null)
 			.map((item) => {
 				const change = byName[overlayItemName(item)]
@@ -100,34 +156,45 @@ export function applyPageOverlay(page, overlay) {
 					: { ...item, ...change }
 			})
 	}
+}
+
+/**
+ * Append items to config lists.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configAppend` holds, per config key, the items to add at the end.
+ * @return {void}
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function appendLists(config, overlay) {
 	const append = overlay.configAppend || {}
 	for (const key of Object.keys(append)) {
-		const current = Array.isArray(config[key]) ? config[key] : []
 		const extra = Array.isArray(append[key]) ? append[key] : []
-		config[key] = [...current, ...extra]
+		config[key] = [...listAt(config, key), ...extra]
 	}
+}
+
+/**
+ * Move named items to the front of config lists, in the order named; the
+ * rest keep their order behind them.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configOrder` holds, per config key, the item names to lead with.
+ * @return {void}
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function orderLists(config, overlay) {
 	const order = overlay.configOrder || {}
 	for (const key of Object.keys(order)) {
-		const current = Array.isArray(config[key]) ? config[key] : []
+		const current = listAt(config, key)
 		const first = Array.isArray(order[key]) ? order[key] : []
 		const lead = first
 			.map((name) => current.find((item) => overlayItemName(item) === name))
 			.filter((item) => item !== undefined)
 		config[key] = [...lead, ...current.filter((item) => !lead.includes(item))]
 	}
-	if (Array.isArray(config.widgets)) {
-		config.widgets = inlineSectionWidgets(config.widgets)
-	}
-	if (overlay.slots && typeof overlay.slots === 'object') {
-		// A `custom` widget resolves through the page's own top-level `slots`
-		// map, so a page that gains one needs its slot beside it.
-		return {
-			...page,
-			config,
-			slots: { ...(page.slots || {}), ...overlay.slots },
-		}
-	}
-	return { ...page, config }
 }
 
 /**
@@ -146,7 +213,7 @@ export function applyPageOverlay(page, overlay) {
  * @param {Array<object>} widgets The page's widgets, after every overlay step.
  * @return {Array<object>} The widgets, sections filled in.
  *
- * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+ * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
  */
 export function inlineSectionWidgets(widgets) {
 	const byId = new Map(
@@ -190,7 +257,7 @@ export function inlineSectionWidgets(widgets) {
  * @param {unknown} item A list item from a page config.
  * @return {string|undefined} Its name, or undefined when it has none.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
  */
 export function overlayItemName(item) {
 	if (typeof item === 'string') {
@@ -200,12 +267,96 @@ export function overlayItemName(item) {
 }
 
 /**
+ * The theming values the simple profile's nav placeholders read.
+ *
+ * The brand block wants the emblem (the shield of the workplace boards), not
+ * the whole wordmark: thematiq exposes the active set's emblem as
+ * `nldesign.logos.emblem`. Without one, `@theming.emblem|@theming.logo` falls
+ * back to Nextcloud's own logo.
+ *
+ * @param {object|null} capabilities `getCapabilities()`.
+ * @return {object} Nextcloud's theming block plus `emblem`, '' when the set
+ *   ships none.
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function navTheming(capabilities) {
+	const theming = capabilities?.theming ?? {}
+	const emblem = capabilities?.nldesign?.logos?.emblem
+	return { ...theming, emblem: typeof emblem === 'string' ? emblem : '' }
+}
+
+/** The prefix of a `nav` value the instance's theming capabilities answer. */
+const THEMING_PLACEHOLDER = '@theming.'
+
+/**
+ * Resolve the `nav` block of a profile: `@theming.<key>` strings become the
+ * instance's own theming values, one level deep (`brand.caption`,
+ * `primaryAction.label`), so no municipality is written into the app.
+ *
+ * A value may list fallbacks with `|` (`@theming.emblem|@theming.logo`): the
+ * first one the instance answers wins.
+ *
+ * A placeholder the capabilities do not answer resolves to an empty string,
+ * which CnAppNav reads as "nothing to draw" for that field. The profile is
+ * not the place to guess an instance's name.
+ *
+ * @param {object} nav The profile's `nav` block.
+ * @param {object|null} theming The theming capabilities (`name`, `logo`, ...).
+ * @return {object} A new nav block with every placeholder resolved.
+ *
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function resolveNavPlaceholders(nav, theming) {
+	const resolveOne = (placeholder) => {
+		const key = placeholder.slice(THEMING_PLACEHOLDER.length)
+		const answer =
+			theming && typeof theming === 'object' ? theming[key] : undefined
+		return typeof answer === 'string' ? answer : ''
+	}
+	const resolveValue = (value) => {
+		if (typeof value !== 'string' || !value.startsWith(THEMING_PLACEHOLDER)) {
+			return value
+		}
+		// `@theming.emblem|@theming.logo`: the first placeholder the instance
+		// answers wins, so a set with an emblem shows it and one without falls
+		// back to its wordmark. None answered: empty, never a guess.
+		return (
+			value
+				.split('|')
+				.map((part) => part.trim())
+				.filter((part) => part.startsWith(THEMING_PLACEHOLDER))
+				.map(resolveOne)
+				.find((answer) => answer !== '') ?? ''
+		)
+	}
+	const out = {}
+	for (const [key, value] of Object.entries(nav || {})) {
+		if (key.startsWith('_')) {
+			// A note in the profile file is for its reader, not for the
+			// manifest schema (`nav` takes no extra keys).
+			continue
+		}
+		out[key] =
+			value && typeof value === 'object' && !Array.isArray(value)
+				? Object.fromEntries(
+						Object.entries(value).map(([inner, innerValue]) => [
+							inner,
+							resolveValue(innerValue),
+						]),
+					)
+				: resolveValue(value)
+	}
+	return out
+}
+
+/**
  * Build the manifest for one structure profile.
  *
  * `buildManifest` is passed in rather than imported, so this module stays free
  * of the library barrel and a spec can hand it the real implementation.
  *
- * A profile file without `menu` and `pages` (the full one) goes through
+ * A profile file without `menu`, `pages` and `nav` (the full one) goes through
  * unchanged: the result is exactly `buildManifest(base, fragments, layout)`.
  *
  * An overlay that names a page the manifest does not have is skipped and
@@ -217,41 +368,105 @@ export function overlayItemName(item) {
  * @param {object} base The bundled manifest.
  * @param {Array<object>} fragments The `manifest.d` fragments, in order.
  * @param {object} profileFile The profile's layout file.
+ * @param {object} [context] `{ theming }`: the instance's theming
+ *   capabilities, for the placeholders a profile's `nav` block may carry.
  * @return {object} The built manifest.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
  */
-export function buildProfiledManifest(buildManifest, base, fragments, profileFile) {
+export function buildProfiledManifest(
+	buildManifest,
+	base,
+	fragments,
+	profileFile,
+	context = {},
+) {
 	const file = profileFile || {}
+	const builtPages = buildManifest(
+		withProfileMenu(base, file.menu),
+		fragments,
+		pickLayout(file),
+	)
+	const built = withProfileNav(builtPages, file.nav, context.theming ?? null)
+	const withDefaults = applyPageDefaults(built, file.pageDefaults)
+	return applyPageOverlays(withDefaults, file.pages)
+}
+
+/**
+ * The layout keys of a profile file that `buildManifest` reads.
+ *
+ * @param {object} file The profile's layout file.
+ * @return {object} Only the LAYOUT_KEYS the file sets.
+ */
+function pickLayout(file) {
 	const layout = {}
 	for (const key of LAYOUT_KEYS) {
 		if (file[key] !== undefined) {
 			layout[key] = file[key]
 		}
 	}
+	return layout
+}
 
-	const profileMenu = Array.isArray(file.menu) ? file.menu : []
-	const profiledBase =
-		profileMenu.length > 0
-			? {
-					...base,
-					// Copies, because buildManifest merges into the entries it is
-					// given and the profile file is a shared module object.
-					menu: [
-						...profileMenu.map((entry) => ({ ...entry })),
-						...(base.menu || []),
-					],
-				}
-			: base
-
-	const built = buildManifest(profiledBase, fragments, layout)
-
-	const overlays = Array.isArray(file.pages) ? file.pages : []
-	if (overlays.length === 0) {
-		return built
+/**
+ * The base manifest with the profile's menu entries in front of its own.
+ *
+ * @param {object} base The bundled manifest.
+ * @param {unknown} menu The profile file's `menu`.
+ * @return {object} `base` itself when the profile has no menu, else a copy.
+ */
+function withProfileMenu(base, menu) {
+	const profileMenu = Array.isArray(menu) ? menu : []
+	if (profileMenu.length === 0) {
+		return base
 	}
-	const pages = [...(built.pages || [])]
-	for (const overlay of overlays) {
+	return {
+		...base,
+		// Copies, because buildManifest merges into the entries it is
+		// given and the profile file is a shared module object.
+		menu: [
+			...profileMenu.map((entry) => ({ ...entry })),
+			...(base.menu || []),
+		],
+	}
+}
+
+/**
+ * The built manifest with the profile's `nav` block merged over its own.
+ *
+ * @param {object} builtPages The manifest buildManifest returned.
+ * @param {unknown} nav The profile file's `nav`.
+ * @param {object|null} theming The instance's theming capabilities.
+ * @return {object} `builtPages` itself when the profile has no nav.
+ */
+function withProfileNav(builtPages, nav, theming) {
+	if (!nav || typeof nav !== 'object') {
+		return builtPages
+	}
+	return {
+		...builtPages,
+		nav: {
+			...(builtPages.nav || {}),
+			...resolveNavPlaceholders(nav, theming),
+		},
+	}
+}
+
+/**
+ * Apply the profile's page overlays, skipping (and reporting) any that names
+ * a page the manifest does not have.
+ *
+ * @param {object} manifest The manifest so far.
+ * @param {unknown} overlays The profile file's `pages`.
+ * @return {object} `manifest` itself when there are no overlays.
+ */
+function applyPageOverlays(manifest, overlays) {
+	const list = Array.isArray(overlays) ? overlays : []
+	if (list.length === 0) {
+		return manifest
+	}
+	const pages = [...(manifest.pages || [])]
+	for (const overlay of list) {
 		const at = pages.findIndex((page) => page.id === overlay?.id)
 		if (at === -1) {
 			// eslint-disable-next-line no-console
@@ -263,5 +478,43 @@ export function buildProfiledManifest(buildManifest, base, fragments, profileFil
 		}
 		pages[at] = applyPageOverlay(pages[at], overlay)
 	}
+	return { ...manifest, pages }
+}
+
+/**
+ * Config defaults per page type, from the profile file's `pageDefaults`
+ * (`{ "<page type>": { "<config key>": value } }`). A page of that type gets
+ * each key it does not set itself; a page that sets the key keeps its own
+ * value. The full profile uses this to hold back a look a newer library
+ * turns on by default (nextcloud-vue 2.62.0 gave every index table header a
+ * sort and filter control, `config.headerFilters`), so that profile renders
+ * as it did before. A file without `pageDefaults` returns `built` itself.
+ *
+ * @param {object} built The built manifest.
+ * @param {object|undefined} defaults The profile file's `pageDefaults`.
+ * @return {object} The manifest with the defaults filled in.
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+export function applyPageDefaults(built, defaults) {
+	if (
+		!defaults
+		|| typeof defaults !== 'object'
+		|| Object.keys(defaults).length === 0
+	) {
+		return built
+	}
+	const pages = (built.pages || []).map((page) => {
+		const forType = defaults[page.type]
+		if (!forType || typeof forType !== 'object') {
+			return page
+		}
+		const config = { ...(page.config || {}) }
+		for (const [key, value] of Object.entries(forType)) {
+			if (config[key] === undefined) {
+				config[key] = value
+			}
+		}
+		return { ...page, config }
+	})
 	return { ...built, pages }
 }

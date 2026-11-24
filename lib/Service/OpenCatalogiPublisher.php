@@ -27,6 +27,9 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -90,8 +93,7 @@ class OpenCatalogiPublisher {
 					'register' => 'decidiq',
 					'schema' => 'publication-payload',
 				],
-				register: 'opencatalogi',
-				schema: 'publication',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
 			);
 
 			return $this->referenceOf(publication: $publication);
@@ -105,7 +107,7 @@ class OpenCatalogiPublisher {
 	/**
 	 * Extract the catalog publication reference from whatever OpenCatalogi returned.
 	 *
-	 * Reads the serialized id/uuid/@self.id. `ObjectEntity::getUuid()` is
+	 * Reads a declared getUuid(), then the serialized id/uuid/@self.id. `ObjectEntity::getUuid()` is
 	 * served by `Entity::__call()`, so a `method_exists()` guard on it was
 	 * false for every real entity and never ran; `jsonSerialize()` injects `id`
 	 * from the uuid. Returns '' — and logs a warning — when no usable
@@ -118,6 +120,15 @@ class OpenCatalogiPublisher {
 	 * @return string The catalog publication reference, or '' when absent.
 	 */
 	private function referenceOf(mixed $publication): string {
+		// A declared getUuid() (a typed wrapper) still wins; ObjectEntity itself
+		// answers it only through __call(), so it is read from jsonSerialize().
+		if (is_object($publication) === true && method_exists($publication, 'getUuid') === true) {
+			$uuid = $publication->getUuid();
+			if (is_string($uuid) === true && $uuid !== '') {
+				return $uuid;
+			}
+		}
+
 		if (is_object($publication) === true && method_exists($publication, 'jsonSerialize') === true) {
 			$data = $publication->jsonSerialize();
 			$id = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
@@ -155,9 +166,10 @@ class OpenCatalogiPublisher {
 
 		try {
 			$service->deleteObject(
-				uuid: $catalogPublication,
-				register: 'opencatalogi',
-				schema: 'publication',
+				new ObjectDeletion(
+					uuid: $catalogPublication,
+					target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication')
+				)
 			);
 			return true;
 		} catch (\Throwable $e) {

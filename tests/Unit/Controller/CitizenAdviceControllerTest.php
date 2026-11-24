@@ -39,6 +39,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Authorisation and status codes of the advisory vote endpoints.
@@ -91,7 +92,9 @@ class CitizenAdviceControllerTest extends TestCase {
 		$objectService->method('find')->willReturn($entity);
 		$objectService->method('findAll')->willReturn([]);
 		$objectService->method('patchObject')->willReturnCallback(
-			function (string $objectId, array $data) use ($motion): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($motion): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
 				$this->writes++;
 				$stored = $this->createMock(ObjectEntityInterface::class);
 				$stored->method('jsonSerialize')->willReturn(array_merge($motion, $data));

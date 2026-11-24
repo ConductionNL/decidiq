@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
@@ -144,7 +146,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($holder) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($holder) {
 				$holder->value = $object;
 				return $this->entity($object);
 			}
@@ -305,7 +307,8 @@ class DecisionWithdrawFlowTest extends TestCase {
 	public function testWithdrawChairGateFailsClosedWithoutResolvableChair(): void {
 		$this->policyOverride = ['chairOnlyTransitions' => ['deliberating:withdrawn']];
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
+			function (int|string $id, ?ObjectFindOptions $options = null) {
+				$schema = $options?->schema;
 				if ($schema !== 'decision') {
 					return null;
 				}

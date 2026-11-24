@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -27,11 +27,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Exception\AccessibilityGateException;
 use OCA\Decidiq\Exception\NotFoundException;
-use OCA\Decidiq\Service\AgendaAuthorizationGuard;
-use OCA\Decidiq\Service\AgendaService;
-use OCA\Decidiq\Service\CurrentAgendaItemService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
+use OCA\Decidiq\Service\AccessibilityConsent;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -49,30 +51,30 @@ use Psr\Log\LoggerInterface;
  *   PUT  /api/agendas/{meetingId}/reorder      → reorderItems
  *   PUT  /api/agendas/{meetingId}/items/{itemId}/formality → setFormality
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 class AgendaController extends Controller {
 	/**
 	 * Constructor for AgendaController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param AgendaService $agendaService The agenda service
-	 * @param CurrentAgendaItemService $currentItems The live meeting's current item
-	 * @param AgendaAuthorizationGuard $guard Authentication + chair/secretary authorization
+	 * @param AgendaServiceInterface $agendaService The agenda service
+	 * @param CurrentAgendaItemServiceInterface $currentItems The live meeting's current item
+	 * @param AgendaAuthorizationGuardInterface $guard Authentication + chair/secretary authorization
 	 * @param LoggerInterface $logger PSR-3 logger
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AgendaService $agendaService,
-		private readonly CurrentAgendaItemService $currentItems,
-		private readonly AgendaAuthorizationGuard $guard,
+		private readonly AgendaServiceInterface $agendaService,
+		private readonly CurrentAgendaItemServiceInterface $currentItems,
+		private readonly AgendaAuthorizationGuardInterface $guard,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -82,7 +84,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	private function denyUnlessChairOrAdmin(string $meetingId): ?JSONResponse {
 		$denied = $this->guard->requireUser();
@@ -97,6 +99,8 @@ class AgendaController extends Controller {
 	 * Publish the agenda for a meeting.
 	 *
 	 * Validates items exist, records the agenda version and notifies participants; the Meeting lifecycle is left alone.
+	 * A publication the document accessibility gate holds back answers 409 with the documents concerned;
+	 * `accessibilityAcknowledged` and `accessibilityOverride.reason` in the body let it through.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
@@ -104,7 +108,8 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
 	#[NoAdminRequired]
 	public function publish(string $meetingId): JSONResponse {
@@ -114,8 +119,17 @@ class AgendaController extends Controller {
 		}
 
 		try {
-			$this->agendaService->publishAgenda($meetingId);
+			// An emergency convocation below the regular notice period records its
+			// deviation (urgent-decision-procedure, meeting-management delta).
+			$reason = null;
+			if (filter_var($this->request->getParam('shortenedNotice', false), FILTER_VALIDATE_BOOLEAN) === true) {
+				$reason = (string)$this->request->getParam('noticeDeviationReason', '');
+			}
+
+			$this->agendaService->publishAgenda($meetingId, $reason, accessibility: $this->accessibilityConsent());
 			return new JSONResponse(['success' => true]);
+		} catch (AccessibilityGateException $e) {
+			return new JSONResponse($e->payload(), Http::STATUS_CONFLICT);
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (\Throwable $e) {
@@ -129,6 +143,17 @@ class AgendaController extends Controller {
 	}//end publish()
 
 	/**
+	 * What the publisher said to the accessibility gate.
+	 *
+	 * @return array{acknowledged: bool, overrideReason: string|null}
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 */
+	private function accessibilityConsent(): array {
+		return (new AccessibilityConsent())->fromRequest(request: $this->request);
+	}//end accessibilityConsent()
+
+	/**
 	 * Advance the BOB phase of a single agenda item.
 	 *
 	 * @param string $id UUID of the AgendaItem
@@ -137,7 +162,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function advanceBobPhase(string $id): JSONResponse {
@@ -180,7 +205,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function processHamerstukken(string $meetingId): JSONResponse {
@@ -215,7 +240,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function revise(string $meetingId): JSONResponse {
@@ -249,7 +274,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function reorder(string $meetingId): JSONResponse {

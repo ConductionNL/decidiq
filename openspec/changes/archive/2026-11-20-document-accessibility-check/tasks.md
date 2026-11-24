@@ -1,0 +1,120 @@
+# Tasks: document-accessibility-check
+
+<!-- HYDRA CAP: 18 unindented `- [ ]` checkboxes (9 tasks x Implement/Test), under the 20 cap.
+     Acceptance criteria are plain bullets, not checkboxes. -->
+
+## Implementation Tasks
+
+### Task 1: AccessibilityScanReport schema + declarative dialects in the register
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-002-per-document-accessibility-status-stored-and-badged`
+- **files**: `lib/Settings/decidesk_register.json`
+- **acceptance_criteria**:
+  - GIVEN the register import runs WHEN it completes THEN an `accessibility-scan-report` schema exists with fileId, fileName, sourceObject, governanceBody, status enum (pass/warnings/fail/not-scanned), findings[], scannerVersion, scannedAt
+  - GIVEN the schema WHEN inspected THEN it carries `x-openregister-aggregations` (per-body/period status counts) and `x-openregister-notifications` (created + status==fail notifies the uploader) — no imperative dispatch (gate 18)
+  - GIVEN `publication-record` WHEN inspected THEN it has the additive `accessibilityOverride` object (reason, actor, overriddenAt, reports[])
+  - Schema references use slugs, not PascalCase (gates 28/30/51/52 pass)
+- [x] Implement
+- [x] Test
+
+### Task 2: Seed data for the new schema and the override example
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period`
+- **files**: `lib/Settings/decidesk_register.json`
+- **acceptance_criteria**:
+  - GIVEN a clean install WHEN seeds import THEN 4 `accessibility-scan-report` objects exist per the design Seed Data table (pass/fail/warnings/not-scanned) linked to seeded agenda items / bodies
+  - GIVEN the seeds WHEN the aggregate report is opened THEN non-zero counts render without any manual data entry
+  - One existing PublicationRecord seed carries an example `accessibilityOverride` with a Dutch reason
+- [x] Implement
+- [x] Test
+  - Built: seeds live in the Zuiddrecht example set (`lib/Settings/example-sets/zuiddrecht.json`; the register itself plants no objects): four `accessibility-scan-report` objects, one per status, on Lindelaan and afvalstoffenheffing agenda items of the gemeenteraad. The agenda path keeps overrides on the meeting, so the example override (Dutch reason) is a change on `meeting-raad-1`; the set has no PublicationRecord seed. Also: titles and descriptions for every report and override property, in en and nl.
+
+### Task 3: DocumentAccessibilityScanService (imperative scanner, ADR-031 exception)
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents`
+- **files**: `composer.json` (smalot/pdfparser), `lib/Service/DocumentAccessibilityScanService.php`
+- **acceptance_criteria**:
+  - GIVEN a tagged PDF with /Lang, title, and text WHEN scanned THEN status `pass` with scanner version recorded
+  - GIVEN an untagged scanned-image PDF WHEN scanned THEN status `fail` with `no-text-layer` and `not-tagged` findings carrying evidence
+  - GIVEN a >20-page PDF without outlines WHEN scanned THEN a `no-bookmarks` warning finding
+  - GIVEN a malformed or >25 MB file WHEN scanned THEN status `not-scanned` with `parse-failure`/`too-large` finding and no uncaught exception (fail-closed, never `pass`)
+  - GIVEN a non-PDF attachment WHEN scanned THEN `not-scanned` with a size/type sanity note only
+  - Report upsert supersedes the previous report for the same fileId via ObjectService (all fields carried forward — PUT semantics)
+- [x] Implement
+- [x] Test
+
+### Task 4: Admin settings + scan-on-upload background job
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning`
+- **files**: `lib/Service/SettingsService.php`, `lib/BackgroundJob/DocumentAccessibilityScanJob.php`, admin settings Vue view
+- **acceptance_criteria**:
+  - GIVEN the admin settings page WHEN loaded THEN enforcement mode (off/warn/block, default warn) and scan-on-upload toggle (default on) are configurable and persist via IAppConfig
+  - GIVEN scan-on-upload on WHEN a PDF is attached to an agenda item THEN a QueuedJob is queued and the report appears after the job runs
+  - GIVEN scan-on-upload off WHEN a PDF is attached THEN no job is queued and the badge shows `not-scanned`
+  - Admin settings component is NOT registered in the vue-router (gate: admin-router)
+- [x] Implement
+- [x] Test
+  - Built: `accessibility_scan_on_upload` (default on) beside `accessibility_enforcement_mode`; `DocumentScanOnUploadListener` (Files created/written events, PDFs in a meeting or agenda item folder found by `PaperFolderOwner`) queues `DocumentAccessibilityScanJob`; admin section `DocumentScanSettings.vue` on the admin page, not routed.
+
+### Task 5: On-demand scan endpoint
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents`
+- **files**: `lib/Controller/AccessibilityController.php`, `appinfo/routes.php`
+- **acceptance_criteria**:
+  - GIVEN an authorised user WHEN POST `/api/accessibility/scan` with sourceObject + fileId THEN 200 with the created/updated report
+  - GIVEN a user without access to the source object WHEN they call the endpoint THEN 403 via OR per-object RBAC (no-admin-idor)
+  - Route declares `#[NoAdminRequired]` auth posture (route-auth) and the method carries `@spec` tags (gate 16)
+- [x] Implement
+- [x] Test
+  - Built: `AccessibilityController::scan()` reads the source under the caller's OpenRegister RBAC (refused, missing or another schema: 403), accepts only a file that is one of the object's papers (else 404), answers 200 with the report or 413 when the file is over the size cap.
+
+### Task 6: Publication gate in the two publish chokepoints with recorded override
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override`
+- **files**: `lib/Service/AgendaService.php`, `lib/Service/PublicationService.php`, `lib/Service/DocumentAccessibilityScanService.php` (gate method), publish controllers (pass-through fields)
+- **acceptance_criteria**:
+  - GIVEN mode `block` and a `fail` attachment WHEN publish is requested without override (direct API, no UI) THEN 409 `accessibility-gate` payload listing the documents and nothing is published
+  - GIVEN mode `block` WHEN an authorised user publishes with a non-empty override reason THEN publication proceeds and actor/reason/timestamp/report refs land on the PublicationRecord (agenda-only path: source audit trail)
+  - GIVEN mode `warn` WHEN publish carries `accessibilityAcknowledged: true` THEN it proceeds; without it THEN 409 listing fail + not-scanned documents
+  - GIVEN mode `off` WHEN publishing THEN behaviour is identical to pre-change `agenda-publication`/`public-publication` flows
+  - GIVEN a `not-scanned` attachment at publish time WHEN the gate runs THEN it is scanned synchronously first (size-capped)
+  - Gate method is invoked from both chokepoints — no defined-but-never-called auth/validation code (gate: orphan-auth)
+- [x] Implement
+- [x] Test
+  - Built: `AgendaService::publishAgenda()` (meeting and item files; override kept on the meeting) and `PublicationService::publish()` (the papers the payload makes public; override on the PublicationRecord). Both controllers answer 409 with the gate payload and pass `accessibilityAcknowledged` / `accessibilityOverride.reason` through.
+
+### Task 7: Accessibility badge + scan detail with remediation guidance
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding`
+- **files**: `src/components/AccessibilityBadge.vue`, attachment list integrations (agenda builder rows, Files tabs), scan detail panel
+- **acceptance_criteria**:
+  - GIVEN attachments with reports WHEN any attachment list renders THEN each shows its status badge (text + colour, CSS variables, heuristic-scan label)
+  - GIVEN a `fail` badge WHEN clicked THEN the scan detail shows each finding with evidence and source-level fix guidance in the UI language (nl/en)
+  - GIVEN an unscanned attachment WHEN viewed THEN a `not-scanned` badge with a working "scan now" action calling Task 5's endpoint
+- [x] Implement
+- [x] Test
+  - Built: `AccessibilityBadge.vue` (text plus colour, CSS variables, labelled heuristic) in a new Accessibility tab (`DocumentAccessibilityTab.vue`) on the meeting and agenda item pages and in the simple structure: each file with its badge, the findings with evidence and fix guidance in the UI language (`src/utils/documentAccessibility.js`, same catalogue keys as the server), and Check now calling the scan endpoint. The library's own Files widget is not changed.
+
+### Task 8: Publication-gate dialog
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override`
+- **files**: `src/dialogs/AccessibilityGateDialog.vue`, publish flows in agenda builder + publication views
+- **acceptance_criteria**:
+  - GIVEN a 409 `accessibility-gate` response WHEN publishing from the UI THEN the dialog renders the server-provided document list, findings, and remediation guidance
+  - GIVEN mode `warn` THEN the dialog offers acknowledge-and-publish; GIVEN mode `block` THEN it requires a non-empty override reason before the publish button enables
+  - Dialog lives in its own file under `src/dialogs/` (modal-isolation) and is keyboard operable per accessibility-baseline
+- [x] Implement
+- [x] Test
+  - Built: `src/dialogs/AccessibilityGateDialog.vue` (NcDialog, own file), opened on a 409 `accessibility-gate` from both publish flows (`MeetingAgendaTab`, `PublicationActionsTab`); warn offers Publish anyway, block needs a reason first; the answer is sent with the retried publication.
+
+### Task 9: Aggregate accessibility report per body/period + CSV export
+- **spec_ref**: `openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period`
+- **files**: `src/views/AccessibilityReport.vue`, navigation entry
+- **acceptance_criteria**:
+  - GIVEN seeded reports WHEN staff open the report for a body and period THEN pass/warnings/fail/not-scanned counts + percentages and the override count render from the declarative aggregation (no imperative counting endpoint)
+  - GIVEN the report WHEN CSV export is clicked THEN a CSV downloads with the same figures and the heuristic-scan disclaimer
+- [x] Implement
+- [x] Test
+  - Built as manifest pages (`src/manifest.d/document-accessibility.json`) reached from a Reports card. The dashboard's body picker (workspace filter over `governance-body`) and period range (`dateRange`, written as `dateFrom`/`dateTo`) scope every tile: the count per status, each with its share of the checked documents as a ratio caption, and the override count. Overrides are counted from `accessibility-override` records (fragment `134-accessibility-overrides.json`, aggregation `overrideCount`), one per publication past the gate, written by `DocumentPublicationGate` through `AccessibilityOverrideLog`; the Zuiddrecht set seeds the agenda override as one. The CSV is the `accessibility-report-export` widget (`AccessibilityReportExportWidget.vue`, figures and CSV in `src/utils/accessibilityReport.js`): the same figures for the page's body and period, the override count and the heuristic-scan statement, because the shared export has no room for that statement. The status donut is per body over all time (the grouped aggregation applies equality filters only). Left: a browser test of the report page needs a live instance.
+
+## Quality checklist
+
+- All new/changed business logic covered by PHPUnit unit tests (`tests/Unit/`) — scanner checks, gate matrix (3 modes x fail/warn/not-scanned), override recording
+- New/changed API endpoints covered by Newman tests — scan endpoint 200/403, publish 409 contract, mode `off` regression
+- UI changes covered by Playwright browser tests — badge, gate dialog, report view; fixtures include one tiny tagged PDF and one scanned-image PDF
+- All tests pass (`composer test`, `composer check:strict`, `newman run`)
+- Feature documentation updated in `docs/` (ADR-010) including the honest heuristic-scan disclaimer
+- Dutch (`nl_NL`) and English (`en_US`) strings for statuses, findings, remediation guidance, dialogs (ADR-005; i18n keys in English)
+- `openspec validate` passes

@@ -1,0 +1,8 @@
+{
+    "resolutions-benign": "id,meetingIntegration,resolutionNumber,title,type,status,voteThreshold,adoptionDate\nr-1,m-1,R-2026-001,Approve budget,approval,adopted,0.5,2026-04-01\nr-2,,,\"Approve, budget \"\"2027\"\"\",,,2,\n,,,,,,,",
+    "resolutions-hostile": "id,meetingIntegration,resolutionNumber,title,type,status,voteThreshold,adoptionDate\nr-3,,'@SUM(A1),\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"open\"\")\",'+cmd,'-,,\nr-4,,,\"first\rsecond\",\"line\none\",'\tadopted,,\nr-5,,,\"x;'=1+1;\",' =2+2,\"\n'=3+3\",,'  -1",
+    "minutes": "id,meetingIntegration,language,version,preparedBy,reviewedBy,signingCompletionDate,hashSha256\nn-1,m-1,nl,3,Anna de Vries,Bob,2026-04-02,ab12\nn-2,,,,'=1+1,\"Dora; chair\",, ab",
+    "audit-log": "id,timestamp,actorUuid,action,previousHash,currentHash\na-1,2026-04-01T10:00:00Z,alice,vote,GENESIS,h1\na-2,,\"eve;'=1+1\",'-vote,h1,\"h2\r\"",
+    "unknown-scope": "id,timestamp,actorUuid,action,previousHash,currentHash\na-3,,carl,,,",
+    "no-rows": "id,meetingIntegration,language,version,preparedBy,reviewedBy,signingCompletionDate,hashSha256"
+}

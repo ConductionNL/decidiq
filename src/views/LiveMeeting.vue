@@ -2,11 +2,11 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.5
 -->
 <template>
 	<div
@@ -42,6 +42,16 @@
 						})
 					">
 					{{ t('decidiq', 'Room screen') }}
+				</NcButton>
+				<!-- platform-microsoft-365-calendar-and-teams (REQ-M365-005) -->
+				<NcButton
+					v-if="teamsJoinUrl"
+					variant="primary"
+					:href="teamsJoinUrl"
+					target="_blank"
+					rel="noopener noreferrer"
+					data-testid="meeting-live-teams-join">
+					{{ t('decidiq', 'Join in Microsoft Teams') }}
 				</NcButton>
 			</div>
 
@@ -224,7 +234,9 @@
 				:meetingId="id"
 				:currentItemId="activeItem.id"
 				:participants="participants"
-				:isChair="isChair" />
+				:isChair="isChair"
+				:preload="publicSpeakers"
+				:markOutcome="isChair ? markSpeakerOutcome : null" />
 
 			<!-- Seats and the mandate swap (bodies-substitute-mandate-swap) -->
 			<SeatsPanel :meetingId="id" />
@@ -282,7 +294,9 @@ import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
 import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
+import { markSpeakingOutcome, queuePreloadFor } from '../services/speakingRequestApi.js'
 import { useObjectStore } from '../store/store.js'
+import { AGENDA_PHASE_STAGES, canAdvancePhase, phaseOf } from '../utils/agendaPhase.js'
 import {
 	formalityUrl,
 	isPendingFormality,
@@ -294,17 +308,14 @@ import {
 	sharedCurrentItemId,
 } from '../utils/liveMeeting.js'
 import { references } from '../utils/objectRelations.js'
+import { teamsJoinUrl } from '../utils/teamsMeeting.js'
 
-const BOB_STAGES = [
-	{ id: 'beeldvorming', label: 'Beeldvorming' },
-	{ id: 'oordeelsvorming', label: 'Oordeelsvorming' },
-	{ id: 'besluitvorming', label: 'Besluitvorming' },
-]
-
-const BOB_FINAL = 'completed'
+// The phase reads the declared `phase` (agenda-item-phase-is-declared), with
+// the legacy `status` as a fallback; shared with the agenda item page.
+const BOB_STAGES = AGENDA_PHASE_STAGES
 
 /**
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
  */
 export default {
 	name: 'LiveMeeting',
@@ -339,6 +350,9 @@ export default {
 		return {
 			loading: true,
 			activeItemId: null,
+			// Approved public speakers of the current item, for the speaker
+			// queue (inspreekrecht-plenair REQ-INS-009).
+			publicSpeakers: null,
 			advancingBob: false,
 			processingHamerstukken: false,
 			confirmHamerstukken: false,
@@ -365,9 +379,19 @@ export default {
 		// LiveMeeting copied data into local state in fetchData(),
 		// which made the page non-reactive to live updates: the plugin
 		// updated the store cache but the local copy never re-read.
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
+		},
+
+		/**
+		 * The Teams join address of the meeting, or '' (platform-microsoft-365-calendar-and-teams).
+		 *
+		 * @return {string} The join address.
+		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
+		 */
+		teamsJoinUrl() {
+			return teamsJoinUrl(this.meeting)
 		},
 
 		/**
@@ -380,7 +404,7 @@ export default {
 		 * where OpenRegister materialised the link into `@self.relations` but the
 		 * scalar property was not round-tripped.
 		 *
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
 		 */
 		allItems() {
 			const collection = this.objectStore.collections?.['agenda-item'] ?? []
@@ -451,7 +475,7 @@ export default {
 			return runsTheMeeting(this.myRoles)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3 */
 		bobStages() {
 			return BOB_STAGES.map((s) => ({
 				...s,
@@ -459,19 +483,19 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
 			return pendingFormalities(this.allItems)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
 				.filter((i) => !isPendingFormality(i))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
 			return this.allItems.find((i) => i.id === this.activeItemId) ?? null
 		},
@@ -506,9 +530,18 @@ export default {
 		sharedItemId(itemId) {
 			if (itemId) this.activeItemId = itemId
 		},
+
+		/**
+		 * Read the approved public speakers of the item that became current.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		activeItemId() {
+			this.loadPublicSpeakers()
+		},
 	},
 
-	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 	async created() {
 		await this.fetchData()
 
@@ -564,26 +597,50 @@ export default {
 
 	methods: {
 		/**
+		 * Read the approved public speakers of the current item, so the queue
+		 * can place them. Only staff of an opened meeting get them; for
+		 * anyone else the queue stays as it was.
+		 *
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		async loadPublicSpeakers() {
+			const itemId = this.activeItemId
+			const preload = await queuePreloadFor({ ...this.meeting, id: this.id }, itemId, this.t('decidiq', 'Public speaker'), Date.now())
+			if (itemId === this.activeItemId) this.publicSpeakers = preload
+		},
+
+		/**
+		 * Record a public speaker's outcome on their speaking request.
+		 *
+		 * @param {string} requestId The speaking request.
+		 * @param {'spoke'|'no-show'} outcome The outcome.
+		 * @return {Promise<object>} The updated request.
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 */
+		markSpeakerOutcome(requestId, outcome) {
+			return markSpeakingOutcome(requestId, outcome)
+		},
+
+		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		currentBobStageIndex(item) {
-			const status = item?.status ?? 'beeldvorming'
-			const idx = BOB_STAGES.findIndex((s) => s.id === status)
+			const idx = BOB_STAGES.findIndex((s) => s.id === phaseOf(item))
 			return idx === -1 ? 0 : idx
 		},
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		canAdvanceBob(item) {
-			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
+			return canAdvancePhase(item)
 		},
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async activateItem(item) {
@@ -651,7 +708,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		async advanceBobPhase(item) {
 			this.advancingBob = true
@@ -679,7 +736,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4 */
 		async processHamerstukken() {
 			this.processingHamerstukken = true
 			this.confirmHamerstukken = false
@@ -709,7 +766,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4
 		 */
 		async removeFromHamerstukken(item) {
 			try {
@@ -734,7 +791,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		async fetchData() {
 			// Trigger initial fetches to populate the shared store cache.
 			// We deliberately don't assign results to local state — the
@@ -798,7 +855,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		async refreshItems() {
 			try {
 				// Same dialect as fetchData() — see the note there on why the

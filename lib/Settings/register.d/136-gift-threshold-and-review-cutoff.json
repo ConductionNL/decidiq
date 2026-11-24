@@ -1,0 +1,75 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change interests-and-integrity task 2 (REQ-INT-006, REQ-INT-008, REQ-INT-009). Narrows two declared notifications of fragment 81 to what the spec says. (1) The annual review reminder now has the 12-month cutoff: OpenRegister's scheduled filter grammar has `olderThan` and `any`/`all` (as 130-implementation-progress uses), so a disclosure whose reviewedAt, or declaredAt when never reviewed, is under 12 months old is no longer reminded. (2) The gift notification fires only for a gift at or above its body's threshold: a created-trigger filter can only compare a field for equality, so a declared gift carries `thresholdStatus`, which DeclaredGiftThresholdListener stamps on every save from the body's giftThresholdAmount (EUR 50 when the body has no configuration), and the trigger filters on `above`. Properties only, so no schema version moves, as in 134-decision-authority-basis.",
+  "_spec": "openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-009-integrity-notification-to-the-designated-role",
+  "components": {
+    "schemas": {
+      "AncillaryPosition": {
+        "slug": "ancillary-position",
+        "x-openregister-notifications": {
+          "nevenfunctieJaarlijkseReview": {
+            "trigger": {
+              "filter": {
+                "any": [
+                  {
+                    "reviewedAt": {
+                      "operator": "olderThan",
+                      "value": "P12M"
+                    }
+                  },
+                  {
+                    "all": [
+                      {
+                        "reviewedAt": {
+                          "operator": "equals",
+                          "value": null
+                        }
+                      },
+                      {
+                        "declaredAt": {
+                          "operator": "olderThan",
+                          "value": "P12M"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "_note": "Annual review reminder (REQ-INT-008). Every 30 days, the holder of a disclosure that has not ended (lifecycle reported, public or internal) and whose reviewedAt, or declaredAt when it was never reviewed, is more than 12 months old is reminded. A disclosure reviewed within the year and an ended one stay quiet. The recipient approximates the holder through object-acl (read), because the person reference is a Person uuid and not a user id. The member confirms through self-service (REQ-INT-010), which writes reviewedAt."
+          }
+        }
+      },
+      "DeclaredGift": {
+        "slug": "declared-gift",
+        "properties": {
+          "thresholdStatus": {
+            "title": "Against the gift threshold",
+            "type": "string",
+            "enum": [
+              "above",
+              "below"
+            ],
+            "nullable": true,
+            "example": "above",
+            "description": "Whether the estimated value is at or above the body's gift threshold (`above`) or under it (`below`). Stamped on every save by DeclaredGiftThresholdListener from the body's configured giftThresholdAmount, or EUR 50 when the body has none; a value sent by the client is replaced. Empty while the gift has no estimated value. It drives the integrity notification and the above-threshold badge (REQ-INT-006)."
+          }
+        },
+        "x-openregister-notifications": {
+          "geschenkBovenDrempel": {
+            "trigger": {
+              "filter": {
+                "field": "thresholdStatus",
+                "operator": "equals",
+                "value": "above"
+              }
+            },
+            "_note": "Integrity notification on a gift registered at or above its body's threshold (REQ-INT-009, scoped by REQ-INT-006). A gift under the threshold stays quiet. The recipient is the literal integrity group: the dialect cannot read the group from the body's configuration (integrityNotificationGroup), so per-body routing is done through group membership (design D3)."
+          }
+        }
+      }
+    }
+  }
+}

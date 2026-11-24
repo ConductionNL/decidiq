@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\ConflictOfInterestController;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -34,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for ConflictOfInterestController.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  */
 class ConflictOfInterestControllerTest extends TestCase {
 
@@ -104,7 +105,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('declare')
-			->with('m1', 'a1', 'financial-interest', 'shares', 'material', 'alice')
+			->with((new ConflictDeclaration(membershipId: 'm1', agendaItemId: 'a1', type: 'financial-interest', description: 'shares'))->assessed(severity: 'material', initialAction: 'no-action-needed'), 'alice')
 			->willReturn(
 				[
 					'success' => true,
@@ -163,7 +164,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service->method('membershipForUser')->with('alice')->willReturn('M-alice');
 		$service->expects($this->once())
 			->method('declare')
-			->with('M-alice', 'M-12', 'financial-interest', 'Owns land', 'material', 'alice', 'recused-from-vote')
+			->with((new ConflictDeclaration(membershipId: 'M-alice', agendaItemId: 'M-12', type: 'financial-interest', description: 'Owns land'))->assessed(severity: 'material', initialAction: 'recused-from-vote'), 'alice')
 			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
 
 		$controller = $this->makeController(
@@ -401,7 +402,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('declare')
-			->with('m1', 'a1', 'financial-interest', 'shares', 'material', null)
+			->with((new ConflictDeclaration(membershipId: 'm1', agendaItemId: 'a1', type: 'financial-interest', description: 'shares'))->assessed(severity: 'material', initialAction: 'no-action-needed'), null)
 			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
 
 		$controller = $this->makeController(

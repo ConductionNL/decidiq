@@ -9,8 +9,8 @@
   - GIVEN `vote.value` WHEN read THEN its enum is `for`, `against`, `abstain`, `ranked`
   - GIVEN the association example set WHEN imported THEN the ranked round and its three ballots exist, and recomputing the seed ballots gives the seeded points
   - Verification: `RegisterJsonTest` red first, then green
-- [x] Implement (fragment `93-ranked-preference-ballot.json`; the association example set does not seed the ranked round yet)
-- [x] Test (`RankedPreferenceBallotRegisterTest`, not `RegisterJsonTest`; red first)
+- [x] Implement (fragment `93-ranked-preference-ballot.json`; the association example set seeds the closed round `stemming-voorkeur-clubhuis` and its three ranked ballots)
+- [x] Test (`RankedPreferenceBallotRegisterTest` and `RankedPreferenceBallotExampleSetTest`, which recounts the seed ballots with `BordaCount`; not `RegisterJsonTest`; red first)
 
 ### Task 2: Open a ranked round with options
 
@@ -71,5 +71,6 @@
   - GIVEN a closed ranked round WHEN the motion page opens THEN the ranking table shows rank, option and points and the winner badge (REQ-PRF-004); a secret round shows points only (REQ-PRF-005)
   - GIVEN a ranked ballot in the "Votes" widget WHEN listed THEN it reads as its ordered options (REQ-RPB-002)
   - Verification: Playwright red first (no ranked option in the dialog), then green, including a keyboard-only ranking; vitest for the ballot's move controls
-- [ ] Implement (partly, #1419: method, option editor with labels, keyboard ballot, results table and the ranking in both vote lists are built; Person picks are not)
-- [ ] Test (vitest for the ranking text only; the Playwright spec is still to write)
+- [x] Implement (#1419: method, option editor with labels, keyboard ballot, results table and the ranking in both vote lists; Person picks per option in VotingRoundPanel.vue through `rankedOptionsFrom()` and `pickPerson()` in src/utils/rankedBallot.js, sent as `options[].person`, which RankedBallotRules already stores)
+- [ ] Test (vitest: the ranking text and tests/vitest/rankedOptionsPersonPick.spec.js; not run: the Playwright spec, red first then keyboard-only ranking, needs the live instance) (verified: tests/vitest/rankedOptionsPersonPick.spec.js; code exists, test missing: no Playwright ranked-ballot spec; live pass, decision 139)
+- Written, not run (21 Nov): `tests/e2e/ranked-preference-ballot.spec.ts` (a one-option round refused; the chair opens a three-option round from the dialog; a partial ranking refused; a member ranks with the keyboard alone and the ballot is stored in that order; closing tallies 5, 3 and 1 and adopts the winner; the ranking table with the Elected badge; the votes list reads the ballot as its ordered options). Left: running it on an instance, and the secret-round and revote scenarios.

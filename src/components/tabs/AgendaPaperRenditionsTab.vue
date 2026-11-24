@@ -7,7 +7,11 @@
  and the secretariat also get the original and can try a failed conversion
  again. The entries are built by src/utils/paperRenditions.js.
 
+ A member's paper opens through decidiq's paper view, which stamps it with
+ the reader's name when the meeting asks for it (agenda-paper-watermark).
+
  @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf
+ @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 -->
 <template>
 	<div class="paper-renditions" data-testid="paper-renditions">
@@ -83,14 +87,17 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { canManageAgenda } from '../../services/agendaRules.js'
 import { paperEntries, retryUrl } from '../../utils/paperRenditions.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'AgendaPaperRenditionsTab',
 
 	components: { NcButton, NcLoadingIcon },
 
+	/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
+	mixins: [objectIdLoader],
+
 	props: {
-		objectId: { type: [String, Number], default: '' },
 		targetType: { type: String, default: '' },
 	},
 
@@ -119,17 +126,8 @@ export default {
 			return paperEntries(
 				this.object?.paperRenditions,
 				canManageAgenda(this.roles),
+				{ schema: this.schema, objectId: this.objectId },
 			)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

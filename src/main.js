@@ -11,6 +11,7 @@ import {
 	registerLeafIntegrations,
 	registerTranslations,
 } from '@conduction/nextcloud-vue'
+import { getCapabilities } from '@nextcloud/capabilities'
 import { loadState } from '@nextcloud/initial-state'
 import {
 	loadTranslations,
@@ -23,6 +24,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { registerDetailWidgets } from './components/widgets/registerDetailWidgets.js'
+import { registerReportWidgets } from './components/widgets/registerReportWidgets.js'
 import appIcons from './icons.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
@@ -35,6 +37,7 @@ import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { currentPermissions } from './utils/permissions.js'
 import {
 	buildProfiledManifest,
+	navTheming,
 	resolveStructureProfile,
 	STRUCTURE_FULL,
 	STRUCTURE_SETTING,
@@ -141,11 +144,15 @@ const structureProfile = resolveStructureProfile(
 )
 const menuLayout =
 	structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple
+// The simple profile's brand block names the instance through its theming
+// capabilities (`@theming.name`, `@theming.logo`), so the navigation shows the
+// municipality the instance belongs to without the app naming one.
 const mergedManifest = buildProfiledManifest(
 	buildManifest,
 	bundledManifest,
 	fragments,
 	menuLayout,
+	{ theming: navTheming(getCapabilities()) },
 )
 
 // The permissions this account holds, from the server's own answer rather than
@@ -306,6 +313,16 @@ setActivePinia(pinia)
 		// pages; every other page is unaffected.
 		// eslint-disable-next-line no-console
 		console.error('Boot: registerDetailWidgets() failed', e)
+	}
+
+	try {
+		// The report dashboards' own widgets (document-accessibility-check:
+		// the accessibility report's CSV export). Same timing as above.
+		await registerReportWidgets()
+	} catch (e) {
+		// Non-fatal: only the export button is missing from its report.
+		// eslint-disable-next-line no-console
+		console.error('Boot: registerReportWidgets() failed', e)
 	}
 
 	// Vue 3 (ADR-066): mount App as the root component directly and pass the

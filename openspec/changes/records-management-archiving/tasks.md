@@ -80,7 +80,7 @@
 - Note (2 Oct): `SelectionCategoryReader::forObject()` is the one place a dossier's category is decided (design.md). OpenRegister's per-object read of `archive.classificationProperty` is the openregister lane's (openregister#4228 follow-up), so the live check, that OpenRegister writes the dossier's own retention, stays open.
 - [x] Implement
 - [x] Test
-- [ ] Live check once OpenRegister reads the per-object category
+- [ ] Live check once OpenRegister reads the per-object category (live pass, decision 139)
 
 ## Verification
 - All tasks checked off; `openspec validate` passes
@@ -92,7 +92,7 @@
 ## Quality checklist
 
 - All new/changed business logic covered by PHPUnit unit tests (`tests/Unit/`)
-- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidiq-records-management.postman_collection.json`)
+- New/changed API endpoints covered by Newman/Postman tests (`tests/integration/decidiq-records-management.postman_collection.json`). Written, not run (21 Nov): form (401, 403, 404, 201, one per meeting), gather, close (403, 422 with the gaps, 200 with a reason, 409 frozen), disposition (401, 403 before 404, 404, the schema's category routes to transfer), hand a forming dossier to a list (409 not-closed), outcome and certificate (403), and the own category (403, 422 unknown, 11.1 routes to destruction, the schema's category clears it), as an `archivaris` probe user. It never hands a dossier to an OpenRegister list. Running it needs a live instance.
 - UI changes covered by Playwright browser tests
 - All tests pass (`composer test`, `newman run`); `composer check:strict` clean
 - Feature documentation updated in `docs/` (ADR-010) with screenshot

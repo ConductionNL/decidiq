@@ -35,8 +35,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Portal;
 
+use OCA\Decidiq\Kernel\Contracts\ConfidentialPapersInterface;
 use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\Decidiq\Service\SettingsService;
+use OCP\IL10N;
+use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -78,8 +81,9 @@ final class PortalContributionProviderTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * The provider is plain: no parent, no interface, no constructor, and its
-	 * source references no portaliq symbol (inert without portaliq, A1).
+	 * The provider is plain: no parent, no interface, no required constructor
+	 * argument, and its source references no portaliq symbol (inert without
+	 * portaliq, A1).
 	 *
 	 * @return void
 	 */
@@ -88,7 +92,16 @@ final class PortalContributionProviderTest extends TestCase {
 
 		self::assertFalse(condition: $reflection->getParentClass(), message: 'Provider must not extend any class');
 		self::assertSame(expected: [], actual: $reflection->getInterfaceNames(), message: 'Provider must implement no interface');
-		self::assertNull(actual: $reflection->getConstructor(), message: 'Provider must declare no constructor');
+		// `new PortalContributionProvider()` must keep working without a
+		// container: a constructor may only take optional, nullable services
+		// (the l10n factory), never a required dependency.
+		$constructor = $reflection->getConstructor();
+		if ($constructor !== null) {
+			self::assertSame(expected: 0, actual: $constructor->getNumberOfRequiredParameters(), message: 'Provider must need no constructor argument');
+			foreach ($constructor->getParameters() as $parameter) {
+				self::assertTrue(condition: $parameter->allowsNull(), message: 'Constructor argument '.$parameter->getName().' must be nullable');
+			}
+		}
 
 		// The reflection interface check above already proves there is no
 		// implements clause. The docblock legitimately names portaliq in prose;
@@ -135,7 +148,7 @@ final class PortalContributionProviderTest extends TestCase {
 		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
 
 		self::assertIsArray(actual: $manifest);
-		self::assertSame(expected: 'Decidiq', actual: $manifest['label']);
+		self::assertSame(expected: 'Council and participation', actual: $manifest['label']);
 		self::assertCount(expectedCount: 5, haystack: $manifest['actions'], message: 'createReaction, createBudgetProposal, castMotionAdvice, subscribeToPublications and unsubscribeFromPublications');
 		self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 
@@ -145,17 +158,18 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice', 'publicAncillaryPositions', 'confidentialAgendaItems'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections, the public calendar and the public broadcasts, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts, the motions open for advice, the ancillary positions and the confidential papers, in order'
 		);
 
-		// The public calendar and broadcasts are read without an account; they are tested on their own.
-		unset($byId['publicCalendar'], $byId['publicBroadcasts']);
+		// The public calendar and broadcasts are read without an account, and the
+		// confidential papers need DigiD or eHerkenning; they are tested on their own.
+		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice'], $byId['publicAncillaryPositions'], $byId['confidentialAgendaItems']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
-			self::assertSame(expected: 'low', actual: $collection['minTrust'], message: 'Password edge — DigiD/eHerkenning deferred');
+			self::assertSame(expected: 'low', actual: $collection['minTrust'], message: 'Password edge for the participation collections');
 			self::assertArrayNotHasKey(key: 'scopeClaim', array: $collection, message: 'Citizen scopes by the pseudonymous subjectRef, not a claim');
 			self::assertArrayNotHasKey(key: 'via', array: $collection, message: 'No via joins this wave');
 			self::assertNotSame(expected: '', actual: $collection['scopeField'], message: 'Every citizen collection is per-subject scoped');
@@ -228,6 +242,9 @@ final class PortalContributionProviderTest extends TestCase {
 			actual: $calendar['fields']
 		);
 		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['defaultFilters']);
+		// Portaliq reads an anonymous collection as the public may read it; the
+		// filter keeps decisions out of the calendar.
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['filter']);
 		self::assertSame(expected: ['field' => 'meetingDate', 'direction' => 'asc'], actual: $calendar['defaultSort']);
 
 	}//end testThePublicCalendarIsAnonymousWithCalendarFieldsOnly()
@@ -261,6 +278,73 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertSame(expected: ['field' => 'scheduledDate', 'direction' => 'desc'], actual: $broadcasts['defaultSort']);
 
 	}//end testPublicBroadcastsAreAnonymousWithoutStaffFields()
+
+	/**
+	 * Motions with a citizen advisory vote, read without an account (REQ-CAV-003).
+	 *
+	 * Only motions the griffie allowed citizen voting on are listed, and
+	 * OpenRegister's Decision read rule already limits an anonymous caller to
+	 * published decisions. The counts travel with the motion so the portal can
+	 * show the result once the vote closes; nothing about who voted is listed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-003-the-advisory-result-shows-apart-from-the-councils-vote
+	 */
+	public function testMotionsOpenForAdviceAreAnonymousWithTheirCounts(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'motionsOpenForAdvice', array: $byId);
+		$motions = $byId['motionsOpenForAdvice'];
+		self::assertSame(expected: 'decidiq', actual: $motions['register']);
+		self::assertSame(expected: 'decision', actual: $motions['schema']);
+		self::assertTrue(condition: $motions['anonymous']);
+		self::assertTrue(condition: $motions['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $motions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['defaultFilters']);
+		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['filter']);
+		self::assertSame(
+			expected: ['title', 'text', 'motionType', 'citizenVotingStatus', 'citizenAdviceFor', 'citizenAdviceAgainst', 'citizenAdviceAbstain'],
+			actual: $motions['fields']
+		);
+		foreach (['proposer', 'coSigners', 'externalReference', 'sourceApp'] as $field) {
+			self::assertNotContains(needle: $field, haystack: $motions['fields']);
+		}
+
+	}//end testMotionsOpenForAdviceAreAnonymousWithTheirCounts()
+
+	/**
+	 * Residents read members' ancillary positions without an account, with the
+	 * six public fields only; the read rule on the schema admits an anonymous
+	 * caller to a position whose publicationDate has passed and to nothing else.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 */
+	public function testAncillaryPositionsAreAnonymousWithTheSixPublicFields(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'publicAncillaryPositions', array: $byId);
+		$positions = $byId['publicAncillaryPositions'];
+		self::assertSame(expected: 'decidiq', actual: $positions['register']);
+		self::assertSame(expected: 'ancillary-position', actual: $positions['schema']);
+		self::assertTrue(condition: $positions['anonymous']);
+		self::assertTrue(condition: $positions['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $positions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(
+			expected: ['person', 'organisation', 'role', 'remunerated', 'startDate', 'endDate'],
+			actual: $positions['fields']
+		);
+
+		$schema = $this->schemasBySlug()['ancillary-position'];
+		self::assertContains(
+			needle: ['group' => 'public', 'match' => ['publicationDate' => ['$lte' => '$now']], 'crossOrganisation' => true],
+			haystack: $schema['authorization']['read'],
+			message: 'Only a published position is readable without an account'
+		);
+
+	}//end testAncillaryPositionsAreAnonymousWithTheSixPublicFields()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.
@@ -656,4 +740,292 @@ final class PortalContributionProviderTest extends TestCase {
 
 		return $bySlug;
 	}//end schemasBySlug()
+
+	/**
+	 * Every word a visitor reads comes from decidiq's catalogue in the reader's
+	 * language; ids, schema slugs and field names stay as they are.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	public function testLabelsAreReadInTheReadersLanguage(): void {
+		$dutch    = $this->catalogue(locale: 'nl');
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $dutch));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+
+		self::assertIsArray(actual: $manifest);
+		self::assertSame(expected: 'Raad en inspraak', actual: $manifest['label']);
+
+		$votes = $this->collection(manifest: $manifest, id: 'citizenVotes');
+		self::assertSame(expected: 'Mijn stemmen', actual: $votes['label']);
+		self::assertSame(expected: 'citizen-vote', actual: $votes['schema'], message: 'A schema slug is never translated');
+		self::assertContains(needle: 'voteValue', haystack: $votes['fields'], message: 'A field name is never translated');
+		self::assertSame(expected: 'Vergaderkalender', actual: $this->collection(manifest: $manifest, id: 'publicCalendar')['label']);
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $this->collection(manifest: $manifest, id: 'publicCalendar')['defaultFilters']);
+	}//end testLabelsAreReadInTheReadersLanguage()
+
+	/**
+	 * The council calendar's headings are declared, so a Dutch reader reads
+	 * them in Dutch instead of the schema's English titles.
+	 *
+	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarHeadingsReadInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$calendar = $this->collection(manifest: $manifest, id: 'publicCalendar');
+
+		$labels = array_map(static fn (array $config): string => $config['label'], $calendar['fieldConfigs']);
+		self::assertSame(
+			expected: ['title' => 'Vergadering', 'meetingDate' => 'Datum', 'bodyName' => 'Orgaan', 'meetingType' => 'Vergaderingstype', 'location' => 'Locatie', 'oriType' => 'Soort'],
+			actual: $labels
+		);
+		self::assertSame(
+			expected: ['meetingDate', 'title', 'bodyName', 'meetingType'],
+			actual: array_column($calendar['columns'], 'field')
+		);
+		self::assertSame(expected: 'datetime', actual: $calendar['columns'][0]['render']);
+		foreach (array_merge(array_column($calendar['columns'], 'field'), $calendar['detail']['fields']) as $field) {
+			self::assertContains(needle: $field, haystack: $calendar['fields'], message: 'Only whitelisted fields are shown');
+			self::assertArrayHasKey(key: $field, array: $calendar['fieldConfigs'], message: 'Every shown field has a declared label');
+		}
+
+	}//end testTheCouncilCalendarHeadingsReadInTheReadersLanguage()
+
+	/**
+	 * The meeting type and the kind of record read as words in the reader's
+	 * language; the stored values they label stay as they are.
+	 *
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$configs = $this->collection(manifest: $manifest, id: 'publicCalendar')['fieldConfigs'];
+
+		self::assertSame(
+			expected: [
+				'regular' => 'Gewone vergadering',
+				'extraordinary' => 'Extra vergadering',
+				'committee' => 'Commissievergadering',
+				'public hearing' => 'Openbare hoorzitting',
+				'general_assembly' => 'Algemene vergadering',
+			],
+			actual: $configs['meetingType']['valueLabels']
+		);
+		self::assertSame(
+			expected: ['Vergadering' => 'Vergadering', 'Besluit' => 'Besluit', 'Verslag' => 'Notulen'],
+			actual: $configs['oriType']['valueLabels']
+		);
+
+		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $english);
+		self::assertSame(
+			expected: 'Regular meeting',
+			actual: $this->collection(manifest: $english, id: 'publicCalendar')['fieldConfigs']['meetingType']['valueLabels']['regular']
+		);
+	}//end testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage()
+
+	/**
+	 * A label added to the manifest without a Dutch entry in l10n/nl.json fails
+	 * here, instead of reaching a Dutch resident in English.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	public function testEveryVisibleLabelHasADutchTranslation(): void {
+		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+		$dutch   = $this->catalogue(locale: 'nl');
+		$source  = $this->catalogue(locale: 'en');
+
+		self::assertIsArray(actual: $english);
+		$missing = [];
+		foreach ($this->visibleLabels(manifest: $english) as $label) {
+			if (isset($dutch[$label]) === false || trim((string)$dutch[$label]) === '' || isset($source[$label]) === false) {
+				$missing[] = $label;
+			}
+		}
+
+		self::assertSame(expected: [], actual: $missing, message: 'Labels without an entry in l10n/en.json and l10n/nl.json');
+	}//end testEveryVisibleLabelHasADutchTranslation()
+
+	/**
+	 * Without a factory the provider answers in the English source, as before.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 */
+	public function testWithoutAFactoryTheSourceStays(): void {
+		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+
+		self::assertIsArray(actual: $manifest);
+		self::assertSame(expected: 'My votes', actual: $this->collection(manifest: $manifest, id: 'citizenVotes')['label']);
+	}//end testWithoutAFactoryTheSourceStays()
+
+	/**
+	 * One collection of a manifest by id.
+	 *
+	 * @param array<string, mixed> $manifest The manifest.
+	 * @param string               $id       The collection id.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function collection(array $manifest, string $id): array {
+		foreach ($manifest['collections'] as $collection) {
+			if ($collection['id'] === $id) {
+				return $collection;
+			}
+		}
+
+		self::fail('No collection '.$id);
+	}//end collection()
+
+	/**
+	 * The `label` and `group` strings of a manifest, at any depth outside machine keys.
+	 *
+	 * @param array<array-key, mixed> $manifest The manifest.
+	 *
+	 * @return array<int, string>
+	 */
+	private function visibleLabels(array $manifest): array {
+		$labels = [];
+		foreach ($manifest as $key => $value) {
+			if ($key === 'valueLabels' && is_array($value) === true) {
+				array_walk_recursive(
+					$value,
+					static function (mixed $label) use (&$labels): void {
+						if (is_string($label) === true && $label !== '') {
+							$labels[] = $label;
+						}
+					}
+				);
+				continue;
+			}
+
+			if (is_array($value) === true && in_array($key, ['fields', 'defaults', 'defaultFilters', 'defaultSort', 'parentConstraint', 'set'], true) === false) {
+				$labels = array_merge($labels, $this->visibleLabels(manifest: $value));
+				continue;
+			}
+
+			if (in_array($key, ['label', 'group'], true) === true && is_string($value) === true && $value !== '') {
+				$labels[] = $value;
+			}
+		}
+
+		return $labels;
+	}//end visibleLabels()
+
+	/**
+	 * The shipped catalogue of one locale.
+	 *
+	 * @param string $locale The locale, e.g. `nl`.
+	 *
+	 * @return array<string, string>
+	 */
+	private function catalogue(string $locale): array {
+		$file = dirname(__DIR__, 3).'/l10n/'.$locale.'.json';
+		$json = json_decode((string)file_get_contents($file), true);
+
+		return (array)($json['translations'] ?? []);
+	}//end catalogue()
+
+	/**
+	 * A factory whose decidiq catalogue answers from the given map, and marks
+	 * anything else it is asked, so a machine value sent through it shows.
+	 *
+	 * @param array<string, string> $catalogue Source to translation.
+	 *
+	 * @return IFactory
+	 */
+	private function factoryFor(array $catalogue): IFactory {
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text): string => (string)($catalogue[$text] ?? 'untranslated:'.$text));
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->with('decidiq')->willReturn($l10n);
+
+		return $factory;
+	}//end factoryFor()
+	/**
+	 * The confidential papers collection with the setting unset: substantial, scoped by the claim (REQ-PSH-003).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function testConfidentialPapersNeedTheDeclaredTrustAndANamedReader(): void {
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->method('minTrust')->willReturn('substantial');
+		$manifest = (new PortalContributionProvider(confidentialPapers: $papers))->getContribution(subject: ['audience' => 'citizen']);
+		$byId = array_column($manifest['collections'], null, 'id');
+		$collection = $byId['confidentialAgendaItems'];
+
+		self::assertSame('agenda-item', $collection['schema']);
+		self::assertSame('substantial', $collection['minTrust']);
+		self::assertSame('decidiq.personId', $collection['scopeClaim']);
+		self::assertSame('authorisedPersons', $collection['scopeField']);
+		self::assertSame(['public' => false], $collection['defaultFilters']);
+		self::assertSame(
+			['label' => 'Papers', 'provider' => 'confidentialPapers', 'opened' => 'confidentialPaperOpened'],
+			$collection['documents']
+		);
+	}//end testConfidentialPapersNeedTheDeclaredTrustAndANamedReader()
+
+	/**
+	 * The setting `high` raises the collection's trust; without the service it is high too.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-003-confidential-papers-reach-only-a-named-reader-at-the-declared-trust-level
+	 */
+	public function testAHighSettingRaisesTheConfidentialTrust(): void {
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->method('minTrust')->willReturn('high');
+		$withHigh = (new PortalContributionProvider(confidentialPapers: $papers))->getContribution(subject: ['audience' => 'citizen']);
+		$withoutService = $this->provider->getContribution(subject: ['audience' => 'citizen']);
+
+		self::assertSame('high', array_column($withHigh['collections'], null, 'id')['confidentialAgendaItems']['minTrust']);
+		self::assertSame('high', array_column($withoutService['collections'], null, 'id')['confidentialAgendaItems']['minTrust']);
+	}//end testAHighSettingRaisesTheConfidentialTrust()
+
+	/**
+	 * The documents provider and the opened hook hand over to the service, and answer safely without it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-004-every-portal-opening-of-a-confidential-paper-is-in-decidiqs-audit-log-first
+	 */
+	public function testTheConfidentialPaperMethodsHandOverToTheService(): void {
+		$subject = ['subjectRef' => 'portal-1', 'trust' => 'substantial', 'identityType' => 'digid', 'audience' => 'citizen'];
+		$papers = $this->createMock(ConfidentialPapersInterface::class);
+		$papers->expects(self::once())->method('papers')->with('item-1')->willReturn([['id' => 'doc-1']]);
+		$papers->expects(self::once())->method('opened')->with('item-1', 'doc-1', $subject)->willReturn(true);
+		$provider = new PortalContributionProvider(confidentialPapers: $papers);
+
+		self::assertSame([['id' => 'doc-1']], $provider->confidentialPapers(itemId: 'item-1'));
+		self::assertTrue($provider->confidentialPaperOpened(itemId: 'item-1', documentId: 'doc-1', subject: $subject));
+		self::assertSame([], $this->provider->confidentialPapers(itemId: 'item-1'));
+		self::assertFalse($this->provider->confidentialPaperOpened(itemId: 'item-1', documentId: 'doc-1', subject: $subject));
+	}//end testTheConfidentialPaperMethodsHandOverToTheService()
+
+	/**
+	 * The provider docblock no longer calls DigiD and eHerkenning deferred.
+	 *
+	 * @return void
+	 */
+	public function testTheDocblockNoLongerDefersDigid(): void {
+		$doc = (string)file_get_contents((string)(new ReflectionClass(PortalContributionProvider::class))->getFileName());
+
+		self::assertDoesNotMatchRegularExpression('/DigiD\/eHerkenning is DEFERRED/i', $doc);
+		self::assertStringContainsString('confidentialAgendaItems', $doc);
+	}//end testTheDocblockNoLongerDefersDigid()
+
 }//end class

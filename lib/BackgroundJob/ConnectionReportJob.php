@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+ * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\ConnectionReportService;
+use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJob;
 use OCP\BackgroundJob\TimedJob;
@@ -35,7 +35,7 @@ use OCP\BackgroundJob\TimedJob;
 /**
  * Daily connection report to integriq.
  *
- * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+ * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
  */
 class ConnectionReportJob extends TimedJob {
 
@@ -50,11 +50,11 @@ class ConnectionReportJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory            $time     Nextcloud time factory.
-	 * @param ConnectionReportService $reporter Sends the reports.
+	 * @param ConnectionReportServiceInterface $reporter Sends the reports.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly ConnectionReportService $reporter,
+		private readonly ConnectionReportServiceInterface $reporter,
 	) {
 		parent::__construct(time: $time);
 		$this->setInterval(seconds: self::INTERVAL_SECONDS);
@@ -70,7 +70,7 @@ class ConnectionReportJob extends TimedJob {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The signature is TimedJob's.
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
 	protected function run(mixed $argument): void {
 		$this->reporter->reportBindings();

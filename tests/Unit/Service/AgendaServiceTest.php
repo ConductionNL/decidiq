@@ -22,17 +22,18 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 
 /**
  * Tests for AgendaService.
@@ -55,13 +56,6 @@ class AgendaServiceTest extends TestCase {
 	 * @var ObjectServiceInterface&MockObject
 	 */
 	private ObjectServiceInterface&MockObject $objectService;
-
-	/**
-	 * Mock CalendarEventService.
-	 *
-	 * @var CalendarEventService&MockObject
-	 */
-	private CalendarEventService&MockObject $calendarEventService;
 
 	/**
 	 * Mock NotificationPreferenceService: the one place a member's delivery
@@ -108,7 +102,6 @@ class AgendaServiceTest extends TestCase {
 		parent::setUp();
 
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->calendarEventService = $this->createMock(CalendarEventService::class);
 		$this->preferences = $this->createMock(NotificationPreferenceService::class);
 		$this->dispatched = [];
 		$l10n = $this->createMock(IL10N::class);
@@ -122,11 +115,9 @@ class AgendaServiceTest extends TestCase {
 
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
-			calendarEventService: $this->calendarEventService,
-			preferences: $this->preferences,
+			notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			l10nFactory: $this->l10nFactory,
 			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 
@@ -225,8 +216,9 @@ class AgendaServiceTest extends TestCase {
 	/**
 	 * advanceBobPhase correctly cycles through the BOB phase sequence.
 	 *
-	 * Each step must be written through patchObject() with a status-only
-	 * payload: a uuid-bearing saveObject() is a full replace that OpenRegister
+	 * Each step must be written through patchObject() with a phase-only
+	 * payload (the declared `phase`, REQ-LIV-010; the legacy `status` input is
+	 * still read for an item from before the upgrade): a uuid-bearing saveObject() is a full replace that OpenRegister
 	 * validates whole, so a partial save 400s on the required fields it omits
 	 * (#1104). The assertion therefore pins BOTH the next phase and the patch
 	 * path, and saveObject() must never be reached.
@@ -257,7 +249,9 @@ class AgendaServiceTest extends TestCase {
 				->expects($this->once())
 				->method('patchObject')
 				->willReturnCallback(
-					function (string $objectId, array $data) use (&$patches): ObjectEntity {
+					function (ObjectPatch $patch) use (&$patches): ObjectEntity {
+						$objectId = $patch->objectId;
+						$data = $patch->data;
 						$patches[] = ['id' => $objectId, 'data' => $data];
 						return $this->entity($data);
 					}
@@ -265,20 +259,18 @@ class AgendaServiceTest extends TestCase {
 
 			$freshService = new AgendaService(
 				objectService: $objectService,
-				calendarEventService: $this->calendarEventService,
-				preferences: $this->preferences,
+				notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
-				l10nFactory: $this->l10nFactory,
 				eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 			);
 
 			$freshService->advanceBobPhase($itemId);
 
 			$this->assertSame(
-				[['id' => $itemId, 'data' => ['status' => $t['to']]]],
+				[['id' => $itemId, 'data' => ['phase' => $t['to']]]],
 				$patches,
-				"'{$t['from']}' must advance to '{$t['to']}' with a status-only patch"
+				"'{$t['from']}' must advance to '{$t['to']}' with a phase-only patch"
 			);
 		}//end foreach
 
@@ -736,7 +728,9 @@ class AgendaServiceTest extends TestCase {
 		$this->objectService
 			->method('patchObject')
 			->willReturnCallback(
-				function (string $objectId, array $data) use ($patches): ObjectEntity {
+				function (ObjectPatch $patch) use ($patches): ObjectEntity {
+					$objectId = $patch->objectId;
+					$data = $patch->data;
 					$patches->append(['id' => $objectId, 'data' => $data]);
 					return $this->entity($data);
 				}

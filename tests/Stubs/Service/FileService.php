@@ -40,6 +40,7 @@ namespace OCA\OpenRegister\Service;
 
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\Files\Node;
 
 /**
@@ -133,4 +134,28 @@ class FileService {
 	public function unpublishFile(ObjectEntity|string $object, string|int $filePath): File {
 		throw new \RuntimeException('FileService stub: unpublishFile() must be mocked in tests.');
 	}//end unpublishFile()
+	/**
+	 * Get an object's folder.
+	 *
+	 * @param ObjectEntity|string $objectEntity The object or its identifier.
+	 * @param int|string|null     $registerId   The register of the object.
+	 *
+	 * @return Folder|null The folder, or null when the object has none.
+	 */
+	public function getObjectFolder(ObjectEntity|string $objectEntity, int|string|null $registerId = null): ?Folder {
+		throw new \RuntimeException('FileService stub: getObjectFolder() must be mocked in tests.');
+	}//end getObjectFolder()
+
+	/**
+	 * Create a share link for a file or folder.
+	 *
+	 * @param string   $path        Path from root.
+	 * @param int|null $shareType   The share type (3 = public link).
+	 * @param int|null $permissions The permissions (1 = read).
+	 *
+	 * @return string The share link.
+	 */
+	public function createShareLink(string $path, ?int $shareType = 3, ?int $permissions = null): string {
+		throw new \RuntimeException('FileService stub: createShareLink() must be mocked in tests.');
+	}//end createShareLink()
 }//end class

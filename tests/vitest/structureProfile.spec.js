@@ -32,8 +32,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { MODE_LABELS } from '../../src/config/modeLabels.js'
 import { saveMenuStructure } from '../../src/services/menuStructureSetting.js'
 import {
+	applyPageDefaults,
 	applyPageOverlay,
 	buildProfiledManifest,
+	navTheming,
 	resolveStructureProfile,
 	STRUCTURE_FULL,
 	STRUCTURE_SETTING,
@@ -115,16 +117,35 @@ function linksOf(page) {
 describe('the full profile', () => {
 	it('is exactly what buildManifest made before profiles existed', () => {
 		const before = buildManifest(manifest(), fragments, fullFile)
-		expect(build(fullFile)).toEqual(before)
+		// The one difference: every index page that did not choose keeps the
+		// plain header row it had before nextcloud-vue 2.62.0 gave every
+		// header a sort and filter control (menu-layout.json pageDefaults).
+		expect(build(fullFile)).toEqual(
+			applyPageDefaults(before, fullFile.pageDefaults),
+		)
+		expect(fullFile.pageDefaults).toEqual({ index: { headerFilters: false } })
+		expect(simpleFile.pageDefaults).toBeUndefined()
+		const after = build(fullFile)
+		for (const page of before.pages) {
+			const now = after.pages.find((item) => item.id === page.id)
+			const held =
+				page.type === 'index' && page.config?.headerFilters === undefined
+			expect(now, page.id).toEqual(
+				held
+					? { ...page, config: { ...page.config, headerFilters: false } }
+					: page,
+			)
+		}
 	})
 
-	it('still counts 44 entries: 24 main, 4 footer, 16 settings', () => {
+	// publication-theme-pages added Theme pages, nested under Decisions.
+	it('still counts 44 entries: 25 main, 3 footer, 16 settings', () => {
 		const menu = build(fullFile).menu
 		const count = (name) =>
 			flat(menu.filter((entry) => (entry.section || 'main') === name)).length
 		expect(flat(menu)).toHaveLength(44)
-		expect(count('main')).toBe(24)
-		expect(count('footer')).toBe(4)
+		expect(count('main')).toBe(25)
+		expect(count('footer')).toBe(3)
 		expect(count('settings')).toBe(16)
 	})
 
@@ -151,9 +172,10 @@ describe('the simple profile', () => {
 	const built = build(simpleFile)
 	const main = section(built.menu, 'main')
 
-	it('shows eight entries under three captions, in the order of the design', () => {
+	it('shows eight entries under two captions, in the order of the design', () => {
+		// DcDashboard: Dashboard and My actions sit at the top with no caption
+		// above them; the board's first caption is Besluitvorming.
 		expect(main.map((entry) => entry.id)).toEqual([
-			'StartCaption',
 			'Dashboard',
 			'ActionItems',
 			'DecisionMakingCaption',
@@ -167,7 +189,6 @@ describe('the simple profile', () => {
 		])
 		const captions = main.filter((entry) => entry.type === 'caption')
 		expect(captions.map((entry) => entry.label)).toEqual([
-			'Home',
 			'Decision making',
 			'Your organisation',
 		])
@@ -176,7 +197,6 @@ describe('the simple profile', () => {
 
 	it('reads in Dutch as the design writes it', () => {
 		expect(main.map((entry) => dutch[entry.label])).toEqual([
-			'Start',
 			'Dashboard',
 			'Mijn acties',
 			'Besluitvorming',
@@ -190,22 +210,41 @@ describe('the simple profile', () => {
 		])
 	})
 
+	it('ends the navigation in Settings and Help, as the board does, and counts My actions', () => {
+		// DcDashboard: the footer holds Instellingen and Hulp en uitleg; the
+		// rest of the footer moves into the settings foldout. The full
+		// profile declares no footer and keeps its own.
+		expect(simpleFile.nav.footer).toEqual(['settings', 'help'])
+		expect(simpleFile.nav.help.href).toBe('https://decidiq.conduction.nl')
+		expect(dutch[simpleFile.nav.help.label]).toBe('Hulp en uitleg')
+		expect(fullFile.nav).toBeUndefined()
+		expect(main.find((entry) => entry.id === 'ActionItems').count).toMatchObject(
+			{
+				register: 'decidiq',
+				schema: 'action-item',
+				filter: { assignee: '@me' },
+			},
+		)
+	})
+
 	it('is flat: no entry holds another', () => {
 		for (const entry of built.menu) {
 			expect(entry.children ?? [], entry.id).toEqual([])
 		}
 	})
 
-	it('keeps relocations out of the file, because any relocation step drops the captions', () => {
-		// The library's relocation step ends by filtering out every entry with
-		// no route, href, action or children. That is a caption. `{}` is enough
-		// to run it, so the key has to be absent.
+	it('keeps its captions through a relocation step (nextcloud-vue 2.84.0)', () => {
+		// The simple menu is flat and declares no relocations. Before 2.84.0 a
+		// relocation step dropped every entry with no route, href, action or
+		// children, which is what a caption is; now the captions survive it.
 		expect(Object.hasOwn(simpleFile, 'relocations')).toBe(false)
+		const captions = (manifest) =>
+			manifest.menu
+				.filter((entry) => entry.type === 'caption')
+				.map((entry) => entry.id)
 		const withRelocations = build({ ...simpleFile, relocations: {} })
-		expect(
-			withRelocations.menu.filter((entry) => entry.type === 'caption'),
-			'the library now keeps captions through relocations; the note in the profile file is stale',
-		).toEqual([])
+		expect(captions(withRelocations)).toEqual(captions(built))
+		expect(captions(built).length).toBeGreaterThan(0)
 	})
 
 	it('gives every entry a label, an icon the app registers and a page that exists', () => {
@@ -232,13 +271,31 @@ describe('the simple profile', () => {
 			const original = source.find((entry) => entry.id === id)
 			const shown = main.find((entry) => entry.id === id)
 			expect(shown.label, id).toBe(original.label)
-			expect(shown.icon, id).toBe(original.icon)
 			expect(shown.route, id).toBe(original.route)
 		}
-		// Two entries are worded for the simple menu. Their page is the same.
+		// Three entries take the board's line icon (DcDashboard): a house, an
+		// inbox and a calendar. The rest keep the manifest's icon.
+		expect(main.find((entry) => entry.id === 'Dashboard').icon).toBe(
+			'HomeOutline',
+		)
+		expect(main.find((entry) => entry.id === 'ActionItems').icon).toBe(
+			'InboxOutline',
+		)
+		expect(main.find((entry) => entry.id === 'Meetings').icon).toBe(
+			'CalendarBlankOutline',
+		)
+		for (const id of ['Decisions', 'Commitments']) {
+			const original = source.find((entry) => entry.id === id)
+			expect(main.find((entry) => entry.id === id).icon, id).toBe(
+				original.icon,
+			)
+		}
+		// Two entries are worded for the simple menu. My actions opens the
+		// work list of board DcMijnActies (page MyActions); the action item
+		// list it opened before is the card's "All action items" link.
 		expect(main.find((entry) => entry.id === 'ActionItems')).toMatchObject({
 			label: 'My actions',
-			route: 'ActionItems',
+			route: 'MyActions',
 		})
 		expect(main.find((entry) => entry.id === 'GovernanceBodies')).toMatchObject({
 			label: 'Bodies and members',
@@ -368,12 +425,12 @@ describe('the simple profile', () => {
 			.map((entry) => entry.id)
 		expect(lost).toEqual([])
 
-		// The control: the seventeen entries this profile takes out are really
+		// The control: the eighteen entries this profile takes out are really
 		// out, so the check above passes on the links and not on the menu.
 		for (const id of simpleFile.removals) {
 			expect(shown.has(id), id).toBe(false)
 		}
-		expect(simpleFile.removals).toHaveLength(17)
+		expect(simpleFile.removals).toHaveLength(18)
 	})
 
 	it('reaches the consultation lists and the urgent decisions from Proposals', () => {
@@ -383,8 +440,12 @@ describe('the simple profile', () => {
 			'WorksCouncilConsultations',
 			'Consultations',
 			'UrgentDecisions',
+			'TopicThemes',
 		])
+		// Board DcVergaderingen opens its Ga naar group with the meeting
+		// calendar, before the long-term agenda and the P&C cycles.
 		expect(linksOf(built.pages.find((page) => page.id === 'Meetings'))).toEqual([
+			'MeetingsCalendar',
 			'PlannedAgenda',
 			'PlanningCycles',
 		])
@@ -426,10 +487,17 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 103 pages as the full profile, so every route stays', () => {
+	it('builds the same pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(103)
+		// Every page the manifest and its fragments declare, and no other.
+		const declared = new Set([
+			...readJson('src', 'manifest.json').pages.map((page) => page.id),
+			...fragments.flatMap((fragment) =>
+				(fragment.pages ?? []).map((page) => page.id),
+			),
+		])
+		expect(new Set(ids(built))).toEqual(declared)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {
@@ -571,7 +639,7 @@ describe('the structure setting', () => {
 			'structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple',
 		)
 		expect(mainSource.replace(/\s+/g, '')).toContain(
-			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,)',
+			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,{theming:navTheming(getCapabilities())},)',
 		)
 		// And nothing builds the manifest past the profile.
 		expect(mainSource).not.toMatch(/[^(]buildManifest\(/)
@@ -636,5 +704,121 @@ describe('the structure setting', () => {
 				).rejects.toThrow('did not store')
 			}
 		}
+	})
+})
+
+describe('the navigation of the simple profile', () => {
+	// DcDashboard and AppZijbalk: a brand block (logo, app name, the
+	// instance's name) and one primary button. The instance's name and logo
+	// are read from the theming capabilities at boot: the app names none.
+	const theming = {
+		name: 'Gemeente Zuiddrecht',
+		logo: '/apps/theming/image/logo?v=1',
+	}
+	const withTheming = buildProfiledManifest(
+		buildManifest,
+		manifest(),
+		fragments,
+		simpleFile,
+		{ theming },
+	)
+
+	it('opens with the brand block, named after the instance', () => {
+		expect(withTheming.nav.brand).toEqual({
+			name: 'decidiq',
+			caption: 'Gemeente Zuiddrecht',
+			logo: '/apps/theming/image/logo?v=1',
+		})
+	})
+
+	it('shows the emblem, not the whole wordmark, when the set ships one', () => {
+		// The board's brand block holds the shield only; the theming logo is
+		// the full "Zuid Drecht" wordmark, drawn twice beside the app name
+		// (seen live, 6 October 2026).
+		const withEmblem = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{
+				theming: navTheming({
+					theming,
+					nldesign: { logos: { emblem: '/apps/thematiq/img/emblem.svg' } },
+				}),
+			},
+		)
+		expect(simpleFile.nav.brand.logo).toBe('@theming.emblem|@theming.logo')
+		expect(withEmblem.nav.brand.logo).toBe('/apps/thematiq/img/emblem.svg')
+		expect(withEmblem.nav.brand.caption).toBe('Gemeente Zuiddrecht')
+	})
+
+	it('falls back to the theming logo when the set has no emblem', () => {
+		const fallback = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{ theming: navTheming({ theming, nldesign: { logos: {} } }) },
+		)
+		expect(fallback.nav.brand.logo).toBe('/apps/theming/image/logo?v=1')
+	})
+
+	it('reads the emblem from thematiq, and an empty string when there is none', () => {
+		expect(
+			navTheming({ nldesign: { logos: { emblem: '/e.svg' } } }).emblem,
+		).toBe('/e.svg')
+		expect(navTheming({ theming }).emblem).toBe('')
+		expect(navTheming({ nldesign: { logos: { emblem: 42 } } }).emblem).toBe('')
+		expect(navTheming(null)).toEqual({ emblem: '' })
+		expect(navTheming({ theming })).toMatchObject(theming)
+	})
+
+	it('leaves a value the instance does not answer empty, never a guess', () => {
+		expect(build(simpleFile).nav.brand).toEqual({
+			name: 'decidiq',
+			caption: '',
+			logo: '',
+		})
+		const partial = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{ theming: { name: 'Gemeente Zuiddrecht' } },
+		)
+		expect(partial.nav.brand.caption).toBe('Gemeente Zuiddrecht')
+		// Neither an emblem nor a logo: empty.
+		expect(partial.nav.brand.logo).toBe('')
+	})
+
+	it('has one primary button, New proposal, that opens the proposals list', () => {
+		const action = withTheming.nav.primaryAction
+		// No icon of its own: the library draws its plus, the board's "+".
+		// `solid`: a route button drawn as the board's solid primary button
+		// (nextcloud-vue 2.64.0), not as the plain link a route gives.
+		expect(action).toEqual({
+			label: 'New proposal',
+			route: 'Motions',
+			solid: true,
+		})
+		expect(withTheming.pages.find((page) => page.id === action.route).type).toBe(
+			'index',
+		)
+		expect(dutch[action.label]).toBe('Nieuw voorstel')
+	})
+
+	it('reads the theming capabilities in main.js and writes no municipality itself', () => {
+		expect(mainSource).toContain('navTheming(getCapabilities())')
+		expect(JSON.stringify(simpleFile.nav)).not.toMatch(/Zuiddrecht|Gemeente/)
+	})
+
+	it('is a manifest the library accepts, brand and button included', () => {
+		const result = validateManifest(JSON.parse(JSON.stringify(withTheming)))
+		expect(result.errors).toEqual([])
+	})
+
+	it('is absent from the full profile', () => {
+		expect(fullFile.nav).toBeUndefined()
+		expect(build(fullFile).nav).toEqual(manifest().nav ?? undefined)
 	})
 })

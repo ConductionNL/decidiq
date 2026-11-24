@@ -314,4 +314,91 @@ class RegisterDescriptorTest extends TestCase {
 			message: 'PublicationPayload lost legalBasis while gaining the clause'
 		);
 	}//end testThePublicationPayloadDeclaresTheRemedyClause()
+
+	/**
+	 * AgendaItem declares its phase: the five values, facetable, in the
+	 * descriptor the importer assembles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-20-agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 */
+	public function testTheAgendaItemDeclaresItsPhase(): void {
+		$agendaItem = ($this->descriptor['components']['schemas']['AgendaItem'] ?? []);
+		$phase = ($agendaItem['properties']['phase'] ?? null);
+
+		self::assertIsArray($phase, 'AgendaItem does not declare phase, so the phase the chair sets is an undeclared property again');
+		self::assertSame(['voorstel', 'beeldvorming', 'oordeelsvorming', 'besluitvorming', 'completed'], $phase['enum'] ?? null);
+		self::assertTrue($phase['facetable'] ?? false, 'phase must be facetable so the agenda list can filter on it');
+	}//end testTheAgendaItemDeclaresItsPhase()
+
+	/**
+	 * No notification rule on an updated trigger uses an operator OpenRegister
+	 * does not evaluate there: an unknown operator falls through to false, so
+	 * such a rule never fires and nothing says so.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testNoUpdatedTriggerUsesAnOperatorOpenRegisterCannotEvaluate(): void {
+		$unsupported = [];
+		foreach (($this->descriptor['components']['schemas'] ?? []) as $name => $schema) {
+			foreach ((array)($schema['x-openregister-notifications'] ?? []) as $rule => $declaration) {
+				$trigger = (array)($declaration['trigger'] ?? []);
+				$operator = ($trigger['condition']['operator'] ?? null);
+				if (($trigger['type'] ?? '') === 'updated' && $operator !== null && in_array($operator, ['equals', 'changed'], true) === false) {
+					$unsupported[] = $name . '.' . $rule . ' (' . (string)$operator . ')';
+				}
+			}
+		}
+
+		self::assertSame([], $unsupported);
+	}//end testNoUpdatedTriggerUsesAnOperatorOpenRegisterCannotEvaluate()
+
+	/**
+	 * Each terminal lifecycle value of a decision is announced by exactly one
+	 * outcome rule.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testEachDecisionOutcomeIsAnnouncedByExactlyOneRule(): void {
+		$rules = (array)($this->descriptor['components']['schemas']['Decision']['x-openregister-notifications'] ?? []);
+		self::assertArrayNotHasKey('outcomeEmitted', $rules);
+
+		foreach (['decided', 'enacted', 'withdrawn'] as $state) {
+			$matching = array_keys(
+				array_filter(
+					$rules,
+					static fn (array $rule): bool => ($rule['enabled'] ?? false) === true
+						&& ($rule['trigger']['type'] ?? '') === 'updated'
+						&& ($rule['trigger']['condition'] ?? []) === ['field' => 'lifecycle', 'operator' => 'equals', 'value' => $state]
+				)
+			);
+			self::assertSame(['outcome' . ucfirst($state)], $matching, $state);
+		}
+	}//end testEachDecisionOutcomeIsAnnouncedByExactlyOneRule()
+
+	/**
+	 * Each outcome rule also posts to the decision's own callback: the webhook
+	 * channel with its URL taken from `outcomeCallbackUrl`, never a fixed URL,
+	 * and inline rather than persistent (a persistent webhook needs one URL).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testEachOutcomeRuleDeliversToTheDecisionsCallback(): void {
+		$decision = (array)($this->descriptor['components']['schemas']['Decision'] ?? []);
+		self::assertArrayHasKey('outcomeCallbackUrl', (array)($decision['properties'] ?? []));
+
+		$rules = (array)($decision['x-openregister-notifications'] ?? []);
+		foreach (['outcomeDecided', 'outcomeEnacted', 'outcomeWithdrawn'] as $name) {
+			$rule = (array)($rules[$name] ?? []);
+			self::assertSame(['nc-notification', 'webhook'], ($rule['channels'] ?? null), $name);
+			self::assertSame(['urlField' => 'outcomeCallbackUrl'], ($rule['webhook'] ?? null), $name);
+		}
+	}//end testEachOutcomeRuleDeliversToTheDecisionsCallback()
 }//end class

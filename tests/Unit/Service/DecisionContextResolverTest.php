@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\DecisionContextResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -90,7 +91,8 @@ class DecisionContextResolverTest extends TestCase {
 	 */
 	private function wireBodies(array $bodies): void {
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($bodies) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($bodies) {
+				$schema = $options?->schema;
 				if ($schema !== 'governance-body' || isset($bodies[$id]) === false) {
 					return null;
 				}

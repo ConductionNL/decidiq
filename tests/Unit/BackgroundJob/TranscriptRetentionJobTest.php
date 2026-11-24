@@ -28,6 +28,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Tests for TranscriptRetentionJob.
@@ -111,7 +112,11 @@ class TranscriptRetentionJobTest extends TestCase {
 		}
 
 		$objectService->method('find')->willReturnCallback(
-			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
+			function (string $id, ?ObjectFindOptions $options = null) {
+				$extend = $options?->extend;
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
 					'governance-body' => $this->entity(
@@ -221,7 +226,7 @@ class TranscriptRetentionJobTest extends TestCase {
 				return match ($id) {
 					'OCA\OpenRegister\Service\ObjectService' => $objectService,
 					'OCA\OpenRegister\Service\FileService' => $fileService,
-					\OCA\Decidiq\Service\AuditLogService::class => $audit,
+					\OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface::class => $audit,
 					default => throw new \RuntimeException('unexpected ' . $id),
 				};
 			}
@@ -317,7 +322,11 @@ class TranscriptRetentionJobTest extends TestCase {
 	public function testDeleteRecordingOnly(): void {
 		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
 		$objectService->method('find')->willReturnCallback(
-			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
+			function (string $id, ?ObjectFindOptions $options = null) {
+				$extend = $options?->extend;
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
 					'governance-body' => $this->entity(
@@ -375,7 +384,11 @@ class TranscriptRetentionJobTest extends TestCase {
 	public function testKeepPolicyDeletesNothing(): void {
 		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
 		$objectService->method('find')->willReturnCallback(
-			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
+			function (string $id, ?ObjectFindOptions $options = null) {
+				$extend = $options?->extend;
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
 					'governance-body' => $this->entity(['id' => 'b1', 'transcriptRetentionPolicy' => 'keep']),

@@ -35,9 +35,13 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DestructionCertificateRendererInterface;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Service\SystemObjectStore;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\IL10N;
 
 /**
@@ -45,7 +49,7 @@ use OCP\IL10N;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
  */
-class DestructionCertificateRenderer {
+class DestructionCertificateRenderer implements DestructionCertificateRendererInterface {
 	/**
 	 * The meeting subfolder the certificate is filed in.
 	 */
@@ -121,9 +125,10 @@ class DestructionCertificateRenderer {
 
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: 'archival-dossier',
-			uuid: $dossierId,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'archival-dossier'),
+				uuid: $dossierId
+			),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -284,17 +289,6 @@ class DestructionCertificateRenderer {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['id'], $data['@self']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 }//end class

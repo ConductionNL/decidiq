@@ -34,6 +34,8 @@ use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for the guarded decision lifecycle transition orchestration:
@@ -139,8 +141,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 		];
 
 		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($fixtures) {
-				$data = ($fixtures[$schema] ?? null);
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($fixtures) {
+				$data = ($fixtures[(string)($options?->schema ?? '')] ?? null);
 				if ($data === null) {
 					return null;
 				}
@@ -173,7 +175,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($holder) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($holder) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$holder->value = $object;
 				return $this->entity($object);
 			}
@@ -402,7 +408,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -456,7 +466,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -483,7 +497,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$saved) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$saved = $object;
 				return $this->entity($object);
 			}
@@ -548,7 +566,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 		$updates = [];
 		$resolution = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$updates, &$resolution) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$updates, &$resolution) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ((string)($uuid ?? '') !== '') {
 					$updates[] = $object;
 				} else {
@@ -787,14 +809,30 @@ class DecisionLifecycleServiceTest extends TestCase {
 			 * @var array<int, array<string, mixed>>
 			 */
 			public array $membership = [];
+
+			/**
+			 * `position-hold` schema saves — the position each appointed membership fills.
+			 *
+			 * @var array<int, array<string, mixed>>
+			 */
+			public array $positionHold = [];
 		};
 
 		$this->objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($buckets) {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($buckets) {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				if ($schema === 'membership') {
 					$id = 'membership-' . (count($buckets->membership) + 1);
 					$buckets->membership[] = $object;
 					return $this->entity(array_merge(['id' => $id], $object));
+				}
+
+				if ($schema === 'position-hold') {
+					$buckets->positionHold[] = $object;
+					return $this->entity(data: array_merge(['id' => 'hold-' . count($buckets->positionHold)], $object));
 				}
 
 				if ($schema === 'decision' && (string)($uuid ?? '') !== '') {
@@ -896,6 +934,8 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertSame(expected: 'body-1', actual: $membership['governanceBody']);
 		self::assertArrayNotHasKey(key: 'post', array: $membership);
 		self::assertArrayNotHasKey(key: 'label', array: $membership);
+		// Role-only: no position, so no hold.
+		self::assertCount(expectedCount: 0, haystack: $buckets->positionHold);
 
 		// Exactly two uuid-bearing decision saves: the lifecycle write
 		// (enacted + enactedAt), then the appointedMemberships patch.
@@ -949,7 +989,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	/**
 	 * Multiple candidates paired with multiple `targetPosts` by array index.
 	 *
+	 * Each membership gets a position hold on its own paired position; the
+	 * membership itself no longer carries a `post`.
+	 *
 	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-006-a-membership-may-hold-a-position-for-a-duration-with-a-type
 	 *
 	 * @return void
 	 */
@@ -981,9 +1025,19 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
 		self::assertSame(expected: 'person-a', actual: $buckets->membership[0]['person']);
-		self::assertSame(expected: 'post-a', actual: $buckets->membership[0]['post']);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[0]);
 		self::assertSame(expected: 'Candidate B', actual: $buckets->membership[1]['label']);
-		self::assertSame(expected: 'post-b', actual: $buckets->membership[1]['post']);
+		self::assertArrayNotHasKey(key: 'post', array: $buckets->membership[1]);
+
+		self::assertCount(expectedCount: 2, haystack: $buckets->positionHold);
+		self::assertSame(expected: 'membership-1', actual: $buckets->positionHold[0]['membership']);
+		self::assertSame(expected: 'post-a', actual: $buckets->positionHold[0]['position']);
+		self::assertSame(expected: 'membership-2', actual: $buckets->positionHold[1]['membership']);
+		self::assertSame(expected: 'post-b', actual: $buckets->positionHold[1]['position']);
+		self::assertSame(expected: 'body-3', actual: $buckets->positionHold[0]['governanceBody']);
+		self::assertSame(expected: 'regular', actual: $buckets->positionHold[0]['holdType']);
+		self::assertSame(expected: 'dec-1', actual: $buckets->positionHold[0]['appointedBy']);
+		self::assertMatchesRegularExpression(pattern: '/^\d{4}-\d{2}-\d{2}$/', string: $buckets->positionHold[0]['startDate']);
 		self::assertSame(expected: ['membership-1', 'membership-2'], actual: $buckets->decision[1]['appointedMemberships']);
 
 	}//end testMaterializesMultipleCandidatesPairedByIndex()
@@ -1023,8 +1077,9 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 		self::assertTrue(condition: $result['success']);
 		self::assertCount(expectedCount: 2, haystack: $buckets->membership);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[0]['post']);
-		self::assertSame(expected: 'post-shared', actual: $buckets->membership[1]['post']);
+		self::assertCount(expectedCount: 2, haystack: $buckets->positionHold);
+		self::assertSame(expected: 'post-shared', actual: $buckets->positionHold[0]['position']);
+		self::assertSame(expected: 'post-shared', actual: $buckets->positionHold[1]['position']);
 
 	}//end testMaterializesSharedPostForAllCandidatesWhenExactlyOneTargetPost()
 

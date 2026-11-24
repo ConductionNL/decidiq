@@ -135,11 +135,10 @@ describe('publication subscriptions on the settings page', () => {
 		const section = read('src/components/userSettings/SubscriptionsSection.vue')
 		expect(section).toContain('inputLabel')
 		expect(section).toContain('data-testid="subscriptions-section"')
-		for (const page of [
-			'src/views/settings/PersonalRoot.vue',
-			'src/views/settings/UserSettingsPage.vue',
-		]) {
-			expect(read(page)).toContain('<SubscriptionsSection')
-		}
+		// One mount: the user settings dialog (no personal settings page and
+		// no /user-settings page since 11 Oct 2026).
+		expect(read('src/views/settings/UserSettings.vue')).toContain(
+			'<SubscriptionsSection',
+		)
 	})
 })

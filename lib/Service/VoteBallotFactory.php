@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -91,14 +92,8 @@ class VoteBallotFactory {
 	/**
 	 * Assemble the ballot payload, including the idempotency slug.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The casting participant UUID
-	 * @param string $value for | against | abstain
-	 * @param bool $isProxy Whether the vote is cast by proxy
-	 * @param string|null $delegatorId The delegator UUID for a proxy vote
-	 * @param bool $isSecret Whether the round is a secret ballot
+	 * @param VoteCast                  $cast         The settled ballot (see VoteCast::forRound())
 	 * @param array<string,mixed>|null $existingVote The ballot being overwritten, when any
-	 * @param array<int, mixed>|null $ranking The checked ranking of a ranked ballot, or null
 	 * @param string $votingMethod The round's votingMethod; `weighted` weighs the ballot (vot-09)
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
@@ -106,65 +101,36 @@ class VoteBallotFactory {
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	public function buildVote(
-		string $votingRoundId,
-		string $participantId,
-		string $value,
-		bool $isProxy,
-		?string $delegatorId,
-		bool $isSecret,
-		?array $existingVote,
-		?array $ranking = null,
-		string $votingMethod = 'for-against-abstain',
-	): array {
-		$relations = $this->voteRelations(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			isProxy: $isProxy,
-			delegatorId: $delegatorId,
-			isSecret: $isSecret
-		);
+	public function buildVote(VoteCast $cast, ?array $existingVote, string $votingMethod = 'for-against-abstain'): array {
+		$idempotencySlug = $this->idempotencySlug(cast: $cast);
 
-		$idempotencySlug = $this->idempotencySlug(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			isSecret: $isSecret,
-			isProxy: $isProxy,
-			delegatorId: $delegatorId
-		);
-
-		// A proxy ballot counts for — and weighs as — the delegator.
-		$ballotOwnerId = $participantId;
-		if ($isProxy === true && $delegatorId !== null) {
-			$ballotOwnerId = $delegatorId;
-		}
-
+		// A proxy ballot counts for — and weighs as — the delegator (VoteCast::ballotOwner()).
 		$vote = [
 			'@self' => ['slug' => $idempotencySlug],
-			'value' => $value,
-			'weight' => $this->resolveWeight(votingMethod: $votingMethod, ballotOwnerId: $ballotOwnerId),
-			'isProxy' => $isProxy,
+			'value' => $cast->value(),
+			'weight' => $this->resolveWeight(votingMethod: $votingMethod, ballotOwnerId: $cast->ballotOwner()),
+			'isProxy' => $cast->isProxy(),
 			'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-			'castAs' => $this->resolveCastAs(participantId: $participantId),
-			'relations' => $relations,
+			'castAs' => $this->resolveCastAs(participantId: $cast->participantId),
+			'relations' => $this->voteRelations(cast: $cast),
 		];
 
 		// A ranked ballot carries the member's order in its own field (REQ-PRF-002).
-		if ($ranking !== null) {
-			$vote['ranking'] = array_values(array_map(static fn (mixed $key): string => (string)$key, $ranking));
+		if ($cast->ranking() !== null) {
+			$vote['ranking'] = array_values(array_map(static fn (mixed $key): string => (string)$key, $cast->ranking()));
 		}
 
 		// Store opaque dedup token for secret rounds (never contains participant identity).
-		if ($isSecret === true) {
+		if ($cast->isSecret() === true) {
 			$vote['voterToken'] = $idempotencySlug;
 		}
 
 		// Store delegatorToken on secret proxy votes for one-proxy-per-round enforcement
 		// without storing the delegator's participant ID (anonymity preservation).
-		if ($isSecret === true && $isProxy === true && $delegatorId !== null) {
+		if ($cast->isSecret() === true && $cast->isDelegated() === true) {
 			$vote['delegatorToken'] = $this->tokens->delegatorToken(
-				delegatorId: $delegatorId,
-				votingRoundId: $votingRoundId
+				delegatorId: (string)$cast->delegatorId(),
+				votingRoundId: $cast->votingRoundId
 			);
 		}
 
@@ -183,38 +149,28 @@ class VoteBallotFactory {
 	 * to the delegator on a proxy vote). For secret rounds the participant
 	 * relation is omitted to preserve anonymity.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The casting participant UUID
-	 * @param bool $isProxy Whether the vote is cast by proxy
-	 * @param string|null $delegatorId The delegator UUID for a proxy vote
-	 * @param bool $isSecret Whether the round is a secret ballot
+	 * @param VoteCast $cast The settled ballot
 	 *
 	 * @return array<int, array<string,mixed>> The relations structure.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function voteRelations(
-		string $votingRoundId,
-		string $participantId,
-		bool $isProxy,
-		?string $delegatorId,
-		bool $isSecret,
-	): array {
+	private function voteRelations(VoteCast $cast): array {
 		$relations = [
-			['register' => 'decidiq', 'schema' => 'voting-round', 'id' => $votingRoundId],
+			['register' => 'decidiq', 'schema' => 'voting-round', 'id' => $cast->votingRoundId],
 		];
 
-		if ($isSecret === true) {
+		if ($cast->isSecret() === true) {
 			return $relations;
 		}
 
-		$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $participantId];
+		$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $cast->participantId];
 
-		if ($isProxy === true && $delegatorId !== null) {
+		if ($cast->isDelegated() === true) {
 			$relations[] = [
 				'register' => 'decidiq',
 				'schema' => 'participant',
-				'id' => $delegatorId,
+				'id' => $cast->delegatorId(),
 				'type' => 'delegator',
 			];
 		}
@@ -236,37 +192,27 @@ class VoteBallotFactory {
 	 *   slugs must be URL-safe and at most 255 characters; a proxy ballot
 	 *   appends "-proxy-{delegator}".
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The voting participant UUID
-	 * @param bool $isSecret Whether the round is secret
-	 * @param bool $isProxy Whether the vote is cast by proxy
-	 * @param string|null $delegatorId The delegator UUID for a proxy vote
+	 * @param VoteCast $cast The settled ballot
 	 *
 	 * @return string The idempotency slug.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function idempotencySlug(
-		string $votingRoundId,
-		string $participantId,
-		bool $isSecret,
-		bool $isProxy,
-		?string $delegatorId,
-	): string {
-		if ($isSecret === true) {
+	private function idempotencySlug(VoteCast $cast): string {
+		if ($cast->isSecret() === true) {
 			// A proxy ballot is keyed on its delegator, not on the holder: keyed
 			// on the holder it would share the holder's own voterToken and the
 			// two ballots would overwrite each other.
-			if ($isProxy === true && $delegatorId !== null) {
-				return $this->tokens->delegatorToken(delegatorId: $delegatorId, votingRoundId: $votingRoundId);
+			if ($cast->isDelegated() === true) {
+				return $this->tokens->delegatorToken(delegatorId: (string)$cast->delegatorId(), votingRoundId: $cast->votingRoundId);
 			}
 
-			return $this->tokens->voterToken(participantId: $participantId, votingRoundId: $votingRoundId);
+			return $this->tokens->voterToken(participantId: $cast->participantId, votingRoundId: $cast->votingRoundId);
 		}
 
-		$slug = 'vote-' . substr($votingRoundId, 0, 8) . '-' . substr($participantId, 0, 8);
-		if ($isProxy === true && $delegatorId !== null) {
-			$slug .= '-proxy-' . substr($delegatorId, 0, 8);
+		$slug = 'vote-' . substr($cast->votingRoundId, 0, 8) . '-' . substr($cast->participantId, 0, 8);
+		if ($cast->isDelegated() === true) {
+			$slug .= '-proxy-' . substr((string)$cast->delegatorId(), 0, 8);
 		}
 
 		return $slug;
@@ -372,7 +318,7 @@ class VoteBallotFactory {
 	private function loadObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 			if (is_array($entity) === true) {
 				return $entity;
 			}
@@ -406,8 +352,7 @@ class VoteBallotFactory {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$participantEntity = $objectService->find(
 				id: $participantId,
-				register: 'decidiq',
-				schema: 'participant'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'participant')
 			);
 			if ($participantEntity !== null) {
 				$participant = $participantEntity->jsonSerialize();

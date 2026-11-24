@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "decidiq demo data",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "Demo data covering every schema this app supplies, offered as the first step of the app's setup walkthrough. Generated from the schemas themselves, so every object satisfies the schema that will validate it."
   },
   "x-openregister": {
@@ -338,7 +338,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -491,7 +492,7 @@
         "icon": "AccountArrowRightOutline",
         "version": "0.1.0",
         "title": "BoardProxy",
-        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. This is the row ProxyVoteService writes through /api/proxies and the row the per-holder proxy cap counts; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. Retired: proxy rows now live on ProxyAuthorization (fragment 67), and a proxy granted in a voting round is stored on that round, where the per-holder proxy cap counts it.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:BoardProxy",
@@ -981,7 +982,8 @@
                   "$lte": "$now"
                 },
                 "moderationStatus": "approved"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -1101,7 +1103,7 @@
             "title": "Value",
             "type": "string",
             "description": "Contact value e.g. email address (Popolo: value)",
-            "example": "f.halsema@amsterdam.nl"
+            "example": "w.doornbos@gemeente.example"
           },
           "label": {
             "title": "Label",
@@ -1257,18 +1259,62 @@
               "en": "Decision repeals an earlier decision: {{title}}"
             }
           },
-          "outcomeEmitted": {
-            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
+          "outcomeDecided": {
+            "_note": "One rule per terminal lifecycle value (decided, enacted, withdrawn): OpenRegister supports only `changed` and `equals` on updated triggers, so the former single `in` rule (outcomeEmitted) never fired (decision-outcome-reaches-the-subscriber, REQ-DCDH-010).",
             "trigger": {
               "type": "updated",
               "condition": {
                 "field": "lifecycle",
-                "operator": "in",
-                "value": [
-                  "decided",
-                  "enacted",
-                  "withdrawn"
-                ]
+                "operator": "equals",
+                "value": "decided"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeEnacted": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "enacted"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeWithdrawn": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "withdrawn"
               }
             },
             "enabled": true,
@@ -1371,7 +1417,8 @@
               "group": "public",
               "match": {
                 "isPublished": "public"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4294,7 +4341,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4425,13 +4473,13 @@
             "title": "Full name",
             "type": "string",
             "description": "Full name (Popolo: name)",
-            "example": "Femke Halsema"
+            "example": "Wieteke Doornbos"
           },
           "familyName": {
             "title": "Family name",
             "type": "string",
             "description": "Family name (Popolo: family_name)",
-            "example": "Halsema"
+            "example": "Doornbos"
           },
           "givenName": {
             "title": "Given name",
@@ -4613,7 +4661,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4927,7 +4976,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -6117,6 +6167,52 @@
         "votesFor": 0,
         "votesAgainst": 0,
         "participatoryBudget": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-1"
+        },
+        "motion": "00000000-0000-4000-8000-000000000001",
+        "lineFrom": 4,
+        "lineTo": 5,
+        "targetPassage": "Een krediet van 640.000 euro beschikbaar stellen",
+        "proposedText": "Een krediet van 645.000 euro beschikbaar stellen",
+        "reason": "Bedrag uit de begrotingswijziging",
+        "status": "pending"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-2"
+        },
+        "motion": "00000000-0000-4000-8000-000000000002",
+        "lineFrom": 2,
+        "lineTo": 2,
+        "targetPassage": "artikel 12",
+        "proposedText": "artikel 14",
+        "reason": "Verkeerd artikelnummer",
+        "status": "accepted",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-3"
+        },
+        "motion": "00000000-0000-4000-8000-000000000003",
+        "lineFrom": 9,
+        "lineTo": 9,
+        "targetPassage": "zo spoedig mogelijk",
+        "proposedText": "voor 1 juli",
+        "reason": "Duidelijker formulering",
+        "status": "rejected",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-03T09:00:00+00:00"
       },
       {
         "@self": {
@@ -9008,6 +9104,266 @@
         "scheduledDate": "2026-05-10T19:30:00+01:00",
         "lifecycle": "planned",
         "liveCaptions": "off"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-1"
+        },
+        "name": "Stemgroep voorbeeld 1",
+        "description": "Voorbeeld van een vaste stemgroep 1",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "members": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-2"
+        },
+        "name": "Stemgroep voorbeeld 2",
+        "description": "Voorbeeld van een vaste stemgroep 2",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "members": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-3"
+        },
+        "name": "Stemgroep voorbeeld 3",
+        "description": "Voorbeeld van een vaste stemgroep 3",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "members": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingPolicy",
+          "slug": "speakingpolicy-voorbeeld-1"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "enabled": false,
+        "registrationDeadlineHours": 24,
+        "defaultSpeakingMinutes": 5,
+        "level": "agenda-item",
+        "publicDisplay": "count"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingPolicy",
+          "slug": "speakingpolicy-voorbeeld-2"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "enabled": false,
+        "registrationDeadlineHours": 24,
+        "defaultSpeakingMinutes": 5,
+        "level": "meeting",
+        "publicDisplay": "first-name"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingPolicy",
+          "slug": "speakingpolicy-voorbeeld-3"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "enabled": false,
+        "registrationDeadlineHours": 24,
+        "defaultSpeakingMinutes": 5,
+        "level": "agenda-item",
+        "publicDisplay": "speaker-name"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingRequest",
+          "slug": "speakingrequest-voorbeeld-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "topic": {
+          "speakerName": "Voorbeeld Speakername 1",
+          "topicText": "Voorbeeld Topictext 1",
+          "organisation": "Voorbeeld Organisation 1",
+          "requestedMinutes": 1
+        },
+        "lifecycle": "registered",
+        "contactDetails": {
+          "name": "Voorbeeld Name 1",
+          "email": "voorbeeld0@example.invalid",
+          "phone": "Voorbeeld Phone 1",
+          "address": "Voorbeeld Address 1"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000000",
+        "rejectionReason": "Voorbeeld Rejectionreason 1",
+        "allottedMinutes": 1,
+        "position": 1,
+        "contribution": "Voorbeeld Contribution 1",
+        "transcriptSegment": "Voorbeeld Transcriptsegment 1",
+        "registeredAfterDeadline": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingRequest",
+          "slug": "speakingrequest-voorbeeld-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "topic": {
+          "speakerName": "Voorbeeld Speakername 2",
+          "topicText": "Voorbeeld Topictext 2",
+          "organisation": "Voorbeeld Organisation 2",
+          "requestedMinutes": 2
+        },
+        "lifecycle": "approved",
+        "contactDetails": {
+          "name": "Voorbeeld Name 2",
+          "email": "voorbeeld1@example.invalid",
+          "phone": "Voorbeeld Phone 2",
+          "address": "Voorbeeld Address 2"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000001",
+        "rejectionReason": "Voorbeeld Rejectionreason 2",
+        "allottedMinutes": 2,
+        "position": 2,
+        "contribution": "Voorbeeld Contribution 2",
+        "transcriptSegment": "Voorbeeld Transcriptsegment 2",
+        "registeredAfterDeadline": false
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "SpeakingRequest",
+          "slug": "speakingrequest-voorbeeld-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "topic": {
+          "speakerName": "Voorbeeld Speakername 3",
+          "topicText": "Voorbeeld Topictext 3",
+          "organisation": "Voorbeeld Organisation 3",
+          "requestedMinutes": 3
+        },
+        "lifecycle": "rejected",
+        "contactDetails": {
+          "name": "Voorbeeld Name 3",
+          "email": "voorbeeld2@example.invalid",
+          "phone": "Voorbeeld Phone 3",
+          "address": "Voorbeeld Address 3"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000002",
+        "rejectionReason": "Voorbeeld Rejectionreason 3",
+        "allottedMinutes": 3,
+        "position": 3,
+        "contribution": "Voorbeeld Contribution 3",
+        "transcriptSegment": "Voorbeeld Transcriptsegment 3",
+        "registeredAfterDeadline": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-highlight-1"
+        },
+        "annotationType": "highlight",
+        "fileId": 0,
+        "page": 1,
+        "visibility": "private",
+        "quads": [
+          [
+            0.1,
+            0.2,
+            0.6,
+            0.2,
+            0.1,
+            0.23,
+            0.6,
+            0.23
+          ]
+        ],
+        "quote": "De reserve wordt met 2 miljoen verlaagd",
+        "color": "yellow",
+        "createdAt": "2026-03-01T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "00000000-0000-0000-0000-000000000000",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-sticky-note-2"
+        },
+        "annotationType": "sticky-note",
+        "fileId": 0,
+        "page": 2,
+        "visibility": "faction",
+        "point": {
+          "x": 0.8,
+          "y": 0.35
+        },
+        "bodyText": "Vragen in de fractie: waarom nu?",
+        "color": "blue",
+        "createdAt": "2026-03-02T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "00000000-0000-0000-0000-000000000000",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "Annotation",
+          "slug": "annotation-drawing-3"
+        },
+        "annotationType": "drawing",
+        "fileId": 0,
+        "page": 3,
+        "visibility": "body",
+        "path": [
+          [
+            0.2,
+            0.5
+          ],
+          [
+            0.3,
+            0.52
+          ],
+          [
+            0.4,
+            0.5
+          ]
+        ],
+        "color": "red",
+        "createdAt": "2026-03-03T09:00:00+00:00",
+        "versionLabel": "Versie 1",
+        "documentName": "Raadsvoorstel begroting 2027.pdf",
+        "fileVersion": "1767258000",
+        "author": "00000000-0000-0000-0000-000000000000",
+        "document": "00000000-0000-4000-8000-000000000000",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "agendaItem": "00000000-0000-4000-8000-000000000000"
       }
     ]
   }

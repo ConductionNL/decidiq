@@ -128,6 +128,7 @@ import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import MinutesSignerAddDialog from '../../dialogs/MinutesSignerAddDialog.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import {
 	addSigner,
 	moveSigner,
@@ -389,7 +390,7 @@ export default {
 		async saveSigners(signers, rethrow = false) {
 			const store = ensureRelationType(this.schema)
 			try {
-				const updated = await store.saveObject(this.schema, {
+				const updated = await saveOrThrow(store, this.schema, {
 					...this.record,
 					signers,
 				})
@@ -466,7 +467,7 @@ export default {
 			)
 			const store = ensureRelationType(this.schema)
 			try {
-				const updated = await store.saveObject(this.schema, {
+				const updated = await saveOrThrow(store, this.schema, {
 					...this.record,
 					signers: next,
 				})
@@ -510,33 +511,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-
 .decidiq-tab__pending {
 	color: var(--color-text-maxcontrast);
 }

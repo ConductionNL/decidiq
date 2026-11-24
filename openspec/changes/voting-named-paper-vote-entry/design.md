@@ -22,7 +22,7 @@ Read at development `4d7430ff`.
 
 ### D2. One vote object per member, written by the clerk
 
-`POST /api/voting-rounds/{id}/recorded-votes`, route `voting#recordVotes`, `#[NoAdminRequired]`. Body:
+`POST /api/voting-rounds/{id}/named-votes`, route `voting#recordVotes`, `#[NoAdminRequired]`. Not `recorded-votes`: that path already belongs to `paperVote#record`, the paper-vote entry the voting round panel offers on any public, unranked round, and a second route on it would never be reached. Body:
 
 ```json
 {
@@ -72,7 +72,7 @@ A modal, `src/modals/RecordedVotesModal.vue` (hydra modal isolation rule), opene
 In `lib/Settings/profiles/municipality.json` (`x-openregister.seedData.objects`):
 
 - a `voting-round` `stemming-hoofdelijk-parkeerbeleid`: `votingMethod: roll-call`, `isSecret: false`, opened and closed on 12 March 2026, `votesFor: 2`, `votesAgainst: 1`, `result: adopted`;
-- three `vote` objects on that round: `stem-hoofdelijk-halsema` (`for`), `stem-hoofdelijk-bakker` (`for`), `stem-hoofdelijk-yilmaz` (`against`), each with `entryMode: recorded`, `recordedBy: griffier` and `castAt` of the vote.
+- three `vote` objects on that round: `stem-hoofdelijk-doornbos` (`for`), `stem-hoofdelijk-bakker` (`for`), `stem-hoofdelijk-yilmaz` (`against`), each with `entryMode: recorded`, `recordedBy: griffier` and `castAt` of the vote.
 
 ## Risks
 

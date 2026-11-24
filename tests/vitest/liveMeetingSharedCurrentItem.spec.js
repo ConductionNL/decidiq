@@ -160,7 +160,13 @@ describe('a decision is recorded when it is taken (REQ-LSC-003)', () => {
 describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 	it('a speech and a question carry the current item', () => {
 		expect(
-			engagementBody(MEETING, 'P-anna', 'speech', ITEM5, { duration: 90 }),
+			engagementBody({
+				meetingId: MEETING,
+				participant: 'P-anna',
+				eventType: 'speech',
+				itemId: ITEM5,
+				extra: { duration: 90 },
+			}),
 		).toEqual({
 			meeting: MEETING,
 			participant: 'P-anna',
@@ -168,7 +174,12 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 			eventData: { duration: 90, agendaItem: ITEM5 },
 		})
 		expect(
-			engagementBody(MEETING, 'P-pieter', 'question', ITEM5).eventData,
+			engagementBody({
+				meetingId: MEETING,
+				participant: 'P-pieter',
+				eventType: 'question',
+				itemId: ITEM5,
+			}).eventData,
 		).toEqual({ agendaItem: ITEM5 })
 	})
 
@@ -205,7 +216,7 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 			{ id: 'P-anna', displayName: 'Anna' },
 			{ id: 'P-pieter', name: 'Pieter' },
 		]
-		expect(contributionsOn(records, ITEM5, participants)).toEqual([
+		expect(contributionsOn(ITEM5, { records, participants })).toEqual([
 			{ participantId: 'P-anna', name: 'Anna', kind: 'speech', duration: 90 },
 			{
 				participantId: 'P-pieter',
@@ -214,7 +225,7 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 				duration: 0,
 			},
 		])
-		expect(contributionsOn(records, null, participants)).toEqual([])
+		expect(contributionsOn(null, { records, participants })).toEqual([])
 	})
 
 	it('the speaker queue shows the contributions on the current item', () => {

@@ -4,7 +4,7 @@
 <!--
  VotingRoundPanel component — embedded in MotionDetail and AmendmentDetail.
  Shows the current open voting round, vote casting, live tally, proxy controls, and results.
- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6
+ @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6
 -->
 <template>
 	<CnDetailCard :title="t('decidiq', 'Voting round')">
@@ -14,7 +14,7 @@
 		</p>
 
 		<!-- No round yet — chair can open one -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3 -->
 		<template v-else-if="!currentRound">
 			<p class="decidiq-empty">
 				{{ t('decidiq', 'No active voting round.') }}
@@ -43,18 +43,14 @@
 				:aria-label="t('decidiq', 'Open voting round')">
 				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
 				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
+				<!-- Only the methods the meeting's body allows (bod-14) -->
+				<!-- @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use -->
 				<select id="votingMethod" v-model="newRound.votingMethod">
-					<option value="for-against-abstain">
-						{{ t('decidiq', 'For / Against / Abstain') }}
-					</option>
-					<option value="show-of-hands">
-						{{ t('decidiq', 'Show of hands') }}
-					</option>
-					<option value="weighted">
-						{{ t('decidiq', 'Weighted vote') }}
-					</option>
-					<option value="ranked-choice">
-						{{ t('decidiq', 'Ranked preference (Borda count)') }}
+					<option
+						v-for="method in allowedMethods"
+						:key="method"
+						:value="method">
+						{{ methodLabels[method] }}
 					</option>
 				</select>
 				<!-- Options of a ranked round (REQ-PRF-001, issue #1419) -->
@@ -76,6 +72,28 @@
 								})
 							"
 							:data-testid="`ranked-option-${index}`" />
+						<NcSelect
+							:modelValue="personPickFor(option)"
+							:options="personOptions"
+							:loading="loadingPeople"
+							:inputLabel="
+								t(
+									'decidiq',
+									'Person for option {number} (optional)',
+									{
+										number: index + 1,
+									},
+								)
+							"
+							:data-testid="`ranked-option-person-${index}`"
+							@update:modelValue="
+								(pick) =>
+									newRound.options.splice(
+										index,
+										1,
+										pickPerson(option, pick),
+									)
+							" />
 						<NcButton
 							variant="tertiary"
 							:aria-label="
@@ -161,6 +179,22 @@
 						)
 					}}
 				</p>
+				<!-- Who may vote (REQ-VGP-002): the body, or one of its voting groups -->
+				<label for="votingGroup">{{ t('decidiq', 'Who may vote') }}</label>
+				<select
+					id="votingGroup"
+					v-model="newRound.votingGroup"
+					data-testid="voting-group-choice">
+					<option value="">
+						{{ t('decidiq', 'All members of the body') }}
+					</option>
+					<option
+						v-for="group in votingGroupChoices"
+						:key="group.id"
+						:value="group.id">
+						{{ group.name }} ({{ group.memberCount }})
+					</option>
+				</select>
 				<label for="closedAt">{{
 					t('decidiq', 'Closing time (optional)')
 				}}</label>
@@ -187,8 +221,22 @@
 
 		<!-- Active or closed round -->
 		<template v-else>
+			<!-- Who the chosen voting group left out (REQ-VGP-005) -->
+			<p
+				v-if="leftOutNames.length > 0"
+				class="decidiq-notice"
+				role="status"
+				data-testid="voting-group-left-out">
+				{{
+					t(
+						'decidiq',
+						'Left out because they are no longer active members: {names}',
+						{ names: leftOutNames.join(', ') },
+					)
+				}}
+			</p>
 			<!-- Show-of-hands entry (chair/secretary when round is open) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.6 -->
 			<div
 				v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'"
 				class="decidiq-show-of-hands">
@@ -220,7 +268,7 @@
 			</div>
 
 			<!-- Vote casting buttons -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 -->
 			<!-- Ranked ballot (REQ-PRF-002, issue #1419) -->
 			<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
 			<!-- Proxy holder: cast the vote they were given (vot-10, #1377) -->
@@ -262,6 +310,7 @@
 				v-if="
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !isRollCallRound
 					&& !isRankedRound
 					&& !targetVoted
 				"
@@ -300,6 +349,29 @@
 				</p>
 			</div>
 
+			<!-- A roll call: members do not cast, the chair or secretary records each choice by name -->
+			<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+			<p
+				v-if="isRoundOpen && isRollCallRound"
+				class="decidiq-roll-call-notice"
+				role="status"
+				data-testid="roll-call-notice">
+				{{ t('decidiq', 'A roll call is in progress. The chair or the secretary records each vote by name.') }}
+			</p>
+			<NcButton
+				v-if="isRoundOpen && isRollCallRound && permissions.canEnterTally"
+				variant="primary"
+				data-testid="recorded-votes-open"
+				@click="showRecordedVotes = true">
+				{{ t('decidiq', 'Record votes by name') }}
+			</NcButton>
+			<RecordedVotesModal
+				v-if="showRecordedVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordedVotes = false" />
+
 			<!-- Vote confirmation message -->
 			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
 				{{ t('decidiq', 'Your vote has been recorded.') }}
@@ -319,7 +391,7 @@
 			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 -->
 			<div v-if="isRoundOpen" class="decidiq-tally">
 				<p>
 					{{
@@ -352,7 +424,7 @@
 			</div>
 
 			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7 -->
 			<div class="decidiq-proxy">
 				<NcButton
 					v-if="!activeProxy"
@@ -398,8 +470,22 @@
 				</div>
 			</div>
 
+			<!-- A named vote taken on paper, entered by the chair or the secretary (board DcStemmenInvoeren). -->
+			<NcButton
+				v-if="isRoundOpen && isChairOrSecretary && canEnterPaperVotes"
+				data-testid="record-votes-open"
+				@click="showRecordVotes = true">
+				{{ t('decidiq', 'Enter paper votes') }}
+			</NcButton>
+			<RecordVotesDialog
+				v-if="showRecordVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordVotes = false" />
+
 			<!-- Close round button (chair/secretary) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.4 -->
 			<NcButton
 				v-if="isRoundOpen && isChairOrSecretary"
 				variant="error"
@@ -430,7 +516,7 @@
 			</div>
 
 			<!-- Result display (closed rounds) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 -->
 			<div v-if="!isRoundOpen && currentRound.result" class="decidiq-result">
 				<p>
 					<strong>{{ t('decidiq', 'Result:') }}</strong>
@@ -569,11 +655,14 @@
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { NcButton, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import RecordVotesDialog from '../dialogs/RecordVotesDialog.vue'
+import RecordedVotesModal from '../modals/RecordedVotesModal.vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
+import { isRollCall } from '../utils/namedVotes.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
 	nextCastTarget,
@@ -582,6 +671,13 @@ import {
 	proxyCastFields,
 	readProxies,
 } from '../utils/proxyVoting.js'
+import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
+import { excludedMemberNames, meetingBodyId, votingGroupChoices } from '../utils/votingGroups.js'
+import {
+	allowedVotingMethods,
+	startingVotingMethod,
+	VOTING_METHODS,
+} from '../utils/votingMethods.js'
 import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
@@ -599,15 +695,37 @@ import {
 } from '../utils/votingRules.js'
 import { ensureRelationType } from './tabs/useRelationStore.js'
 
+/**
+ * The fetch options of a JSON write to the voting round API.
+ *
+ * @param {string} method POST or DELETE.
+ * @param {object} [body] The request body; none when left out.
+ * @return {object} The fetch options.
+ */
+function jsonRequest(method, body) {
+	const init = {
+		method,
+		headers: {
+			'Content-Type': 'application/json',
+			requesttoken: OC.requestToken,
+		},
+	}
+	if (body !== undefined) init.body = JSON.stringify(body)
+	return init
+}
+
 export default {
 	name: 'VotingRoundPanel',
 	components: {
 		CnDetailCard,
 		CnStatusBadge,
 		NcButton,
+		NcSelect,
 		NcTextField,
 		RankedBallot,
 		RankedResultsCard,
+		RecordVotesDialog,
+		RecordedVotesModal,
 	},
 
 	props: {
@@ -652,6 +770,8 @@ export default {
 			proxyVotesCast: [],
 			oriStatus: null,
 			showOfHands: { for: 0, against: 0, abstain: 0 },
+			// Every method until the meeting's body says otherwise (bod-14).
+			allowedMethods: [...VOTING_METHODS],
 			newRound: {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -662,7 +782,17 @@ export default {
 				abstentionHandling: '',
 				tieBreakRule: '',
 				options: [{ label: '' }, { label: '' }],
+				// Empty means every member of the body may vote (REQ-VGP-002).
+				votingGroup: '',
 			},
+
+			// The meeting body's active voting groups, for the open-round dialog.
+			votingGroupChoices: [],
+			// The members the chosen group left out when the round opened (REQ-VGP-005).
+			leftOutNames: [],
+
+			personOptions: [],
+			loadingPeople: false,
 
 			revoteOfRoundId: null,
 			castingRanking: false,
@@ -672,6 +802,9 @@ export default {
 			// round's own counts are written only on close.
 			liveTally: null,
 			participantCount: 0,
+			participants: [],
+			showRecordVotes: false,
+			showRecordedVotes: false,
 			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
@@ -710,6 +843,22 @@ export default {
 		},
 
 		/**
+		 * The name of each voting method, as the panel lists it.
+		 *
+		 * @return {Record<string, string>}
+		 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		methodLabels() {
+			return {
+				'for-against-abstain': this.t('decidiq', 'For / Against / Abstain'),
+				'show-of-hands': this.t('decidiq', 'Show of hands'),
+				weighted: this.t('decidiq', 'Weighted vote'),
+				'roll-call': this.t('decidiq', 'Roll call, recorded by name'),
+				'ranked-choice': this.t('decidiq', 'Ranked preference (Borda count)'),
+			}
+		},
+
+		/**
 		 * The members who may vote: participants minus those recused on the
 		 * motion or its agenda item (bod-10).
 		 *
@@ -723,13 +872,41 @@ export default {
 			])
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/**
+		 * Whether a paper vote can be entered: a named for/against/abstain
+		 * round, not a show of hands, a ranked or a secret one.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		canEnterPaperVotes() {
+			const round = this.currentRound || {}
+			return (
+				round.votingMethod !== 'show-of-hands'
+				&& !isRollCall(round)
+				&& !this.isRankedRound
+				&& round.isSecret !== true
+			)
+		},
+
+		/**
+		 * Whether the current round is a roll call, whose votes the chair or
+		 * the secretary records by name.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		isRollCallRound() {
+			return isRollCall(this.currentRound)
+		},
+
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		isRoundOpen() {
 			if (!this.currentRound) return false
 			if (!this.currentRound.openedAt) return false
@@ -738,7 +915,7 @@ export default {
 			return true
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
 			if (this.currentLiveTally) return this.currentLiveTally.cast || 0
@@ -857,7 +1034,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
 				published: this.t('decidiq', 'Published to ORI'),
@@ -880,6 +1057,18 @@ export default {
 			this.loadProxies()
 		},
 
+		/**
+		 * Load the voting groups when the open-round dialog opens for a fresh round.
+		 *
+		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @param {boolean} open Whether the dialog is open.
+		 */
+		showOpenRoundDialog(open) {
+			if (open && !this.revoteOfRoundId) {
+				this.loadVotingGroups()
+			}
+		},
+
 		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
 		meetingId() {
 			this.loadPermissions()
@@ -896,12 +1085,16 @@ export default {
 			) {
 				this.newRound.tieBreakRule = 'rejected'
 			}
+			if (method === 'ranked-choice') {
+				this.loadPeople()
+			}
 		},
 	},
 
-	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		this.loadPermissions()
+		this.loadAllowedMethods()
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
 		this.pollInterval = setInterval(async () => {
@@ -920,6 +1113,31 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The methods the meeting's body allows (bod-14). Without a meeting,
+		 * or when the body cannot be read, every method stays on offer: the
+		 * server refuses a method the body does not allow either way.
+		 *
+		 * @spec openspec/changes/archive/2026-11-20-capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		async loadAllowedMethods() {
+			if (!this.meetingId) {
+				return
+			}
+			try {
+				const meeting = await this.objectStore.fetchObject('meeting', this.meetingId)
+				const bodyId = meetingBodyId(meeting)
+				if (!bodyId) {
+					return
+				}
+				const body = await ensureRelationType('governance-body').fetchObject('governance-body', bodyId)
+				this.allowedMethods = allowedVotingMethods(body)
+				this.newRound.votingMethod = startingVotingMethod(this.newRound.votingMethod, this.allowedMethods)
+			} catch {
+				this.allowedMethods = [...VOTING_METHODS]
+			}
+		},
+
 		/**
 		 * Ask the server once per meeting which voting controls this user may
 		 * use. Fail closed: an error leaves every control hidden.
@@ -1055,7 +1273,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
@@ -1083,11 +1301,7 @@ export default {
 						...relationFilterFor(this.motionId),
 						_limit: 100,
 					}),
-					this.meetingId
-						? this.objectStore.fetchCollection('participant', {
-								'relations.meeting': this.meetingId,
-							})
-						: Promise.resolve(null),
+					this.meetingParticipants(),
 				])
 				const roundList = matching(rounds, this.motionId)
 				// Show most recent open round, then most recent closed.
@@ -1100,6 +1314,12 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
+				this.participants = (participants || []).map((member) => ({
+					id: member.id || member.uuid,
+					displayName: member.displayName || '',
+					party: member.party || '',
+					leftAt: member.leftAt || '',
+				}))
 				await Promise.all([this.loadDeclarations(), this.loadLiveTally()])
 			} catch {
 				this.currentRound = null
@@ -1109,70 +1329,145 @@ export default {
 		},
 
 		/**
+		 * The URL of one action on the current round.
+		 *
+		 * @param {string} action cast, close, tally, proxy or publish.
+		 * @return {string} The URL.
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3
+		 */
+		roundEndpoint(action) {
+			return OC.generateUrl(
+				`/apps/decidiq/api/voting-rounds/${this.roundId}/${action}`,
+			)
+		},
+
+		/**
 		 * @param value
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1
 		 */
 		async castVote(value) {
 			this.castVoteError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							value,
-							...proxyCastFields(this.castingFor),
-						}),
-					},
+					this.roundEndpoint('cast'),
+					jsonRequest('POST', {
+						participantId: OC.currentUser,
+						value,
+						...proxyCastFields(this.castingFor),
+					}),
 				)
-				if (resp.ok) {
-					this.recordCast()
-					await this.fetchCurrentRound()
-				} else {
-					const data = await resp.json()
-					this.castVoteError =
-						data.message || this.t('decidiq', 'Failed to cast vote')
-				}
+				await this.afterCast(resp)
 			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
+		/**
+		 * Settle a cast: on success mark the vote cast and reload the round,
+		 * else show the server's reason.
+		 *
+		 * @param {Response} resp The cast response.
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3
+		 */
+		async afterCast(resp) {
+			if (resp.ok) {
+				this.recordCast()
+				await this.fetchCurrentRound()
+				return
+			}
+			const data = await resp.json()
+			this.castVoteError =
+				data.message || this.t('decidiq', 'Failed to cast vote')
+		},
+
+		/**
+		 * The participants of the meeting: the members of its governance body,
+		 * as the server counts them when a list is recorded by name.
+		 *
+		 * Participant carries no meeting property, so a meeting filter on it
+		 * matches nothing and the list came back empty on a healthy 200: the
+		 * entry sheet listed nobody and the not-voted count read zero. The body
+		 * is the link the server resolves (ParticipantResolver), so read that,
+		 * narrow by its property and keep only rows that reference the body.
+		 *
+		 * @return {Promise<Array<object>|null>} The participants, or null without a meeting.
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		async meetingParticipants() {
+			if (!this.meetingId) {
+				return null
+			}
+			const resp = await fetch(
+				generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId }),
+				{ headers: { Accept: 'application/json' } },
+			)
+			const bodyId = meetingBodyId(resp.ok ? await resp.json() : null)
+			if (!bodyId) {
+				return []
+			}
+			const participants = await this.objectStore.fetchCollection('participant', {
+				governanceBody: bodyId,
+				_limit: 500,
+			})
+			// A participant names its body the way a meeting does.
+			return (participants || []).filter((participant) => meetingBodyId(participant) === bodyId)
+		},
+
+		/**
+		 * The active voting groups of the meeting's body, as choices for who may vote.
+		 * Nothing to choose from when the meeting or its body cannot be read:
+		 * the round then opens for every member of the body, as before.
+		 *
+		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @return {Promise<void>}
+		 */
+		async loadVotingGroups() {
+			this.votingGroupChoices = []
+			if (!this.meetingId) {
+				return
+			}
+			try {
+				const read = async (url) => {
+					const resp = await fetch(url, { headers: { Accept: 'application/json' } })
+					return resp.ok ? resp.json() : null
+				}
+				const bodyId = meetingBodyId(
+					await read(generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId })),
+				)
+				if (!bodyId) {
+					return
+				}
+				const groups = await read(generateUrl('/apps/openregister/api/objects/decidiq/voting-group') + '?_limit=100')
+				this.votingGroupChoices = votingGroupChoices(groups?.results, bodyId)
+			} catch {
+				this.votingGroupChoices = []
+			}
+		},
+
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
 			this.openRoundError = null
 			try {
 				const resp = await fetch(
 					OC.generateUrl('/apps/decidiq/api/voting-rounds'),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							...votingRoundBody({
-								subjectId: this.motionId,
-								subjectType: this.subjectType,
-								meetingId: this.meetingId,
-							}),
-							votingMethod: this.newRound.votingMethod,
-							isSecret: this.newRound.isSecret,
-							closedAt: this.newRound.closedAt || null,
-							...chosenRules(this.newRound),
-							revoteOfRound: this.revoteOfRoundId || null,
-							options: this.rankedOptions(),
+					jsonRequest('POST', {
+						...votingRoundBody({
+							subjectId: this.motionId,
+							subjectType: this.subjectType,
+							meetingId: this.meetingId,
 						}),
-					},
+						votingMethod: this.newRound.votingMethod,
+						isSecret: this.newRound.isSecret,
+						closedAt: this.newRound.closedAt || null,
+						...chosenRules(this.newRound),
+						revoteOfRound: this.revoteOfRoundId || null,
+						options: this.rankedOptions(),
+						votingGroup: this.revoteOfRoundId ? null : (this.newRound.votingGroup || null),
+					}),
 				)
 				if (resp.ok) {
+					this.leftOutNames = excludedMemberNames(await resp.json().catch(() => null))
 					this.showOpenRoundDialog = false
 					this.revoteOfRoundId = null
 					this.voteCast = false
@@ -1195,37 +1490,70 @@ export default {
 
 		/**
 		 * The options of a ranked round as the server stores them: a key made
-		 * from each label (unique within the round) and the label. Empty for
-		 * every other method, which takes no options.
+		 * from each label (unique within the round), the label and the picked
+		 * Person, if any. Empty for every other method, which takes no options.
 		 *
 		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
-		 * @return {Array<{key: string, label: string}>} The options
+		 * @return {Array<{key: string, label: string, person?: string}>} The options
 		 */
 		rankedOptions() {
 			if (this.newRound.votingMethod !== 'ranked-choice') {
 				return []
 			}
-			const used = new Set()
-			return this.newRound.options
-				.map((option) => String(option.label || '').trim())
-				.filter((label) => label !== '')
-				.map((label, index) => {
-					const base =
-						label
-							.toLowerCase()
-							.normalize('NFKD')
-							.replace(/[^a-z0-9]+/g, '-')
-							.replace(/^-+|-+$/g, '') || `option-${index + 1}`
-					let key = base
-					let suffix = 2
-					while (used.has(key)) {
-						key = `${base}-${suffix}`
-						suffix++
-					}
-					used.add(key)
-					return { key, label }
-				})
+			return rankedOptionsFrom(this.newRound.options)
 		},
+
+		/**
+		 * The People a chair can pick as ranked options, loaded once when the
+		 * ranked method is first picked. A failed load leaves the picker empty;
+		 * typed labels still work.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 */
+		async loadPeople() {
+			if (this.personOptions.length > 0 || this.loadingPeople) {
+				return
+			}
+			this.loadingPeople = true
+			try {
+				const people = await this.objectStore.fetchCollection('person', {
+					_limit: 500,
+				})
+				this.personOptions = (Array.isArray(people) ? people : [])
+					.filter(
+						(person) =>
+							person && (person.id || person.uuid) && person.name,
+					)
+					.map((person) => ({
+						id: person.id || person.uuid,
+						label: person.name,
+					}))
+					.sort((a, b) => a.label.localeCompare(b.label))
+			} catch {
+				this.personOptions = []
+			} finally {
+				this.loadingPeople = false
+			}
+		},
+
+		/**
+		 * The picker's value for an editor row.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @param {{person?: string}} option The editor row
+		 * @return {object|null} The picked person option
+		 */
+		personPickFor(option) {
+			const id = String(option?.person || '')
+			return id === ''
+				? null
+				: this.personOptions.find((person) => person.id === id) || {
+						id,
+						label: option.label || id,
+					}
+		},
+
+		pickPerson,
 
 		/**
 		 * Cast a ranked ballot.
@@ -1241,26 +1569,12 @@ export default {
 					generateUrl(
 						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
 					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							ranking,
-							...proxyCastFields(this.castingFor),
-						}),
-					},
+					jsonRequest('POST', {
+						ranking,
+						...proxyCastFields(this.castingFor),
+					}),
 				)
-				if (resp.ok) {
-					this.recordCast()
-					await this.fetchCurrentRound()
-				} else {
-					const data = await resp.json()
-					this.castVoteError =
-						data.message || this.t('decidiq', 'Failed to cast vote')
-				}
+				await this.afterCast(resp)
 			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			} finally {
@@ -1268,21 +1582,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.4 */
 		async closeRound() {
 			this.confirmCloseRound = false
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-					},
+					this.roundEndpoint('close'),
+					jsonRequest('POST'),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1303,17 +1609,8 @@ export default {
 			this.chairCastingError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ chairCasting: value }),
-					},
+					this.roundEndpoint('close'),
+					jsonRequest('POST', { chairCasting: value }),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1360,25 +1657,16 @@ export default {
 			this.revoteOfRoundId = null
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/tally`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							votesFor: this.showOfHands.for,
-							votesAgainst: this.showOfHands.against,
-							votesAbstain: this.showOfHands.abstain,
-						}),
-					},
+					this.roundEndpoint('tally'),
+					jsonRequest('POST', {
+						votesFor: this.showOfHands.for,
+						votesAgainst: this.showOfHands.against,
+						votesAbstain: this.showOfHands.abstain,
+					}),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1388,25 +1676,16 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
 			this.proxyError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							fromParticipantId: OC.currentUser,
-							toParticipantId: this.proxyToId,
-						}),
-					},
+					this.roundEndpoint('proxy'),
+					jsonRequest('POST', {
+						fromParticipantId: OC.currentUser,
+						toParticipantId: this.proxyToId,
+					}),
 				)
 				if (resp.ok) {
 					this.showProxyDialog = false
@@ -1422,21 +1701,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7.2 */
 		async revokeProxy() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
-					),
-					{
-						method: 'DELETE',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ fromParticipantId: OC.currentUser }),
-					},
+					this.roundEndpoint('proxy'),
+					jsonRequest('DELETE', { fromParticipantId: OC.currentUser }),
 				)
 				if (resp.ok) {
 					await this.loadProxies()
@@ -1446,20 +1716,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 */
 		async publishToOri() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/publish`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-					},
+					this.roundEndpoint('publish'),
+					jsonRequest('POST'),
 				)
 				if (resp.ok) {
 					const data = await resp.json()
@@ -1562,9 +1824,21 @@ export default {
 	margin: var(--default-grid-baseline) 0 0;
 }
 
+.decidiq-notice {
+	margin: 0 0 var(--default-grid-baseline);
+	padding: calc(2 * var(--default-grid-baseline));
+	border-radius: var(--border-radius);
+	background: var(--color-warning-element-light, var(--color-background-dark));
+	color: var(--color-main-text);
+}
+
 .decidiq-ori-status {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
+}
+
+.decidiq-roll-call-notice {
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-show-of-hands {

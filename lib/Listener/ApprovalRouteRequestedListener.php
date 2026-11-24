@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -27,8 +27,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
-use OCA\Decidiq\Service\ApprovalRouteCommandService;
-use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
+use OCA\Decidiq\Service\HeldRouteRequest;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -39,22 +40,22 @@ use Throwable;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 class ApprovalRouteRequestedListener implements IEventListener {
 
 	/**
 	 * Constructor.
 	 *
-	 * @param ApprovalRouteCommandService $commandService The idempotent upsert engine.
+	 * @param ApprovalRouteCommandServiceInterface $commandService The idempotent upsert engine.
 	 * @param LoggerInterface             $logger         Logger.
-	 * @param ApprovalRouteService        $engine         The route engine, for a
+	 * @param ApprovalRouteServiceInterface        $engine         The route engine, for a
 	 *        route held from named people rather than from a template.
 	 */
 	public function __construct(
-		private readonly ApprovalRouteCommandService $commandService,
+		private readonly ApprovalRouteCommandServiceInterface $commandService,
 		private readonly LoggerInterface $logger,
-		private readonly ApprovalRouteService $engine,
+		private readonly ApprovalRouteServiceInterface $engine,
 	) {
 	}//end __construct()
 
@@ -65,39 +66,47 @@ class ApprovalRouteRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ApprovalRouteRequestedEvent === false) {
 			return;
 		}
 
+		$result = $this->holdRequestedRoute(event: $event);
+		if ($result === null) {
+			return;
+		}
+
+		$this->answer(event: $event, result: $result);
+
+	}//end handle()
+
+	/**
+	 * Hold the requested route, or log why not.
+	 *
+	 * A producer that names PEOPLE rather than steps gets the ad-hoc path: no
+	 * template row is written, because a template nobody reuses on every
+	 * document review is a register full of them. That path answers the event
+	 * itself, so it yields no result here.
+	 *
+	 * Never rethrown: an exception out of handle() aborts the whole dispatch,
+	 * so an unrelated listener on the same event would stop running because
+	 * this one failed. The producer sees isHandled().
+	 *
+	 * @param ApprovalRouteRequestedEvent $event The command
+	 *
+	 * @return array{id: string, created: bool, stageCount: int}|null The result, null when there is none to write.
+	 */
+	private function holdRequestedRoute(ApprovalRouteRequestedEvent $event): ?array {
 		try {
-			// A producer that names PEOPLE rather than steps gets the ad-hoc
-			// path: no template row is written, because a template nobody
-			// reuses on every document review is a register full of them.
 			if ($event->getActors() !== [] && $event->getSubject() !== '') {
 				$this->handleAdhoc(event: $event);
-				return;
+				return null;
 			}
 
-			$result = $this->commandService->holdRoute(
-				sourceApp: $event->getSourceApp(),
-				externalReference: $event->getExternalReference(),
-				template: [
-					'name' => $event->getName(),
-					'steps' => $event->getSteps(),
-					'subjectType' => $event->getSubjectType(),
-					'description' => $event->getDescription(),
-					'isDefault' => $event->isDefault(),
-				],
-				subject: $event->getSubject(),
-				subjectSchema: $event->getSubjectSchema(),
-			);
+			return $this->holdTemplateRoute(event: $event);
 		} catch (Throwable $e) {
-			// Never rethrown: an exception out of handle() aborts the whole
-			// dispatch, so an unrelated listener on the same event would stop
-			// running because this one failed. The producer sees isHandled().
 			$this->logger->error(
 				'Decidiq: ApprovalRouteRequestedEvent not handled',
 				[
@@ -106,9 +115,42 @@ class ApprovalRouteRequestedListener implements IEventListener {
 					'exception' => $e,
 				]
 			);
-			return;
+			return null;
 		}//end try
+	}//end holdRequestedRoute()
 
+	/**
+	 * Hold a route from the steps the producer named, as a reusable template.
+	 *
+	 * @param ApprovalRouteRequestedEvent $event The command
+	 *
+	 * @return array{id: string, created: bool, stageCount: int} The held route.
+	 */
+	private function holdTemplateRoute(ApprovalRouteRequestedEvent $event): array {
+		return $this->commandService->holdRoute(
+			sourceApp: $event->getSourceApp(),
+			externalReference: $event->getExternalReference(),
+			template: [
+				'name' => $event->getName(),
+				'steps' => $event->getSteps(),
+				'subjectType' => $event->getSubjectType(),
+				'description' => $event->getDescription(),
+				'isDefault' => $event->isDefault(),
+			],
+			subject: $event->getSubject(),
+			subjectSchema: $event->getSubjectSchema(),
+		);
+	}//end holdTemplateRoute()
+
+	/**
+	 * Write the result slots on the command and log that it was handled.
+	 *
+	 * @param ApprovalRouteRequestedEvent                         $event  The command
+	 * @param array{id: string, created: bool, stageCount: int} $result The held route
+	 *
+	 * @return void
+	 */
+	private function answer(ApprovalRouteRequestedEvent $event, array $result): void {
 		$event->setRouteId($result['id']);
 		$event->setCreated($result['created']);
 		$event->setStageCount($result['stageCount']);
@@ -124,8 +166,7 @@ class ApprovalRouteRequestedListener implements IEventListener {
 				'stageCount' => $result['stageCount'],
 			]
 		);
-
-	}//end handle()
+	}//end answer()
 
 	/**
 	 * Hold a route from the people the producer named, with no template.
@@ -142,13 +183,13 @@ class ApprovalRouteRequestedListener implements IEventListener {
 			$routeName = 'Review';
 		}
 
-		$stages = $this->engine->holdFor(
+		$held = new HeldRouteRequest(
 			subject: $event->getSubject(),
-			actors: $event->getActors(),
 			subjectSchema: $event->getSubjectSchema(),
-			deadline: $event->getDeadline(),
-			name: $routeName,
+			actors: $event->getActors(),
+			name: $routeName
 		);
+		$stages = $this->engine->holdFor(request: $held->due(deadline: $event->getDeadline(), askSubstituteAfter: null));
 
 		// No route id, because there is no route row. Carrying the producer's
 		// own reference back would read as an id this app can be asked about,

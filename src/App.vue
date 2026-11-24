@@ -7,20 +7,34 @@
  channel so detail pages (CnDetailPage) can drive a single host-rendered
  CnObjectSidebar through the #sidebar slot.
 
- @spec openspec/changes/decidesk-manifest-v1/tasks.md#task-7.2
+ @spec openspec/changes/archive/2026-05-11-decidesk-manifest-v1/tasks.md#task-7.2
 -->
 <template>
 	<CnAppRoot
+		ref="appRoot"
 		:aiCompanion="true"
 		:manifest="manifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:formatters="cellFormatters"
+		:cellWidgets="cellWidgets"
 		:customComponents="headerActionHandlers"
 		appId="decidiq"
 		data-testid="app-root"
 		:translate="translateForApp"
+		:userSettingsSections="['app', 'credentials', 'walkthrough', 'integrations']"
 		:permissions="permissions">
+		<!--
+			The user settings dialog. Every per-person preference lives here;
+			decidiq has no Nextcloud personal settings page and no
+			/user-settings page (Ruben, 11 Oct 2026). The five sections follow
+			board DcMijnInstellingen; the library draws credentials, the tour
+			replay and integrations after them. Its generic notifications pane
+			is hidden: the board draws one Meldingen section, decidiq's own.
+		-->
+		<template #user-settings-sections>
+			<UserSettings />
+		</template>
 		<template #sidebar>
 			<CnObjectSidebar
 				v-if="objectSidebarState.active"
@@ -51,15 +65,25 @@
 
 <script>
 import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { showError, showSuccess, showWarning } from '@nextcloud/dialogs'
 import { translate as ncT } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
+import SpeakingRequestDeadlineCell from './components/cells/SpeakingRequestDeadlineCell.vue'
 import ExportBundleModal from './modals/ExportBundleModal.vue'
+import UserSettings from './views/settings/UserSettings.vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
 import { createConnectionHandlers } from './utils/connectionRegistry.js'
 import { createExportBundleHandlers } from './utils/exportBundle.js'
+import { createPlannedAgendaReportHandlers } from './utils/plannedAgendaReport.js'
+
+/**
+ * The location hash that opens the user settings dialog.
+ */
+const USER_SETTINGS_HASH = '#user-settings'
 
 export default {
 	name: 'App',
@@ -68,6 +92,7 @@ export default {
 		CnAppRoot,
 		CnObjectSidebar,
 		ExportBundleModal,
+		UserSettings,
 	},
 
 	/** @spec exclude Vue provide() wiring only; exposes the objectSidebarState channel, no domain logic */
@@ -159,6 +184,15 @@ export default {
 			 * CnAppRoot merges under this registry.
 			 */
 			cellFormatters,
+			/**
+			 * Cell-widget registry passed to CnAppRoot's `cellWidgets` prop: a
+			 * column's `widget` id names one. `speaking-deadline` is the
+			 * registration deadline warning on the speaking requests overview
+			 * (inspreekrecht-plenair REQ-INS-010).
+			 */
+			cellWidgets: {
+				'speaking-deadline': SpeakingRequestDeadlineCell,
+			},
 
 			/**
 			 * Header-action handlers resolved by name. CnIndexPage looks a
@@ -175,6 +209,15 @@ export default {
 
 				// Bulk actions resolve their handler name the same way.
 				...createExportBundleHandlers(exportBundleState),
+
+				// The long-term agenda's Download report (REQ-LTAT-004).
+				...createPlannedAgendaReportHandlers({
+					post: (url, body) => axios.post(url, body),
+					generateUrl,
+					open: (url) => window.open(url, '_blank', 'noopener'),
+					query: () => (this.$route ? this.$route.query : {}),
+					notify: (kind, message) => ({ success: showSuccess, warning: showWarning, error: showError })[kind](message),
+				}),
 			},
 
 			objectSidebarState: reactive({
@@ -220,7 +263,42 @@ export default {
 		await initializeStores()
 	},
 
+	/** @spec openspec/specs/user-settings/spec.md */
+	mounted() {
+		window.addEventListener('hashchange', this.openUserSettingsFromHash)
+		this.openUserSettingsFromHash()
+	},
+
+	/** @spec openspec/specs/user-settings/spec.md */
+	beforeUnmount() {
+		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+	},
+
 	methods: {
+		/**
+		 * The mounted CnAppRoot, or null before it mounts.
+		 *
+		 * @return {object|null} The CnAppRoot instance.
+		 * @spec openspec/specs/user-settings/spec.md
+		 */
+		appRoot() {
+			return this.$refs.appRoot || null
+		},
+
+		/**
+		 * Open the user settings dialog when the location hash is
+		 * `#user-settings`, the deep link that replaces /settings/user/decidiq.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/user-settings/spec.md
+		 */
+		openUserSettingsFromHash() {
+			const root = this.appRoot()
+			if (root && window.location.hash === USER_SETTINGS_HASH) {
+				root.userSettingsOpen = true
+			}
+		},
+
 		/**
 		 * Translate function passed down to CnAppRoot / CnAppNav /
 		 * CnPageRenderer. Closes over the Nextcloud `translate` import so

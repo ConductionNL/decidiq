@@ -13,7 +13,7 @@
  meeting reference pre-filled, and deep-links each row to
  DecisionDetail.
 
- @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
+ @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
 -->
 <template>
 	<div
@@ -68,6 +68,7 @@
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -87,7 +88,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidiq', 'Title') },
@@ -97,7 +98,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		outcomeColors() {
 			return {
 				adopted: 'success',
@@ -111,7 +112,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+			/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 			handler() {
 				this.refresh()
 			},
@@ -119,7 +120,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -139,14 +140,14 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
 		async createDecision() {
 			if (!this.objectId || this.creating) return
 			this.creating = true
 			this.error = ''
 			try {
 				const store = ensureRelationType('decision')
-				const created = await store.saveObject('decision', {
+				const created = await saveOrThrow(store, 'decision', {
 					title: this.t('decidiq', 'Decision'),
 					meeting: this.objectId,
 				})
@@ -165,7 +166,7 @@ export default {
 		 * Navigate to the DecisionDetail page for a row.
 		 *
 		 * @param {object} row Decision row (must carry `id` or `uuid`).
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting
 		 */
 		openDetail(row) {
 			const id = row && (row.id || row.uuid)
@@ -176,30 +177,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-</style>
+<style scoped src="./relationTab.css"></style>

@@ -42,6 +42,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeInterface;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Kernel\Contracts\BroadcastCaptionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Constants;
@@ -55,7 +56,7 @@ use OCP\Share\IShare;
  *
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
  */
-class BroadcastCaptionService {
+class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 	/**
 	 * The meeting subfolder the caption files go to.
 	 */
@@ -176,32 +177,45 @@ class BroadcastCaptionService {
 			'language'   => $language,
 			'filePath'   => $node->getPath(),
 			'shareUrl'   => $url,
-			'reviewedBy' => (string)($user?->getDisplayName() ?? ''),
+			'reviewedBy' => $user?->getDisplayName() ?? '',
 			'releasedAt' => $this->time->getDateTime()->format(DateTimeInterface::ATOM),
 		];
 		$broadcast['captionTracks'] = $tracks;
 		$stored = $this->write(broadcast: $broadcast);
-		$stored['attachedToRecording'] = $this->attach(language: $language, url: $url);
+		$stored['attachedToRecording'] = $this->attach(
+			track: ['language' => $language, 'url' => $url],
+			meetingId: $meetingId,
+			recordingUrl: (string)($broadcast['recordingUrl'] ?? '')
+		);
 
 		return $stored;
 	}//end release()
 
 	/**
-	 * Ask the streaming service to attach a released track to the recording.
+	 * Ask the streaming service to attach a released track to this meeting's recording.
 	 *
 	 * The track is public through its link either way; attaching it is the
-	 * service's extra, not a condition of the release.
+	 * service's extra, not a condition of the release. The request names the
+	 * meeting and its recording: the sessions of one evening are recorded at
+	 * the same time, and a track that named neither could land on the
+	 * recording of another session (REQ-PPS-005).
 	 *
-	 * @param string $language The language code
-	 * @param string $url      The track's public link
+	 * @param array{language: string, url: string} $track        The language code and the track's public link
+	 * @param string                                $meetingId    The meeting whose recording it belongs to
+	 * @param string                                $recordingUrl That meeting's recording, empty when the service has not reported it
 	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
 	 *
 	 * @return bool Whether the service took it
 	 */
-	private function attach(string $language, string $url): bool {
+	private function attach(array $track, string $meetingId, string $recordingUrl): bool {
+		$body = $track + ['meeting' => $meetingId];
+		if ($recordingUrl !== '') {
+			$body['recordingUrl'] = $recordingUrl;
+		}
+
 		try {
-			$answer = $this->streaming->call(operation: 'attach-captions', body: ['language' => $language, 'url' => $url]);
+			$answer = $this->streaming->call(operation: 'attach-captions', body: $body);
 		} catch (BroadcastRefusedException) {
 			return false;
 		}
@@ -372,18 +386,7 @@ class BroadcastCaptionService {
 	 * @return array<string, mixed>|null
 	 */
 	private function read(string $schema, string $id): ?array {
-		if ($id === '') {
-			return null;
-		}
-
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($entity === null) {
-			return null;
-		}
-
-		$data = $entity->jsonSerialize();
-		unset($data['id'], $data['@self']);
-		return $data;
+		return SystemObjectStore::readData(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
 
 	/**
@@ -398,17 +401,6 @@ class BroadcastCaptionService {
 	private function write(array $broadcast): array {
 		$uuid = (string)$broadcast['id'];
 		unset($broadcast['id'], $broadcast['@self']);
-		$saved = $this->objectService->saveObject(
-			object: $broadcast,
-			register: 'decidiq',
-			schema: 'meeting-broadcast',
-			uuid: $uuid,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$stored = $saved->jsonSerialize();
-		unset($stored['@self']);
-		return ['id' => (string)$saved->getUuid()] + $stored;
+		return SystemObjectStore::write(objectService: $this->objectService, schema: 'meeting-broadcast', object: $broadcast, uuid: $uuid);
 	}//end write()
 }//end class

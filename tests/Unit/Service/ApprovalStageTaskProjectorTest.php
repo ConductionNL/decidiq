@@ -18,6 +18,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ApprovalStageTaskProjector;
 use OCA\Decidiq\Service\RegisterObjectStore;
+use OCA\OpenRegister\Service\Task\TaskTrigger;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -48,6 +49,13 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 	private array $stagePatches = [];
 
 	/**
+	 * Patches that only set who a stage waits on, kept apart from the task linkage.
+	 *
+	 * @var array<int, array{0: string, 1: array<string, mixed>, 2: string|null}>
+	 */
+	private array $waitingPatches = [];
+
+	/**
 	 * Build the fake task surface.
 	 *
 	 * @return void
@@ -65,6 +73,11 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 			 * @var array<int, string>
 			 */
 			public array $consumed = [];
+
+			/**
+			 * @var array<int, TaskTrigger>
+			 */
+			public array $triggers = [];
 
 			/**
 			 * Import a task.
@@ -92,14 +105,14 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 			/**
 			 * Consume a task.
 			 *
-			 * @param string $uuid The task uuid.
-			 * @param string $source The consuming source.
-			 * @param string $reason The reason.
+			 * @param string      $uuid    The task uuid.
+			 * @param TaskTrigger $trigger The consuming source and reason.
 			 *
 			 * @return void
 			 */
-			public function consume(string $uuid, string $source, string $reason): void {
+			public function consume(string $uuid, TaskTrigger $trigger): void {
 				$this->consumed[] = $uuid;
+				$this->triggers[] = $trigger;
 			}
 		};
 	}
@@ -122,6 +135,12 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		$store = $this->createMock(RegisterObjectStore::class);
 		$store->method('patch')->willReturnCallback(
 			function (string $schema, array $data, string $uuid) : array {
+				if (array_keys($data) === ['waitingOn']) {
+					$this->waitingPatches[] = [$schema, $data, $uuid];
+
+					return ($data + ['id' => $uuid]);
+				}
+
 				$this->stagePatches[] = [$schema, $data, $uuid];
 
 				return ($data + ['id' => $uuid]);
@@ -168,6 +187,8 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		);
 
 		$this->assertSame(['task-1'], $this->tasks->consumed);
+		$this->assertSame('decidiq:approval-stage', $this->tasks->triggers[0]->source);
+		$this->assertSame('The approval stage this task asked about is no longer awaiting an answer.', $this->tasks->triggers[0]->reason);
 		$this->assertSame([['decision-stage', ['taskUuid' => ''], 's-1']], $this->stagePatches);
 	}
 
@@ -220,5 +241,120 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		);
 
 		$this->assertSame([], $this->stagePatches);
+	}
+
+	/**
+	 * An active stage names the person it waits on, so a "waiting for you"
+	 * list can filter on the reader; a stage that stops waiting clears it.
+	 *
+	 * @return void
+	 */
+	public function testAStageNamesWhoItWaitsOnWhileActive(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'status' => 'active', 'assignedPerson' => 'alice', 'taskUuid' => 'task-1'],
+				['id' => 's-2', 'status' => 'decided', 'assignedPerson' => 'bob', 'waitingOn' => 'bob', 'taskUuid' => ''],
+				['id' => 's-3', 'status' => 'active', 'assignedPerson' => 'carol', 'waitingOn' => 'carol', 'taskUuid' => 'task-3'],
+				['id' => 's-4', 'status' => 'pending', 'assignedPerson' => 'dave', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertSame(
+			expected: [
+				['decision-stage', ['waitingOn' => 'alice'], 's-1'],
+				['decision-stage', ['waitingOn' => null], 's-2'],
+			],
+			actual: $this->waitingPatches
+		);
+	}
+
+	/**
+	 * Who a stage waits on does not depend on the task surface.
+	 *
+	 * @return void
+	 */
+	public function testWaitingOnIsWrittenWithoutATaskSurface(): void {
+		$this->projector(withTaskService: false)->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'status' => 'active', 'assignedPerson' => 'alice', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertSame(expected: [['decision-stage', ['waitingOn' => 'alice'], 's-1']], actual: $this->waitingPatches);
+	}
+
+	/**
+	 * The task carries the subject, the step and the stage's due date, so the
+	 * assignee's inbox can show and sort the approval as a work item.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testTheTaskCarriesSubjectStepAndDueDate(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				[
+					'id' => 's-2',
+					'sequence' => 2,
+					'status' => 'active',
+					'stageType' => 'approval',
+					'assignedPerson' => 'alice',
+					'label' => 'Akkoord',
+					'dueAt' => '2026-09-25T17:00:00Z',
+					'taskUuid' => '',
+				],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$imported = $this->tasks->imported[0];
+		$this->assertSame(expected: 'v-1', actual: $imported['objectUuid']);
+		$this->assertSame(expected: 'Sign-off: Akkoord', actual: $imported['title']);
+		$this->assertSame(expected: 'Approval stage 2 (approval) for subject v-1.', actual: $imported['description']);
+		$this->assertSame(expected: '2026-09-25T17:00:00+00:00', actual: $imported['dueAt']);
+	}
+
+	/**
+	 * A stage with no due date opens a task without one.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testAStageWithoutADueDateOpensATaskWithoutOne(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'sequence' => 1, 'status' => 'active', 'assignedPerson' => 'alice', 'dueAt' => '  ', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$this->assertArrayNotHasKey(key: 'dueAt', array: $this->tasks->imported[0]);
+	}
+
+	/**
+	 * A due date that does not parse is left off, and the task still opens:
+	 * losing the date is better than losing the task.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 *
+	 * @return void
+	 */
+	public function testAnUnparseableDueDateIsLeftOffAndTheTaskStillOpens(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'sequence' => 1, 'status' => 'active', 'assignedPerson' => 'alice', 'dueAt' => 'next tuesday-ish', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->tasks->imported);
+		$this->assertArrayNotHasKey(key: 'dueAt', array: $this->tasks->imported[0]);
+		$this->assertSame(expected: [['decision-stage', ['taskUuid' => 'task-1'], 's-1']], actual: $this->stagePatches);
 	}
 }
