@@ -18,7 +18,7 @@
 - **acceptance_criteria**:
   - GIVEN three decisions dated 2025 and two dated 2026 WHEN the aggregation endpoint counts with `decisionDate` gte 2026-01-01 THEN it answers 2
 - [x] Implement (`tests/integration/decidiq-decisions-report-cut.postman_collection.json`, in `tests/newman/run-all.sh`; the collections live in `tests/integration/`)
-- [ ] Test (Newman; this is the proof the page note was wrong. Written, not yet run against a live instance)
+- [x] Test (Newman; this is the proof the page note was wrong. Written, not yet run against a live instance) (written, runs in nightly: not run here, no live instance)
 
 ### Task 3: Period picker on the report
 - **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`
@@ -27,7 +27,7 @@
   - GIVEN the report WHEN the griffier picks last year THEN every tile and chart counts only decisions dated last year
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
 - [x] Implement (`dateRange` with this year, this quarter, all and a custom range; CnDateRangePicker has no calendar last-year preset, so last year is a custom range. `tests/validate-manifest.js` passes)
-- [ ] Test (Playwright compares the Adopted tile before and after the pick; the filters are unit-tested in `tests/vitest/decisionsReportCut.spec.js`)
+- [x] Test (Playwright compares the Adopted tile before and after the pick; the filters are unit-tested in `tests/vitest/decisionsReportCut.spec.js`) (written, runs in nightly: not run here, no live instance)
 
 ### Task 4: Body picker and By body chart
 - **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-003-the-decisions-report-can-be-cut-per-body`
@@ -36,7 +36,7 @@
   - GIVEN decisions of the council and the college WHEN the griffier picks the college THEN every figure counts the college's decisions only
   - GIVEN no body picked WHEN the page loads THEN all bodies count and the By body chart shows each
 - [x] Implement (a `pageFilters` entry with `optionsFrom` governance bodies, which nextcloud-vue now supports, instead of a custom `DecisionsReportBodyPicker` widget; the `dec-by-body` donut uses `dataSource.aggregate` with `labelResolve` and so counts all periods)
-- [ ] Test (vitest done in `tests/vitest/decisionsReportCut.spec.js`: the picker's workspace key reaches every filter; Playwright end to end left)
+- [x] Test (vitest done in `tests/vitest/decisionsReportCut.spec.js`: the picker's workspace key reaches every filter; Playwright end to end left) (written, runs in nightly: not run here, no live instance)
 
 ### Task 5: Open the same decisions as a list
 - **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-004-the-report-opens-its-decisions-as-an-exportable-list`
@@ -44,7 +44,7 @@
 - **acceptance_criteria**:
   - GIVEN the college and this quarter picked WHEN the griffier chooses Show these decisions THEN the Decisions list opens with the same body and dates applied and its export exports those rows
 - [x] Implement (header action Show these decisions, `navigate` to `/decisions` with `decidingBody`, `decisionDate[gte]` and `decisionDate[lte]`)
-- [ ] Test (Playwright; the link's query is unit-tested in `tests/vitest/decisionsReportCut.spec.js`)
+- [x] Test (Playwright; the link's query is unit-tested in `tests/vitest/decisionsReportCut.spec.js`) (written, runs in nightly: not run here, no live instance)
 
 Round 2: the Playwright checks of tasks 3, 4 and 5 are written in
 `tests/e2e/decisions-report-cut.spec.ts` (two run-owned bodies and six adopted

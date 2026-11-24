@@ -13,7 +13,7 @@
  * secretariat and administrators only; the default e2e account is an
  * administrator). Every object it reads is created here and removed
  * afterwards. The 90-day reminder (REQ-FUP-004) fires from OpenRegister's
- * scheduled notification run and is proven by tests/newman/implementation-progress.json.
+ * scheduled notification run and is proven by tests/integration/decidiq-implementation-progress.postman_collection.json.
  *
  * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md
  */

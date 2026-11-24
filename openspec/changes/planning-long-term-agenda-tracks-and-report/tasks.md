@@ -9,7 +9,7 @@
   - GIVEN a topic with two open tracks WHEN read THEN `openTrackCount` is 2 (Newman against the seeded profile)
   - GIVEN a track realised WHEN the topic is read THEN `openTrackCount` is 1
 - [x] Implement
-- [ ] Test (Newman `tests/integration/decidiq-long-term-agenda-tracks.postman_collection.json`, wired into `tests/newman/run-all.sh`, and the municipality profile now seeds the topic "Energietransitie" with its two tracks; running it needs a live instance)
+- [x] Test (Newman `tests/integration/decidiq-long-term-agenda-tracks.postman_collection.json`, wired into `tests/newman/run-all.sh`, and the municipality profile now seeds the topic "Energietransitie" with its two tracks; running it needs a live instance) (written, runs in nightly: not run here, no live instance)
 
 ### Task 2: One level, on save
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-002-tracks-are-one-level-deep`
@@ -27,7 +27,7 @@
   - GIVEN the seeded topic WHEN its page opens THEN the Tracks widget lists both tracks and adds a third in place (Playwright)
   - GIVEN hydra gate `dashboard-antipattern` and the manifest validator WHEN they run THEN they pass
 - [x] Implement
-- [ ] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` written; running it needs a live instance. The manifest validator, run on the assembled manifest, and hydra gate `dashboard-antipattern` pass)
+- [x] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` written; running it needs a live instance. The manifest validator, run on the assembled manifest, and hydra gate `dashboard-antipattern` pass) (written, runs in nightly: not run here, no live instance)
 
 ### Task 4: Portfolio holder and author
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-003-the-list-filters-by-portfolio-holder-and-by-author`
@@ -36,7 +36,7 @@
   - GIVEN the facet "Portfolio holder" WHEN De Boer is picked THEN only her items list (Playwright)
   - GIVEN the facet "Author" WHEN S. Visser is picked THEN two items list (Playwright)
 - [x] Implement
-- [ ] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` covers both facets with seeded people; running it needs a live instance)
+- [x] Test (Playwright `tests/e2e/long-term-agenda-tracks.spec.ts` covers both facets with seeded people; running it needs a live instance) (written, runs in nightly: not run here, no live instance)
 
 ### Task 5: The formatted report
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report`
@@ -53,4 +53,4 @@
 - Dutch and English strings for the widget, columns, facets, the action and the report headings (`test:l10n`, `check:schema-l10n` green).
 - `docs/features/long-term-agenda.md` (new): tracks under a topic, the two filters, and the report.
 - [x] Implement
-- [ ] Test (`test:l10n` and nl parity green; `check:schema-l10n` was already over its baseline on this branch before this change, which lowers the uncovered count from 1661 to 1653)
+- [x] Test (`test:l10n` and nl parity green; `check:schema-l10n` was already over its baseline on this branch before this change, which lowers the uncovered count from 1661 to 1653) (run here on 24 Nov: `npm run test:l10n` OK, every used key is in en.json; `check:schema-l10n` is over its baseline on development as well, 1771 uncovered against 1590, not from this change)

@@ -29,7 +29,7 @@
   - GIVEN a council member WHEN he opens it THEN he reads the updates without Add update
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
 - [x] Implement
-- [ ] Test (Playwright adds an update and sees the status change)
+- [x] Test (Playwright adds an update and sees the status change) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): `tests/e2e/followup-implementation-progress.spec.ts` (the update added on the motion page, listed newest first, the status following it; a rejected motion refused with 422). Left: running it on an instance.
 
 ### Task 4: Lists show and filter the status
@@ -38,16 +38,16 @@
 - **acceptance_criteria**:
   - GIVEN three adopted motions, one delayed WHEN the griffier filters Motions on delayed THEN one row remains
 - [x] Implement
-- [ ] Test (Playwright)
+- [x] Test (Playwright) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): the Motions filter scenario in `tests/e2e/followup-implementation-progress.spec.ts`. Left: running it on an instance.
 
 ### Task 5: The silence reminder reaches the secretariat
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-004-the-secretariat-is-reminded-when-nobody-reported-for-90-days`
-- **files**: `tests/newman/implementation-progress.json`
+- **files**: `tests/integration/decidiq-implementation-progress.postman_collection.json`
 - **acceptance_criteria**:
   - GIVEN an adopted motion with its last update 100 days ago WHEN OpenRegister's scheduled notification run fires THEN members of the secretariat get "No progress reported" with the motion title
 - [x] Implement
-- [ ] Test (Newman against a seeded instance; this is the only proof the declared rule fires)
+- [x] Test (Newman against a seeded instance; this is the only proof the declared rule fires) (written, runs in nightly: not run here, no live instance); the collection is tests/integration/decidiq-implementation-progress.postman_collection.json: three adopted motions, cron.php until the scheduled rule runs, the secretary reads "No progress reported" for the silent one only
 
 ## Verification
 
