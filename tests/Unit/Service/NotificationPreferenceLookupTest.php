@@ -109,7 +109,11 @@ class NotificationPreferenceLookupTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: ($logger ?? $this->createMock(LoggerInterface::class)), openRegisterSync: $this->createMock(OpenRegisterNotificationPreferenceSync::class));
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: ($logger ?? $this->createMock(originalClassName: LoggerInterface::class)),
+			openRegisterSync: $this->createMock(originalClassName: OpenRegisterNotificationPreferenceSync::class)
+		);
 	}//end serviceOver()
 
 	/**
@@ -125,7 +129,11 @@ class NotificationPreferenceLookupTest extends TestCase {
 			'Decidiq: findPreference failed',
 			['personId' => 'alice', 'error' => 'no OpenRegister']
 		);
-		$service = new NotificationPreferenceService(container: $container, logger: $logger, openRegisterSync: $this->createMock(OpenRegisterNotificationPreferenceSync::class));
+		$service = new NotificationPreferenceService(
+			container: $container,
+			logger: $logger,
+			openRegisterSync: $this->createMock(originalClassName: OpenRegisterNotificationPreferenceSync::class)
+		);
 
 		self::assertNull($service->findPreference(personId: 'alice'));
 	}//end testFailingLookupIsLoggedAndYieldsNull()

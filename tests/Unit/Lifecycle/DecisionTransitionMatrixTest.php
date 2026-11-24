@@ -113,12 +113,12 @@ class DecisionTransitionMatrixTest extends TestCase {
 	 * path, and decided→archived, archiving a rejected decision that can
 	 * never enact) were exactly the ones a sampled check missed.
 	 *
-	 * @dataProvider registerProvider
-	 *
 	 * @param string $file Register JSON basename
 	 * @param string $schemaKey Component schema key
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @dataProvider registerProvider
 	 *
 	 * @return void
 	 */
@@ -151,12 +151,12 @@ class DecisionTransitionMatrixTest extends TestCase {
 	 * The schema's lifecycle states must be exactly the guard's states plus
 	 * the declarative-only terminal `withdrawn`.
 	 *
-	 * @dataProvider registerProvider
-	 *
 	 * @param string $file Register JSON basename
 	 * @param string $schemaKey Component schema key
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @dataProvider registerProvider
 	 *
 	 * @return void
 	 */
@@ -177,12 +177,12 @@ class DecisionTransitionMatrixTest extends TestCase {
 	 * the guard's action map: the schema must not silently accept a transition
 	 * no action can perform.
 	 *
-	 * @dataProvider registerProvider
-	 *
 	 * @param string $file Register JSON basename
 	 * @param string $schemaKey Component schema key
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @dataProvider registerProvider
 	 *
 	 * @return void
 	 */
@@ -219,12 +219,12 @@ class DecisionTransitionMatrixTest extends TestCase {
 	 * accepts but the schema does not declare would be refused by OR at save
 	 * time; a declared edge the guard refuses would be unreachable (#1380).
 	 *
-	 * @dataProvider registerProvider
-	 *
 	 * @param string $file Register JSON basename
 	 * @param string $schemaKey Component schema key
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @dataProvider registerProvider
 	 *
 	 * @return void
 	 */
@@ -242,10 +242,10 @@ class DecisionTransitionMatrixTest extends TestCase {
 		$expected = DecisionTransitionGuard::WITHDRAWABLE_STATES;
 		sort($expected);
 
-		self::assertSame($expected, $declared, "{$file}: the guard's withdrawable states must match the schema's withdraw edges");
-		self::assertFalse($this->guard->isWithdrawable(lifecycle: 'enacted'));
-		self::assertFalse($this->guard->isWithdrawable(lifecycle: 'withdrawn'));
-		self::assertTrue($this->guard->isWithdrawable(lifecycle: 'deliberating'));
+		self::assertSame(expected: $expected, actual: $declared, message: "{$file}: the guard's withdrawable states must match the schema's withdraw edges");
+		self::assertFalse(condition: $this->guard->isWithdrawable(lifecycle: 'enacted'));
+		self::assertFalse(condition: $this->guard->isWithdrawable(lifecycle: 'withdrawn'));
+		self::assertTrue(condition: $this->guard->isWithdrawable(lifecycle: 'deliberating'));
 	}//end testWithdrawableStatesMatchTheSchemaWithdrawEdges()
 
 	/**

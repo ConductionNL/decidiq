@@ -147,7 +147,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 					return null;
 				}
 
-				return $this->entity($data);
+				return $this->entity(data: $data);
 			}
 		);
 	}//end wireFind()

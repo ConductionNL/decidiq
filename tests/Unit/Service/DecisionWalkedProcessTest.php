@@ -212,9 +212,9 @@ final class DecisionWalkedProcessTest extends TestCase {
 			'Voorstel ingetrokken'
 		);
 
-		self::assertTrue($withdrawn['withdrawn']);
-		self::assertArrayNotHasKey('outcome', $withdrawn);
-		self::assertNull($withdrawn['history'][0]['outcomeAtWithdrawal']);
+		self::assertTrue(condition: $withdrawn['withdrawn']);
+		self::assertArrayNotHasKey(key: 'outcome', array: $withdrawn);
+		self::assertNull(actual: $withdrawn['history'][0]['outcomeAtWithdrawal']);
 	}//end testADecisionInFlightIsWithdrawnWithoutAnOutcome()
 
 	/**

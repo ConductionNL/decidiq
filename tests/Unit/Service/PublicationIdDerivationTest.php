@@ -50,7 +50,7 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return ObjectEntity
 	 */
 	private function entity(array $row): ObjectEntity {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn($row);
 		return $entity;
 	}//end entity()
@@ -64,9 +64,9 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return PublicationRepository
 	 */
 	private function repository(mixed $saved, LoggerInterface $logger): PublicationRepository {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('saveObject')->willReturn($saved);
-		return new PublicationRepository($logger, $objectService);
+		return new PublicationRepository(logger: $logger, objectService: $objectService);
 	}//end repository()
 
 	/**
@@ -78,16 +78,16 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return OpenCatalogiPublisher
 	 */
 	private function publisher(mixed $publication, LoggerInterface $logger): OpenCatalogiPublisher {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('saveObject')->willReturn($publication);
 
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		$appManager = $this->createMock(IAppManager::class);
+		$appManager = $this->createMock(originalClassName: IAppManager::class);
 		$appManager->method('isEnabledForAnyone')->willReturn(true);
 
-		return new OpenCatalogiPublisher($container, $appManager, $logger);
+		return new OpenCatalogiPublisher(container: $container, appManager: $appManager, logger: $logger);
 	}//end publisher()
 
 	/**
@@ -96,12 +96,12 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return void
 	 */
 	public function testRepositoryReadsTheSerializedId(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->never())->method('warning');
 
 		$repository = $this->repository(saved: $this->entity(row: ['id' => 'uuid-1', 'title' => 'x']), logger: $logger);
 
-		$this->assertSame('uuid-1', $repository->persistPayload(payload: ['title' => 'x']));
+		$this->assertSame(expected: 'uuid-1', actual: $repository->persistPayload(payload: ['title' => 'x']));
 	}//end testRepositoryReadsTheSerializedId()
 
 	/**
@@ -110,11 +110,11 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return void
 	 */
 	public function testRepositoryFallsBackToSelfId(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 
 		$repository = $this->repository(saved: $this->entity(row: ['@self' => ['id' => 'uuid-2']]), logger: $logger);
 
-		$this->assertSame('uuid-2', $repository->persistRecord(record: ['title' => 'x']));
+		$this->assertSame(expected: 'uuid-2', actual: $repository->persistRecord(record: ['title' => 'x']));
 	}//end testRepositoryFallsBackToSelfId()
 
 	/**
@@ -123,13 +123,13 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return void
 	 */
 	public function testRepositoryLogsWhenNoIdCanBeDerived(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('warning')
-			->with($this->stringContains('no derivable id'));
+			->with($this->stringContains(string: 'no derivable id'));
 
 		$repository = $this->repository(saved: $this->entity(row: ['title' => 'x']), logger: $logger);
 
-		$this->assertSame('', $repository->persistPayload(payload: ['title' => 'x']));
+		$this->assertSame(expected: '', actual: $repository->persistPayload(payload: ['title' => 'x']));
 	}//end testRepositoryLogsWhenNoIdCanBeDerived()
 
 	/**
@@ -138,12 +138,12 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return void
 	 */
 	public function testPublisherReadsTheSerializedReference(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->never())->method('warning');
 
 		$publisher = $this->publisher(publication: $this->entity(row: ['id' => 'pub-1']), logger: $logger);
 
-		$this->assertSame('pub-1', $publisher->publish(catalogId: 'cat-1', payloadId: 'payload-1', payload: ['title' => 'x']));
+		$this->assertSame(expected: 'pub-1', actual: $publisher->publish(catalogId: 'cat-1', payloadId: 'payload-1', payload: ['title' => 'x']));
 	}//end testPublisherReadsTheSerializedReference()
 
 	/**
@@ -152,12 +152,12 @@ class PublicationIdDerivationTest extends TestCase {
 	 * @return void
 	 */
 	public function testPublisherLogsWhenNoReferenceCanBeDerived(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('warning')
-			->with($this->stringContains('no derivable reference'));
+			->with($this->stringContains(string: 'no derivable reference'));
 
 		$publisher = $this->publisher(publication: $this->entity(row: ['title' => 'x']), logger: $logger);
 
-		$this->assertSame('', $publisher->publish(catalogId: 'cat-1', payloadId: 'payload-1', payload: ['title' => 'x']));
+		$this->assertSame(expected: '', actual: $publisher->publish(catalogId: 'cat-1', payloadId: 'payload-1', payload: ['title' => 'x']));
 	}//end testPublisherLogsWhenNoReferenceCanBeDerived()
 }//end class

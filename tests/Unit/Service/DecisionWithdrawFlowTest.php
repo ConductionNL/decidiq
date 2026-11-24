@@ -87,15 +87,15 @@ class DecisionWithdrawFlowTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->auditLogService = $this->createMock(AuditLogService::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$this->auditLogService = $this->createMock(originalClassName: AuditLogService::class);
 
-		$templateService = $this->createMock(ProcessTemplateService::class);
+		$templateService = $this->createMock(originalClassName: ProcessTemplateService::class);
 		$templateService->method('resolvePolicyForBody')->willReturnCallback(
 			fn (): ?array => $this->policyOverride
 		);
 
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$transitionGuard = new DecisionTransitionGuard();
 
 		$lifecycleService = new DecisionLifecycleService(
@@ -103,8 +103,8 @@ class DecisionWithdrawFlowTest extends TestCase {
 			transitionGuard: $transitionGuard,
 			auditLogService: $this->auditLogService,
 			templateService: $templateService,
-			integrationService: $this->createMock(DecisionIntegrationService::class),
-			eventDispatcher: $this->createMock(IEventDispatcher::class),
+			integrationService: $this->createMock(originalClassName: DecisionIntegrationService::class),
+			eventDispatcher: $this->createMock(originalClassName: IEventDispatcher::class),
 			objectService: $this->objectService,
 		);
 
@@ -125,7 +125,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 	 * @return ObjectEntity&MockObject
 	 */
 	private function entity(array $data): ObjectEntity&MockObject {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn($data);
 		return $entity;
 	}//end entity()
@@ -148,7 +148,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($holder) {
 				$holder->value = $object;
-				return $this->entity($object);
+				return $this->entity(data: $object);
 			}
 		);
 		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
@@ -166,7 +166,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 	 */
 	public function testWithdrawMovesADecisionInFlightToWithdrawn(): void {
 		$this->objectService->method('find')
-			->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie']));
+			->willReturn($this->entity(data: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie']));
 
 		$saved = $this->captureSaves();
 
@@ -178,14 +178,14 @@ class DecisionWithdrawFlowTest extends TestCase {
 		);
 
 		self::assertTrue(condition: $result['success'], message: $result['message']);
-		self::assertIsArray($saved->value);
-		self::assertSame('withdrawn', $saved->value['lifecycle']);
-		self::assertTrue($saved->value['withdrawn']);
-		self::assertSame('belanghebbende', $saved->value['withdrawnBy']);
-		self::assertSame('Voorstel ingetrokken door indiener', $saved->value['withdrawnReason']);
-		self::assertNotSame('', $saved->value['withdrawnAt']);
-		self::assertArrayNotHasKey('outcome', $saved->value);
-		self::assertArrayNotHasKey('history', $saved->value);
+		self::assertIsArray(actual: $saved->value);
+		self::assertSame(expected: 'withdrawn', actual: $saved->value['lifecycle']);
+		self::assertTrue(condition: $saved->value['withdrawn']);
+		self::assertSame(expected: 'belanghebbende', actual: $saved->value['withdrawnBy']);
+		self::assertSame(expected: 'Voorstel ingetrokken door indiener', actual: $saved->value['withdrawnReason']);
+		self::assertNotSame(expected: '', actual: $saved->value['withdrawnAt']);
+		self::assertArrayNotHasKey(key: 'outcome', array: $saved->value);
+		self::assertArrayNotHasKey(key: 'history', array: $saved->value);
 
 	}//end testWithdrawMovesADecisionInFlightToWithdrawn()
 
@@ -199,7 +199,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 	public function testWithdrawKeepsTheOutcomeOfATakenDecision(): void {
 		$this->objectService->method('find')->willReturn(
 			$this->entity(
-				[
+				data: [
 					'id' => 'dec-1',
 					'lifecycle' => 'decided',
 					'outcome' => 'adopted',
@@ -213,8 +213,8 @@ class DecisionWithdrawFlowTest extends TestCase {
 		$result = $this->flow->withdraw(decisionId: 'dec-1', withdrawnBy: 'bestuursorgaan', currentUserId: 'alice');
 
 		self::assertTrue(condition: $result['success'], message: $result['message']);
-		self::assertSame('withdrawn', $saved->value['lifecycle']);
-		self::assertSame('adopted', $saved->value['outcome']);
+		self::assertSame(expected: 'withdrawn', actual: $saved->value['lifecycle']);
+		self::assertSame(expected: 'adopted', actual: $saved->value['outcome']);
 
 	}//end testWithdrawKeepsTheOutcomeOfATakenDecision()
 
@@ -228,14 +228,14 @@ class DecisionWithdrawFlowTest extends TestCase {
 	 */
 	public function testWithdrawRefusesAnEnactedDecision(): void {
 		$this->objectService->method('find')
-			->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'enacted', 'outcome' => 'adopted']));
+			->willReturn($this->entity(data: ['id' => 'dec-1', 'lifecycle' => 'enacted', 'outcome' => 'adopted']));
 
 		$saved = $this->captureSaves();
 
 		$result = $this->flow->withdraw(decisionId: 'dec-1', withdrawnBy: 'bestuursorgaan', currentUserId: 'alice');
 
 		self::assertFalse(condition: $result['success']);
-		self::assertNull($saved->value);
+		self::assertNull(actual: $saved->value);
 		self::assertStringContainsString(needle: 'cannot be withdrawn', haystack: $result['message']);
 
 	}//end testWithdrawRefusesAnEnactedDecision()
@@ -253,7 +253,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 		$result = $this->flow->withdraw(decisionId: 'dec-1', withdrawnBy: '', currentUserId: 'alice');
 
 		self::assertFalse(condition: $result['success']);
-		self::assertNull($saved->value);
+		self::assertNull(actual: $saved->value);
 		self::assertStringContainsString(needle: 'bestuursorgaan or belanghebbende', haystack: $result['message']);
 
 	}//end testWithdrawRequiresAnActorKind()
@@ -268,9 +268,9 @@ class DecisionWithdrawFlowTest extends TestCase {
 	 */
 	public function testWithdrawAppendsTheAuditEntry(): void {
 		$this->objectService->method('find')
-			->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'proposed']));
+			->willReturn($this->entity(data: ['id' => 'dec-1', 'lifecycle' => 'proposed']));
 		$this->objectService->method('saveObject')->willReturnCallback(
-			fn (array $object): ObjectEntity => $this->entity($object)
+			fn (array $object): ObjectEntity => $this->entity(data: $object)
 		);
 
 		$this->auditLogService->expects($this->once())->method('append')->with(
@@ -313,7 +313,7 @@ class DecisionWithdrawFlowTest extends TestCase {
 					return null;
 				}
 
-				return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'governanceBody' => 'body-1']);
+				return $this->entity(data: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'governanceBody' => 'body-1']);
 			}
 		);
 
@@ -322,8 +322,8 @@ class DecisionWithdrawFlowTest extends TestCase {
 		$result = $this->flow->withdraw(decisionId: 'dec-1', withdrawnBy: 'bestuursorgaan', currentUserId: 'alice');
 
 		self::assertFalse(condition: $result['success']);
-		self::assertNull($saved->value);
-		self::assertSame('Only the meeting chair may perform this transition.', $result['message']);
+		self::assertNull(actual: $saved->value);
+		self::assertSame(expected: 'Only the meeting chair may perform this transition.', actual: $result['message']);
 
 	}//end testWithdrawChairGateFailsClosedWithoutResolvableChair()
 
@@ -340,8 +340,8 @@ class DecisionWithdrawFlowTest extends TestCase {
 		$result = $this->flow->withdraw(decisionId: 'dec-404', withdrawnBy: 'bestuursorgaan', currentUserId: 'alice');
 
 		self::assertFalse(condition: $result['success']);
-		self::assertNull($result['decision']);
-		self::assertSame("Decision 'dec-404' not found.", $result['message']);
+		self::assertNull(actual: $result['decision']);
+		self::assertSame(expected: "Decision 'dec-404' not found.", actual: $result['message']);
 
 	}//end testWithdrawNotFound()
 }//end class

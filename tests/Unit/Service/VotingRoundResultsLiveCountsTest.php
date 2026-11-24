@@ -45,22 +45,22 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 * @return VotingRoundResults
 	 */
 	private function results(?array $round, array $ballots): VotingRoundResults {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('setRegister')->willReturnSelf();
 		$objectService->method('setSchema')->willReturnSelf();
 		$entity = null;
 		if ($round !== null) {
-			$entity = $this->entity($round);
+			$entity = $this->entity(object: $round);
 		}
 
 		$objectService->method('find')->willReturn($entity);
-		$objectService->method('findAll')->willReturn(array_map(fn (array $b): ObjectEntity => $this->entity($b), $ballots));
+		$objectService->method('findAll')->willReturn(array_map(fn (array $b): ObjectEntity => $this->entity(object: $b), $ballots));
 		// Nothing is written while the round is open.
 		$objectService->expects($this->never())->method('saveObject');
 
 		return new VotingRoundResults(
-			motionService: $this->createMock(MotionService::class),
-			participantResolver: $this->createMock(ParticipantResolver::class),
+			motionService: $this->createMock(originalClassName: MotionService::class),
+			participantResolver: $this->createMock(originalClassName: ParticipantResolver::class),
 			objectService: $objectService,
 		);
 
@@ -74,7 +74,7 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 * @return ObjectEntity
 	 */
 	private function entity(array $object): ObjectEntity {
-		$entity = $this->getMockBuilder(ObjectEntity::class)
+		$entity = $this->getMockBuilder(className: ObjectEntity::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['jsonSerialize'])
 			->getMock();
@@ -108,15 +108,15 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 */
 	public function testCountsTheBallotsCastSoFar(): void {
 		$round = ['id' => 'round-1', 'votingMethod' => 'for-against-abstain', 'openedAt' => '2026-10-06T10:00:00Z'];
-		$counts = $this->results($round, [
-			self::ballot('for'),
-			self::ballot('for', 2),
-			self::ballot('against'),
-			self::ballot('abstain'),
-			self::ballot('for', 1, 'round-2'),
+		$counts = $this->results(round: $round, ballots: [
+			self::ballot(value: 'for'),
+			self::ballot(value: 'for', weight: 2),
+			self::ballot(value: 'against'),
+			self::ballot(value: 'abstain'),
+			self::ballot(value: 'for', weight: 1, round: 'round-2'),
 		])->liveCounts(votingRoundId: 'round-1');
 
-		self::assertSame(['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5], $counts);
+		self::assertSame(expected: ['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5], actual: $counts);
 
 	}//end testCountsTheBallotsCastSoFar()
 
@@ -127,9 +127,9 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 */
 	public function testARankedBallotCountsAsCast(): void {
 		$round = ['id' => 'round-1', 'votingMethod' => 'ranked-choice'];
-		$counts = $this->results($round, [self::ballot('ranked'), self::ballot('ranked')])->liveCounts(votingRoundId: 'round-1');
+		$counts = $this->results(round: $round, ballots: [self::ballot(value: 'ranked'), self::ballot(value: 'ranked')])->liveCounts(votingRoundId: 'round-1');
 
-		self::assertSame(['votesFor' => 0, 'votesAgainst' => 0, 'votesAbstain' => 0, 'cast' => 2], $counts);
+		self::assertSame(expected: ['votesFor' => 0, 'votesAgainst' => 0, 'votesAbstain' => 0, 'cast' => 2], actual: $counts);
 
 	}//end testARankedBallotCountsAsCast()
 
@@ -140,9 +140,9 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 */
 	public function testShowOfHandsReturnsTheEnteredCounts(): void {
 		$round = ['id' => 'round-1', 'votingMethod' => 'show-of-hands', 'votesFor' => 4, 'votesAgainst' => 2, 'votesAbstain' => 0];
-		$counts = $this->results($round, [])->liveCounts(votingRoundId: 'round-1');
+		$counts = $this->results(round: $round, ballots: [])->liveCounts(votingRoundId: 'round-1');
 
-		self::assertSame(['votesFor' => 4, 'votesAgainst' => 2, 'votesAbstain' => 0, 'cast' => 6], $counts);
+		self::assertSame(expected: ['votesFor' => 4, 'votesAgainst' => 2, 'votesAbstain' => 0, 'cast' => 6], actual: $counts);
 
 	}//end testShowOfHandsReturnsTheEnteredCounts()
 
@@ -152,7 +152,7 @@ class VotingRoundResultsLiveCountsTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableRoundIsNull(): void {
-		self::assertNull($this->results(null, [self::ballot('for')])->liveCounts(votingRoundId: 'round-1'));
+		self::assertNull(actual: $this->results(round: null, ballots: [self::ballot(value: 'for')])->liveCounts(votingRoundId: 'round-1'));
 
 	}//end testAnUnreadableRoundIsNull()
 }//end class

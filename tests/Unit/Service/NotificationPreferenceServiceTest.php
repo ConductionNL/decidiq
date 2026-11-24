@@ -816,7 +816,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 		$service = $this->buildService();
 		$saved = $service->updatePreference(personId: 'alice', preferences: ['decisionPublished' => false]);
 
-		self::assertFalse($saved['decisionPublished']);
+		self::assertFalse(condition: $saved['decisionPublished']);
 
 	}//end testSavingWorksWithoutOpenRegisterPreferences()
 }//end class

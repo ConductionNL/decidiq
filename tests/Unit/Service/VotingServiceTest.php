@@ -682,9 +682,9 @@ class VotingServiceTest extends TestCase {
 			'body' => json_encode(['fromParticipantId' => 'delegator-uuid', 'toParticipantId' => 'delegate-uuid']),
 		];
 		$service = $this->buildService(
-			self::roundWithBallots(
-				['notes' => [$grant]],
-				[
+			store: self::roundWithBallots(
+				roundFields: ['notes' => [$grant]],
+				ballots: [
 					[
 						'id' => 'own-vote-uuid',
 						'value' => 'against',
@@ -698,21 +698,22 @@ class VotingServiceTest extends TestCase {
 			)
 		);
 
-		$service->castVote((new VoteCast(votingRoundId: 'round-uuid', participantId: 'delegate-uuid', value: 'for'))->asProxy(delegatorId: 'delegator-uuid'));
+		$proxyCast = new VoteCast(votingRoundId: 'round-uuid', participantId: 'delegate-uuid', value: 'for');
+		$service->castVote($proxyCast->asProxy(delegatorId: 'delegator-uuid'));
 
-		$votes = $this->savesFor('vote');
-		self::assertCount(1, $votes);
-		self::assertArrayNotHasKey('id', $votes[0], 'The proxy ballot is new, not the holder\'s own ballot');
-		self::assertTrue($votes[0]['isProxy']);
-		self::assertStringContainsString('-proxy-', $votes[0]['@self']['slug']);
+		$votes = $this->savesFor(schema: 'vote');
+		self::assertCount(expectedCount: 1, haystack: $votes);
+		self::assertArrayNotHasKey(key: 'id', array: $votes[0], message: 'The proxy ballot is new, not the holder\'s own ballot');
+		self::assertTrue(condition: $votes[0]['isProxy']);
+		self::assertStringContainsString(needle: '-proxy-', haystack: $votes[0]['@self']['slug']);
 
 		// The holder now changes their own vote: it updates their own ballot only.
 		$service->castVote(new VoteCast(votingRoundId: 'round-uuid', participantId: 'delegate-uuid', value: 'abstain'));
 
-		$votes = $this->savesFor('vote');
-		self::assertCount(2, $votes);
-		self::assertSame('own-vote-uuid', $votes[1]['id']);
-		self::assertFalse($votes[1]['isProxy']);
+		$votes = $this->savesFor(schema: 'vote');
+		self::assertCount(expectedCount: 2, haystack: $votes);
+		self::assertSame(expected: 'own-vote-uuid', actual: $votes[1]['id']);
+		self::assertFalse(condition: $votes[1]['isProxy']);
 
 	}//end testProxyBallotAndOwnBallotDoNotOverwriteEachOther()
 

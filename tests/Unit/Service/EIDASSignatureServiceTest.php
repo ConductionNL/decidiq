@@ -328,7 +328,7 @@ class EIDASSignatureServiceTest extends TestCase {
 			}
 		};
 
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			function (string $id) use ($callService) {
 				if ($id === 'OCA\\Integriq\\Service\\CallService') {
@@ -342,7 +342,7 @@ class EIDASSignatureServiceTest extends TestCase {
 		$source = new ObjectEntity();
 		$source->setObject(['slug' => EIDASSignatureService::DOCUDESK_SOURCE_SLUG, 'location' => 'https://nc.example.org/index.php/apps/filinq']);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use ($source): array {
 				if (($config['filters']['slug'] ?? '') === EIDASSignatureService::DOCUDESK_SOURCE_SLUG) {
@@ -355,8 +355,8 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		return new EIDASSignatureService(
 			container: $container,
-			logger: $this->createMock(LoggerInterface::class),
-			auditLogService: $this->createMock(AuditLogService::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			auditLogService: $this->createMock(originalClassName: AuditLogService::class),
 			objectService: $objectService,
 			filinqRequest: $request
 		);
@@ -389,16 +389,16 @@ class EIDASSignatureServiceTest extends TestCase {
 			'signingOrder' => 'sequential',
 			'signatureLevel' => 'QES',
 		];
-		$request = $this->createMock(FilinqSigningRequest::class);
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
 		$request->expects($this->once())->method('payload')->with('minutes', 'min-1', ['m-1'])->willReturn($body);
 
 		$result = $this->makeFilinqService(responseBody: ['id' => 'sr-9'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
 
-		$this->assertTrue($result['success']);
-		$this->assertSame('sr-9', $result['requestId']);
-		$this->assertCount(1, $this->docudeskCalls);
-		$this->assertSame('/api/signing/requests', $this->docudeskCalls[0]['endpoint']);
-		$this->assertSame($body, json_decode((string)$this->docudeskCalls[0]['config']['body'], true));
+		$this->assertTrue(condition: $result['success']);
+		$this->assertSame(expected: 'sr-9', actual: $result['requestId']);
+		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
+		$this->assertSame(expected: '/api/signing/requests', actual: $this->docudeskCalls[0]['endpoint']);
+		$this->assertSame(expected: $body, actual: json_decode((string)$this->docudeskCalls[0]['config']['body'], true));
 
 	}//end testFilinqGetsItsOwnRouteAndFields()
 
@@ -409,15 +409,15 @@ class EIDASSignatureServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testFilinqAnswerWithoutIdFailsClosed(): void {
-		$request = $this->createMock(FilinqSigningRequest::class);
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
 		$request->method('payload')->willReturn(['documentFileId' => 1]);
 
 		$result = $this->makeFilinqService(responseBody: ['message' => 'Not found'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('fail-closed', $result['message']);
-		$this->assertStringContainsString('Not found', $result['message']);
-		$this->assertCount(1, $this->docudeskCalls);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'fail-closed', haystack: $result['message']);
+		$this->assertStringContainsString(needle: 'Not found', haystack: $result['message']);
+		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
 
 	}//end testFilinqAnswerWithoutIdFailsClosed()
 
@@ -427,14 +427,14 @@ class EIDASSignatureServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testNoPdfPostsNothing(): void {
-		$request = $this->createMock(FilinqSigningRequest::class);
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
 		$request->method('payload')->willThrowException(new \RuntimeException('No PDF of this minutes to sign was found.'));
 
 		$result = $this->makeFilinqService(responseBody: ['id' => 'x'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('No PDF', $result['message']);
-		$this->assertSame([], $this->docudeskCalls);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'No PDF', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->docudeskCalls);
 
 	}//end testNoPdfPostsNothing()
 

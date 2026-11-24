@@ -55,7 +55,7 @@ class ProxyHoldingsTest extends TestCase {
 	 * @return ProxyHoldings
 	 */
 	private function holdings(array $objects): ProxyHoldings {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?ObjectFindOptions $options = null) use ($objects): ?ObjectEntity {
 				$row = ($objects[(string)$options?->schema . '/' . (string)$id] ?? null);
@@ -63,7 +63,7 @@ class ProxyHoldingsTest extends TestCase {
 					return null;
 				}
 
-				$entity = $this->createMock(ObjectEntity::class);
+				$entity = $this->createMock(originalClassName: ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($row);
 				return $entity;
 			}
@@ -79,17 +79,25 @@ class ProxyHoldingsTest extends TestCase {
 	 */
 	public function testProxiesForListsHeldAndGranted(): void {
 		$holdings = $this->holdings(
-			[
-				'voting-round/round-1' => ['notes' => [self::grant('a', 'me'), self::grant('me', 'x'), self::grant('b', 'other'), ['title' => 'Note', 'body' => 'x'], 'junk']],
+			objects: [
+				'voting-round/round-1' => [
+					'notes' => [
+						self::grant(from: 'a', to: 'me'),
+						self::grant(from: 'me', to: 'x'),
+						self::grant(from: 'b', to: 'other'),
+						['title' => 'Note', 'body' => 'x'],
+						'junk',
+					],
+				],
 				'participant/a' => ['displayName' => 'Anna'],
 			]
 		);
 
 		$result = $holdings->proxiesFor(votingRoundId: 'round-1', participantId: 'me');
 
-		self::assertSame('me', $result['participantId']);
-		self::assertSame([['participantId' => 'a', 'displayName' => 'Anna']], $result['held']);
-		self::assertSame('x', $result['granted']);
+		self::assertSame(expected: 'me', actual: $result['participantId']);
+		self::assertSame(expected: [['participantId' => 'a', 'displayName' => 'Anna']], actual: $result['held']);
+		self::assertSame(expected: 'x', actual: $result['granted']);
 	}//end testProxiesForListsHeldAndGranted()
 
 	/**
@@ -98,10 +106,17 @@ class ProxyHoldingsTest extends TestCase {
 	 * @return void
 	 */
 	public function testUnknownDelegatorFallsBackToUuidAndNoGrantsReadEmpty(): void {
-		$holdings = $this->holdings(['voting-round/round-1' => ['notes' => [self::grant('ghost', 'me')]], 'voting-round/round-2' => ['notes' => 'none']]);
+		$holdings = $this->holdings(
+			objects: [
+				'voting-round/round-1' => ['notes' => [self::grant(from: 'ghost', to: 'me')]],
+				'voting-round/round-2' => ['notes' => 'none'],
+			]
+		);
 
-		self::assertSame([['participantId' => 'ghost', 'displayName' => 'ghost']], $holdings->proxiesFor(votingRoundId: 'round-1', participantId: 'me')['held']);
-		self::assertSame(['participantId' => 'me', 'held' => [], 'granted' => null], $holdings->proxiesFor(votingRoundId: 'round-2', participantId: 'me'));
+		$ghost = $holdings->proxiesFor(votingRoundId: 'round-1', participantId: 'me');
+		self::assertSame(expected: [['participantId' => 'ghost', 'displayName' => 'ghost']], actual: $ghost['held']);
+		$empty = $holdings->proxiesFor(votingRoundId: 'round-2', participantId: 'me');
+		self::assertSame(expected: ['participantId' => 'me', 'held' => [], 'granted' => null], actual: $empty);
 	}//end testUnknownDelegatorFallsBackToUuidAndNoGrantsReadEmpty()
 
 	/**
@@ -110,7 +125,7 @@ class ProxyHoldingsTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownRoundThrows(): void {
-		$this->expectException(RuntimeException::class);
-		$this->holdings([])->proxiesFor(votingRoundId: 'nope', participantId: 'me');
+		$this->expectException(exception: RuntimeException::class);
+		$this->holdings(objects: [])->proxiesFor(votingRoundId: 'nope', participantId: 'me');
 	}//end testAnUnknownRoundThrows()
 }//end class

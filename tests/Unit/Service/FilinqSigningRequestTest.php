@@ -50,7 +50,7 @@ class FilinqSigningRequestTest extends TestCase {
 	 * @return FilinqSigningRequest
 	 */
 	private function makeRequest(array $objects, MeetingFolderService $folders): FilinqSigningRequest {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			static function (int|string $id, ?ObjectFindOptions $options = null, mixed ...$_rest) use ($objects): ?ObjectEntity {
 				$schema = $options?->schema;
@@ -77,7 +77,7 @@ class FilinqSigningRequestTest extends TestCase {
 	 * @return File
 	 */
 	private function file(int $fileId, string $name): File {
-		$file = $this->createMock(File::class);
+		$file = $this->createMock(originalClassName: File::class);
 		$file->method('getId')->willReturn($fileId);
 		$file->method('getName')->willReturn($name);
 		return $file;
@@ -90,7 +90,7 @@ class FilinqSigningRequestTest extends TestCase {
 	 * @return void
 	 */
 	public function testMinutesPayloadUsesFilinqFields(): void {
-		$folders = $this->createMock(MeetingFolderService::class);
+		$folders = $this->createMock(originalClassName: MeetingFolderService::class);
 		$folders->expects($this->once())->method('fileAt')
 			->with('Decidesk/Board/2026-10-01 Meeting/Minutes/Notulen v2.pdf')
 			->willReturn($this->file(fileId: 812, name: 'Notulen v2.pdf'));
@@ -112,19 +112,19 @@ class FilinqSigningRequestTest extends TestCase {
 
 		$payload = $request->payload(subjectType: 'minutes', subjectId: 'min-1', signatories: ['p-2', 'p-1']);
 
-		$this->assertSame(812, $payload['documentFileId']);
-		$this->assertSame('Notulen v2.pdf', $payload['documentName']);
-		$this->assertSame('QES', $payload['signatureLevel']);
+		$this->assertSame(expected: 812, actual: $payload['documentFileId']);
+		$this->assertSame(expected: 'Notulen v2.pdf', actual: $payload['documentName']);
+		$this->assertSame(expected: 'QES', actual: $payload['signatureLevel']);
 		$this->assertSame(
-			[
+			expected: [
 				['name' => 'Chair', 'email' => 'chair@example.org', 'order' => 1],
 				['name' => 'Secretary', 'email' => 'sec@example.org', 'order' => 2],
 			],
-			$payload['signers']
+			actual: $payload['signers']
 		);
-		$this->assertArrayNotHasKey('documentId', $payload);
-		$this->assertArrayNotHasKey('signatories', $payload);
-		$this->assertArrayNotHasKey('signingLevel', $payload);
+		$this->assertArrayNotHasKey(key: 'documentId', array: $payload);
+		$this->assertArrayNotHasKey(key: 'signatories', array: $payload);
+		$this->assertArrayNotHasKey(key: 'signingLevel', array: $payload);
 
 	}//end testMinutesPayloadUsesFilinqFields()
 
@@ -135,7 +135,7 @@ class FilinqSigningRequestTest extends TestCase {
 	 * @return void
 	 */
 	public function testMinutesWithoutPdfThrow(): void {
-		$folders = $this->createMock(MeetingFolderService::class);
+		$folders = $this->createMock(originalClassName: MeetingFolderService::class);
 		$folders->expects($this->never())->method('fileAt');
 
 		$request = $this->makeRequest(
@@ -143,8 +143,8 @@ class FilinqSigningRequestTest extends TestCase {
 			folders: $folders
 		);
 
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('Generate the PDF first');
+		$this->expectException(exception: RuntimeException::class);
+		$this->expectExceptionMessage(message: 'Generate the PDF first');
 		$request->payload(subjectType: 'minutes', subjectId: 'min-1', signatories: ['p-1']);
 
 	}//end testMinutesWithoutPdfThrow()
@@ -155,7 +155,7 @@ class FilinqSigningRequestTest extends TestCase {
 	 * @return void
 	 */
 	public function testDecisionListUsesTheMeetingsDecisionListPdf(): void {
-		$folders = $this->createMock(MeetingFolderService::class);
+		$folders = $this->createMock(originalClassName: MeetingFolderService::class);
 		$folders->expects($this->once())->method('meetingFile')
 			->with(['id' => 'meet-1', 'title' => 'Board'], 'Minutes', 'Besluitenlijst.pdf')
 			->willReturn($this->file(fileId: 77, name: 'Besluitenlijst.pdf'));
@@ -164,9 +164,9 @@ class FilinqSigningRequestTest extends TestCase {
 
 		$payload = $request->payload(subjectType: 'decision-list', subjectId: 'meet-1', signatories: ['p-1']);
 
-		$this->assertSame(77, $payload['documentFileId']);
-		$this->assertSame('Besluitenlijst.pdf', $payload['documentName']);
-		$this->assertSame([['name' => 'p-1', 'email' => '', 'order' => 1]], $payload['signers']);
+		$this->assertSame(expected: 77, actual: $payload['documentFileId']);
+		$this->assertSame(expected: 'Besluitenlijst.pdf', actual: $payload['documentName']);
+		$this->assertSame(expected: [['name' => 'p-1', 'email' => '', 'order' => 1]], actual: $payload['signers']);
 
 	}//end testDecisionListUsesTheMeetingsDecisionListPdf()
 }//end class

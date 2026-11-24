@@ -62,8 +62,8 @@ class DecisionContextResolverTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->resolver = new DecisionContextResolver(logger: $this->createMock(LoggerInterface::class));
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$this->resolver = new DecisionContextResolver(logger: $this->createMock(originalClassName: LoggerInterface::class));
 
 	}//end setUp()
 
@@ -75,7 +75,7 @@ class DecisionContextResolverTest extends TestCase {
 	 * @return ObjectEntity&MockObject
 	 */
 	private function entity(array $data): ObjectEntity&MockObject {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn($data);
 		return $entity;
 
@@ -97,7 +97,7 @@ class DecisionContextResolverTest extends TestCase {
 					return null;
 				}
 
-				return $this->entity($bodies[$id]);
+				return $this->entity(data: $bodies[$id]);
 			}
 		);
 
@@ -130,7 +130,7 @@ class DecisionContextResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testDomainIsReadFromTheMeetingsGovernanceBody(string $domain): void {
-		$this->wireBodies(['body-1' => ['id' => 'body-1', 'domain' => $domain]]);
+		$this->wireBodies(bodies: ['body-1' => ['id' => 'body-1', 'domain' => $domain]]);
 
 		$resolved = $this->resolver->resolveDomain(
 			objectService: $this->objectService,
@@ -152,7 +152,7 @@ class DecisionContextResolverTest extends TestCase {
 	 */
 	public function testDecisionGovernanceBodyTakesPrecedenceLikeThePolicyOverride(): void {
 		$this->wireBodies(
-			[
+			bodies: [
 				'body-dec' => ['id' => 'body-dec', 'domain' => 'corporate'],
 				'body-meet' => ['id' => 'body-meet', 'domain' => 'legislative'],
 			]
@@ -182,7 +182,7 @@ class DecisionContextResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testRelationShapedBodyReferenceResolves(): void {
-		$this->wireBodies(['body-1' => ['id' => 'body-1', 'domain' => 'legislative']]);
+		$this->wireBodies(bodies: ['body-1' => ['id' => 'body-1', 'domain' => 'legislative']]);
 
 		$resolved = $this->resolver->resolveDomain(
 			objectService: $this->objectService,
@@ -201,7 +201,7 @@ class DecisionContextResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testUndeclaredDomainOnDecisionAndMeetingIsIgnored(): void {
-		$this->wireBodies(['body-1' => ['id' => 'body-1', 'domain' => 'legislative']]);
+		$this->wireBodies(bodies: ['body-1' => ['id' => 'body-1', 'domain' => 'legislative']]);
 
 		$withBody = $this->resolver->resolveDomain(
 			objectService: $this->objectService,
@@ -249,7 +249,7 @@ class DecisionContextResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testUnreadableBodyFallsBackToRestricted(): void {
-		$this->wireBodies([]);
+		$this->wireBodies(bodies: []);
 
 		$resolved = $this->resolver->resolveDomain(
 			objectService: $this->objectService,
@@ -287,7 +287,7 @@ class DecisionContextResolverTest extends TestCase {
 	 */
 	public function testBodyWithoutDomainFallsBackToRestricted(): void {
 		$this->wireBodies(
-			[
+			bodies: [
 				'no-domain' => ['id' => 'no-domain'],
 				'empty' => ['id' => 'empty', 'domain' => ''],
 				'not-a-string' => ['id' => 'not-a-string', 'domain' => ['operations']],

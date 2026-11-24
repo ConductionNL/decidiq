@@ -247,7 +247,11 @@ class DecisionTransitionGoldenTest extends TestCase {
 			}
 
 			$meetingRef = ($object['meeting'] ?? ($object['relations']['Meeting'][0] ?? null));
-			$meetingId  = is_array($meetingRef) === true ? ($meetingRef['id'] ?? null) : $meetingRef;
+			$meetingId = $meetingRef;
+			if (is_array($meetingRef) === true) {
+				$meetingId = ($meetingRef['id'] ?? null);
+			}
+
 			$meeting    = ($store[(string)$meetingId] ?? []);
 			if (isset($meeting['governanceBody']) === true) {
 				continue;

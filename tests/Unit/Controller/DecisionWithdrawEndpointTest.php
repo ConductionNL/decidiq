@@ -44,16 +44,36 @@ use Psr\Log\LoggerInterface;
  */
 class DecisionWithdrawEndpointTest extends TestCase {
 
+	/**
+	 * Group manager deciding who is an administrator.
+	 *
+	 * @var IGroupManager&MockObject
+	 */
 	private IGroupManager&MockObject $groups;
 
+	/**
+	 * The user session.
+	 *
+	 * @var IUserSession&MockObject
+	 */
 	private IUserSession&MockObject $session;
 
+	/**
+	 * The guarded withdraw flow.
+	 *
+	 * @var DecisionWithdrawFlow&MockObject
+	 */
 	private DecisionWithdrawFlow&MockObject $flow;
 
+	/**
+	 * Fresh mocks for every test.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
-		$this->groups = $this->createMock(IGroupManager::class);
-		$this->session = $this->createMock(IUserSession::class);
-		$this->flow = $this->createMock(DecisionWithdrawFlow::class);
+		$this->groups = $this->createMock(originalClassName: IGroupManager::class);
+		$this->session = $this->createMock(originalClassName: IUserSession::class);
+		$this->flow = $this->createMock(originalClassName: DecisionWithdrawFlow::class);
 	}
 
 	/**
@@ -67,7 +87,7 @@ class DecisionWithdrawEndpointTest extends TestCase {
 	private function signIn(?string $uid, bool $admin): void {
 		$user = null;
 		if ($uid !== null) {
-			$user = $this->createMock(IUser::class);
+			$user = $this->createMock(originalClassName: IUser::class);
 			$user->method('getUID')->willReturn($uid);
 		}
 
@@ -83,54 +103,75 @@ class DecisionWithdrawEndpointTest extends TestCase {
 	 * @return DecisionController
 	 */
 	private function controller(array $params): DecisionController {
-		$request = $this->createMock(IRequest::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, $default = null) => ($params[$key] ?? $default));
 
 		return new DecisionController(
 			request: $request,
-			container: $this->createMock(ContainerInterface::class),
+			container: $this->createMock(originalClassName: ContainerInterface::class),
 			userSession: $this->session,
 			groupManager: $this->groups,
-			logger: $this->createMock(LoggerInterface::class),
-			lifecycleService: $this->createMock(DecisionLifecycleService::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			lifecycleService: $this->createMock(originalClassName: DecisionLifecycleService::class),
 			withdrawFlow: $this->flow,
 		);
 	}
 
+	/**
+	 * An administrator withdraws through the flow and gets the withdrawn decision back.
+	 *
+	 * @return void
+	 */
 	public function testAnAdministratorWithdrawsThroughTheFlow(): void {
 		$this->signIn(uid: 'admin', admin: true);
 		$this->flow->expects($this->once())->method('withdraw')
 			->with('d1', 'belanghebbende', 'Aanvraag ingetrokken', 'admin')
 			->willReturn(['success' => true, 'decision' => ['id' => 'd1', 'lifecycle' => 'withdrawn', 'outcome' => 'granted'], 'message' => 'ok']);
 
-		$response = $this->controller(['withdrawnBy' => 'belanghebbende', 'reason' => 'Aanvraag ingetrokken'])->withdraw('d1');
+		$response = $this->controller(params: ['withdrawnBy' => 'belanghebbende', 'reason' => 'Aanvraag ingetrokken'])->withdraw('d1');
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame('withdrawn', $response->getData()['decision']['lifecycle']);
-		$this->assertSame('granted', $response->getData()['decision']['outcome']);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: 'withdrawn', actual: $response->getData()['decision']['lifecycle']);
+		$this->assertSame(expected: 'granted', actual: $response->getData()['decision']['outcome']);
 	}
 
+	/**
+	 * A refusal by the flow answers 422 with its message.
+	 *
+	 * @return void
+	 */
 	public function testARefusalByTheFlowIs422WithItsMessage(): void {
 		$this->signIn(uid: 'admin', admin: true);
-		$this->flow->method('withdraw')->willReturn(['success' => false, 'decision' => null, 'message' => 'A withdrawal has to say who withdrew it: bestuursorgaan or belanghebbende.']);
+		$refusal = 'A withdrawal has to say who withdrew it: bestuursorgaan or belanghebbende.';
+		$this->flow->method('withdraw')->willReturn(['success' => false, 'decision' => null, 'message' => $refusal]);
 
-		$response = $this->controller([])->withdraw('d1');
+		$response = $this->controller(params: [])->withdraw('d1');
 
-		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
-		$this->assertStringContainsString('bestuursorgaan or belanghebbende', $response->getData()['message']);
+		$this->assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'bestuursorgaan or belanghebbende', haystack: $response->getData()['message']);
 	}
 
+	/**
+	 * A signed-in non-administrator is refused before the flow runs.
+	 *
+	 * @return void
+	 */
 	public function testANonAdministratorWithdrawsNothing(): void {
 		$this->signIn(uid: 'member', admin: false);
 		$this->flow->expects($this->never())->method('withdraw');
 
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller(['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
 	}
 
+	/**
+	 * Without a session nothing is withdrawn.
+	 *
+	 * @return void
+	 */
 	public function testNoSessionWithdrawsNothing(): void {
 		$this->signIn(uid: null, admin: false);
 		$this->flow->expects($this->never())->method('withdraw');
 
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $this->controller(['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
+		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $this->controller(params: ['withdrawnBy' => 'bestuursorgaan'])->withdraw('d1')->getStatus());
 	}
 }

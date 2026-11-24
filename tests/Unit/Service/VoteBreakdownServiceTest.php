@@ -238,17 +238,17 @@ class VoteBreakdownServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testFactionCountsUseTheBallotWeight(): void {
-		$heavy = $this->ballot('p-anna', 'for');
+		$heavy = $this->ballot(participantId: 'p-anna', value: 'for');
 		$heavy['weight'] = 30;
-		$light = $this->ballot('p-bas', 'against');
+		$light = $this->ballot(participantId: 'p-bas', value: 'against');
 		$light['weight'] = 12;
 
 		$service = $this->makeService(round: ['isSecret' => false], ballots: [$heavy, $light]);
 
 		$result = $service->forRound(roundId: 'round-1');
 
-		self::assertSame([['faction' => 'GroenLinks', 'for' => 30, 'against' => 12, 'abstain' => 0]], $result['factions']);
-		self::assertSame(30, $result['members'][0]['weight']);
+		self::assertSame(expected: [['faction' => 'GroenLinks', 'for' => 30, 'against' => 12, 'abstain' => 0]], actual: $result['factions']);
+		self::assertSame(expected: 30, actual: $result['members'][0]['weight']);
 	}//end testFactionCountsUseTheBallotWeight()
 
 	/**

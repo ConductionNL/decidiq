@@ -52,7 +52,7 @@ class OpenRegisterNotificationPreferenceSyncTest extends TestCase {
 	 * @return OpenRegisterNotificationPreferenceSync
 	 */
 	private function buildSync(?object $openRegisterPreferences, ?\Psr\Log\LoggerInterface $logger = null): OpenRegisterNotificationPreferenceSync {
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			function (string $id) use ($openRegisterPreferences) {
 				if ($id === 'OCA\OpenRegister\Service\Notification\NotificationPreferenceService' && $openRegisterPreferences !== null) {
@@ -139,14 +139,14 @@ class OpenRegisterNotificationPreferenceSyncTest extends TestCase {
 		$this->buildSync(openRegisterPreferences: $overrides)->sync(personId: 'alice', merged: $merged);
 
 		self::assertSame(
-			[
+			expected: [
 				'alice|decision/decisionPublished' => ['enabled' => false],
 				'alice|action-item/actionAssigned' => ['enabled' => false],
 				'alice|action-item/actionItemAssignedToYou' => ['enabled' => false],
 				'alice|meeting/meetingStartingSoon' => null,
 			],
-			$overrides->written,
-			'Off switches store enabled:false; on switches clear the override'
+			actual: $overrides->written,
+			message: 'Off switches store enabled:false; on switches clear the override'
 		);
 
 	}//end testSwitchesReachTheDeclaredOpenRegisterNotices()
@@ -165,8 +165,8 @@ class OpenRegisterNotificationPreferenceSyncTest extends TestCase {
 			merged: NotificationPreferenceService::DEFAULTS
 		);
 
-		self::assertCount(1, $logger->messages);
-		self::assertStringContainsString('OpenRegister notification preferences unavailable', $logger->messages[0]);
+		self::assertCount(expectedCount: 1, haystack: $logger->messages);
+		self::assertStringContainsString(needle: 'OpenRegister notification preferences unavailable', haystack: $logger->messages[0]);
 
 	}//end testMissingOpenRegisterPreferencesIsLoggedNotThrown()
 
@@ -213,10 +213,10 @@ class OpenRegisterNotificationPreferenceSyncTest extends TestCase {
 		);
 
 		self::assertSame(
-			['action-item/actionAssigned', 'action-item/actionItemAssignedToYou', 'meeting/meetingStartingSoon'],
-			$overrides->written
+			expected: ['action-item/actionAssigned', 'action-item/actionItemAssignedToYou', 'meeting/meetingStartingSoon'],
+			actual: $overrides->written
 		);
-		self::assertSame(['Decidiq: could not apply a notification switch to OpenRegister'], $logger->messages);
+		self::assertSame(expected: ['Decidiq: could not apply a notification switch to OpenRegister'], actual: $logger->messages);
 
 	}//end testARefusedOverrideDoesNotStopTheOthers()
 }//end class

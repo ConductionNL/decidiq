@@ -72,8 +72,8 @@ class VotingRoundLiveControllerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->votingService = $this->createMock(VotingService::class);
-		$this->results = $this->createMock(VotingRoundResults::class);
+		$this->votingService = $this->createMock(originalClassName: VotingService::class);
+		$this->results = $this->createMock(originalClassName: VotingRoundResults::class);
 
 	}//end setUp()
 
@@ -83,24 +83,24 @@ class VotingRoundLiveControllerTest extends TestCase {
 	 * @return VotingRoundLiveController
 	 */
 	private function buildAnonymousController(): VotingRoundLiveController {
-		$session = $this->createMock(IUserSession::class);
+		$session = $this->createMock(originalClassName: IUserSession::class);
 		$session->method('getUser')->willReturn(null);
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 
 		return new VotingRoundLiveController(
-			request: $this->createMock(IRequest::class),
+			request: $this->createMock(originalClassName: IRequest::class),
 			votingService: $this->votingService,
 			results: $this->results,
 			userSession: $session,
 			guard: new VotingRoundGuard(
 				userSession: $session,
-				groupManager: $this->createMock(IGroupManager::class),
-				appConfig: $this->createMock(IAppConfig::class),
-				participantResolver: $this->createMock(ParticipantResolver::class),
+				groupManager: $this->createMock(originalClassName: IGroupManager::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
+				participantResolver: $this->createMock(originalClassName: ParticipantResolver::class),
 				container: $container,
 			),
 			proxyHoldings: new ProxyHoldings(
-				objectService: $this->createMock(ObjectServiceInterface::class),
+				objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
 				logger: new NullLogger(),
 			),
 			errors: new VotingErrorResponder(logger: new NullLogger()),
@@ -118,8 +118,8 @@ class VotingRoundLiveControllerTest extends TestCase {
 
 		$result = $this->buildAnonymousController()->proxies('round-uuid-001');
 
-		self::assertInstanceOf(JSONResponse::class, $result);
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
 
 	}//end testProxiesUnauthenticatedReturns401()
 
@@ -133,7 +133,7 @@ class VotingRoundLiveControllerTest extends TestCase {
 
 		$result = $this->buildAnonymousController()->liveTally('round-uuid-001');
 
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
 
 	}//end testLiveTallyUnauthenticatedReturns401()
 
@@ -147,8 +147,8 @@ class VotingRoundLiveControllerTest extends TestCase {
 
 		foreach (['liveTally', 'proxies'] as $methodName) {
 			self::assertNotEmpty(
-				$ref->getMethod($methodName)->getAttributes(NoAdminRequired::class),
-				"VotingRoundLiveController::{$methodName}() must carry #[NoAdminRequired]"
+				actual: $ref->getMethod($methodName)->getAttributes(NoAdminRequired::class),
+				message: "VotingRoundLiveController::{$methodName}() must carry #[NoAdminRequired]"
 			);
 		}
 

@@ -454,7 +454,7 @@ class VotingRoundCloserTest extends TestCase {
 	 * @return void
 	 */
 	public function testOriFailureIsAttachedToTheRound(): void {
-		$closer = $this->closer(['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
+		$closer = $this->closer(objects: ['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
 		$this->oriService->expects(self::once())->method('publish')->with('round-1')
 			->willThrowException(new RuntimeException('ORI 503'));
 
@@ -505,7 +505,7 @@ class VotingRoundCloserTest extends TestCase {
 	 * @return void
 	 */
 	public function testMissingStageWritesNothing(): void {
-		$closer = $this->closer(['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00', 'decisionStage' => 'stage-gone']]);
+		$closer = $this->closer(objects: ['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00', 'decisionStage' => 'stage-gone']]);
 
 		$closer->close(votingRoundId: 'round-1', anonymise: false, tally: ['result' => 'adopted']);
 
@@ -543,9 +543,9 @@ class VotingRoundCloserTest extends TestCase {
 	public function testStageWriteFailureIsLogged(): void {
 		$this->objectService->method('find')->willReturnCallback(
 			fn (int|string $id): ObjectEntity => $this->entity(
-				$id === 'round-1'
-					? ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00', 'decisionStage' => 'stage-1']
-					: ['id' => 'stage-1', 'status' => 'active']
+				data: [
+					'round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00', 'decisionStage' => 'stage-1'],
+				][(string)$id] ?? ['id' => 'stage-1', 'status' => 'active']
 			)
 		);
 		$this->objectService->method('saveObject')->willThrowException(new RuntimeException('locked'));
@@ -565,7 +565,7 @@ class VotingRoundCloserTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnonymiseNullsMatchingVotes(): void {
-		$closer = $this->closer(['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
+		$closer = $this->closer(objects: ['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
 
 		$ranked = ['id' => 'v-1', 'value' => 'for', 'ranking' => ['a', 'b'], 'relations' => [['schema' => 'voting-round', 'id' => 'round-1']]];
 		$plain  = ['id' => 'v-2', 'value' => 'against', 'relations' => [['schema' => 'voting-round', 'id' => 'round-1']]];
@@ -595,7 +595,7 @@ class VotingRoundCloserTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnonymiseFailureIsLogged(): void {
-		$closer = $this->closer(['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
+		$closer = $this->closer(objects: ['round-1' => ['id' => 'round-1', 'closedAt' => '2026-01-01T00:00:00+00:00']]);
 		$this->objectService->method('setRegister')->willReturnSelf();
 		$this->objectService->method('setSchema')->willReturnSelf();
 		$this->objectService->method('findAll')->willThrowException(new RuntimeException('search down'));

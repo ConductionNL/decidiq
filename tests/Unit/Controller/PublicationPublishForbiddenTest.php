@@ -49,11 +49,11 @@ class PublicationPublishForbiddenTest extends TestCase {
 	 * @return PublicationController
 	 */
 	private function controller(string $outcome, PublicationService $service, ?string $uid='member'): PublicationController {
-		$guard = $this->createMock(PublicationStaffGuard::class);
+		$guard = $this->createMock(originalClassName: PublicationStaffGuard::class);
 		$guard->method('currentUid')->willReturn($uid);
 		$guard->method('checkSource')->willReturn($outcome);
 
-		$request = $this->createMock(IRequest::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnMap(
 			[
 				['sourceType', '', 'decision'],
@@ -61,7 +61,7 @@ class PublicationPublishForbiddenTest extends TestCase {
 			]
 		);
 
-		return new PublicationController($request, $service, $guard);
+		return new PublicationController(request: $request, publicationService: $service, staffGuard: $guard);
 	}//end controller()
 
 	/**
@@ -70,12 +70,12 @@ class PublicationPublishForbiddenTest extends TestCase {
 	 * @return void
 	 */
 	public function testANonStaffCallerIsRefusedAndNothingIsPublished(): void {
-		$service = $this->createMock(PublicationService::class);
+		$service = $this->createMock(originalClassName: PublicationService::class);
 		$service->expects(self::never())->method('publish');
 
-		$response = $this->controller(PublicationStaffGuard::FORBIDDEN, $service)->publish();
+		$response = $this->controller(outcome: PublicationStaffGuard::FORBIDDEN, service: $service)->publish();
 
-		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}//end testANonStaffCallerIsRefusedAndNothingIsPublished()
 
 	/**
@@ -84,11 +84,11 @@ class PublicationPublishForbiddenTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnauthenticatedCallerIsRefusedAndNothingIsPublished(): void {
-		$service = $this->createMock(PublicationService::class);
+		$service = $this->createMock(originalClassName: PublicationService::class);
 		$service->expects(self::never())->method('publish');
 
-		$response = $this->controller(PublicationStaffGuard::ALLOWED, $service, null)->publish();
+		$response = $this->controller(outcome: PublicationStaffGuard::ALLOWED, service: $service, uid: null)->publish();
 
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $response->getStatus());
 	}//end testAnUnauthenticatedCallerIsRefusedAndNothingIsPublished()
 }//end class

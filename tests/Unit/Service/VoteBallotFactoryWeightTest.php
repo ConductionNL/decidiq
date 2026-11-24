@@ -53,7 +53,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 	 * @return VoteBallotFactory
 	 */
 	private function factory(array $objects, array $memberships = []): VoteBallotFactory {
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			static function (int|string $id, ?ObjectFindOptions $options = null) use ($objects): ?ObjectEntity {
 				$schema = $options?->schema;
@@ -69,7 +69,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			}
 		);
 
-		$crosswalk = $this->createMock(ParticipantToPersonMembershipResolver::class);
+		$crosswalk = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$crosswalk->method('resolve')->willReturnCallback(
 			static function (string $participantId) use ($memberships): ?array {
 				if (isset($memberships[$participantId]) === false) {
@@ -80,10 +80,10 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			}
 		);
 
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn(str_repeat('ab', 32));
 
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($objectService, $crosswalk, $appConfig): object {
 				if ($id === 'OCA\OpenRegister\Service\ObjectService') {
@@ -102,7 +102,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			}
 		);
 
-		return new VoteBallotFactory($container, new NullLogger(), new VoterTokenSecret($container));
+		return new VoteBallotFactory(container: $container, logger: new NullLogger(), tokens: new VoterTokenSecret(container: $container));
 	}//end factory()
 
 	/**
@@ -138,7 +138,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(250, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
+		self::assertSame(expected: 250, actual: self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundUsesTheMembershipWeight()
 
 	/**
@@ -155,7 +155,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(5, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
+		self::assertSame(expected: 5, actual: self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundFallsBackToTheParticipantWeight()
 
 	/**
@@ -173,7 +173,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(1, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
+		self::assertSame(expected: 1, actual: self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundWithoutAUsableWeightCountsOne()
 
 	/**
@@ -187,7 +187,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(1, self::build($factory, votingMethod: 'for-against-abstain')['weight']);
+		self::assertSame(expected: 1, actual: self::build(factory: $factory, votingMethod: 'for-against-abstain')['weight']);
 	}//end testAnUnweightedRoundCountsOne()
 
 	/**
@@ -204,7 +204,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna', 'p-bas' => 'm-bas']
 		);
 
-		self::assertSame(40, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, delegatorId: 'p-bas')['weight']);
+		self::assertSame(expected: 40, actual: self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, delegatorId: 'p-bas')['weight']);
 	}//end testAProxyBallotCarriesTheDelegatorWeight()
 
 	/**
@@ -218,10 +218,10 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		$vote = self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, isSecret: true);
+		$vote = self::build(factory: $factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, isSecret: true);
 
-		self::assertSame(7, $vote['weight']);
-		self::assertSame([['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'round-1']], $vote['relations']);
-		self::assertStringNotContainsString('p-anna', json_encode($vote));
+		self::assertSame(expected: 7, actual: $vote['weight']);
+		self::assertSame(expected: [['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'round-1']], actual: $vote['relations']);
+		self::assertStringNotContainsString(needle: 'p-anna', haystack: json_encode($vote));
 	}//end testASecretWeightedBallotStaysAnonymous()
 }//end class

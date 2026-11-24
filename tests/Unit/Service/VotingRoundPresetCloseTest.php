@@ -92,14 +92,14 @@ class VotingRoundPresetCloseTest extends TestCase {
 		$round = ['id' => 'round-1', 'closedAt' => $closedAt];
 		$saved = [];
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id) use ($round): ?ObjectEntity {
 				if ((string)$id !== 'round-1') {
 					return null;
 				}
 
-				$entity = $this->createMock(ObjectEntity::class);
+				$entity = $this->createMock(originalClassName: ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($round);
 				return $entity;
 			}
@@ -107,21 +107,21 @@ class VotingRoundPresetCloseTest extends TestCase {
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array|ObjectEntity $object) use (&$saved): ObjectEntity {
 				$saved[] = $object;
-				return $this->createMock(ObjectEntity::class);
+				return $this->createMock(originalClassName: ObjectEntity::class);
 			}
 		);
 
-		$motionService = $this->createMock(MotionService::class);
+		$motionService = $this->createMock(originalClassName: MotionService::class);
 		$closer = new VotingRoundCloser(
 			logger: new NullLogger(),
-			oriService: $this->createMock(OriPublicationService::class),
+			oriService: $this->createMock(originalClassName: OriPublicationService::class),
 			motionService: $motionService,
 			amendmentOrder: new AmendmentOrderService(
 				motionService: $motionService,
-				objectService: $this->createMock(ObjectServiceInterface::class),
+				objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
 			),
 			relationFilter: new ObjectRelationFilter(),
-			fileService: $this->createMock(FileService::class),
+			fileService: $this->createMock(originalClassName: FileService::class),
 			objectService: $objectService,
 		);
 

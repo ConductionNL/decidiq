@@ -223,7 +223,7 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 		};
 
 		// Round → meeting: a round whose motion relation is mot-1 belongs to meet-1.
-		$amendmentOrder = $this->createMock(AmendmentOrderService::class);
+		$amendmentOrder = $this->createMock(originalClassName: AmendmentOrderService::class);
 		$amendmentOrder->method('resolveMeetingIdForRound')->willReturnCallback(
 			static function (array $round): ?string {
 				foreach (($round['relations'] ?? []) as $rel) {
@@ -236,12 +236,12 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 			}
 		);
 
-		$participantResolver = $this->createMock(ParticipantResolver::class);
+		$participantResolver = $this->createMock(originalClassName: ParticipantResolver::class);
 		$participantResolver->method('resolveMeetingParticipants')->willReturnCallback(
-			static fn (string $meetingId): array => ($meetingId === 'meet-1' ? $participants : [])
+			static fn (string $meetingId): array => (['meet-1' => $participants][$meetingId] ?? [])
 		);
 
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static function (string $id) use ($objectService, $notificationService, $amendmentOrder, $participantResolver) {
 				return match ($id) {
