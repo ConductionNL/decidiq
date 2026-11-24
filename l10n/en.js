@@ -4137,6 +4137,8 @@ OC.L10N.register(
         "Ratification overdue": "Ratification overdue",
         "Confidential now": "Confidential now",
         "To be ratified": "To be ratified",
+        "Lifted, awaiting publication": "Lifted, awaiting publication",
+        "To publish": "To publish",
         "Ratification late": "Ratification late",
         "Only for members of {body} and the people the clerk adds.": "Only for members of {body} and the people the clerk adds.",
         "Only for members of the meeting's body and the people the clerk adds.": "Only for members of the meeting's body and the people the clerk adds.",
