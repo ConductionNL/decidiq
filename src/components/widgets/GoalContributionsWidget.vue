@@ -11,7 +11,7 @@
  A custom widget because one object list reads one schema, and this list
  joins four.
 
- @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+ @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
 -->
 <template>
 	<section class="goal-contributions" data-testid="goal-contributions">
@@ -101,7 +101,7 @@ export default {
 		 * Every contribution, in kind order.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
 		 */
 		rows() {
 			return contributionRows(this.byKind)
@@ -123,7 +123,7 @@ export default {
 		 * Read the four kinds that can name the goal.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-011-the-goal-page-lists-what-contributes-to-it
 		 */
 		async load() {
 			this.showAll = false

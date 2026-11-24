@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -28,7 +28,7 @@ namespace OCA\Decidiq\Service\Pathway;
  * array, so completing a step returns the full list with only that step
  * changed: the other steps' status and notes are carried forward untouched.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
  */
 final class PathwaySteps {
 
@@ -46,7 +46,7 @@ final class PathwaySteps {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	public function listOf(array $record): array {
 		$steps = ($record['steps'] ?? []);
@@ -72,7 +72,7 @@ final class PathwaySteps {
 	 *
 	 * @return int|null
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	public function indexOf(array $steps, string $stepType): ?int {
 		foreach ($steps as $index => $step) {
@@ -92,7 +92,7 @@ final class PathwaySteps {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	public function isCompleted(array $steps, int $index): bool {
 		return (($steps[$index]['status'] ?? null) === self::COMPLETED);
@@ -110,7 +110,7 @@ final class PathwaySteps {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	public function complete(
 		array $steps,
@@ -142,7 +142,7 @@ final class PathwaySteps {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	public function annotate(array $steps, int $index, string $note): array {
 		$steps[$index]['note'] = $note;
@@ -156,7 +156,7 @@ final class PathwaySteps {
 	 *
 	 * @return string Empty when there is none.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-001-onboardingtraject-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-001-onboardingtraject-schema-on-openregister
 	 */
 	public function relationId(mixed $value): string {
 		if (is_string($value) === true) {

@@ -25,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -51,7 +51,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Invites a guest from outside to an ad hoc meeting.
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 class GuestInvitationService implements GuestInvitationServiceInterface {
 
@@ -101,7 +101,7 @@ class GuestInvitationService implements GuestInvitationServiceInterface {
 	 *
 	 * @throws GuestInvitationRefusedException 404 when absent, 403 when not the organiser
 	 *
-	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 	 */
 	public function requireOrganiserOf(string $meetingId, string $userId): array {
 		$meeting = $this->loadMeeting(meetingId: $meetingId);
@@ -124,7 +124,7 @@ class GuestInvitationService implements GuestInvitationServiceInterface {
 	 *
 	 * @throws GuestInvitationRefusedException When the invitation cannot be sent as asked
 	 *
-	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 	 */
 	public function invite(string $meetingId, string $name, string $email, string $userId): array {
 		$meeting = $this->requireOrganiserOf(meetingId: $meetingId, userId: $userId);
@@ -178,7 +178,7 @@ class GuestInvitationService implements GuestInvitationServiceInterface {
 	 *
 	 * @return string The plain-text body
 	 *
-	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 	 */
 	public function invitationBody(array $meeting, array $agenda, string $name, string $link): string {
 		$lines = [

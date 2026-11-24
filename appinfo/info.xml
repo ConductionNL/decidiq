@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.26-unstable.20261124100724</version>
+    <version>1.2.28-unstable.20261124180523</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -124,13 +124,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
-        <!-- @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
+        <!-- @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
         <job>OCA\Decidiq\BackgroundJob\WrittenResolutionDeadlineJob</job>
         <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
         <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
         <!-- agenda-paper-watermark: once a day, removes the watermarked copies of
              papers kept for earlier days.
-             @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md -->
+             @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\WatermarkCacheSweepJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob</job>

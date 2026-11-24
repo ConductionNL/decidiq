@@ -9,7 +9,7 @@
  * This repo's vitest cannot mount a `.vue` file, so the components' wiring
  * is asserted against their sources.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 
 import { readFileSync } from 'node:fs'

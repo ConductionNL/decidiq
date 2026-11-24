@@ -1,0 +1,1125 @@
+{
+  "info": {
+    "name": "Decidiq Implementation Progress Reminder Suite",
+    "description": "Newman test for change followup-implementation-progress task 5 (REQ-FUP-004): the declared scheduled rule `implementationSilent` on the decision schema tells the secretariat when an adopted decision has had no progress update for 90 days. It seeds three adopted motions: one decided 100 days ago with no update (reported), one with an update 10 days ago and one reported completed (both not reported). It switches background jobs to webcron, calls cron.php until OpenRegister's ScheduledNotificationJob has run (at most 150 calls), reads the secretary's notifications and restores the background job mode. The rule fires at most once a day per instance (intervalSec 86400), so run it on a fresh instance, as the nightly does. Written, not yet run: it needs a live instance. It is the unattended, single-pass form of tests/newman/implementation-progress.json, which needs a docker exec cron.php between two passes; this one sits in tests/integration so the CI Newman job runs it.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "Remember the background job mode (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/core/backgroundjobs_mode?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const day = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);",
+                  "pm.collectionVariables.set('runTag', 'nm-ip-' + Date.now());",
+                  "pm.collectionVariables.set('silentDate', day(100));",
+                  "pm.collectionVariables.set('recentDate', day(10));",
+                  "pm.collectionVariables.set('cronRuns', '0');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('mode readable', () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().ocs.data;",
+                  "pm.collectionVariables.set('prevCronMode', (d && d.data) || 'ajax');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Switch background jobs to webcron so cron.php runs jobs over HTTP (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/core/backgroundjobs_mode?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "value",
+                  "value": "webcron"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('mode set', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create the secretariat group (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/groups?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "groupid",
+                  "value": "decidiq-secretariat"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('group exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create the secretary probe user (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "userid",
+                  "value": "{{ipSecretaryUser}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{ipSecretaryPass}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('user exists', () => pm.expect(pm.response.code).to.be.oneOf([200,400]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add the secretary to decidiq-secretariat (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{ipSecretaryUser}}/groups?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "groupid",
+                  "value": "decidiq-secretariat"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('in group', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed an adopted motion with no update for 100 days",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{runTag}} silent motion\",\n  \"decisionType\": \"motion\",\n  \"proposer\": \"Newman\",\n  \"lifecycle\": \"decided\",\n  \"outcome\": \"adopted\",\n  \"decisionDate\": \"{{silentDate}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('silent motion created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'silentId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('silentId', id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed an adopted motion decided 100 days ago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{runTag}} reported motion\",\n  \"decisionType\": \"motion\",\n  \"proposer\": \"Newman\",\n  \"lifecycle\": \"decided\",\n  \"outcome\": \"adopted\",\n  \"decisionDate\": \"{{silentDate}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reported motion created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'reportedId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('reportedId', id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Report progress on it 10 days ago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"{{reportedId}}\",\n  \"reportedOn\": \"{{recentDate}}\",\n  \"status\": \"on-track\",\n  \"text\": \"{{runTag}} werk loopt\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('update created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'recentUpdateId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('recentUpdateId', id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Seed an adopted motion decided 100 days ago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{runTag}} completed motion\",\n  \"decisionType\": \"motion\",\n  \"proposer\": \"Newman\",\n  \"lifecycle\": \"decided\",\n  \"outcome\": \"adopted\",\n  \"decisionDate\": \"{{silentDate}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('completed motion created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'completedId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('completedId', id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Report it completed 100 days ago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"{{completedId}}\",\n  \"reportedOn\": \"{{silentDate}}\",\n  \"status\": \"completed\",\n  \"text\": \"{{runTag}} uitgevoerd\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('update created', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const b = pm.response.json();",
+                  "const id = (b['@self'] && b['@self'].id) || b.id;",
+                  "pm.expect(id, 'completedUpdateId captured').to.be.a('string');",
+                  "pm.collectionVariables.set('completedUpdateId', id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "The newest update set the reported motion on track",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{reportedId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const o = pm.response.json();",
+                  "pm.test('status follows the update', () => pm.expect(o.implementationStatus).to.eql('on-track'));",
+                  "pm.test('status date is the update date', () => pm.expect(o.implementationStatusDate).to.eql(pm.collectionVariables.get('recentDate')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. The daily sweep reminds the secretariat",
+      "item": [
+        {
+          "name": "Run the next background job",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cron.php"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('cron answers', () => pm.expect(pm.response.code).to.be.oneOf([200,204]));",
+                  "pm.collectionVariables.set('cronRuns', String(Number(pm.collectionVariables.get('cronRuns')) + 1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Secretary reads the No progress reported notification",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/apps/notifications/api/v2/notifications?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{ipSecretaryUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{ipSecretaryPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const tag = pm.collectionVariables.get('runTag');",
+                  "const runs = Number(pm.collectionVariables.get('cronRuns'));",
+                  "const list = (pm.response.json().ocs || {}).data || [];",
+                  "const subjects = list.map((n) => String(n.subject || ''));",
+                  "const ours = subjects.filter((s) => s.includes(tag));",
+                  "const silent = ours.find((s) => s.includes(tag + ' silent motion'));",
+                  "if (!silent && runs < 150) {",
+                  "  // OpenRegister's ScheduledNotificationJob is one of many jobs; cron.php runs one per call.",
+                  "  postman.setNextRequest('Run the next background job');",
+                  "  return;",
+                  "}",
+                  "pm.test('the secretariat is told about the motion nobody reported on for 90 days', () => {",
+                  "  pm.expect(silent, 'notification for the silent motion after ' + runs + ' cron runs').to.be.a('string');",
+                  "  pm.expect(silent).to.match(/No progress reported|Geen voortgang gemeld/);",
+                  "});",
+                  "pm.test('a motion with a recent update is not reported', () => pm.expect(ours.some((s) => s.includes(tag + ' reported motion'))).to.eql(false));",
+                  "pm.test('a completed motion is not reported', () => pm.expect(ours.some((s) => s.includes(tag + ' completed motion'))).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Teardown",
+      "item": [
+        {
+          "name": "Delete recentUpdateId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update/{{recentUpdateId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete completedUpdateId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update/{{completedUpdateId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete silentId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{silentId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete reportedId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{reportedId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete completedId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{completedId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,204,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete the secretary probe user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{ipSecretaryUser}}?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('user deleted', () => pm.expect(pm.response.code).to.be.oneOf([200,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restore the background job mode (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/core/backgroundjobs_mode?format=json"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "value",
+                  "value": "{{prevCronMode}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('mode restored', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "runTag",
+      "value": ""
+    },
+    {
+      "key": "silentDate",
+      "value": ""
+    },
+    {
+      "key": "recentDate",
+      "value": ""
+    },
+    {
+      "key": "cronRuns",
+      "value": "0"
+    },
+    {
+      "key": "prevCronMode",
+      "value": "ajax"
+    },
+    {
+      "key": "silentId",
+      "value": ""
+    },
+    {
+      "key": "reportedId",
+      "value": ""
+    },
+    {
+      "key": "completedId",
+      "value": ""
+    },
+    {
+      "key": "recentUpdateId",
+      "value": ""
+    },
+    {
+      "key": "completedUpdateId",
+      "value": ""
+    },
+    {
+      "key": "ipSecretaryUser",
+      "value": "nm-ip-secretary"
+    },
+    {
+      "key": "ipSecretaryPass",
+      "value": "Nm-ip-Secretary-2026!"
+    }
+  ]
+}

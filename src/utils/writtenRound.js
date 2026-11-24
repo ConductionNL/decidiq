@@ -7,7 +7,7 @@
  * The server decides every refusal; these helpers only shape what the page
  * shows.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 
 import axios from '@nextcloud/axios'
@@ -55,7 +55,7 @@ export function isActiveOn(membership, today) {
  * @param {Array<object>} memberships The person's memberships.
  * @param {string} today The day, YYYY-MM-DD.
  * @return {Array<string>} The body ids, each once.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
  */
 export function presidingBodyIds(memberships, today) {
 	const ids = (memberships || [])
@@ -70,7 +70,7 @@ export function presidingBodyIds(memberships, today) {
  *
  * @param {object|null} decision The decision.
  * @return {boolean} True when it can.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
  */
 export function canPutInWriting(decision) {
 	return Boolean(decision) && refId(decision.meeting) === '' && OPEN_FROM.includes(decision.lifecycle)
@@ -104,7 +104,7 @@ export function isOpen(round) {
  * @param {object|null} round The round.
  * @param {Date} now Now.
  * @return {boolean} True when open and past its deadline.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
  */
 export function waitsToClose(round, now) {
 	if (!isOpen(round) || !round.votingDeadline) return false
@@ -119,7 +119,7 @@ export function waitsToClose(round, now) {
  * @param {Array<object>} votes The round's votes.
  * @param {Record<string, string>} names Person names by person id.
  * @return {Array<{membership: string, userId: string, name: string, value: string|null, castAt: string|null}>} The rows.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-005-the-decision-keeps-a-readable-record-of-the-written-procedure
  */
 export function recordRows(round, votes, names) {
 	const byMembership = {}
@@ -148,7 +148,7 @@ export function recordRows(round, votes, names) {
  *
  * @param {Array<{value: string|null}>} rows The record rows.
  * @return {{answered: number, total: number}} The progress.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
  */
 export function progressOf(rows) {
 	return {
@@ -162,7 +162,7 @@ export function progressOf(rows) {
  *
  * @param {object} request decisionId, governanceBodyId, votingDeadline, writtenRule, voteThreshold.
  * @return {Promise<object>} The stored round.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
  */
 export async function openWrittenRound(request) {
 	const { data } = await axios.post(generateUrl('/apps/decidiq/api/voting-rounds'), {
@@ -178,7 +178,7 @@ export async function openWrittenRound(request) {
  * @param {string} roundId The round.
  * @param {string} value One of WRITTEN_ANSWERS.
  * @return {Promise<{vote: object, round: object}>} The stored vote and the round after it.
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
  */
 export async function answerWrittenRound(roundId, value) {
 	const { data } = await axios.post(

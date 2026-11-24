@@ -10,7 +10,7 @@
  button; src/utils/adhocMeeting.js writes it all in order and the page
  then opens the new meeting.
 
- @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 -->
 <template>
 	<div class="adhoc-meeting" data-testid="adhoc-meeting">
@@ -412,7 +412,7 @@ export default {
 		 * Colleagues and guests in one list, as the board draws them.
 		 *
 		 * @return {Array<object>} The rows
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		people() {
 			return [
@@ -437,7 +437,7 @@ export default {
 		 * The fields still missing or wrong.
 		 *
 		 * @return {Array<string>} The field keys
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		missing() {
 			return missingFields(this.form)
@@ -447,7 +447,7 @@ export default {
 	watch: {
 		/**
 		 * @param {Date|null} value The picked start
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		startDate(value) {
 			this.form.start = localValue(value)
@@ -455,7 +455,7 @@ export default {
 
 		/**
 		 * @param {Date|null} value The picked end time
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		endDate(value) {
 			this.form.endTime = localValue(value).slice(11)
@@ -468,13 +468,13 @@ export default {
 		 *
 		 * @param {string} key The field key
 		 * @return {boolean} True when the field is missing after a try
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		shown(key) {
 			return this.tried && this.missing.includes(key)
 		},
 
-		/** @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
+		/** @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
 		addPoint() {
 			const point = this.newPoint.trim()
 			if (!point) return
@@ -484,7 +484,7 @@ export default {
 
 		/**
 		 * @param {DragEvent} event The drop
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		dropPapers(event) {
 			this.dragging = false
@@ -493,7 +493,7 @@ export default {
 
 		/**
 		 * @param {Event} event The file input change
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		choosePapers(event) {
 			this.addPapers(event.target?.files)
@@ -502,7 +502,7 @@ export default {
 
 		/**
 		 * @param {FileList|null} files The files
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		addPapers(files) {
 			const known = new Set(this.form.papers.map((f) => f.name))
@@ -513,7 +513,7 @@ export default {
 
 		/**
 		 * @param {object} guest The guest ({ name, email })
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		stageGuest(guest) {
 			if (!this.form.guests.some((g) => g.email === guest.email)) {
@@ -521,7 +521,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
+		/** @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
 		async openColleagues() {
 			this.colleagueDialogOpen = true
 			this.loadingCandidates = true
@@ -543,7 +543,7 @@ export default {
 
 		/**
 		 * @param {object} participant The colleague picked
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		addColleague(participant) {
 			this.colleagueDialogOpen = false
@@ -552,7 +552,7 @@ export default {
 
 		/**
 		 * @param {object} person A row of the participants table
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		removePerson(person) {
 			const list = person.guest ? this.form.guests : this.form.colleagues
@@ -563,7 +563,7 @@ export default {
 		/**
 		 * @param {object} failure A failed step
 		 * @return {string} What to finish on the meeting page
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		failureLabel(failure) {
 			switch (failure.step) {
@@ -593,7 +593,7 @@ export default {
 		 * Overleg aanmaken: write everything, then open the meeting.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		async create() {
 			this.tried = true
@@ -620,7 +620,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
+		/** @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
 		openMeeting() {
 			this.$router.push({
 				name: 'MeetingDetail',
@@ -628,7 +628,7 @@ export default {
 			})
 		},
 
-		/** @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
+		/** @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting */
 		cancel() {
 			this.$router.push({ name: 'Meetings' })
 		},

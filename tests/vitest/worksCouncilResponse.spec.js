@@ -5,7 +5,7 @@
  * works-council-consultation task 6: recording the director's decision, the
  * suspension term, and what the traject page offers.
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

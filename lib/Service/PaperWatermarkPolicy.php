@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
+ * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use Psr\Log\LoggerInterface;
  * answers "stamp": an unstamped confidential paper cannot be taken back, a
  * stamped public one costs nothing.
  *
- * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
+ * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
  */
 class PaperWatermarkPolicy {
 
@@ -56,7 +56,7 @@ class PaperWatermarkPolicy {
 	 * @param ObjectServiceInterface $objectService Reads the confidentiality restrictions
 	 * @param LoggerInterface        $logger        Logger
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -73,7 +73,7 @@ class PaperWatermarkPolicy {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked
 	 */
 	public function mustStamp(array $meeting, ?string $agendaItemId = null, array $documentIds = []): bool {
 		$setting = ($meeting['watermarkPapers'] ?? 'automatic');
@@ -103,7 +103,7 @@ class PaperWatermarkPolicy {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
 	public function stampText(array $meeting, string $displayName, \DateTimeInterface $openedAt): string {
 		$parts = [trim($displayName), $openedAt->format('Y-m-d H:i')];

@@ -40,6 +40,29 @@ function clean(node) {
 }
 
 /**
+ * Merge a fragment's schema node into what earlier fragments declared, the way
+ * the register import does: objects merge key by key at every depth, lists of
+ * plain values are joined without repeats, anything else is replaced. A shallow
+ * merge let a later fragment that patches one key of `items` (96 adds `user` to
+ * `fields.items.properties.fieldType`) drop the keys an earlier one declared.
+ *
+ * @param {*} base What earlier fragments declared
+ * @param {*} patch What this fragment declares
+ * @return {*} The merged node
+ */
+function deepMerge(base, patch) {
+	if (Array.isArray(base) && Array.isArray(patch)) {
+		return [...new Set([...base, ...patch])]
+	}
+	if (base && patch && typeof base === 'object' && typeof patch === 'object' && !Array.isArray(base) && !Array.isArray(patch)) {
+		const out = { ...base }
+		for (const [k, v] of Object.entries(patch)) out[k] = k in out ? deepMerge(out[k], v) : v
+		return out
+	}
+	return patch
+}
+
+/**
  * A validator for the merged schema with this slug.
  *
  * @param {string} slug The schema slug
@@ -62,7 +85,7 @@ export function validatorFor(slug) {
 		for (const [name, schema] of Object.entries(schemas)) {
 			if ((schema.slug || name) !== slug) continue
 			for (const [p, v] of Object.entries(schema.properties || {})) {
-				props[p] = { ...(props[p] || {}), ...v }
+				props[p] = deepMerge(props[p] || {}, v)
 			}
 			required = schema.required || required
 		}

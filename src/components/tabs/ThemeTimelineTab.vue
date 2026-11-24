@@ -7,7 +7,7 @@
  to the theme, oldest first, and for staff a mark on what is not published.
  Only published entries reach the resident's page (REQ-THP-003).
 
- @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+ @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
 -->
 <template>
 	<div class="decidiq-theme-timeline" data-testid="theme-timeline">
@@ -62,7 +62,7 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it */
 		objectId() {
 			this.load()
 		},
@@ -77,7 +77,7 @@ export default {
 		 * Read the staff timeline of the theme.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
 		 */
 		async load() {
 			if (!this.objectId) return
@@ -106,7 +106,7 @@ export default {
 		 * @param {string} kind The kind.
 		 * @return {string} The label.
 		 *
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
 		 */
 		kindLabel(kind) {
 			switch (kind) {

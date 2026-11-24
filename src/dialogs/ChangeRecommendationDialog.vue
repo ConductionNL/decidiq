@@ -6,7 +6,7 @@
  of a motion. Picking the lines fills the current text read-only; the parent
  saves the recommendation on @submit (modal isolation, ADR-004).
 
- @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
+ @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
 -->
 <template>
 	<NcDialog
@@ -95,7 +95,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		lineOptions() {
 			return numberLines(this.text).map((line) => ({
 				id: line.number,
@@ -103,7 +103,7 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		passage() {
 			if (!this.from || !this.to) return ''
 			return passageOf(this.text, this.from.id, this.to.id)
@@ -111,14 +111,14 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		from(option) {
 			if (option && (!this.to || this.to.id < option.id)) {
 				this.to = option
 			}
 		},
 
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		passage(value) {
 			if (this.proposedText === '') {
 				this.proposedText = value
@@ -127,7 +127,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
+		/** @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		submit() {
 			this.$emit('submit', {
 				lineFrom: this.from.id,

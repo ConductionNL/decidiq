@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -55,7 +55,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 /**
  * Open, cast and close a ranked preference round.
  *
- * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  */
 class VotingServiceRankedBallotTest extends TestCase {
 	use VotingFacadeCalls;
@@ -383,7 +383,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function testARankedRoundOpensWithItsOptions(): void {
 		$service = $this->buildService(self::store());
@@ -408,7 +408,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
 	public function testARankedRoundWithBadOptionsIsRefused(): void {
 		$many = [];
@@ -448,7 +448,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function testAFullRankingIsCast(): void {
 		$service = $this->buildService(self::store(['round-1' => self::rankedRound(['relations' => []])]));
@@ -473,7 +473,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function testABallotThatDoesNotFitTheRoundIsRefused(): void {
 		$ordinary = self::rankedRound(['relations' => [], 'votingMethod' => 'for-against-abstain']);
@@ -512,7 +512,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function testClosingARankedRoundCountsTheBallots(): void {
 		$service = $this->buildService(
@@ -551,7 +551,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function testATiedRankedRoundLeavesTheMotionInVoting(): void {
 		$service = $this->buildService(
@@ -579,7 +579,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
 	 */
 	public function testARevoteOffersTheTiedOptionsOnly(): void {
 		$tied = self::rankedRound(
@@ -615,7 +615,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function testARankedChoiceRoundWithoutOptionsKeepsItsForAndAgainstVotes(): void {
 		$legacy = self::rankedRound(['relations' => []]);

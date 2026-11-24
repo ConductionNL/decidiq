@@ -3,7 +3,7 @@
 /**
  * Decidiq TeamsMeetingController unit tests.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -249,7 +249,7 @@ final class TeamsMeetingControllerTest extends TestCase {
 	/**
 	 * A fixed refusal reaches the reader in their language.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 *
 	 * @return void
 	 */
@@ -266,7 +266,7 @@ final class TeamsMeetingControllerTest extends TestCase {
 	/**
 	 * Microsoft 365's own answer is passed on unchanged, not looked up as a key.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 *
 	 * @return void
 	 */
@@ -282,7 +282,7 @@ final class TeamsMeetingControllerTest extends TestCase {
 	/**
 	 * Every fixed refusal the controller translates has a Dutch and an English catalogue entry.
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/tasks.md#task-6-strings-and-docs
 	 *
 	 * @return void
 	 */

@@ -17,7 +17,7 @@
  * (WrittenElectorateResolver). Both are seeded through the OpenRegister object
  * API as the admin and removed again in afterAll, with the accounts.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  * @e2e voting-written-resolution/requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing/the-secretary-sends-a-resolution-to-the-supervisory-board
  * @e2e voting-written-resolution/requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page/a-member-agrees
  * @e2e voting-written-resolution/requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline/everyone-agrees-before-the-deadline

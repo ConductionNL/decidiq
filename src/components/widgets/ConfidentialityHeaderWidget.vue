@@ -10,7 +10,7 @@
  Registered as catalog type "confidentiality-header" by
  registerDetailWidgets.js and placed in the header through `headerWidget`.
 
- @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
 -->
 <template>
 	<div class="cn-confidentiality-header" data-testid="confidentiality-header">
@@ -84,17 +84,17 @@ export default {
 			return plainObject(this.objectData)
 		},
 
-		/** @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
+		/** @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
 		steps() {
 			return buildConfidentialityStepper(this.record)
 		},
 
-		/** @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
+		/** @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
 		headerLine() {
 			return ratificationHeaderLine(this.record)
 		},
 
-		/** @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
+		/** @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
 		headerText() {
 			const date = this.formatDate(this.headerLine?.deadline)
 			if (this.bodyLabel) {
@@ -105,7 +105,7 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
+		/** @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board */
 		'headerLine.bodyId': {
 			immediate: true,
 			handler() {
@@ -149,7 +149,7 @@ export default {
 		/**
 		 * The ratifying body's name for the header line; empty when it cannot be read.
 		 *
-		 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+		 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
 		 * @return {Promise<void>}
 		 */
 		async resolveBody() {

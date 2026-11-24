@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Service;
  * Pure, and without state: every name it prints is passed in, so it never reads anything and a
  * reference it was not given a name for prints as a dash rather than as an id.
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 class PlannedAgendaReportRenderer {
 	/**
@@ -74,7 +74,7 @@ class PlannedAgendaReportRenderer {
 	 * @param list<array<string,mixed>> $rows   The rows the filters selected.
 	 * @param array<string,string>      $topics Topic names by id, for topics outside the rows.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @return list<array{heading:string,rows:list<array<string,mixed>>}>
 	 */
@@ -116,7 +116,7 @@ class PlannedAgendaReportRenderer {
 	 * @param array<string,mixed>  $filters The filters the report was asked for.
 	 * @param array<string,string> $names   Names by id, for reference filters.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @return string The heading line, or a sentence saying nothing was filtered.
 	 */
@@ -151,7 +151,7 @@ class PlannedAgendaReportRenderer {
 	 * @param string                                                     $date    The date the report was made.
 	 * @param array<string,string>                                       $names   Names by id, for the reference columns.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @return string
 	 */
@@ -180,7 +180,7 @@ class PlannedAgendaReportRenderer {
 	 *
 	 * @param array<string,mixed> $row The row.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @return string
 	 */

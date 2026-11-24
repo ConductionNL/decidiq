@@ -8,7 +8,7 @@
  colour alone). Rejected requests are not shown; the server leaves them out.
  Shared by the agenda item and the meeting page (meeting-level speakers).
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 -->
 <template>
 	<div class="speaking-slots" data-testid="speaking-slots">
@@ -35,6 +35,14 @@
 					<span v-if="slot.hasContribution" class="speaking-slots__state">
 						{{ t('decidiq', 'Written contribution') }}
 					</span>
+					<router-link
+						v-if="transcriptLink(slot)"
+						class="speaking-slots__transcript"
+						data-testid="speaking-slot-transcript"
+						:to="transcriptLink(slot)"
+						:aria-label="t('decidiq', 'Read {name} in the transcript', { name: slot.speakerName || t('decidiq', 'Public speaker') })">
+						{{ t('decidiq', 'In the transcript at {time}', { time: transcriptTime(slot) }) }}
+					</router-link>
 				</li>
 			</ol>
 			<ul v-if="pending.length" class="speaking-slots__list speaking-slots__list--pending" data-testid="speaking-slots-pending">
@@ -56,6 +64,7 @@
 import { NcLoadingIcon } from '@nextcloud/vue'
 import { fetchSpeakingSlots } from '../../services/speakingRequestApi.js'
 import { slotsFor } from '../../utils/speakingRequests.js'
+import { formatOffset, segmentStart, transcriptRoute } from '../../utils/transcriptSegments.js'
 
 export default {
 	name: 'SpeakingSlotsBlock',
@@ -73,13 +82,13 @@ export default {
 	watch: {
 		meetingId: {
 			immediate: true,
-			/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+			/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
 			handler() {
 				this.load()
 			},
 		},
 
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
 		place() {
 			this.load()
 		},
@@ -89,7 +98,7 @@ export default {
 		/**
 		 * Read the meeting's speakers and keep this place's.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 		 */
 		async load() {
 			this.slots = []
@@ -109,11 +118,33 @@ export default {
 		},
 
 		/**
+		 * Where the meeting's transcript shows the speaker, or null when no segment is linked.
+		 *
+		 * @param {object} slot An approved slot.
+		 * @return {object|null} A route to the meeting page at the segment.
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 */
+		transcriptLink(slot) {
+			return transcriptRoute(this.meetingId, slot?.transcriptSegment)
+		},
+
+		/**
+		 * The moment of a slot's linked segment, as the transcript shows it.
+		 *
+		 * @param {object} slot An approved slot.
+		 * @return {string} m:ss or h:mm:ss.
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 */
+		transcriptTime(slot) {
+			return formatOffset(segmentStart(slot?.transcriptSegment))
+		},
+
+		/**
 		 * The text of a slot's state.
 		 *
 		 * @param {string} status The request's lifecycle.
 		 * @return {string} The label.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 		 */
 		stateLabel(status) {
 			if (status === 'spoke') return this.t('decidiq', 'Spoke')
@@ -165,6 +196,11 @@ export default {
 .speaking-slots__organisation,
 .speaking-slots__minutes {
 	color: var(--color-text-maxcontrast);
+}
+
+.speaking-slots__transcript {
+	color: var(--color-primary-element);
+	text-decoration: underline;
 }
 
 .speaking-slots__state {

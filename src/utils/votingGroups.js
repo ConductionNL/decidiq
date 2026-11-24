@@ -35,7 +35,7 @@ function refOf(value) {
 /**
  * The body a meeting belongs to, as the meeting object carries it.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  * @param {object|null} meeting The meeting object.
  * @return {string} The body id, or '' when the meeting names none.
  */
@@ -47,7 +47,7 @@ export function meetingBodyId(meeting) {
  * The voting groups the chair can pick when a round opens: the active groups
  * of the meeting's body, by name, each with its member count.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  * @param {Array<object>} groups The voting-group objects.
  * @param {string} bodyId The meeting's body.
  * @return {Array<{id: string, name: string, memberCount: number}>} The choices.
@@ -66,7 +66,7 @@ export function votingGroupChoices(groups, bodyId) {
 /**
  * The names of the voting group's members a freshly opened round left out (REQ-VGP-005).
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
  * @param {object|null} round The server's answer to opening the round.
  * @return {Array<string>} The names.
  */

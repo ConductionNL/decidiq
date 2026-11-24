@@ -2,7 +2,7 @@
   "x-openregister": {
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
-  "_comment": "ADR-037 register fragment - voting-named-paper-vote-entry. Patches VotingRound and Vote by key union. A round can be a roll call whose votes the chair or secretary records by name, and a vote says whether the member cast it or the clerk recorded it, and who recorded it. See openspec/changes/voting-named-paper-vote-entry, REQ-NPV-001 and REQ-NPV-002.",
+  "_comment": "ADR-037 register fragment - voting-named-paper-vote-entry. Patches VotingRound and Vote by key union. A round can be a roll call whose votes the chair or secretary records by name, and a vote says whether the member cast it or the clerk recorded it, and who recorded it. See openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry, REQ-NPV-001 and REQ-NPV-002.",
   "components": {
     "schemas": {
       "VotingRound": {

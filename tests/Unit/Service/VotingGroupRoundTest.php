@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -45,7 +45,7 @@ use RuntimeException;
  * VotingGroupResolver over an ObjectService double that answers like
  * OpenRegister, as in VotingBodyRulesTest.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 class VotingGroupRoundTest extends TestCase {
 
@@ -184,7 +184,7 @@ class VotingGroupRoundTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
 	 */
 	public function testARoundOpenedWithAGroupIsLimitedToItsMembers(): void {
 		$round = $this->open($this->opener(), 'group-1');
@@ -200,7 +200,7 @@ class VotingGroupRoundTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testAGroupOfAnotherBodyIsRefusedAndNothingIsWritten(): void {
 		$opener = $this->opener(groupBody: 'another-body');
@@ -220,7 +220,7 @@ class VotingGroupRoundTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testWithoutAGroupNothingChanges(): void {
 		$round = $this->open($this->opener(), null);
@@ -235,7 +235,7 @@ class VotingGroupRoundTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function testTheOpenRequestCarriesTheGroup(): void {
 		$voting = $this->createMock(VotingService::class);

@@ -54,7 +54,7 @@ export default {
 		/**
 		 * @return {number} The number of overdue items.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
 		 */
 		count() {
 			return overdueItems(this.items, Date.now()).length
@@ -63,7 +63,7 @@ export default {
 		/**
 		 * @return {string} "warning" while any item is overdue.
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
 		 */
 		variant() {
 			return this.count > 0 ? 'warning' : 'default'
@@ -76,7 +76,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 *
-		 * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+		 * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
 		 */
 		async load() {
 			this.loading = true

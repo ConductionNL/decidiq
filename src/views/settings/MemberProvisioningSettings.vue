@@ -72,7 +72,7 @@ export default {
 		/**
 		 * Read the allowed groups from the app settings.
 		 *
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 		 */
 		async load() {
 			try {
@@ -89,7 +89,7 @@ export default {
 		 * Show the groups as the settings hold them.
 		 *
 		 * @param {object} settings The settings.
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 		 */
 		apply(settings) {
 			this.groups = provisioningGroups(settings).join(', ')
@@ -99,7 +99,7 @@ export default {
 		/**
 		 * Write the allowed groups.
 		 *
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 		 */
 		async save() {
 			this.saving = true

@@ -94,7 +94,7 @@ class VoteCastGuard {
 	 *
 	 * @throws \InvalidArgumentException When the ballot does not fit the round.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function ballotValue(array $round, string $value, ?array $ranking): string {
 		return (new RankedBallotRules())->ballotValue(round: $round, value: $value, ranking: $ranking);

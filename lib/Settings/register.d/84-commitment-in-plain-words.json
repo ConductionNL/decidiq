@@ -113,10 +113,17 @@
 							"type": "scheduled",
 							"intervalSec": 1209600,
 							"filter": {
-								"lifecycle": [
-									"open",
-									"in-execution"
-								]
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"open",
+										"in-execution"
+									]
+								},
+								"deadline": {
+									"operator": "withinNext",
+									"value": "P14D"
+								}
 							}
 						},
 						"enabled": true,
@@ -139,18 +146,28 @@
 							"nl": "Rappel: deadline toezegging nadert — {{text}}",
 							"en": "Reminder: commitment deadline approaching — {{text}}"
 						},
-						"_note": "Pre-deadline rappel (REQ-004). intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets non-terminal lifecycle only; the 'deadline within window' vs 'deadline past' distinction is carried by the scheduled engine's window semantics, which the simple filter shape shown for Meeting cannot express as a deadline comparison — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import."
+						"_note": "Pre-deadline rappel (REQ-004). intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets non-terminal lifecycle only; the 'deadline within window' vs 'deadline past' distinction is carried by the scheduled engine's window semantics, which the simple filter shape shown for Meeting cannot express as a deadline comparison — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
 					},
 					"toezeggingRappelOverdue": {
 						"trigger": {
 							"type": "scheduled",
 							"intervalSec": 604800,
 							"filter": {
-								"lifecycle": [
-									"open",
-									"in-execution"
-								]
-							}
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"open",
+										"in-execution"
+									]
+								},
+								"deadline": {
+									"operator": "before",
+									"value": "now"
+								}
+							},
+							"dedupeFields": [
+								"deadline"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -172,7 +189,7 @@
 							"nl": "Rappel: toezegging over deadline — {{text}}",
 							"en": "Reminder: commitment past deadline — {{text}}"
 						},
-						"_note": "Overdue rappel (REQ-004). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal lifecycle so no notification fires for afgedaan/vervallen. Same window-semantics caveat as toezeggingRappelBeforeDeadline. Recipients approximate 'madeBy + griffie' via object-acl (read) + decidesk-members group, because no recipient kind targets the madeBy Person reference directly."
+						"_note": "Overdue rappel (REQ-004). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal lifecycle so no notification fires for afgedaan/vervallen. Same window-semantics caveat as toezeggingRappelBeforeDeadline. Recipients approximate 'madeBy + griffie' via object-acl (read) + decidesk-members group, because no recipient kind targets the madeBy Person reference directly. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
 					}
 				},
 				"authorization": {

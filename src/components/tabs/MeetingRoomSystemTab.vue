@@ -7,7 +7,7 @@
  reason, and "Apply again" on a rejected one once the clerk fixed the cause
  (live-room-conference-system-link). While no room system is linked it says so.
 
- @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+ @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 -->
 <template>
 	<div class="room-system" data-testid="meeting-room-system">
@@ -57,7 +57,7 @@ export default {
 
 	components: { NcButton, NcLoadingIcon },
 
-	/** @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again */
+	/** @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again */
 	mixins: [objectIdLoader],
 
 	data() {
@@ -68,7 +68,7 @@ export default {
 		/**
 		 * Read whether a room system is connected and the meeting's messages.
 		 *
-		 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-001-the-room-system-is-an-integriq-connection
+		 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-001-the-room-system-is-an-integriq-connection
 		 */
 		async load() {
 			if (!this.objectId) return
@@ -90,7 +90,7 @@ export default {
 		 *
 		 * @param {string} kind speech or vote.
 		 * @return {string} The label.
-		 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+		 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 		 */
 		kindLabel(kind) {
 			return (
@@ -106,7 +106,7 @@ export default {
 		 *
 		 * @param {string} status received, applied or rejected.
 		 * @return {string} The label.
-		 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+		 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 		 */
 		statusLabel(status) {
 			return (
@@ -122,7 +122,7 @@ export default {
 		 * Apply a rejected message again and show what came of it.
 		 *
 		 * @param {object} item The message.
-		 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+		 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 		 */
 		async applyAgain(item) {
 			this.working = item.id

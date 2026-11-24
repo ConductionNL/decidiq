@@ -810,6 +810,13 @@
 						"slug": "type-raadsinformatiebrief",
 						"name": "Raadsinformatiebrief",
 						"description": "Een brief van het college aan de raad, ter kennisname of ter bespreking geagendeerd.",
+						"fields": [
+							{
+								"key": "reportsOnDecision",
+								"label": "Meldt besluit aan de raad",
+								"fieldType": "reference"
+							}
+						],
 						"owningBody": "gemeenteraad-amsterdam",
 						"votable": false,
 						"incomingDocument": true,

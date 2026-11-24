@@ -21,7 +21,7 @@
  * read. Without the municipality set the type is not there and the suite
  * skips, saying so.
  *
- * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
+ * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
  */
 
 import type { Page } from '@playwright/test'

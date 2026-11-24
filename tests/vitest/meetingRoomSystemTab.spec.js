@@ -8,7 +8,7 @@
  * rejected message only. This repo's vitest cannot mount a `.vue` file, so the
  * wiring is asserted against the sources.
  *
- * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+ * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
  */
 
 import { readFileSync } from 'node:fs'

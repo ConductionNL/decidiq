@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Psr\Log\LoggerInterface;
  * A linked object that cannot be read is left out and logged; it never fails
  * the theme.
  *
- * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+ * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
  */
 class ThemeTimelineBuilder {
 
@@ -88,7 +88,7 @@ class ThemeTimelineBuilder {
 	 *
 	 * @return list<array{date: ?string, kind: string, title: string, objectId: string, published: bool, publication: ?string}> The entries.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
 	 */
 	public function entries(array $theme): array {
 		$entries = [];
@@ -118,7 +118,7 @@ class ThemeTimelineBuilder {
 	 *
 	 * @return list<array{date: ?string, kind: string, title: string, objectId: string, publication: string}> The entries.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
 	 */
 	public function publishedEntries(array $theme): array {
 		$published = [];
@@ -139,7 +139,7 @@ class ThemeTimelineBuilder {
 	 *
 	 * @return list<array{heading: string, body: string}> The blocks.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
 	 */
 	public function blocksOf(mixed $blocks): array {
 		$clean = [];

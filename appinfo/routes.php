@@ -77,7 +77,7 @@ $extra = [
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
         // Theme pages (publication-theme-pages, REQ-THP-002): the staff timeline of a theme.
         // Theme CRUD and its links stay on the OpenRegister object API (ADR-022).
-        // @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+        // @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
         ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
         // On-demand accessibility scan of one paper (document-accessibility-check REQ-001); reports stay on the OR object API.
@@ -114,7 +114,7 @@ $extra = [
         ['name' => 'actionItem#destroy', 'url' => '/api/action-items/{uid}', 'verb' => 'DELETE', 'requirements' => ['uid' => '[^/]+']],
 
         // Member pathways — granting and revoking a member's groups (secretariat of the body).
-        // @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md
+        // @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md
         ['name' => 'memberPathway#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
         ['name' => 'memberPathway#deliverInductionPack', 'url' => '/api/member-onboardings/{id}/induction-pack', 'verb' => 'POST'],
         ['name' => 'memberPathway#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],

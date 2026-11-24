@@ -6,7 +6,7 @@
  * the chair or the secretary records each active member's choice by name, or a
  * whole party at once, and a refused list names the members concerned.
  *
- * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
  */
 
 import fs from 'fs'

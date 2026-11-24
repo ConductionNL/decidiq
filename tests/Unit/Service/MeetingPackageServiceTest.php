@@ -439,7 +439,7 @@ class MeetingPackageServiceTest extends TestCase {
 	/**
 	 * In a closed session every paper in Jan's package carries his name.
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
 	 *
 	 * @return void
 	 */
@@ -469,7 +469,7 @@ class MeetingPackageServiceTest extends TestCase {
 	/**
 	 * A paper that must be stamped and cannot be is left out, never copied unstamped.
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
 	 *
 	 * @return void
 	 */

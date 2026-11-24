@@ -7,7 +7,7 @@
  * the parent card's counts and the three steps; and the full structure's page
  * declares the four blocks by their registry components.
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
  */
 
 import fs from 'fs'

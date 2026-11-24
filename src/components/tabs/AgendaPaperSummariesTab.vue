@@ -9,7 +9,7 @@
  checked it. Without an AI provider the actions are left out and the widget
  says so. The rules live in src/utils/paperSummaries.js.
 
- @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 -->
 <template>
 	<div class="paper-summaries" data-testid="paper-summaries">
@@ -230,7 +230,7 @@ export default {
 
 	components: { NcButton, NcLoadingIcon, NcSelect, NcTextArea },
 
-	/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
+	/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
 	mixins: [objectIdLoader],
 
 	data() {
@@ -254,24 +254,24 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
+		/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
 		isClerk() {
 			return this.availability.canRequest === true
 		},
 
-		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper */
+		/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper */
 		papers() {
 			return paperOptions(this.files)
 		},
 
-		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status */
+		/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status */
 		summaries() {
 			return visibleSummaries(this.records, this.isClerk)
 		},
 	},
 
 	methods: {
-		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
+		/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
 		async load() {
 			if (!this.objectId) return
 			this.loading = true
@@ -307,7 +307,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper */
+		/** @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper */
 		async fetchFiles() {
 			try {
 				const { data } = await axios.get(
@@ -324,7 +324,7 @@ export default {
 
 		/**
 		 * @param {object} body The request body: fileId, kind and comparedFileId.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 		 */
 		async ask(body) {
 			this.busy = true
@@ -350,7 +350,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		startEdit(summary) {
 			this.editing = summary.id
@@ -359,7 +359,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		async saveText(summary) {
 			await this.save(summary, editPayload(summary, this.draftText))
@@ -369,7 +369,7 @@ export default {
 		/**
 		 * @param {object} summary The summary.
 		 * @param {string} status `shown` or `hidden`, or the status to label.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		async review(summary, status) {
 			const user = getCurrentUser()
@@ -383,7 +383,7 @@ export default {
 		/**
 		 * @param {object} summary The summary.
 		 * @param {object} payload The fields to save.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		async save(summary, payload) {
 			this.busy = true
@@ -411,7 +411,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		actionsOf(summary) {
 			return actionsFor(summary, this.isClerk)
@@ -419,7 +419,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
 		 */
 		retryBodyOf(summary) {
 			return retryBody(summary)
@@ -427,7 +427,7 @@ export default {
 
 		/**
 		 * @param {number} fileId The paper to leave out.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 		 */
 		paperOptionsFor(fileId) {
 			return paperOptions(this.files, fileId)
@@ -435,7 +435,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 		 */
 		headline(summary) {
 			if (summary.kind === 'comparison') {
@@ -451,7 +451,7 @@ export default {
 
 		/**
 		 * @param {object} summary The summary.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 		 */
 		checkedLabel(summary) {
 			const date = summary.reviewedAt
@@ -469,7 +469,7 @@ export default {
 
 		/**
 		 * @param {string} status The status to label.
-		 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status
+		 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status
 		 */
 		statusLabel(status) {
 			const labels = {

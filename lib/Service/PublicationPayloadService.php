@@ -278,7 +278,7 @@ class PublicationPayloadService {
 	 * @param array<string,mixed> $source  Theme object data.
 	 * @param int                 $version Payload version.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -415,7 +415,7 @@ class PublicationPayloadService {
 	 * @param array<string,mixed> $source  IngekomenStuk object data.
 	 * @param int                 $version Payload version.
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
 	 *
 	 * @return array<string,mixed>
 	 */

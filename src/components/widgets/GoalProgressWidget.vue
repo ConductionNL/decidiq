@@ -12,7 +12,7 @@
  the goal, so they are current without waiting for the goal's materialised
  rates.
 
- @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+ @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
 -->
 <template>
 	<div class="goal-progress" data-testid="goal-progress">
@@ -78,7 +78,7 @@ export default {
 		 * The lines to show, without the ones whose total is zero.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
 		 */
 		lines() {
 			return progressLines(this.objectData, {
@@ -100,7 +100,7 @@ export default {
 		 * Read what points at the goal.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
+		 * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts
 		 */
 		async load() {
 			if (!this.goalId) {

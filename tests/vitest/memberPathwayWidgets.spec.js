@@ -6,7 +6,7 @@
  * each counts a declared schema by its declared lifecycle states, and each
  * KPI opens the index pre-filtered to the set it counts.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-011-griffie-progress-dashboard
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-011-griffie-progress-dashboard
  */
 
 import fs from 'fs'

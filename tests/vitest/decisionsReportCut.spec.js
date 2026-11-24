@@ -8,7 +8,7 @@
  * the library's own token resolver: the same resolve-then-drop step the stat
  * and table widgets apply before they ask OpenRegister.
  *
- * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period
+ * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period
  */
 
 import { interpolateUrlTokens } from '@conduction/nextcloud-vue/src/utils/interpolateUrlTokens.js'

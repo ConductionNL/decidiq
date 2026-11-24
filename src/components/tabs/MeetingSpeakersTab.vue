@@ -6,7 +6,7 @@
  for a body whose policy level is the meeting, the approved speaking slots and
  pending requests render in the meeting block.
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 -->
 <template>
 	<SpeakingSlotsBlock data-testid="meeting-speakers" :meetingId="String(objectId || '')" place="" />

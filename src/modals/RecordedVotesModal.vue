@@ -8,7 +8,7 @@
  The server refuses a wrong list as a whole; the members it names are shown
  and the entries are kept, so the sheet can be corrected and saved again.
 
- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+ @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 -->
 <template>
 	<NcDialog
@@ -132,7 +132,7 @@ export default {
 		 * The members on the sheet.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		members() {
 			return activeMembers(this.participants)
@@ -142,7 +142,7 @@ export default {
 		 * The parties of those members.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		parties() {
 			return partiesOf(this.members)
@@ -152,7 +152,7 @@ export default {
 		 * The choices of a row; empty means did not vote.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		choiceOptions() {
 			return [
@@ -167,7 +167,7 @@ export default {
 		 * The entries that would be sent.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		entries() {
 			return namedVoteEntries(this.choices, this.members)
@@ -178,7 +178,7 @@ export default {
 		/**
 		 * Set the chosen vote for every member of the chosen party.
 		 *
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		applyParty() {
 			const { party, value } = this.partyChoice
@@ -196,7 +196,7 @@ export default {
 		 * and keep every entry.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+		 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
 		 */
 		async save() {
 			this.saving = true

@@ -26,6 +26,15 @@
 						{{ t('decidiq', '(optional)') }}
 					</span>
 				</span>
+				<span v-if="row.annotationsExport" class="decidiq-checklist__note">
+					{{ t('decidiq', 'The member downloads their own annotations themselves:') }}
+					<a
+						:href="annotationsExportUrl"
+						data-testid="onboarding-checklist-annotations-export"
+						download>
+						{{ t('decidiq', 'Own-annotations export') }}
+					</a>
+				</span>
 				<span class="decidiq-checklist__status">{{ statusLabel(row.status) }}</span>
 				<span class="decidiq-checklist__actions">
 					<NcButton
@@ -55,6 +64,7 @@
 
 <script>
 import { NcButton } from '@nextcloud/vue'
+import { exportUrl } from '../../utils/annotations.js'
 import { checklistRows, kindOf, stepPath } from '../../utils/onboardingChecklist.js'
 import { acceptedOrThrow, putJson } from './jsonRequests.js'
 import { objectIdLoader } from './objectIdLoader.js'
@@ -88,6 +98,16 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The member's own-annotations export, which the personal-data step points at.
+		 *
+		 * @return {string} The download address.
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-002-offboardingtraject-schema-on-openregister
+		 */
+		annotationsExportUrl() {
+			return exportUrl('csv')
+		},
+
 		/** @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist */
 		kind() {
 			return kindOf(this.schema)
@@ -178,6 +198,16 @@ export default {
 .decidiq-checklist__optional,
 .decidiq-checklist__status {
 	color: var(--color-text-maxcontrast);
+}
+
+.decidiq-checklist__note {
+	flex-basis: 100%;
+	color: var(--color-text-maxcontrast);
+}
+
+.decidiq-checklist__note a {
+	color: var(--color-primary-element);
+	text-decoration: underline;
 }
 
 .decidiq-checklist__actions {

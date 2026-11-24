@@ -9,7 +9,7 @@
  meeting exists) the dialog only hands the guest back with `staged`; the
  page invites them once the meeting is created.
 
- @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 -->
 <template>
 	<NcDialog
@@ -84,7 +84,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The submit button text
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		submitLabel() {
 			if (!this.meetingId) return this.t('decidiq', 'Add guest')
@@ -99,7 +99,7 @@ export default {
 		 * Send the invitation and tell the tab to reload.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		async send() {
 			if (!this.meetingId) {
@@ -128,7 +128,7 @@ export default {
 		 * Hand the guest back to the page; the invitation goes out once the
 		 * meeting exists.
 		 *
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		stage() {
 			const email = this.email.trim()

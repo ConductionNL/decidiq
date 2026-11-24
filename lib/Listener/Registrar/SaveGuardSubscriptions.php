@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\ApprovalRouteSavedListener;
+use OCA\Decidiq\Listener\ChecklistSaveListener;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\LiftAfterRatificationGuard;
 use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
@@ -104,6 +105,11 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Checklist records (member-onboarding, REQ-MOB-003 and REQ-MOB-010): an
+		// onboarding or offboarding does not complete with a mandatory step open
+		// and does not leave a final state; it carries the open step due first.
+		['event' => ObjectCreatingEvent::class, 'listener' => ChecklistSaveListener::class, 'schemas' => ChecklistSaveListener::SCHEMAS],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ChecklistSaveListener::class, 'schemas' => ChecklistSaveListener::SCHEMAS],
 		// Confidentiality term (confidentiality-term-and-lapse, REQ-EMB-020):
 		// a restriction's lift-by date is not before the day it was imposed,
 		// on create and on update.

@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\Decidiq\Listener\ConfidentialityTermGuardListener
  * @uses   \OCA\Decidiq\Listener\SaveGuardEvent
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
  */
 class ConfidentialityTermGuardListenerTest extends TestCase {
 

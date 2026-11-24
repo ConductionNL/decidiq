@@ -121,7 +121,7 @@ export function getGovernanceBodies(params = {}) {
  *
  * @return {Promise<Array<object>>} Planned-agenda items.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
  */
 export function getPlannedAgendaItems(params = {}) {
 	return ensureRelationType('planned-agenda-item').fetchCollection(

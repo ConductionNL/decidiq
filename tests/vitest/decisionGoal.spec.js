@@ -2,7 +2,7 @@
  * goals-linked-to-decisions REQ-010: a decision names the goal it serves, the
  * picker offers only unfinished goals and the decision page links the goal.
  *
- * @spec openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
+ * @spec openspec/changes/archive/2026-11-24-goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-010-a-decision-can-name-the-goal-it-serves
  */
 
 import * as fs from 'fs'

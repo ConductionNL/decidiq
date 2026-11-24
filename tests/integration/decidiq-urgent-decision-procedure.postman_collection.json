@@ -99,6 +99,14 @@
   {
    "key": "putBody",
    "value": ""
+  },
+  {
+   "key": "reportedAt",
+   "value": ""
+  },
+  {
+   "key": "letterItemId",
+   "value": ""
   }
  ],
  "item": [
@@ -1346,8 +1354,266 @@
    ]
   },
   {
+   "name": "4. Report to the ratifying body",
+   "item": [
+    {
+     "name": "Placed ratification: the report date is set",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const d = pm.response.json();",
+         "pm.test('placing the ratification item reported the decision', () => pm.expect(d.reportedToRatifyingBodyAt).to.be.a('string').and.not.empty);",
+         "pm.collectionVariables.set('reportedAt', d.reportedToRatifyingBodyAt);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Mark as reported: 200",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{decisionId}}/urgency/reported"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the report action is accepted', () => pm.response.to.have.status(200));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Mark as reported: the first date stays",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{decisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('a later step does not overwrite the report date', () => pm.expect(pm.response.json().reportedToRatifyingBodyAt).to.eql(pm.collectionVariables.get('reportedAt')));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Mark as reported, not urgent: 409",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/decisions/{{plainDecisionId}}/urgency/reported"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('only an urgent decision is reported', () => pm.response.to.have.status(409));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Letter naming a decision that is not urgent",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/agenda-item"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n \"title\": \"Information letter {{runTag}}\",\n \"typeFields\": {\n  \"reportsOnDecision\": \"{{plainDecisionId}}\"\n }\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the letter is saved', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+         "pm.collectionVariables.set('letterItemId', pm.response.json().id || (pm.response.json()['@self'] || {}).id);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Letter: a decision that is not urgent gets no report date",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/decision/{{plainDecisionId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('the letter reports only an urgent decision', () => pm.expect(pm.response.json().reportedToRatifyingBodyAt || null).to.eql(null));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
    "name": "9. Teardown",
    "item": [
+    {
+     "name": "Delete agenda-item letterItemId",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/{{register}}/agenda-item/{{letterItemId}}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('deleted or already gone', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ]
+    },
     {
      "name": "Delete voting-round roundId",
      "request": {

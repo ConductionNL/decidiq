@@ -73,6 +73,7 @@ use OCA\Decidiq\Kernel\Contracts\FormResponseImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
@@ -253,6 +254,7 @@ final class ContractBindings {
 		MandateSubstitutionServiceInterface::class => MandateSubstitutionService::class,
 		MeetingBroadcastServiceInterface::class => MeetingBroadcastService::class,
 		SpeakingRequestServiceInterface::class => SpeakingRequestService::class,
+		MeetingCommandServiceInterface::class => MeetingCommandService::class,
 		MeetingFolderServiceInterface::class => MeetingFolderService::class,
 		MeetingPackageServiceInterface::class => MeetingPackageService::class,
 		MeetingReminderServiceInterface::class => MeetingReminderService::class,

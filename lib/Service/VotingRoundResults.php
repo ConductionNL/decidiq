@@ -123,7 +123,7 @@ class VotingRoundResults {
 	 * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, total, base, result and applied rules
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function tally(string $votingRoundId): array {
 		// Load the round first — the configured rules drive the result computation.
@@ -236,7 +236,7 @@ class VotingRoundResults {
 	 *
 	 * @return array<string,mixed> The tally, with rankingResult and winningOption.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function rankedTally(array $round, string $votingRoundId): array {
 		$ballots = [];
@@ -360,7 +360,7 @@ class VotingRoundResults {
 	 *
 	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int}
 	 *
-	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
+	 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
 	 */
 	private static function storedTotals(array $round): array {
 		return [

@@ -48,7 +48,7 @@ interface WrittenRoundCloserInterface {
 	 *
 	 * @return bool Whether it was closed now.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline
 	 */
 	public function closeAtDeadline(array $round, DateTimeImmutable $now): bool;
 }//end interface

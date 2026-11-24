@@ -35,7 +35,7 @@ export const CLOSING_SOON_HOURS = 24
  * @param {string|null} place An agenda item id, or empty/null for the meeting block.
  * @return {{slots: Array, pending: Array}} The place's slots and pending requests, both possibly empty.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
  */
 export function slotsFor(agenda, place) {
 	const key = place || MEETING_PLACE
@@ -56,7 +56,7 @@ export function slotsFor(agenda, place) {
  * @param {string} [fallbackName] The name of a speaker the request did not name.
  * @return {Array} Queue entries carrying `requestId`, `publicSpeaker: true` and `limitSeconds`.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export function toQueueEntries(rows, now, fallbackName = '') {
 	if (!Array.isArray(rows)) return []
@@ -84,7 +84,7 @@ export function toQueueEntries(rows, now, fallbackName = '') {
  * @param {object|null} entry A queue entry.
  * @return {boolean} True for a preloaded public speaker.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export function isPublicSpeaker(entry) {
 	return entry?.publicSpeaker === true
@@ -100,7 +100,7 @@ export function isPublicSpeaker(entry) {
  * @param {Array} entries Entries from {@link toQueueEntries}.
  * @return {Array} New queue.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export function preloadSpeakers(queue, entries) {
 	const queued = new Set(queue.map((e) => e.participantId))
@@ -119,7 +119,7 @@ export function preloadSpeakers(queue, entries) {
  * @param {number|null} panelLimitSeconds The limit the chair set for everyone.
  * @return {number|null} Limit in seconds, or null for none.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export function entryLimitSeconds(entry, panelLimitSeconds) {
 	if (Number.isFinite(entry?.limitSeconds) && entry.limitSeconds > 0) {
@@ -138,7 +138,7 @@ export function entryLimitSeconds(entry, panelLimitSeconds) {
  * @param {number} now Current timestamp (ms).
  * @return {{state: string, deadline: number|null}} The state and the deadline timestamp (ms).
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
  */
 export function deadlineState(meetingStart, deadlineHours, now) {
 	const start = meetingStart instanceof Date ? meetingStart.getTime() : Date.parse(meetingStart ?? '')

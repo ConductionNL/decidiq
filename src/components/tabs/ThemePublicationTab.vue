@@ -6,7 +6,7 @@
  delegates to PublicationActionsTab with sourceType="theme". The server
  refuses a theme that is not public or has no published item.
 
- @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+ @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
 -->
 <template>
 	<PublicationActionsTab :objectId="objectId" sourceType="theme" />

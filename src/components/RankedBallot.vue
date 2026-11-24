@@ -8,7 +8,7 @@
  always holds every option exactly once, which is what the cast endpoint
  requires, and emits the keys in order, first preference first.
 
- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+ @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 -->
 <template>
 	<div class="ranked-ballot" data-testid="ranked-ballot">
@@ -95,7 +95,7 @@ export default {
 		/**
 		 * Move one option up or down by one place.
 		 *
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 		 * @param {number} index The option's place
 		 * @param {number} step -1 for up, 1 for down
 		 */

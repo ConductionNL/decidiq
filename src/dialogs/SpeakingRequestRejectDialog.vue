@@ -6,7 +6,7 @@
  (inspreekrecht-plenair, REQ-INS-005). The reason is required: the server
  refuses a rejection without one, and this dialog asks for it first.
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 -->
 <template>
 	<NcDialog
@@ -58,14 +58,14 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 		speakerName() {
 			return speakerNameOf(this.object)
 		},
 	},
 
 	methods: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 		async confirm() {
 			this.working = true
 			this.error = await runModeration(

@@ -12,7 +12,7 @@
  On a meeting without a governing body the organiser invites guests from
  outside by email (meeting-ad-hoc-with-guests, pla-20, board DcAdhocOverleg).
 
- @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 -->
 <template>
 	<div
@@ -420,7 +420,7 @@ export default {
 		 * A guest was invited: reload, and say so when the mail did not go out.
 		 *
 		 * @param {object} result The server's answer ({ mailed }).
-		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		async guestInvited(result) {
 			this.notice =

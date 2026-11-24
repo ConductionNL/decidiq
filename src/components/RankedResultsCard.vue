@@ -8,7 +8,7 @@
  sharing first place carries "Tied". The table shows totals only, so a
  secret round reveals no member's ballot (REQ-PRF-005).
 
- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
+ @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
 -->
 <template>
 	<table class="ranked-results" data-testid="ranked-results">
@@ -60,7 +60,7 @@ export default {
 
 	computed: {
 		/**
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
 		 * @return {Array} The ranking rows, ordered by rank
 		 */
 		rows() {
@@ -72,7 +72,7 @@ export default {
 
 	methods: {
 		/**
-		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
+		 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table
 		 * @param {object} row A ranking row
 		 * @return {string} Elected, Tied or ''
 		 */

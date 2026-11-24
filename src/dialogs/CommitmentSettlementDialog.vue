@@ -6,7 +6,7 @@
  link or reference, such as the information letter) is optional. The parent
  saves the commitment as disposed on @submit.
 
- @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
+ @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
 -->
 <template>
 	<NcDialog
@@ -71,7 +71,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states */
+		/** @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states */
 		valid() {
 			return settlementNoteIsValid(this.note)
 		},

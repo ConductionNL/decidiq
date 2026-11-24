@@ -8,7 +8,7 @@
  through the OpenRegister object API (ADR-022). The theme's own write rule
  (secretariat and administrators) decides whether the store is accepted.
 
- @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+ @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 -->
 <template>
 	<div class="decidiq-theme-links" data-testid="theme-links">
@@ -72,12 +72,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		holding() {
 			return themesHolding(this.themes, this.kind, String(this.objectId))
 		},
 
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		available() {
 			const holding = this.holding.map(themeIdOf)
 			return this.themes.filter((theme) => !holding.includes(themeIdOf(theme)))
@@ -85,7 +85,7 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
+		/** @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme */
 		objectId() {
 			this.load()
 		},
@@ -102,7 +102,7 @@ export default {
 		 * @param {object} theme The theme.
 		 * @return {string} The id.
 		 *
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 		 */
 		idOf(theme) {
 			return themeIdOf(theme)
@@ -112,7 +112,7 @@ export default {
 		 * Read the themes to show and to choose from.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 		 */
 		async load() {
 			if (!this.objectId) return
@@ -140,7 +140,7 @@ export default {
 		 *
 		 * @param {object} theme The chosen theme.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
+		 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme
 		 */
 		async add(theme) {
 			try {

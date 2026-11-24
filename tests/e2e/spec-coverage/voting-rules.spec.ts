@@ -455,7 +455,7 @@ test.describe('roll call recorded by name', () => {
 		await api.dispose()
 	})
 
-	// @e2e openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 	test('the chair lists every member, sets a party at once, and the saved votes are what closes', async ({ page }) => {
 		test.setTimeout(120_000)
 		const { motionId, roundId } = await rollCall(`E2E NPV motion A ${runId}`)
@@ -505,7 +505,7 @@ test.describe('roll call recorded by name', () => {
 		expect(round.result).toBe('adopted')
 	})
 
-	// @e2e openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
 	test('a refused list names the member concerned and keeps the entries', async ({ page }) => {
 		test.setTimeout(120_000)
 		const { motionId, roundId } = await rollCall(`E2E NPV motion B ${runId}`)
@@ -548,7 +548,7 @@ test.describe('roll call recorded by name', () => {
 		).toBeChecked()
 	})
 
-	// @e2e openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
 	test('a member sees the roll call notice and no vote buttons', async ({ browser }) => {
 		test.setTimeout(120_000)
 		const { motionId } = await rollCall(`E2E NPV motion C ${runId}`)

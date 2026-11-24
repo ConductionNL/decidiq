@@ -6,7 +6,7 @@
  * shown summaries only, a clerk gets the review actions the lifecycle allows,
  * and what a review writes is accepted by the register's PaperSummary schema.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'

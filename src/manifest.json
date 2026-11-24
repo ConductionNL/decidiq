@@ -252,6 +252,13 @@
 						"content": { "label": "Ratification late", "icon": "AlertOutline", "variant": "warning", "route": { "name": "ConfidentialityRestrictions", "query": { "lifecycle": "imposed", "ratificationDeadline[lt]": "@today" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "confidentiality-restriction", "metric": "count", "via": "list", "filter": { "lifecycle": "imposed", "ratificationDeadline": { "lt": "@today" } } } }
 					},
 					{
+						"id": "confidentiality-lifted-awaiting-publication",
+						"type": "stat",
+						"title": "Lifted, awaiting publication",
+						"_note": "embargo-geheimhouding task 8 (REQ-EMB-006), the fourth confidentiality KPI: lifted restrictions whose agenda item or decision has not been made public since. Reads the materialised awaitingPublication flag (register.d/142: set by ConfidentialityLifter, cleared by ConfidentialityPublishedListener when the target goes public), a scalar-equality count the aggregation endpoint honours, and opens the confidentiality register pre-filtered to the same set.",
+						"content": { "label": "To publish", "icon": "LockOpenVariantOutline", "route": { "name": "ConfidentialityRestrictions", "query": { "awaitingPublication": true } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "confidentiality-restriction", "metric": "count", "filter": { "awaitingPublication": true } } }
+					},
+					{
 						"id": "open-commitments-overdue",
 						"type": "stat",
 						"title": "Commitments over deadline",
@@ -696,6 +703,16 @@
 						"id": "23",
 						"widgetId": "confidentiality-ratification-overdue",
 						"gridX": 6,
+						"gridY": 28,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "24",
+						"widgetId": "confidentiality-lifted-awaiting-publication",
+						"gridX": 9,
 						"gridY": 28,
 						"gridWidth": 3,
 						"gridHeight": 2,

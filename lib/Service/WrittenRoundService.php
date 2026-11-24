@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -28,7 +28,7 @@ use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
  * The seam the voting controller calls for a written round: open, answer,
  * and whether a round is held in writing.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
  */
 class WrittenRoundService implements WrittenRoundServiceInterface {
 
@@ -52,7 +52,7 @@ class WrittenRoundService implements WrittenRoundServiceInterface {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function open(array $params, string $userId): array {
 		return $this->opener->open(params: $params, userId: $userId);
@@ -65,7 +65,7 @@ class WrittenRoundService implements WrittenRoundServiceInterface {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function writtenRound(string $roundId): ?array {
 		return $this->answerer->writtenRound(roundId: $roundId);
@@ -80,7 +80,7 @@ class WrittenRoundService implements WrittenRoundServiceInterface {
 	 *
 	 * @return array{vote: array<string, mixed>, round: array<string, mixed>}
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function answer(string $roundId, string $userId, string $value): array {
 		return $this->answerer->answer(roundId: $roundId, userId: $userId, value: $value);

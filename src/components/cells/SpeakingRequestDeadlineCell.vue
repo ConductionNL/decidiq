@@ -8,7 +8,7 @@
  a warning only, never a gate. Text carries the state, so it does not rely on
  colour. Other requests show no warning.
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
 -->
 <template>
 	<span
@@ -36,7 +36,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
 		label() {
 			if (this.state === 'open') return this.t('decidiq', 'Registration open')
 			if (this.state === 'closing') return this.t('decidiq', 'Registration closes soon')
@@ -50,7 +50,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications */
 		async load() {
 			this.state = 'unknown'
 			const row = this.row

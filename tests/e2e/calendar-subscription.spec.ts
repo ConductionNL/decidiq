@@ -12,7 +12,7 @@
  * profile's seeded digital meeting "Commissie Ruimte (digitaal)" and skips
  * with the reason when the instance does not have it.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md
  */
 import type { Browser, Page } from '@playwright/test'
 

@@ -6,7 +6,7 @@
  The dialog only confirms; the parent saves on @confirm. Publication never
  happens without this explicit step (REQ-005).
 
- @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
 -->
 <template>
 	<NcDialog
