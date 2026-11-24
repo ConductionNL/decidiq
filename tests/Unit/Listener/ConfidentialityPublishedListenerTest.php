@@ -194,9 +194,14 @@ final class ConfidentialityPublishedListenerTest extends TestCase {
 	 */
 	public function testOnlyTheMomentOfPublishingCounts(): void {
 		$listener = $this->listener(restrictions: self::restrictions());
-		$listener->handle($this->updated(old: ['id' => 'dec-1', 'isPublished' => 'public'], new: ['id' => 'dec-1', 'isPublished' => 'public', 'title' => 'Nieuw']));
-		$listener->handle($this->updated(old: ['id' => 'dec-1', 'isPublished' => 'confidential'], new: ['id' => 'dec-1', 'isPublished' => 'internal']));
-		$listener->handle($this->updated(old: ['id' => 'item-1', 'confidentiality' => 'confidential'], new: ['id' => 'item-1', 'confidentiality' => 'internal']));
+		$saves = [
+			[['id' => 'dec-1', 'isPublished' => 'public'], ['id' => 'dec-1', 'isPublished' => 'public', 'title' => 'Nieuw']],
+			[['id' => 'dec-1', 'isPublished' => 'confidential'], ['id' => 'dec-1', 'isPublished' => 'internal']],
+			[['id' => 'item-1', 'confidentiality' => 'confidential'], ['id' => 'item-1', 'confidentiality' => 'internal']],
+		];
+		foreach ($saves as [$before, $after]) {
+			$listener->handle($this->updated(old: $before, new: $after));
+		}
 
 		self::assertSame(expected: [], actual: $this->saved);
 	}//end testOnlyTheMomentOfPublishingCounts()
@@ -210,9 +215,14 @@ final class ConfidentialityPublishedListenerTest extends TestCase {
 		$listener = $this->listener(restrictions: []);
 
 		self::assertSame(expected: 'decision', actual: $listener->justPublished(new: ['isPublished' => 'public'], old: []));
-		self::assertSame(expected: 'item', actual: $listener->justPublished(new: ['confidentiality' => 'public'], old: ['confidentiality' => 'internal']));
+		self::assertSame(
+			expected: 'item',
+			actual: $listener->justPublished(new: ['confidentiality' => 'public'], old: ['confidentiality' => 'internal'])
+		);
 		self::assertNull(actual: $listener->justPublished(new: ['isPublished' => 'internal'], old: []));
-		self::assertNull(actual: $listener->justPublished(new: ['confidentiality' => 'public'], old: ['confidentiality' => 'public']));
+		self::assertNull(
+			actual: $listener->justPublished(new: ['confidentiality' => 'public'], old: ['confidentiality' => 'public'])
+		);
 	}//end testTheKindFollowsTheClassifier()
 
 	/**

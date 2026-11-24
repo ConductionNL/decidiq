@@ -97,16 +97,12 @@ class ConfidentialityPublishedListener implements IEventListener {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function handle(Event $event): void {
-		$after = null;
-		if ($event instanceof ObjectUpdatedEvent) {
-			$after = $event->getNewObject();
-		}
-
-		if ($after === null) {
+		if (($event instanceof ObjectUpdatedEvent) === false || $event->getNewObject() === null) {
 			return;
 		}
 
-		$kind = $this->justPublished(
+		$after = $event->getNewObject();
+		$kind  = $this->justPublished(
 			new: (array)$after->getObject(),
 			old: (array)($event->getOldObject()?->getObject() ?? [])
 		);
@@ -157,14 +153,31 @@ class ConfidentialityPublishedListener implements IEventListener {
 		$field  = self::KINDS[$kind]['target'];
 		$stamp  = $this->clock->getDateTime()->format('c');
 		$marked = 0;
-		foreach ($this->restrictionsOn(field: $field, targetId: $targetId) as $restriction) {
-			if ((string)($restriction[$field] ?? '') === $targetId && ($restriction['awaitingPublication'] ?? null) === true) {
-				$marked += $this->mark(restriction: $restriction, stamp: $stamp);
-			}
+		foreach ($this->waitingOn(field: $field, targetId: $targetId) as $restriction) {
+			$marked += $this->mark(restriction: $restriction, stamp: $stamp);
 		}
 
 		return $marked;
 	}//end publishedOn()
+
+	/**
+	 * The restrictions on the target that still wait for its publication.
+	 *
+	 * @param string $field    The restriction field naming the target.
+	 * @param string $targetId The target.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function waitingOn(string $field, string $targetId): array {
+		return array_values(
+			array_filter(
+				array_map([$this, 'asRow'], $this->restrictionsOn(field: $field, targetId: $targetId)),
+				static fn (?array $row): bool => $row !== null
+					&& (string)($row[$field] ?? '') === $targetId
+					&& ($row['awaitingPublication'] ?? null) === true
+			)
+		);
+	}//end waitingOn()
 
 	/**
 	 * The restrictions naming the target, read in system context; none when they cannot be read.
@@ -172,7 +185,7 @@ class ConfidentialityPublishedListener implements IEventListener {
 	 * @param string $field    The restriction field naming the target.
 	 * @param string $targetId The target.
 	 *
-	 * @return list<array<string, mixed>>
+	 * @return array<int|string, mixed>
 	 */
 	private function restrictionsOn(string $field, string $targetId): array {
 		try {
@@ -189,19 +202,27 @@ class ConfidentialityPublishedListener implements IEventListener {
 			return [];
 		}
 
-		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = $row->jsonSerialize();
-			}
+		return (array)($found['results'] ?? $found);
+	}//end restrictionsOn()
 
-			if (is_array($row) === true) {
-				$rows[] = $row;
-			}
+	/**
+	 * One found restriction as an array, or null when it is neither an array nor serialisable.
+	 *
+	 * @param mixed $row An entity or an array.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function asRow(mixed $row): ?array {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			$row = $row->jsonSerialize();
 		}
 
-		return $rows;
-	}//end restrictionsOn()
+		if (is_array($row) === true) {
+			return $row;
+		}
+
+		return null;
+	}//end asRow()
 
 	/**
 	 * Write the publication onto one restriction.

@@ -215,7 +215,7 @@ class ConfidentialityLifterTest extends TestCase {
 		$this->assertSame('dec-lift', $restriction['dissolutionDecision']);
 		$this->assertSame('2026-11-21', $restriction['liftingDate']);
 		$this->assertSame('na ondertekening contract', $restriction['liftingConditions']);
-		$this->assertTrue($restriction['awaitingPublication'], 'A lifted decision waits for the normal publication run.');
+		$this->assertTrue(condition: $restriction['awaitingPublication'], message: 'A lifted decision waits for the normal publication run.');
 		// Every other field kept.
 		$this->assertSame('dec-ratify', $restriction['ratificationDecision']);
 		$this->assertSame('ground-ratify', $restriction['ground']);
@@ -238,7 +238,7 @@ class ConfidentialityLifterTest extends TestCase {
 
 		$this->assertSame('reopened', $result['classifier']);
 		$this->assertArrayNotHasKey('liftingConditions', $result['restriction']);
-		$this->assertTrue($result['restriction']['awaitingPublication']);
+		$this->assertTrue(condition: $result['restriction']['awaitingPublication']);
 		$item = $this->objects['agenda-item']['item-1'];
 		$this->assertSame('internal', $item['confidentiality']);
 		$this->assertFalse($item['public']);
@@ -368,9 +368,9 @@ class ConfidentialityLifterTest extends TestCase {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function testOnlyAnItemOrDecisionAwaitsPublication(): void {
-		$this->assertTrue(ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'decision']));
-		$this->assertTrue(ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'item']));
-		$this->assertFalse(ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'document']));
-		$this->assertFalse(ConfidentialityLifter::awaitsPublication(restriction: []));
+		$this->assertTrue(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'decision']));
+		$this->assertTrue(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'item']));
+		$this->assertFalse(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'document']));
+		$this->assertFalse(condition: ConfidentialityLifter::awaitsPublication(restriction: []));
 	}//end testOnlyAnItemOrDecisionAwaitsPublication()
 }//end class
