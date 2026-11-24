@@ -117,10 +117,12 @@ class DecisionWithdrawFlow {
 
 		try {
 			return $this->withdrawLoaded(
-				decisionId: $decisionId,
-				withdrawnBy: $withdrawnBy,
-				reason: $reason,
-				currentUserId: $currentUserId
+				request: new DecisionWithdrawalRequest(
+					decisionId: $decisionId,
+					withdrawnBy: $withdrawnBy,
+					reason: $reason,
+					currentUserId: $currentUserId
+				)
 			);
 		} catch (DoesNotExistException) {
 			return $this->failure(message: "Decision '$decisionId' not found.");
@@ -137,27 +139,23 @@ class DecisionWithdrawFlow {
 	/**
 	 * Load, check, stamp and persist the withdrawal of one decision.
 	 *
-	 * @param string $decisionId UUID of the decision to withdraw
-	 * @param string $withdrawnBy Actor kind: bestuursorgaan|belanghebbende
-	 * @param string $reason Why, written for the person who receives it
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user (chair gate + audit actor)
+	 * @param DecisionWithdrawalRequest $request The decision, actor kind, reason and requesting user
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
 	 *
 	 * @return array{success: bool, decision: array|null, message: string}
 	 */
-	private function withdrawLoaded(string $decisionId, string $withdrawnBy, string $reason, ?string $currentUserId): array {
-		$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
+	private function withdrawLoaded(DecisionWithdrawalRequest $request): array {
+		$decision = $this->contextResolver->loadDecision(
+			objectService: $this->objectService,
+			decisionId: $request->decisionId
+		);
 		if ($decision === null) {
-			return $this->failure(message: "Decision '$decisionId' not found.");
+			return $this->failure(message: "Decision '{$request->decisionId}' not found.");
 		}
 
 		$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
-		$rejection = $this->resolveRejection(
-			decision: $decision,
-			currentLifecycle: $currentLifecycle,
-			currentUserId: $currentUserId
-		);
+		$rejection = $this->resolveRejection(decision: $decision, currentUserId: $request->currentUserId);
 		if ($rejection !== null) {
 			return $this->failure(message: $rejection);
 		}
@@ -165,17 +163,17 @@ class DecisionWithdrawFlow {
 		try {
 			$withdrawn = $this->withdrawalService->withdraw(
 				decision: $decision,
-				withdrawnBy: $withdrawnBy,
-				reason: $reason
+				withdrawnBy: $request->withdrawnBy,
+				reason: $request->reason
 			);
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage());
 		}
 
 		$run = (new DecisionTransitionRun(
-			decisionId: $decisionId,
+			decisionId: $request->decisionId,
 			action: 'withdraw',
-			currentUserId: $currentUserId,
+			currentUserId: $request->currentUserId,
 			comment: $withdrawn['withdrawnBy'] . ': ' . $withdrawn['withdrawnReason']
 		))->entering(
 			transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
@@ -191,15 +189,15 @@ class DecisionWithdrawFlow {
 	 * Evaluated in order: the `lifecycle → withdrawn` edge must be declared,
 	 * then the chair-only gate (fail closed) shared with transition().
 	 *
-	 * @param array<string, mixed> $decision Decision object array
-	 * @param string $currentLifecycle The decision's current lifecycle state
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 * @param array<string, mixed> $decision      Decision object array
+	 * @param string|null          $currentUserId Nextcloud UID of the requesting user
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
 	 * @return string|null Rejection message, or null when the withdrawal is permitted
 	 */
-	private function resolveRejection(array $decision, string $currentLifecycle, ?string $currentUserId): ?string {
+	private function resolveRejection(array $decision, ?string $currentUserId): ?string {
+		$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
 		if ($this->transitionGuard->isWithdrawable(lifecycle: $currentLifecycle) === false) {
 			return "A decision in '$currentLifecycle' state cannot be withdrawn. "
 				. 'Withdrawal is possible from: ' . implode(', ', DecisionTransitionGuard::WITHDRAWABLE_STATES) . '.';

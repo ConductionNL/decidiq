@@ -63,7 +63,7 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->results = $this->createMock(VotingRoundResults::class);
+		$this->results = $this->createMock(originalClassName: VotingRoundResults::class);
 
 	}//end setUp()
 
@@ -76,18 +76,18 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 	 * @return VotingRoundLiveController
 	 */
 	private function liveControllerFor(?string $uid, bool $isAdmin=false): VotingRoundLiveController {
-		$session = $this->createMock(IUserSession::class);
+		$session = $this->createMock(originalClassName: IUserSession::class);
 		$user = null;
 		if ($uid !== null) {
-			$user = $this->createMock(IUser::class);
+			$user = $this->createMock(originalClassName: IUser::class);
 			$user->method('getUID')->willReturn($uid);
 		}
 
 		$session->method('getUser')->willReturn($user);
 
-		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
 		$groupManager->method('isAdmin')->willReturn($isAdmin);
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn('');
 
 		$participants = [
@@ -100,7 +100,7 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 				['nextcloudUserId' => 'griffier2', 'role' => 'secretary'],
 			],
 		];
-		$resolver = $this->getMockBuilder(ParticipantResolver::class)
+		$resolver = $this->getMockBuilder(className: ParticipantResolver::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['resolveMeetingParticipants'])
 			->getMock();
@@ -108,28 +108,28 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 			fn (string $meetingId): array => ($participants[$meetingId] ?? [])
 		);
 
-		// round-M belongs to motion-M in meeting M.
+		// Round-M belongs to motion-M in meeting M.
 		$objects = [
 			'round-M'  => ['id' => 'round-M', 'relations' => [['schema' => 'motion', 'id' => 'motion-M']]],
 			'motion-M' => ['id' => 'motion-M', 'decisionType' => 'motion', 'meeting' => 'M'],
 		];
-		$objectService = $this->createMock(ObjectService::class);
+		$objectService = $this->createMock(originalClassName: ObjectService::class);
 		$objectService->method('find')->willReturnCallback(
 			function (mixed $id) use ($objects): ?ObjectEntity {
 				if (isset($objects[(string)$id]) === false) {
 					return null;
 				}
 
-				$entity = $this->createMock(ObjectEntity::class);
+				$entity = $this->createMock(originalClassName: ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($objects[(string)$id]);
 				return $entity;
 			}
 		);
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
 		return new VotingRoundLiveController(
-			request: $this->createMock(IRequest::class),
+			request: $this->createMock(originalClassName: IRequest::class),
 			results: $this->results,
 			userSession: $session,
 			guard: new VotingRoundGuard(
@@ -157,8 +157,8 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 
 		foreach (['chair1', 'griffier1'] as $uid) {
 			$response = $this->liveControllerFor(uid: $uid)->liveTally(id: 'round-M');
-			self::assertSame(Http::STATUS_OK, $response->getStatus(), $uid);
-			self::assertSame($counts, $response->getData(), $uid);
+			self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus(), message: $uid);
+			self::assertSame(expected: $counts, actual: $response->getData(), message: $uid);
 		}
 
 	}//end testLiveTallyShowsTheSplitToChairAndSecretary()
@@ -176,8 +176,14 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 			['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5]
 		);
 
-		self::assertSame(['cast' => 5], $this->liveControllerFor(uid: 'member1')->liveTally(id: 'round-M')->getData());
-		self::assertSame(['cast' => 5], $this->liveControllerFor(uid: 'griffier2', isAdmin: true)->liveTally(id: 'round-M')->getData());
+		self::assertSame(
+			expected: ['cast' => 5],
+			actual: $this->liveControllerFor(uid: 'member1')->liveTally(id: 'round-M')->getData()
+		);
+		self::assertSame(
+			expected: ['cast' => 5],
+			actual: $this->liveControllerFor(uid: 'griffier2', isAdmin: true)->liveTally(id: 'round-M')->getData()
+		);
 
 	}//end testLiveTallyShowsAMemberOnlyTheCastCount()
 
@@ -191,8 +197,14 @@ class VotingRoundLiveTallyPermissionsTest extends TestCase {
 	public function testLiveTallyRefusesAnonymousAndUnreadableRounds(): void {
 		$this->results->method('liveCounts')->willReturn(null);
 
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->liveControllerFor(uid: null)->liveTally(id: 'round-M')->getStatus());
-		self::assertSame(Http::STATUS_NOT_FOUND, $this->liveControllerFor(uid: 'chair1')->liveTally(id: 'round-x')->getStatus());
+		self::assertSame(
+			expected: Http::STATUS_UNAUTHORIZED,
+			actual: $this->liveControllerFor(uid: null)->liveTally(id: 'round-M')->getStatus()
+		);
+		self::assertSame(
+			expected: Http::STATUS_NOT_FOUND,
+			actual: $this->liveControllerFor(uid: 'chair1')->liveTally(id: 'round-x')->getStatus()
+		);
 
 	}//end testLiveTallyRefusesAnonymousAndUnreadableRounds()
 }//end class
