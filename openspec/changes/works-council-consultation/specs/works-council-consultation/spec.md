@@ -27,6 +27,8 @@ The system SHALL define a `ConsultationRequest` schema (slug `consultation-reque
 
 #### Scenario: Register fragment is additive
 
+@e2e exclude "no existing schema is modified" is a property of the merged register file, not of a page; WorksCouncilConsultationRegisterTest::testTheRequestIsInTheMergedRegister (the carried-schema half is asserted below) (recorded in tests/e2e/works-council-consultation.spec.ts)
+
 - GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the ConsultationRequest schema is registered from the `47-works-council-consultation.json` fragment
@@ -144,11 +146,15 @@ Deadline reminders on `requestedResponseDate` SHALL be declared exclusively via 
 
 #### Scenario: Rappel before the requested response date
 
+@e2e exclude a scheduled notification trigger fires from OpenRegister's cron, not from a page; declared and checked in WorksCouncilConsultationRegisterTest::testTheNotificationsAreDeclared (recorded in tests/e2e/works-council-consultation.spec.ts)
+
 - GIVEN a ConsultationRequest in `in-behandeling` whose `requestedResponseDate` is within the configured rappel window
 - WHEN the scheduled notification trigger evaluates
 - THEN the recipients receive a Nextcloud notification referencing the traject
 
 #### Scenario: Overdue rappel
+
+@e2e exclude a scheduled notification trigger, as above; WorksCouncilConsultationRegisterTest::testTheNotificationsAreDeclared checks its non-terminal filter (recorded in tests/e2e/works-council-consultation.spec.ts)
 
 - GIVEN a ConsultationRequest in a non-terminal lifecycle before `verzonden` whose `requestedResponseDate` is in the past
 - WHEN the scheduled notification trigger evaluates

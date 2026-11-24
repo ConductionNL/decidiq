@@ -65,8 +65,8 @@
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed spec THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude`
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → behandel → agendeer op overlegvergadering → stel advies vast → genereer document → verzend → registreer afwijkend besluit (opschorting zichtbaar) → afgerond passes end-to-end, and the KPI deep-links land on correctly pre-filtered indexes
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for this spec on 24 Nov: every scenario tagged in tests/e2e/works-council-consultation.spec.ts or excluded in the spec with its PHPUnit evidence)
+- [x] Test (written, runs in nightly: not run here, no live instance)
 - Written, not run (20 Nov): `tests/e2e/works-council-consultation.spec.ts` (17 scenarios tagged: the statutory walk register → in progress → consultation meeting → adopted → document → sent → dissenting decision with suspension → completed, the KPI tiles and their lists, links, conform and consent paths; the two reminder scenarios and the additive-fragment one are register contracts covered by `WorksCouncilConsultationRegisterTest`). State moves go through the object API because the detail page declares no lifecycle buttons. Running it needs a live instance.
 
 ## Quality checklist
