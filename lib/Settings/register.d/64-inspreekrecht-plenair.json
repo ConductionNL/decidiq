@@ -170,7 +170,7 @@
 					"transcriptSegment": {
 						"title": "Transcript segment",
 						"type": "string",
-						"description": "The identifier of the transcript segment where the speaker spoke, when the meeting has a transcript. Empty when it has none."
+						"description": "Where the speaker starts in the meeting's transcript: the segment's start in the recording, in seconds or as the transcript shows it (m:ss or h:mm:ss). The agenda slot links to that segment on the meeting page. Empty when the meeting has no transcript."
 					},
 					"registeredAfterDeadline": {
 						"title": "Registered after the deadline",

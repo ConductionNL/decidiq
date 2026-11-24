@@ -2056,6 +2056,8 @@ OC.L10N.register(
         "The speaking request could not be referred.": "Het inspreekverzoek kon niet worden doorverwezen.",
         "The speaking request could not be rejected.": "Het inspreekverzoek kon niet worden afgewezen.",
         "Written contribution": "Schriftelijke bijdrage",
+        "Read {name} in the transcript": "Lees {name} terug in het transcript",
+        "In the transcript at {time}": "In het transcript op {time}",
         "Processing": "Bezig",
         "Processing notes": "Toelichting op de verwerking",
         "Products": "Producten",

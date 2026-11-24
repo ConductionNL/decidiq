@@ -1851,6 +1851,8 @@ OC.L10N.register(
         "The speaking request could not be referred.": "The speaking request could not be referred.",
         "The speaking request could not be rejected.": "The speaking request could not be rejected.",
         "Written contribution": "Written contribution",
+        "Read {name} in the transcript": "Read {name} in the transcript",
+        "In the transcript at {time}": "In the transcript at {time}",
         "Power of attorney": "Power of attorney",
         "Pre-moderation (approve before counting)": "Pre-moderation (approve before counting)",
         "Preferred language for communications": "Preferred language for communications",

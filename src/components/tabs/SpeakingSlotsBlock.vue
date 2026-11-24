@@ -35,6 +35,14 @@
 					<span v-if="slot.hasContribution" class="speaking-slots__state">
 						{{ t('decidiq', 'Written contribution') }}
 					</span>
+					<router-link
+						v-if="transcriptLink(slot)"
+						class="speaking-slots__transcript"
+						data-testid="speaking-slot-transcript"
+						:to="transcriptLink(slot)"
+						:aria-label="t('decidiq', 'Read {name} in the transcript', { name: slot.speakerName || t('decidiq', 'Public speaker') })">
+						{{ t('decidiq', 'In the transcript at {time}', { time: transcriptTime(slot) }) }}
+					</router-link>
 				</li>
 			</ol>
 			<ul v-if="pending.length" class="speaking-slots__list speaking-slots__list--pending" data-testid="speaking-slots-pending">
@@ -56,6 +64,7 @@
 import { NcLoadingIcon } from '@nextcloud/vue'
 import { fetchSpeakingSlots } from '../../services/speakingRequestApi.js'
 import { slotsFor } from '../../utils/speakingRequests.js'
+import { formatOffset, segmentStart, transcriptRoute } from '../../utils/transcriptSegments.js'
 
 export default {
 	name: 'SpeakingSlotsBlock',
@@ -106,6 +115,28 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * Where the meeting's transcript shows the speaker, or null when no segment is linked.
+		 *
+		 * @param {object} slot An approved slot.
+		 * @return {object|null} A route to the meeting page at the segment.
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 */
+		transcriptLink(slot) {
+			return transcriptRoute(this.meetingId, slot?.transcriptSegment)
+		},
+
+		/**
+		 * The moment of a slot's linked segment, as the transcript shows it.
+		 *
+		 * @param {object} slot An approved slot.
+		 * @return {string} m:ss or h:mm:ss.
+		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 */
+		transcriptTime(slot) {
+			return formatOffset(segmentStart(slot?.transcriptSegment))
 		},
 
 		/**
@@ -165,6 +196,11 @@ export default {
 .speaking-slots__organisation,
 .speaking-slots__minutes {
 	color: var(--color-text-maxcontrast);
+}
+
+.speaking-slots__transcript {
+	color: var(--color-primary-element);
+	text-decoration: underline;
 }
 
 .speaking-slots__state {
