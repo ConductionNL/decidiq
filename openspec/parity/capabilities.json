@@ -6032,9 +6032,9 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "works-council-consultation",
 				"requirement": [
-					"openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-002 Statutory flow is a declarative lifecycle",
-					"openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-006 Bestuurder decision recording and art. 25 lid 6 opschortingstermijn",
-					"openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-007 Deadline tracking with declarative rappels"
+					"openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation :: REQ-WCC-002 Statutory flow is a declarative lifecycle",
+					"openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation :: REQ-WCC-006 Bestuurder decision recording and art. 25 lid 6 opschortingstermijn",
+					"openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation :: REQ-WCC-007 Deadline tracking with declarative rappels"
 				]
 			},
 			"reachedOn": "Works-council consultations index (/works-council-consultations) and detail; Works council widget on DecisionDetail",
@@ -6042,7 +6042,7 @@
 			"providerHow": "read-from-code",
 			"feature": "consultations",
 			"featureConfidence": "high",
-			"note": "The WOR trajectory is recorded with its dates and response, but the legal terms are typed in, not calculated or watched, and the lifecycle rules are declarations only. Specified in openspec/changes/works-council-consultation (OpenSpec pass 2026-09-27).",
+			"note": "The WOR trajectory is recorded with its dates and response, but the legal terms are typed in, not calculated or watched, and the lifecycle rules are declarations only. Specified in openspec/changes/archive/2026-11-24-works-council-consultation (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
