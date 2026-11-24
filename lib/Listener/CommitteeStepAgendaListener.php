@@ -85,11 +85,11 @@ class CommitteeStepAgendaListener implements IEventListener {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectCreatedEvent) === false && ($event instanceof ObjectUpdatedEvent) === false) {
-			return;
+		$entity = null;
+		if ($event instanceof ObjectCreatedEvent || $event instanceof ObjectUpdatedEvent) {
+			$entity = $event->getObject();
 		}
 
-		$entity = $event->getObject();
 		if ($entity === null) {
 			return;
 		}

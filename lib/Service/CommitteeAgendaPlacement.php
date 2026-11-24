@@ -360,6 +360,14 @@ class CommitteeAgendaPlacement {
 	 * @return string
 	 */
 	private static function ref(mixed $value): string {
-		return (WrittenRoundStore::idOf(value: $value) ?? '');
+		if (is_array($value) === true) {
+			$value = ($value['id'] ?? ($value['@self']['id'] ?? null));
+		}
+
+		if (is_string($value) === true || is_int($value) === true) {
+			return trim((string)$value);
+		}
+
+		return '';
 	}//end ref()
 }//end class
