@@ -39,7 +39,7 @@
   - GIVEN a closed session WHEN a member opens a paper from the agenda item page THEN the viewer shows the stamped PDF
   - GIVEN the same meeting WHEN a member assembles the package THEN every paper in it carries his name
 - [x] Implement (the Papers widget links a member's paper through the view; `MeetingPackageService` stamps each paper for the person who takes the package and leaves out one that cannot be stamped; unit tests in `MeetingPackageServiceTest` and `paperRenditions.spec.js`)
-- [ ] Test (Playwright reads the PDF text layer for the name)
+- [x] Test (Playwright reads the PDF text layer for the name) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): `tests/e2e/paper-watermark.spec.ts` reads the text layer with pdfjs-dist: a closed session's paper carries the reader's name, the date and the watermark text; a switched-off meeting serves the restricted item's paper unstamped; without filinq the paper is refused with 503 and no PDF; an outsider gets 404; the package a member takes holds papers stamped for that member (read back through WebDAV). The stamping tests skip without filinq and the refusal test skips with it. Running it needs a live instance.
 
 ### Task 5: Cache and sweep

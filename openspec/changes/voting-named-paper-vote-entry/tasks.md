@@ -63,5 +63,5 @@
   - GIVEN a member WHEN they view the round THEN no vote buttons show
   - Verification: Playwright on a seeded meeting, red first (no roll-call option), then green; every `NcSelect` has an `inputLabel`
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance)
   > `roll-call` option in the open dialog, cast buttons hidden and a notice shown on a roll call, "Record votes by name" for `canEnterTally`, the sheet in `src/modals/RecordedVotesModal.vue` (party control, refused members named and marked, entries kept) over `src/utils/namedVotes.js`. Unit: `tests/vitest/namedVotes.spec.js` (red on the panel before the change). The Playwright case needs a live instance and is not run in this pass.

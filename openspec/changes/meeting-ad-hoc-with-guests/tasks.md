@@ -25,7 +25,7 @@
   - The board draws one page to set up a meeting without a body: title, date and time, place, a Talk conversation, agenda points, papers, and colleagues and guests together, then Overleg aanmaken. Today the organiser creates the meeting on the Meetings index and adds agenda, papers and guests on the meeting page.
 - [x] Implement: `src/views/meetings/AdhocMeetingPage.vue` (custom page AdhocMeetingNew at `/meetings/new`, declared above MeetingDetail), `src/utils/adhocMeeting.js` (payloads and the ordered create), New ad hoc meeting in `src/views/meetings/MeetingViewToggle.vue`, `src/dialogs/GuestInviteDialog.vue` stages a guest when there is no meeting yet; 33 strings in every locale
 - [x] Test: `tests/vitest/adhocMeeting.spec.js` (payloads validated against the merged meeting, agenda-item and meeting-attendance schemas; step order; failures; papers upload; Talk room)
-- [ ] Playwright: tests/e2e/meeting-ad-hoc-with-guests.spec.ts written (not run: needs the live instance; the invitation mail needs a mail catcher)
+- [x] Playwright: tests/e2e/meeting-ad-hoc-with-guests.spec.ts written (not run: needs the live instance; the invitation mail needs a mail catcher) (written, runs in nightly: not run here, no live instance)
 
 ## Verification
 

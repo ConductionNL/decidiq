@@ -73,7 +73,7 @@
   - GIVEN the round opens WHEN the notifications are read THEN each entitled member has one linking to the decision (REQ-WRS-006); if the field recipient cannot take a list, the fallback in design D6 is used and an openregister issue is linked in the PR
   - Verification: Playwright with three seeded users: secretary opens, two answer for, third answers for, the page shows adopted; red first (no widget)
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance)
 
 ## Build notes
 

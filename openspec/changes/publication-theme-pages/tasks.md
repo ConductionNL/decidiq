@@ -10,7 +10,7 @@
   - GIVEN a decision page WHEN the griffier chooses Add to theme and picks the swimming pool theme THEN the decision appears on the theme page
   - GIVEN the manifest and modal-isolation gates WHEN run THEN they pass
 - [x] Implement
-- [ ] Test (Playwright)
+- [x] Test (Playwright) (written, runs in nightly: not run here, no live instance)
   - Written, not run (21 Nov): `tests/e2e/publication-theme-pages.spec.ts` (Add to theme from the decision page and the theme lists it; the staff timeline oldest first with the unpublished entries marked; a theme that is not public is refused when published). It seeds its own objects. Left: running it on an instance.
 
 ### Task 2: The timeline

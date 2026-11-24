@@ -73,7 +73,7 @@
   - GIVEN the seeded environment WHEN the e2e suite runs THEN plan → drag-reschedule (reason + history) → realise-with-suggestion and plan → vervallen-with-reason pass end-to-end, the cancel path issues no write, and the published item is readable anonymously while an unpublished one is not
 - **status**: `tests/e2e/planned-agenda.spec.ts`, 19 tests tagged `@e2e termijnagenda-register::<scenario>`, one per scenario; the two rappel scenarios carry a reason-bearing `@e2e exclude` (they need the cron-driven notification trigger), next to the existing static-convention exclusion. Written against the current English slugs and values (`planned-agenda-item`, `planned`/`postponed`/`realised`/`lapsed`). Listed by Playwright and lint-clean; not run: needs the live instance.
 - [x] Implement
-- [ ] Test (not run: needs the live instance)
+- [x] Test (not run: needs the live instance) (written, runs in nightly: not run here, no live instance)
 
 ## Quality checklist
 
