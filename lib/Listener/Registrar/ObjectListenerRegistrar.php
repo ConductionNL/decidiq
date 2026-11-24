@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ApprovalBasisChangeListener;
 use OCA\Decidiq\Listener\StepThresholdChangeListener;
+use OCA\Decidiq\Listener\CommitteeStepAgendaListener;
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\ConfidentialityPublishedListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
@@ -371,6 +372,7 @@ class ObjectListenerRegistrar {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
 	private function subscribeStaleApprovals(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
@@ -387,6 +389,18 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [StepThresholdChangeListener::SCHEMA]
 		);
+
+		// A committee step goes on its body's agenda and returns with the
+		// body's decision (REQ-DWP-010).
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $committeeEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $committeeEvent,
+				listener: CommitteeStepAgendaListener::class,
+				registers: null,
+				schemas: CommitteeStepAgendaListener::SCHEMAS
+			);
+		}
 	}//end subscribeStaleApprovals()
 
 	/**
