@@ -55,7 +55,7 @@ class MeetingCommandServiceTest extends TestCase {
 	 * @return MeetingCommandService The service.
 	 */
 	private function service(): MeetingCommandService {
-		$facade = $this->createMock(ObjectServiceInterface::class);
+		$facade = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$facade->method('saveObject')->willReturnCallback(
 			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface {
 				$uuid = 'meeting-' . (count($this->rows) + 1);
@@ -94,7 +94,7 @@ class MeetingCommandServiceTest extends TestCase {
 			}
 		);
 
-		return new MeetingCommandService(new RegisterObjectStore($facade));
+		return new MeetingCommandService(store: new RegisterObjectStore(objectService: $facade));
 
 	}//end service()
 
@@ -106,7 +106,7 @@ class MeetingCommandServiceTest extends TestCase {
 	 * @return ObjectEntityInterface The entity.
 	 */
 	private function entity(array $row): ObjectEntityInterface {
-		$entity = $this->createMock(ObjectEntityInterface::class);
+		$entity = $this->createMock(originalClassName: ObjectEntityInterface::class);
 		$entity->method('jsonSerialize')->willReturn($row);
 
 		return $entity;
@@ -136,16 +136,16 @@ class MeetingCommandServiceTest extends TestCase {
 			meeting: ['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00', 'location' => 'Raadzaal'],
 		);
 
-		$this->assertTrue($result['created']);
+		$this->assertTrue(condition: $result['created']);
 		$row = $this->rows[$result['id']];
-		$this->assertSame('dossiq', $row['subjectRegister']);
-		$this->assertSame('hearingSession', $row['subjectSchema']);
-		$this->assertSame('session-1', $row['subjectId']);
-		$this->assertSame('Hoorzitting', $row['title']);
-		$this->assertSame('Raadzaal', $row['location']);
-		$this->assertSame('committee', $row['meetingType']);
-		$this->assertSame('in-person', $row['meetingMode']);
-		$this->assertSame('scheduled', $row['lifecycle']);
+		$this->assertSame(expected: 'dossiq', actual: $row['subjectRegister']);
+		$this->assertSame(expected: 'hearingSession', actual: $row['subjectSchema']);
+		$this->assertSame(expected: 'session-1', actual: $row['subjectId']);
+		$this->assertSame(expected: 'Hoorzitting', actual: $row['title']);
+		$this->assertSame(expected: 'Raadzaal', actual: $row['location']);
+		$this->assertSame(expected: 'committee', actual: $row['meetingType']);
+		$this->assertSame(expected: 'in-person', actual: $row['meetingMode']);
+		$this->assertSame(expected: 'scheduled', actual: $row['lifecycle']);
 
 	}//end testANewSubjectGetsAScheduledMeetingPointingBack()
 
@@ -161,11 +161,11 @@ class MeetingCommandServiceTest extends TestCase {
 
 		$second = $service->upsert(subject: $this->subject(), meeting: ['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-17T10:00:00+01:00']);
 
-		$this->assertFalse($second['created']);
-		$this->assertSame($first['id'], $second['id']);
-		$this->assertCount(1, $this->rows);
-		$this->assertSame('2026-12-17T10:00:00+01:00', $this->rows[$first['id']]['scheduledDate']);
-		$this->assertSame('opened', $this->rows[$first['id']]['lifecycle']);
+		$this->assertFalse(condition: $second['created']);
+		$this->assertSame(expected: $first['id'], actual: $second['id']);
+		$this->assertCount(expectedCount: 1, haystack: $this->rows);
+		$this->assertSame(expected: '2026-12-17T10:00:00+01:00', actual: $this->rows[$first['id']]['scheduledDate']);
+		$this->assertSame(expected: 'opened', actual: $this->rows[$first['id']]['lifecycle']);
 
 	}//end testARepeatMovesTheOneMeetingAndKeepsItsLifecycle()
 
@@ -175,14 +175,19 @@ class MeetingCommandServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testADroppedFilterDoesNotMoveSomebodyElsesMeeting(): void {
-		$this->rows['meeting-1'] = ['id' => 'meeting-1', 'title' => 'Raadsvergadering', 'scheduledDate' => '2026-12-01T19:30:00+01:00', 'lifecycle' => 'scheduled'];
+		$this->rows['meeting-1'] = [
+			'id' => 'meeting-1',
+			'title' => 'Raadsvergadering',
+			'scheduledDate' => '2026-12-01T19:30:00+01:00',
+			'lifecycle' => 'scheduled',
+		];
 		$this->dropFilters = true;
 
 		$result = $this->service()->upsert(subject: $this->subject(), meeting: ['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00']);
 
-		$this->assertTrue($result['created']);
-		$this->assertSame('Raadsvergadering', $this->rows['meeting-1']['title']);
-		$this->assertCount(2, $this->rows);
+		$this->assertTrue(condition: $result['created']);
+		$this->assertSame(expected: 'Raadsvergadering', actual: $this->rows['meeting-1']['title']);
+		$this->assertCount(expectedCount: 2, haystack: $this->rows);
 
 	}//end testADroppedFilterDoesNotMoveSomebodyElsesMeeting()
 
@@ -197,8 +202,8 @@ class MeetingCommandServiceTest extends TestCase {
 			meeting: ['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00', 'lifecycle' => 'closed', 'subjectId' => 'other'],
 		);
 
-		$this->assertSame('scheduled', $this->rows[$result['id']]['lifecycle']);
-		$this->assertSame('session-1', $this->rows[$result['id']]['subjectId']);
+		$this->assertSame(expected: 'scheduled', actual: $this->rows[$result['id']]['lifecycle']);
+		$this->assertSame(expected: 'session-1', actual: $this->rows[$result['id']]['subjectId']);
 
 	}//end testLifecycleAndSubjectAreNotCommandable()
 
@@ -215,9 +220,9 @@ class MeetingCommandServiceTest extends TestCase {
 	public function testAnIncompleteCommandIsRefusedAndWritesNothing(array $subject, array $meeting): void {
 		try {
 			$this->service()->upsert(subject: $subject, meeting: $meeting);
-			$this->fail('The command should have been refused');
+			$this->fail(message: 'The command should have been refused');
 		} catch (RuntimeException $e) {
-			$this->assertSame([], $this->rows);
+			$this->assertSame(expected: [], actual: $this->rows);
 		}
 
 	}//end testAnIncompleteCommandIsRefusedAndWritesNothing()

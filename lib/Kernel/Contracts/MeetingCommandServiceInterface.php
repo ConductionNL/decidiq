@@ -42,8 +42,8 @@ interface MeetingCommandServiceInterface {
 	/**
 	 * Hold a meeting for a consumer's object, or update the one already held for it.
 	 *
-	 * @param array{register: string, schema: string, id: string} $subject The consumer's object.
-	 * @param array<string, mixed>                                $meeting Meeting fields; MUST carry title and scheduledDate.
+	 * @param array<string, mixed> $subject The consumer's object: register, schema, id.
+	 * @param array<string, mixed> $meeting Meeting fields; MUST carry title and scheduledDate.
 	 *
 	 * @return array{id: string, created: bool} The resolved id and whether it was minted here.
 	 *

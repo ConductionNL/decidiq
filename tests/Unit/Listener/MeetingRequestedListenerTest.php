@@ -38,13 +38,9 @@ class MeetingRequestedListenerTest extends TestCase {
 	 */
 	private function command(): MeetingRequestedEvent {
 		return new MeetingRequestedEvent(
-			'dossiq',
-			'hearingSession',
-			'session-1',
-			'Hoorzitting',
-			'2026-12-10T10:00:00+01:00',
-			['location' => 'Raadzaal'],
-			'behandelaar'
+			subject: ['register' => 'dossiq', 'schema' => 'hearingSession', 'id' => 'session-1'],
+			meeting: ['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00', 'location' => 'Raadzaal'],
+			actorId: 'behandelaar'
 		);
 
 	}//end command()
@@ -55,18 +51,19 @@ class MeetingRequestedListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheCommandIsAnsweredWithTheMeetingId(): void {
-		$service = $this->createMock(MeetingCommandServiceInterface::class);
+		$service = $this->createMock(originalClassName: MeetingCommandServiceInterface::class);
 		$service->expects($this->once())->method('upsert')->with(
 			['register' => 'dossiq', 'schema' => 'hearingSession', 'id' => 'session-1'],
-			['location' => 'Raadzaal', 'title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00'],
+			['title' => 'Hoorzitting', 'scheduledDate' => '2026-12-10T10:00:00+01:00', 'location' => 'Raadzaal'],
 		)->willReturn(['id' => 'meeting-9', 'created' => true]);
 
 		$event = $this->command();
-		(new MeetingRequestedListener($service, $this->createMock(LoggerInterface::class)))->handle($event);
+		$listener = new MeetingRequestedListener(commandService: $service, logger: $this->createMock(originalClassName: LoggerInterface::class));
+		$listener->handle(event: $event);
 
-		$this->assertTrue($event->isHandled());
-		$this->assertTrue($event->isCreated());
-		$this->assertSame('meeting-9', $event->getMeetingId());
+		$this->assertTrue(condition: $event->isHandled());
+		$this->assertTrue(condition: $event->isCreated());
+		$this->assertSame(expected: 'meeting-9', actual: $event->getMeetingId());
 
 	}//end testTheCommandIsAnsweredWithTheMeetingId()
 
@@ -76,16 +73,16 @@ class MeetingRequestedListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testARefusalLeavesTheEventUnhandledAndThrowsNothing(): void {
-		$service = $this->createMock(MeetingCommandServiceInterface::class);
+		$service = $this->createMock(originalClassName: MeetingCommandServiceInterface::class);
 		$service->method('upsert')->willThrowException(new RuntimeException('A meeting command needs a title'));
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('error');
 
 		$event = $this->command();
-		(new MeetingRequestedListener($service, $logger))->handle($event);
+		(new MeetingRequestedListener(commandService: $service, logger: $logger))->handle(event: $event);
 
-		$this->assertFalse($event->isHandled());
-		$this->assertSame('', $event->getMeetingId());
+		$this->assertFalse(condition: $event->isHandled());
+		$this->assertSame(expected: '', actual: $event->getMeetingId());
 
 	}//end testARefusalLeavesTheEventUnhandledAndThrowsNothing()
 
@@ -95,10 +92,11 @@ class MeetingRequestedListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnotherEventIsIgnored(): void {
-		$service = $this->createMock(MeetingCommandServiceInterface::class);
+		$service = $this->createMock(originalClassName: MeetingCommandServiceInterface::class);
 		$service->expects($this->never())->method('upsert');
 
-		(new MeetingRequestedListener($service, $this->createMock(LoggerInterface::class)))->handle(new Event());
+		$listener = new MeetingRequestedListener(commandService: $service, logger: $this->createMock(originalClassName: LoggerInterface::class));
+		$listener->handle(event: new Event());
 
 	}//end testAnotherEventIsIgnored()
 

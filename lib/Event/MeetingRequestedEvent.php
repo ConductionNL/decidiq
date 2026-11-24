@@ -34,60 +34,40 @@ use OCP\EventDispatcher\Event;
 /**
  * Cross-app command event: a consumer app asks Decidiq to hold a Meeting for its object.
  *
- * The request fields are immutable. The result slots (meetingId, created,
- * handled) are written by Decidiq's listener and read by the producer right
- * after the synchronous dispatch, the pattern GovernanceBodyRequestedEvent uses.
+ * Three arguments: the subject, the meeting and the actor. The answer is
+ * written by Decidiq's listener through answer() and read by the producer
+ * right after the synchronous dispatch.
  *
  * @spec openspec/specs/meeting-requested-event/spec.md
  */
 class MeetingRequestedEvent extends Event {
 
 	/**
-	 * The id of the Meeting Decidiq created or matched (result slot).
+	 * Decidiq's answer: the meeting id and whether this command minted it.
 	 *
-	 * @var string
-	 */
-	private string $meetingId = '';
-
-	/**
-	 * Whether the meeting was newly created (false when an existing one matched).
+	 * Null until the listener answers, so "not handled" needs no flag of its own.
 	 *
-	 * @var boolean
+	 * @var array{meetingId: string, created: bool}|null
 	 */
-	private bool $created = false;
-
-	/**
-	 * Whether Decidiq's listener handled this command (result slot).
-	 *
-	 * @var boolean
-	 */
-	private bool $handled = false;
+	private ?array $answer = null;
 
 	/**
 	 * Construct the command event.
 	 *
-	 * @param string               $subjectRegister Register of the producer's object
-	 * @param string               $subjectSchema   Schema of the producer's object
-	 * @param string               $subjectId       Uuid of the producer's object; with the schema the key a repeat resolves on
-	 * @param string               $title           Meeting title
-	 * @param string               $scheduledDate   ISO-8601 start
-	 * @param array<string, mixed> $attributes      Further meeting fields: endDate, location, meetingType, meetingMode,
-	 *                                              governanceBody, virtualLocation, isPublic
-	 * @param string               $actorId         Nextcloud UID on whose behalf the command runs
-	 *
-	 * @SuppressWarnings(PHPMD.ExcessiveParameterList) A PUBLISHED CROSS-APP
-	 * CONTRACT built positionally through a class-string, so the consumer stays
-	 * installable without Decidiq (see GovernanceBodyRequestedEvent).
+	 * @param array{register?: string, schema: string, id: string} $subject The producer's object the meeting
+	 *                                                                      belongs to; schema and id are the key
+	 *                                                                      a repeat resolves on.
+	 * @param array<string, mixed>                                 $meeting The meeting: title and scheduledDate,
+	 *                                                                      plus any of endDate, location,
+	 *                                                                      meetingType, meetingMode,
+	 *                                                                      governanceBody, virtualLocation, isPublic.
+	 * @param string                                               $actorId Nextcloud UID the command runs for.
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
 	public function __construct(
-		private readonly string $subjectRegister,
-		private readonly string $subjectSchema,
-		private readonly string $subjectId,
-		private readonly string $title,
-		private readonly string $scheduledDate,
-		private readonly array $attributes = [],
+		private readonly array $subject,
+		private readonly array $meeting,
 		private readonly string $actorId = '',
 	) {
 		parent::__construct();
@@ -95,81 +75,33 @@ class MeetingRequestedEvent extends Event {
 	}//end __construct()
 
 	/**
-	 * Get the register of the producer's object.
+	 * The producer's object, as given.
 	 *
-	 * @return string The register
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function getSubjectRegister(): string {
-		return $this->subjectRegister;
-
-	}//end getSubjectRegister()
-
-	/**
-	 * Get the schema of the producer's object.
-	 *
-	 * @return string The schema
+	 * @return array<string, mixed> Register, schema and id of the object
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
-	public function getSubjectSchema(): string {
-		return $this->subjectSchema;
+	public function getSubject(): array {
+		return $this->subject;
 
-	}//end getSubjectSchema()
+	}//end getSubject()
 
 	/**
-	 * Get the uuid of the producer's object.
+	 * The commanded meeting fields, as given.
 	 *
-	 * @return string The uuid
+	 * @return array<string, mixed> Title, start and further fields
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
-	public function getSubjectId(): string {
-		return $this->subjectId;
+	public function getMeeting(): array {
+		return $this->meeting;
 
-	}//end getSubjectId()
-
-	/**
-	 * Get the meeting title.
-	 *
-	 * @return string The title
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function getTitle(): string {
-		return $this->title;
-
-	}//end getTitle()
+	}//end getMeeting()
 
 	/**
-	 * Get the start.
+	 * The Nextcloud UID the command runs for.
 	 *
-	 * @return string ISO-8601 start
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function getScheduledDate(): string {
-		return $this->scheduledDate;
-
-	}//end getScheduledDate()
-
-	/**
-	 * Get the further meeting fields.
-	 *
-	 * @return array<string, mixed> The attribute map
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function getAttributes(): array {
-		return $this->attributes;
-
-	}//end getAttributes()
-
-	/**
-	 * Get the acting Nextcloud UID.
-	 *
-	 * @return string The actor id
+	 * @return string The UID, or '' for the session user
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
@@ -179,81 +111,54 @@ class MeetingRequestedEvent extends Event {
 	}//end getActorId()
 
 	/**
-	 * Get the resolved Meeting id.
+	 * Answer the command: the meeting Decidiq holds for the subject.
 	 *
-	 * @return string The id, or an empty string when unhandled
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function getMeetingId(): string {
-		return $this->meetingId;
-
-	}//end getMeetingId()
-
-	/**
-	 * Record the resolved Meeting id (result slot).
-	 *
-	 * @param string $meetingId The id Decidiq created or matched
+	 * @param string $meetingId The meeting created or matched
+	 * @param bool   $created   True when this command minted it
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
-	public function setMeetingId(string $meetingId): void {
-		$this->meetingId = $meetingId;
+	public function answer(string $meetingId, bool $created): void {
+		$this->answer = ['meetingId' => $meetingId, 'created' => $created];
 
-	}//end setMeetingId()
-
-	/**
-	 * Whether the meeting was newly created rather than matched.
-	 *
-	 * @return boolean The created flag
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function isCreated(): bool {
-		return $this->created;
-
-	}//end isCreated()
+	}//end answer()
 
 	/**
-	 * Record whether the meeting was newly created (result slot).
+	 * Whether Decidiq answered the command.
 	 *
-	 * @param boolean $created True when this command minted the meeting
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/meeting-requested-event/spec.md
-	 */
-	public function setCreated(bool $created): void {
-		$this->created = $created;
-
-	}//end setCreated()
-
-	/**
-	 * Whether Decidiq handled the command.
-	 *
-	 * @return boolean The handled flag
+	 * @return bool True once answered
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
 	public function isHandled(): bool {
-		return $this->handled;
+		return $this->answer !== null;
 
 	}//end isHandled()
 
 	/**
-	 * Record that Decidiq handled the command (result slot).
+	 * The meeting id Decidiq answered.
 	 *
-	 * @param boolean $handled True when the command was applied
-	 *
-	 * @return void
+	 * @return string The id, or '' while unanswered
 	 *
 	 * @spec openspec/specs/meeting-requested-event/spec.md
 	 */
-	public function setHandled(bool $handled): void {
-		$this->handled = $handled;
+	public function getMeetingId(): string {
+		return ($this->answer['meetingId'] ?? '');
 
-	}//end setHandled()
+	}//end getMeetingId()
+
+	/**
+	 * Whether the answered meeting was minted by this command.
+	 *
+	 * @return bool False when an existing meeting matched, or while unanswered
+	 *
+	 * @spec openspec/specs/meeting-requested-event/spec.md
+	 */
+	public function isCreated(): bool {
+		return ($this->answer['created'] ?? false);
+
+	}//end isCreated()
 
 }//end class

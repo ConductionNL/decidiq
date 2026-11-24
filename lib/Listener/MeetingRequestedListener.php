@@ -73,28 +73,16 @@ class MeetingRequestedListener implements IEventListener {
 		}
 
 		try {
-			$result = $this->commandService->upsert(
-				subject: [
-					'register' => $event->getSubjectRegister(),
-					'schema' => $event->getSubjectSchema(),
-					'id' => $event->getSubjectId(),
-				],
-				meeting: ($event->getAttributes() + [
-					'title' => $event->getTitle(),
-					'scheduledDate' => $event->getScheduledDate(),
-				]),
-			);
+			$result = $this->commandService->upsert(subject: $event->getSubject(), meeting: $event->getMeeting());
 		} catch (Throwable $e) {
 			$this->logger->error(
 				'Decidiq: MeetingRequestedEvent not handled',
-				['subjectSchema' => $event->getSubjectSchema(), 'subjectId' => $event->getSubjectId(), 'exception' => $e]
+				['subject' => $event->getSubject(), 'exception' => $e]
 			);
 			return;
 		}
 
-		$event->setMeetingId($result['id']);
-		$event->setCreated($result['created']);
-		$event->setHandled(true);
+		$event->answer(meetingId: $result['id'], created: $result['created']);
 
 	}//end handle()
 

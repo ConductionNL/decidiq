@@ -121,8 +121,8 @@ class MeetingCommandService implements MeetingCommandServiceInterface {
 	/**
 	 * Hold a meeting for a consumer's object, or update the one already held for it.
 	 *
-	 * @param array{register: string, schema: string, id: string} $subject The consumer's object.
-	 * @param array<string, mixed>                                $meeting Meeting fields; MUST carry title and scheduledDate.
+	 * @param array<string, mixed> $subject The consumer's object: register, schema, id.
+	 * @param array<string, mixed> $meeting Meeting fields; MUST carry title and scheduledDate.
 	 *
 	 * @return array{id: string, created: bool} The resolved id and whether it was minted here.
 	 *
@@ -372,12 +372,13 @@ class MeetingCommandService implements MeetingCommandServiceInterface {
 	 * @return string|null The id, or null when absent.
 	 */
 	private function idOf(array $row): ?string {
-		$id = (string)($row['id'] ?? ($row['@self']['id'] ?? ''));
-		if ($id === '') {
-			return null;
+		foreach ([($row['id'] ?? null), ($row['@self']['id'] ?? null)] as $candidate) {
+			if (is_string($candidate) === true && $candidate !== '') {
+				return $candidate;
+			}
 		}
 
-		return $id;
+		return null;
 
 	}//end idOf()
 
