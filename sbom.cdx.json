@@ -19420,8 +19420,8 @@
     {
       "type": "library",
       "name": "sass-loader",
-      "version": "17.0.1",
-      "bom-ref": "decidiq@0.1.0|sass-loader@17.0.1",
+      "version": "17.1.1",
+      "bom-ref": "decidiq@0.1.0|sass-loader@17.1.1",
       "licenses": [
         {
           "license": {
@@ -19429,15 +19429,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/sass-loader@17.0.1",
+      "purl": "pkg:npm/sass-loader@17.1.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/sass-loader/-/sass-loader-17.0.1.tgz",
+          "url": "https://registry.npmjs.org/sass-loader/-/sass-loader-17.1.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "a6024cc02b8b8d54d2216b2fff696e5515ca94279a56250672049ef1dc7de73306e21530a883059a36e1ab6f72a452df9495341b288965e2ccf622359f729800"
+              "content": "ff40ea80efb9b53b1761d6e712bb795f33db450a83fb8f5bad9f3ebca9f33932116eb80f94f24682119516aeb18008eff697f64cb1ef2ddae011860f10a1ad19"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -21813,8 +21813,8 @@
     {
       "type": "library",
       "name": "vue-eslint-parser",
-      "version": "10.4.1",
-      "bom-ref": "decidiq@0.1.0|vue-eslint-parser@10.4.1",
+      "version": "10.4.2",
+      "bom-ref": "decidiq@0.1.0|vue-eslint-parser@10.4.2",
       "licenses": [
         {
           "license": {
@@ -21822,15 +21822,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/vue-eslint-parser@10.4.1",
+      "purl": "pkg:npm/vue-eslint-parser@10.4.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/vue-eslint-parser/-/vue-eslint-parser-10.4.1.tgz",
+          "url": "https://registry.npmjs.org/vue-eslint-parser/-/vue-eslint-parser-10.4.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "1a4ea04438f49ff7e445adc2de5d1b0617a805c914abf46cd05fd3bcc5884ba9f3cf1ebb6a601588c7bd0a4360b0fdad5f240e36f1a21d01121f016d6776980c"
+              "content": "58ca73ba56f9d246fab27821ce81b34befbadb070eb33024fe9898727bf3752b4cf169e2fc19a881896da68385bf678af610db5f1bf0150827c191a902851fa4"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
