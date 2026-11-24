@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: Declare the meeting dates for the feed
-- **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-001-a-meetings-dates-reach-openregisters-calendar-feed`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-001-a-meetings-dates-reach-openregisters-calendar-feed`
 - **files**: `lib/Settings/register.d/92-meeting-calendar-feed.json` (`Meeting.configuration.calendarProvider`)
 - **acceptance_criteria**:
   - GIVEN the fragment imported on the dev instance WHEN a token is minted over `meeting` and the feed read THEN the seeded meetings appear as VEVENTs with start, end and location (Newman, red before the fragment and green after)
@@ -13,7 +13,7 @@
   - Newman written: `tests/integration/decidiq-microsoft-365.postman_collection.json` folder 1 (feed holds the meeting with start, end and location; after a move only the new date). Not run live from the build session.
 
 ### Task 2: Remove the dead calendar call
-- **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-002-publishing-an-agenda-makes-no-calendar-call`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-002-publishing-an-agenda-makes-no-calendar-call`
 - **files**: `lib/Service/AgendaService.php`, `tests/Unit/Service/AgendaServiceTest.php`, `tests/Stubs/OpenRegisterServices.php` (drop the stub if nothing else needs it)
 - **acceptance_criteria**:
   - GIVEN the tree WHEN `git grep updateMeetingEvent lib` runs THEN no hit
@@ -23,7 +23,7 @@
 - [x] Test
 
 ### Task 3: The calendar subscription section
-- **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings`
 - **files**: `src/components/userSettings/CalendarSubscriptionSection.vue`, `src/views/settings/UserSettingsPage.vue`, `tests/e2e/calendar-subscription.spec.ts`
 - **acceptance_criteria**:
   - GIVEN a member WHEN they subscribe THEN an `.ics` address and the Outlook line show (Playwright)
@@ -33,7 +33,7 @@
   - Playwright written: `tests/e2e/calendar-subscription.spec.ts` (subscribe, the address answers without a session, stop, the address answers 404), as a member the spec creates. Not run live from the build session.
 
 ### Task 4: The Teams field and the create action
-- **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting`
 - **files**: `lib/Settings/register.d/92-meeting-calendar-feed.json` (`Meeting.teamsMeeting` with the `joinUrl` pattern), `lib/Settings/connections.json` (`microsoft-365`), `lib/Service/TeamsMeetingService.php`, `lib/Controller/TeamsMeetingController.php`, `appinfo/routes.php`, `src/manifest.json` (Planning widget includes `teamsMeeting`), `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN a stubbed integriq call WHEN create runs THEN `teamsMeeting` holds join address, id, author and time (PHPUnit, red then green)
@@ -45,7 +45,7 @@
   - PHPUnit `tests/Unit/Service/TeamsMeetingServiceTest.php` (join address, id, author and time stored; in-person, second, non-Teams answer and no connection refused). Newman folder 2 of `decidiq-microsoft-365.postman_collection.json` (403 for a non-staff member, a non-Teams address refused). Not run live from the build session.
 
 ### Task 5: Join from the meeting and the live meeting page
-- **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq`
 - **files**: `src/views/LiveMeeting.vue`, `tests/e2e/calendar-subscription.spec.ts`
 - **acceptance_criteria**:
   - GIVEN the seeded digital meeting WHEN the live page opens THEN "Join in Microsoft Teams" links to the join address in a new tab (Playwright)

@@ -388,7 +388,7 @@ export default {
 		 * The Teams join address of the meeting, or '' (platform-microsoft-365-calendar-and-teams).
 		 *
 		 * @return {string} The join address.
-		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
+		 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
 		 */
 		teamsJoinUrl() {
 			return teamsJoinUrl(this.meeting)

@@ -9,7 +9,7 @@
  * to OpenRegister's API (`/api/calendar-feeds`); decidiq adds no route.
  * Pure helpers, so the section stays thin and vitest covers the rules.
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 import { generateUrl } from '@nextcloud/router'
 
@@ -24,7 +24,7 @@ export const FEED_LABEL = 'decidiq meetings'
  *
  * @param {number|string} [id] The token row id, to revoke it.
  * @return {string} The URL.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 export function feedsUrl(id = '') {
 	const tail = id === '' ? '' : `/${encodeURIComponent(String(id))}`
@@ -36,7 +36,7 @@ export function feedsUrl(id = '') {
  *
  * @param {string} register The register slug.
  * @return {string} The URL.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 export function registerUrl(register) {
 	return generateUrl(
@@ -50,7 +50,7 @@ export function registerUrl(register) {
  * @param {object|null} register The register, its `schemas` expanded to objects.
  * @param {string} [slug] The schema slug.
  * @return {string} The schema id, or '' when the register has no such schema.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 export function schemaIdOf(register, slug = MEETING_SCHEMA) {
 	const schemas = Array.isArray(register?.schemas) ? register.schemas : []
@@ -70,7 +70,7 @@ export function schemaIdOf(register, slug = MEETING_SCHEMA) {
  *
  * @param {string} schemaId The meeting schema id.
  * @return {object} The body for POST /api/calendar-feeds.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 export function mintBody(schemaId) {
 	return { scopeType: 'schema', scopeId: String(schemaId), label: FEED_LABEL }
@@ -82,7 +82,7 @@ export function mintBody(schemaId) {
  * @param {Array<object>} tokens The tokens OpenRegister lists for the member.
  * @param {string} schemaId The meeting schema id.
  * @return {Array<object>} The subscriptions.
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings
  */
 export function meetingFeeds(tokens, schemaId) {
 	if (!Array.isArray(tokens) || schemaId === '') {

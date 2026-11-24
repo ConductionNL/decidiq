@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+ * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -37,7 +37,7 @@ use Throwable;
  * and sends nothing when nothing the room shows changed. Objects are read in
  * system context: the change was already allowed when it was saved.
  *
- * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+ * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
  */
 class RoomSystemFeed {
 
@@ -54,7 +54,7 @@ class RoomSystemFeed {
 	 * @param ObjectServiceInterface $objects OpenRegister objects.
 	 * @param RoomSystemClient       $client  Sends to the linked room system.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objects,
@@ -70,7 +70,7 @@ class RoomSystemFeed {
 	 *
 	 * @return bool Whether a message was sent.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
 	 */
 	public function agendaChanged(array $meeting, array $old): bool {
 		$published = self::isBlank(value: $meeting['agendaPublishedAt'] ?? null) === false;
@@ -93,7 +93,7 @@ class RoomSystemFeed {
 	 *
 	 * @return bool Whether a message was sent.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
 	 */
 	public function roundClosed(array $round, array $old): bool {
 		if (self::isBlank(value: $round['closedAt'] ?? null) === true || self::isBlank(value: $old['closedAt'] ?? null) === false) {
@@ -115,7 +115,7 @@ class RoomSystemFeed {
 	 *
 	 * @return bool Whether a message was sent.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results
 	 */
 	public function speakersChanged(array $record, array $old): bool {
 		$meetingId = (string)($record['meeting'] ?? '');

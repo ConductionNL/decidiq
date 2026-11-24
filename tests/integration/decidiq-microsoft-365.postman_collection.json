@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "d3c1a9e2-7f40-4b1c-9e65-202611170365",
     "name": "Decidiq Microsoft 365 calendar and Teams (platform-microsoft-365-calendar-and-teams)",
-    "description": "Contract tests for REQ-M365-001 and REQ-M365-004: a meeting's dates reach OpenRegister's calendar feed and a moved meeting shows only its new date; the Teams create route refuses a non-staff member; OpenRegister refuses a join address that is not a Teams address. Auth model as decidiq-admin-settings: collection-level noauth, per-request basic auth, a temporary non-staff account. Idempotent: seeds and tears down its own meeting, feed token and account. @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md",
+    "description": "Contract tests for REQ-M365-001 and REQ-M365-004: a meeting's dates reach OpenRegister's calendar feed and a moved meeting shows only its new date; the Teams create route refuses a non-staff member; OpenRegister refuses a join address that is not a Teams address. Auth model as decidiq-admin-settings: collection-level noauth, per-request basic auth, a temporary non-staff account. Idempotent: seeds and tears down its own meeting, feed token and account. @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
