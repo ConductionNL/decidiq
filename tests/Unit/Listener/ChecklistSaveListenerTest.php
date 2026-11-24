@@ -77,7 +77,8 @@ final class ChecklistSaveListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnOpenMandatoryStepKeepsTheRecordFromCompleting(): void {
-		$event = new ObjectUpdatingEvent($this->entity(row: self::onboarding(changes: ['lifecycle' => 'completed'])), $this->entity(row: self::onboarding()));
+		$completing = $this->entity(row: self::onboarding(changes: ['lifecycle' => 'completed']));
+		$event      = new ObjectUpdatingEvent($completing, $this->entity(row: self::onboarding()));
 
 		(new ChecklistSaveListener())->handle(event: $event);
 

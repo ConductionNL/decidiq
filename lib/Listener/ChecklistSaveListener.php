@@ -87,8 +87,12 @@ class ChecklistSaveListener implements IEventListener {
 		}
 
 		if ($event instanceof ObjectUpdatingEvent) {
-			$stored = $event->getOldObject()?->getObject();
-			$this->check(event: $event, record: (array)$event->getNewObject()->getObject(), stored: ($stored === null ? null : (array)$stored));
+			$stored = null;
+			if ($event->getOldObject() !== null) {
+				$stored = (array)$event->getOldObject()->getObject();
+			}
+
+			$this->check(event: $event, record: (array)$event->getNewObject()->getObject(), stored: $stored);
 		}
 	}//end handle()
 
