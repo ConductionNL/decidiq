@@ -7,7 +7,7 @@
  goes through its own dialog and saves the whole commitment; OpenRegister's
  access rules decide who may save, anyone else gets the refusal as a message.
 
- @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
 -->
 <template>
 	<div class="decidiq-tab" data-testid="commitment-publication-tab">
@@ -81,7 +81,7 @@ export default {
 	name: 'CommitmentPublicationTab',
 	components: { CommitmentPublicationDialog, CommitmentSettlementDialog, NcButton },
 
-	/** @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
+	/** @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
 	mixins: [objectIdLoader],
 
 	data() {
@@ -94,12 +94,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
+		/** @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
 		state() {
 			return publicationState(this.commitment)
 		},
 
-		/** @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
+		/** @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate */
 		stateLabel() {
 			switch (this.state) {
 			case 'published':
@@ -113,7 +113,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states */
+		/** @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states */
 		settleable() {
 			return canSettle(this.commitment)
 		},
@@ -123,7 +123,7 @@ export default {
 		/**
 		 * Read the commitment.
 		 *
-		 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+		 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
 		 */
 		async load() {
 			this.commitment = null
@@ -143,7 +143,7 @@ export default {
 		 *
 		 * @param {'publish'|'withdraw'|'settle'} action The confirmed action
 		 * @param {{note: string, evidence: string}} [settlement] The settlement, for settle
-		 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+		 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
 		 */
 		async save(action, settlement) {
 			if (!this.commitment) return

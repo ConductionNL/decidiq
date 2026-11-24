@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Register and seed tests for toezeggingen-ingekomen-stukken tasks 1 and 2.
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/tasks.md#task-1-register-fragment--toezegging--ingekomenstuk-schemas-with-declarative-dialects
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/tasks.md#task-1-register-fragment--toezegging--ingekomenstuk-schemas-with-declarative-dialects
  */
 class CommitmentsRegisterTest extends TestCase {
 
@@ -41,7 +41,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-001-toezegging-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-001-toezegging-schema-on-openregister
 	 */
 	public function testTheCommitmentCarriesItsFields(): void {
 		$schema     = MergedRegisterSchema::forSlug(slug: self::SLUG);
@@ -80,7 +80,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
 	 */
 	public function testTheLifecycleIsDeclaredInTheCanonicalDialect(): void {
 		$schema    = MergedRegisterSchema::forSlug(slug: self::SLUG);
@@ -110,7 +110,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-004-deadline-rappels-are-declarative-notifications
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-004-deadline-rappels-are-declarative-notifications
 	 */
 	public function testTheNotificationsAreDeclared(): void {
 		$rules = MergedRegisterSchema::forSlug(slug: self::SLUG)['x-openregister-notifications'];
@@ -151,7 +151,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
 	 */
 	public function testThePublicReadsOnlyPublishedCommitments(): void {
 		$read = MergedRegisterSchema::forSlug(slug: self::SLUG)['authorization']['read'];
@@ -171,7 +171,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-001-ingekomenstuk-schema-on-openregister
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-the-superseded-schemas-are-kept-not-deleted
 	 */
 	public function testTheIncomingDocumentSchemaIsRetired(): void {
 		$schema = MergedRegisterSchema::forSlug(slug: 'ingekomen-stuk');
@@ -188,7 +188,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/tasks.md#task-2-seed-data--realistic-dutch-municipal-objects-for-both-schemas
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/tasks.md#task-2-seed-data--realistic-dutch-municipal-objects-for-both-schemas
 	 */
 	public function testTheExampleSetSeedsEachKindOfCommitment(): void {
 		$seeds = self::seededCommitments();

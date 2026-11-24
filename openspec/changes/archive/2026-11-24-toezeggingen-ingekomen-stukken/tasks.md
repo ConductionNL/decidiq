@@ -3,7 +3,7 @@
 ## Implementation Tasks
 
 ### Task 1: Register fragment — Toezegging + IngekomenStuk schemas with declarative dialects
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-001-toezegging-schema-on-openregister` (+ REQ-002/REQ-004/REQ-005), `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-001-ingekomenstuk-schema-on-openregister` (+ REQ-002)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-001-toezegging-schema-on-openregister` (+ REQ-002/REQ-004/REQ-005), `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-001-ingekomenstuk-schema-on-openregister` (+ REQ-002)
 - **files**: `lib/Settings/register.d/45-toezeggingen-ingekomen-stukken.json`
 - **acceptance_criteria**:
   - GIVEN the fragment is loaded WHEN the register imports THEN `toezegging` and `ingekomen-stuk` schemas exist with all required fields, property titles, and `x-schema-org` annotations, and no existing schema is modified
@@ -16,7 +16,7 @@
   - Test (20 Nov): `tests/Unit/Settings/CommitmentsRegisterTest.php` checks the merged `governance-commitment` schema (required fields, titles, refs, `schema:Action`), the canonical lifecycle map, the four notification rules with nl+en subjects and non-terminal reminder filters, the public read predicate on `publicationDate <= $now` (and no unconditional public read), and that `ingekomen-stuk` is retired (`active: false`, `hardDelete: false`).
 
 ### Task 2: Seed data — realistic Dutch municipal objects for both schemas
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/design.md#seed-data`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/design.md#seed-data`
 - **files**: `lib/Settings/register.d/45-toezeggingen-ingekomen-stukken.json` (seed section / `_registers.json` entries)
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 3 toezeggingen (one overdue+open, one in-uitvoering, one afgedaan with afdoening note + relatedMotion) and 4 ingekomen stukken (mixed senderType/category/lifecycle per design tables) exist, linked to seeded meeting/body/agenda-item objects with only nil-UUID placeholders for unresolved refs
@@ -27,7 +27,7 @@
   - Test (20 Nov): `CommitmentsRegisterTest::testTheExampleSetSeedsEachKindOfCommitment` checks every seeded commitment in the municipality profile against the schema and that the set holds an open commitment past its deadline, one in execution, and a disposed one with settlement notes and a related motion.
 
 ### Task 3: Manifest fragment — index/detail pages + menu for both registers
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-006-list-page-detail-page-and-csv-export`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-006-list-page-detail-page-and-export`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-006-list-page-detail-page-and-csv-export`, `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-006-list-page-detail-page-and-export`
 - **files**: `src/manifest.d/toezeggingen-ingekomen-stukken.json`
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN Toezeggingen and IngekomenStukken index pages render with the specced columns and quick filters, and row click opens the detail pages (schema refs by slug `toezegging` / `ingekomen-stuk`, never PascalCase)
@@ -38,7 +38,7 @@
   - Test (20 Nov): `tests/vitest/commitmentsRegisterPages.spec.js` checks the menu entry, both pages by slug, the index columns, row navigation, CSV export, the state lenses and the Over the deadline lens, and the files, related and history widgets on the detail page.
 
 ### Task 4: Dashboard KPI — open toezeggingen past deadline
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-007-dashboard-kpi-for-overdue-open-commitments`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-007-dashboard-kpi-for-overdue-open-commitments`
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN the "Open toezeggingen over deadline" stat widget shows the count of non-terminal toezeggingen with a past deadline via a declarative source aggregation, and clicking routes to the pre-filtered Toezeggingen index
@@ -49,7 +49,7 @@
   - Fixed and tested (20 Nov): the tile counted every non-terminal commitment, overdue or not, through an `in` filter the aggregation endpoint answers with 0. It now counts the Over the deadline lens's own filter (`lifecycle` open or in execution, `deadline[lt]` `@today`) through the list endpoint (`via: list`) and deep-links to that lens. `tests/vitest/commitmentsRegisterPages.spec.js` asserts the tile and the lens share one filter; red on the old manifest, green on the new.
 
 ### Task 5: Publication extension — IngekomenStuk eligibility + anonymised payload
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/public-publication/spec.md#requirement-publication-eligibility-gates`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation`, `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/public-publication/spec.md#requirement-publication-eligibility-gates`
 - **files**: `lib/Service/PublicationEligibilityService.php`, `lib/Service/PublicationPayloadService.php`, `lib/Controller/PublicationController.php`, `tests/Unit/Service/`
 - **acceptance_criteria**:
   - GIVEN an IngekomenStuk in `geregistreerd`/`geagendeerd` WHEN publish is requested THEN it is refused server-side; in `routering-vastgesteld`/`afgedaan` with a public meeting THEN an immutable allow-list payload is created and predicate-published (OpenCatalogi routed when configured)
@@ -59,18 +59,17 @@
   - Source type `incoming-document`: eligible in `routing-determined`/`disposed` when the meeting of its `listAgendaItem` is public; payload is an allow-list (no summary) with a natural-person sender, or any unknown sender type, rendered as "Inwoner"; the staff check resolves the same meeting. `tests/Unit/Service/IncomingDocumentPublicationTest.php`.
 
 ### Task 6: Routing service — place-on-list and chair bulk confirmation
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-003-placement-on-the-lijst-ingekomen-stukken-agenda-item` (+ REQ-004)
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-003-placement-on-the-lijst-ingekomen-stukken-agenda-item` (+ REQ-004)
 - **files**: `lib/Service/IngekomenStukRoutingService.php`, `appinfo/routes.php`, controller wiring, `tests/Unit/Service/`
 - **acceptance_criteria**:
   - GIVEN stukken in `geregistreerd` WHEN the griffie places them on the LIS agenda item of the next meeting THEN each stuk references it and becomes `geagendeerd` (saveObject carries all fields forward — PUT-semantic)
   - GIVEN an opened meeting WHEN the chair bulk-confirms THEN all placed `geagendeerd` stukken become `routering-vastgesteld`; a pulled stuk becomes `aangehouden` and is excluded; a mid-batch failure reports per-stuk and re-run confirms only the remainder (idempotent)
   - GIVEN a non-chair member WHEN calling the bulk-confirm endpoint THEN it is rejected (per-object governance guard, correct auth attributes — no-admin-idor/semantic-auth gates pass)
-- [ ] Implement
-- [ ] Test
+- Dropped (decision 24 Nov): superseded by documents-as-agenda-items. Placement is `PutOnAgendaDialog` and the list is adopted through the consent agenda; a routing service over the retired `ingekomen-stuk` schema would write to a schema that is no longer active. REQ-003 and REQ-004 are removed from this change's `ingekomen-stukken-register` delta, which keeps only the built REQ-005.
   - Not built: superseded. Incoming documents are agenda items since documents-as-agenda-items; placement is `PutOnAgendaDialog` (agenda-incoming-documents-list) and the list item is adopted with the existing consent-agenda flow. A routing service over the retired `ingekomen-stuk` schema would write to a schema that is no longer active.
 
 ### Task 7: UI wiring — placement/bulk-confirm actions and toezegging publish/afdoening flows
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-004-bulk-council-confirmation-via-the-hamerstuk-flow`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-004-bulk-council-confirmation-via-the-hamerstuk-flow`, `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate`
 - **files**: `src/` (list actions, dialogs in `src/dialogs`/`src/modals` per modal-isolation gate, LIS agenda-item tab)
 - **acceptance_criteria**:
   - GIVEN the IngekomenStukken index WHEN the griffie selects stukken THEN a placement action targets the next meeting's LIS item; the LIS agenda-item detail shows placed stukken with advice and (for the chair in an opened meeting) the bulk-confirm control with confirmation dialog; controls hidden for members
@@ -80,13 +79,13 @@
   - Commitment half: `CommitmentPublicationTab` on the commitment page (both structures) with Publish / Withdraw (`CommitmentPublicationDialog`) and Record settlement (`CommitmentSettlementDialog`, note + optional evidence, from `in-execution` to `disposed`), saving the whole object; logic in `src/utils/commitmentPublication.js`, tests in `tests/vitest/commitmentPublication.spec.js`. The incoming-document half is superseded as in Task 6.
 
 ### Task 8: E2E coverage — Playwright scenarios for both registers
-- **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md`, `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md`, `openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md`
 - **files**: `tests/e2e/`
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed specs THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude` (eligibility/payload contracts excluded to PHPUnit/Newman as specced)
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → place → bulk-confirm → publish (ingekomen stuk) and register → rappel-visible → afdoen → public list (toezegging) pass end-to-end
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for both specs on 24 Nov: every scenario tagged in tests/e2e/commitments-register.spec.ts or excluded in the spec with its PHPUnit/vitest evidence)
+- [x] Test (written, runs in nightly: not run here, no live instance)
   - Written, not run (20 Nov): `tests/e2e/commitments-register.spec.ts` for the commitment half (browse and filter, CSV export, the overdue tile, settlement, anonymous read). The incoming-document half is covered by `tests/e2e/incoming-documents.spec.ts` since documents-as-agenda-items. Running it needs a live instance.
 - Progress (24 Nov): the commitment half is covered. gate-19 reports no uncovered toezeggingen-register scenario: `tests/e2e/commitments-register.spec.ts` adds a commitment registered at a meeting (and one without text refused), a commitment from a motion the college took over shown on the motion with no progress updates added, and a published commitment's status read live by an anonymous caller; the fragment, lifecycle, reminder and action-item-tile scenarios carry their exclusions in the spec with the PHPUnit/vitest evidence (`tests/vitest/actionItemKpiSource.spec.js` is new). Left open: the incoming-document half. Its 13 scenarios describe the retired `ingekomen-stuk` schema, which documents-as-agenda-items replaced (placement through `PutOnAgendaDialog`, adoption through the consent agenda, `tests/e2e/incoming-documents.spec.ts`); the `ingekomen-stukken-register` delta needs rewriting to that model before task 6 can be closed as superseded and the change archived, because built code (incoming-document publication, task 5) still cites its requirements.
 

@@ -5506,8 +5506,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "toezeggingen-ingekomen-stukken",
 				"requirement": [
-					"openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-001 Toezegging schema on OpenRegister",
-					"openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-002 Lifecycle is declarative with four states"
+					"openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-001 Toezegging schema on OpenRegister",
+					"openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-002 Lifecycle is declarative with four states"
 				]
 			},
 			"reachedOn": "Commitments index (/commitments) and CommitmentDetail (/commitments/:id); Commitments widget on DecisionDetail",

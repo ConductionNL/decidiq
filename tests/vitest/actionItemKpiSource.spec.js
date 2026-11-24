@@ -5,7 +5,7 @@
  * The open action items tile counts action items only: a commitment is its own
  * register and never enters it (toezeggingen-register, action-item KPI unaffected).
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-003-toezegging-is-not-an-action-item-and-not-motion-execution-tracking
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-003-toezegging-is-not-an-action-item-and-not-motion-execution-tracking
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
