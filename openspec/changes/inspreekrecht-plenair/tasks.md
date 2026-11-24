@@ -77,9 +77,10 @@
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed specs THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude` (contract scenarios excluded to PHPUnit/Newman as specced)
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → moderate (approve with spreektijd / reject with reason / refer) → agenda slot renders → queue preload → mark gesproken → status flows back → attach bijdrage passes end-to-end, plus the ALV meeting-level path and the deadline-refusal path
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for both specs on 24 Nov: every scenario tagged or excluded with its PHPUnit evidence)
+- [x] Test (written, runs in nightly: not run here, no live instance)
 - Written, not run (20 Nov): `tests/e2e/inspreekrecht-plenair.spec.ts` (15 scenarios tagged across inspraak-register and inspraak-agenda-live: register, refusals, override, approve, reject with reason, refer, written contribution, slots, meeting-level block, public count, queue preload, spoke, no-show, pending approvals). `transcript-segment-linked` has no UI (the agenda slot shows no transcript link) and stays uncovered. Running it needs a live instance.
+- Built (24 Nov): the transcript link. Decision: a transcript segment has no id, so `transcriptSegment` holds the segment's start in the recording, in seconds or as the transcript shows it (m:ss, h:mm:ss). The agenda slot links to the meeting page at `#transcript-segment-<seconds>` (`src/utils/transcriptSegments.js`, `SpeakingSlotsBlock`); the transcript shows each segment's start, carries that anchor, highlights it, scrolls to it and plays from it (`MeetingTranscriptionTab`). Tests: `tests/vitest/transcriptSegments.spec.js` (6) and the `transcript-segment-linked` case in `tests/e2e/inspreekrecht-plenair.spec.ts` (written, runs in nightly).
 
 ## Verification
 

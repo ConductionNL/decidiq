@@ -42,8 +42,6 @@
  * - the overview sorts by creation (`sortKey: @self.created`), not by meeting
  *   date, so "the ALV registration first" in pending-approvals-across-meetings
  *   is not asserted; the deadline warnings are;
- * - the agenda slot shows no deeplink to a linked transcript segment, so
- *   transcript-segment-linked has no UI to drive;
  * - the queue does not display an entry's time limit, so the preloaded limits
  *   are read from the queue endpoint the panel preloads from.
  *
@@ -71,7 +69,6 @@ import {
 // @e2e exclude inspraak-register::single-canonical-definition-no-duplicate-in-the-commissie-register — cross-change register contract, tests/Unit/Settings/SpeakingRequestRegisterTest.php::testBothSchemasAreDeclaredOnceWithTitles
 // @e2e exclude inspraak-register::citizen-field-groups-frozen-after-approval — authorization contract, tests/Unit/Settings/SpeakingRequestRegisterTest.php::testTheCitizensFieldsFreezeAtApproval
 // @e2e exclude inspraak-register::invalid-transition-rejected-declaratively — lifecycle-map contract, tests/Unit/Settings/SpeakingRequestRegisterTest.php::testTheLifecycleIsTheSpeccedMap
-// @e2e exclude inspraak-register::transcript-segment-linked — no UI: the agenda slot (SpeakingSlotsBlock) renders no transcript deeplink; the stored reference is asserted by tests/Unit/Service/SpeakingSlotsTest.php
 // @e2e exclude inspraak-agenda-live::first-name-only-projection — payload contract, tests/Unit/Service/SpeakingSlotsTest.php::testThePublicProjectionIsAnAllowList
 // @e2e exclude inspraak-agenda-live::declarative-notification-on-registration — notification-dialect contract, tests/Unit/Settings/SpeakingRequestRegisterTest.php::testNotificationsAreDeclaredInBothLanguages
 
@@ -848,6 +845,73 @@ test('the secretariat attaches the written contribution and the agenda item show
 		.filter({ hasText: 'Mw. Jansen' })
 	await expect(slot).toContainText('Written contribution')
 	await expect(slot).toContainText('Spoke')
+})
+
+// @e2e inspraak-register::transcript-segment-linked
+test('the secretariat links the transcript segment and the agenda slot opens the transcript there', async ({
+	page,
+}) => {
+	const meeting = await seedMeeting(page, raadBody, 'raad-transcript', 7 * 24)
+	const item = await seedItem(page, meeting.id, 'transcript-punt')
+	const id = await registered(page, {
+		meeting: meeting.id,
+		agendaItem: item.id,
+		topic: topic('Mw. Jansen', 'Herinrichting dorpsplein'),
+	})
+	await approve(page, id, 5, 1)
+	const spoke = await post(page, `speaking-requests/${id}/outcome`, {
+		outcome: 'spoke',
+	})
+	expect(spoke.status(), await spoke.text()).toBe(200)
+
+	// The meeting's transcript: the public speaker starts at 12:34 in the recording.
+	await createObject(page, ledger, 'transcript', {
+		title: `${tag} transcript`,
+		meeting: meeting.id,
+		status: 'done',
+		segments: [
+			{ startTime: 600, endTime: 754, speakerLabel: 'Speaker 1', agendaItem: item.id, text: 'Ik geef het woord aan de inspreker.' },
+			{ startTime: 754.4, endTime: 1054, speakerLabel: 'Speaker 2', agendaItem: item.id, text: 'Houd het dorpsplein autovrij op marktdagen.' },
+		],
+	})
+
+	// The secretariat links the segment as the transcript shows its start.
+	await page.goto(`${APP}/speaking-requests/${id}`)
+	await page.getByTestId('cn-detail-page-edit').click()
+	const dialog = page.getByRole('dialog')
+	await expect(dialog).toBeVisible()
+	await dialog.getByLabel('Transcript segment').fill('12:34')
+	await dialog.getByRole('button', { name: /Save|Update/ }).click()
+	await expect(dialog).toBeHidden()
+	expect((await getObject(page, 'speaking-request', id))?.transcriptSegment).toBe('12:34')
+
+	// The agenda item's speaker entry offers the deeplink.
+	await page.goto(`${APP}/agenda-items/${item.id}`)
+	const link = page
+		.getByTestId('agenda-item-speakers')
+		.getByTestId('speaking-slots-approved')
+		.locator('li')
+		.filter({ hasText: 'Mw. Jansen' })
+		.getByTestId('speaking-slot-transcript')
+	await expect(link).toHaveText(/12:34/)
+	await expect(link).toHaveAttribute('href', new RegExp(`/meetings/${meeting.id}#transcript-segment-754$`))
+
+	// Following it lands on that segment in the meeting's transcript.
+	await link.click()
+	await expect(page).toHaveURL(/#transcript-segment-754$/)
+	const segment = page.locator('#transcript-segment-754')
+	await expect(segment).toBeVisible()
+	await expect(segment).toContainText('Houd het dorpsplein autovrij op marktdagen.')
+	await expect(segment).toContainText('12:34')
+
+	// No contact details appear in the public rendering.
+	const publicSlots = await page.request.get(`${APP}/api/meetings/${meeting.id}/speaking-slots/public`, {
+		headers: { Accept: 'application/json' },
+	})
+	expect(publicSlots.ok()).toBe(true)
+	const raw = await publicSlots.text()
+	expect(raw).not.toContain('example.org')
+	expect(raw).not.toContain('contactDetails')
 })
 
 // ── The secretariat overview (REQ-INS-010) ───────────────────────────────────
