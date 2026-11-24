@@ -88,6 +88,7 @@
 - [ ] Implement
 - [ ] Test
   - Written, not run (20 Nov): `tests/e2e/commitments-register.spec.ts` for the commitment half (browse and filter, CSV export, the overdue tile, settlement, anonymous read). The incoming-document half is covered by `tests/e2e/incoming-documents.spec.ts` since documents-as-agenda-items. Running it needs a live instance.
+- Progress (24 Nov): the commitment half is covered. gate-19 reports no uncovered toezeggingen-register scenario: `tests/e2e/commitments-register.spec.ts` adds a commitment registered at a meeting (and one without text refused), a commitment from a motion the college took over shown on the motion with no progress updates added, and a published commitment's status read live by an anonymous caller; the fragment, lifecycle, reminder and action-item-tile scenarios carry their exclusions in the spec with the PHPUnit/vitest evidence (`tests/vitest/actionItemKpiSource.spec.js` is new). Left open: the incoming-document half. Its 13 scenarios describe the retired `ingekomen-stuk` schema, which documents-as-agenda-items replaced (placement through `PutOnAgendaDialog`, adoption through the consent agenda, `tests/e2e/incoming-documents.spec.ts`); the `ingekomen-stukken-register` delta needs rewriting to that model before task 6 can be closed as superseded and the change archived, because built code (incoming-document publication, task 5) still cites its requirements.
 
 ## Quality checklist
 

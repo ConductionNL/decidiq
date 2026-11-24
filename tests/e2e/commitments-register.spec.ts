@@ -18,11 +18,46 @@
  *
  * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md
  */
+import type { Page } from '@playwright/test'
+
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 import { openRow } from './support/open-row.ts'
+import { cleanupAll, createObject, getObject, newLedger, writeHeaders } from './workflows/governance-fixture.ts'
 
 const OVERDUE = 'wachtlijsten jeugdzorg'
+const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
+const ledger = newLedger()
+const tag = `e2e-${ledger.runId}`
+const idOf = (o: Record<string, any>): string => String(o.id ?? o['@self']?.id ?? '')
+
+test.afterAll(async ({ browser }) => {
+	const page = await browser.newPage()
+	await cleanupAll(page, ledger)
+	await page.close()
+})
+
+/**
+ * A council, a person who speaks for the college, an opened meeting and an item on it.
+ *
+ * @param page The page whose session seeds them.
+ * @return The ids.
+ */
+async function meetingWithItem(page: Page): Promise<Record<string, string>> {
+	const body = idOf(await createObject(page, ledger, 'governance-body', { name: `${tag} raad`, bodyType: 'legislative' }))
+	const alderman = idOf(await createObject(page, ledger, 'person', { name: `${tag} wethouder De Vries` }))
+	const meeting = idOf(await createObject(page, ledger, 'meeting', {
+		title: `${tag} raadsvergadering`,
+		meetingType: 'regular',
+		meetingMode: 'in-person',
+		scheduledDate: '2026-11-26T19:30:00Z',
+		governanceBody: body,
+		lifecycle: 'opened',
+	}))
+	const item = idOf(await createObject(page, ledger, 'agenda-item', { title: `${tag} kadernota`, meeting }))
+	return { body, alderman, meeting, item }
+}
+
 const IN_EXECUTION = 'schouw van het Marktplein'
 
 // @e2e toezeggingen-register::griffier-browses-and-filters-the-toezeggingenlijst
@@ -130,3 +165,97 @@ test('Public read: a published commitment is readable without signing in, an unp
 	).toBe(false)
 	await anonymous.dispose()
 })
+
+// @e2e toezeggingen-register::griffier-registers-a-commitment-made-during-a-meeting
+test('A commitment made at the meeting is stored with its meeting, item and body; one without text is refused', async ({ page }) => {
+	const at = await meetingWithItem(page)
+	const commitment = await createObject(page, ledger, 'governance-commitment', {
+		text: `${tag} Het college zegt toe de evaluatie voor de zomer te sturen.`,
+		madeBy: at.alderman,
+		meeting: at.meeting,
+		agendaItem: at.item,
+		directedTo: at.body,
+		deadline: '2027-06-30',
+		lifecycle: 'open',
+	})
+	const stored = await getObject(page, 'governance-commitment', idOf(commitment))
+	expect(stored?.meeting).toBe(at.meeting)
+	expect(stored?.agendaItem).toBe(at.item)
+	expect(stored?.directedTo).toBe(at.body)
+	expect(stored?.lifecycle).toBe('open')
+
+	const missing = await page.request.post(`${OR}/governance-commitment`, {
+		headers: await writeHeaders(page),
+		data: { madeBy: at.alderman, meeting: at.meeting, directedTo: at.body, lifecycle: 'open' },
+	})
+	expect(missing.status()).toBeGreaterThanOrEqual(400)
+	expect(missing.status()).toBeLessThan(500)
+})
+
+// @e2e toezeggingen-register::commitment-stemming-from-a-college-takeover-of-a-motion
+test('A commitment from a motion the college took over shows on the motion, and adds no progress updates', async ({ page }) => {
+	const at = await meetingWithItem(page)
+	const motion = idOf(await createObject(page, ledger, 'decision', {
+		title: `${tag} Motie meer groen in de wijk`,
+		decisionType: 'motion',
+		proposer: 'Anna',
+		lifecycle: 'decided',
+		outcome: 'adopted',
+		decisionDate: '2026-10-01',
+	}))
+	const text = `${tag} Het college werkt de motie uit in een groenplan.`
+	await createObject(page, ledger, 'governance-commitment', {
+		text,
+		madeBy: at.alderman,
+		meeting: at.meeting,
+		directedTo: at.body,
+		relatedMotion: motion,
+		deadline: '2027-03-01',
+		lifecycle: 'open',
+	})
+
+	await page.goto(`${BASE}/index.php/apps/decidiq/decisions/${motion}`)
+	await expect(page.getByText(text).first()).toBeVisible()
+
+	const updates = await page.request.get(`${OR}/implementation-update?decision=${motion}&_limit=10`, {
+		headers: { Accept: 'application/json' },
+	})
+	expect(updates.ok()).toBe(true)
+	expect((await updates.json()).results ?? []).toHaveLength(0)
+})
+
+// @e2e toezeggingen-register::status-change-is-live-on-the-public-list
+test('Public read: a published commitment shows its new status at once, without republishing', async ({ page }) => {
+	const at = await meetingWithItem(page)
+	const id = idOf(await createObject(page, ledger, 'governance-commitment', {
+		text: `${tag} Het college zegt toe de raad over de aanbesteding te informeren.`,
+		madeBy: at.alderman,
+		meeting: at.meeting,
+		directedTo: at.body,
+		deadline: '2027-01-31',
+		lifecycle: 'open',
+		publicationDate: '2026-01-01T00:00:00Z',
+	}))
+	const anonymous = await request.newContext({ baseURL: BASE, storageState: { cookies: [], origins: [] } })
+	const read = async (): Promise<string> => {
+		const response = await anonymous.get(`/index.php/apps/openregister/api/objects/decidiq/governance-commitment/${id}`, {
+			headers: { 'OCS-APIRequest': 'true' },
+		})
+		expect(response.ok()).toBe(true)
+		return String((await response.json()).lifecycle)
+	}
+	expect(await read()).toBe('open')
+
+	for (const lifecycle of ['in-execution', 'disposed']) {
+		const current = await getObject(page, 'governance-commitment', id)
+		const saved = await page.request.put(`${OR}/governance-commitment/${id}`, {
+			headers: await writeHeaders(page),
+			data: { ...current, lifecycle, settlementNotes: lifecycle === 'disposed' ? 'Raad geïnformeerd per brief.' : undefined },
+		})
+		expect(saved.status(), await saved.text()).toBeLessThan(300)
+	}
+
+	expect(await read()).toBe('disposed')
+	await anonymous.dispose()
+})
+

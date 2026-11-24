@@ -24,6 +24,8 @@ The system SHALL define a `Toezegging` schema in the decidesk register (via a `l
 
 #### Scenario: Register fragment is additive
 
+@e2e exclude a property of the merged register file, not of a page: CommitmentsRegisterTest::testTheCommitmentCarriesItsFields reads the commitment schema from its fragment and CommitmentsRegisterTest::testTheIncomingDocumentSchemaIsRetired that the schema it replaced is kept
+
 - GIVEN a decidiq installation upgrading to this change
 - WHEN the register configuration is loaded
 - THEN the Toezegging schema is registered from the register.d fragment
@@ -42,6 +44,8 @@ The `Toezegging` schema SHALL declare its status workflow exclusively via the ca
 
 #### Scenario: Invalid transition rejected declaratively
 
+@e2e exclude the declared transition map is configuration OpenRegister enforces on save; CommitmentsRegisterTest::testTheLifecycleIsDeclaredInTheCanonicalDialect asserts disposed and lapsed are terminal with no transition out
+
 - GIVEN a Toezegging in lifecycle `afgedaan`
 - WHEN any user attempts to set the lifecycle back to `open`
 - THEN OpenRegister rejects the transition per the declared transition map (no app-side guard code involved)
@@ -59,6 +63,8 @@ A Toezegging SHALL NOT be written as, or mirrored to, a CalDAV VTODO ActionItem,
 
 #### Scenario: Action-item KPI unaffected
 
+@e2e exclude a property of the tile's source, not of a page state: tests/vitest/actionItemKpiSource.spec.js asserts the open action items tile reads only the action-item collection
+
 - GIVEN five open Toezegging objects and two open action-item VTODOs
 - WHEN the dashboard "Open action items" KPI computes
 - THEN it counts 2 (the VTODO-backed source only)
@@ -69,11 +75,15 @@ Deadline reminders SHALL be declared exclusively via the canonical `x-openregist
 
 #### Scenario: Rappel before deadline
 
+@e2e exclude a scheduled rule fired by OpenRegister's cron, which no page triggers; CommitmentsRegisterTest::testTheNotificationsAreDeclared and ScheduledNotificationFiltersTest::testDatedRemindersCarryTheirDate assert the deadline window and the open states
+
 - GIVEN a Toezegging in lifecycle `open` whose deadline is within the configured rappel window
 - WHEN the scheduled notification trigger evaluates
 - THEN the madeBy person and the griffie recipients receive a Nextcloud notification referencing the toezegging
 
 #### Scenario: Overdue rappel
+
+@e2e exclude a scheduled rule fired by OpenRegister's cron, as above; CommitmentsRegisterTest::testTheNotificationsAreDeclared asserts deadline before now on the open and in-execution states only
 
 - GIVEN a Toezegging in lifecycle `open` or `in-uitvoering` whose deadline is in the past
 - WHEN the scheduled notification trigger evaluates
