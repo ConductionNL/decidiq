@@ -97,19 +97,32 @@ class ConfidentialityPublishedListener implements IEventListener {
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function handle(Event $event): void {
-		if (($event instanceof ObjectUpdatedEvent) === false || $event->getNewObject() === null) {
+		if ($event instanceof ObjectUpdatedEvent) {
+			$this->onUpdate(event: $event);
+		}
+	}//end handle()
+
+	/**
+	 * Act when the saved object's classifier just became public.
+	 *
+	 * @param ObjectUpdatedEvent $event The update.
+	 *
+	 * @return void
+	 */
+	private function onUpdate(ObjectUpdatedEvent $event): void {
+		$after = $event->getNewObject();
+		if ($after === null) {
 			return;
 		}
 
-		$after = $event->getNewObject();
-		$kind  = $this->justPublished(
+		$kind = $this->justPublished(
 			new: (array)$after->getObject(),
 			old: (array)($event->getOldObject()?->getObject() ?? [])
 		);
 		if ($kind !== null) {
 			$this->publishedOn(kind: $kind, targetId: (string)$after->getUuid());
 		}
-	}//end handle()
+	}//end onUpdate()
 
 	/**
 	 * Which kind of target just became public, or null.
