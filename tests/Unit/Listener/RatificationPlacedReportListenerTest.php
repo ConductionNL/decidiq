@@ -212,6 +212,59 @@ class RatificationPlacedReportListenerTest extends TestCase {
 	}//end testOtherSavesChangeNothing()
 
 	/**
+	 * A letter whose kind declares `reportsOnDecision` sets the report date
+	 * as soon as it names the decision, on or off a meeting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function testALetterNamingTheDecisionSetsTheReportDate(): void {
+		$this->decisionIs(decision: ['title' => 'Noodverordening Havenfestival 2026', 'isUrgent' => true]);
+
+		$payload = ['title' => 'Raadsinformatiebrief noodverordening', 'type' => 'type-raadsinformatiebrief', 'typeFields' => ['reportsOnDecision' => 'dec-1']];
+		$this->listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'letter-1', schemaId: '41', payload: $payload)));
+
+		self::assertCount(expectedCount: 1, haystack: $this->saved);
+		self::assertSame(expected: 'dec-1', actual: $this->saved[0][0]);
+		self::assertSame(expected: '2026-10-15', actual: $this->saved[0][1]['reportedToRatifyingBodyAt']);
+		self::assertTrue(condition: $this->saved[0][2], message: 'saved without the urgency write grant');
+	}//end testALetterNamingTheDecisionSetsTheReportDate()
+
+	/**
+	 * A letter linked after the report keeps the earlier date.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function testALaterLetterKeepsTheEarlierDate(): void {
+		$this->decisionIs(decision: ['isUrgent' => true, 'reportedToRatifyingBodyAt' => '2026-10-06']);
+
+		$old = $this->entity(uuid: 'letter-1', schemaId: '41', payload: ['typeFields' => []]);
+		$new = $this->entity(uuid: 'letter-1', schemaId: '41', payload: ['typeFields' => ['reportsOnDecision' => ['id' => 'dec-1']]]);
+		$this->listener->handle(new ObjectUpdatedEvent($new, $old));
+
+		self::assertSame(expected: [], actual: $this->saved);
+	}//end testALaterLetterKeepsTheEarlierDate()
+
+	/**
+	 * Which decisions an item reports: the placed ratification and the
+	 * letter's decision, each once; other type fields report nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function testReportedDecisions(): void {
+		self::assertSame(expected: ['dec-1'], actual: $this->listener->reportedDecisions(item: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => 'dec-1']]));
+		self::assertSame(expected: ['dec-1', 'dec-2'], actual: $this->listener->reportedDecisions(item: ['meeting' => 'm', 'ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => 'dec-2']]));
+		self::assertSame(expected: ['dec-2'], actual: $this->listener->reportedDecisions(item: ['ratifiesDecision' => 'dec-1', 'typeFields' => ['reportsOnDecision' => ['uuid' => 'dec-2']]]));
+		self::assertSame(expected: [], actual: $this->listener->reportedDecisions(item: ['typeFields' => ['relatedDecision' => 'dec-1', 'reportsOnDecision' => '']]));
+		self::assertSame(expected: [], actual: $this->listener->reportedDecisions(item: ['typeFields' => 'dec-1']));
+	}//end testReportedDecisions()
+
+	/**
 	 * A failed read is logged and does not break the agenda item's save.
 	 *
 	 * @return void
