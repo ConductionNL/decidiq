@@ -199,6 +199,20 @@ class VotingRoundResults {
 		$counts = $this->countVotes(voteEntities: $ballots);
 
 		// A ranked ballot is none of for / against / abstain: count it as cast.
+		return $counts + ['cast' => (array_sum($counts) + self::rankedCount(ballots: $ballots))];
+
+	}//end liveCounts()
+
+	/**
+	 * How many of the ballots are ranked ballots.
+	 *
+	 * @param array<int, mixed> $ballots The vote entities of a round
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return int
+	 */
+	private static function rankedCount(array $ballots): int {
 		$ranked = 0;
 		foreach ($ballots as $voteEntity) {
 			if (($voteEntity->jsonSerialize()['value'] ?? '') === RankedBallotRules::VALUE) {
@@ -206,9 +220,8 @@ class VotingRoundResults {
 			}
 		}
 
-		return $counts + ['cast' => (array_sum($counts) + $ranked)];
-
-	}//end liveCounts()
+		return $ranked;
+	}//end rankedCount()
 
 	/**
 	 * Count a ranked-choice round with a Borda count and store the ranking.

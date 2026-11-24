@@ -291,9 +291,7 @@ class VoteBallotFactory {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private static function wholeWeight(mixed $value): ?int {
-		if (is_int($value) === false && is_float($value) === false
-			&& (is_string($value) === false || is_numeric($value) === false)
-		) {
+		if (is_numeric($value) === false) {
 			return null;
 		}
 

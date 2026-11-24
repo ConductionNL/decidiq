@@ -137,25 +137,33 @@ class ProxyHoldings {
 			return [];
 		}
 
-		$grants = [];
-		foreach ($notes as $note) {
-			if (is_array($note) === false || ($note['title'] ?? '') !== 'Proxy') {
-				continue;
-			}
+		return array_values(array_filter(array_map(static fn (mixed $note): ?array => self::grantOf(note: $note), $notes)));
+	}//end grants()
 
-			$body = json_decode((string)($note['body'] ?? '{}'), true);
-			if (is_array($body) === false) {
-				continue;
-			}
-
-			$grants[] = [
-				'fromParticipantId' => (string)($body['fromParticipantId'] ?? ''),
-				'toParticipantId' => (string)($body['toParticipantId'] ?? ''),
-			];
+	/**
+	 * The grant a Proxy note records, or null for any other note.
+	 *
+	 * @param mixed $note One note of the round
+	 *
+	 * @return array{fromParticipantId: string, toParticipantId: string}|null
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	private static function grantOf(mixed $note): ?array {
+		if (is_array($note) === false || ($note['title'] ?? '') !== 'Proxy') {
+			return null;
 		}
 
-		return $grants;
-	}//end grants()
+		$body = json_decode((string)($note['body'] ?? '{}'), true);
+		if (is_array($body) === false) {
+			return null;
+		}
+
+		return [
+			'fromParticipantId' => (string)($body['fromParticipantId'] ?? ''),
+			'toParticipantId' => (string)($body['toParticipantId'] ?? ''),
+		];
+	}//end grantOf()
 
 	/**
 	 * A participant's display name, or their UUID when it cannot be read.

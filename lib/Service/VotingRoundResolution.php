@@ -91,12 +91,7 @@ final class VotingRoundResolution {
 			'relations' => $relations,
 		];
 
-		// A preset closing time is also the round's voting deadline: the
-		// 24-hour reminder job and the dashboard read votingDeadline (#1379).
-		$closedAt = $request->closedAt();
-		if ($closedAt !== null && $closedAt !== '') {
-			$round['votingDeadline'] = $closedAt;
-		}
+		$round += self::deadlineOf(closedAt: $request->closedAt());
 
 		if ($request->meetingId !== '') {
 			$round['meeting'] = $request->meetingId;
@@ -108,4 +103,22 @@ final class VotingRoundResolution {
 
 		return $round;
 	}//end roundPayload()
+
+	/**
+	 * A preset closing time is also the round's voting deadline: the 24-hour
+	 * reminder job and the dashboard read votingDeadline (#1379).
+	 *
+	 * @param string|null $closedAt The preset closing time, if any
+	 *
+	 * @return array<string, string> `votingDeadline`, or nothing
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private static function deadlineOf(?string $closedAt): array {
+		if ($closedAt === null || $closedAt === '') {
+			return [];
+		}
+
+		return ['votingDeadline' => $closedAt];
+	}//end deadlineOf()
 }//end class

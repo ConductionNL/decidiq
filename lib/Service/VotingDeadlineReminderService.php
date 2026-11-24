@@ -139,7 +139,7 @@ class VotingDeadlineReminderService implements VotingDeadlineReminderServiceInte
 
 		$due = [];
 		foreach ($rows as $entity) {
-			$row = VotingReminderAudience::rowToArray(entity: $entity);
+			$row = $this->audience->rowToArray(entity: $entity);
 			if ($row !== null && $this->roundNeedsReminder(row: $row, now: $now) === true) {
 				$due[] = $row;
 			}

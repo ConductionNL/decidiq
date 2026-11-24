@@ -647,6 +647,23 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	}//end decideStage()
 
 	/**
+	 * The registered docudesk (filinq) source, or null when there is none or
+	 * the source registry cannot be read.
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return object|null The source, or null.
+	 */
+	private function docudeskSource(): ?object {
+		try {
+			return $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
+		} catch (\Throwable) {
+			// Openconnector absent or source not configured — docudesk unavailable.
+			return null;
+		}
+	}//end docudeskSource()
+
+	/**
 	 * Compose a docudesk signingRequest via the ADR-019 integration registry
 	 * (cross-app contract #2 / REQ-DCDH-005). Returns the same shape as
 	 * initializeSigningRequest. Returns null when docudesk is absent (allows
@@ -671,13 +688,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}|null
 	 */
 	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): ?array {
-		try {
-			$source = $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
-		} catch (\Throwable) {
-			// Openconnector absent or source not configured — docudesk unavailable.
-			return null;
-		}
-
+		$source = $this->docudeskSource();
 		if ($source === null) {
 			// Docudesk not registered — fall through to openconnector silently.
 			return null;

@@ -117,10 +117,25 @@ class NextcloudTranslationAdapter implements ITranslationAdapter {
 			);
 		}
 
+		$input = ['input' => $text, 'origin_language' => $sourceLocale, 'target_language' => $targetLocale];
+		return $this->runTranslation(manager: $manager, input: $input);
+	}//end translate()
+
+	/**
+	 * Run the translate task and read its answer.
+	 *
+	 * @param IManager             $manager The TaskProcessing manager
+	 * @param array<string, string> $input   The task input: text and the two languages
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string}
+	 */
+	private function runTranslation(IManager $manager, array $input): array {
+		$text     = $input['input'];
 		$provider = $this->providerId(manager: $manager);
 
 		try {
-			$input  = ['input' => $text, 'origin_language' => $sourceLocale, 'target_language' => $targetLocale];
 			$result = $manager->runTask(new Task(self::TASK_TYPE, $input, Application::APP_ID, null));
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: TaskProcessing translation failed', ['exception' => $e->getMessage()]);
@@ -134,7 +149,7 @@ class NextcloudTranslationAdapter implements ITranslationAdapter {
 		}
 
 		return self::answer(success: true, text: $translated, provider: $provider, message: 'Translated via Nextcloud TaskProcessing.');
-	}//end translate()
+	}//end runTranslation()
 
 	/**
 	 * The translated text in a task's output, or '' when there is none.

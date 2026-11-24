@@ -116,42 +116,12 @@ class DecisionWithdrawFlow {
 		}
 
 		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
-			if ($decision === null) {
-				return $this->failure(message: "Decision '$decisionId' not found.");
-			}
-
-			$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
-			$rejection = $this->resolveRejection(
-				decision: $decision,
-				currentLifecycle: $currentLifecycle,
+			return $this->withdrawLoaded(
+				decisionId: $decisionId,
+				withdrawnBy: $withdrawnBy,
+				reason: $reason,
 				currentUserId: $currentUserId
 			);
-			if ($rejection !== null) {
-				return $this->failure(message: $rejection);
-			}
-
-			try {
-				$withdrawn = $this->withdrawalService->withdraw(
-					decision: $decision,
-					withdrawnBy: $withdrawnBy,
-					reason: $reason
-				);
-			} catch (InvalidArgumentException $e) {
-				return $this->failure(message: $e->getMessage());
-			}
-
-			$run = (new DecisionTransitionRun(
-				decisionId: $decisionId,
-				action: 'withdraw',
-				currentUserId: $currentUserId,
-				comment: $withdrawn['withdrawnBy'] . ': ' . $withdrawn['withdrawnReason']
-			))->entering(
-				transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
-				currentLifecycle: $currentLifecycle
-			);
-
-			return $this->persistWithdrawal(decision: $decision, withdrawn: $withdrawn, run: $run);
 		} catch (DoesNotExistException) {
 			return $this->failure(message: "Decision '$decisionId' not found.");
 		} catch (\Throwable $e) {
@@ -163,6 +133,57 @@ class DecisionWithdrawFlow {
 		}//end try
 
 	}//end withdraw()
+
+	/**
+	 * Load, check, stamp and persist the withdrawal of one decision.
+	 *
+	 * @param string $decisionId UUID of the decision to withdraw
+	 * @param string $withdrawnBy Actor kind: bestuursorgaan|belanghebbende
+	 * @param string $reason Why, written for the person who receives it
+	 * @param string|null $currentUserId Nextcloud UID of the requesting user (chair gate + audit actor)
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
+	 *
+	 * @return array{success: bool, decision: array|null, message: string}
+	 */
+	private function withdrawLoaded(string $decisionId, string $withdrawnBy, string $reason, ?string $currentUserId): array {
+		$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
+		if ($decision === null) {
+			return $this->failure(message: "Decision '$decisionId' not found.");
+		}
+
+		$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
+		$rejection = $this->resolveRejection(
+			decision: $decision,
+			currentLifecycle: $currentLifecycle,
+			currentUserId: $currentUserId
+		);
+		if ($rejection !== null) {
+			return $this->failure(message: $rejection);
+		}
+
+		try {
+			$withdrawn = $this->withdrawalService->withdraw(
+				decision: $decision,
+				withdrawnBy: $withdrawnBy,
+				reason: $reason
+			);
+		} catch (InvalidArgumentException $e) {
+			return $this->failure(message: $e->getMessage());
+		}
+
+		$run = (new DecisionTransitionRun(
+			decisionId: $decisionId,
+			action: 'withdraw',
+			currentUserId: $currentUserId,
+			comment: $withdrawn['withdrawnBy'] . ': ' . $withdrawn['withdrawnReason']
+		))->entering(
+			transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
+			currentLifecycle: $currentLifecycle
+		);
+
+		return $this->persistWithdrawal(decision: $decision, withdrawn: $withdrawn, run: $run);
+	}//end withdrawLoaded()
 
 	/**
 	 * Resolve why a withdrawal must be refused, or null when it may proceed.

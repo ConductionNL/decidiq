@@ -119,21 +119,38 @@ class OpenRegisterNotificationPreferenceSync {
 				$override = ['enabled' => false];
 			}
 
-			foreach ($notices as [$schemaSlug, $notificationKey]) {
-				try {
-					$overrides->setOverride(
-						userId: $personId,
-						schemaSlug: $schemaSlug,
-						notificationKey: $notificationKey,
-						override: $override
-					);
-				} catch (\Throwable $e) {
-					$this->logger->warning(
-						'Decidiq: could not apply a notification switch to OpenRegister',
-						['personId' => $personId, 'notice' => $schemaSlug . '/' . $notificationKey, 'error' => $e->getMessage()]
-					);
-				}
+			foreach ($notices as $notice) {
+				$this->apply(overrides: $overrides, personId: $personId, notice: $notice, override: $override);
 			}
-		}//end foreach
+		}
 	}//end sync()
+
+	/**
+	 * Apply one switch to one declared notice; a failure is logged, never thrown.
+	 *
+	 * @param object                    $overrides OpenRegister's notification preference service
+	 * @param string                    $personId  Nextcloud UID of the member
+	 * @param array{0: string, 1: string} $notice  Schema slug and notification key
+	 * @param array<string, bool>|null  $override  The override, or null to clear it
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	private function apply(object $overrides, string $personId, array $notice, ?array $override): void {
+		[$schemaSlug, $notificationKey] = $notice;
+		try {
+			$overrides->setOverride(
+				userId: $personId,
+				schemaSlug: $schemaSlug,
+				notificationKey: $notificationKey,
+				override: $override
+			);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not apply a notification switch to OpenRegister',
+				['personId' => $personId, 'notice' => $schemaSlug . '/' . $notificationKey, 'error' => $e->getMessage()]
+			);
+		}
+	}//end apply()
 }//end class

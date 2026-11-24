@@ -97,23 +97,11 @@ class FilinqSigningRequest {
 	 * @return \OCP\Files\File
 	 */
 	private function document(string $subjectType, string $subjectId): \OCP\Files\File {
-		$file = null;
-		if ($subjectType === 'minutes') {
-			$minutes = $this->record(schema: 'minutes', uuid: $subjectId);
-			$path    = $this->latestPdfPath(minutes: ($minutes ?? []));
-			if ($path !== null) {
-				$file = $this->folders->fileAt(path: $path);
-			}
-		} elseif ($subjectType === 'decision-list') {
-			$meeting = $this->record(schema: 'meeting', uuid: $subjectId);
-			if ($meeting !== null) {
-				$file = $this->folders->meetingFile(
-					meeting: (['id' => $subjectId] + $meeting),
-					subfolder: 'Minutes',
-					fileName: DecisionListService::BASE_NAME . '.pdf'
-				);
-			}
-		}
+		$file = match ($subjectType) {
+			'minutes' => $this->minutesPdf(minutesId: $subjectId),
+			'decision-list' => $this->decisionListPdf(meetingId: $subjectId),
+			default => null,
+		};
 
 		if ($file === null) {
 			throw new RuntimeException('No PDF of this ' . $subjectType . ' to sign was found. Generate the PDF first.');
@@ -130,15 +118,54 @@ class FilinqSigningRequest {
 	 * @return string|null
 	 */
 	private function latestPdfPath(array $minutes): ?string {
-		$path = null;
-		foreach ((array)($minutes['generatedDocuments'] ?? []) as $document) {
-			if (is_array($document) === true && ($document['format'] ?? '') === 'pdf' && (string)($document['path'] ?? '') !== '') {
-				$path = (string)$document['path'];
-			}
+		$pdfs = array_filter(
+			(array)($minutes['generatedDocuments'] ?? []),
+			static fn (mixed $document): bool => is_array($document) === true
+				&& ($document['format'] ?? '') === 'pdf'
+				&& (string)($document['path'] ?? '') !== ''
+		);
+		if ($pdfs === []) {
+			return null;
 		}
 
-		return $path;
+		return (string)end($pdfs)['path'];
 	}//end latestPdfPath()
+
+	/**
+	 * The latest generated PDF of the minutes, or null.
+	 *
+	 * @param string $minutesId The minutes UUID
+	 *
+	 * @return \OCP\Files\File|null
+	 */
+	private function minutesPdf(string $minutesId): ?\OCP\Files\File {
+		$path = $this->latestPdfPath(minutes: ($this->record(schema: 'minutes', uuid: $minutesId) ?? []));
+		if ($path === null) {
+			return null;
+		}
+
+		return $this->folders->fileAt(path: $path);
+	}//end minutesPdf()
+
+	/**
+	 * The meeting's generated decision-list PDF, or null.
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return \OCP\Files\File|null
+	 */
+	private function decisionListPdf(string $meetingId): ?\OCP\Files\File {
+		$meeting = $this->record(schema: 'meeting', uuid: $meetingId);
+		if ($meeting === null) {
+			return null;
+		}
+
+		return $this->folders->meetingFile(
+			meeting: (['id' => $meetingId] + $meeting),
+			subfolder: 'Minutes',
+			fileName: DecisionListService::BASE_NAME . '.pdf'
+		);
+	}//end decisionListPdf()
 
 	/**
 	 * The signers in filinq's shape, in signing order.

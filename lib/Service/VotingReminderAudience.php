@@ -112,7 +112,7 @@ class VotingReminderAudience {
 
 		$uids = [];
 		foreach ($votes as $entity) {
-			$row = self::rowToArray(entity: $entity);
+			$row = $this->rowToArray(entity: $entity);
 			$ownerId = null;
 			if ($row !== null) {
 				$ownerId = $this->ballotOwnerId(vote: $row);
@@ -195,7 +195,7 @@ class VotingReminderAudience {
 
 		$uids = [];
 		foreach ($participants as $entity) {
-			$row = self::rowToArray(entity: $entity);
+			$row = $this->rowToArray(entity: $entity);
 			$uid = null;
 			if ($row !== null) {
 				$uid = $this->rowUserId(row: $row);
@@ -242,7 +242,7 @@ class VotingReminderAudience {
 	 *
 	 * @return array<string, mixed>|null The row, or null when unusable
 	 */
-	public static function rowToArray(mixed $entity): ?array {
+	public function rowToArray(mixed $entity): ?array {
 		if (is_object($entity) === true) {
 			return (array)$entity->jsonSerialize();
 		}
