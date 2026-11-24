@@ -1,6 +1,6 @@
 {
 	"_note": "inspreekrecht-plenair: one speaking-request schema for every kind of meeting, and a per-body speaking policy. Named in plain words (InspraakAanmelding is a speaking request, InspraakBeleid a speaking policy) because the app declares no schema or property in one country's word for something every organisation does (the-last-two-dutch-names). Numbered 64 as the design says.",
-	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md",
 	"components": {
 		"registers": {
 			"decidiq": {
@@ -170,7 +170,7 @@
 					"transcriptSegment": {
 						"title": "Transcript segment",
 						"type": "string",
-						"description": "The identifier of the transcript segment where the speaker spoke, when the meeting has a transcript. Empty when it has none."
+						"description": "Where the speaker starts in the meeting's transcript: the segment's start in the recording, in seconds or as the transcript shows it (m:ss or h:mm:ss). The agenda slot links to that segment on the meeting page. Empty when the meeting has no transcript."
 					},
 					"registeredAfterDeadline": {
 						"title": "Registered after the deadline",

@@ -346,10 +346,10 @@ export default {
 		/**
 		 * Place an item's approved public speakers once it is current.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		preload: {
-			/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back */
+			/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back */
 			handler() {
 				this.applyPreload()
 			},
@@ -376,7 +376,7 @@ export default {
 		/**
 		 * Put the preloaded public speakers in the queue, once per agenda item.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		applyPreload() {
 			const preload = this.preload
@@ -392,7 +392,7 @@ export default {
 		 *
 		 * @param {object} entry The public speaker's queue entry.
 		 * @param {'spoke'|'no-show'} outcome The outcome.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		async recordOutcome(entry, outcome) {
 			if (!this.markOutcome || !entry?.requestId) return

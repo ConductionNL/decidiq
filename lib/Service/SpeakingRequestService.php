@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -79,7 +79,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 	 */
 	public function agenda(string $meetingId): array {
 		$this->requireMeeting(meetingId: $meetingId);
@@ -95,7 +95,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
 	 */
 	public function publicAgenda(string $meetingId): array {
 		$meeting = $this->requireMeeting(meetingId: $meetingId);
@@ -122,7 +122,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 	 */
 	public function queue(string $meetingId, string $agendaItemId): array {
 		$this->requireMeeting(meetingId: $meetingId);
@@ -143,7 +143,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 * @throws SpeakingRequestRefusedException 400 for another outcome, 404 for an unknown request,
 	 *                                         409 when the request is not approved.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 	 */
 	public function markOutcome(string $requestId, string $outcome): array {
 		if (in_array($outcome, ['spoke', 'no-show'], true) === false) {
@@ -208,7 +208,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	public function meetingOf(string $requestId): string {
 		return (string)($this->read(schema: self::SCHEMA, id: $requestId)['meeting'] ?? '');
@@ -224,7 +224,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException When the policy refuses it.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
 	 */
 	public function register(array $input, bool $override=false): array {
 		$meetingId = trim((string)($input['meeting'] ?? ''));
@@ -277,7 +277,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException When it is not registered.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	public function approve(string $requestId, ?int $minutes=null, ?int $position=null): array {
 		$request = $this->requireRegistered(requestId: $requestId);
@@ -304,7 +304,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException When the reason is empty or it is not registered.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	public function reject(string $requestId, string $reason): array {
 		if (trim($reason) === '') {
@@ -329,7 +329,7 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @throws SpeakingRequestRefusedException When it is not registered or the target is not usable.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	public function refer(string $requestId, string $meetingId, ?string $agendaItemId=null): array {
 		$request   = $this->requireRegistered(requestId: $requestId);

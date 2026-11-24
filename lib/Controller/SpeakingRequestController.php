@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -65,7 +65,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline
 	 */
 	#[NoAdminRequired]
 	#[UserRateLimit(limit: 20, period: 3600)]
@@ -95,7 +95,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	#[NoAdminRequired]
 	public function approve(string $id): JSONResponse {
@@ -114,7 +114,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	#[NoAdminRequired]
 	public function reject(string $id): JSONResponse {
@@ -129,7 +129,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 	 */
 	#[NoAdminRequired]
 	public function refer(string $id): JSONResponse {
@@ -160,7 +160,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 	 */
 	#[NoAdminRequired]
 	public function agenda(string $meetingId): JSONResponse {
@@ -184,7 +184,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * The answer is what a published agenda shows, so it needs no per-object guard.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
 	 */
 	#[NoAdminRequired]
 	public function publicAgenda(string $meetingId): JSONResponse {
@@ -199,7 +199,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 	 */
 	#[NoAdminRequired]
 	public function queue(string $meetingId): JSONResponse {
@@ -220,7 +220,7 @@ class SpeakingRequestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 	 */
 	#[NoAdminRequired]
 	public function outcome(string $id): JSONResponse {

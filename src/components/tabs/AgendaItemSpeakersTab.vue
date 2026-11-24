@@ -6,7 +6,7 @@
  the approved speaking slots in order and the pending requests, read for the
  item's meeting.
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 -->
 <template>
 	<div data-testid="agenda-item-speakers">
@@ -35,7 +35,7 @@ export default {
 		/**
 		 * Read the agenda item's meeting.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 		 */
 		async load() {
 			this.meetingId = ''
