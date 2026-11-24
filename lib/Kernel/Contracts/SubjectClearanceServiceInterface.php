@@ -58,4 +58,16 @@ interface SubjectClearanceServiceInterface {
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function describe(array $clearance): string;
+
+	/**
+	 * The newest admissibility verdict on a subject, read beside the clearance
+	 * answer by the case app, or null when no intake step answered yet.
+	 *
+	 * @param string $subject The subject uuid.
+	 *
+	 * @return array{ontvankelijkheid: string, ground: string, decidedBy: string, decidedAt: string}|null
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function admissibilityOn(string $subject): ?array;
 }//end interface

@@ -57,6 +57,18 @@ final class SubjectClearanceService implements SubjectClearanceServiceInterface 
 	private const UNFINISHED = ['active', 'pending'];
 
 	/**
+	 * Constructor.
+	 *
+	 * @param AdmissibilityTrail|null $admissibility Reads the subject's intake verdict; null answers none.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function __construct(
+		private readonly ?AdmissibilityTrail $admissibility = null,
+	) {
+	}//end __construct()
+
+	/**
 	 * Whether a subject is cleared, and what is holding it up if not.
 	 *
 	 * @param array<int, array<string, mixed>> $routes The routes on the subject, each with its stages.
@@ -173,4 +185,17 @@ final class SubjectClearanceService implements SubjectClearanceServiceInterface 
 
 		return ($active ?? $pending);
 	}//end liveStageOf()
+
+	/**
+	 * The newest admissibility verdict on a subject, or null.
+	 *
+	 * @param string $subject The subject uuid.
+	 *
+	 * @return array{ontvankelijkheid: string, ground: string, decidedBy: string, decidedAt: string}|null
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	public function admissibilityOn(string $subject): ?array {
+		return $this->admissibility?->verdictOn(subject: $subject);
+	}//end admissibilityOn()
 }//end class
