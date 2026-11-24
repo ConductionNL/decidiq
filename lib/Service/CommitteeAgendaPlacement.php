@@ -102,8 +102,8 @@ class CommitteeAgendaPlacement {
 	public static function awaitsPlacement(array $stage): bool {
 		return ($stage['stepKind'] ?? '') === 'committee'
 			&& ($stage['status'] ?? '') === 'active'
-			&& self::refOf(value: ($stage['committeeBody'] ?? null)) !== ''
-			&& self::refOf(value: ($stage['agendaItem'] ?? null)) === ''
+			&& self::ref(value: ($stage['committeeBody'] ?? null)) !== ''
+			&& self::ref(value: ($stage['agendaItem'] ?? null)) === ''
 			&& ($stage['placementPending'] ?? false) !== true;
 	}//end awaitsPlacement()
 
@@ -122,7 +122,7 @@ class CommitteeAgendaPlacement {
 			return null;
 		}
 
-		$meeting = $this->nextMeeting(bodyId: self::refOf(value: $stage['committeeBody']));
+		$meeting = $this->nextMeeting(bodyId: self::ref(value: $stage['committeeBody']));
 		if ($meeting === null) {
 			$this->store->patch(schema: 'decision-stage', data: ['placementPending' => true], uuid: (string)$stage['id']);
 			return null;
@@ -141,7 +141,7 @@ class CommitteeAgendaPlacement {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
 	public function placePending(array $meeting): int {
-		$body = self::refOf(value: ($meeting['governanceBody'] ?? null));
+		$body = self::ref(value: ($meeting['governanceBody'] ?? null));
 		if ($body === '' || $this->takesItems(meeting: $meeting) === false) {
 			return 0;
 		}
@@ -153,7 +153,7 @@ class CommitteeAgendaPlacement {
 
 		$placed = 0;
 		foreach ($waiting as $stage) {
-			if (($stage['status'] ?? '') !== 'active' || self::refOf(value: ($stage['agendaItem'] ?? null)) !== '') {
+			if (($stage['status'] ?? '') !== 'active' || self::ref(value: ($stage['agendaItem'] ?? null)) !== '') {
 				continue;
 			}
 
@@ -181,7 +181,7 @@ class CommitteeAgendaPlacement {
 	 */
 	public function closeFromDecision(array $decision): ?array {
 		$outcome = (string)($decision['outcome'] ?? '');
-		$itemId  = self::refOf(value: ($decision['agendaItem'] ?? null));
+		$itemId  = self::ref(value: ($decision['agendaItem'] ?? null));
 		if ($itemId === '' || in_array($outcome, [self::OUTCOME_ADOPTED, self::OUTCOME_REJECTED], true) === false) {
 			return null;
 		}
@@ -191,7 +191,7 @@ class CommitteeAgendaPlacement {
 			return null;
 		}
 
-		$stages = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => self::refOf(value: ($stage['decision'] ?? null))]);
+		$stages = $this->store->findAll(schema: 'decision-stage', filters: ['decision' => self::ref(value: ($stage['decision'] ?? null))]);
 		usort($stages, static fn (array $a, array $b): int => ((int)($a['sequence'] ?? 0) <=> (int)($b['sequence'] ?? 0)));
 
 		$this->settle(stages: $stages, stage: $stage, outcome: $outcome);
@@ -277,7 +277,7 @@ class CommitteeAgendaPlacement {
 			$order = max($order, (int)($item['orderNumber'] ?? 0));
 		}
 
-		$subject = $this->store->find(schema: 'decision', uuid: self::refOf(value: ($stage['decision'] ?? null)));
+		$subject = $this->store->find(schema: 'decision', uuid: self::ref(value: ($stage['decision'] ?? null)));
 		$item    = $this->store->save(schema: 'agenda-item', object: [
 			'title'       => (string)($subject['title'] ?? ($stage['label'] ?? '')),
 			'description' => (string)($stage['label'] ?? ''),
@@ -340,9 +340,9 @@ class CommitteeAgendaPlacement {
 	 * @return string|null The meeting's uuid, or null when neither names one.
 	 */
 	private function meetingOf(array $decision, string $agendaItemId): ?string {
-		$meeting = self::refOf(value: ($decision['meeting'] ?? null));
+		$meeting = self::ref(value: ($decision['meeting'] ?? null));
 		if ($meeting === '') {
-			$meeting = self::refOf(value: ($this->store->find(schema: 'agenda-item', uuid: $agendaItemId)['meeting'] ?? null));
+			$meeting = self::ref(value: ($this->store->find(schema: 'agenda-item', uuid: $agendaItemId)['meeting'] ?? null));
 		}
 
 		if ($meeting === '') {
@@ -353,21 +353,13 @@ class CommitteeAgendaPlacement {
 	}//end meetingOf()
 
 	/**
-	 * A relation value (uuid or `{id}`) as a uuid string.
+	 * The uuid a reference holds (a uuid or an expanded object), or ''.
 	 *
-	 * @param mixed $value The relation value.
+	 * @param mixed $value The stored reference.
 	 *
 	 * @return string
 	 */
-	private static function refOf(mixed $value): string {
-		if (is_array($value) === true) {
-			$value = ($value['id'] ?? null);
-		}
-
-		if (is_scalar($value) === false) {
-			return '';
-		}
-
-		return trim((string)$value);
-	}//end refOf()
+	private static function ref(mixed $value): string {
+		return (WrittenRoundStore::idOf(value: $value) ?? '');
+	}//end ref()
 }//end class

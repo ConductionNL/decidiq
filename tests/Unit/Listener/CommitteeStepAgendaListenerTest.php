@@ -73,8 +73,8 @@ class CommitteeStepAgendaListenerTest extends TestCase {
 
 		return new CommitteeStepAgendaListener(
 			placement: $this->placement,
-			schemaResolver: $resolver,
 			logger: ($logger ?? $this->createMock(originalClassName: LoggerInterface::class)),
+			schemaResolver: $resolver,
 		);
 
 	}//end listener()
@@ -100,7 +100,7 @@ class CommitteeStepAgendaListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testASavedStageIsOfferedForPlacement(): void {
-		$this->placement->expects($this->exactly(2))->method('placeStage')
+		$this->placement->expects($this->exactly(count: 2))->method('placeStage')
 			->with(['stepKind' => 'committee', 'id' => 'obj-1']);
 
 		$listener = $this->listener(slug: 'decision-stage');

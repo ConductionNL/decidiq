@@ -60,22 +60,27 @@ class CommitteeStepAgendaListener implements IEventListener {
 	 * Constructor.
 	 *
 	 * @param CommitteeAgendaPlacement        $placement      Places and closes the committee stages.
-	 * @param ListenerSchemaResolverInterface $schemaResolver Resolves the entity's schema slug.
-	 * @param LoggerInterface                 $logger         Logger.
+	 * @param LoggerInterface                 $logger         Logs a placement or close that failed.
+	 * @param ListenerSchemaResolverInterface $schemaResolver Says which schema the saved object is in.
 	 */
 	public function __construct(
 		private readonly CommitteeAgendaPlacement $placement,
-		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 	) {
 	}//end __construct()
 
 	/**
 	 * Route the saved object to the placement it concerns; never break the save.
 	 *
-	 * @param Event $event The event.
+	 * @param Event $event An OpenRegister create or update event.
 	 *
 	 * @return void
+	 *
+	 * @listener-placement inline cheap-bounded: a stage save that is not an
+	 *     active committee stage off the agenda, and a decision with no agenda
+	 *     item or outcome, stop before any read. Placing reads one meeting list
+	 *     and one agenda; closing reads the item's stages and the route's.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
