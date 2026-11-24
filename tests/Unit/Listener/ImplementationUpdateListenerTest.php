@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+ * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -46,7 +46,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 /**
  * Only adopted decisions take updates, and the newest one sets the status.
  *
- * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+ * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
  */
 final class ImplementationUpdateListenerTest extends TestCase {
 

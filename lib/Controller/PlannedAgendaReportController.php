@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Throwable;
 /**
  * Download the long-term agenda, as its filters select it, as a report.
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 class PlannedAgendaReportController extends Controller {
 	/**
@@ -46,7 +46,7 @@ class PlannedAgendaReportController extends Controller {
 	 * @param PlannedAgendaReportService $reports The report.
 	 * @param LoggerInterface            $logger  Diagnostics.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 */
 	public function __construct(
 		IRequest $request,
@@ -62,7 +62,7 @@ class PlannedAgendaReportController extends Controller {
 	 * POST /api/planned-agenda/report with `filter` (the list's active
 	 * filters) and `search` (its search text).
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @no-admin-idor-exempt every item and every name is read through OpenRegister as the caller, so its read
 	 *                       rules decide what the report holds; no object is addressed by id.

@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -41,7 +41,7 @@ use OCP\IUserSession;
  * person the list would hide from them. Without filinq the HTML the PDF is
  * made from is saved instead, with a note saying so (ADR-075).
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 class PlannedAgendaReportService {
 	/**
@@ -84,7 +84,7 @@ class PlannedAgendaReportService {
 	 * @param IUserSession           $userSession   The requester.
 	 * @param ITimeFactory           $time          The report's date.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -102,7 +102,7 @@ class PlannedAgendaReportService {
 	 * @param array<string,mixed> $filter The list's filter, as the page keeps it.
 	 * @param string              $search The list's search text.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @throws PlannedAgendaReportException 401 signed out, 422 nothing or too much matches, 409 the folder is a file.
 	 *
@@ -140,7 +140,7 @@ class PlannedAgendaReportService {
 	 *
 	 * @param array<string,mixed> $filter The list's filter.
 	 *
-	 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+	 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 	 *
 	 * @return array<string,mixed>
 	 */

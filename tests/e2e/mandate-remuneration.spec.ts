@@ -22,7 +22,7 @@
  *
  * Written, not run: it needs a live instance.
  *
- * @spec openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md
+ * @spec openspec/changes/archive/2026-11-24-bodies-director-remuneration/specs/governance-bodies/spec.md
  * @e2e governance-bodies/requirement-req-drm-001-a-position-holders-remuneration-is-recorded-per-year/the-company-secretary-records-the-chairs-fee
  * @e2e governance-bodies/requirement-req-drm-001-a-position-holders-remuneration-is-recorded-per-year/a-member-cannot-read-a-colleagues-pay
  * @e2e governance-bodies/requirement-req-drm-001-a-position-holders-remuneration-is-recorded-per-year/disclosed-pay-is-public
