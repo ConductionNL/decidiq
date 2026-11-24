@@ -215,6 +215,7 @@ class ConfidentialityLifterTest extends TestCase {
 		$this->assertSame('dec-lift', $restriction['dissolutionDecision']);
 		$this->assertSame('2026-11-21', $restriction['liftingDate']);
 		$this->assertSame('na ondertekening contract', $restriction['liftingConditions']);
+		$this->assertTrue(condition: $restriction['awaitingPublication'], message: 'A lifted decision waits for the normal publication run.');
 		// Every other field kept.
 		$this->assertSame('dec-ratify', $restriction['ratificationDecision']);
 		$this->assertSame('ground-ratify', $restriction['ground']);
@@ -237,6 +238,7 @@ class ConfidentialityLifterTest extends TestCase {
 
 		$this->assertSame('reopened', $result['classifier']);
 		$this->assertArrayNotHasKey('liftingConditions', $result['restriction']);
+		$this->assertTrue(condition: $result['restriction']['awaitingPublication']);
 		$item = $this->objects['agenda-item']['item-1'];
 		$this->assertSame('internal', $item['confidentiality']);
 		$this->assertFalse($item['public']);
@@ -358,4 +360,17 @@ class ConfidentialityLifterTest extends TestCase {
 		$this->assertSame(['dissolutionDecision' => 'dec-lift', 'liftingConditions' => null], ConfidentialityLifter::request(params: ['dissolutionDecision' => 'dec-lift', 'liftingConditions' => '  ']));
 		$this->assertSame(400, self::refusal(static fn () => ConfidentialityLifter::request(params: ['dissolutionDecision' => ['x']])));
 	}//end testTheRequestIsValidated()
+	/**
+	 * Only an item or decision waits for publication after lifting: a document is not reopened by lifting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
+	 */
+	public function testOnlyAnItemOrDecisionAwaitsPublication(): void {
+		$this->assertTrue(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'decision']));
+		$this->assertTrue(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'item']));
+		$this->assertFalse(condition: ConfidentialityLifter::awaitsPublication(restriction: ['scope' => 'document']));
+		$this->assertFalse(condition: ConfidentialityLifter::awaitsPublication(restriction: []));
+	}//end testOnlyAnItemOrDecisionAwaitsPublication()
 }//end class

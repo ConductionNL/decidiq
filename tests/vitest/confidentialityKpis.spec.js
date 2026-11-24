@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Conduction B.V.
 
 /**
- * embargo-geheimhouding task 8: the three confidentiality KPIs on the dashboard.
+ * embargo-geheimhouding task 8: the four confidentiality KPIs on the dashboard.
  *
  * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
  */
@@ -58,11 +58,12 @@ describe('the confidentiality KPIs (REQ-EMB-006)', () => {
 	const inForce = widget('confidentiality-in-force')
 	const awaiting = widget('confidentiality-awaiting-ratification')
 	const overdue = widget('confidentiality-ratification-overdue')
+	const toPublish = widget('confidentiality-lifted-awaiting-publication')
 
-	it('all three sit on the dashboard grid and open the confidentiality register', () => {
+	it('all four sit on the dashboard grid and open the confidentiality register', () => {
 		const register = fragment.pages.find((p) => p.id === 'ConfidentialityRestrictions')
 		expect(register.config.schema).toBe('confidentiality-restriction')
-		for (const w of [inForce, awaiting, overdue]) {
+		for (const w of [inForce, awaiting, overdue, toPublish]) {
 			expect(w.type).toBe('stat')
 			expect(w.content.source).toMatchObject({ register: 'decidiq', schema: 'confidentiality-restriction', metric: 'count' })
 			expect(w.content.route.name).toBe(register.id)
@@ -102,9 +103,21 @@ describe('the confidentiality KPIs (REQ-EMB-006)', () => {
 		expect(countedOn(overdue, '2026-03-01')).toEqual([])
 	})
 
+	it('lifted and awaiting publication counts the server-written flag, a scalar count', () => {
+		expect(toPublish.content.source.filter).toEqual({ awaitingPublication: true })
+		expect(toPublish.content.route.query).toEqual({ awaitingPublication: true })
+		expect(toPublish.content.source.via).toBeUndefined()
+		expect(needsListEndpoint(toPublish.content.source.filter)).toBe(false)
+		const field = read('lib/Settings/register.d/142-confidentiality-awaiting-publication.json')
+			.components.schemas.ConfidentialityRestriction.properties.awaitingPublication
+		expect(field).toMatchObject({ type: 'boolean', readOnly: true, facetable: true })
+		const simple = JSON.stringify(read('src/menu-layout.simple.json'))
+		expect(simple).toContain('"widgetId":"confidentiality-lifted-awaiting-publication"')
+	})
+
 	it('every tile label has a Dutch translation', () => {
 		const nl = read('l10n/nl.json').translations
-		for (const w of [inForce, awaiting, overdue]) {
+		for (const w of [inForce, awaiting, overdue, toPublish]) {
 			expect(nl[w.title]).toBeTruthy()
 			expect(nl[w.content.label]).toBeTruthy()
 		}

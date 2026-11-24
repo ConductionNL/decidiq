@@ -1,0 +1,32 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change embargo-geheimhouding task 8 (REQ-EMB-006, the fourth KPI: lifted and awaiting publication). A lifted restriction returns its agenda item or decision to internal; publication then goes through the normal machinery. The restriction records that it is waiting for that (awaitingPublication, set by ConfidentialityLifter when it reopens an item or decision) and when the target went public (targetPublishedAt, written with awaitingPublication false by ConfidentialityPublishedListener). Both are server-written. A materialised boolean, like Decision.awaitingRatification, because the stat count endpoint honours scalar equality and a widget filter cannot dereference the target.",
+  "components": {
+    "schemas": {
+      "ConfidentialityRestriction": {
+        "slug": "confidentiality-restriction",
+        "properties": {
+          "awaitingPublication": {
+            "title": "Awaiting publication",
+            "type": "boolean",
+            "nullable": true,
+            "readOnly": true,
+            "facetable": true,
+            "description": "True from the moment the restriction is lifted until its agenda item or decision is public again; set by the server.",
+            "x-notes": "REQ-EMB-006. Document-scoped restrictions are not counted: lifting does not reopen a document, whose release runs through its own embargo fields."
+          },
+          "targetPublishedAt": {
+            "title": "Target published at",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true,
+            "description": "When the lifted restriction's agenda item or decision was made public; set by the server."
+          }
+        }
+      }
+    }
+  }
+}
