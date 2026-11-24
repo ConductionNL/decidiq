@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -29,7 +29,7 @@ namespace OCA\Decidiq\Service;
  *
  * Pure: reads the record it is given, writes nothing.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
  */
 class ChecklistProgress {
 
@@ -65,7 +65,7 @@ class ChecklistProgress {
 	 *
 	 * @return string|null The refusal, naming the open mandatory steps.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
 	 */
 	public function refusal(array $record, ?array $stored): ?string {
 		$before = (string)($stored['lifecycle'] ?? '');
@@ -93,7 +93,7 @@ class ChecklistProgress {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
 	 */
 	public function openMandatory(array $record): array {
 		$open = [];
@@ -113,7 +113,7 @@ class ChecklistProgress {
 	 *
 	 * @return array{nextStepDueDate: string|null, nextStepTitle: string|null}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
 	 */
 	public function nextDue(array $record): array {
 		$next = ['nextStepDueDate' => null, 'nextStepTitle' => null];

@@ -102,7 +102,7 @@ export default {
 		 * The member's own-annotations export, which the personal-data step points at.
 		 *
 		 * @return {string} The download address.
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-002-offboardingtraject-schema-on-openregister
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-002-offboardingtraject-schema-on-openregister
 		 */
 		annotationsExportUrl() {
 			return exportUrl('csv')

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -53,7 +53,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
  * Every read is one bulk query per record type, so a large body does not
  * cost a query per member.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 class RosterTurnoverService {
 
@@ -131,7 +131,7 @@ class RosterTurnoverService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function bodyExists(string $bodyId): bool {
 		if (trim($bodyId) === '') {
@@ -153,7 +153,7 @@ class RosterTurnoverService {
 	 *
 	 * @return array{joining: list<array<string,mixed>>, leaving: list<array<string,mixed>>, ignored: list<array<string,mixed>>}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function suggest(string $bodyId, array $rows): array {
 		$roster  = $this->matcher->roster(rows: $rows);
@@ -191,7 +191,7 @@ class RosterTurnoverService {
 	 *
 	 * @throws InvalidArgumentException When the batch label is empty, or leaving members are confirmed without a valid end date.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function confirm(string $bodyId, array $request): array {
 		$batch = $this->batchOf(request: $request);
@@ -233,7 +233,7 @@ class RosterTurnoverService {
 	 *
 	 * @throws InvalidArgumentException When the batch label is empty, or leaving members are confirmed without a valid end date.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function batchOf(array $request): array {
 		$batch = trim((string) ($request['batch'] ?? ''));
@@ -261,7 +261,7 @@ class RosterTurnoverService {
 	 *
 	 * @return list<array{membershipId: string, personId: string, name: string, role: string, keys: list<string>}>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function activeMembers(string $bodyId): array {
 		$memberships = $this->currentMemberships(bodyId: $bodyId);
@@ -291,7 +291,7 @@ class RosterTurnoverService {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function currentMemberships(string $bodyId): array {
 		$today       = $this->time->getDateTime()->format('Y-m-d');
@@ -317,7 +317,7 @@ class RosterTurnoverService {
 	 *
 	 * @return array{onboarding: array<string, true>, offboarding: array<string, true>}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function openPathways(string $bodyId): array {
 		$open = ['onboarding' => [], 'offboarding' => []];
@@ -343,7 +343,7 @@ class RosterTurnoverService {
 	 *
 	 * @return array<string, string> Match key => person uuid.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function personsFor(array $roster): array {
 		$found = [];
@@ -378,7 +378,7 @@ class RosterTurnoverService {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function rows(string $schema, array $filters, ?array $ids=null): array {
 		if ($ids === []) {
@@ -411,7 +411,7 @@ class RosterTurnoverService {
 	 *
 	 * @return array<string, array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function byId(array $rows): array {
 		$byId = [];
@@ -429,7 +429,7 @@ class RosterTurnoverService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function isOpen(array $row): bool {
 		return in_array(($row['lifecycle'] ?? 'started'), ['completed', 'lapsed'], true) === false;
@@ -442,7 +442,7 @@ class RosterTurnoverService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function isDate(string $value): bool {
 		if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $parts) !== 1) {

@@ -41,7 +41,7 @@
  *
  * Written, not yet run: it needs a live instance.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md
  */
 import type { Locator, Page } from '@playwright/test'
 import type { Actor } from './support/api-actors.ts'

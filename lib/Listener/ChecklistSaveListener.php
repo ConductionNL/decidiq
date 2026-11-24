@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,7 +43,7 @@ use OCP\EventDispatcher\IEventListener;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
  */
 class ChecklistSaveListener implements IEventListener {
 
@@ -64,7 +64,7 @@ class ChecklistSaveListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
 	 */
 	public function __construct() {
 		$this->progress = new ChecklistProgress();
@@ -77,8 +77,8 @@ class ChecklistSaveListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent) {

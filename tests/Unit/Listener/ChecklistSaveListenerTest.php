@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\Decidiq\Listener\ChecklistSaveListener
  * @covers \OCA\Decidiq\Service\ChecklistProgress
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-003-declarative-traject-lifecycle
  */
 final class ChecklistSaveListenerTest extends TestCase {
 
@@ -174,7 +174,7 @@ final class ChecklistSaveListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-010-declarative-step-reminders
 	 */
 	public function testItIsSubscribedAndTheRemindersReadTheStampedDate(): void {
 		$guards = array_values(

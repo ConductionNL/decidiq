@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,7 +35,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * batch label of the confirmation. The only other write is a Person record
  * for a joining person who has none yet.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 final class TurnoverPathwayWriter {
 
@@ -89,7 +89,7 @@ final class TurnoverPathwayWriter {
 	 *
 	 * @return string The new onboarding uuid.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function createOnboarding(string $bodyId, array $suggestion): string {
 		$personId = (string) $suggestion['personId'];
@@ -131,7 +131,7 @@ final class TurnoverPathwayWriter {
 	 *
 	 * @return string The new offboarding uuid.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function createOffboarding(string $bodyId, array $suggestion): string {
 		$record = [
@@ -158,7 +158,7 @@ final class TurnoverPathwayWriter {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	private function openSteps(array $steps): array {
 		return array_map(static fn (array $step): array => $step + ['status' => 'open'], $steps);
@@ -171,7 +171,7 @@ final class TurnoverPathwayWriter {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function idOf(mixed $saved): string {
 		if ($saved instanceof ObjectEntityInterface === true && (string) $saved->getUuid() !== '') {
