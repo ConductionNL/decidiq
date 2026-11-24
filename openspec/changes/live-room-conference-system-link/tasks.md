@@ -9,7 +9,7 @@
   - GIVEN the connections file WHEN hydra gate `connections-declaration` runs THEN it passes
   - GIVEN the synchronisation user WHEN it lists participants (Newman) THEN `roomSeat` is present
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); tests/integration/decidiq-room-system-link.postman_collection.json reads roomSeat as the synchronisation user
   - Built: `Participant.roomSeat` and the `room-system` connection. The fragment is `lib/Settings/register.d/99-room-system-link.json`, not 92-: fragments merge in sorted name order, so 99- is needed for its Participant and Vote version bumps to win. The synchronisation user already reads participant, meeting and agenda-item through the register's `read: authenticated`, so no grant was added. Unit: `RoomSystemLinkRegisterTest`, `ConnectionsDeclarationTest`. Seats in `profiles/municipality.json`: every demo member has one, distinct within its body (`RoomSystemLinkRegisterTest::testTheDemoMembersHaveDistinctSeats`). Open: the Newman request as the synchronisation user.
 
 ### Task 2: The inbox schema and who may write it
@@ -19,7 +19,7 @@
   - GIVEN a member session WHEN it creates a message (Newman) THEN 403, red before the rule and green after
   - GIVEN the descriptor test WHEN it runs THEN the new schema is attached
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); RoomSystemLinkRegisterTest (PHPUnit, green here) and the decidiq-room-system-link collection: a member is refused, the synchronisation user writes
   - Built: `RoomSystemMessage`, attached to the register. `create` is open only to the new group `integriq-synchronisation` (OpenRegister provisions it; an administrator adds integriq's user), and update and delete are closed. Unit: `RoomSystemLinkRegisterTest`, plus `RegisterAuthorizationTest`, which classifies the new block. Open: the Newman 403 as a member.
 
 ### Task 3: Apply a speech
@@ -50,7 +50,7 @@
   - GIVEN hydra gates `route-auth`, `no-admin-idor` and `route-reachability` WHEN they run THEN they pass
   - GIVEN the Playwright spec WHEN it runs THEN it references the UI scenarios of REQ-RCSL-001 and REQ-RCSL-006
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); RoomSystemControllerTest (PHPUnit 403, green here), the decidiq-room-system-link collection (member apply 403) and tests/e2e/room-system-link.spec.ts
   - Built: `RoomSystemController` (`GET /api/meetings/{id}/room-system`, `POST /api/room-system-messages/{id}/apply`), both behind `TranscriptionStaffGuard::forMeeting()` on the message's own meeting before anything is read or applied; `RoomSystemMessageService` gains `isConnected()`, `forMeeting()` (rejected first) and `meetingOf()`, and refuses to apply while no source is linked ("No room system is connected", REQ-RCSL-001). `MeetingRoomSystemTab` on `MeetingDetail` (widget, layout, slot, simple-profile tab under More), both routes in `openapi.json`. Unit: `RoomSystemControllerTest` (403 before apply, 404 after the guard, read after the guard), `RoomSystemMessageServiceTest` (not connected, rejected first); vitest `meetingRoomSystemTab.spec.js`. route-auth and route-reachability pass; no-admin-idor lists `meeting()` as it lists `CaseSystemController::send()`, the same guard through the injected staff guard. Open: running the Playwright spec and the Newman 403. Written, not run (21 Nov): `tests/e2e/room-system-link.spec.ts` (REQ-RCSL-001: the widget says No room system is connected when none is linked; REQ-RCSL-006: a rejected desk vote from an unlinked seat is applied again once the seat is linked, and comes back applied for the participant). Each case skips with the reason when the instance is linked the other way.
 
 ### Task 6: Strings and docs

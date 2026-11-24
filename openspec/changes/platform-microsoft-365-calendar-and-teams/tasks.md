@@ -9,7 +9,7 @@
   - GIVEN the fragment imported on the dev instance WHEN a token is minted over `meeting` and the feed read THEN the seeded meetings appear as VEVENTs with start, end and location (Newman, red before the fragment and green after)
   - GIVEN a moved meeting WHEN the feed is read again THEN only the new date is present (Newman)
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); Newman folder 1 of tests/integration/decidiq-microsoft-365.postman_collection.json
   - Newman written: `tests/integration/decidiq-microsoft-365.postman_collection.json` folder 1 (feed holds the meeting with start, end and location; after a move only the new date). Not run live from the build session.
 
 ### Task 2: Remove the dead calendar call
@@ -29,7 +29,7 @@
   - GIVEN a member WHEN they subscribe THEN an `.ics` address and the Outlook line show (Playwright)
   - GIVEN one subscription WHEN they stop it THEN the list is empty and the address answers 404 (Playwright plus a request)
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); tests/e2e/calendar-subscription.spec.ts
   - Playwright written: `tests/e2e/calendar-subscription.spec.ts` (subscribe, the address answers without a session, stop, the address answers 404), as a member the spec creates. Not run live from the build session.
 
 ### Task 4: The Teams field and the create action
@@ -41,7 +41,7 @@
   - GIVEN a non-Teams address WHEN saved THEN OpenRegister rejects it (Newman)
   - GIVEN hydra gates `connections-declaration`, `route-auth`, `no-admin-idor` WHEN they run THEN they pass
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); TeamsMeetingServiceTest and TeamsMeetingControllerTest (PHPUnit, green here), Newman folder 2 of decidiq-microsoft-365
   - PHPUnit `tests/Unit/Service/TeamsMeetingServiceTest.php` (join address, id, author and time stored; in-person, second, non-Teams answer and no connection refused). Newman folder 2 of `decidiq-microsoft-365.postman_collection.json` (403 for a non-staff member, a non-Teams address refused). Not run live from the build session.
 
 ### Task 5: Join from the meeting and the live meeting page
@@ -50,7 +50,7 @@
 - **acceptance_criteria**:
   - GIVEN the seeded digital meeting WHEN the live page opens THEN "Join in Microsoft Teams" links to the join address in a new tab (Playwright)
 - [x] Implement
-- [ ] Test
+- [x] Test (written, runs in nightly: not run here, no live instance); tests/e2e/calendar-subscription.spec.ts
   - Playwright written: the join scenario of `tests/e2e/calendar-subscription.spec.ts`. Not run live from the build session.
 
 ### Task 6: Strings and docs
