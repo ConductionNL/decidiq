@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Leibhéal riosca {band}",
         "No risk band": "Gan leibhéal riosca",
         "Score {score}, from:": "Scór {score}, ó:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} pointe)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} pointe)",
+        "Transfer overdue": "Aistriú thar téarma",
+        "Retention not resolved": "Coinneáil gan réiteach"
     },
     "nplurals=2; plural=(n != 1);"
 )

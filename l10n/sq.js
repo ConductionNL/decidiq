@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Niveli i rrezikut {band}",
         "No risk band": "Pa nivel rreziku",
         "Score {score}, from:": "Pikët {score}, nga:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} pikë)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} pikë)",
+        "Transfer overdue": "Transferimi me vonesë",
+        "Retention not resolved": "Ruajtja e papërcaktuar"
     },
     "nplurals=2; plural=(n != 1);"
 )

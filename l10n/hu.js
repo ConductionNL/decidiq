@@ -3409,7 +3409,9 @@ OC.L10N.register(
         "Risk band {band}": "Kockázati szint: {band}",
         "No risk band": "Nincs kockázati szint",
         "Score {score}, from:": "Pontszám {score}, ebből:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} pont)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} pont)",
+        "Transfer overdue": "Átadás késésben",
+        "Retention not resolved": "Megőrzés nincs meghatározva"
     },
     "nplurals=2; plural=(n != 1);"
 )

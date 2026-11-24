@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Risk düzeyi {band}",
         "No risk band": "Risk düzeyi yok",
         "Score {score}, from:": "Puan {score}, kaynak:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} puan)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} puan)",
+        "Transfer overdue": "Aktarım gecikmiş",
+        "Retention not resolved": "Saklama belirlenmedi"
     },
     "nplurals=2; plural=(n != 1);"
 )

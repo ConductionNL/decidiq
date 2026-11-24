@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Niveau de risque {band}",
         "No risk band": "Aucun niveau de risque",
         "Score {score}, from:": "Score {score}, à partir de :",
-        "{property}: {value} (+{points})": "{property} : {value} (+{points} points)"
+        "{property}: {value} (+{points})": "{property} : {value} (+{points} points)",
+        "Transfer overdue": "Transfert en retard",
+        "Retention not resolved": "Conservation non déterminée"
     },
     "nplurals=2; plural=(n != 1);"
 )

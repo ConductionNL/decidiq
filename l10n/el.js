@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Επίπεδο κινδύνου {band}",
         "No risk band": "Χωρίς επίπεδο κινδύνου",
         "Score {score}, from:": "Βαθμολογία {score}, από:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} μον.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} μον.)",
+        "Transfer overdue": "Καθυστερημένη μεταφορά",
+        "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί"
     },
     "nplurals=2; plural=(n != 1);"
 )

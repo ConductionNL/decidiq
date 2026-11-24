@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Livell ta' riskju {band}",
         "No risk band": "L-ebda livell ta' riskju",
         "Score {score}, from:": "Punteġġ {score}, minn:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} punti)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} punti)",
+        "Transfer overdue": "Trasferiment tard",
+        "Retention not resolved": "Żamma mhux determinata"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3408,7 +3408,9 @@ OC.L10N.register(
         "Risk band {band}": "Riska līmenis {band}",
         "No risk band": "Nav riska līmeņa",
         "Score {score}, from:": "Punkti {score}, no:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} p.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} p.)",
+        "Transfer overdue": "Nodošana nokavēta",
+        "Retention not resolved": "Glabāšana nav noteikta"
     },
     "nplurals=2; plural=(n != 1);"
 )
