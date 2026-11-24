@@ -44,6 +44,7 @@ class ProxyHoldings {
 	 * Constructor for ProxyHoldings.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister ObjectService contract
+	 * @param ParticipantUuidLookup  $participants  Finds the caller's participant
 	 * @param LoggerInterface        $logger        The logger
 	 *
 	 * @return void
@@ -52,9 +53,32 @@ class ProxyHoldings {
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
+		private readonly ParticipantUuidLookup $participants,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
+
+	/**
+	 * The proxies a signed-in user holds and has given on a round; a user who
+	 * is no participant holds and gives nothing.
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 * @param string $nextcloudUid  The caller's Nextcloud UID
+	 *
+	 * @return array{participantId: string|null, held: list<array{participantId: string, displayName: string}>, granted: string|null}
+	 *
+	 * @throws RuntimeException When the round does not exist
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	public function forUser(string $votingRoundId, string $nextcloudUid): array {
+		$participantId = $this->participants->forNextcloudUser(nextcloudUid: $nextcloudUid);
+		if ($participantId === null) {
+			return ['participantId' => null, 'held' => [], 'granted' => null];
+		}
+
+		return $this->proxiesFor(votingRoundId: $votingRoundId, participantId: $participantId);
+	}//end forUser()
 
 	/**
 	 * Say which proxies a participant holds and has given on a round.

@@ -131,24 +131,12 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		try {
 			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
-				return [
-					'success' => false,
-					'lifecycle' => null,
-					'domain' => null,
-					'actions' => [],
-					'withdrawable' => false,
-					'states' => DecisionTransitionGuardInterface::STATES,
-					'message' => "Decision '$decisionId' not found.",
-				];
+				return self::noTransitions(message: "Decision '$decisionId' not found.");
 			}
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
 			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(
-				objectService: $this->objectService,
-				decision: $decision,
-				meeting: $meeting
-			);
+			$domain = $this->contextResolver->resolveDomain(objectService: $this->objectService, decision: $decision, meeting: $meeting);
 
 			// Process-configuration: when the decision's body has an assigned
 			// process template, its policy drives the guard; null otherwise so
@@ -190,18 +178,32 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				'Decidiq: failed to resolve available decision transitions',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
-			return [
-				'success' => false,
-				'lifecycle' => null,
-				'domain' => null,
-				'actions' => [],
-				'withdrawable' => false,
-				'states' => DecisionTransitionGuardInterface::STATES,
-				'message' => 'Failed to resolve available transitions.',
-			];
+			return self::noTransitions(message: 'Failed to resolve available transitions.');
 		}//end try
 
 	}//end getAvailableTransitions()
+
+	/**
+	 * The answer when a decision's transitions cannot be listed.
+	 *
+	 * @param string $message Why not
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return array{success: bool, lifecycle: null, domain: null, actions: array<int, array<string, mixed>>,
+	 *     withdrawable: bool, states: string[], message: string}
+	 */
+	private static function noTransitions(string $message): array {
+		return [
+			'success' => false,
+			'lifecycle' => null,
+			'domain' => null,
+			'actions' => [],
+			'withdrawable' => false,
+			'states' => DecisionTransitionGuardInterface::STATES,
+			'message' => $message,
+		];
+	}//end noTransitions()
 
 	/**
 	 * Apply a lifecycle transition to a decision.

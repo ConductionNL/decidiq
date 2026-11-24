@@ -3,10 +3,10 @@
 /**
  * Decidiq Voting Round Live Controller
  *
- * Read-only endpoints the voting panel polls while a round is open: the
- * running tally and the proxies the caller holds or has given. They sit
- * apart from VotingController, which changes rounds (open, cast, close,
- * publish, tally, proxy grant / revoke).
+ * Read-only endpoint the voting panel polls while a round is open: the
+ * running tally. It sits apart from VotingController, which changes rounds
+ * (open, cast, close, publish, tally, proxy grant / revoke); the proxies the
+ * caller holds are read through VotingRoundProxiesController.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -29,11 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ProxyHoldings;
-use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingRoundGuard;
 use OCA\Decidiq\Service\VotingRoundResults;
-use OCA\Decidiq\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -51,12 +48,9 @@ class VotingRoundLiveController extends Controller {
 	 * Constructor for VotingRoundLiveController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingService $votingService Resolves the caller's participant UUID
 	 * @param VotingRoundResults $results Running counts of an open round
 	 * @param IUserSession $userSession The user session
 	 * @param VotingRoundGuard $guard Per-meeting authorisation guard
-	 * @param ProxyHoldings $proxyHoldings Which proxies a participant holds and gave
-	 * @param VotingErrorResponder $errors Exception-to-status mapping
 	 *
 	 * @return void
 	 *
@@ -64,12 +58,9 @@ class VotingRoundLiveController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingService $votingService,
 		private readonly VotingRoundResults $results,
 		private readonly IUserSession $userSession,
 		private readonly VotingRoundGuard $guard,
-		private readonly ProxyHoldings $proxyHoldings,
-		private readonly VotingErrorResponder $errors,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -112,45 +103,4 @@ class VotingRoundLiveController extends Controller {
 		return new JSONResponse($counts);
 
 	}//end liveTally()
-
-	/**
-	 * Say which proxies the caller holds and has given on a round.
-	 *
-	 * GET /api/voting-rounds/{id}/proxy
-	 * Response: { "participantId": "uuid", "held": [{ "participantId", "displayName" }], "granted": "uuid"|null }
-	 *
-	 * The voting panel reads it to offer the holder "vote on behalf of" for
-	 * each grant they hold; each held participantId is the `delegatorId` the
-	 * cast endpoint takes. The caller is resolved from the session, as
-	 * VotingController::cast() and proxy() do, so the answer names the same
-	 * participant they act as.
-	 *
-	 * @param string $id The voting round UUID
-	 *
-	 * @NoAdminRequired
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function proxies(string $id): JSONResponse {
-		$nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
-		if ($nextcloudUid === '') {
-			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
-		if ($participantId === null) {
-			// Not a participant: nothing held, nothing given.
-			return new JSONResponse(['participantId' => null, 'held' => [], 'granted' => null]);
-		}
-
-		return $this->errors->badRequestOrNotFound(
-			fn (): JSONResponse => new JSONResponse(
-				$this->proxyHoldings->proxiesFor(votingRoundId: $id, participantId: $participantId)
-			)
-		);
-
-	}//end proxies()
 }//end class

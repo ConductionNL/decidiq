@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ParticipantUuidLookup;
 use OCA\Decidiq\Service\ProxyHoldings;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -69,7 +70,11 @@ class ProxyHoldingsTest extends TestCase {
 			}
 		);
 
-		return new ProxyHoldings(objectService: $objectService, logger: new NullLogger());
+		return new ProxyHoldings(
+			objectService: $objectService,
+			participants: $this->createMock(originalClassName: ParticipantUuidLookup::class),
+			logger: new NullLogger()
+		);
 	}//end holdings()
 
 	/**

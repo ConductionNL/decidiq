@@ -62,23 +62,21 @@ class DecisionController extends Controller {
 	 * Constructor for DecisionController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services for publication)
+	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services and the withdraw flow)
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
 	 * @param DecisionLifecycleServiceInterface $lifecycleService Guarded decision state machine
-	 * @param DecisionWithdrawFlow $withdrawFlow Guarded decision withdrawal (REQ-DWP-005)
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
 	public function __construct(
 		IRequest $request,
-		ContainerInterface $container,
+		private ContainerInterface $container,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
 		LoggerInterface $logger,
 		private DecisionLifecycleServiceInterface $lifecycleService,
-		private DecisionWithdrawFlow $withdrawFlow,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
@@ -302,7 +300,7 @@ class DecisionController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden: only administrators may withdraw decisions.'], Http::STATUS_FORBIDDEN);
 		}
 
-		$result = $this->withdrawFlow->withdraw(
+		$result = $this->container->get(DecisionWithdrawFlow::class)->withdraw(
 			decisionId: $decisionId,
 			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
 			reason: (string)$this->request->getParam('reason', ''),

@@ -106,14 +106,16 @@ class DecisionWithdrawEndpointTest extends TestCase {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, $default = null) => ($params[$key] ?? $default));
 
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$container->method('get')->willReturn(value: $this->flow);
+
 		return new DecisionController(
 			request: $request,
-			container: $this->createMock(originalClassName: ContainerInterface::class),
+			container: $container,
 			userSession: $this->session,
 			groupManager: $this->groups,
 			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			lifecycleService: $this->createMock(originalClassName: DecisionLifecycleService::class),
-			withdrawFlow: $this->flow,
 		);
 	}
 

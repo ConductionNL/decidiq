@@ -139,7 +139,7 @@ class VotingDeadlineReminderService implements VotingDeadlineReminderServiceInte
 
 		$due = [];
 		foreach ($rows as $entity) {
-			$row = $this->rowToArray(entity: $entity);
+			$row = VotingReminderAudience::rowToArray(entity: $entity);
 			if ($row !== null && $this->roundNeedsReminder(row: $row, now: $now) === true) {
 				$due[] = $row;
 			}
@@ -208,27 +208,6 @@ class VotingDeadlineReminderService implements VotingDeadlineReminderServiceInte
 		}
 
 	}//end isClosed()
-
-	/**
-	 * Normalise one OpenRegister list item (entity or array) to an array.
-	 *
-	 * @param mixed $entity ObjectEntity or already-serialized array
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return array<string, mixed>|null The row, or null when unusable
-	 */
-	private function rowToArray(mixed $entity): ?array {
-		if (is_object($entity) === true) {
-			return (array)$entity->jsonSerialize();
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		return null;
-	}//end rowToArray()
 
 	/**
 	 * Send the reminder for one round and stamp the sent marker.

@@ -141,13 +141,17 @@ class DecisionWithdrawFlow {
 				return $this->failure(message: $e->getMessage());
 			}
 
-			return $this->persistWithdrawal(
-				decision: $decision,
+			$run = (new DecisionTransitionRun(
 				decisionId: $decisionId,
-				withdrawn: $withdrawn,
-				currentLifecycle: $currentLifecycle,
-				currentUserId: $currentUserId
+				action: 'withdraw',
+				currentUserId: $currentUserId,
+				comment: $withdrawn['withdrawnBy'] . ': ' . $withdrawn['withdrawnReason']
+			))->entering(
+				transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
+				currentLifecycle: $currentLifecycle
 			);
+
+			return $this->persistWithdrawal(decision: $decision, withdrawn: $withdrawn, run: $run);
 		} catch (DoesNotExistException) {
 			return $this->failure(message: "Decision '$decisionId' not found.");
 		} catch (\Throwable $e) {
@@ -197,23 +201,15 @@ class DecisionWithdrawFlow {
 	 * entry, not in an undeclared `history` property. `outcome` is
 	 * deliberately not in the patch: it stays exactly as it was.
 	 *
-	 * @param array<string, mixed> $decision Decision object array (pre-withdrawal)
-	 * @param string $decisionId UUID of the decision being withdrawn
-	 * @param array<string, mixed> $withdrawn Decision as stamped by DecisionWithdrawalService
-	 * @param string $currentLifecycle The pre-withdrawal lifecycle state
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user (audit actor)
+	 * @param array<string, mixed>  $decision  Decision object array (pre-withdrawal)
+	 * @param array<string, mixed>  $withdrawn Decision as stamped by DecisionWithdrawalService
+	 * @param DecisionTransitionRun $run       The withdrawal: decision, audit actor, comment and states
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
 	 *
 	 * @return array{success: bool, decision: array|null, message: string}
 	 */
-	private function persistWithdrawal(
-		array $decision,
-		string $decisionId,
-		array $withdrawn,
-		string $currentLifecycle,
-		?string $currentUserId,
-	): array {
+	private function persistWithdrawal(array $decision, array $withdrawn, DecisionTransitionRun $run): array {
 		$patch = [
 			'lifecycle' => 'withdrawn',
 			'withdrawn' => true,
@@ -224,23 +220,12 @@ class DecisionWithdrawFlow {
 
 		// Object-level write ACL: saveObject() throws when the session user lacks
 		// write access on this specific object (caught by withdraw(), generic error).
+		$target  = new ObjectFindTarget(register: 'decidiq', schema: 'decision');
 		$updated = $this->objectService->saveObject(
 			object: array_merge($decision, $patch),
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
-				uuid: $decisionId
-			)
+			options: new ObjectSaveOptions(target: $target, uuid: $run->decisionId)
 		);
 
-		$run = (new DecisionTransitionRun(
-			decisionId: $decisionId,
-			action: 'withdraw',
-			currentUserId: $currentUserId,
-			comment: $patch['withdrawnBy'] . ': ' . $patch['withdrawnReason']
-		))->entering(
-			transition: ['from' => DecisionTransitionGuard::WITHDRAWABLE_STATES, 'to' => 'withdrawn'],
-			currentLifecycle: $currentLifecycle
-		);
 		$this->lifecycleService->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
 
 		return [

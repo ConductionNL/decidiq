@@ -25,7 +25,6 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\DecisionController;
 use OCA\Decidiq\Service\ConfidentialityRestrictions;
 use OCA\Decidiq\Service\DecisionLifecycleService;
-use OCA\Decidiq\Service\DecisionWithdrawFlow;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Http;
@@ -137,7 +136,6 @@ class DecisionControllerTest extends TestCase {
 			groupManager: $this->groupManager,
 			logger: $this->logger,
 			lifecycleService: $this->lifecycleService,
-			withdrawFlow: $this->createMock(originalClassName: DecisionWithdrawFlow::class),
 		);
 
 	}//end setUp()
@@ -160,7 +158,6 @@ class DecisionControllerTest extends TestCase {
 			groupManager: $this->groupManager,
 			logger: $this->logger,
 			lifecycleService: $this->lifecycleService,
-			withdrawFlow: $this->createMock(originalClassName: DecisionWithdrawFlow::class),
 		);
 
 		// Container must NOT be called for an unauthenticated request.
@@ -444,7 +441,6 @@ class DecisionControllerTest extends TestCase {
 			groupManager: $this->groupManager,
 			logger: $this->logger,
 			lifecycleService: $this->lifecycleService,
-			withdrawFlow: $this->createMock(originalClassName: DecisionWithdrawFlow::class),
 		);
 
 		$this->lifecycleService->expects($this->never())->method('transition');

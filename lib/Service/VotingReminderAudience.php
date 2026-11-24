@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions as FindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -112,7 +112,7 @@ class VotingReminderAudience {
 
 		$uids = [];
 		foreach ($votes as $entity) {
-			$row = $this->rowToArray(entity: $entity);
+			$row = self::rowToArray(entity: $entity);
 			$ownerId = null;
 			if ($row !== null) {
 				$ownerId = $this->ballotOwnerId(vote: $row);
@@ -195,7 +195,7 @@ class VotingReminderAudience {
 
 		$uids = [];
 		foreach ($participants as $entity) {
-			$row = $this->rowToArray(entity: $entity);
+			$row = self::rowToArray(entity: $entity);
 			$uid = null;
 			if ($row !== null) {
 				$uid = $this->rowUserId(row: $row);
@@ -221,7 +221,7 @@ class VotingReminderAudience {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
+			$entity = $objectService->find(id: $participantId, options: new FindOptions(register: 'decidiq', schema: 'participant'));
 		} catch (\Throwable) {
 			return null;
 		}
@@ -242,7 +242,7 @@ class VotingReminderAudience {
 	 *
 	 * @return array<string, mixed>|null The row, or null when unusable
 	 */
-	private function rowToArray(mixed $entity): ?array {
+	public static function rowToArray(mixed $entity): ?array {
 		if (is_object($entity) === true) {
 			return (array)$entity->jsonSerialize();
 		}

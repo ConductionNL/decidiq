@@ -81,7 +81,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 * @param SigningAnswer $answers Reads the signing service's answers
-	 * @param FilinqSigningRequest|null $filinqRequest Builds the body filinq's signing route reads
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -89,7 +88,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly SigningAnswer $answers = new SigningAnswer(),
-		private readonly ?FilinqSigningRequest $filinqRequest = null,
 	) {
 	}//end __construct()
 
@@ -687,11 +685,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		// Docudesk IS registered — compose the signingRequest (fail-closed from here).
 		try {
-			if ($this->filinqRequest === null) {
-				throw new RuntimeException('The filinq signing request builder is not available.');
-			}
-
-			$payload = $this->filinqRequest->payload(
+			// Built by the container, so a missing collaborator fails closed below.
+			$payload = $this->container->get(FilinqSigningRequest::class)->payload(
 				subjectType: $subjectType,
 				subjectId: $minutesId,
 				signatories: array_values(array_map('strval', $signatories))

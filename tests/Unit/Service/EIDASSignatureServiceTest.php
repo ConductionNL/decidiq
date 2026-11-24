@@ -112,6 +112,10 @@ class EIDASSignatureServiceTest extends TestCase {
 					return $callService;
 				}
 
+				if ($id === FilinqSigningRequest::class) {
+					return $request;
+				}
+
 				throw new \RuntimeException('Service ' . $id . ' is not registered');
 			}
 		);
@@ -330,9 +334,13 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
-			function (string $id) use ($callService) {
+			function (string $id) use ($callService, $request) {
 				if ($id === 'OCA\\Integriq\\Service\\CallService') {
 					return $callService;
+				}
+
+				if ($id === FilinqSigningRequest::class) {
+					return $request;
 				}
 
 				throw new \RuntimeException('Service ' . $id . ' is not registered');
@@ -357,8 +365,7 @@ class EIDASSignatureServiceTest extends TestCase {
 			container: $container,
 			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			auditLogService: $this->createMock(originalClassName: AuditLogService::class),
-			objectService: $objectService,
-			filinqRequest: $request
+			objectService: $objectService
 		);
 	}//end makeFilinqService()
 

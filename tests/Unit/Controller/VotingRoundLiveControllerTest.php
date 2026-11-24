@@ -25,12 +25,8 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\VotingRoundLiveController;
 use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\Decidiq\Service\ProxyHoldings;
-use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingRoundGuard;
 use OCA\Decidiq\Service\VotingRoundResults;
-use OCA\Decidiq\Service\VotingService;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -41,7 +37,6 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * Tests for VotingRoundLiveController auth guards.
@@ -49,13 +44,6 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/voting-system/spec.md
  */
 class VotingRoundLiveControllerTest extends TestCase {
-
-	/**
-	 * Mock VotingService.
-	 *
-	 * @var VotingService&MockObject
-	 */
-	private VotingService&MockObject $votingService;
 
 	/**
 	 * Mock VotingRoundResults.
@@ -72,7 +60,6 @@ class VotingRoundLiveControllerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->votingService = $this->createMock(originalClassName: VotingService::class);
 		$this->results = $this->createMock(originalClassName: VotingRoundResults::class);
 
 	}//end setUp()
@@ -89,7 +76,6 @@ class VotingRoundLiveControllerTest extends TestCase {
 
 		return new VotingRoundLiveController(
 			request: $this->createMock(originalClassName: IRequest::class),
-			votingService: $this->votingService,
 			results: $this->results,
 			userSession: $session,
 			guard: new VotingRoundGuard(
@@ -99,29 +85,9 @@ class VotingRoundLiveControllerTest extends TestCase {
 				participantResolver: $this->createMock(originalClassName: ParticipantResolver::class),
 				container: $container,
 			),
-			proxyHoldings: new ProxyHoldings(
-				objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
-				logger: new NullLogger(),
-			),
-			errors: new VotingErrorResponder(logger: new NullLogger()),
 		);
 
 	}//end buildAnonymousController()
-
-	/**
-	 * proxies() returns 401 for unauthenticated requests.
-	 *
-	 * @return void
-	 */
-	public function testProxiesUnauthenticatedReturns401(): void {
-		$this->votingService->expects($this->never())->method('resolveParticipantUuid');
-
-		$result = $this->buildAnonymousController()->proxies('round-uuid-001');
-
-		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
-		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
-
-	}//end testProxiesUnauthenticatedReturns401()
 
 	/**
 	 * liveTally() returns 401 for unauthenticated requests without reading the round.
@@ -145,7 +111,7 @@ class VotingRoundLiveControllerTest extends TestCase {
 	public function testAllActionMethodsHaveNoAdminRequiredAttribute(): void {
 		$ref = new \ReflectionClass(VotingRoundLiveController::class);
 
-		foreach (['liveTally', 'proxies'] as $methodName) {
+		foreach (['liveTally'] as $methodName) {
 			self::assertNotEmpty(
 				actual: $ref->getMethod($methodName)->getAttributes(NoAdminRequired::class),
 				message: "VotingRoundLiveController::{$methodName}() must carry #[NoAdminRequired]"

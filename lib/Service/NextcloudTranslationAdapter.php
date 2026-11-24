@@ -99,12 +99,7 @@ class NextcloudTranslationAdapter implements ITranslationAdapter {
 	 */
 	public function translate(string $text, string $sourceLocale, string $targetLocale): array {
 		if ($sourceLocale === $targetLocale) {
-			return [
-				'success' => true,
-				'text' => $text,
-				'provider' => 'noop',
-				'message' => 'Source and target locales are equal.',
-			];
+			return self::answer(success: true, text: $text, provider: 'noop', message: 'Source and target locales are equal.');
 		}
 
 		$manager = $this->manager();
@@ -114,69 +109,70 @@ class NextcloudTranslationAdapter implements ITranslationAdapter {
 				['sourceLocale' => $sourceLocale, 'targetLocale' => $targetLocale]
 			);
 
-			return [
-				'success' => false,
-				'text' => $text,
-				'provider' => 'none',
-				'message' => 'No Nextcloud translation provider is installed; the minutes were not translated.',
-			];
+			return self::answer(
+				success: false,
+				text: $text,
+				provider: 'none',
+				message: 'No Nextcloud translation provider is installed; the minutes were not translated.'
+			);
 		}
 
 		$provider = $this->providerId(manager: $manager);
 
 		try {
-			$task = new Task(
-				self::TASK_TYPE,
-				[
-					'input' => $text,
-					'origin_language' => $sourceLocale,
-					'target_language' => $targetLocale,
-				],
-				Application::APP_ID,
-				null
-			);
-			$result = $manager->runTask($task);
+			$input  = ['input' => $text, 'origin_language' => $sourceLocale, 'target_language' => $targetLocale];
+			$result = $manager->runTask(new Task(self::TASK_TYPE, $input, Application::APP_ID, null));
 		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: TaskProcessing translation failed',
-				['exception' => $e->getMessage()]
-			);
-
-			return [
-				'success' => false,
-				'text' => $text,
-				'provider' => $provider,
-				'message' => 'Translation failed: ' . $e->getMessage(),
-			];
+			$this->logger->warning('Decidiq: TaskProcessing translation failed', ['exception' => $e->getMessage()]);
+			return self::answer(success: false, text: $text, provider: $provider, message: 'Translation failed: ' . $e->getMessage());
 		}
 
-		$output = $result->getOutput();
-		$translated = '';
+		$translated = self::outputText(output: $result->getOutput());
+		if ($result->getStatus() !== Task::STATUS_SUCCESSFUL || $translated === '') {
+			$why = ($result->getErrorMessage() ?? 'the provider returned no text.');
+			return self::answer(success: false, text: $text, provider: $provider, message: 'Translation failed: ' . $why);
+		}
+
+		return self::answer(success: true, text: $translated, provider: $provider, message: 'Translated via Nextcloud TaskProcessing.');
+	}//end translate()
+
+	/**
+	 * The translated text in a task's output, or '' when there is none.
+	 *
+	 * @param mixed $output The task output
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return string
+	 */
+	private static function outputText(mixed $output): string {
 		$value = null;
 		if (is_array($output) === true) {
 			$value = ($output['output'] ?? null);
 		}
 
 		if (is_string($value) === true) {
-			$translated = $value;
+			return $value;
 		}
 
-		if ($result->getStatus() !== Task::STATUS_SUCCESSFUL || $translated === '') {
-			return [
-				'success' => false,
-				'text' => $text,
-				'provider' => $provider,
-				'message' => 'Translation failed: ' . ($result->getErrorMessage() ?? 'the provider returned no text.'),
-			];
-		}
+		return '';
+	}//end outputText()
 
-		return [
-			'success' => true,
-			'text' => $translated,
-			'provider' => $provider,
-			'message' => 'Translated via Nextcloud TaskProcessing.',
-		];
-	}//end translate()
+	/**
+	 * The adapter's answer.
+	 *
+	 * @param bool   $success  Whether the text was translated
+	 * @param string $text     The translated text, or the source text on failure
+	 * @param string $provider Which provider answered
+	 * @param string $message  What happened
+	 *
+	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string}
+	 */
+	private static function answer(bool $success, string $text, string $provider, string $message): array {
+		return ['success' => $success, 'text' => $text, 'provider' => $provider, 'message' => $message];
+	}//end answer()
 
 	/**
 	 * The TaskProcessing manager, or null when the container cannot give one.
