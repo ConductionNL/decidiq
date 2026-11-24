@@ -83,9 +83,10 @@
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed spec THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude` (backend-only invariants excluded to PHPUnit as appropriate)
   - GIVEN the seeded environment WHEN the e2e suite runs THEN create → beediging → provision → pack → afgerond (onboarding), end-date → revoke → exit-confirm (offboarding, incl. the completion block while revocation is open), and diff → deselect → confirm (batch) pass end-to-end through the UI
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for the change spec on 24 Nov; the gaps the written spec named are built, see below)
+- [x] Test (written, runs in nightly: not run here, no live instance)
 - Written, not run (20 Nov): `tests/e2e/member-onboarding.spec.ts` (onboarding, offboarding with the completion block, batch diff and confirm, dashboard). Provisioning, pack delivery and revocation are called through their routes because the detail page has no buttons for them yet. Two tests assert the spec where the build has no guard yet: completing a traject with open mandatory steps by a plain save, and leaving a terminal state. Running it needs a live instance.
+- Built (24 Nov): `ChecklistSaveListener` refuses completing with an open mandatory step (naming the steps) and leaving completed or lapsed, on every write; it stamps `nextStepDueDate`/`nextStepTitle`, which the due-soon (`withinNext P7D`) and overdue (`before now`) reminders now read and name. Their lifecycle clause uses `in`: the bare list they had is not in OpenRegister's filter grammar and never matched. The personal-data step links to the own-annotations export. Tests: `ChecklistSaveListenerTest` (7), `onboardingChecklist.spec.js` (+1), e2e cases for the export link and a plain member's 403.
 
 ## Quality checklist
 
