@@ -39,6 +39,7 @@ use OCA\Decidiq\Event\DecisionRequestedEvent;
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyStateRequestedEvent;
+use OCA\Decidiq\Event\MeetingRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
 use OCA\Decidiq\Listener\ApprovalTaskDecisionListener;
@@ -46,6 +47,7 @@ use OCA\Decidiq\Listener\DecisionRequestedListener;
 use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyStateRequestedListener;
+use OCA\Decidiq\Listener\MeetingRequestedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
@@ -81,6 +83,11 @@ class CrossAppEventRegistrar {
 		// Read that governance body back, with its roster. The READ half of the
 		// pair above, so a consumer stops reading its own stale copy.
 		GovernanceBodyStateRequestedEvent::class => GovernanceBodyStateRequestedListener::class,
+
+		// Hold a meeting for a consumer's object (a case session with parties),
+		// keyed on that object so a re-plan moves the one meeting it has.
+		// @spec openspec/specs/meeting-requested-event/spec.md
+		MeetingRequestedEvent::class => MeetingRequestedListener::class,
 
 		// Hold a sign-off route, and travel a subject down it. Both delegate to
 		// the EXISTING ApprovalRouteService: these add a door, not a second
