@@ -12,6 +12,7 @@
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
 import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
+import * as transcriptSegmentsModule from '../../src/utils/transcriptSegments.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 const FILE = path.resolve(
@@ -47,6 +48,7 @@ async function run(setup, answer) {
 		'@nextcloud/vue': { NcButton: {}, NcSelect: {}, NcTextArea: {} },
 		'../../modals/TranscriptionConsentModal.vue': { default: {} },
 		'../../utils/saveOrThrow.js': saveOrThrowModule,
+		'../../utils/transcriptSegments.js': transcriptSegmentsModule,
 		'../../utils/minutesDraft.js': {
 			keptSections: () => [],
 			minutesFromAiDraft: (minutes, draft) => ({ ...minutes, draft }),
