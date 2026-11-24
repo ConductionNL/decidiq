@@ -10,7 +10,7 @@
  * agenda slot links to `#transcript-segment-<whole seconds>` on the meeting
  * page, where the transcript gives every segment that anchor.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 
 const PREFIX = 'transcript-segment-'
@@ -20,7 +20,7 @@ const PREFIX = 'transcript-segment-'
  *
  * @param {number|string|null|undefined} value Seconds (number or numeric text), or m:ss / h:mm:ss.
  * @return {number|null} Whole seconds, or null when the value names no moment.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 export function segmentStart(value) {
 	if (typeof value === 'number') {
@@ -42,7 +42,7 @@ export function segmentStart(value) {
  *
  * @param {number} seconds The start in seconds.
  * @return {string} The element id, without '#'.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 export function segmentAnchor(seconds) {
 	return `${PREFIX}${Math.floor(Number(seconds) || 0)}`
@@ -53,7 +53,7 @@ export function segmentAnchor(seconds) {
  *
  * @param {string} hash A location hash such as '#transcript-segment-754'.
  * @return {number|null} The start in seconds, or null.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 export function startFromHash(hash) {
 	const match = String(hash ?? '').match(/^#?transcript-segment-(\d+)$/)
@@ -65,7 +65,7 @@ export function startFromHash(hash) {
  *
  * @param {number} seconds The start in seconds.
  * @return {string} The formatted moment.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 export function formatOffset(seconds) {
 	const total = Math.max(0, Math.floor(Number(seconds) || 0))
@@ -81,7 +81,7 @@ export function formatOffset(seconds) {
  * @param {string} meetingId The meeting the speaker spoke at.
  * @param {number|string|null|undefined} transcriptSegment The speaking request's segment start.
  * @return {object|null} A route to the meeting page at the segment.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 export function transcriptRoute(meetingId, transcriptSegment) {
 	const start = segmentStart(transcriptSegment)

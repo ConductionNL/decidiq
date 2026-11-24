@@ -4,7 +4,7 @@
 /**
  * A speaker's slot links to the transcript segment where they spoke (inspreekrecht-plenair, REQ-INS-006).
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
  */
 import { describe, expect, it } from 'vitest'
 import { formatOffset, segmentAnchor, segmentStart, startFromHash, transcriptRoute } from '../../src/utils/transcriptSegments.js'

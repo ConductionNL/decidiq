@@ -7133,12 +7133,12 @@
 			"decidiq": "no",
 			"built": {
 				"state": "specified",
-				"evidence": "openspec/changes/inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
+				"evidence": "openspec/changes/archive/2026-11-24-inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
 				"owner": "ConductionNL/decidiq",
 				"change": "inspreekrecht-plenair",
 				"requirement": [
-					"openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-001 Generalized inspraak-aanmelding schema on OpenRegister",
-					"openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-004 Registration API enforces policy and closes at the deadline"
+					"openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-001 Generalized inspraak-aanmelding schema on OpenRegister",
+					"openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-004 Registration API enforces policy and closes at the deadline"
 				]
 			},
 			"reachedOn": "nothing reaches it: change specified only, no schema or page",
@@ -7146,7 +7146,7 @@
 			"providerHow": "read-from-code",
 			"feature": "citizen-participation",
 			"featureConfidence": "high",
-			"note": "Speaking registration is an open OpenSpec change with no code. corrections round 9 (2026-09-28): carried by openspec/changes/inspreekrecht-plenair (open, 0 of 16 tasks), which specifies the registration API, griffie moderation and speaking slots for any meeting type; the public form itself is portaliq's (the proposal's Out of Scope).",
+			"note": "Speaking registration is an open OpenSpec change with no code. corrections round 9 (2026-09-28): carried by openspec/changes/archive/2026-11-24-inspreekrecht-plenair (open, 0 of 16 tasks), which specifies the registration API, griffie moderation and speaking slots for any meeting type; the public form itself is portaliq's (the proposal's Out of Scope).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "partial",

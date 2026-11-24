@@ -8,7 +8,7 @@
  colour alone). Rejected requests are not shown; the server leaves them out.
  Shared by the agenda item and the meeting page (meeting-level speakers).
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 -->
 <template>
 	<div class="speaking-slots" data-testid="speaking-slots">
@@ -82,13 +82,13 @@ export default {
 	watch: {
 		meetingId: {
 			immediate: true,
-			/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+			/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
 			handler() {
 				this.load()
 			},
 		},
 
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda */
 		place() {
 			this.load()
 		},
@@ -98,7 +98,7 @@ export default {
 		/**
 		 * Read the meeting's speakers and keep this place's.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 		 */
 		async load() {
 			this.slots = []
@@ -122,7 +122,7 @@ export default {
 		 *
 		 * @param {object} slot An approved slot.
 		 * @return {object|null} A route to the meeting page at the segment.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
 		 */
 		transcriptLink(slot) {
 			return transcriptRoute(this.meetingId, slot?.transcriptSegment)
@@ -133,7 +133,7 @@ export default {
 		 *
 		 * @param {object} slot An approved slot.
 		 * @return {string} m:ss or h:mm:ss.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
 		 */
 		transcriptTime(slot) {
 			return formatOffset(segmentStart(slot?.transcriptSegment))
@@ -144,7 +144,7 @@ export default {
 		 *
 		 * @param {string} status The request's lifecycle.
 		 * @return {string} The label.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 		 */
 		stateLabel(status) {
 			if (status === 'spoke') return this.t('decidiq', 'Spoke')

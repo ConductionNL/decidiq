@@ -47,8 +47,8 @@
  *
  * Written, not yet run: it needs a live instance.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md
  */
 import type { APIResponse, Page } from '@playwright/test'
 

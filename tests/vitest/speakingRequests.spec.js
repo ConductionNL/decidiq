@@ -7,7 +7,7 @@
  * registration deadline state, the moderation/queue API calls, and the
  * dialogs' shared moderation helpers.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

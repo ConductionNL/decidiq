@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 
 import axios from '@nextcloud/axios'
@@ -26,7 +26,7 @@ const meetings = '/apps/decidiq/api/meetings'
  * @param {string} requestId The speaking request UUID.
  * @param {{allottedMinutes?: number|null, position?: number|null}} [values] Minutes and order; absent ones default on the server.
  * @return {Promise<object>} The approved request.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function approveSpeakingRequest(requestId, values = {}) {
 	const body = {}
@@ -42,7 +42,7 @@ export async function approveSpeakingRequest(requestId, values = {}) {
  * @param {string} requestId The speaking request UUID.
  * @param {string} rejectionReason Why it is rejected (required by the server).
  * @return {Promise<object>} The rejected request.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function rejectSpeakingRequest(requestId, rejectionReason) {
 	const { data } = await axios.post(
@@ -59,7 +59,7 @@ export async function rejectSpeakingRequest(requestId, rejectionReason) {
  * @param {string} meeting The meeting it moves to.
  * @param {string} [agendaItem] The agenda item it moves to; empty for the meeting as a whole.
  * @return {Promise<object>} The referred request.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function referSpeakingRequest(requestId, meeting, agendaItem = '') {
 	const body = { meeting }
@@ -74,7 +74,7 @@ export async function referSpeakingRequest(requestId, meeting, agendaItem = '') 
  * @param {string} requestId The speaking request UUID.
  * @param {'spoke'|'no-show'} outcome The outcome.
  * @return {Promise<object>} The updated request.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export async function markSpeakingOutcome(requestId, outcome) {
 	const { data } = await axios.post(
@@ -90,7 +90,7 @@ export async function markSpeakingOutcome(requestId, outcome) {
  *
  * @param {string} meetingId The meeting UUID.
  * @return {Promise<object>} `{ [place]: { slots: [], pending: [] } }`.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
  */
 export async function fetchSpeakingSlots(meetingId) {
 	const { data } = await axios.get(generateUrl(`${meetings}/${encodeURIComponent(meetingId)}/speaking-slots`))
@@ -104,7 +104,7 @@ export async function fetchSpeakingSlots(meetingId) {
  * @param {string} meetingId The meeting UUID.
  * @param {string|null} agendaItemId The current agenda item; empty for the meeting block.
  * @return {Promise<Array>} Queue rows `{ requestId, kind, name, minutes, position }`.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export async function fetchSpeakingQueue(meetingId, agendaItemId) {
 	const { data } = await axios.get(
@@ -136,7 +136,7 @@ const bodyDeadlines = new Map()
  * Forget the cached meeting starts and body deadlines (tests, and a page
  * that wants fresh values).
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
  */
 export function clearDeadlineCache() {
 	meetingStarts.clear()
@@ -148,7 +148,7 @@ export function clearDeadlineCache() {
  *
  * @param {string} meetingId The meeting UUID.
  * @return {Promise<string|null>} The meeting's scheduledDate.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
  */
 export function meetingStartOf(meetingId) {
 	if (!meetingStarts.has(meetingId)) {
@@ -165,7 +165,7 @@ export function meetingStartOf(meetingId) {
  *
  * @param {string} bodyId The governance body UUID.
  * @return {Promise<number|null>} The policy's registrationDeadlineHours.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications
  */
 export function deadlineHoursOf(bodyId) {
 	if (!bodyDeadlines.has(bodyId)) {
@@ -192,7 +192,7 @@ export function deadlineHoursOf(bodyId) {
  * @param {string} fallbackName The name of a speaker the request did not name.
  * @param {number} now Current timestamp (ms).
  * @return {Promise<{itemId: string, entries: Array}|null>} The preload.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
  */
 export async function queuePreloadFor(meeting, itemId, fallbackName, now) {
 	if (!meeting?.id || meeting.lifecycle !== 'opened' || !itemId) return null

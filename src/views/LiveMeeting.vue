@@ -534,7 +534,7 @@ export default {
 		/**
 		 * Read the approved public speakers of the item that became current.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		activeItemId() {
 			this.loadPublicSpeakers()
@@ -601,7 +601,7 @@ export default {
 		 * can place them. Only staff of an opened meeting get them; for
 		 * anyone else the queue stays as it was.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		async loadPublicSpeakers() {
 			const itemId = this.activeItemId
@@ -615,7 +615,7 @@ export default {
 		 * @param {string} requestId The speaking request.
 		 * @param {'spoke'|'no-show'} outcome The outcome.
 		 * @return {Promise<object>} The updated request.
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 		 */
 		markSpeakerOutcome(requestId, outcome) {
 			return markSpeakingOutcome(requestId, outcome)

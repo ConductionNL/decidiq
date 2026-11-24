@@ -1,6 +1,6 @@
 {
 	"_note": "inspreekrecht-plenair: one speaking-request schema for every kind of meeting, and a per-body speaking policy. Named in plain words (InspraakAanmelding is a speaking request, InspraakBeleid a speaking policy) because the app declares no schema or property in one country's word for something every organisation does (the-last-two-dutch-names). Numbered 64 as the design says.",
-	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md",
 	"components": {
 		"registers": {
 			"decidiq": {

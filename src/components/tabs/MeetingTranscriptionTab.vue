@@ -595,7 +595,7 @@ export default {
 		 *
 		 * A speaker's slot on the agenda links here with #transcript-segment-<seconds>.
 		 *
-		 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
 		 */
 		showLinkedSegment() {
 			this.linkedStart = startFromHash(this.$route?.hash)
