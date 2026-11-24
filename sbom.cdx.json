@@ -3267,8 +3267,8 @@
       "type": "library",
       "name": "files",
       "group": "@nextcloud",
-      "version": "4.1.0",
-      "bom-ref": "decidiq@0.1.0|@nextcloud/files@4.1.0",
+      "version": "4.1.1",
+      "bom-ref": "decidiq@0.1.0|@nextcloud/files@4.1.1",
       "licenses": [
         {
           "license": {
@@ -3276,15 +3276,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40nextcloud/files@4.1.0",
+      "purl": "pkg:npm/%40nextcloud/files@4.1.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@nextcloud/files/-/files-4.1.0.tgz",
+          "url": "https://registry.npmjs.org/@nextcloud/files/-/files-4.1.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "0b8e5fc41c54f6fe47438dfb23eaf812ea86fc0f4262a36760cdf896d77114d48132321dec3a1126b93950303b42c0b8781fc23f5c4dc454a9918fa0e913d65c"
+              "content": "ddfbda04d39b5c58d58059b416f3d7afeaed621d8250601cd3ef7c76120fd000bb43e502558230c81dedb120463f6f479ea196a86458ee765a8fb808ecdcdbbd"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -22288,8 +22288,8 @@
     {
       "type": "library",
       "name": "webdav",
-      "version": "5.10.0",
-      "bom-ref": "decidiq@0.1.0|webdav@5.10.0",
+      "version": "5.11.0",
+      "bom-ref": "decidiq@0.1.0|webdav@5.11.0",
       "licenses": [
         {
           "license": {
@@ -22297,15 +22297,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/webdav@5.10.0",
+      "purl": "pkg:npm/webdav@5.11.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/webdav/-/webdav-5.10.0.tgz",
+          "url": "https://registry.npmjs.org/webdav/-/webdav-5.11.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "7d53ee44bb5c76e546bd23bb4e7ffa4d00b322f23f83a04effec4f45cb42be2fc6cad6298e7e1ccf159b8781ec02bb1da26f6acfd048eb793dfefd87054ba2d4"
+              "content": "0db512f2b1ef5ac7b9e44887334ab9ab5cf77954422d65bb55aee652a036fc925d40721ec383a9d874e094790124338056b41e41fd08f9111426422b62ab4bfb"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -22322,7 +22322,7 @@
           "type": "library",
           "name": "entities",
           "version": "6.0.1",
-          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|entities@6.0.1",
+          "bom-ref": "decidiq@0.1.0|webdav@5.11.0|entities@6.0.1",
           "licenses": [
             {
               "license": {
@@ -22355,7 +22355,7 @@
           "type": "library",
           "name": "minimatch",
           "version": "11.0.8",
-          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|minimatch@11.0.8",
+          "bom-ref": "decidiq@0.1.0|webdav@5.11.0|minimatch@11.0.8",
           "licenses": [
             {
               "license": {
