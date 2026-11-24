@@ -159,13 +159,20 @@
               "type": "scheduled",
               "intervalSec": 1209600,
               "filter": {
-                "lifecycle": [
-                  "received",
-                  "in-progress",
-                  "constituencyConsultation",
-                  "consultationMeeting",
-                  "adopted"
-                ]
+                "lifecycle": {
+                  "operator": "in",
+                  "values": [
+                    "received",
+                    "in-progress",
+                    "constituencyConsultation",
+                    "consultationMeeting",
+                    "adopted"
+                  ]
+                },
+                "requestedResponseDate": {
+                  "operator": "withinNext",
+                  "value": "P14D"
+                }
               }
             },
             "enabled": true,
@@ -188,21 +195,31 @@
               "nl": "Rappel: gevraagde reactiedatum WOR-traject nadert — {{subject}}",
               "en": "Reminder: requested response date approaching — {{subject}}"
             },
-            "_note": "Pre-response-date rappel (REQ-WCC-007). intervalSec 1209600 (~14 days) is PROVISIONAL (design D5 open question — tuning deferred to a future admin-settings change). Filter targets non-terminal lifecycle states before verzonden only, so no rappel fires for verzonden/besluit-ontvangen/afgerond/ingetrokken. Same window-semantics caveat as the toezeggingen-register pattern: the 'requestedResponseDate within window' vs 'past date' distinction is carried by the scheduled engine's window semantics, which this simple filter shape cannot express as a date comparison — verify OR's scheduled-notification engine interprets these two triggers as before/after-date rappels during live import."
+            "_note": "Pre-response-date rappel (REQ-WCC-007). intervalSec 1209600 (~14 days) is PROVISIONAL (design D5 open question — tuning deferred to a future admin-settings change). Filter targets non-terminal lifecycle states before verzonden only, so no rappel fires for verzonden/besluit-ontvangen/afgerond/ingetrokken. Same window-semantics caveat as the toezeggingen-register pattern: the 'requestedResponseDate within window' vs 'past date' distinction is carried by the scheduled engine's window semantics, which this simple filter shape cannot express as a date comparison — verify OR's scheduled-notification engine interprets these two triggers as before/after-date rappels during live import. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           },
           "consultationRappelOverdue": {
             "trigger": {
               "type": "scheduled",
               "intervalSec": 604800,
               "filter": {
-                "lifecycle": [
-                  "received",
-                  "in-progress",
-                  "constituencyConsultation",
-                  "consultationMeeting",
-                  "adopted"
-                ]
-              }
+                "lifecycle": {
+                  "operator": "in",
+                  "values": [
+                    "received",
+                    "in-progress",
+                    "constituencyConsultation",
+                    "consultationMeeting",
+                    "adopted"
+                  ]
+                },
+                "requestedResponseDate": {
+                  "operator": "before",
+                  "value": "now"
+                }
+              },
+              "dedupeFields": [
+                "requestedResponseDate"
+              ]
             },
             "enabled": true,
             "channels": [
@@ -224,16 +241,23 @@
               "nl": "Rappel: WOR-traject over de gevraagde reactiedatum — {{subject}}",
               "en": "Reminder: works-council consultation past its requested response date — {{subject}}"
             },
-            "_note": "Overdue rappel (REQ-WCC-007). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal lifecycle states before verzonden, so no notification fires for verzonden/besluit-ontvangen/afgerond/ingetrokken. Same window-semantics caveat as consultationRappelBeforeResponseDate."
+            "_note": "Overdue rappel (REQ-WCC-007). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal lifecycle states before verzonden, so no notification fires for verzonden/besluit-ontvangen/afgerond/ingetrokken. Same window-semantics caveat as consultationRappelBeforeResponseDate. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           },
           "consultationOpschortingExpiry": {
             "trigger": {
               "type": "scheduled",
               "intervalSec": 604800,
               "filter": {
-                "lifecycle": [
-                  "decision-received"
-                ]
+                "lifecycle": {
+                  "operator": "in",
+                  "values": [
+                    "decision-received"
+                  ]
+                },
+                "suspensionTo": {
+                  "operator": "withinNext",
+                  "value": "P7D"
+                }
               }
             },
             "enabled": true,
@@ -256,7 +280,7 @@
               "nl": "Opschortingstermijn (art. 25 lid 6) verloopt — {{subject}}",
               "en": "Suspension period (art. 25 lid 6) expiring — {{subject}}"
             },
-            "_note": "Opschortingstermijn-expiry notice (REQ-WCC-007). intervalSec 604800 (weekly) is PROVISIONAL. Filter targets lifecycle besluit-ontvangen (where a running opschortingTot can exist). The 'opschortingTot within/at the window' predicate is not expressible in this filter DSL — same window-semantics caveat as the rappels; verify OR's scheduled-notification engine interprets opschortingTot during live import. Only meaningful when opschortingTot is set (afwijkend adviesaanvraag)."
+            "_note": "Opschortingstermijn-expiry notice (REQ-WCC-007). intervalSec 604800 (weekly) is PROVISIONAL. Filter targets lifecycle besluit-ontvangen (where a running opschortingTot can exist). The 'opschortingTot within/at the window' predicate is not expressible in this filter DSL — same window-semantics caveat as the rappels; verify OR's scheduled-notification engine interprets opschortingTot during live import. Only meaningful when opschortingTot is set (afwijkend adviesaanvraag). Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           }
         },
         "required": [

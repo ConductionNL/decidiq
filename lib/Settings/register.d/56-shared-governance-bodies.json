@@ -296,10 +296,17 @@
               "type": "scheduled",
               "intervalSec": 1209600,
               "filter": {
-                "status": [
-                  "outstanding",
-                  "in-preparation"
-                ]
+                "status": {
+                  "operator": "in",
+                  "values": [
+                    "outstanding",
+                    "in-preparation"
+                  ]
+                },
+                "deadline": {
+                  "operator": "withinNext",
+                  "value": "P14D"
+                }
               }
             },
             "enabled": true,
@@ -322,18 +329,28 @@
               "nl": "Rappel: deadline zienswijze nadert - {{title}}",
               "en": "Reminder: zienswijze deadline approaching - {{title}}"
             },
-            "_note": "REQ-SGB-009 (1): pre-deadline rappel. intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred, the toezeggingen values). Filter targets non-terminal status only so no rappel fires for ingediend/verwerkt/niet-ingediend; the 'deadline within window' vs 'deadline past' distinction is carried by the scheduled engine's window semantics — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import (same caveat as the toezeggingen-register precedent)."
+            "_note": "REQ-SGB-009 (1): pre-deadline rappel. intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred, the toezeggingen values). Filter targets non-terminal status only so no rappel fires for ingediend/verwerkt/niet-ingediend; the 'deadline within window' vs 'deadline past' distinction is carried by the scheduled engine's window semantics — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import (same caveat as the toezeggingen-register precedent). Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           },
           "zienswijzeRappelOverdue": {
             "trigger": {
               "type": "scheduled",
               "intervalSec": 604800,
               "filter": {
-                "status": [
-                  "outstanding",
-                  "in-preparation"
-                ]
-              }
+                "status": {
+                  "operator": "in",
+                  "values": [
+                    "outstanding",
+                    "in-preparation"
+                  ]
+                },
+                "deadline": {
+                  "operator": "before",
+                  "value": "now"
+                }
+              },
+              "dedupeFields": [
+                "deadline"
+              ]
             },
             "enabled": true,
             "channels": [
@@ -355,7 +372,7 @@
               "nl": "Rappel: zienswijze over deadline - {{title}}",
               "en": "Reminder: zienswijze past deadline - {{title}}"
             },
-            "_note": "REQ-SGB-009 (2): overdue rappel. intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal status so no rappel fires for a terminal zienswijze. Same window-semantics caveat as zienswijzeRappelBeforeDeadline."
+            "_note": "REQ-SGB-009 (2): overdue rappel. intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal status so no rappel fires for a terminal zienswijze. Same window-semantics caveat as zienswijzeRappelBeforeDeadline. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           }
         },
         "required": [

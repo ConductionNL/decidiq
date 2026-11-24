@@ -104,10 +104,17 @@
               "type": "scheduled",
               "intervalSec": 1209600,
               "filter": {
-                "lifecycle": [
-                  "sent",
-                  "in-progress"
-                ]
+                "lifecycle": {
+                  "operator": "in",
+                  "values": [
+                    "sent",
+                    "in-progress"
+                  ]
+                },
+                "requestedByDate": {
+                  "operator": "withinNext",
+                  "value": "P14D"
+                }
               }
             },
             "enabled": true,
@@ -130,18 +137,28 @@
               "nl": "Rappel: adviestermijn nadert — {{subject}}",
               "en": "Reminder: advice deadline approaching — {{subject}}"
             },
-            "_note": "Pre-deadline rappel (REQ-AOW-006). intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets non-terminal, pre-advies lifecycle only. Same window-semantics caveat as the toezeggingen-register rappels: the 'requestedByDate within window' vs 'past requestedByDate' distinction is carried by the scheduled engine's window interpretation, not expressible in this filter DSL — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import. No bespoke reminder BackgroundJob."
+            "_note": "Pre-deadline rappel (REQ-AOW-006). intervalSec 1209600 (~14 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets non-terminal, pre-advies lifecycle only. Same window-semantics caveat as the toezeggingen-register rappels: the 'requestedByDate within window' vs 'past requestedByDate' distinction is carried by the scheduled engine's window interpretation, not expressible in this filter DSL — verify OR's scheduled-notification engine interprets these two triggers as before/after-deadline rappels during live import. No bespoke reminder BackgroundJob. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           },
           "adviesaanvraagRappelOverdue": {
             "trigger": {
               "type": "scheduled",
               "intervalSec": 604800,
               "filter": {
-                "lifecycle": [
-                  "sent",
-                  "in-progress"
-                ]
-              }
+                "lifecycle": {
+                  "operator": "in",
+                  "values": [
+                    "sent",
+                    "in-progress"
+                  ]
+                },
+                "requestedByDate": {
+                  "operator": "before",
+                  "value": "now"
+                }
+              },
+              "dedupeFields": [
+                "requestedByDate"
+              ]
             },
             "enabled": true,
             "channels": [
@@ -163,7 +180,7 @@
               "nl": "Rappel: adviestermijn verstreken zonder advies — {{subject}}",
               "en": "Reminder: advice deadline passed without advice — {{subject}}"
             },
-            "_note": "Overdue rappel (REQ-AOW-006). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal, pre-advies lifecycle so no notification fires for advies-uitgebracht/verantwoord/afgerond/niet-uitgebracht. Same window-semantics caveat as adviesaanvraagRappelBeforeDeadline. Recipients approximate 'advisory body + griffie' via object-acl (read) + decidesk-members group, because no recipient kind targets the advisoryBody GovernanceBody reference directly."
+            "_note": "Overdue rappel (REQ-AOW-006). intervalSec 604800 (weekly) is PROVISIONAL. Filters non-terminal, pre-advies lifecycle so no notification fires for advies-uitgebracht/verantwoord/afgerond/niet-uitgebracht. Same window-semantics caveat as adviesaanvraagRappelBeforeDeadline. Recipients approximate 'advisory body + griffie' via object-acl (read) + decidesk-members group, because no recipient kind targets the advisoryBody GovernanceBody reference directly. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
           }
         },
         "authorization": {
