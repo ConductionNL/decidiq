@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * its roster. Everyone else is refused, and so is anyone when the body is
  * unknown or the roster cannot be read.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 class PathwayStaffGuard {
 
@@ -79,7 +79,7 @@ class PathwayStaffGuard {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function mayManage(string $userId, string $bodyId): bool {
 		if ($userId === '') {
@@ -108,7 +108,7 @@ class PathwayStaffGuard {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	private function secretariatGroups(): array {
 		$mapped = ($this->settings->roleGroupMapping()['secretariat'] ?? []);
@@ -124,7 +124,7 @@ class PathwayStaffGuard {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	private function isBodySecretary(string $userId, string $bodyId): bool {
 		try {

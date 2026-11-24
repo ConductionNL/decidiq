@@ -1874,6 +1874,8 @@ OC.L10N.register(
         "Projected to Deck": "Projected to Deck",
         "Checklist": "Checklist",
         "This checklist has no steps.": "This checklist has no steps.",
+        "The member downloads their own annotations themselves:": "The member downloads their own annotations themselves:",
+        "Own-annotations export": "Own-annotations export",
         "(optional)": "(optional)",
         "Mark as done": "Mark as done",
         "Skip": "Skip",

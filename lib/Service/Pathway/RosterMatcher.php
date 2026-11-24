@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Service\Pathway;
  * member whose keys hit no roster person is leaving. Pure: it reads nothing
  * and writes nothing.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 final class RosterMatcher {
 
@@ -41,7 +41,7 @@ final class RosterMatcher {
 	 *
 	 * @return array{people: array<string, array<string, mixed>>, ignored: list<array<string,mixed>>}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function roster(array $rows): array {
 		$people  = [];
@@ -83,7 +83,7 @@ final class RosterMatcher {
 	 *
 	 * @return array<string, true>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function keySet(iterable $items): array {
 		$set = [];
@@ -104,7 +104,7 @@ final class RosterMatcher {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function joiningOf(array $people, array $context): array {
 		$joining = [];
@@ -139,7 +139,7 @@ final class RosterMatcher {
 	 *
 	 * @return list<array<string,mixed>>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function leavingOf(array $members, array $context): array {
 		$leaving = [];
@@ -168,7 +168,7 @@ final class RosterMatcher {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	public function personKeys(array $person): array {
 		return $this->keys(
@@ -185,7 +185,7 @@ final class RosterMatcher {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function keys(string $uid, string $email): array {
 		$keys = [];
@@ -208,7 +208,7 @@ final class RosterMatcher {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function anyKey(array $keys, array $set): bool {
 		foreach ($keys as $key) {
@@ -228,7 +228,7 @@ final class RosterMatcher {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 	 */
 	private function personIdFor(array $keys, array $persons): string {
 		foreach ($keys as $key) {

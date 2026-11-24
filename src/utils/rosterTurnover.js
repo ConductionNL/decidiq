@@ -5,7 +5,7 @@
 // diffed on the server against the body's active memberships; the
 // secretariat deselects what should not happen and confirms. Nothing is
 // created before the confirmation, and the server checks every confirmed
-// suggestion again. @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+// suggestion again. @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
@@ -15,7 +15,7 @@ import { generateUrl } from '@nextcloud/router'
  *
  * @param {Array<{name: string, email: string, role: string}>} rows Parsed CSV rows.
  * @return {Array<{name: string, email: string, role: string}>} Rows with an email.
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 export function rosterRows(rows) {
 	return (rows || [])
@@ -32,7 +32,7 @@ export function rosterRows(rows) {
  *
  * @param {{joining: Array<{key: string}>, leaving: Array<{membershipId: string}>}} suggestions The server's suggestions.
  * @return {{joining: string[], leaving: string[]}} The selected keys.
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 export function selectAll(suggestions) {
 	return {
@@ -48,7 +48,7 @@ export function selectAll(suggestions) {
  * @param {{joining: string[], leaving: string[]}} selection The selected suggestions.
  * @param {{batch: string, endDate: string, endReason?: string}} options The batch label and the leavers' end date.
  * @return {object} The request body.
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 export function confirmPayload(rows, selection, options) {
 	return {
@@ -68,7 +68,7 @@ export function confirmPayload(rows, selection, options) {
  * @param {{joining: string[], leaving: string[]}} selection The selected suggestions.
  * @param {{batch: string, endDate: string}} options The batch label and end date.
  * @return {boolean} True when the request is complete.
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 export function canConfirm(selection, options) {
 	const count = selection.joining.length + selection.leaving.length
@@ -86,7 +86,7 @@ export function canConfirm(selection, options) {
  * @param {object} body The request body.
  * @return {Promise<object>} The response data.
  * @throws {Error} With the server's message on a non-2xx answer.
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
  */
 export async function postTurnover(bodyId, action, body) {
 	const response = await fetch(

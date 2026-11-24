@@ -11,7 +11,7 @@
  date, and confirms. The server checks every confirmed suggestion again and
  reports what it rejected. Memberships are never created or ended here.
 
- @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+ @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 -->
 <template>
 	<NcDialog
@@ -123,7 +123,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
+		/** @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
 		endDate() {
 			const value = this.endDateValue
 			if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
@@ -133,12 +133,12 @@ export default {
 			return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`
 		},
 
-		/** @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
+		/** @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
 		selectedCount() {
 			return this.selection.joining.length + this.selection.leaving.length
 		},
 
-		/** @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
+		/** @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import */
 		ready() {
 			return this.suggestions !== null && canConfirm(this.selection, { batch: this.batch, endDate: this.endDate })
 		},
@@ -149,7 +149,7 @@ export default {
 		 * Read the CSV and ask the server for the suggestions.
 		 *
 		 * @param {Event} event The file input's change event.
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 		 */
 		async onFile(event) {
 			const file = event?.target?.files?.[0]
@@ -182,7 +182,7 @@ export default {
 		 * @param {string} list `joining` or `leaving`.
 		 * @param {string} key The suggestion key.
 		 * @param {boolean} selected Whether it is selected.
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 		 */
 		toggle(list, key, selected) {
 			const without = this.selection[list].filter((k) => k !== key)
@@ -192,7 +192,7 @@ export default {
 		/**
 		 * Send the confirmation and report what was created and rejected.
 		 *
-		 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+		 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
 		 */
 		async confirm() {
 			this.busy = true

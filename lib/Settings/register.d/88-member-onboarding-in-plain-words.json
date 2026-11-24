@@ -101,11 +101,22 @@
 							"type": "scheduled",
 							"intervalSec": 86400,
 							"filter": {
-								"lifecycle": [
-									"started",
-									"in-execution"
-								]
-							}
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"started",
+										"in-execution"
+									]
+								},
+								"nextStepDueDate": {
+									"operator": "withinNext",
+									"value": "P7D"
+								}
+							},
+							"dedupeFields": [
+								"nextStepDueDate",
+								"nextStepTitle"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -125,21 +136,32 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: onboardingstap nadert de deadline — {{person}}",
-							"en": "Reminder: onboarding step due soon — {{person}}"
+							"nl": "Rappel: onboardingstap nadert de deadline — {{nextStepTitle}} ({{person}})",
+							"en": "Reminder: onboarding step due soon — {{nextStepTitle}} ({{person}})"
 						},
-						"_note": "Due-soon step rappel (REQ-MOB-010). intervalSec 86400 (daily) is PROVISIONAL. Filter targets non-terminal lifecycle only. The 'a step's dueDate is approaching' vs 'a step is past its dueDate' distinction lives inside the steps array; the simple filter shape cannot express a per-step dueDate comparison — verify OR's scheduled-notification engine interprets this and onboardingStepOverdue as due-soon/overdue window semantics at live import (same caveat as the toezegging rappels)."
+						"_note": "Due-soon step reminder (REQ-MOB-010): fires for a non-final onboarding whose open step due first falls within seven days. nextStepDueDate and nextStepTitle are stamped on every save by ChecklistSaveListener, because a filter cannot look inside the steps list; dedupeFields re-arm the reminder when the next due step changes. The lifecycle clause uses the in operator: a bare list is not part of the filter grammar and matched nothing."
 					},
 					"onboardingStepOverdue": {
 						"trigger": {
 							"type": "scheduled",
 							"intervalSec": 86400,
 							"filter": {
-								"lifecycle": [
-									"started",
-									"in-execution"
-								]
-							}
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"started",
+										"in-execution"
+									]
+								},
+								"nextStepDueDate": {
+									"operator": "before",
+									"value": "now"
+								}
+							},
+							"dedupeFields": [
+								"nextStepDueDate",
+								"nextStepTitle"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -159,10 +181,10 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: onboardingstap over de deadline — {{person}}",
-							"en": "Reminder: onboarding step past due — {{person}}"
+							"nl": "Rappel: onboardingstap over de deadline — {{nextStepTitle}} ({{person}})",
+							"en": "Reminder: onboarding step past due — {{nextStepTitle}} ({{person}})"
 						},
-						"_note": "Overdue step rappel (REQ-MOB-010). intervalSec 86400 (daily) is PROVISIONAL. Filters non-terminal lifecycle so nothing fires for completed or lapsed records. Same per-step-dueDate window caveat as onboardingStepDueSoon."
+						"_note": "Overdue step reminder (REQ-MOB-010): fires for a non-final onboarding whose open step due first is past its due date, naming the step and the person. Same stamped fields and re-arming as the due-soon reminder."
 					}
 				},
 				"required": [
@@ -349,6 +371,22 @@
 							"lapsed"
 						],
 						"example": "started"
+					},
+					"nextStepDueDate": {
+						"title": "Next step due",
+						"type": "string",
+						"format": "date",
+						"nullable": true,
+						"readOnly": true,
+						"facetable": true,
+						"description": "The due date of the open step that is due first; set by the server on every save (ChecklistSaveListener) so the reminders can read it."
+					},
+					"nextStepTitle": {
+						"title": "Next step",
+						"type": "string",
+						"nullable": true,
+						"readOnly": true,
+						"description": "The title of the open step that is due first; set by the server with nextStepDueDate."
 					}
 				}
 			},
@@ -450,11 +488,22 @@
 							"type": "scheduled",
 							"intervalSec": 86400,
 							"filter": {
-								"lifecycle": [
-									"started",
-									"in-execution"
-								]
-							}
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"started",
+										"in-execution"
+									]
+								},
+								"nextStepDueDate": {
+									"operator": "withinNext",
+									"value": "P7D"
+								}
+							},
+							"dedupeFields": [
+								"nextStepDueDate",
+								"nextStepTitle"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -474,21 +523,32 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: offboardingstap nadert de deadline — {{person}}",
-							"en": "Reminder: offboarding step due soon — {{person}}"
+							"nl": "Rappel: offboardingstap nadert de deadline — {{nextStepTitle}} ({{person}})",
+							"en": "Reminder: offboarding step due soon — {{nextStepTitle}} ({{person}})"
 						},
-						"_note": "Due-soon step rappel (REQ-MOB-010). intervalSec 86400 (daily) is PROVISIONAL. Filters non-terminal lifecycle. Per-step dueDate window semantics: verify against OR's scheduled-notification engine at live import (same caveat as the onboarding rappels)."
+						"_note": "Due-soon step reminder (REQ-MOB-010): fires for a non-final offboarding whose open step due first falls within seven days. nextStepDueDate and nextStepTitle are stamped on every save by ChecklistSaveListener, because a filter cannot look inside the steps list; dedupeFields re-arm the reminder when the next due step changes. The lifecycle clause uses the in operator: a bare list is not part of the filter grammar and matched nothing."
 					},
 					"offboardingStepOverdue": {
 						"trigger": {
 							"type": "scheduled",
 							"intervalSec": 86400,
 							"filter": {
-								"lifecycle": [
-									"started",
-									"in-execution"
-								]
-							}
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"started",
+										"in-execution"
+									]
+								},
+								"nextStepDueDate": {
+									"operator": "before",
+									"value": "now"
+								}
+							},
+							"dedupeFields": [
+								"nextStepDueDate",
+								"nextStepTitle"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -508,10 +568,10 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: offboardingstap over de deadline — {{person}}",
-							"en": "Reminder: offboarding step past due — {{person}}"
+							"nl": "Rappel: offboardingstap over de deadline — {{nextStepTitle}} ({{person}})",
+							"en": "Reminder: offboarding step past due — {{nextStepTitle}} ({{person}})"
 						},
-						"_note": "Overdue step rappel (REQ-MOB-010). intervalSec 86400 (daily) is PROVISIONAL. Filters non-terminal lifecycle. Same per-step-dueDate window caveat as offboardingStepDueSoon."
+						"_note": "Overdue step reminder (REQ-MOB-010): fires for a non-final offboarding whose open step due first is past its due date, naming the step and the person. Same stamped fields and re-arming as the due-soon reminder."
 					}
 				},
 				"required": [
@@ -682,6 +742,22 @@
 							"lapsed"
 						],
 						"example": "started"
+					},
+					"nextStepDueDate": {
+						"title": "Next step due",
+						"type": "string",
+						"format": "date",
+						"nullable": true,
+						"readOnly": true,
+						"facetable": true,
+						"description": "The due date of the open step that is due first; set by the server on every save (ChecklistSaveListener) so the reminders can read it."
+					},
+					"nextStepTitle": {
+						"title": "Next step",
+						"type": "string",
+						"nullable": true,
+						"readOnly": true,
+						"description": "The title of the open step that is due first; set by the server with nextStepDueDate."
 					}
 				}
 			},

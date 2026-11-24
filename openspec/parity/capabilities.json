@@ -1491,7 +1491,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"plan": "openspec/changes/member-onboarding",
+				"plan": "openspec/changes/archive/2026-11-24-member-onboarding",
 				"state": "building",
 				"evidence": "lib/Settings/register.d/88-member-onboarding-in-plain-words.json MemberOnboarding/MemberOffboarding with steps[] checklist and lifecycle; src/manifest.d/member-onboarding.json MemberOnboarding/MemberOffboarding index+detail (generic data widget); no PHP service executes steps (grep 'onboarding' in lib/Service, lib/Listener: none); completion guard and created-notification only as x-openregister-lifecycle/x-openregister-notifications declarations",
 				"owner": "ConductionNL/decidiq",
