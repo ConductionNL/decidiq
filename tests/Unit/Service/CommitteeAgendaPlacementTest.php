@@ -228,10 +228,13 @@ class CommitteeAgendaPlacementTest extends TestCase {
 		$this->assertSame(expected: [], actual: $this->store->findAll(schema: 'agenda-item', filters: []));
 
 		// Another body's meeting and a past meeting of this body take nothing.
-		$this->assertSame(expected: 0, actual: $placement->placePending(meeting: $this->meeting(id: 'm-raad', body: 'raad', date: '2026-03-10T10:00:00+00:00')));
-		$this->assertSame(expected: 0, actual: $placement->placePending(meeting: $this->meeting(id: 'm-old', body: 'college', date: '2026-02-10T10:00:00+00:00')));
+		$raad = $this->meeting(id: 'm-raad', body: 'raad', date: '2026-03-10T10:00:00+00:00');
+		$past = $this->meeting(id: 'm-old', body: 'college', date: '2026-02-10T10:00:00+00:00');
+		$this->assertSame(expected: 0, actual: $placement->placePending(meeting: $raad));
+		$this->assertSame(expected: 0, actual: $placement->placePending(meeting: $past));
 
-		$this->assertSame(expected: 1, actual: $placement->placePending(meeting: $this->meeting(id: 'm-new', body: 'college', date: '2026-03-20T10:00:00+00:00')));
+		$next = $this->meeting(id: 'm-new', body: 'college', date: '2026-03-20T10:00:00+00:00');
+		$this->assertSame(expected: 1, actual: $placement->placePending(meeting: $next));
 		$stage = $this->store->find(schema: 'decision-stage', uuid: 'st-2');
 		$this->assertFalse(condition: $stage['placementPending']);
 		$this->assertSame(expected: 'm-new', actual: $this->store->find(schema: 'agenda-item', uuid: $stage['agendaItem'])['meeting']);
@@ -297,7 +300,8 @@ class CommitteeAgendaPlacementTest extends TestCase {
 
 		$this->assertNull(actual: $placement->placeStage(stage: $this->store->find(schema: 'decision-stage', uuid: 'st-3')));
 		$this->assertNull(actual: $placement->placeStage(stage: ['id' => 'x', 'stepKind' => 'committee', 'status' => 'active']));
-		$this->assertFalse(condition: CommitteeAgendaPlacement::awaitsPlacement(stage: ['stepKind' => 'committee', 'status' => 'pending', 'committeeBody' => 'college']));
+		$pending = ['stepKind' => 'committee', 'status' => 'pending', 'committeeBody' => 'college'];
+		$this->assertFalse(condition: CommitteeAgendaPlacement::awaitsPlacement(stage: $pending));
 
 		$this->store->patch(schema: 'decision-stage', data: ['agendaItem' => 'ai-9'], uuid: 'st-2');
 		$this->assertNull(actual: $placement->closeFromDecision(decision: ['agendaItem' => 'ai-9']));
