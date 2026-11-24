@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: The deciding body on a decision
-- **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it`
 - **files**: `lib/Settings/register.d/92-decisions-report-cut.json`, `lib/Listener/DecisionDecidingBodyListener.php`, `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`, `lib/Repair/FillDecisionDecidingBody.php`, `appinfo/info.xml`, `tests/Unit/Listener/DecisionDecidingBodyListenerTest.php`
 - **acceptance_criteria**:
   - GIVEN a decision created from a council meeting WHEN saved THEN `decidingBody` is the council's uuid
@@ -13,7 +13,7 @@
 - [x] Test (`tests/Unit/Listener/DecisionDecidingBodyListenerTest.php`, on OpenRegister's event classes)
 
 ### Task 2: The aggregation endpoint takes the period
-- **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`
 - **files**: `tests/newman/decisions-report-cut.json`
 - **acceptance_criteria**:
   - GIVEN three decisions dated 2025 and two dated 2026 WHEN the aggregation endpoint counts with `decisionDate` gte 2026-01-01 THEN it answers 2
@@ -21,7 +21,7 @@
 - [x] Test (Newman; this is the proof the page note was wrong. Written, not yet run against a live instance) (written, runs in nightly: not run here, no live instance)
 
 ### Task 3: Period picker on the report
-- **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`
 - **files**: `src/manifest.json` (`DecisionsReport` dateRange, every source filter, new `_note`)
 - **acceptance_criteria**:
   - GIVEN the report WHEN the griffier picks last year THEN every tile and chart counts only decisions dated last year
@@ -30,7 +30,7 @@
 - [x] Test (Playwright compares the Adopted tile before and after the pick; the filters are unit-tested in `tests/vitest/decisionsReportCut.spec.js`) (written, runs in nightly: not run here, no live instance)
 
 ### Task 4: Body picker and By body chart
-- **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-003-the-decisions-report-can-be-cut-per-body`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-003-the-decisions-report-can-be-cut-per-body`
 - **files**: `src/components/reports/DecisionsReportBodyPicker.vue`, `src/registry.js`, `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN decisions of the council and the college WHEN the griffier picks the college THEN every figure counts the college's decisions only
@@ -39,7 +39,7 @@
 - [x] Test (vitest done in `tests/vitest/decisionsReportCut.spec.js`: the picker's workspace key reaches every filter; Playwright end to end left) (written, runs in nightly: not run here, no live instance)
 
 ### Task 5: Open the same decisions as a list
-- **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-004-the-report-opens-its-decisions-as-an-exportable-list`
+- **spec_ref**: `openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-004-the-report-opens-its-decisions-as-an-exportable-list`
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN the college and this quarter picked WHEN the griffier chooses Show these decisions THEN the Decisions list opens with the same body and dates applied and its export exports those rows

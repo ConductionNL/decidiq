@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\Decidiq\Exception\PlannedAgendaReportException
  * @uses   \OCA\Decidiq\Service\PlannedAgendaReportRenderer
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 class PlannedAgendaReportServiceTest extends TestCase {
 

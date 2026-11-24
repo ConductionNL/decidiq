@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+ * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -47,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+ * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
  */
 class ImplementationUpdateListener implements IEventListener {
 
@@ -69,7 +69,7 @@ class ImplementationUpdateListener implements IEventListener {
 	 * @param IUserSession                    $userSession    The caller who reports
 	 * @param LoggerInterface                 $logger         Logger
 	 *
-	 * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+	 * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -90,7 +90,7 @@ class ImplementationUpdateListener implements IEventListener {
 	 *     update, plus one save when the update is the newest. Deferred, the
 	 *     secretariat would see the decision's old status right after reporting.
 	 *
-	 * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+	 * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent) {
@@ -110,7 +110,7 @@ class ImplementationUpdateListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-001-an-adopted-decision-takes-dated-progress-updates
+	 * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-001-an-adopted-decision-takes-dated-progress-updates
 	 */
 	private function guard(ObjectCreatingEvent $event): void {
 		$entity = $event->getObject();
@@ -147,7 +147,7 @@ class ImplementationUpdateListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
+	 * @spec openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status
 	 */
 	private function project(ObjectCreatedEvent $event): void {
 		try {

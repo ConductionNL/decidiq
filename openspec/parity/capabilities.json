@@ -1859,14 +1859,14 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "bodies-director-remuneration",
 				"readOn": "2026-10-03",
-				"requirement": "openspec/changes/bodies-director-remuneration/specs/governance-bodies :: REQ-DRM-001 A position holder's remuneration is recorded per year"
+				"requirement": "openspec/changes/archive/2026-11-24-bodies-director-remuneration/specs/governance-bodies :: REQ-DRM-001 A position holder's remuneration is recorded per year"
 			},
 			"reachedOn": "nothing reaches it: no remuneration data for directors",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "board-composition",
 			"featureConfidence": "high",
-			"note": "decidiq does not manage director pay. The only related field records whether an outside position is paid, deliberately without an amount. Specified in openspec/changes/bodies-director-remuneration (OpenSpec pass 2026-09-27).",
+			"note": "decidiq does not manage director pay. The only related field records whether an outside position is paid, deliberately without an amount. Specified in openspec/changes/archive/2026-11-24-bodies-director-remuneration (OpenSpec pass 2026-09-27).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4011,8 +4011,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "followup-implementation-progress",
 				"requirement": [
-					"openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates",
-					"openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-002 The decision shows its current implementation status"
+					"openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates",
+					"openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management :: REQ-FUP-002 The decision shows its current implementation status"
 				]
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id) for the motion: Commitments and Action items widgets; not on MotionDetail",
@@ -4020,7 +4020,7 @@
 			"providerHow": "read-from-code",
 			"feature": "commitments-and-follow-up",
 			"featureConfidence": "high",
-			"note": "Commitments and action items tied to the motion can be tracked from its Decision page. There is no motion execution status and MotionDetail shows none of it. Specified in openspec/changes/followup-implementation-progress (OpenSpec pass 2026-09-27).",
+			"note": "Commitments and action items tied to the motion can be tracked from its Decision page. There is no motion execution status and MotionDetail shows none of it. Specified in openspec/changes/archive/2026-11-24-followup-implementation-progress (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -5697,14 +5697,14 @@
 				"evidence": "DecisionDetail Lifecycle widget (DecisionLifecycleTab) moves a decision to 'enacted' (lib/Lifecycle/DecisionTransitionGuard.php:133); per-decision action items with status lanes open/in-progress/done (src/services/deckProjection.js LANES, DecisionActionItemsTab). No implementation-progress or percentage field on Decision (property list in lib/Settings/decidesk_register.json).",
 				"owner": "ConductionNL/decidiq",
 				"change": "followup-implementation-progress",
-				"requirement": "openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates"
+				"requirement": "openspec/changes/archive/2026-11-24-followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Lifecycle and Action items widgets",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "commitments-and-follow-up",
 			"featureConfidence": "medium",
-			"note": "Implementation progress is only readable from the decision's action item statuses and the enacted state; there is no progress record of its own. Specified in openspec/changes/followup-implementation-progress (OpenSpec pass 2026-09-27).",
+			"note": "Implementation progress is only readable from the decision's action item statuses and the enacted state; there is no progress record of its own. Specified in openspec/changes/archive/2026-11-24-followup-implementation-progress (OpenSpec pass 2026-09-27).",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -7317,8 +7317,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "insight-decisions-report-by-period-and-body",
 				"requirement": [
-					"openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-002 Every figure on the Decisions report follows the chosen period",
-					"openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-003 The Decisions report can be cut per body"
+					"openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-002 Every figure on the Decisions report follows the chosen period",
+					"openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-003 The Decisions report can be cut per body"
 				]
 			},
 			"reachedOn": "Reports (/reports) > Decisions report (/reports/decisions)",
@@ -7326,7 +7326,7 @@
 			"providerHow": "read-from-code",
 			"feature": "governance-analytics",
 			"featureConfidence": "high",
-			"note": "A decisions report exists but only for all time and all bodies; it cannot be cut per period or per body. Specified in openspec/changes/insight-decisions-report-by-period-and-body (OpenSpec pass 2026-09-27). Owner moved from ConductionNL/openregister: the DecisionsReport page note says OpenRegister's aggregation evaluates scalar equality only, but openregister lib/Service/Aggregation/AggregationQuery.php:12-13 supports in, notIn, gt, gte, lt, lte and ne, so the per-period and per-body cut is decidiq's configuration.",
+			"note": "A decisions report exists but only for all time and all bodies; it cannot be cut per period or per body. Specified in openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body (OpenSpec pass 2026-09-27). Owner moved from ConductionNL/openregister: the DecisionsReport page note says OpenRegister's aggregation evaluates scalar equality only, but openregister lib/Service/Aggregation/AggregationQuery.php:12-13 supports in, notIn, gt, gte, lt, lte and ne, so the per-period and per-body cut is decidiq's configuration.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "unknown",
@@ -9096,14 +9096,14 @@
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem properties (subject, plannedPeriod, governanceBody, owner, lifecycle, shiftHistory, origin and realised links) have no parent item or track; grep -n 'parent|track' in that file: only AuthorityDelegation.parentAllocation (:542); src/manifest.d/termijnagenda.json:35-42 flat list columns",
 				"owner": "ConductionNL/decidiq",
 				"change": "planning-long-term-agenda-tracks-and-report",
-				"requirement": "openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-001 A long-term agenda item can be a track under a topic"
+				"requirement": "openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-001 A long-term agenda item can be a track under a topic"
 			},
 			"reachedOn": "nothing reaches it: the long-term agenda is a flat list",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "long-term-agenda",
 			"featureConfidence": "high",
-			"note": "Each long-term agenda item stands alone. A topic cannot be split into parallel tracks under one heading. Specified in openspec/changes/planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
+			"note": "Each long-term agenda item stands alone. A topic cannot be split into parallel tracks under one heading. Specified in openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -9134,8 +9134,8 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "planning-long-term-agenda-tracks-and-report",
 				"requirement": [
-					"openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-003 The list filters by portfolio holder and by author",
-					"openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-004 The filtered list downloads as a formatted report"
+					"openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-003 The list filters by portfolio holder and by author",
+					"openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-004 The filtered list downloads as a formatted report"
 				]
 			},
 			"reachedOn": "Long-term agenda (/planned-agenda), quick filters, facets and the mass Export action",
@@ -9143,7 +9143,7 @@
 			"providerHow": "read-from-code",
 			"feature": "long-term-agenda",
 			"featureConfidence": "high",
-			"note": "The long-term agenda can be filtered by status and by kind of owner, and the rows exported as a spreadsheet. It cannot be filtered by the named portfolio holder or by author, and the export is a data file rather than a formatted report. Specified in openspec/changes/planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
+			"note": "The long-term agenda can be filtered by status and by kind of owner, and the rows exported as a spreadsheet. It cannot be filtered by the named portfolio holder or by author, and the export is a data file rather than a formatted report. Specified in openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
