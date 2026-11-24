@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Riskitase puudub",
         "Score {score}, from:": "Skoor {score}, allikad:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} p)",
+        "This decision has been withdrawn.": "See otsus on tagasi võetud.",
+        "Withdraw decision": "Võta otsus tagasi",
+        "Withdrawal failed.": "Tagasivõtmine ebaõnnestus.",
+        "Withdrawn by the deciding body": "Tagasi võetud otsustava organi poolt",
+        "Withdrawn by the party who asked": "Tagasi võetud taotleja poolt",
         "Transfer overdue": "Üleandmine hilinenud",
         "Retention not resolved": "Säilitamine määramata"
     },

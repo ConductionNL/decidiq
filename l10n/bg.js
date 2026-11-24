@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Няма рисково ниво",
         "Score {score}, from:": "Резултат {score}, от:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} т.)",
+        "This decision has been withdrawn.": "Това решение е оттеглено.",
+        "Withdraw decision": "Оттегляне на решението",
+        "Withdrawal failed.": "Оттеглянето не бе успешно.",
+        "Withdrawn by the deciding body": "Оттеглено от решаващия орган",
+        "Withdrawn by the party who asked": "Оттеглено от заявителя",
         "Transfer overdue": "Просрочено предаване",
         "Retention not resolved": "Съхранението не е определено"
     },

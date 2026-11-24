@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Risk düzeyi yok",
         "Score {score}, from:": "Puan {score}, kaynak:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} puan)",
+        "This decision has been withdrawn.": "Bu karar geri çekildi.",
+        "Withdraw decision": "Kararı geri çek",
+        "Withdrawal failed.": "Geri çekme başarısız oldu.",
+        "Withdrawn by the deciding body": "Karar veren organ tarafından geri çekildi",
+        "Withdrawn by the party who asked": "Talep eden taraf tarafından geri çekildi",
         "Transfer overdue": "Aktarım gecikmiş",
         "Retention not resolved": "Saklama belirlenmedi"
     },

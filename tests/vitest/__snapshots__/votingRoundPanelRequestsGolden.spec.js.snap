@@ -130,7 +130,7 @@ exports[`VotingRoundPanel write calls > castRanking sends the same request and l
     "calls": [
       {
         "init": {
-          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "body": "{"ranking":["a","b"],"isProxy":false,"delegatorId":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -159,7 +159,7 @@ exports[`VotingRoundPanel write calls > castRanking sends the same request and l
     "calls": [
       {
         "init": {
-          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "body": "{"ranking":["a","b"],"isProxy":false,"delegatorId":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -191,7 +191,7 @@ exports[`VotingRoundPanel write calls > castRanking sends the same request and l
     "calls": [
       {
         "init": {
-          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "body": "{"ranking":["a","b"],"isProxy":false,"delegatorId":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -220,7 +220,7 @@ exports[`VotingRoundPanel write calls > castRanking sends the same request and l
     "calls": [
       {
         "init": {
-          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "body": "{"ranking":["a","b"],"isProxy":false,"delegatorId":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -536,9 +536,17 @@ exports[`VotingRoundPanel write calls > grantProxy sends the same request and le
         },
         "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
       },
+      {
+        "init": {
+          "headers": {
+            "Accept": "application/json",
+          },
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
     ],
     "state": {
-      "activeProxy": "p-to",
+      "activeProxy": null,
       "castVoteError": null,
       "castingRanking": false,
       "chairCastingError": null,
@@ -897,6 +905,14 @@ exports[`VotingRoundPanel write calls > revokeProxy sends the same request and l
           "method": "DELETE",
         },
         "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+      {
+        "init": {
+          "headers": {
+            "Accept": "application/json",
+          },
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/proxy",
       },
     ],
     "state": {

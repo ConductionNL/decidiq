@@ -301,6 +301,8 @@ $extra = [
         ['name' => 'changeRecommendation#reject', 'url' => '/api/change-recommendations/{id}/reject', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // Running count of an open round for the voting panel (vot-14, #1375).
+        ['name' => 'votingRoundLive#liveTally', 'url' => '/api/voting-rounds/{id}/live-tally', 'verb' => 'GET'],
         // voting-named-paper-vote-entry: the chair or secretary records a roll call by name.
         // Its own path: recorded-votes is the paper-vote entry of any public round (paperVote#record).
         ['name' => 'namedVotes#record', 'url' => '/api/voting-rounds/{id}/named-votes',    'verb' => 'POST'],
@@ -325,6 +327,7 @@ $extra = [
         ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
         // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
         ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
+        ['name' => 'votingRoundProxies#show', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'GET'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],

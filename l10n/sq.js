@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Pa nivel rreziku",
         "Score {score}, from:": "Pikët {score}, nga:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} pikë)",
+        "This decision has been withdrawn.": "Ky vendim është tërhequr.",
+        "Withdraw decision": "Tërhiq vendimin",
+        "Withdrawal failed.": "Tërheqja dështoi.",
+        "Withdrawn by the deciding body": "Tërhequr nga organi vendimmarrës",
+        "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese",
         "Transfer overdue": "Transferimi me vonesë",
         "Retention not resolved": "Ruajtja e papërcaktuar"
     },

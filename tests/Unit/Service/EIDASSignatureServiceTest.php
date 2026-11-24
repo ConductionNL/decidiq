@@ -32,6 +32,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\EIDASSignatureService;
+use OCA\Decidiq\Service\FilinqSigningRequest;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -51,6 +52,13 @@ class EIDASSignatureServiceTest extends TestCase {
 	 * @var array<int|string, mixed>
 	 */
 	private array $findAllArgs = [];
+
+	/**
+	 * The endpoint and config of the calls made to the `docudesk-signing` source.
+	 *
+	 * @var array<int, array{endpoint: string, config: array<string, mixed>}>
+	 */
+	private array $docudeskCalls = [];
 
 	/**
 	 * Build a service wired the way integriq is on a real instance.
@@ -102,6 +110,10 @@ class EIDASSignatureServiceTest extends TestCase {
 			function (string $id) use ($callService) {
 				if ($id === 'OCA\\Integriq\\Service\\CallService') {
 					return $callService;
+				}
+
+				if ($id === FilinqSigningRequest::class) {
+					return $request;
 				}
 
 				throw new \RuntimeException('Service ' . $id . ' is not registered');
@@ -281,5 +293,156 @@ class EIDASSignatureServiceTest extends TestCase {
 		$this->assertSame('qualified', $result['trustListLevel']);
 
 	}//end testValidateCertSurfacesOpenconnectorVerdict()
+
+	/**
+	 * Build a service with filinq registered as the `docudesk-signing` source.
+	 *
+	 * @param array<string, mixed>      $responseBody What filinq answers
+	 * @param FilinqSigningRequest|null $request      The request builder
+	 *
+	 * @return EIDASSignatureService
+	 */
+	private function makeFilinqService(array $responseBody, ?FilinqSigningRequest $request): EIDASSignatureService {
+		$callLog = new ObjectEntity();
+		$callLog->setObject(['response' => ['statusCode' => 200, 'body' => json_encode($responseBody)]]);
+
+		$callService = new class($callLog, $this) {
+			/**
+			 * Constructor.
+			 *
+			 * @param ObjectEntity              $result The call log returned from call()
+			 * @param EIDASSignatureServiceTest $test   Records the calls
+			 */
+			public function __construct(private readonly ObjectEntity $result, private readonly EIDASSignatureServiceTest $test) {
+			}
+
+			/**
+			 * Record the call and answer with the call log.
+			 *
+			 * @param ObjectEntity         $source   The source object
+			 * @param string               $endpoint Endpoint path
+			 * @param string               $method   HTTP method
+			 * @param array<string, mixed> $config   Call config
+			 *
+			 * @return ObjectEntity
+			 */
+			public function call(ObjectEntity $source, string $endpoint = '', string $method = 'GET', array $config = []): ObjectEntity {
+				$this->test->recordDocudeskCall(endpoint: $endpoint, config: $config);
+				return $this->result;
+			}
+		};
+
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			function (string $id) use ($callService, $request) {
+				if ($id === 'OCA\\Integriq\\Service\\CallService') {
+					return $callService;
+				}
+
+				if ($id === FilinqSigningRequest::class) {
+					return $request;
+				}
+
+				throw new \RuntimeException('Service ' . $id . ' is not registered');
+			}
+		);
+
+		$source = new ObjectEntity();
+		$source->setObject(['slug' => EIDASSignatureService::DOCUDESK_SOURCE_SLUG, 'location' => 'https://nc.example.org/index.php/apps/filinq']);
+
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturnCallback(
+			static function (array $config) use ($source): array {
+				if (($config['filters']['slug'] ?? '') === EIDASSignatureService::DOCUDESK_SOURCE_SLUG) {
+					return [$source];
+				}
+
+				return [];
+			}
+		);
+
+		return new EIDASSignatureService(
+			container: $container,
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			auditLogService: $this->createMock(originalClassName: AuditLogService::class),
+			objectService: $objectService
+		);
+	}//end makeFilinqService()
+
+	/**
+	 * Record a call to the `docudesk-signing` source.
+	 *
+	 * @param string               $endpoint Endpoint path
+	 * @param array<string, mixed> $config   Call config
+	 *
+	 * @return void
+	 */
+	public function recordDocudeskCall(string $endpoint, array $config): void {
+		$this->docudeskCalls[] = ['endpoint' => $endpoint, 'config' => $config];
+	}//end recordDocudeskCall()
+
+	/**
+	 * With filinq registered, the request goes to filinq's create route with
+	 * the fields filinq reads, and filinq's `id` comes back as the request id
+	 * (decidiq#1387).
+	 *
+	 * @return void
+	 */
+	public function testFilinqGetsItsOwnRouteAndFields(): void {
+		$body = [
+			'documentFileId' => 812,
+			'documentName' => 'Notulen.pdf',
+			'signers' => [['name' => 'A', 'email' => 'a@example.org', 'order' => 1]],
+			'signingOrder' => 'sequential',
+			'signatureLevel' => 'QES',
+		];
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
+		$request->expects($this->once())->method('payload')->with('minutes', 'min-1', ['m-1'])->willReturn($body);
+
+		$result = $this->makeFilinqService(responseBody: ['id' => 'sr-9'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
+
+		$this->assertTrue(condition: $result['success']);
+		$this->assertSame(expected: 'sr-9', actual: $result['requestId']);
+		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
+		$this->assertSame(expected: '/api/signing/requests', actual: $this->docudeskCalls[0]['endpoint']);
+		$this->assertSame(expected: $body, actual: json_decode((string)$this->docudeskCalls[0]['config']['body'], true));
+
+	}//end testFilinqGetsItsOwnRouteAndFields()
+
+	/**
+	 * An answer without an id (filinq's error answer) fails, and closed: the
+	 * openconnector source is not tried after it.
+	 *
+	 * @return void
+	 */
+	public function testFilinqAnswerWithoutIdFailsClosed(): void {
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
+		$request->method('payload')->willReturn(['documentFileId' => 1]);
+
+		$result = $this->makeFilinqService(responseBody: ['message' => 'Not found'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
+
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'fail-closed', haystack: $result['message']);
+		$this->assertStringContainsString(needle: 'Not found', haystack: $result['message']);
+		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
+
+	}//end testFilinqAnswerWithoutIdFailsClosed()
+
+	/**
+	 * Without a PDF to sign nothing is posted, and the failure is final.
+	 *
+	 * @return void
+	 */
+	public function testNoPdfPostsNothing(): void {
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
+		$request->method('payload')->willThrowException(new \RuntimeException('No PDF of this minutes to sign was found.'));
+
+		$result = $this->makeFilinqService(responseBody: ['id' => 'x'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
+
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'No PDF', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->docudeskCalls);
+
+	}//end testNoPdfPostsNothing()
 
 }//end class

@@ -12,6 +12,7 @@
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
 import * as objectRelations from '../../src/utils/objectRelations.js'
+import * as proxyVoting from '../../src/utils/proxyVoting.js'
 import * as rankedBallot from '../../src/utils/rankedBallot.js'
 import * as votingGroups from '../../src/utils/votingGroups.js'
 import * as votingMethods from '../../src/utils/votingMethods.js'
@@ -19,7 +20,8 @@ import * as votingPermissions from '../../src/utils/votingPermissions.js'
 import * as votingRules from '../../src/utils/votingRules.js'
 import { instanceOf, loadSfcScript, recordingStores } from './helpers/sfcScript.js'
 
-const { VOTING_METHODS, allowedVotingMethods, meetingBodyId, startingVotingMethod } = votingMethods
+const { VOTING_METHODS, allowedVotingMethods, meetingBodyId, startingVotingMethod } =
+	votingMethods
 const FILE = path.resolve(__dirname, '../../src/components/VotingRoundPanel.vue')
 
 /**
@@ -28,7 +30,11 @@ const FILE = path.resolve(__dirname, '../../src/components/VotingRoundPanel.vue'
  * @param {object} options `meetingId`, `meeting` (what the meeting read answers, or an Error) and `body`.
  * @return {{vm: object, reads: Array<object>, calls: Array<object>}} The instance and what it read.
  */
-function panel({ meetingId = 'meet-1', meeting = { governanceBody: 'body-1' }, body = {} } = {}) {
+function panel({
+	meetingId = 'meet-1',
+	meeting = { governanceBody: 'body-1' },
+	body = {},
+} = {}) {
 	const reads = []
 	const stores = recordingStores(() => {
 		if (body instanceof Error) throw body
@@ -51,16 +57,25 @@ function panel({ meetingId = 'meet-1', meeting = { governanceBody: 'body-1' }, b
 		'./RankedResultsCard.vue': { default: {} },
 		'../store/store.js': { useObjectStore: () => objectStore },
 		'../utils/conflicts.js': { eligibleCount: () => 0 },
-		'../utils/namedVotes.js': { isRollCall: (round) => round?.votingMethod === 'roll-call' },
+		'../utils/namedVotes.js': {
+			isRollCall: (round) => round?.votingMethod === 'roll-call',
+		},
 		'../utils/objectRelations.js': objectRelations,
+		'../utils/proxyVoting.js': proxyVoting,
 		'../utils/rankedBallot.js': rankedBallot,
 		'../utils/votingGroups.js': votingGroups,
 		'../utils/votingMethods.js': votingMethods,
 		'../utils/votingPermissions.js': votingPermissions,
 		'../utils/votingRules.js': votingRules,
-		'./tabs/useRelationStore.js': { ensureRelationType: stores.ensureRelationType },
+		'./tabs/useRelationStore.js': {
+			ensureRelationType: stores.ensureRelationType,
+		},
 	})
-	const vm = instanceOf(component, { motionId: 'm1', subjectType: 'motion', meetingId })
+	const vm = instanceOf(component, {
+		motionId: 'm1',
+		subjectType: 'motion',
+		meetingId,
+	})
 	vm.objectStore = objectStore
 	vm.methodLabels = component.computed.methodLabels.call(vm)
 	return { vm, reads, calls: stores.calls }
@@ -68,18 +83,35 @@ function panel({ meetingId = 'meet-1', meeting = { governanceBody: 'body-1' }, b
 
 describe('the methods a body allows', () => {
 	it('keeps the panel order and drops what it does not know', () => {
-		expect(allowedVotingMethods({ allowedVotingMethods: ['weighted', 'show-of-hands', 'secret-paper'] })).toEqual(['show-of-hands', 'weighted'])
+		expect(
+			allowedVotingMethods({
+				allowedVotingMethods: ['weighted', 'show-of-hands', 'secret-paper'],
+			}),
+		).toEqual(['show-of-hands', 'weighted'])
 	})
 
 	it('offers every method when the body names none', () => {
-		for (const body of [null, {}, { allowedVotingMethods: [] }, { allowedVotingMethods: 'weighted' }, { allowedVotingMethods: ['nope'] }]) {
+		for (const body of [
+			null,
+			{},
+			{ allowedVotingMethods: [] },
+			{ allowedVotingMethods: 'weighted' },
+			{ allowedVotingMethods: ['nope'] },
+		]) {
 			expect(allowedVotingMethods(body)).toEqual([...VOTING_METHODS])
 		}
 	})
 
 	it('starts a round on the current pick when allowed, else on the first allowed', () => {
-		expect(startingVotingMethod('weighted', ['show-of-hands', 'weighted'])).toBe('weighted')
-		expect(startingVotingMethod('for-against-abstain', ['show-of-hands', 'weighted'])).toBe('show-of-hands')
+		expect(startingVotingMethod('weighted', ['show-of-hands', 'weighted'])).toBe(
+			'weighted',
+		)
+		expect(
+			startingVotingMethod('for-against-abstain', [
+				'show-of-hands',
+				'weighted',
+			]),
+		).toBe('show-of-hands')
 	})
 
 	it('reads the body of a meeting from its reference', () => {
@@ -92,16 +124,23 @@ describe('the methods a body allows', () => {
 })
 
 describe('the voting round panel', () => {
-	it('offers only the methods the meeting\'s body allows, and starts on one of them', async () => {
-		const { vm, reads, calls } = panel({ body: { allowedVotingMethods: ['show-of-hands', 'weighted'] } })
+	it("offers only the methods the meeting's body allows, and starts on one of them", async () => {
+		const { vm, reads, calls } = panel({
+			body: { allowedVotingMethods: ['show-of-hands', 'weighted'] },
+		})
 
 		await vm.loadAllowedMethods()
 
 		expect(reads).toEqual([{ schema: 'meeting', id: 'meet-1' }])
-		expect(calls.map((c) => [c.fn, c.type, c.schema, c.id])).toEqual([['fetchObject', 'governance-body', 'governance-body', 'body-1']])
+		expect(calls.map((c) => [c.fn, c.type, c.schema, c.id])).toEqual([
+			['fetchObject', 'governance-body', 'governance-body', 'body-1'],
+		])
 		expect(vm.allowedMethods).toEqual(['show-of-hands', 'weighted'])
 		expect(vm.newRound.votingMethod).toBe('show-of-hands')
-		expect(vm.allowedMethods.map((m) => vm.methodLabels[m])).toEqual(['Show of hands', 'Weighted vote'])
+		expect(vm.allowedMethods.map((m) => vm.methodLabels[m])).toEqual([
+			'Show of hands',
+			'Weighted vote',
+		])
 	})
 
 	it('offers every method without a meeting, without a body, or when the body cannot be read', async () => {

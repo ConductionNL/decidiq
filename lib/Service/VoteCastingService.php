@@ -163,7 +163,11 @@ class VoteCastingService {
 			);
 		}
 
-		$vote = $this->ballots->buildVote(cast: $cast, existingVote: $this->findExistingVote(cast: $cast));
+		$vote = $this->ballots->buildVote(
+			cast: $cast,
+			existingVote: $this->existingOwnVote(cast: $cast),
+			votingMethod: (string)($round['votingMethod'] ?? '')
+		);
 
 		$saved = $this->objectService()->saveObject(
 			object: $vote,
@@ -175,10 +179,34 @@ class VoteCastingService {
 	}//end castVote()
 
 	/**
-	 * Find this participant's existing ballot in the round, when there is one.
+	 * The ballot this cast overwrites, when there is one.
+	 *
+	 * A proxy ballot never overwrites: assertNotAlreadyRegistered() has just
+	 * refused any earlier proxy ballot for the delegator, and the holder's own
+	 * ballot is a different vote that must survive (a holder casts their own
+	 * vote and the one they were given).
+	 *
+	 * @param VoteCast $cast The settled ballot
+	 *
+	 * @return array<string,mixed>|null The existing own vote, or null.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function existingOwnVote(VoteCast $cast): ?array {
+		if ($cast->isDelegated() === true) {
+			return null;
+		}
+
+		return $this->findExistingVote(cast: $cast);
+	}//end existingOwnVote()
+
+	/**
+	 * Find this participant's existing own ballot in the round, when there is one.
 	 *
 	 * For secret rounds the participant relation is suppressed for anonymity,
-	 * so dedup is keyed on a deterministic voterToken instead.
+	 * so dedup is keyed on a deterministic voterToken instead. Proxy ballots
+	 * the participant cast for someone else are not their own ballot and are
+	 * skipped, so an own vote never overwrites a proxy vote.
 	 *
 	 * @param VoteCast $cast The settled ballot
 	 *
@@ -188,7 +216,12 @@ class VoteCastingService {
 	 */
 	private function findExistingVote(VoteCast $cast): ?array {
 		foreach ($this->existingVoteEntities(cast: $cast) as $entity) {
-			return $entity->jsonSerialize();
+			$vote = $entity->jsonSerialize();
+			if ((bool)($vote['isProxy'] ?? false) === true) {
+				continue;
+			}
+
+			return $vote;
 		}
 
 		return null;

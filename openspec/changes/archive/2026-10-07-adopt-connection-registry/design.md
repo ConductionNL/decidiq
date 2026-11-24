@@ -10,7 +10,7 @@ Each candidate was checked against the code on `development`, not against its na
 |---|---|---|
 | `ori` | `requiredConfig: ["ori_endpoint"]`, settings link `#section-ori` | `OriPublicationService::publish()` posts to `ori_endpoint` and skips the post when it is empty. |
 | `eidas` | `reportedOnly: true` | `DomainServiceRegistrar::registerEidasBindings()` picks the service at request time from whether integriq's `CallService` resolves. No config key decides it. |
-| `translation` | `reportedOnly: true` | `LogTranslationAdapter` is always bound, and `MultilingualReconciliationService` calls it from `TranslationQueueJob` and its controller. It delegates only when an integriq translation service resolves. |
+| `translation` | `reportedOnly: true` | `NextcloudTranslationAdapter` is always bound, and `MultilingualReconciliationService` calls it from `TranslationQueueJob` and its controller. It translates through Nextcloud TaskProcessing when a translate provider is installed (#1382). |
 
 **Why `ori_bearer_secret` is not required.** `publish()` omits the `Authorization` header when the secret is empty, and an ORI endpoint without auth works. The admin page also has no field for the secret. Requiring it would keep a working, form-configured endpoint on Not configured.
 
@@ -32,12 +32,12 @@ Each candidate was checked against the code on `development`, not against its na
 
 **translation**, from the adapter bound to `ITranslationAdapter`:
 
-- `LogTranslationAdapter` with an integriq translation service that resolves gives `configured`.
-- `LogTranslationAdapter` without one gives `simulated`: the original text comes back.
+- `NextcloudTranslationAdapter` with a TaskProcessing `core:text2text:translate` provider gives `configured`.
+- `NextcloudTranslationAdapter` without one gives `unconfigured`: queued translations fail.
 - Any other bound class gives `configured`, naming the class.
 - A binding that throws gives `error`.
 
-The service reuses `EIDASSignatureService::ESIGN_SOURCE_SLUG`, `DOCUDESK_SOURCE_SLUG` and `LogTranslationAdapter::OPENCONNECTOR_SERVICES`, so the report asks the same names the code asks.
+The service reuses `EIDASSignatureService::ESIGN_SOURCE_SLUG`, `DOCUDESK_SOURCE_SLUG` and `NextcloudTranslationAdapter::isAvailable()`, so the report asks the same names the code asks.
 
 ## D3. When it reports
 

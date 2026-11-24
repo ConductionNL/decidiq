@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Nav riska līmeņa",
         "Score {score}, from:": "Punkti {score}, no:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} p.)",
+        "This decision has been withdrawn.": "Šis lēmums ir atsaukts.",
+        "Withdraw decision": "Atsaukt lēmumu",
+        "Withdrawal failed.": "Atsaukšana neizdevās.",
+        "Withdrawn by the deciding body": "Atsaucis lēmējorgāns",
+        "Withdrawn by the party who asked": "Atsaukusi pieprasītāja puse",
         "Transfer overdue": "Nodošana nokavēta",
         "Retention not resolved": "Glabāšana nav noteikta"
     },

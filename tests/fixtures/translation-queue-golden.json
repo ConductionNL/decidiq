@@ -1564,9 +1564,9 @@
         "returns": {
             "success": true,
             "processed": 1,
-            "completed": 1,
-            "failed": 0,
-            "message": "Processed 1 entries (1 completed, 0 failed)."
+            "completed": 0,
+            "failed": 1,
+            "message": "Processed 1 entries (0 completed, 1 failed)."
         },
         "calls": [
             {
@@ -1588,7 +1588,7 @@
             {
                 "log": [
                     "warning",
-                    "Decidiq: ITranslationAdapter not bound; using LogTranslationAdapter",
+                    "Decidiq: ITranslationAdapter not bound; using NextcloudTranslationAdapter",
                     {
                         "exception": "not bound"
                     }
@@ -1618,32 +1618,17 @@
                 }
             },
             {
-                "container": "OCA\\Integriq\\Service\\TranslationService"
+                "container": "OCP\\TaskProcessing\\IManager"
             },
             {
                 "log": [
                     "info",
-                    "Decidiq: LogTranslationAdapter — translation requested (dormant default)",
+                    "Decidiq: translation requested but no Nextcloud translation provider is installed",
                     {
                         "sourceLocale": "nl",
-                        "targetLocale": "en",
-                        "length": 7
+                        "targetLocale": "en"
                     }
                 ]
-            },
-            {
-                "saveObject": {
-                    "object": {
-                        "meetingIntegration": "mt-1",
-                        "language": "en",
-                        "version": "draft",
-                        "content": "Notulen",
-                        "reconciliationNotes": "Translated from nl by reconciliation engine (source minutes m1).",
-                        "sourceMinutesKoppeling": "m1"
-                    },
-                    "register": "decidiq",
-                    "schema": "minutes"
-                }
             },
             {
                 "saveObject": {
@@ -1652,12 +1637,10 @@
                         "minutesKoppeling": "m1",
                         "sourceLocale": "nl",
                         "targetLocale": "en",
-                        "status": "completed",
+                        "status": "failed",
                         "attempts": 1,
-                        "provider": "log",
-                        "lastError": null,
-                        "translatedMinutesKoppeling": "saved-9",
-                        "completedAt": "<now>",
+                        "provider": "none",
+                        "lastError": "No Nextcloud translation provider is installed; the minutes were not translated.",
                         "updatedAt": "<now>"
                     },
                     "register": "decidiq",

@@ -21,13 +21,21 @@
  * its mind, the other is somebody dropping their own request. A record that
  * does not say which is not a record.
  *
+ * WHY A DECISION IN FLIGHT CAN BE WITHDRAWN TOO
+ * ---------------------------------------------
+ * The Decision lifecycle declares `withdrawn` reachable from every state
+ * before `enacted`, draft included (decision-management: "Withdrawal never
+ * demands an outcome"). A motion withdrawn before the vote has no outcome to
+ * keep, so none is invented: the history entry records `outcomeAtWithdrawal`
+ * as null. A taken decision keeps its outcome exactly as before.
  *
  * REACHABLE THROUGH decision#withdraw
  * -----------------------------------
- * Measured 2026-09-18, this class had no caller. It is now reached through
- * `POST /api/decisions/{decisionId}/withdraw` (DecisionController::withdraw,
- * administrators only), which loads the decision, calls withdraw() and stores
- * the result through DecisionWithdrawalRecorder. readFrom() still has no caller.
+ * POST /api/decisions/{decisionId}/withdraw (DecisionController::withdraw,
+ * administrators only) → DecisionWithdrawFlow::withdraw(), which checks the
+ * lifecycle edge, calls this class, persists the decision as `withdrawn` and
+ * appends the hash-chained audit entry. The decision's Lifecycle widget offers
+ * the action (#1380). readFrom() still has no caller.
  * @category Service
  * @package  OCA\Decidiq\Service
  *
@@ -87,7 +95,7 @@ final class DecisionWithdrawalService {
 	 *
 	 * @return array<string, mixed> The decision, withdrawn, with its outcome intact.
 	 *
-	 * @throws InvalidArgumentException When the actor kind is missing or unknown, or the decision was never taken.
+	 * @throws InvalidArgumentException When the actor kind is missing or unknown, or the decision is already withdrawn.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
 	 */
@@ -110,9 +118,12 @@ final class DecisionWithdrawalService {
 			throw new InvalidArgumentException('This decision has already been withdrawn.');
 		}
 
+		// A decision still in flight has no outcome; it is withdrawn without
+		// acquiring one (null below), never with a placeholder.
 		$outcome = (string)($decision['outcome'] ?? '');
-		if ($outcome === '') {
-			throw new InvalidArgumentException('A decision that was never taken cannot be withdrawn.');
+		$outcomeAtWithdrawal = null;
+		if ($outcome !== '') {
+			$outcomeAtWithdrawal = $outcome;
 		}
 
 		$when = $withdrawnAt;
@@ -137,7 +148,7 @@ final class DecisionWithdrawalService {
 			'at' => $when,
 			'by' => $withdrawnBy,
 			'reason' => trim($reason),
-			'outcomeAtWithdrawal' => $outcome,
+			'outcomeAtWithdrawal' => $outcomeAtWithdrawal,
 		];
 		$decision['history'] = $history;
 

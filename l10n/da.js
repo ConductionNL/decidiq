@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Intet risikoniveau",
         "Score {score}, from:": "Score {score}, ud fra:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} point)",
+        "This decision has been withdrawn.": "Denne beslutning er trukket tilbage.",
+        "Withdraw decision": "Træk beslutning tilbage",
+        "Withdrawal failed.": "Tilbagetrækning mislykkedes.",
+        "Withdrawn by the deciding body": "Trukket tilbage af det besluttende organ",
+        "Withdrawn by the party who asked": "Trukket tilbage af den part, der anmodede",
         "Transfer overdue": "Overførsel forsinket",
         "Retention not resolved": "Opbevaring ikke fastlagt"
     },

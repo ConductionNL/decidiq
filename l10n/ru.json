@@ -3411,6 +3411,11 @@
         "No risk band": "Нет уровня риска",
         "Score {score}, from:": "Балл {score}, из:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)",
+        "This decision has been withdrawn.": "Это решение отозвано.",
+        "Withdraw decision": "Отозвать решение",
+        "Withdrawal failed.": "Не удалось отозвать.",
+        "Withdrawn by the deciding body": "Отозвано принимающим решение органом",
+        "Withdrawn by the party who asked": "Отозвано заявителем",
         "Transfer overdue": "Передача просрочена",
         "Retention not resolved": "Хранение не определено"
     },

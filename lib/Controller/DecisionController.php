@@ -25,7 +25,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Service\DecisionPublicationService;
-use OCA\Decidiq\Service\DecisionWithdrawalRecorder;
+use OCA\Decidiq\Service\DecisionWithdrawFlow;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -57,18 +57,12 @@ class DecisionController extends Controller {
 	 */
 	private readonly DecisionPublicationService $publicationService;
 
-	/**
-	 * Loads, withdraws and stores a decision (REQ-DWP-005).
-	 *
-	 * @var DecisionWithdrawalRecorder
-	 */
-	private readonly DecisionWithdrawalRecorder $withdrawalRecorder;
 
 	/**
 	 * Constructor for DecisionController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services for publication)
+	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services and the withdraw flow)
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
@@ -78,7 +72,7 @@ class DecisionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		ContainerInterface $container,
+		private ContainerInterface $container,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
 		LoggerInterface $logger,
@@ -86,7 +80,6 @@ class DecisionController extends Controller {
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
-		$this->withdrawalRecorder = new DecisionWithdrawalRecorder(container: $container, logger: $logger);
 
 	}//end __construct()
 
@@ -285,7 +278,10 @@ class DecisionController extends Controller {
 	 *
 	 * Body: `withdrawnBy` (`bestuursorgaan` or `belanghebbende`) and `reason`.
 	 * Administrators only, as publishing is: a withdrawal changes what people
-	 * may rely on, so it is not open to every authenticated user.
+	 * may rely on, so it is not open to every authenticated user. The
+	 * withdrawal itself runs through DecisionWithdrawFlow: the declared
+	 * `lifecycle → withdrawn` edge, the chair gate when the body's policy
+	 * restricts it, OpenRegister RBAC and the hash-chained audit entry.
 	 *
 	 * @param string $decisionId The decision.
 	 *
@@ -304,12 +300,17 @@ class DecisionController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden: only administrators may withdraw decisions.'], Http::STATUS_FORBIDDEN);
 		}
 
-		$result = $this->withdrawalRecorder->withdraw(
+		$result = $this->container->get(DecisionWithdrawFlow::class)->withdraw(
 			decisionId: $decisionId,
 			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
-			reason: (string)$this->request->getParam('reason', '')
+			reason: (string)$this->request->getParam('reason', ''),
+			currentUserId: $user->getUID()
 		);
 
-		return new JSONResponse($result['data'], $result['status']);
+		if ($result['success'] === false) {
+			return new JSONResponse(['message' => $result['message']], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		return new JSONResponse($result);
 	}//end withdraw()
 }//end class

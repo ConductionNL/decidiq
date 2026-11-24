@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "Gan leibhéal riosca",
         "Score {score}, from:": "Scór {score}, ó:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} pointe)",
+        "This decision has been withdrawn.": "Tarraingíodh siar an cinneadh seo.",
+        "Withdraw decision": "Tarraing siar an cinneadh",
+        "Withdrawal failed.": "Theip ar an tarraingt siar.",
+        "Withdrawn by the deciding body": "Tarraingthe siar ag an gcomhlacht cinnteoireachta",
+        "Withdrawn by the party who asked": "Tarraingthe siar ag an bpáirtí a d'iarr é",
         "Transfer overdue": "Aistriú thar téarma",
         "Retention not resolved": "Coinneáil gan réiteach"
     },

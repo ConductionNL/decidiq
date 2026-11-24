@@ -3410,6 +3410,11 @@ OC.L10N.register(
         "No risk band": "Nincs kockázati szint",
         "Score {score}, from:": "Pontszám {score}, ebből:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} pont)",
+        "This decision has been withdrawn.": "Ezt a döntést visszavonták.",
+        "Withdraw decision": "Döntés visszavonása",
+        "Withdrawal failed.": "A visszavonás nem sikerült.",
+        "Withdrawn by the deciding body": "A döntéshozó szerv vonta vissza",
+        "Withdrawn by the party who asked": "A kérelmező fél vonta vissza",
         "Transfer overdue": "Átadás késésben",
         "Retention not resolved": "Megőrzés nincs meghatározva"
     },

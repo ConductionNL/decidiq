@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
@@ -232,7 +233,7 @@ class VoteCastGuardTest extends TestCase {
 		$prefs->method('hasActiveDelegationTo')->willReturnCallback(
 			fn (string $delegatorId, string $delegateId) => ($delegatorId === 'd-1' && $delegateId === 'caller')
 		);
-		$this->container->method('get')->with(NotificationPreferenceService::class)->willReturn($prefs);
+		$this->container->method('get')->with(NotificationPreferenceServiceInterface::class)->willReturn($prefs);
 		$round = ['notes' => [['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'd-1', 'toParticipantId' => 'someone-else'])]]];
 		$guard = $this->guard();
 

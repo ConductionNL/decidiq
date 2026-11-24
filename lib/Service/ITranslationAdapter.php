@@ -4,9 +4,8 @@
  * Decidiq Translation Adapter Interface
  *
  * Pluggable boundary for an external translation source. The default
- * `LogTranslationAdapter` implementation logs and returns the original
- * text; production deployments rebind the binding to an openconnector-
- * backed translation source.
+ * `NextcloudTranslationAdapter` implementation translates through Nextcloud
+ * TaskProcessing and fails when no translation provider is installed.
  *
  * @category Service
  * @package  OCA\Decidiq\Service

@@ -3409,6 +3409,11 @@ OC.L10N.register(
         "No risk band": "L-ebda livell ta' riskju",
         "Score {score}, from:": "Punteġġ {score}, minn:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} punti)",
+        "This decision has been withdrawn.": "Din id-deċiżjoni ġiet irtirata.",
+        "Withdraw decision": "Irtira d-deċiżjoni",
+        "Withdrawal failed.": "L-irtirar falla.",
+        "Withdrawn by the deciding body": "Irtirata mill-korp li jiddeċiedi",
+        "Withdrawn by the party who asked": "Irtirata mill-parti li talbet",
         "Transfer overdue": "Trasferiment tard",
         "Retention not resolved": "Żamma mhux determinata"
     },
