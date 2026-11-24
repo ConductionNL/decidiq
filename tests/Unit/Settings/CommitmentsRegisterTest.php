@@ -171,7 +171,7 @@ class CommitmentsRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-001-ingekomenstuk-schema-on-openregister
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-the-superseded-schemas-are-kept-not-deleted
 	 */
 	public function testTheIncomingDocumentSchemaIsRetired(): void {
 		$schema = MergedRegisterSchema::forSlug(slug: 'ingekomen-stuk');

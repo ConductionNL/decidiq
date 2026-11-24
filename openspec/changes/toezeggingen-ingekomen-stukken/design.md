@@ -158,3 +158,7 @@ No data migration — both registers start empty apart from seed data.
 
 - Exact relative-date token in the widget source filter DSL (D6) — verify against nc-vue `useDashboardWidgets`/source resolver during apply.
 - Rappel windows (14 days before / weekly after deadline?) — provisional values in the notification triggers; griffie-configurable tuning deferred to a future admin-settings change.
+
+## Decision (24 Nov 2026): the incoming-document half follows documents-as-agenda-items
+
+documents-as-agenda-items made an incoming document an agenda item of a kind flagged `incomingDocument`: it is placed on a meeting with `PutOnAgendaDialog`, the list is adopted through the consent agenda, and the waiting documents show in `IncomingDocumentsWidget`. The separate `IngekomenStuk` schema this design describes is retired (kept for its migrated rows). So the incoming-document requirements of this change that drafted that schema, its lifecycle, placement, bulk confirmation and list page (REQ-001 to REQ-004 and REQ-006 of `ingekomen-stukken-register`) are dropped, and task 6 with them. REQ-005, the publication with the resident's name anonymised, was built on the new model as the `incoming-document` publication type and stays.

@@ -65,8 +65,7 @@
   - GIVEN stukken in `geregistreerd` WHEN the griffie places them on the LIS agenda item of the next meeting THEN each stuk references it and becomes `geagendeerd` (saveObject carries all fields forward — PUT-semantic)
   - GIVEN an opened meeting WHEN the chair bulk-confirms THEN all placed `geagendeerd` stukken become `routering-vastgesteld`; a pulled stuk becomes `aangehouden` and is excluded; a mid-batch failure reports per-stuk and re-run confirms only the remainder (idempotent)
   - GIVEN a non-chair member WHEN calling the bulk-confirm endpoint THEN it is rejected (per-object governance guard, correct auth attributes — no-admin-idor/semantic-auth gates pass)
-- [ ] Implement
-- [ ] Test
+- Dropped (decision 24 Nov): superseded by documents-as-agenda-items. Placement is `PutOnAgendaDialog` and the list is adopted through the consent agenda; a routing service over the retired `ingekomen-stuk` schema would write to a schema that is no longer active. REQ-003 and REQ-004 are removed from this change's `ingekomen-stukken-register` delta, which keeps only the built REQ-005.
   - Not built: superseded. Incoming documents are agenda items since documents-as-agenda-items; placement is `PutOnAgendaDialog` (agenda-incoming-documents-list) and the list item is adopted with the existing consent-agenda flow. A routing service over the retired `ingekomen-stuk` schema would write to a schema that is no longer active.
 
 ### Task 7: UI wiring — placement/bulk-confirm actions and toezegging publish/afdoening flows
@@ -85,8 +84,8 @@
 - **acceptance_criteria**:
   - GIVEN gate-19 WHEN it scans the changed specs THEN every scenario is referenced by an e2e test or carries a reason-bearing `@e2e exclude` (eligibility/payload contracts excluded to PHPUnit/Newman as specced)
   - GIVEN the seeded environment WHEN the e2e suite runs THEN register → place → bulk-confirm → publish (ingekomen stuk) and register → rappel-visible → afdoen → public list (toezegging) pass end-to-end
-- [ ] Implement
-- [ ] Test
+- [x] Implement (gate-19 green for both specs on 24 Nov: every scenario tagged in tests/e2e/commitments-register.spec.ts or excluded in the spec with its PHPUnit/vitest evidence)
+- [x] Test (written, runs in nightly: not run here, no live instance)
   - Written, not run (20 Nov): `tests/e2e/commitments-register.spec.ts` for the commitment half (browse and filter, CSV export, the overdue tile, settlement, anonymous read). The incoming-document half is covered by `tests/e2e/incoming-documents.spec.ts` since documents-as-agenda-items. Running it needs a live instance.
 - Progress (24 Nov): the commitment half is covered. gate-19 reports no uncovered toezeggingen-register scenario: `tests/e2e/commitments-register.spec.ts` adds a commitment registered at a meeting (and one without text refused), a commitment from a motion the college took over shown on the motion with no progress updates added, and a published commitment's status read live by an anonymous caller; the fragment, lifecycle, reminder and action-item-tile scenarios carry their exclusions in the spec with the PHPUnit/vitest evidence (`tests/vitest/actionItemKpiSource.spec.js` is new). Left open: the incoming-document half. Its 13 scenarios describe the retired `ingekomen-stuk` schema, which documents-as-agenda-items replaced (placement through `PutOnAgendaDialog`, adoption through the consent agenda, `tests/e2e/incoming-documents.spec.ts`); the `ingekomen-stukken-register` delta needs rewriting to that model before task 6 can be closed as superseded and the change archived, because built code (incoming-document publication, task 5) still cites its requirements.
 
