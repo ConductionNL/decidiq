@@ -220,7 +220,7 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 	 *
 	 * @return string|null The meeting UUID, or null when the document is not placed
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
 	 */
 	private function incomingDocumentMeetingId(string $sourceId): ?string {
 		$stuk = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'ingekomen-stuk'));

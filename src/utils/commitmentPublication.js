@@ -12,7 +12,7 @@
  * Every change is a whole object (PUT): these helpers return the commitment with
  * the changed fields, never a partial patch, so no field is lost on save.
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 
 /** The state a commitment is settled from (the schema's only path to `disposed`). */
@@ -29,7 +29,7 @@ export const MAX_SETTLEMENT_NOTE_LENGTH = 4000
  *
  * @param {string|null|undefined} value The stored value
  * @return {number|null} Milliseconds since the epoch, or null
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 function timeOf(value) {
 	if (typeof value !== 'string' || value === '') return null
@@ -48,7 +48,7 @@ function timeOf(value) {
  * @param {object|null|undefined} commitment The commitment
  * @param {Date} [now] The moment to judge at
  * @return {'unpublished'|'scheduled'|'published'|'withdrawn'} The state
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 export function publicationState(commitment, now = new Date()) {
 	const at = now.getTime()
@@ -66,7 +66,7 @@ export function publicationState(commitment, now = new Date()) {
  * @param {object} commitment The commitment
  * @param {Date} [now] The moment of publication
  * @return {object} The whole commitment to save
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 export function published(commitment, now = new Date()) {
 	// eslint-disable-next-line no-unused-vars -- dropped on purpose: the schema types it as a date-time string, so it is left out rather than nulled
@@ -84,7 +84,7 @@ export function published(commitment, now = new Date()) {
  * @param {object} commitment The commitment
  * @param {Date} [now] The moment of withdrawal
  * @return {object} The whole commitment to save
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 export function withdrawn(commitment, now = new Date()) {
 	return {
@@ -98,7 +98,7 @@ export function withdrawn(commitment, now = new Date()) {
  *
  * @param {object|null|undefined} commitment The commitment
  * @return {boolean} True in the state the schema settles from
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
  */
 export function canSettle(commitment) {
 	return commitment?.lifecycle === SETTLE_FROM
@@ -109,7 +109,7 @@ export function canSettle(commitment) {
  *
  * @param {string|null|undefined} note The note typed in the dialog
  * @return {boolean} True when it can be saved
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
  */
 export function settlementNoteIsValid(note) {
 	if (typeof note !== 'string') return false
@@ -125,7 +125,7 @@ export function settlementNoteIsValid(note) {
  * @param {{note: string, evidence?: string}} settlement What the dialog gave
  * @return {object} The whole commitment to save
  * @throws {Error} When the commitment cannot be settled or the note is invalid
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-002-lifecycle-is-declarative-with-four-states
  */
 export function settled(commitment, settlement) {
 	if (!canSettle(commitment)) {

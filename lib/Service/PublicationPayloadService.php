@@ -415,7 +415,7 @@ class PublicationPayloadService {
 	 * @param array<string,mixed> $source  IngekomenStuk object data.
 	 * @param int                 $version Payload version.
 	 *
-	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
 	 *
 	 * @return array<string,mixed>
 	 */

@@ -16,7 +16,7 @@
  *
  * Written, not yet run: it needs a live instance with the example set.
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md
  */
 import type { Page } from '@playwright/test'
 
