@@ -6,7 +6,7 @@
  * widget's empty-state panel as the template declares it (the vitest
  * environment has no SFC transform, so the template is read as source).
  *
- * @spec openspec/changes/decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
+ * @spec openspec/changes/archive/2026-11-25-decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
  */
 
 import * as fs from 'fs'
