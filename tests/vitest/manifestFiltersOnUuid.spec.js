@@ -52,7 +52,7 @@ function filtersOf(node, where = '', out = []) {
 describe('list widgets that read one object by its identifier', () => {
 	it('never filter on a plain id', () => {
 		const onId = sources.flatMap(([file, tree]) => filtersOf(tree)
-			.filter(({ filter }) => Object.prototype.hasOwnProperty.call(filter, 'id'))
+			.filter(({ filter }) => Object.hasOwn(filter, 'id'))
 			.map(({ where }) => `${file} ${where}`))
 		expect(onId).toEqual([])
 	})
