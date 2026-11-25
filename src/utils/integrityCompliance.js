@@ -8,7 +8,7 @@
  * OpenRegister lists (memberships and ancillary positions) and join them
  * here, client-side. Assistive only: nothing here blocks, scores or notifies.
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 
 /** The lifecycle state of a position that has ended (terminal). */
@@ -35,7 +35,7 @@ export const STATUS_CURRENT = 'current'
  *
  * @param {number} now The current time in milliseconds.
  * @return {number} The cut-off time in milliseconds.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function reviewCutoff(now) {
 	const cutoff = new Date(now)
@@ -60,7 +60,7 @@ function toTime(value) {
  *
  * @param {object} position The ancillary position.
  * @return {number} The time in milliseconds, or NaN when it has neither.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function lastReviewTime(position) {
 	const reviewed = toTime(position?.reviewedAt)
@@ -75,7 +75,7 @@ export function lastReviewTime(position) {
  * @param {object} position The ancillary position.
  * @param {number} now The current time in milliseconds.
  * @return {boolean} True when the review is overdue.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function isReviewOverdue(position, now) {
 	if (!position || position.lifecycle === ENDED) return false
@@ -89,7 +89,7 @@ export function isReviewOverdue(position, now) {
  * @param {Array<object>} positions The ancillary positions.
  * @param {number} now The current time in milliseconds.
  * @return {Array<object>} The overdue positions.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function overdueReviews(positions, now) {
 	return (Array.isArray(positions) ? positions : []).filter((position) =>
@@ -116,7 +116,7 @@ export function refId(ref) {
  * @param {object} membership The membership.
  * @param {number} now The current time in milliseconds.
  * @return {boolean} True when it is active.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function isActiveMembership(membership, now) {
 	if (!membership) return false
@@ -138,7 +138,7 @@ export function isActiveMembership(membership, now) {
  * @param {number} now The current time in milliseconds.
  * @param {Object<string, string>} [names] Person id → display name.
  * @return {Array<{person: string, name: string, status: string, positions: number}>} The rows.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function complianceRows(memberships, positions, now, names = {}) {
 	const byPerson = new Map()
@@ -187,7 +187,7 @@ export function complianceRows(memberships, positions, now, names = {}) {
  * page lists their holders.
  *
  * @return {{name: string, query: object}} The route.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function overdueReviewsRoute() {
 	return {

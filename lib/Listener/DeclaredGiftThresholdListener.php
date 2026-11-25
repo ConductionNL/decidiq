@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -46,7 +46,7 @@ use Throwable;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
  */
 class DeclaredGiftThresholdListener implements IEventListener {
 	/**
@@ -82,7 +82,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent) {
@@ -103,7 +103,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	private function stamp(ObjectCreatingEvent|ObjectUpdatingEvent $event, ?object $entity): void {
 		if ($entity === null) {
@@ -125,7 +125,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 *
 	 * @return string|null `above`, `below`, or null.
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	public function statusOf(array $gift): ?string {
 		$value = ($gift['estimatedValue'] ?? null);
@@ -150,7 +150,7 @@ class DeclaredGiftThresholdListener implements IEventListener {
 	 *
 	 * @return float The threshold in EUR.
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-006-gift-threshold-per-gedragscode-drives-badge-and-notification
 	 */
 	public function thresholdOf(?string $body): float {
 		if ($body === null) {

@@ -10,7 +10,7 @@
  * the helpers that change a record return it with every other field carried
  * forward, never a partial patch.
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 
 import { ENDED, refId } from './integrityCompliance.js'
@@ -35,7 +35,7 @@ export const MAX_TEXT_LENGTH = 255
  *
  * @param {Date} [now] The moment.
  * @return {string} The day.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
  */
 export function dayOf(now = new Date()) {
 	const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -50,7 +50,7 @@ export function dayOf(now = new Date()) {
  * @param {Array<object>} people The people.
  * @param {string} uid The current user's id.
  * @return {Array<string>} Their person ids.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function ownPersonIds(people, uid) {
 	if (!uid) return []
@@ -67,7 +67,7 @@ export function ownPersonIds(people, uid) {
  * @param {Array<string>} personIds The current user's person ids.
  * @param {string} field The field naming the holder (`person` or `recipient`).
  * @return {Array<object>} The user's own records.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function ownRecords(records, personIds, field) {
 	if (!Array.isArray(personIds) || personIds.length === 0) return []
@@ -82,7 +82,7 @@ export function ownRecords(records, personIds, field) {
  *
  * @param {object|null|undefined} position The position.
  * @return {boolean} True when it can be ended.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
  */
 export function canEnd(position) {
 	return ENDABLE_STATES.includes(position?.lifecycle)
@@ -93,7 +93,7 @@ export function canEnd(position) {
  *
  * @param {object|null|undefined} position The position.
  * @return {boolean} True when it can be confirmed.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
  */
 export function canConfirm(position) {
 	return Boolean(position) && position.lifecycle !== ENDED
@@ -106,7 +106,7 @@ export function canConfirm(position) {
  * @param {object} position The position.
  * @param {Date} [now] The moment of confirmation.
  * @return {object} The whole position to save.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
  */
 export function confirmedReview(position, now = new Date()) {
 	return { ...position, reviewedAt: dayOf(now) }
@@ -118,7 +118,7 @@ export function confirmedReview(position, now = new Date()) {
  * @param {object} position The position.
  * @param {string} endDate The day it ended (`YYYY-MM-DD`).
  * @return {object} The whole position to save.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
  */
 export function endedPosition(position, endDate) {
 	return { ...position, endDate, lifecycle: ENDED }
@@ -130,7 +130,7 @@ export function endedPosition(position, endDate) {
  * @param {object} position The position.
  * @param {string} endDate The day typed in the dialog.
  * @return {boolean} True when it can be saved.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
  */
 export function endDateIsValid(position, endDate) {
 	if (typeof endDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return false
@@ -155,7 +155,7 @@ function filled(value) {
  *
  * @param {object} form The dialog's fields.
  * @return {boolean} True when it can be saved.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
  */
 export function positionFormIsValid(form) {
 	return Boolean(form)
@@ -172,7 +172,7 @@ export function positionFormIsValid(form) {
  * @param {string} personId The declaring person.
  * @param {Date} [now] The moment of declaration.
  * @return {object} The position to save.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
  */
 export function newPosition(form, personId, now = new Date()) {
 	const position = {
@@ -195,7 +195,7 @@ export function newPosition(form, personId, now = new Date()) {
  *
  * @param {object} form The dialog's fields.
  * @return {boolean} True when it can be saved.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
  */
 export function giftFormIsValid(form) {
 	if (!form) return false
@@ -213,7 +213,7 @@ export function giftFormIsValid(form) {
  *
  * @param {unknown} value The value typed in the dialog.
  * @return {boolean} True when it is acceptable.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
  */
 export function valueIsValid(value) {
 	if (value === '' || value === null || value === undefined) return false
@@ -228,7 +228,7 @@ export function valueIsValid(value) {
  * @param {string} personId The receiving person.
  * @param {Date} [now] The moment of registration.
  * @return {object} The gift to save.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
  */
 export function newGift(form, personId, now = new Date()) {
 	const gift = {
@@ -256,7 +256,7 @@ export const DIALOG_KINDS = ['position', 'gift', 'end']
  * @param {Array<{id: string}>} [bodies] The governance bodies to choose from.
  * @param {Date} [now] Today, the default end date.
  * @return {object} The form's fields.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function emptyForm(kind, bodies = [], now = new Date()) {
 	if (kind === 'end') return { endDate: dayOf(now) }
@@ -274,7 +274,7 @@ export function emptyForm(kind, bodies = [], now = new Date()) {
  * @param {object} form The form's fields.
  * @param {object} [position] The position being ended, for `end`.
  * @return {boolean} True when it is complete.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 export function formIsValid(kind, form, position = null) {
 	if (kind === 'end') return endDateIsValid(position, form?.endDate)

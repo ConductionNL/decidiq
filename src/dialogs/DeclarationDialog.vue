@@ -7,7 +7,7 @@
  The fields are a list per kind, so the three forms share one frame. The
  parent builds the record from the emitted form and saves it on @submit.
 
- @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 -->
 <template>
 	<NcDialog
@@ -104,7 +104,7 @@ export default {
 		 * The dialog's title.
 		 *
 		 * @return {string} The title.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		title() {
 			if (this.kind === 'gift') return this.t('decidiq', 'Register a gift')
@@ -116,7 +116,7 @@ export default {
 		 * The confirm button, then Cancel.
 		 *
 		 * @return {Array<{id: string, label: string, variant: string, disabled: boolean}>} The buttons.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		buttons() {
 			let confirm = this.t('decidiq', 'Declare')
@@ -132,7 +132,7 @@ export default {
 		 * The fields of this kind of form, in order.
 		 *
 		 * @return {Array<{key: string, label: string, kind?: string, options?: Array<object>}>} The fields.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		fields() {
 			const t = (text) => this.t('decidiq', text)
@@ -161,7 +161,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi */
+		/** @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi */
 		valid() {
 			return formIsValid(this.kind, this.form, this.position)
 		},
@@ -173,7 +173,7 @@ export default {
 		 *
 		 * @param {{key: string, options: Array<{id: string}>}} field The field.
 		 * @return {object|null} The option, or null.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		selected(field) {
 			return field.options.find((option) => option.id === this.form[field.key]) || null
@@ -183,7 +183,7 @@ export default {
 		 * Answer a button: submit the form or close.
 		 *
 		 * @param {string} id The button's id.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		press(id) {
 			if (id === 'confirm') this.$emit('submit', { ...this.form })

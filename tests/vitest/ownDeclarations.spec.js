@@ -10,7 +10,7 @@
  * manifest fragment and the registry source. Every record written is checked
  * against the schema the register serves.
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

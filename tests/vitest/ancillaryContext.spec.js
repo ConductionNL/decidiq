@@ -5,7 +5,7 @@
  * Registered other positions as assistive context on the conflict-of-interest
  * surfaces (interests-and-integrity, REQ-INT-007).
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
  */
 
 import { readFileSync } from 'node:fs'
