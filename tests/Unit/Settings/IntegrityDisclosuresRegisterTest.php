@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Register and seed tests for interests-and-integrity tasks 1 and 3.
  *
- * @spec openspec/changes/interests-and-integrity/tasks.md#task-1-register-fragment-62--nevenfunctie-geschenk-integriteitsbeleid-schemas-with-declarative-dialects
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/tasks.md#task-1-register-fragment-62--nevenfunctie-geschenk-integriteitsbeleid-schemas-with-declarative-dialects
  */
 class IntegrityDisclosuresRegisterTest extends TestCase {
 
@@ -42,7 +42,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
 	 */
 	public function testTheAncillaryPositionCarriesItsFields(): void {
 		$schema = MergedRegisterSchema::forSlug(slug: 'ancillary-position');
@@ -67,7 +67,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
 	 */
 	public function testAnIncompleteDeclarationIsRefused(): void {
 		$complete = [
@@ -94,7 +94,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
 	 */
 	public function testTheDisclosureLifecycleIsDeclared(): void {
 		$schema    = MergedRegisterSchema::forSlug(slug: 'ancillary-position');
@@ -116,7 +116,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
 	 */
 	public function testTheDeclaredGiftCarriesItsFields(): void {
 		$schema = MergedRegisterSchema::forSlug(slug: 'declared-gift');
@@ -138,7 +138,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-004-public-nevenfunctiesregister-via-the-or-published-predicate-on-the-live-object
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-004-public-nevenfunctiesregister-via-the-or-published-predicate-on-the-live-object
 	 */
 	public function testThePublicReadsOnlyPublishedDisclosures(): void {
 		foreach (['ancillary-position', 'declared-gift'] as $slug) {
@@ -157,7 +157,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-003-per-body-integrity-policy-with-body-type-defaults
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-003-per-body-integrity-policy-with-body-type-defaults
 	 */
 	public function testTheOldSchemasAreRetiredAndThePolicyFoldsIn(): void {
 		foreach (['nevenfunctie', 'geschenk', 'integriteitsbeleid'] as $slug) {
@@ -182,7 +182,7 @@ class IntegrityDisclosuresRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/interests-and-integrity/tasks.md#task-3-seed-data--policy-nevenfuncties-and-geschenken-across-both-seeded-bodies
+	 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/tasks.md#task-3-seed-data--policy-nevenfuncties-and-geschenken-across-both-seeded-bodies
 	 */
 	public function testTheExampleSetsSeedEveryKindOfDisclosure(): void {
 		$positions = self::seeded(slug: 'ancillary-position');

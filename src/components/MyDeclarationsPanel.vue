@@ -153,7 +153,7 @@ export default {
 	computed: {
 		/**
 		 * @return {boolean} True when the user is a person who can declare
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		canDeclare() {
 			return this.personIds.length > 0
@@ -161,7 +161,7 @@ export default {
 
 		/**
 		 * @return {Array<{id: string, label: string}>} The governance bodies as options
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		bodyOptions() {
 			return this.bodies.map((body) => ({ id: refId(body), label: body.name || refId(body) }))
@@ -175,7 +175,7 @@ export default {
 	methods: {
 		/**
 		 * @param {object} position The position.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
 		 */
 		reviewDue(position) {
 			return isReviewOverdue(position, Date.now())
@@ -183,7 +183,7 @@ export default {
 
 		/**
 		 * @param {object} position The position.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
 		 */
 		confirmable(position) {
 			return canConfirm(position)
@@ -191,7 +191,7 @@ export default {
 
 		/**
 		 * @param {object} position The position.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
 		 */
 		endable(position) {
 			return canEnd(position)
@@ -200,7 +200,7 @@ export default {
 		/**
 		 * Read who the user is and their own positions and gifts.
 		 *
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		async load() {
 			this.loading = true
@@ -233,7 +233,7 @@ export default {
 		 * @param {string} type The schema slug.
 		 * @param {object} record The whole object.
 		 * @return {Promise<object|null>} The saved record.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		async save(type, record) {
 			this.saving = true
@@ -260,7 +260,7 @@ export default {
 		 * Show a save refusal where the user is looking.
 		 *
 		 * @param {string} message The reason.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		report(message) {
 			if (this.dialog) this.dialogError = message
@@ -273,7 +273,7 @@ export default {
 		 * @param {Array<object>} list The list.
 		 * @param {object} record The saved record.
 		 * @return {Array<object>} The new list.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		upsert(list, record) {
 			const id = refId(record)
@@ -283,7 +283,7 @@ export default {
 
 		/**
 		 * @param {object} form The dialog's fields.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001-nevenfunctie-schema-on-openregister
 		 */
 		async declarePosition(form) {
 			const saved = await this.save(POSITION, newPosition(form, this.personIds[0]))
@@ -294,7 +294,7 @@ export default {
 
 		/**
 		 * @param {object} form The dialog's fields.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005-geschenk-schema-on-openregister
 		 */
 		async registerGift(form) {
 			const saved = await this.save(GIFT, newGift(form, this.personIds[0]))
@@ -305,7 +305,7 @@ export default {
 
 		/**
 		 * @param {string} endDate The day it ended.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-002-nevenfunctie-disclosure-lifecycle-is-declarative
 		 */
 		async endPosition(endDate) {
 			const saved = await this.save(POSITION, endedPosition(this.ending, endDate))
@@ -316,7 +316,7 @@ export default {
 
 		/**
 		 * @param {object} position The position.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-008-annual-review-rappel-is-a-declarative-notification
 		 */
 		async confirm(position) {
 			const saved = await this.save(POSITION, confirmedReview(position))
@@ -327,7 +327,7 @@ export default {
 		 * Open the end dialog for a position.
 		 *
 		 * @param {object} position The position.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		startEnding(position) {
 			this.ending = position
@@ -338,7 +338,7 @@ export default {
 		 * Save what the open dialog asks for.
 		 *
 		 * @param {object} form The dialog's fields.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		submit(form) {
 			if (this.dialog === 'gift') return this.registerGift(form)
@@ -349,7 +349,7 @@ export default {
 		/**
 		 * Close whichever dialog is open.
 		 *
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		closeDialog() {
 			this.dialog = null

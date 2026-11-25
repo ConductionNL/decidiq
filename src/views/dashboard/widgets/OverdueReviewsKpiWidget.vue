@@ -59,7 +59,7 @@ export default {
 		 * Count of positions whose annual review is overdue.
 		 *
 		 * @return {number} The count.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		count() {
 			return overdueReviews(this.positions, Date.now()).length
@@ -89,7 +89,7 @@ export default {
 		 * Fetch the positions that have not ended. Called on mount and refresh.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		async load() {
 			this.loading = true

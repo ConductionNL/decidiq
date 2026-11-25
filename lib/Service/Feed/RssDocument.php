@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use Exception;
  * Every value is written as a text node, so markup in a title or a
  * description is escaped rather than interpreted.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class RssDocument {
 
@@ -54,7 +54,7 @@ class RssDocument {
 	 *
 	 * @return string The XML.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function render(string $title, string $description, array $items): string {
 		$xml = new DOMDocument(version: '1.0', encoding: 'UTF-8');

@@ -17,7 +17,7 @@
  for reference (interests-and-integrity, REQ-INT-007, display only).
 
  @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
- @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 -->
 <template>
 	<div class="decidiq-tab" data-testid="conflicts-tab">
@@ -131,7 +131,7 @@ export default {
 	watch: {
 		/**
 		 * @param {boolean} open Whether the declare dialog just opened
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		dialogOpen(open) {
 			if (open) this.loadOwnPositions()
@@ -232,7 +232,7 @@ export default {
 		 *
 		 * @param {string} personId The person id
 		 * @return {string}
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		profilePath(personId) {
 			return profilePath(personId)
@@ -241,7 +241,7 @@ export default {
 		/**
 		 * The title of the agenda item declared on; empty when unreadable.
 		 *
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		async loadSubjectTitle() {
 			try {
@@ -260,7 +260,7 @@ export default {
 		 * person record. None when she has no person record or they cannot
 		 * be read: the dialog then shows no reference block.
 		 *
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		async loadOwnPositions() {
 			const uid = getCurrentUser()?.uid || ''
@@ -287,7 +287,7 @@ export default {
 		 *
 		 * @param {string} memberId The membership that declared
 		 * @param {string} personId Its person
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		async linkPositions(memberId, personId) {
 			try {
@@ -307,7 +307,7 @@ export default {
 		 *
 		 * @param {string} personId The person
 		 * @return {Promise<Array<object>>}
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 		 */
 		async positionsOf(personId) {
 			const positions = await ensureRelationType(

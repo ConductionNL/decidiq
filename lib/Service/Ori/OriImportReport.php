@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Service\Ori;
  * A problem is an object, reference or value the import could not carry
  * over. It is always reported; under `--strict` any problem fails the run.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class OriImportReport {
 
@@ -69,7 +69,7 @@ class OriImportReport {
 	 *
 	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The flag is the report's one fact, not a branch.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function __construct(public readonly bool $dryRun=false) {
 	}//end __construct()
@@ -82,7 +82,7 @@ class OriImportReport {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function read(string $schema, int $count): void {
 		$this->sourceCounts[$schema] = (($this->sourceCounts[$schema] ?? 0) + $count);
@@ -98,7 +98,7 @@ class OriImportReport {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function wrote(string $action, string $schema, string $reference, string $label=''): void {
 		$counts = ($this->targetCounts[$schema] ?? ['created' => 0, 'updated' => 0, 'deleted' => 0]);
@@ -116,7 +116,7 @@ class OriImportReport {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function problem(string $schema, string $source, string $problem): void {
 		$this->problems[] = ['schema' => $schema, 'source' => $source, 'problem' => $problem];
@@ -127,7 +127,7 @@ class OriImportReport {
 	 *
 	 * @return array<string, int>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function sourceCounts(): array {
 		return $this->sourceCounts;
@@ -138,7 +138,7 @@ class OriImportReport {
 	 *
 	 * @return array<string, array{created: int, updated: int, deleted: int}>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function targetCounts(): array {
 		return $this->targetCounts;
@@ -149,7 +149,7 @@ class OriImportReport {
 	 *
 	 * @return array<int, array{action: string, schema: string, reference: string, label: string}>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function preview(): array {
 		return $this->preview;
@@ -160,7 +160,7 @@ class OriImportReport {
 	 *
 	 * @return array<int, array{schema: string, source: string, problem: string}>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function problems(): array {
 		return $this->problems;

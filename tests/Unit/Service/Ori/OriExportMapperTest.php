@@ -6,7 +6,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -44,7 +44,7 @@ final class OriExportMapperTest extends TestCase {
 		$store->seed('ori', 'raadsdocument', self::DOCUMENT);
 		$store->seed('ori', 'agendapunt', self::ITEM);
 		$store->seed('ori', 'stemming', self::VOTE);
-		(new OriImportService($store->service($test), new OriExportMapper()))->import();
+		(new OriImportService(objectService: $store->service($test), mapper: new OriExportMapper(), states: $store->keeper()))->import();
 
 		return $store;
 	}

@@ -10,7 +10,7 @@
 
 ## 1. Schema deltas (additive)
 
-- [ ] 1.1 Extend `lib/Settings/decidesk_register.json` with the additive deltas
+- [x] 1.1 Extend `lib/Settings/decidesk_register.json` with the additive deltas
   from REQ-ORIA-002: `Meeting.meetingType` += `informational-session`,
   `Meeting.lifecycle` += `cancelled`, `AgendaItem.documents`,
   `DigitalDocument.{classification,url,fileName}`,
@@ -22,6 +22,7 @@
   with existing objects succeeds; writes using each new enum value/property
   return 2xx; `composer check:strict` is clean.
   > 2026-11-14: the deltas were already in development (`decidesk_register.json` enums, `register.d/999-ori-adoption.json`). Added there: `externalReference` on Meeting, AgendaItem, DigitalDocument, VotingRound, Person and Membership (the import tag of 2.1), with schema versions one above the highest declared; `OriAdoptionRegisterTest::testEverySchemaTheImportWritesCarriesTheImportTag`. Box left open: the live acceptance (importFromApp on an instance with objects, 2xx writes) is not run here.
+  > 2026-11-25 live (sandbox NC 34.0.6 + PostgreSQL 16, OpenRegister main, decidiq development): the merged register imports with all 131 schemas; one write per new value or property returned 201 (governance-body `political-group` with `seatCount` and `coalitionRole`, meeting `informational-session` + `cancelled`, agenda-item `documents`, digital-document `classification`/`url`/`fileName`, voting-round `partyResults` + `subjectDecision`); a forced re-import (`POST /api/settings/load`) with those objects present succeeded and left every count unchanged. `composer check:strict` run on the PR branch.
   > Built: the three enum values in `decidesk_register.json`, the new
   > properties in `register.d/999-ori-adoption.json` (an enum list in a
   > fragment would be appended by the merger but replaced by index by other
@@ -44,7 +45,7 @@
   > 2026-11-14 built: `OriImportService` (import, preview, rollback, previewRollback) over `OriExportMapper::read*()`, with `OriImportReport`. `OriImportServiceTest` covers every mapping row named above, idempotency (second run: zero created), dangling refs and unknown values reported, rollback of `ori:*` only, and no `Vote` objects. A member's group membership is tagged `ori:<uuid>#group` (two memberships come from one source member); derived bodies are tagged `ori:council:<name>`, `ori:executive:<name>`, `ori:committee:<name>`. Box left open: `composer check:strict` as a whole is not run here (phpcs, phpmd, phpstan clean on the new files).
   > 2026-11-21: `composer check:strict` run in full. PHPUnit green (5555 tests, `OriImportServiceTest` and `OriImportServiceProblemsTest` among them); the only findings in this change's files were three psalm `RedundantCast`s in `OriImportService` (an id already narrowed to a string), now removed. The suite's remaining phpcs, phpmd and psalm findings are in files outside this change.
 
-- [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
+- [x] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
   with `--source-register=ori`, `--dry-run`, `--rollback`, `--strict`,
   registered in `appinfo/info.xml`. Dry-run performs zero writes and prints
   per-schema source/target counts; rollback deletes only `ori:*`-tagged
@@ -54,6 +55,7 @@
   not the command's own report); live run then re-run produce identical counts;
   rollback restores the pre-import decidiq count while the source register is
   untouched.
+  > 2026-11-25 live (same sandbox): procest's ORI register is gone from procest and procest is not reachable from this session, so the source was a stand-in `ori` register with the six source schemas, seeded with the Voorbeeldstad records of `OriImportServiceTest` (14 objects). Counts measured through the objects API, not the command's report: before 9 decidiq objects; after `--dry-run` 9; after the import 33; after a second run 33 (0 created, 24 updated); after `--rollback` 9; the source stayed at 14 throughout; `--strict` exits 0 on a clean source. The live run found a red the unit suite could not: OpenRegister refuses a create in a state other than the initial one, so the first decided decision aborted the import ("A new object starts in draft; decided cannot be set when it is created"). Fixed: every importer write runs in OpenRegister's `LifecycleStatesKeeperInterface::keepingStates()` (the historic-import scope; permissions, guards and validation still apply); `testEveryWriteKeepsItsLifecycleState`.
   > 2026-11-14 built: `ImportOriCommand`, registered in `appinfo/info.xml`; `--strict` previews first and writes nothing when the preview finds a problem. `ImportOriCommandTest`. Box left open: the acceptance runs on a dev instance seeded with the source register.
 
 ## 3. ORI interop adapter
@@ -68,7 +70,7 @@
   > 2026-11-14 built: `OriExportMapper` holds the whole ORI vocabulary (reads for the importer, renders for the feeds). `OriExportMapperTest` round-trips meeting, document, agenda item and vote through the importer and back, and scans the change's other files for the mapper's Dutch identifiers. Box left open with 2.1 (check:strict).
   > 2026-11-21: the full `composer check:strict` reports nothing in `OriExportMapper` and `OriExportMapperTest`/`OriExportMapperReadTest` pass, so 3.1 is ticked with 2.1.
 
-- [ ] 3.2 Add `lib/Controller/OriFeedController.php` + routes
+- [x] 3.2 Add `lib/Controller/OriFeedController.php` + routes
   `/feed/ori/meetings.rss`, `/feed/ori/agenda-items.rss`,
   `/feed/ori/documents.rss` (`#[PublicPage]`, `#[NoCSRFRequired]`, GET only),
   serving public objects via the mapper. Feature-parity with procest's retired
@@ -76,6 +78,7 @@
   **Acceptance:** anonymous `curl` (no session cookie) returns HTTP 200 +
   `application/rss+xml` for all three feeds; a non-public object does not
   appear; hydra gates (route-auth, no-admin-idor) pass.
+  > 2026-11-25 live (same sandbox): anonymous `curl` without a session cookie returns 200 with `Content-Type: application/rss+xml; charset=utf-8` for `meetings.rss`, `agenda-items.rss` and `documents.rss`; each lists the public meeting, its agenda item and that item's document, and none lists the non-public meeting, the item on it or its document. Parity with procest's retired `RaadsinformatieFeedController` still cannot be compared byte for byte (procest is not reachable here); the wire shape is the one `OriExportMapperTest` round-trips.
   > 2026-11-14 built: `OriFeedController` (`#[PublicPage]`, `#[NoCSRFRequired]`, `#[AnonRateLimit]`, GET only) over `OriFeedService` and a generic `Feed\RssDocument`; routes in `appinfo/routes.php`. Public means a meeting with `isPublic: true`, the agenda items of such a meeting, and the documents attached to those items; each item's description is the ORI wire record. `OriFeedServiceTest`, `OriFeedControllerTest`, `RssDocumentTest`. route-auth passes; no-admin-idor reports the same 22 findings as development, none in these files (they are public pages). Box left open: the anonymous curl acceptance needs a live instance, and parity with procest's retired feed could not be compared (procest is not reachable from this session).
 
 ## 4. Demo seed
@@ -90,9 +93,10 @@
 
 ## 5. Verification & handover
 
-- [ ] 5.1 Run the full check suite and the e2e smoke on the feeds; document the
+- [x] 5.1 Run the full check suite and the e2e smoke on the feeds; document the
   release note "decidiq is now the home of raadsinformatie; procest instances
   migrate via `occ decidiq:import-ori` (see procest change `ori-removal`)".
   **Acceptance:** `composer check:strict` clean; feeds e2e green; release note
   present in the PR body; procest `ori-removal` is unblocked (its tasks
   reference this change by name).
+  > 2026-11-25: `tests/e2e/ori-feeds.spec.ts` (REQ-ORIA-004 "Public feeds serve without a session") seeds a public and a non-public meeting with an item and a document each and reads the three feeds anonymously; 1/1 passed on the sandbox (NC 34.0.6 + PostgreSQL 16, OpenRegister main). `composer check:strict` and `npm run lint` on the PR branch: see the PR. The release note is in the PR body. procest `ori-removal` is unblocked once this release ships.

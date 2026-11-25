@@ -155,6 +155,8 @@
         <file name="tests/Stubs/Db/AuditTrail/NamedActor.php" preloadClasses="true" />
         <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEventOptions.php" preloadClasses="true" />
         <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEvent.php" preloadClasses="true" />
+        <!-- OpenRegister's historic-import scope (lifecycle-guards-see-the-stored-object); the ORI importer writes in it. -->
+        <file name="tests/Stubs/Kernel/Contracts/Core/LifecycleStatesKeeperInterface.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--

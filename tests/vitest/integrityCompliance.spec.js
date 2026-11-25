@@ -6,7 +6,7 @@
  * without a current review" and the per-body compliance panel on the
  * ancillary-positions index (interests-and-integrity, REQ-INT-010).
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
  */
 
 import { readFileSync } from 'node:fs'

@@ -49,7 +49,7 @@ interface OriFeedServiceInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function meetings(): string;
 
@@ -58,7 +58,7 @@ interface OriFeedServiceInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function agendaItems(): string;
 
@@ -67,7 +67,7 @@ interface OriFeedServiceInterface {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function documents(): string;
 }//end interface

@@ -47,7 +47,7 @@ interface OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function import(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport;
 
@@ -59,7 +59,7 @@ interface OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function preview(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport;
 
@@ -68,7 +68,7 @@ interface OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function rollback(): OriImportReport;
 
@@ -77,7 +77,7 @@ interface OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function previewRollback(): OriImportReport;
 }//end interface

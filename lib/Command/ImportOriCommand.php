@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `--strict` previews first and writes nothing when the preview finds a
  * problem, so a strict run either imports everything or nothing.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class ImportOriCommand extends Command {
 
@@ -46,7 +46,7 @@ class ImportOriCommand extends Command {
 	 *
 	 * @param OriImportServiceInterface $import The importer.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function __construct(
 		private readonly OriImportServiceInterface $import,
@@ -59,7 +59,7 @@ class ImportOriCommand extends Command {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'decidiq:import-ori')
@@ -78,7 +78,7 @@ class ImportOriCommand extends Command {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$dryRun = ($input->getOption('dry-run') === true);
@@ -114,7 +114,7 @@ class ImportOriCommand extends Command {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	private function rollback(OutputInterface $output, bool $dryRun): int {
 		if ($dryRun === true) {
@@ -134,7 +134,7 @@ class ImportOriCommand extends Command {
 	 *
 	 * @return bool True when the preview found problems.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	private function strictPreviewFails(OutputInterface $output, string $source): bool {
 		$preview = $this->import->preview(sourceRegister: $source);

@@ -26,7 +26,6 @@ import { expect, test } from '@playwright/test'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BASE_URL as BASE } from './base-url.ts'
-import { openRow } from './support/open-row.ts'
 
 const WIDTH = 360
 const HEIGHT = 740
@@ -68,9 +67,18 @@ function manifestPages(): ManifestPage[] {
  * @return {Promise<number>} The overflow; 0 when none.
  */
 async function sidewaysOverflow(page: Page): Promise<number> {
-	return page.evaluate(() =>
-		Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
-	)
+	// Nextcloud scrolls an app inside #app-content, not the document, so a wide
+	// page shows up there and the document still reads exactly the viewport.
+	return page.evaluate(() => {
+		const scrollers = ['#app-content', '#app-content-vue', 'main']
+			.map((selector) => document.querySelector(selector))
+			.filter((element): element is HTMLElement => element !== null)
+		return Math.max(
+			0,
+			document.documentElement.scrollWidth - window.innerWidth,
+			...scrollers.map((element) => element.scrollWidth - element.clientWidth),
+		)
+	})
 }
 
 test.use({ viewport: { width: WIDTH, height: HEIGHT } })
@@ -115,7 +123,8 @@ test(`MeetingDetail: the agenda reads in one column and its actions are reachabl
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
 	const firstRow = page.locator('tbody tr').first()
 	await expect(firstRow).toBeVisible()
-	await openRow(page, (await firstRow.innerText()).split('\n')[0].trim())
+	// The list's first cell is the date block, so the row has no title line to look it up by: open its link.
+	await firstRow.getByTestId('cn-row-link').first().click()
 	await page.waitForLoadState('domcontentloaded')
 	await expect(page.locator('main').first()).toBeVisible()
 
