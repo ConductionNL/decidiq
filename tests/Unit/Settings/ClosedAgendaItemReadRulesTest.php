@@ -49,40 +49,69 @@ class ClosedAgendaItemReadRulesTest extends TestCase {
 	}//end guardedSchemas()
 
 	/**
-	 * The read and list rules: the secretariat, the administrators, public rows of the caller's
-	 * organisation, the members of the row's body and the accounts it names.
+	 * The rules every read starts from: staff, then public rows of the caller's organisation, the members of
+	 * the row's body and the accounts it names, each with the extra conditions given.
 	 *
-	 * @param string $slug The schema slug.
+	 * @param array<string, mixed> $extra Conditions added to each member rule.
+	 *
+	 * @return list<mixed>
+	 */
+	private static function memberRules(array $extra): array {
+		$memberOf = ['$memberOf' => ['schema' => 'participant', 'register' => 'decidiq', 'property' => 'governanceBody', 'match' => 'nextcloudUserId']];
+		return [
+			'decidiq-administrators',
+			'decidesk-administrators',
+			'decidiq-secretariat',
+			['group' => 'authenticated', 'match' => ['public' => ['$ne' => false], '_organisation' => '$organisation'] + $extra],
+			['group' => 'authenticated', 'match' => ['governanceBody' => $memberOf] + $extra],
+			['group' => 'authenticated', 'match' => ['authorisedReaders' => ['$contains' => '$userId']] + $extra],
+		];
+
+	}//end memberRules()
+
+	/**
+	 * An agenda item admits the secretariat, the administrators, public rows of the caller's organisation,
+	 * the members of its body and the accounts it names.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
-	#[DataProvider('guardedSchemas')]
-	public function testReadAndListAdmitOnlyTheAuthorisedReaders(string $slug): void {
-		$authorization = MergedRegisterSchema::forSlug(slug: $slug)['authorization'];
+	public function testAnItemAdmitsOnlyItsAuthorisedReaders(): void {
+		$authorization = MergedRegisterSchema::forSlug(slug: 'agenda-item')['authorization'];
+
+		self::assertSame(expected: self::memberRules(extra: []), actual: $authorization['read']);
+		self::assertSame(expected: $authorization['read'], actual: $authorization['list']);
+
+	}//end testAnItemAdmitsOnlyItsAuthorisedReaders()
+
+	/**
+	 * A paper admits the same readers once it is not under embargo; under embargo only staff and its
+	 * embargo audience, and those still only within the item's audience.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release
+	 */
+	public function testAPaperUnderEmbargoAdmitsOnlyItsAudience(): void {
+		$authorization = MergedRegisterSchema::forSlug(slug: 'digital-document')['authorization'];
+		$audience = ['embargoAudience' => ['$in' => '$user.groups']];
+		$memberOf = ['$memberOf' => ['schema' => 'participant', 'register' => 'decidiq', 'property' => 'governanceBody', 'match' => 'nextcloudUserId']];
 
 		self::assertSame(
-			expected: [
-				'decidiq-administrators',
-				'decidesk-administrators',
-				'decidiq-secretariat',
-				['group' => 'authenticated', 'match' => ['public' => ['$ne' => false], '_organisation' => '$organisation']],
+			expected: array_merge(
+				self::memberRules(extra: ['embargoActive' => ['$ne' => true]]),
 				[
-					'group' => 'authenticated',
-					'match' => [
-						'governanceBody' => [
-							'$memberOf' => ['schema' => 'participant', 'register' => 'decidiq', 'property' => 'governanceBody', 'match' => 'nextcloudUserId'],
-						],
-					],
-				],
-				['group' => 'authenticated', 'match' => ['authorisedReaders' => ['$contains' => '$userId']]],
-			],
+					['group' => 'authenticated', 'match' => ['public' => ['$ne' => false], '_organisation' => '$organisation'] + $audience],
+					['group' => 'authenticated', 'match' => ['governanceBody' => $memberOf] + $audience],
+				]
+			),
 			actual: $authorization['read']
 		);
 		self::assertSame(expected: $authorization['read'], actual: $authorization['list']);
 
-	}//end testReadAndListAdmitOnlyTheAuthorisedReaders()
+	}//end testAPaperUnderEmbargoAdmitsOnlyItsAudience()
 
 	/**
 	 * Declaring a schema block replaces the register baseline for every action, so writing repeats it unchanged.

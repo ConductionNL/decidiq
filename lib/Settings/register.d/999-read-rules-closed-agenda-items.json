@@ -2,7 +2,7 @@
   "x-openregister": {
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
-  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers task 1 (REQ-ACP-002). Read rules that keep a non-public agenda item and its papers to the secretariat, the administrators, the members of the meeting's body (a participant row of that body names their account) and the accounts in authorisedReaders. A public item or paper (public not false, so rows written before the field existed too) stays readable as the register baseline allows (signed-in users and the public principal). Create, update and delete repeat the register baseline unchanged: declaring a schema block replaces the baseline for every action. The body and the readers are copied onto the item and its papers on save (AgendaItemConfidentialityListener), so OpenRegister evaluates the rule on the row itself, in the list SQL and the single read alike. Named after its subject and sorted last so its schema versions win the merge.",
+  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers task 1 (REQ-ACP-002). Read rules that keep a non-public agenda item and its papers to the secretariat, the administrators, the members of the meeting's body (a participant row of that body names their account) and the accounts in authorisedReaders. A public item or paper (public not false, so rows written before the field existed too) stays readable as the register baseline allows (signed-in users and the public principal). Create, update and delete repeat the register baseline unchanged: declaring a schema block replaces the baseline for every action. The body and the readers are copied onto the item and its papers on save (AgendaItemConfidentialityListener), so OpenRegister evaluates the rule on the row itself, in the list SQL and the single read alike. Named after its subject and sorted last so its schema versions win the merge. On a paper the member rules also require that it is not under embargo (embargo-geheimhouding task 6, REQ-EMB-005): while embargoActive is true only staff and the members of its embargoAudience group read it, and those still only within the item's audience; the release job's flip of embargoActive opens it to the rest.",
   "components": {
     "schemas": {
       "AgendaItem": {
@@ -135,7 +135,10 @@
                 "public": {
                   "$ne": false
                 },
-                "_organisation": "$organisation"
+                "_organisation": "$organisation",
+                "embargoActive": {
+                  "$ne": true
+                }
               }
             },
             {
@@ -148,6 +151,9 @@
                     "property": "governanceBody",
                     "match": "nextcloudUserId"
                   }
+                },
+                "embargoActive": {
+                  "$ne": true
                 }
               }
             },
@@ -156,6 +162,37 @@
               "match": {
                 "authorisedReaders": {
                   "$contains": "$userId"
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoAudience": {
+                  "$in": "$user.groups"
                 }
               }
             }
@@ -170,7 +207,10 @@
                 "public": {
                   "$ne": false
                 },
-                "_organisation": "$organisation"
+                "_organisation": "$organisation",
+                "embargoActive": {
+                  "$ne": true
+                }
               }
             },
             {
@@ -183,6 +223,9 @@
                     "property": "governanceBody",
                     "match": "nextcloudUserId"
                   }
+                },
+                "embargoActive": {
+                  "$ne": true
                 }
               }
             },
@@ -191,6 +234,37 @@
               "match": {
                 "authorisedReaders": {
                   "$contains": "$userId"
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoAudience": {
+                  "$in": "$user.groups"
                 }
               }
             }
