@@ -31,6 +31,7 @@
 import type { Actor } from './support/api-actors.ts'
 
 import { expect, test } from '@playwright/test'
+import fs from 'node:fs'
 import {
 	adminActor,
 	anonymousActor,
@@ -47,6 +48,8 @@ import {
 } from './support/api-actors.ts'
 
 const SCHEMA = 'authority-delegation'
+// The columns task 4 asks of the CSV, as the export names the schema's properties.
+const CSV_COLUMNS = ['type', 'delegatingbody', 'delegatebody', 'delegaterole', 'subject', 'financialceiling', 'statutorybasis', 'decision', 'validfrom', 'validto', 'status']
 const APP = `${BASE}/index.php/apps/decidiq`
 
 test.describe.configure({ mode: 'serial' })
@@ -248,9 +251,22 @@ test('the register index lists the run and offers the mass export', async ({ pag
 	await expect(page.getByText(`${tag} subsidy applications`).first()).toBeVisible({
 		timeout: 20_000,
 	})
-	await expect(
-		page.getByRole('button', { name: /export/i }).first(),
-	).toBeVisible()
+	// The mass export sits in the index's Actions menu; the dialog offers
+	// Excel first, CSV second, and its format select opens by typing.
+	await page.getByRole('button', { name: 'Actions', exact: true }).first().click()
+	await page.getByRole('menuitem', { name: /Export/ }).first().click()
+	const dialog = page.getByRole('dialog').last()
+	await dialog.locator('#cn-mass-export-format').focus()
+	await page.keyboard.type('CSV')
+	await page.keyboard.press('Enter')
+	const download = page.waitForEvent('download')
+	await dialog.getByRole('button', { name: /^Export$/ }).last().click()
+	const file = await download
+	expect(file.suggestedFilename()).toMatch(/\.csv$/)
+	const header = (fs.readFileSync(await file.path() as string, 'utf8').replace(/^\uFEFF/, '').split(/\r?\n/)[0] ?? '').toLowerCase()
+	for (const column of CSV_COLUMNS) {
+		expect(header, `the CSV carries ${column}`).toContain(column)
+	}
 })
 
 test('a published delegation is readable anonymously; an unpublished one is not', async () => {
@@ -286,9 +302,10 @@ test('the delegation detail shows its sub-mandate in the chain', async ({ page }
 	const children = page.getByTestId('delegation-chain-children')
 	await expect(children).toBeVisible({ timeout: 20_000 })
 	await expect(children).toContainText(`${tag} small subsidy applications`)
-	await expect(
-		children.getByTestId('delegation-chain-child').first().locator('a, button').first(),
-	).toBeVisible()
+	// Each sub-mandate is itself a button (keyboard-navigable) that opens it.
+	const child = children.getByTestId('delegation-chain-child').first()
+	await expect(child).toBeVisible()
+	await expect(child).toHaveJSProperty('tagName', 'BUTTON')
 })
 
 test('a decision taken under the mandate links to it and saves without any check', async ({ page }) => {
