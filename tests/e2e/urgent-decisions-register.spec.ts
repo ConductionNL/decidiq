@@ -28,7 +28,6 @@ import {
 	ObjectLedger,
 	readObject,
 } from './support/api-actors.ts'
-import { openRow } from './support/open-row.ts'
 
 const LIST = `${BASE}/index.php/apps/decidiq/urgent-decisions`
 
@@ -109,12 +108,16 @@ test('AgendaItem: a letter whose reportsOnDecision names an urgent decision sets
 		const { results } = await listObjects(admin, 'decision', {
 			isUrgent: 'true',
 		})
-		const open = results.find((d) => !d.reportedToRatifyingBodyAt)
+		// An unreported decision proves the letter sets the date; when the report
+		// test took the last one, an already reported decision proves the
+		// letter never moves a date that is set.
+		const open = results.find((d) => !d.reportedToRatifyingBodyAt) ?? results[0]
 		if (open === undefined) {
-			test.skip(true, 'every seeded urgent decision is already reported')
+			test.skip(true, 'no urgent decision is seeded')
 			return
 		}
 		const decisionId = String(open.id ?? open['@self']?.id)
+		const reportedBefore = open.reportedToRatifyingBodyAt ?? null
 
 		await createObject(admin, ledger, 'agenda-item', {
 			title: 'Raadsinformatiebrief over het spoedbesluit',
@@ -124,6 +127,9 @@ test('AgendaItem: a letter whose reportsOnDecision names an urgent decision sets
 		})
 		const first = await (await readObject(admin, 'decision', decisionId)).json()
 		expect(first.reportedToRatifyingBodyAt).toMatch(/^\d{4}-\d{2}-\d{2}/)
+		if (reportedBefore !== null) {
+			expect(first.reportedToRatifyingBodyAt).toBe(reportedBefore)
+		}
 
 		await createObject(admin, ledger, 'agenda-item', {
 			title: 'Tweede raadsinformatiebrief over het spoedbesluit',
