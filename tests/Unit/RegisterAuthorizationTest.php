@@ -109,6 +109,9 @@ class RegisterAuthorizationTest extends TestCase {
 		'AuthorityDelegation',
 		'MemberOnboarding',
 		'MemberOffboarding',
+		// Read rules for a non-public item and its papers (agenda-item-confidential-papers task 1, REQ-ACP-002).
+		'AgendaItem',
+		'DigitalDocument',
 	];
 
 	/**
@@ -754,14 +757,14 @@ class RegisterAuthorizationTest extends TestCase {
 
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
-		// 14 restate the baseline writes, 12 are service owned, 1 is
+		// 16 restate the baseline writes, 12 are service owned, 1 is
 		// EvaluationResponse, 1 is PublicationSubscription, 8 are written by
 		// the secretariat (MandateRemuneration, PaperSummary, MeetingBroadcast,
 		// VotingGroup, MeetingPack, SpeakingRequest, SpeakingPolicy,
 		// ChangeRecommendation), 1 is ImplementationUpdate, 1 is RoomSystemMessage,
 		// 17 are retired. A different number means schemas gained or lost their own
 		// block, which changes which ones the register baseline governs.
-		$this->assertCount(expectedCount: 55, haystack: $blocks, message: 'Expected 55 schema-level authorization blocks.');
+		$this->assertCount(expectedCount: 57, haystack: $blocks, message: 'Expected 57 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.29-unstable.20261125104613</version>
+    <version>1.2.29-unstable.20261125140000</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -539,6 +539,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 the mark (a decision with stage rows is never started as a flow).
             -->
             <step>OCA\Decidiq\Migration\MarkLegacyApprovalRoutes</step>
+            <!--
+                agenda-item-confidential-papers task 1 (REQ-ACP-002): after InitializeSettings
+                imported the read rules, a non-public agenda item saved before them gets its
+                meeting's governance body (and its papers the body and readers) by a re-save,
+                so the body's members keep reading it.
+            -->
+            <step>OCA\Decidiq\Migration\StampClosedAgendaItemAudience</step>
             <!--
                 After InitializeSettings imports the register (129-agenda-item-phase.json must
                 already have declared AgendaItem.phase). Copies a phase still held in the

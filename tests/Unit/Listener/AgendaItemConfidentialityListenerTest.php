@@ -341,4 +341,99 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 
 		$listener->handle(new ObjectCreatedEvent($this->entity(uuid: 'item-7', schemaId: '41', payload: ['public' => false])));
 	}//end testAFailingStoreIsLoggedNotThrown()
+	/**
+	 * An agenda item carries its meeting's governance body, so the body's members pass its read rule.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 */
+	public function testAnItemCarriesItsMeetingsBody(): void {
+		$this->objectService->expects(self::once())->method('find')
+			->with('meeting-3', new ObjectFindOptions(register: 'decidiq', schema: 'meeting'), false, false)
+			->willReturn($this->entity(uuid: 'meeting-3', schemaId: '93', payload: ['governanceBody' => 'body-raad']));
+
+		$item  = ['title' => 'Verlichting', 'meeting' => 'meeting-3', 'public' => false];
+		$event = new ObjectCreatingEvent($this->entity(uuid: 'item-7', schemaId: '41', payload: $item));
+		$this->listener->handle($event);
+
+		self::assertSame(expected: ['governanceBody' => 'body-raad'], actual: $event->getModifiedData());
+	}//end testAnItemCarriesItsMeetingsBody()
+
+	/**
+	 * An item that already names its meeting's body, or has no meeting, is left as it is.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 */
+	public function testAnItemWithItsBodyOrWithoutMeetingIsLeftAlone(): void {
+		$this->objectService->expects(self::once())->method('find')
+			->willReturn($this->entity(uuid: 'meeting-3', schemaId: '93', payload: ['governanceBody' => 'body-raad']));
+
+		$same = new ObjectUpdatingEvent(
+			$this->entity(uuid: 'item-7', schemaId: '41', payload: ['meeting' => 'meeting-3', 'governanceBody' => 'body-raad']),
+			$this->entity(uuid: 'item-7', schemaId: '41', payload: ['meeting' => 'meeting-3', 'governanceBody' => 'body-raad'])
+		);
+		$this->listener->handle($same);
+		$loose = new ObjectCreatingEvent($this->entity(uuid: 'item-8', schemaId: '41', payload: ['title' => 'Los punt']));
+		$this->listener->handle($loose);
+
+		self::assertSame(expected: [], actual: $same->getModifiedData());
+		self::assertSame(expected: [], actual: $loose->getModifiedData());
+	}//end testAnItemWithItsBodyOrWithoutMeetingIsLeftAlone()
+
+	/**
+	 * A paper of a non-public item is closed and carries the item's body and readers.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 */
+	public function testAPaperCarriesItsItemsBodyAndReaders(): void {
+		$this->objectService->method('find')
+			->willReturn(
+				$this->entity(
+					uuid: 'item-7',
+					schemaId: '41',
+					payload: ['public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']]
+				)
+			);
+
+		$event = new ObjectCreatingEvent($this->entity(uuid: 'paper-9', schemaId: '52', payload: ['title' => 'Kostenraming', 'agendaItem' => 'item-7']));
+		$this->listener->handle($event);
+
+		self::assertSame(
+			expected: ['governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant'], 'public' => false],
+			actual: $event->getModifiedData()
+		);
+	}//end testAPaperCarriesItsItemsBodyAndReaders()
+
+	/**
+	 * A reader added to a closed item reaches its papers, including the ones already closed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffier-adds-a-reader
+	 */
+	public function testAReaderAddedToAClosedItemReachesItsPapers(): void {
+		$closed = ['agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad'];
+		$this->objectService->method('findAll')->willReturn([
+			$this->entity(uuid: 'paper-1', schemaId: '52', payload: $closed + ['authorisedReaders' => []]),
+			$this->entity(uuid: 'paper-2', schemaId: '52', payload: $closed + ['authorisedReaders' => ['accountant']]),
+		]);
+
+		$item = ['public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']];
+		$this->listener->handle(
+			new ObjectUpdatedEvent(
+				$this->entity(uuid: 'item-7', schemaId: '41', payload: $item),
+				$this->entity(uuid: 'item-7', schemaId: '41', payload: ['authorisedReaders' => []] + $item)
+			)
+		);
+
+		self::assertSame(
+			expected: [['digital-document', 'paper-1', ['id' => 'paper-1'] + $closed + ['authorisedReaders' => ['accountant']]]],
+			actual: $this->saved
+		);
+	}//end testAReaderAddedToAClosedItemReachesItsPapers()
 }//end class

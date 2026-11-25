@@ -45,6 +45,10 @@
 			"id": "TopicThemeDetail",
 			"route": "/topic-themes/:id",
 			"type": "detail",
+			"slots": {
+				"widget-theme-timeline": "ThemeTimelineTab",
+				"widget-theme-publication": "ThemePublicationTab"
+			},
 			"title": "Theme",
 			"_note": "spec: openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it",
 			"config": {
