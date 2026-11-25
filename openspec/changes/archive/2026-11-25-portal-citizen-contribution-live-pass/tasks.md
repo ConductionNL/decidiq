@@ -20,5 +20,6 @@
 - **acceptance_criteria**:
   - GIVEN the run WHEN green THEN par-10 reads built and cites the spec file
   - GIVEN a defect on the portaliq side WHEN found THEN it is filed as a portaliq change, not patched here
-- [ ] Implement
-- [ ] Test
+- Done (25 Nov 2026): the defect was portaliq's: an owning app's refusal answered 502. Built there as the change the-owning-apps-refusal-reads-as-no-longer-possible (portaliq#2809: 409 `refused`, which the site reads as "Dit kan voor dit item niet meer."). With it the spec runs 2/2 live and now asserts the 409. REQ-DKPCA-001's `@e2e exclude` is replaced by the spec file. REQ-DKPCA-002 (budget proposals) keeps its exclusion: this run reacts on a consultation and proposes no budget item. par-10 reads built with the run as evidence.
+- [x] Implement
+- [x] Test

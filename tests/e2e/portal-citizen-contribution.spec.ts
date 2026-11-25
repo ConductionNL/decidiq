@@ -19,7 +19,7 @@
  * and writes as its organisation only). Run live 25 Nov 2026 on Nextcloud 34
  * + PostgreSQL 16 with OpenRegister main and portaliq development.
  *
- * @spec openspec/changes/portal-citizen-contribution-live-pass/specs/portal-citizen-create-actions/spec.md#requirement-a-residents-contribution-reaches-the-griffie-and-comes-back-on-mijn-inspraak-req-dkpca-005
+ * @spec openspec/specs/portal-citizen-create-actions/spec.md#requirement-a-residents-contribution-reaches-the-griffie-and-comes-back-on-mijn-inspraak-req-dkpca-005
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -116,6 +116,7 @@ async function myReactions(request: APIRequestContext, token: string): Promise<a
 	return body.results ?? body.objects ?? body.items ?? []
 }
 
+// @e2e portal-citizen-create-actions::a-citizen-reacts-to-an-open-consultation
 // @e2e portal-citizen-create-actions::a-resident-reacts-and-the-griffie-approves
 test('a resident reacts on the portal, the griffie approves, and Mijn inspraak follows', async ({ request }) => {
 	const consultationId = await consultation('open')
@@ -160,9 +161,10 @@ test('a reaction on a closed consultation is refused and nothing is created', as
 		data: { body: text, consultation: consultationId },
 		headers: { Authorization: `Bearer ${token}` },
 	})
-	expect(submitted.ok(), 'the portal refuses the reaction').toBeFalsy()
-	expect(submitted.status()).toBeGreaterThanOrEqual(400)
-	expect(submitted.status()).toBeLessThan(500)
+	// 409 `refused`: the site reads it as "Dit kan voor dit item niet meer."
+	// (portaliq site-forms REQ-ORR-001), not as a failure of the store.
+	expect(submitted.status(), 'the portal refuses the reaction as no longer possible').toBe(409)
+	expect(await submitted.json()).toEqual({ error: 'refused' })
 
 	const { results } = await listObjects(admin, 'consultation-reaction', { _search: text })
 	expect(results.filter((row) => row?.body === text), 'no reaction was created in decidiq').toHaveLength(0)

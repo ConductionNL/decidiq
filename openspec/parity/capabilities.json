@@ -7169,27 +7169,25 @@
 			"area": "participation",
 			"name": "Let citizens submit a contribution through the public portal.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144)",
+				"state": "built",
+				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144); tests/e2e/portal-citizen-contribution.spec.ts run live 2/2 (25 Nov 2026, Nextcloud 34 + PostgreSQL 16 with portaliq development and portaliq#2809): a resident's reaction reaches the griffie pending, is approved and shows approved on Mijn inspraak; a reaction on a closed consultation is refused with 409 and nothing is created",
 				"owner": "ConductionNL/portaliq",
 				"spec": "openspec/specs/portal-citizen-create-actions",
-				"change": "portal-citizen-contribution-live-pass",
 				"requirement": [
 					"openspec/specs/portal-citizen-create-actions :: Citizen reacts to an open consultation via a scope-stamped create action (REQ-DKPCA-001)",
 					"openspec/specs/portal-citizen-create-actions :: Citizen proposes a budget item into an open participatory budget via a scope-stamped create action (REQ-DKPCA-002)",
-					"openspec/changes/portal-citizen-contribution-live-pass/specs/portal-citizen-create-actions :: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)"
+					"openspec/specs/portal-citizen-create-actions :: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)"
 				],
-				"plan": "openspec/changes/portal-citizen-contribution-live-pass",
-				"readOn": "2026-10-30"
+				"readOn": "2026-11-25"
 			},
 			"reachedOn": "nothing reaches it in decidiq: portaliq discovers the provider by convention; the portal UI lives in portaliq",
 			"provider": "portaliq",
 			"providerHow": "read-from-code",
 			"feature": "citizen-participation",
 			"featureConfidence": "medium",
-			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates, but the portal that executes the declaration is portaliq and cannot be proven from this repo.",
+			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates; the round trip through portaliq is proven live by tests/e2e/portal-citizen-contribution.spec.ts.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
