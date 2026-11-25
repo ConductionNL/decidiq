@@ -79,9 +79,19 @@ test('UrgentDecisions: the line under the title names the office, else the body'
 // @e2e urgent-decision-procedure::reported-before-the-ratifying-meeting
 test('DecisionDetail: marking an urgent decision as reported records the date once', async ({
 	page,
+	playwright,
 }) => {
-	await page.goto(LIST)
-	await openRow(page, 'Tijdelijke opvang in sporthal De Linde')
+	// An urgent decision that still awaits ratification and was not reported
+	// yet (the seeded "Tijdelijke opvang in sporthal De Linde" is ratified).
+	const admin = await adminActor(playwright)
+	const { results } = await listObjects(admin, 'decision', { isUrgent: 'true' })
+	await disposeActors(admin)
+	const open = results.find((d) => d.awaitingRatification === true && !d.reportedToRatifyingBodyAt)
+	if (open === undefined) {
+		test.skip(true, 'every seeded urgent decision awaiting ratification is already reported')
+		return
+	}
+	await page.goto(`${BASE}/index.php/apps/decidiq/decisions/${String(open.id ?? open['@self']?.id)}`)
 
 	const banner = page.getByTestId('urgency-banner')
 	await banner.getByTestId('urgency-report').click()
@@ -108,6 +118,8 @@ test('AgendaItem: a letter whose reportsOnDecision names an urgent decision sets
 
 		await createObject(admin, ledger, 'agenda-item', {
 			title: 'Raadsinformatiebrief over het spoedbesluit',
+			itemType: 'informational',
+			orderNumber: 1,
 			typeFields: { reportsOnDecision: decisionId },
 		})
 		const first = await (await readObject(admin, 'decision', decisionId)).json()
@@ -115,6 +127,8 @@ test('AgendaItem: a letter whose reportsOnDecision names an urgent decision sets
 
 		await createObject(admin, ledger, 'agenda-item', {
 			title: 'Tweede raadsinformatiebrief over het spoedbesluit',
+			itemType: 'informational',
+			orderNumber: 1,
 			typeFields: { reportsOnDecision: decisionId },
 		})
 		const second = await (await readObject(admin, 'decision', decisionId)).json()
