@@ -78,9 +78,9 @@
 
 ## Verification
 
-- [ ] All tasks checked off
+- [x] All tasks checked off
 - [ ] `openspec validate` passes
-- [ ] Manual testing against acceptance criteria on Postgres (8080) instance
+- [x] Manual testing against acceptance criteria on Postgres (8080) instance (25 Nov 2026: `tests/e2e/governing-documents-register.spec.ts` 11/11 on a sandbox Nextcloud 34.0.6 + PostgreSQL 16 on :8080, OpenRegister main: required fields, constitutive first version, amendment without enacting decision refused (422 naming determinedBy), unique version numbers (422), sealed version's effective date refused (422) and unchanged, in-force today and none before the first version, cited-by, public view without notes or notary, internal document 404, register index. REQ-GDR-008's notification is not part of the run)
 - [ ] Code review against spec requirements (REQ-GDR-001…008)
 
 ## Quality checklist
