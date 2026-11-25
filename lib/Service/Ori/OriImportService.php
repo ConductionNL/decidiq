@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Service\Ori;
 use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Core\LifecycleStatesKeeperInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
@@ -152,14 +153,17 @@ class OriImportService implements OriImportServiceInterface {
 	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface $objectService Reads the source register and writes decidiq's.
-	 * @param OriExportMapper        $mapper        Reads ORI records.
+	 * @param ObjectServiceInterface         $objectService Reads the source register and writes decidiq's.
+	 * @param OriExportMapper                $mapper        Reads ORI records.
+	 * @param LifecycleStatesKeeperInterface $states        Lets a historic record keep its own lifecycle state on create.
 	 *
 	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly OriExportMapper $mapper,
+		private readonly LifecycleStatesKeeperInterface $states,
 	) {
 		$this->report = new OriImportReport();
 	}//end __construct()
@@ -881,6 +885,8 @@ class OriImportService implements OriImportServiceInterface {
 	 * @param string               $label  A readable name for the report.
 	 *
 	 * @return string The object's uuid; in a dry run a placeholder when it does not exist yet.
+	 *
+	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function upsert(string $schema, string $tag, array $data, string $label): string {
 		$existing = ($this->tagged[$schema][$tag] ?? null);
@@ -897,14 +903,17 @@ class OriImportService implements OriImportServiceInterface {
 
 		$uuid = ($existing ?? 'dry-run:' . $tag);
 		if ($this->dryRun === false) {
-			$saved = $this->objectService->saveObject(
-				object: $data,
-				options: new ObjectSaveOptions(
-					target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema),
-					uuid: $existing
-				),
-				_rbac: false,
-				_multitenancy: false
+			// An imported record is history: a decided decision is created decided, not in the schema's initial state.
+			$saved = $this->states->keepingStates(
+				fn () => $this->objectService->saveObject(
+					object: $data,
+					options: new ObjectSaveOptions(
+						target: new ObjectFindTarget(register: self::TARGET_REGISTER, schema: $schema),
+						uuid: $existing
+					),
+					_rbac: false,
+					_multitenancy: false
+				)
 			);
 			$uuid = (string)$saved->getUuid();
 		}

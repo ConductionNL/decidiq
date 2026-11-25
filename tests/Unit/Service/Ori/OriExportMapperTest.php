@@ -44,7 +44,7 @@ final class OriExportMapperTest extends TestCase {
 		$store->seed('ori', 'raadsdocument', self::DOCUMENT);
 		$store->seed('ori', 'agendapunt', self::ITEM);
 		$store->seed('ori', 'stemming', self::VOTE);
-		(new OriImportService($store->service($test), new OriExportMapper()))->import();
+		(new OriImportService($store->service($test), new OriExportMapper(), $store->keeper()))->import();
 
 		return $store;
 	}
