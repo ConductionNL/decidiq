@@ -14,8 +14,12 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\SeedUrgencyGrants;
 use OCA\Decidiq\Service\UrgencyWriteGrant;
 use OCA\Decidiq\Service\UrgentSeedImport;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 
 /**
@@ -37,6 +41,54 @@ class SeedUrgencyGrantsTest extends TestCase {
 	}//end descriptor()
 
 	/**
+	 * Every save: the uuid, and whether its urgency write was granted then.
+	 *
+	 * @var list<array{0: string, 1: bool}>
+	 */
+	private array $saves = [];
+
+	/**
+	 * The service over an object store that holds every decision.
+	 *
+	 * @param UrgencyWriteGrant $grant The grant.
+	 *
+	 * @return SeedUrgencyGrants
+	 */
+	private function grants(UrgencyWriteGrant $grant): SeedUrgencyGrants {
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objects->method('find')->willReturnCallback(
+			static function (int|string $id): ObjectEntity {
+				$entity = new ObjectEntity();
+				$entity->setUuid((string)$id);
+				$entity->setObject(['title' => 'Spoed', 'isUrgent' => true]);
+				return $entity;
+			}
+		);
+		$objects->method('saveObject')->willReturnCallback(
+			function (array $object, ObjectSaveOptions $options) use ($grant): ObjectEntity {
+				$this->saves[] = [(string)$options->uuid, $grant->isGranted(decisionId: (string)$options->uuid)];
+				return new ObjectEntity();
+			}
+		);
+
+		return new SeedUrgencyGrants(grant: $grant, objectService: $objects, logger: new NullLogger());
+	}//end grants()
+
+	/**
+	 * After the import each urgent decision is saved once more, still granted,
+	 * so its materialised calculations see the stages imported after it.
+	 *
+	 * @return void
+	 */
+	public function testEachUrgentDecisionIsSavedAgainAfterTheImport(): void {
+		$grant = new UrgencyWriteGrant();
+
+		$this->grants(grant: $grant)->during(descriptor: self::descriptor(), import: static fn (): bool => true);
+
+		self::assertSame(expected: [['d-urgent', true]], actual: $this->saves);
+	}//end testEachUrgentDecisionIsSavedAgainAfterTheImport()
+
+	/**
 	 * Only the urgent decisions with a fixed id are named.
 	 *
 	 * @return void
@@ -54,7 +106,7 @@ class SeedUrgencyGrantsTest extends TestCase {
 		$grant  = new UrgencyWriteGrant();
 		$during = [];
 
-		$result = (new SeedUrgencyGrants(grant: $grant))->during(
+		$result = ($this->grants(grant: $grant))->during(
 			descriptor: self::descriptor(),
 			import: static function () use ($grant, &$during): string {
 				$during = [$grant->isGranted(decisionId: 'd-urgent'), $grant->isGranted(decisionId: 'd-plain')];
@@ -76,7 +128,7 @@ class SeedUrgencyGrantsTest extends TestCase {
 		$grant = new UrgencyWriteGrant();
 
 		try {
-			(new SeedUrgencyGrants(grant: $grant))->during(
+			($this->grants(grant: $grant))->during(
 				descriptor: self::descriptor(),
 				import: static function (): never {
 					throw new RuntimeException(message: 'import failed');
@@ -98,7 +150,7 @@ class SeedUrgencyGrantsTest extends TestCase {
 	public function testAroundUsesTheContainersGrantsOrImportsAsIs(): void {
 		$grant     = new UrgencyWriteGrant();
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
-		$container->method('get')->willReturn(new SeedUrgencyGrants(grant: $grant));
+		$container->method('get')->willReturn($this->grants(grant: $grant));
 		$seen = (new UrgentSeedImport())->run(
 			container: $container,
 			descriptor: self::descriptor(),

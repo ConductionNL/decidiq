@@ -22,6 +22,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use Psr\Log\LoggerInterface;
+use Throwable;
+
 
 /**
  * Urgency is declared through the urgency procedure, so UrgencyFieldGuardListener
@@ -33,6 +40,12 @@ namespace OCA\Decidiq\Service;
  * 'decision'"). The import grants exactly the decisions the set itself
  * declares urgent, by their fixed id, and revokes the grants afterwards.
  *
+ * A set imports its decisions before their stages, so a decision's
+ * materialised `awaitingRatification` (urgent and a ratifying stage still
+ * open) was computed without its stages and read false for every seeded
+ * decision. While still granted, each urgent decision is saved once more
+ * after the import, unchanged, so the calculation sees its stages.
+ *
  * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md
  */
 class SeedUrgencyGrants {
@@ -40,10 +53,14 @@ class SeedUrgencyGrants {
 	/**
 	 * Constructor.
 	 *
-	 * @param UrgencyWriteGrant $grant The grant the field guard reads.
+	 * @param UrgencyWriteGrant      $grant         The grant the field guard reads.
+	 * @param ObjectServiceInterface $objectService OpenRegister's object service
+	 * @param LoggerInterface        $logger        Logger
 	 */
 	public function __construct(
 		private readonly UrgencyWriteGrant $grant,
+		private readonly ObjectServiceInterface $objectService,
+		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
 
@@ -64,13 +81,57 @@ class SeedUrgencyGrants {
 		}
 
 		try {
-			return $import();
+			$result = $import();
+			foreach ($ids as $id) {
+				$this->resave(decisionId: $id);
+			}
+
+			return $result;
 		} finally {
 			foreach ($ids as $id) {
 				$this->grant->revoke(decisionId: $id);
 			}
 		}
 	}//end during()
+
+	/**
+	 * Save a decision again, unchanged, so its materialised calculations are
+	 * computed with everything the import wrote after it. A failure is logged
+	 * and leaves the decision as imported.
+	 *
+	 * @param string $decisionId The decision.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md
+	 */
+	private function resave(string $decisionId): void {
+		try {
+			$entity = $this->objectService->find(
+				id: $decisionId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'),
+				_rbac: false,
+				_multitenancy: false
+			);
+			if ($entity === null) {
+				return;
+			}
+
+			$decision = (array)$entity->getObject();
+			unset($decision['id'], $decision['@self']);
+			$this->objectService->saveObject(
+				object: $decision,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId),
+				_rbac: false,
+				_multitenancy: false
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: a seeded urgent decision could not be saved again after the import',
+				['decision' => $decisionId, 'error' => $e->getMessage()]
+			);
+		}
+	}//end resave()
 
 	/**
 	 * The fixed ids of the set's decisions that carry any urgency field.
