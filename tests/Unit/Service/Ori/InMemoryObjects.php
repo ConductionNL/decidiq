@@ -48,6 +48,11 @@ final class InMemoryObjects {
 	 */
 	public array $writesOutsideKeptStates = [];
 
+	/**
+	 * Nesting depth of the keeper's scope.
+	 *
+	 * @var integer
+	 */
 	private int $keeping = 0;
 
 	/**
@@ -58,9 +63,21 @@ final class InMemoryObjects {
 	public function keeper(): LifecycleStatesKeeperInterface {
 		$store = $this;
 		return new class($store) implements LifecycleStatesKeeperInterface {
+			/**
+			 * Bind the keeper to the store whose writes it marks.
+			 *
+			 * @param InMemoryObjects $store The store.
+			 */
 			public function __construct(private InMemoryObjects $store) {
 			}
 
+			/**
+			 * Run the operation inside the scope.
+			 *
+			 * @param callable $operation The operation.
+			 *
+			 * @return mixed What the operation returned.
+			 */
 			public function keepingStates(callable $operation): mixed {
 				$this->store->enterKeptStates(1);
 				try {

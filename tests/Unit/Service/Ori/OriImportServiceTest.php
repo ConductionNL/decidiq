@@ -31,7 +31,7 @@ final class OriImportServiceTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->store = new InMemoryObjects();
-		$this->import = new OriImportService($this->store->service($this), new OriExportMapper(), $this->store->keeper());
+		$this->import = new OriImportService(objectService: $this->store->service($this), mapper: new OriExportMapper(), states: $this->store->keeper());
 		$this->seedSource();
 	}
 
@@ -178,14 +178,16 @@ final class OriImportServiceTest extends TestCase {
 	 * ("A new object starts in draft") unless the write runs in its keep-lifecycle-states scope.
 	 *
 	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 *
+	 * @return void
 	 */
 	public function testEveryWriteKeepsItsLifecycleState(): void {
 		$this->import->import();
 
-		$this->assertSame('decided', $this->store->tagged('decision', 'ori:s1')['lifecycle']);
-		$this->assertSame('cancelled', $this->store->tagged('meeting', 'ori:v3')['lifecycle']);
-		$this->assertNotSame([], $this->store->writes);
-		$this->assertSame([], $this->store->writesOutsideKeptStates);
+		$this->assertSame(expected: 'decided', actual: $this->store->tagged('decision', 'ori:s1')['lifecycle']);
+		$this->assertSame(expected: 'cancelled', actual: $this->store->tagged('meeting', 'ori:v3')['lifecycle']);
+		$this->assertNotSame(expected: [], actual: $this->store->writes);
+		$this->assertSame(expected: [], actual: $this->store->writesOutsideKeptStates);
 	}
 
 	public function testASecondRunUpdatesInsteadOfDuplicating(): void {
