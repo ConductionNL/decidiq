@@ -73,4 +73,18 @@ class CommitteeStepBodyRegisterTest extends TestCase {
 			$this->assertArrayHasKey(key: $field, array: $step, message: $field . ' was lost when the committee body was merged in.');
 		}
 	}
+
+	/**
+	 * A committee stage records the meeting its body decided it in (REQ-DWP-010, task 10.2).
+	 *
+	 * @return void
+	 */
+	public function testTheStageRecordsTheMeetingItWasDecidedIn(): void {
+		$stage = $this->schemas()['DecisionStage']['properties'];
+
+		$this->assertSame(expected: 'meeting', actual: $stage['decidedInMeeting']['$ref']);
+		$this->assertSame(expected: 'string', actual: $stage['decidedInMeeting']['type']);
+		$this->assertSame(expected: 'agenda-item', actual: $stage['agendaItem']['$ref']);
+		$this->assertSame(expected: 'boolean', actual: $stage['placementPending']['type']);
+	}
 }
