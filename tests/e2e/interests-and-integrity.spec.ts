@@ -25,6 +25,7 @@
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 import { openRow } from './support/open-row.ts'
+import { chooseLens } from './support/quick-filter.ts'
 
 /**
  * The organisations of the ancillary positions an anonymous reader sees.
@@ -70,11 +71,13 @@ test('AncillaryPositions: the lenses narrow the register and the list exports', 
 	await expect(page.locator('tbody tr').first()).toBeVisible()
 	const all = await page.locator('tbody tr').count()
 
-	await page.getByRole('button', { name: /^Public/ }).click()
+	// The lenses are a dropdown on this page (quickFilterMode: dropdown).
+	await chooseLens(page, 'Public')
+	await expect.poll(() => page.locator('tbody tr').count()).toBeLessThan(all)
 	const publicRows = await page.locator('tbody tr').count()
 	expect(publicRows).toBeLessThan(all)
 
-	await page.getByRole('button', { name: /^All/ }).click()
+	await chooseLens(page, 'All')
 	await page
 		.getByRole('button', { name: /Export/ })
 		.first()
@@ -103,9 +106,9 @@ test('DeclaredGifts: the lenses split gifts from invitations and by decision', a
 	page,
 }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/declared-gifts`)
-	await page.getByRole('button', { name: /^Invitations/ }).click()
+	await chooseLens(page, 'Invitations')
 	await expect(page.locator('tbody tr', { hasText: /diner/i })).toBeVisible()
-	await page.getByRole('button', { name: /^Accepted/ }).click()
+	await chooseLens(page, 'Accepted')
 	await expect(page.locator('tbody tr', { hasText: /boek/i })).toBeVisible()
 })
 
@@ -157,7 +160,8 @@ test('MyDeclarations: the member sees only their own declarations, declares, reg
 		remunerated: false,
 		startDate: '2024-01-01',
 		declaredAt: '2024-01-05',
-		lifecycle: 'public',
+		// A new position starts as reported: the lifecycle refuses any other first state.
+		lifecycle: 'reported',
 	})
 	try {
 		await page.goto(`${BASE}/index.php/apps/decidiq/my-declarations`)
@@ -222,7 +226,11 @@ test('MyDeclarations: the member sees only their own declarations, declares, reg
 test('Detail pages: staff publish and withdraw a position from the header', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/ancillary-positions`)
 	await openRow(page, 'Afvalschap')
-	const publish = page.getByRole('button', { name: /^Publish$/ })
-	const withdraw = page.getByRole('button', { name: /Withdraw from the public register/ })
-	await expect(publish.or(withdraw)).toBeVisible()
+	// The detail header shows a few actions and puts the rest under More.
+	const named = /^(Publish|Withdraw from the public register)$/
+	const inHeader = page.getByRole('button', { name: named })
+	if (await inHeader.count() === 0) {
+		await page.getByRole('button', { name: 'More', exact: true }).first().click()
+	}
+	await expect(inHeader.or(page.getByRole('menuitem', { name: named })).first()).toBeVisible()
 })
