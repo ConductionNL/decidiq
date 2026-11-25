@@ -8090,7 +8090,7 @@
 			"built": {
 				"plan": [
 					"openspec/changes/archive/2026-11-25-decisions-card-board-look",
-					"openspec/changes/decisions-leaf-speaks-the-hosts-words",
+					"openspec/changes/archive/2026-11-25-decisions-leaf-speaks-the-hosts-words",
 					"openspec/changes/archive/2026-11-25-leaf-loads-its-translations"
 				],
 				"state": "built",

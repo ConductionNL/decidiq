@@ -8,7 +8,7 @@
  * @param {object} given Prop name to the host's text (may be blank).
  * @param {object} own Prop name to the leaf's own translated text.
  * @return {object} Prop name to the text to show.
- * @spec openspec/changes/decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
+ * @spec openspec/changes/archive/2026-11-25-decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
  */
 export function hostWording(given, own) {
 	const out = {}
