@@ -14,8 +14,7 @@ exports[`l10n build and check scripts > l10n-js: --check when current 1`] = `
     "l10n/en.js": "OC.L10N.register(
     "decidiq",
     {
-        "Hello": "Hello",
-        "Say \\"hi\\"": "Say \\"hi\\""
+
     },
     "nplurals=2; plural=(n != 1);"
 )
@@ -43,7 +42,7 @@ exports[`l10n build and check scripts > l10n-js: --check when current 1`] = `
   },
   "status": 0,
   "stderr": "",
-  "stdout": "  ✓ l10n/en.js up to date (2 keys)
+  "stdout": "  ✓ l10n/en.js up to date (0 keys)
   ✓ l10n/nl.js up to date (1 keys)
 ",
 }
@@ -142,8 +141,7 @@ exports[`l10n build and check scripts > l10n-js: catalogue does not parse 1`] = 
     "l10n/en.js": "OC.L10N.register(
     "decidiq",
     {
-        "Hello": "Hello",
-        "Say \\"hi\\"": "Say \\"hi\\""
+
     },
     "nplurals=2; plural=(n != 1);"
 )
@@ -159,7 +157,7 @@ exports[`l10n build and check scripts > l10n-js: catalogue does not parse 1`] = 
   "status": 1,
   "stderr": "l10n/nl.json does not parse: <message>
 ",
-  "stdout": "  ✎ l10n/en.js written (2 keys)
+  "stdout": "  ✎ l10n/en.js written (0 keys)
 ",
 }
 `;
@@ -178,8 +176,7 @@ exports[`l10n build and check scripts > l10n-js: catalogue without translations 
     "l10n/en.js": "OC.L10N.register(
     "decidiq",
     {
-        "Hello": "Hello",
-        "Say \\"hi\\"": "Say \\"hi\\""
+
     },
     "nplurals=2; plural=(n != 1);"
 )
@@ -197,7 +194,7 @@ exports[`l10n build and check scripts > l10n-js: catalogue without translations 
   "status": 1,
   "stderr": "l10n/nl.json is missing "translations"
 ",
-  "stdout": "  ✎ l10n/en.js written (2 keys)
+  "stdout": "  ✎ l10n/en.js written (0 keys)
 ",
 }
 `;
@@ -280,8 +277,7 @@ exports[`l10n build and check scripts > l10n-js: rewrites only the stale one 1`]
     "l10n/en.js": "OC.L10N.register(
     "decidiq",
     {
-        "Hello": "Hello",
-        "Say \\"hi\\"": "Say \\"hi\\""
+
     },
     "nplurals=2; plural=(n != 1);"
 )
@@ -309,7 +305,7 @@ exports[`l10n build and check scripts > l10n-js: rewrites only the stale one 1`]
   },
   "status": 0,
   "stderr": "",
-  "stdout": "  ✎ l10n/en.js written (2 keys)
+  "stdout": "  ✎ l10n/en.js written (0 keys)
   ✓ l10n/nl.js up to date (1 keys)
 ",
 }
@@ -329,8 +325,7 @@ exports[`l10n build and check scripts > l10n-js: writes every catalogue 1`] = `
     "l10n/en.js": "OC.L10N.register(
     "decidiq",
     {
-        "Hello": "Hello",
-        "Say \\"hi\\"": "Say \\"hi\\""
+
     },
     "nplurals=2; plural=(n != 1);"
 )
@@ -358,7 +353,7 @@ exports[`l10n build and check scripts > l10n-js: writes every catalogue 1`] = `
   },
   "status": 0,
   "stderr": "",
-  "stdout": "  ✎ l10n/en.js written (2 keys)
+  "stdout": "  ✎ l10n/en.js written (0 keys)
   ✎ l10n/nl.js written (1 keys)
 ",
 }
