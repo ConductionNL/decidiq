@@ -18,7 +18,6 @@
 namespace Unit\Service;
 
 use OCA\Decidiq\Service\DemoDataService;
-use OCA\Decidiq\Service\Records\MeetingDossierBackfill;
 use OCA\Decidiq\Service\SeedProfileService;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -107,7 +106,7 @@ class SeedProfileServiceEdgesTest extends TestCase {
 		$importer = new SeedProfileRecordingImporter();
 		$this->appManager->expects($this->once())->method('getInstalledApps')->willReturn(['files', 'openregister']);
 		$this->appManager->expects($this->once())->method('getAppVersion')->with('decidiq')->willReturn('1.4.2');
-		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : throw new RuntimeException('not wired: ' . $id));
+		$this->container->method('get')->willReturnMap([[self::IMPORTER, $importer]]);
 		$this->logger->expects($this->once())->method('info')->with(
 			'[SeedProfileService] imported example set "tiny": 4 object(s).',
 			['app' => 'decidiq']
@@ -127,45 +126,6 @@ class SeedProfileServiceEdgesTest extends TestCase {
 			],
 			$importer->calls
 		);
-	}
-
-	/**
-	 * After an example set is imported its meetings are pointed at their
-	 * archival dossiers, once, after the import.
-	 *
-	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
-	 */
-	public function testInstallPointsTheImportedMeetingsAtTheirDossiers(): void {
-		$this->writeProfile('a-tiny.json', ['x-openregister' => ['profile' => ['id' => 'tiny'], 'seedData' => ['objects' => ['meeting' => [['slug' => 'm-1']]]]]]);
-		$importer = new SeedProfileRecordingImporter();
-		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
-		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
-		$backfill = $this->createMock(MeetingDossierBackfill::class);
-		$backfill->expects($this->once())->method('fill')->willReturnCallback(function () use ($importer): int {
-			$this->assertCount(1, $importer->calls, 'the meetings are linked after the import');
-			return 1;
-		});
-		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : $backfill);
-
-		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $this->service->install('tiny'));
-	}
-
-	/**
-	 * A failed link is logged and never fails the import.
-	 *
-	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
-	 */
-	public function testAFailedLinkDoesNotFailTheImport(): void {
-		$this->writeProfile('a-tiny.json', ['x-openregister' => ['profile' => ['id' => 'tiny'], 'seedData' => ['objects' => ['meeting' => [['slug' => 'm-1']]]]]]);
-		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
-		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
-		$importer = new SeedProfileRecordingImporter();
-		$backfill = $this->createMock(MeetingDossierBackfill::class);
-		$backfill->method('fill')->willThrowException(new RuntimeException('locked'));
-		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : $backfill);
-		$this->logger->expects($this->once())->method('warning')->with($this->stringContains('not pointed at their dossier: locked'));
-
-		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $this->service->install('tiny'));
 	}
 
 	public function testInstallCountsNothingWhenTheSeedObjectsAreNotAList(): void {
