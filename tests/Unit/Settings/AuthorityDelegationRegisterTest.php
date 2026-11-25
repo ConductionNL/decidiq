@@ -218,7 +218,7 @@ class AuthorityDelegationRegisterTest extends TestCase {
 		$basis    = self::widget($detail, 'decision-authority-basis');
 
 		$this->assertSame(['field' => 'authorityBasis', 'op' => 'notEmpty'], $basis['visibleWhen']);
-		$this->assertSame(['authority-delegation', ['id' => '@object.authorityBasis'], 'AuthorityDelegationDetail'], [$basis['content']['schema'], $basis['content']['filter'], $basis['content']['rowRoute']]);
+		$this->assertSame(['authority-delegation', ['uuid' => '@object.authorityBasis'], 'AuthorityDelegationDetail'], [$basis['content']['schema'], $basis['content']['filter'], $basis['content']['rowRoute']]);
 		$this->assertContains('decision-authority-basis', array_column($detail['layout'], 'widgetId'));
 		$this->assertContains('authorityBasis', self::widget($detail, 'decision-content')['content']['include']);
 	}//end testTheLinkIsShownInBothDirections()
