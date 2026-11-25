@@ -18,6 +18,7 @@
 namespace Unit\Service;
 
 use OCA\Decidiq\Service\DemoDataService;
+use OCA\Decidiq\Service\Records\MeetingDossierBackfill;
 use OCA\Decidiq\Service\SeedProfileService;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -126,6 +127,46 @@ class SeedProfileServiceEdgesTest extends TestCase {
 			],
 			$importer->calls
 		);
+	}
+
+	/**
+	 * After an example set is imported its meetings are pointed at their
+	 * archival dossiers, once, after the import.
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 */
+	public function testInstallPointsTheImportedMeetingsAtTheirDossiers(): void {
+		$this->writeProfile('a-tiny.json', ['x-openregister' => ['profile' => ['id' => 'tiny'], 'seedData' => ['objects' => ['meeting' => [['slug' => 'm-1']]]]]]);
+		$importer = new SeedProfileRecordingImporter();
+		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
+		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
+		$this->container->method('get')->willReturn($importer);
+		$backfill = $this->createMock(MeetingDossierBackfill::class);
+		$backfill->expects($this->once())->method('fill')->willReturnCallback(function () use ($importer): int {
+			$this->assertCount(1, $importer->calls, 'the meetings are linked after the import');
+			return 1;
+		});
+		$service = new SeedProfileService($this->appManager, $this->container, $this->logger, $this->demoData, $backfill);
+
+		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $service->install('tiny'));
+	}
+
+	/**
+	 * A failed link is logged and never fails the import.
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 */
+	public function testAFailedLinkDoesNotFailTheImport(): void {
+		$this->writeProfile('a-tiny.json', ['x-openregister' => ['profile' => ['id' => 'tiny'], 'seedData' => ['objects' => ['meeting' => [['slug' => 'm-1']]]]]]);
+		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
+		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
+		$this->container->method('get')->willReturn(new SeedProfileRecordingImporter());
+		$backfill = $this->createMock(MeetingDossierBackfill::class);
+		$backfill->method('fill')->willThrowException(new RuntimeException('locked'));
+		$this->logger->expects($this->once())->method('warning')->with($this->stringContains('could not be pointed at their archival dossier: locked'));
+		$service = new SeedProfileService($this->appManager, $this->container, $this->logger, $this->demoData, $backfill);
+
+		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $service->install('tiny'));
 	}
 
 	public function testInstallCountsNothingWhenTheSeedObjectsAreNotAList(): void {

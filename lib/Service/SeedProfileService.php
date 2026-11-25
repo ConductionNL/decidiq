@@ -43,6 +43,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
+use OCA\Decidiq\Service\Records\MeetingDossierBackfill;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -88,6 +89,7 @@ class SeedProfileService implements SeedProfileServiceInterface {
 	 * @param ContainerInterface $container  Resolves OpenRegister's importer.
 	 * @param LoggerInterface    $logger     Records what was imported.
 	 * @param DemoDataService    $demoData   Imports the ADR-111 generated dataset.
+	 * @param MeetingDossierBackfill|null $meetingBackfill Points the imported meetings at their archival dossier
 	 *
 	 * @return void
 	 */
@@ -96,6 +98,7 @@ class SeedProfileService implements SeedProfileServiceInterface {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DemoDataService $demoData,
+		private readonly ?MeetingDossierBackfill $meetingBackfill=null,
 	) {
 	}//end __construct()
 
@@ -208,6 +211,7 @@ class SeedProfileService implements SeedProfileServiceInterface {
 	 * @throws RuntimeException When the id is unknown or OpenRegister is absent.
 	 *
 	 * @spec openspec/specs/seed-profiles/spec.md#requirement-import-one-example-set
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	public function install(string $profileId): array {
 		if ($profileId === self::GENERATED_PROFILE) {
@@ -244,6 +248,8 @@ class SeedProfileService implements SeedProfileServiceInterface {
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
 			['app' => AppIdentity::APP_ID]
 		);
+
+		$this->linkMeetingsToDossiers(profileId: $profileId);
 
 		return [
 			'objects' => $objects,
@@ -360,6 +366,33 @@ class SeedProfileService implements SeedProfileServiceInterface {
 		return $data;
 
 	}//end readDescriptor()
+
+	/**
+	 * An example set writes each archival dossier's `meeting` but not the
+	 * meeting's `archivalDossier`, so after an import the meetings are pointed
+	 * at their dossiers, as the app does when it forms one. A failure is logged
+	 * and never fails the import.
+	 *
+	 * @param string $profileId The set just imported.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 */
+	private function linkMeetingsToDossiers(string $profileId): void {
+		if ($this->meetingBackfill === null) {
+			return;
+		}
+
+		try {
+			$this->meetingBackfill->fill();
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'[SeedProfileService] example set "' . $profileId . '" imported, but its meetings could not be pointed at their archival dossier: ' . $e->getMessage(),
+				['app' => AppIdentity::APP_ID]
+			);
+		}
+	}//end linkMeetingsToDossiers()
 
 	/**
 	 * OpenRegister's configuration importer.
