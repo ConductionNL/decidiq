@@ -14,6 +14,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\SeedUrgencyGrants;
 use OCA\Decidiq\Service\UrgencyWriteGrant;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 /**
@@ -87,6 +88,30 @@ class SeedUrgencyGrantsTest extends TestCase {
 
 		self::assertFalse(condition: $grant->isGranted(decisionId: 'd-urgent'));
 	}//end testAFailedImportRevokesTheGrants()
+
+	/**
+	 * Through the container: granted when it holds the service, as is when it does not.
+	 *
+	 * @return void
+	 */
+	public function testAroundUsesTheContainersGrantsOrImportsAsIs(): void {
+		$grant     = new UrgencyWriteGrant();
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$container->method('get')->willReturn(new SeedUrgencyGrants(grant: $grant));
+		$seen = SeedUrgencyGrants::around(
+			container: $container,
+			descriptor: self::descriptor(),
+			import: static fn (): bool => $grant->isGranted(decisionId: 'd-urgent')
+		);
+		self::assertTrue(condition: $seen);
+
+		$empty = $this->createMock(originalClassName: ContainerInterface::class);
+		$empty->method('get')->willThrowException(new RuntimeException(message: 'not wired'));
+		self::assertSame(
+			expected: 'as is',
+			actual: SeedUrgencyGrants::around(container: $empty, descriptor: self::descriptor(), import: static fn (): string => 'as is')
+		);
+	}//end testAroundUsesTheContainersGrantsOrImportsAsIs()
 
 	/**
 	 * Every urgent decision a shipped example set declares has a fixed id, so it is granted.

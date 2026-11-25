@@ -246,19 +246,8 @@ class SeedProfileService implements SeedProfileServiceInterface {
 		);
 
 		// The set's own urgent decisions pass the urgency field guard while it
-		// is imported (SeedUrgencyGrants); without that service the import runs as is.
-		$grants = null;
-		try {
-			$grants = $this->container->get(SeedUrgencyGrants::class);
-		} catch (\Throwable $e) {
-			$grants = null;
-		}
-
-		if ($grants instanceof SeedUrgencyGrants) {
-			$grants->during(descriptor: $data, import: $import);
-		} else {
-			$import();
-		}
+		// is imported; without that service the import runs as is.
+		SeedUrgencyGrants::around(container: $this->container, descriptor: $data, import: $import);
 
 		$this->logger->info(
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
