@@ -13,6 +13,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\SeedUrgencyGrants;
 use OCA\Decidiq\Service\UrgencyWriteGrant;
+use OCA\Decidiq\Service\UrgentSeedImport;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
@@ -98,7 +99,7 @@ class SeedUrgencyGrantsTest extends TestCase {
 		$grant     = new UrgencyWriteGrant();
 		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturn(new SeedUrgencyGrants(grant: $grant));
-		$seen = SeedUrgencyGrants::around(
+		$seen = (new UrgentSeedImport())->run(
 			container: $container,
 			descriptor: self::descriptor(),
 			import: static fn (): bool => $grant->isGranted(decisionId: 'd-urgent')
@@ -109,7 +110,7 @@ class SeedUrgencyGrantsTest extends TestCase {
 		$empty->method('get')->willThrowException(new RuntimeException(message: 'not wired'));
 		self::assertSame(
 			expected: 'as is',
-			actual: SeedUrgencyGrants::around(container: $empty, descriptor: self::descriptor(), import: static fn (): string => 'as is')
+			actual: (new UrgentSeedImport())->run(container: $empty, descriptor: self::descriptor(), import: static fn (): string => 'as is')
 		);
 	}//end testAroundUsesTheContainersGrantsOrImportsAsIs()
 

@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use Psr\Container\ContainerInterface;
-use Throwable;
 
 /**
  * Urgency is declared through the urgency procedure, so UrgencyFieldGuardListener
@@ -48,32 +46,6 @@ class SeedUrgencyGrants {
 		private readonly UrgencyWriteGrant $grant,
 	) {
 	}//end __construct()
-
-	/**
-	 * Run the import through the container's SeedUrgencyGrants, or as is when
-	 * the container has none.
-	 *
-	 * @param ContainerInterface   $container  The app container.
-	 * @param array<string, mixed> $descriptor The example set.
-	 * @param callable(): mixed    $import     The import.
-	 *
-	 * @return mixed What the import returns.
-	 *
-	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md
-	 */
-	public static function around(ContainerInterface $container, array $descriptor, callable $import): mixed {
-		try {
-			$grants = $container->get(self::class);
-		} catch (Throwable $e) {
-			return $import();
-		}
-
-		if (($grants instanceof self) === false) {
-			return $import();
-		}
-
-		return $grants->during(descriptor: $descriptor, import: $import);
-	}//end around()
 
 	/**
 	 * Run the import with the set's own urgent decisions granted.
