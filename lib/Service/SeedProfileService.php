@@ -247,7 +247,18 @@ class SeedProfileService implements SeedProfileServiceInterface {
 			['app' => AppIdentity::APP_ID]
 		);
 
-		$this->linkMeetingsToDossiers(profileId: $profileId);
+		// An example set writes each archival dossier's `meeting` but not the
+		// meeting's `archivalDossier`, so its meetings are pointed at their
+		// dossiers now, as the app does when it forms one. A failure is logged
+		// and never fails the import.
+		try {
+			$this->container->get(MeetingDossierBackfill::class)->fill();
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'[SeedProfileService] example set "' . $profileId . '" imported, its meetings not pointed at their dossier: ' . $e->getMessage(),
+				['app' => AppIdentity::APP_ID]
+			);
+		}
 
 		return [
 			'objects' => $objects,
@@ -364,29 +375,6 @@ class SeedProfileService implements SeedProfileServiceInterface {
 		return $data;
 
 	}//end readDescriptor()
-
-	/**
-	 * An example set writes each archival dossier's `meeting` but not the
-	 * meeting's `archivalDossier`, so after an import the meetings are pointed
-	 * at their dossiers, as the app does when it forms one. A failure is logged
-	 * and never fails the import.
-	 *
-	 * @param string $profileId The set just imported.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
-	 */
-	private function linkMeetingsToDossiers(string $profileId): void {
-		try {
-			$this->container->get(MeetingDossierBackfill::class)->fill();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'[SeedProfileService] example set "' . $profileId . '" imported, its meetings not pointed at their dossier: ' . $e->getMessage(),
-				['app' => AppIdentity::APP_ID]
-			);
-		}
-	}//end linkMeetingsToDossiers()
 
 	/**
 	 * OpenRegister's configuration importer.
