@@ -192,7 +192,7 @@ class RoomSystemFeed {
 	 *
 	 * @return bool Whether the room system took the message.
 	 *
-	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+	 * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
 	 */
 	public function floorGiven(string $meetingId, string $participantId): bool {
 		if ($meetingId === '' || $participantId === '' || $this->client->isConnected() === false) {

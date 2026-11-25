@@ -6,7 +6,7 @@
  * running off a 360-pixel screen (found by tests/e2e/phone-width.spec.ts on a
  * live instance, 25 Nov 2026).
  *
- * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
+ * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
  */
 
 import * as fs from 'fs'

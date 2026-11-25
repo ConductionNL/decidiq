@@ -624,7 +624,7 @@ class PortalContributionProvider {
 	 * fields (declaredAt, reviewedAt, lifecycle), the hours or the
 	 * publication controls.
 	 *
-	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
 	 *
 	 * @return array<string, mixed>
 	 */

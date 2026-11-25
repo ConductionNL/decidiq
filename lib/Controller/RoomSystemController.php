@@ -120,7 +120,7 @@ class RoomSystemController extends Controller {
 	 *
 	 * @return JSONResponse `{sent: bool}`, 422 without a participant, or the guard's refusal.
 	 *
-	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+	 * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
 	 */
 	#[NoAdminRequired]
 	public function floor(string $id): JSONResponse {
