@@ -4177,7 +4177,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Withdrawn by the party who asked",
         "Transfer overdue": "Transfer overdue",
         "Retention not resolved": "Retention not resolved",
-        "Meetings without dossier": "Meetings without dossier"
+        "Meetings without dossier": "Meetings without dossier",
+        "The archival dossier that holds this meeting's records. Empty while no dossier has been formed; a closed meeting with no dossier is an archiving gap (REQ-RMA-007).": "The archival dossier that holds this meeting's records. Empty while no dossier has been formed; a closed meeting with no dossier is an archiving gap (REQ-RMA-007)."
     },
     "nplurals=2; plural=(n != 1);"
 )
