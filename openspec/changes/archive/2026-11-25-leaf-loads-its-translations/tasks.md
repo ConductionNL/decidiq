@@ -1,0 +1,6 @@
+## 1. Build
+
+- [x] 1.1 Load decidiq's translations before the leaf mounts (tests/vitest/lazyLeafMount.spec.js, new case red on development)
+- [x] 1.2 Live check on a dossiq case's Besluiten tab (COMPDIFF DqZaakBesluiten)
+  - 25 Nov, live on a sandbox: Nextcloud 34.0.6 on PostgreSQL 16, OpenRegister main, decidiq and dossiq development, Zuiddrecht example set; admin with language nl, headless browser 1440x1000, dossiq case "Verlichting fietspad Lindelaan" (2026-4871), Besluiten reached through the tab row's Acties overflow (the tab is `overflow: true` in dossiq's simple layout): the button reads "Besluit voorbereiden", the subtitle "Uit de besluitvorming van decidiq, hier getoond" and the empty state "Er is nog geen besluit voorbereid.", so the translations loaded before the leaf mounted. A pixel comparison against the drawn board was not run (the board site is not reachable from the sandbox); the spec scenario is the strings, and they match.
+- [x] 1.3 Load the translations from the `l10n/<lang>.js` script (OC.L10N.register): the JSON bundle loadTranslations() fetches is a 404 from an app folder on :8080 (r25g still English after #1803). tests/vitest/lazyLeafMount.spec.js loadTranslationScript

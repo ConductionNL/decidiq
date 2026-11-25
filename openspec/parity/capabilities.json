@@ -8089,9 +8089,9 @@
 			"decidiq": "yes",
 			"built": {
 				"plan": [
-					"openspec/changes/decisions-card-board-look",
+					"openspec/changes/archive/2026-11-25-decisions-card-board-look",
 					"openspec/changes/decisions-leaf-speaks-the-hosts-words",
-					"openspec/changes/leaf-loads-its-translations"
+					"openspec/changes/archive/2026-11-25-leaf-loads-its-translations"
 				],
 				"state": "built",
 				"evidence": "lib/Service/DecisionIntegrationService.php:60 PROVENANCE_FIELDS sourceApp/subjectRegister/subjectSchema/subjectId/externalReference, :135 createDecision() idempotent; appinfo/routes.php:291-293 /api/v1/decisions; lib/AppInfo/Registrar/CrossAppEventRegistrar.php:67 DecisionRequestedEvent -> DecisionRequestedListener; src/integrations/registerDecisionsLeaf.js mounted globally via src/integration-init.js:24 (lib/AppInfo/Application.php:198 addInitScript); lib/Event/DecisionConcludedEvent.php (procest ZGW advance)",
