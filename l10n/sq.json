@@ -3415,7 +3415,9 @@
         "Withdraw decision": "Tërhiq vendimin",
         "Withdrawal failed.": "Tërheqja dështoi.",
         "Withdrawn by the deciding body": "Tërhequr nga organi vendimmarrës",
-        "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese"
+        "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese",
+        "Transfer overdue": "Transferimi me vonesë",
+        "Retention not resolved": "Ruajtja e papërcaktuar"
     },
     "plurals": null
 }

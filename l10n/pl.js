@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Wycofaj decyzję",
         "Withdrawal failed.": "Wycofanie nie powiodło się.",
         "Withdrawn by the deciding body": "Wycofana przez organ decyzyjny",
-        "Withdrawn by the party who asked": "Wycofana przez stronę wnioskującą"
+        "Withdrawn by the party who asked": "Wycofana przez stronę wnioskującą",
+        "Transfer overdue": "Przekazanie po terminie",
+        "Retention not resolved": "Przechowywanie nieustalone"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Оттегляне на решението",
         "Withdrawal failed.": "Оттеглянето не бе успешно.",
         "Withdrawn by the deciding body": "Оттеглено от решаващия орган",
-        "Withdrawn by the party who asked": "Оттеглено от заявителя"
+        "Withdrawn by the party who asked": "Оттеглено от заявителя",
+        "Transfer overdue": "Просрочено предаване",
+        "Retention not resolved": "Съхранението не е определено"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Trekk tilbake vedtak",
         "Withdrawal failed.": "Tilbaketrekking mislyktes.",
         "Withdrawn by the deciding body": "Trukket tilbake av det besluttende organet",
-        "Withdrawn by the party who asked": "Trukket tilbake av parten som søkte"
+        "Withdrawn by the party who asked": "Trukket tilbake av parten som søkte",
+        "Transfer overdue": "Overføring forsinket",
+        "Retention not resolved": "Oppbevaring ikke fastsatt"
     },
     "nplurals=2; plural=(n != 1);"
 )

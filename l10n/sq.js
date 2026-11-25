@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Tërhiq vendimin",
         "Withdrawal failed.": "Tërheqja dështoi.",
         "Withdrawn by the deciding body": "Tërhequr nga organi vendimmarrës",
-        "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese"
+        "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese",
+        "Transfer overdue": "Transferimi me vonesë",
+        "Retention not resolved": "Ruajtja e papërcaktuar"
     },
     "nplurals=2; plural=(n != 1);"
 )

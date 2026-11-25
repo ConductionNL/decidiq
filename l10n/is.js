@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Draga ákvörðun til baka",
         "Withdrawal failed.": "Ekki tókst að draga til baka.",
         "Withdrawn by the deciding body": "Dregin til baka af ákvörðunaraðila",
-        "Withdrawn by the party who asked": "Dregin til baka af umsækjanda"
+        "Withdrawn by the party who asked": "Dregin til baka af umsækjanda",
+        "Transfer overdue": "Afhending komin fram yfir",
+        "Retention not resolved": "Varðveisla ekki ákveðin"
     },
     "nplurals=2; plural=(n != 1);"
 )

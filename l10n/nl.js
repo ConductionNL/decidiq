@@ -4583,7 +4583,9 @@ OC.L10N.register(
         "Withdraw decision": "Besluit intrekken",
         "Withdrawal failed.": "Intrekken mislukt.",
         "Withdrawn by the deciding body": "Ingetrokken door het bestuursorgaan",
-        "Withdrawn by the party who asked": "Ingetrokken door de belanghebbende"
+        "Withdrawn by the party who asked": "Ingetrokken door de belanghebbende",
+        "Transfer overdue": "Overbrenging te laat",
+        "Retention not resolved": "Bewaartermijn niet bepaald"
     },
     "nplurals=2; plural=(n != 1);"
 )
