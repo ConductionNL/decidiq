@@ -2,7 +2,7 @@
   "x-openregister": {
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
-  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers (REQ-ACP-001). An agenda item and each paper say whether they are public; a non-public item names the readers outside its body who may read it. The meeting pack and the publication leave a non-public item's papers out (REQ-ACP-005). The read rules that keep a non-public item and its papers from everyone else (REQ-ACP-002) are not in this fragment yet: they need the item's governance body on the item for a $memberOf rule, and a test through OpenRegister's own evaluator.",
+  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers (REQ-ACP-001). An agenda item and each paper say whether they are public; a non-public item names the readers outside its body who may read it. The meeting pack and the publication leave a non-public item's papers out (REQ-ACP-005). The read rules that keep a non-public item and its papers from everyone else (REQ-ACP-002) are in 999-read-rules-closed-agenda-items.json.",
   "components": {
     "schemas": {
       "AgendaItem": {
