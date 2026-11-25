@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  * user's scope and the visibility rule is applied here, before anything is
  * rendered. Each item's description is the object in the ORI wire shape.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class OriFeedService implements OriFeedServiceInterface {
 
@@ -55,7 +55,7 @@ class OriFeedService implements OriFeedServiceInterface {
 	 * @param OriExportMapper        $mapper        Renders them in the ORI shape.
 	 * @param RssDocument            $rss           Renders the feed.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -69,7 +69,7 @@ class OriFeedService implements OriFeedServiceInterface {
 	 *
 	 * @return string RSS XML.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function meetings(): string {
 		$items = [];
@@ -92,7 +92,7 @@ class OriFeedService implements OriFeedServiceInterface {
 	 *
 	 * @return string RSS XML.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function agendaItems(): string {
 		$items = [];
@@ -112,7 +112,7 @@ class OriFeedService implements OriFeedServiceInterface {
 	 *
 	 * @return string RSS XML.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function documents(): string {
 		$attached = [];

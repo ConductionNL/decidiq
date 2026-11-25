@@ -6,7 +6,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ final class OriImportServiceTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->store = new InMemoryObjects();
-		$this->import = new OriImportService($this->store->service($this), new OriExportMapper());
+		$this->import = new OriImportService(objectService: $this->store->service($this), mapper: new OriExportMapper(), states: $this->store->keeper());
 		$this->seedSource();
 	}
 
@@ -171,6 +171,23 @@ final class OriImportServiceTest extends TestCase {
 		);
 		// Party aggregates are kept, not split into invented per-member votes.
 		$this->assertSame([], $this->store->all('decidiq', 'vote'));
+	}
+
+	/**
+	 * A historic record keeps its own state: OpenRegister refuses a create in a state other than the initial one
+	 * ("A new object starts in draft") unless the write runs in its keep-lifecycle-states scope.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 *
+	 * @return void
+	 */
+	public function testEveryWriteKeepsItsLifecycleState(): void {
+		$this->import->import();
+
+		$this->assertSame(expected: 'decided', actual: $this->store->tagged('decision', 'ori:s1')['lifecycle']);
+		$this->assertSame(expected: 'cancelled', actual: $this->store->tagged('meeting', 'ori:v3')['lifecycle']);
+		$this->assertNotSame(expected: [], actual: $this->store->writes);
+		$this->assertSame(expected: [], actual: $this->store->writesOutsideKeptStates);
 	}
 
 	public function testASecondRunUpdatesInsteadOfDuplicating(): void {

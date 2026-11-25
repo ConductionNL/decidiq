@@ -6646,7 +6646,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "high",
-			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS. Specified in openspec/changes/ori-adoption (OpenSpec pass 2026-09-27).",
+			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS. Specified in openspec/changes/archive/2026-11-25-ori-adoption (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
