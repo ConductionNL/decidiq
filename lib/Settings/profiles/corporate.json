@@ -1273,6 +1273,8 @@
 							"schema": "decision"
 						},
 						"slug": "urgent-resolution-datalek-2026",
+						"id": "c0a10000-0000-4000-a000-000000000301",
+						"uuid": "c0a10000-0000-4000-a000-000000000301",
 						"decisionType": "management-point",
 						"title": "Emergency engagement of forensic IT firm after data breach",
 						"text": "The executive board engages a forensic IT firm to contain and investigate the data breach, within a budget of EUR 85,000.",
