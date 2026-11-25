@@ -257,7 +257,7 @@ export default {
 		 * The host's words over the leaf's own.
 		 *
 		 * @return {object} emptyTitle, emptyText and createLabel.
-		 * @spec openspec/changes/decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
+		 * @spec openspec/changes/archive/2026-11-25-decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
 		 */
 		wording() {
 			return hostWording(
