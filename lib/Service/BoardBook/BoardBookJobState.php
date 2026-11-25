@@ -5,7 +5,11 @@
  *
  * Where a meeting's pack compilation stands (queued, running, done, failed)
  * and the last run's outcome, kept in the distributed cache for the status
- * endpoint. It is a progress report, not a record: the packs themselves are
+ * endpoint, or in the app config when the instance has no distributed cache:
+ * the compilation runs in a cron process and the status is read in a web
+ * request, so the store must be shared between processes. Without that
+ * fallback an instance without Redis read every pack as idle for ever (found
+ * live on 25 Nov 2026). It is a progress report, not a record: the packs themselves are
  * MeetingPack objects, and a lost entry reads as idle.
  *
  * @category Service
@@ -28,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\BoardBook;
 
+use OCP\IAppConfig;
 use OCP\ICache;
 use OCP\ICacheFactory;
 
@@ -60,12 +65,29 @@ class BoardBookJobState {
 	private readonly ICache $cache;
 
 	/**
+	 * The app config, used when there is no distributed cache.
+	 *
+	 * @var IAppConfig
+	 */
+	private readonly IAppConfig $appConfig;
+
+	/**
+	 * Whether the distributed cache is shared between processes.
+	 *
+	 * @var boolean
+	 */
+	private readonly bool $shared;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param ICacheFactory $caches The cache factory.
+	 * @param ICacheFactory $caches    The cache factory.
+	 * @param IAppConfig    $appConfig The app config, the store without a distributed cache.
 	 */
-	public function __construct(ICacheFactory $caches) {
-		$this->cache = $caches->createDistributed('decidiq-board-book');
+	public function __construct(ICacheFactory $caches, IAppConfig $appConfig) {
+		$this->cache     = $caches->createDistributed('decidiq-board-book');
+		$this->shared    = $caches->isAvailable();
+		$this->appConfig = $appConfig;
 	}//end __construct()
 
 	/**
@@ -80,7 +102,13 @@ class BoardBookJobState {
 	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-004-pack-outdated-indicator
 	 */
 	public function set(string $meetingId, string $state, array $outcome=[]): void {
-		$this->cache->set($this->key(meetingId: $meetingId), json_encode(['state' => $state, 'outcome' => $outcome]), self::TTL);
+		$value = (string)json_encode(['state' => $state, 'outcome' => $outcome, 'at' => time()]);
+		if ($this->shared === true) {
+			$this->cache->set($this->key(meetingId: $meetingId), $value, self::TTL);
+			return;
+		}
+
+		$this->appConfig->setValueString('decidiq', $this->key(meetingId: $meetingId), $value, lazy: true);
 	}//end set()
 
 	/**
@@ -93,8 +121,14 @@ class BoardBookJobState {
 	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-004-pack-outdated-indicator
 	 */
 	public function get(string $meetingId): array {
-		$decoded = json_decode((string)$this->cache->get($this->key(meetingId: $meetingId)), true);
+		$decoded = json_decode($this->stored(meetingId: $meetingId), true);
 		if (is_array($decoded) === false || is_string($decoded['state'] ?? null) === false) {
+			return ['state' => 'idle', 'outcome' => []];
+		}
+
+		// The app config keeps what the cache would have let expire.
+		if ($this->shared === false && (int)($decoded['at'] ?? 0) < (time() - self::TTL)) {
+			$this->appConfig->deleteKey('decidiq', $this->key(meetingId: $meetingId));
 			return ['state' => 'idle', 'outcome' => []];
 		}
 
@@ -115,6 +149,23 @@ class BoardBookJobState {
 	}//end inFlight()
 
 	/**
+	 * The stored state of a meeting, '' when there is none.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-004-pack-outdated-indicator
+	 */
+	private function stored(string $meetingId): string {
+		if ($this->shared === true) {
+			return (string)$this->cache->get($this->key(meetingId: $meetingId));
+		}
+
+		return $this->appConfig->getValueString('decidiq', $this->key(meetingId: $meetingId), '', lazy: true);
+	}//end stored()
+
+	/**
 	 * The cache key of a meeting.
 	 *
 	 * @param string $meetingId UUID of the meeting
@@ -122,6 +173,6 @@ class BoardBookJobState {
 	 * @return string
 	 */
 	private function key(string $meetingId): string {
-		return 'state-' . $meetingId;
+		return 'board_book_state_' . $meetingId;
 	}//end key()
 }//end class

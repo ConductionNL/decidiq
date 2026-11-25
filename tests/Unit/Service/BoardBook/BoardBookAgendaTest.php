@@ -29,6 +29,7 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\ICache;
+use OCP\IAppConfig;
 use OCP\ICacheFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -205,7 +206,8 @@ class BoardBookAgendaTest extends TestCase {
 		);
 		$caches = $this->createMock(ICacheFactory::class);
 		$caches->method('createDistributed')->willReturn($cache);
-		$state = new BoardBookJobState(caches: $caches);
+		$caches->method('isAvailable')->willReturn(true);
+		$state = new BoardBookJobState(caches: $caches, appConfig: $this->createMock(IAppConfig::class));
 
 		$this->assertSame(expected: ['state' => 'idle', 'outcome' => []], actual: $state->get(meetingId: 'm1'));
 		$this->assertFalse(condition: $state->inFlight(meetingId: 'm1'));
@@ -215,4 +217,44 @@ class BoardBookAgendaTest extends TestCase {
 		$this->assertSame(expected: ['state' => 'done', 'outcome' => ['version' => 2]], actual: $state->get(meetingId: 'm1'));
 		$this->assertFalse(condition: $state->inFlight(meetingId: 'm1'));
 	}//end testTheJobStateRoundTrips()
+
+	/**
+	 * Without a distributed cache the state is kept in the app config, which
+	 * the cron job and the web request share, and an entry older than a day
+	 * reads as idle.
+	 *
+	 * @return void
+	 */
+	public function testWithoutADistributedCacheTheStateLivesInTheAppConfig(): void {
+		$store  = [];
+		$config = $this->createMock(IAppConfig::class);
+		$config->method('setValueString')->willReturnCallback(
+			static function (string $app, string $key, string $value) use (&$store): bool {
+				$store[$key] = $value;
+				return true;
+			}
+		);
+		$config->method('getValueString')->willReturnCallback(
+			static function (string $app, string $key, string $default = '') use (&$store): string {
+				return ($store[$key] ?? $default);
+			}
+		);
+		$config->method('deleteKey')->willReturnCallback(
+			static function (string $app, string $key) use (&$store): void {
+				unset($store[$key]);
+			}
+		);
+		$caches = $this->createMock(ICacheFactory::class);
+		$caches->method('createDistributed')->willReturn($this->createMock(ICache::class));
+		$caches->method('isAvailable')->willReturn(false);
+
+		// The cron job writes with one instance, the web request reads with another.
+		(new BoardBookJobState(caches: $caches, appConfig: $config))->set(meetingId: 'm1', state: 'done', outcome: ['version' => 1]);
+		$reader = new BoardBookJobState(caches: $caches, appConfig: $config);
+		$this->assertSame(expected: ['state' => 'done', 'outcome' => ['version' => 1]], actual: $reader->get(meetingId: 'm1'));
+
+		$store['board_book_state_m1'] = (string)json_encode(['state' => 'running', 'outcome' => [], 'at' => time() - BoardBookJobState::TTL - 1]);
+		$this->assertSame(expected: ['state' => 'idle', 'outcome' => []], actual: $reader->get(meetingId: 'm1'));
+		$this->assertArrayNotHasKey(key: 'board_book_state_m1', array: $store);
+	}//end testWithoutADistributedCacheTheStateLivesInTheAppConfig()
 }//end class
