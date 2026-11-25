@@ -108,14 +108,19 @@ export default {
 </script>
 
 <style scoped>
+/* Wraps instead of running off a narrow screen: at 360 pixels the toggle and
+   New ad hoc meeting take two lines (platform-baseline REQ-PLB-008). */
 .meeting-view-actions {
 	display: inline-flex;
+	flex-wrap: wrap;
+	max-width: 100%;
 	gap: 12px;
 	align-items: center;
 }
 
 .meeting-view-toggle {
 	display: inline-flex;
+	flex-wrap: wrap;
 	gap: 4px;
 	align-items: center;
 }
