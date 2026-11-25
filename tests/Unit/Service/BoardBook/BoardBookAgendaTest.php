@@ -207,7 +207,7 @@ class BoardBookAgendaTest extends TestCase {
 		$caches = $this->createMock(ICacheFactory::class);
 		$caches->method('createDistributed')->willReturn($cache);
 		$caches->method('isAvailable')->willReturn(true);
-		$state = new BoardBookJobState(caches: $caches, appConfig: $this->createMock(IAppConfig::class));
+		$state = new BoardBookJobState(caches: $caches, appConfig: $this->createMock(originalClassName: IAppConfig::class));
 
 		$this->assertSame(expected: ['state' => 'idle', 'outcome' => []], actual: $state->get(meetingId: 'm1'));
 		$this->assertFalse(condition: $state->inFlight(meetingId: 'm1'));
@@ -227,7 +227,7 @@ class BoardBookAgendaTest extends TestCase {
 	 */
 	public function testWithoutADistributedCacheTheStateLivesInTheAppConfig(): void {
 		$store  = [];
-		$config = $this->createMock(IAppConfig::class);
+		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('setValueString')->willReturnCallback(
 			static function (string $app, string $key, string $value) use (&$store): bool {
 				$store[$key] = $value;
@@ -244,8 +244,8 @@ class BoardBookAgendaTest extends TestCase {
 				unset($store[$key]);
 			}
 		);
-		$caches = $this->createMock(ICacheFactory::class);
-		$caches->method('createDistributed')->willReturn($this->createMock(ICache::class));
+		$caches = $this->createMock(originalClassName: ICacheFactory::class);
+		$caches->method('createDistributed')->willReturn($this->createMock(originalClassName: ICache::class));
 		$caches->method('isAvailable')->willReturn(false);
 
 		// The cron job writes with one instance, the web request reads with another.
