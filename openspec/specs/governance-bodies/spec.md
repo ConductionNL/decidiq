@@ -166,8 +166,6 @@ faction membership.
   and `parentBody` set to the Gemeenteraad Amsterdam object id
 - **THEN** `parentBody` resolves to the Gemeenteraad Amsterdam `GovernanceBody`
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-organisation-detail.spec.ts ("GovernanceBodyDetail: factions facet lists the seeded factions under their parent council" — the seeded factions "GroenLinks-fractie"/"D66-fractie" both carry `parentBody: gemeenteraad-amsterdam`, and the test asserts both render under Gemeenteraad Amsterdam's Factions widget, proving `parentBody` resolution); that test's own @e2e anchor still targets the pre-archival openspec/changes/organisation-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 #### Scenario: Faction members use the same Membership relation as any other body
 - **GIVEN** the "GroenLinks-fractie" `GovernanceBody` from the scenario above
 - **WHEN** a raadslid's `Membership.governanceBody` is set to the faction's object id

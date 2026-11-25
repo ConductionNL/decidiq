@@ -28,7 +28,6 @@
  * @e2e openspec/specs/citizen-participation/spec.md#budget-results-published-with-allocation
  * @e2e openspec/specs/citizen-participation/spec.md#opencatalogi-absent-degrades-gracefully
  * @e2e openspec/specs/citizen-participation/spec.md#admin-sets-instance-defaults
- * @e2e openspec/specs/voting-system/spec.md#duplicate-detection-shared-with-statutory-voting
  */
 import type { Page } from '@playwright/test'
 import type { SeedLedger } from './governance-fixture.ts'

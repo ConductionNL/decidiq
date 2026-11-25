@@ -8,8 +8,6 @@ openspec-changes:
 
 ## Purpose
 
-@e2e exclude configuration-only spec: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
-
 ## Requirements
 
 ### Requirement: Governance schemas MUST declare notifications in the verified engine dialect
@@ -22,6 +20,7 @@ openspec-changes:
 - **WHEN** notifications are declared
 - **THEN** a `created`-trigger rule notifies on a newly scheduled meeting
 - **AND** a `scheduled`-trigger rule (intervalSec >= 60, filter on lifecycle) sends a reminder
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
 
 ### Requirement: Recipients for non-uid person fields MUST use object-acl/groups, not field
 
@@ -33,6 +32,7 @@ Because `ActionItem.assignee`, `Motion.proposer`, and `Participant` hold partici
 - **WHEN** the actionAssigned rule is declared
 - **THEN** its `recipients` use `kind:object-acl` (permission manage) and `kind:groups`
 - **AND** no `kind:field` recipient references `assignee`
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
 
 ### Requirement: Status-change rules MUST be approximated and deferrals documented
 
@@ -44,6 +44,7 @@ With no named lifecycle transition actions on the schemas, status-change rules M
 - **WHEN** the motionSubmitted rule is declared
 - **THEN** it uses `trigger.type: "created"`
 - **AND** the proposal's Caveats note the lifecycle-entered form is deferred
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
 
 ### Requirement: REQ-ACN-001 Every notice decidiq sends can be shown
 
@@ -145,6 +146,7 @@ The `Decision` schema's `x-openregister-notifications` block SHALL gain two rule
 - GIVEN the `Decision` schema's notification rules after this change
 - WHEN a decision is updated with `isUrgent=true`
 - THEN the `urgentDecisionDeclared` rule fires an NC notification to `object-acl` readers and the `decidesk-members` group with the nl/en urgent-decision subject
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
 
 #### Scenario: Ratification-due reminder while outstanding
 
@@ -152,9 +154,11 @@ The `Decision` schema's `x-openregister-notifications` block SHALL gain two rule
 - WHEN the scheduled `urgentRatificationDue` rule interval elapses
 - THEN recipients receive a ratification-due NC notification
 - AND once the ratifying stage is decided (`awaitingRatification=false`) the rule no longer matches and no further reminders are sent
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.
 
 #### Scenario: No field-recipient on non-uid properties
 
 - GIVEN the two new rules
 - WHEN their `recipients` are inspected
 - THEN no `kind:field` recipient references `urgencyDeclaredBy` or any participant-name property; only `kind:object-acl` and `kind:groups` are used
+- @e2e exclude configuration-only scenario: it declares `x-openregister-notifications` rules on schemas in `lib/Settings/decidesk_register.json` and has no page of its own. RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary pins every trigger in that file to OpenRegister's vocabulary, and gate-18 (notification-dialect) rejects the legacy dialect. Whether a rule actually fires is up to OpenRegister's notification engine, which no test in this repo drives.

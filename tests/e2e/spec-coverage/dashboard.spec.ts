@@ -7,9 +7,7 @@
  * @e2e openspec/specs/dashboard/spec.md#empty-state-for-new-installation
  * @e2e openspec/specs/dashboard/spec.md#display-active-decisions-count
  * @e2e openspec/specs/dashboard/spec.md#show-pending-votes-with-urgency-indicators
- * @e2e openspec/specs/dashboard/spec.md#no-pending-votes
  * @e2e openspec/specs/dashboard/spec.md#show-upcoming-meetings-with-context
- * @e2e openspec/specs/dashboard/spec.md#view-decidiq-widget-on-nextcloud-dashboard
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
@@ -40,7 +38,6 @@ test('dashboard renders KPI stat blocks', async ({ page }) => {
 
 // @e2e openspec/specs/dashboard/spec.md#empty-state-for-new-installation
 // @e2e openspec/specs/dashboard/spec.md#show-pending-votes-with-urgency-indicators
-// @e2e openspec/specs/dashboard/spec.md#no-pending-votes
 // @e2e openspec/specs/dashboard/spec.md#show-upcoming-meetings-with-context
 test('dashboard page loads at the root route', async ({ page }) => {
 	await page.goto(`${BASE}/apps/decidiq/`)
@@ -50,7 +47,6 @@ test('dashboard page loads at the root route', async ({ page }) => {
 	await page.waitForSelector('[data-testid="app-root"]', { timeout: 15_000 })
 })
 
-// @e2e openspec/specs/dashboard/spec.md#view-decidiq-widget-on-nextcloud-dashboard
 test('Nextcloud dashboard shows the decidiq app in the app bar', async ({
 	page,
 }) => {
