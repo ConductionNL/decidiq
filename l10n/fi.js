@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Päättävän elimen peruma",
         "Withdrawn by the party who asked": "Hakijaosapuolen peruma",
         "Transfer overdue": "Siirto myöhässä",
-        "Retention not resolved": "Säilytystä ei ole määritetty"
+        "Retention not resolved": "Säilytystä ei ole määritetty",
+        "Meetings without dossier": "Kokoukset ilman asiakirjakansiota"
     },
     "nplurals=2; plural=(n != 1);"
 )

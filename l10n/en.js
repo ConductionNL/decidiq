@@ -4176,7 +4176,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Withdrawn by the deciding body",
         "Withdrawn by the party who asked": "Withdrawn by the party who asked",
         "Transfer overdue": "Transfer overdue",
-        "Retention not resolved": "Retention not resolved"
+        "Retention not resolved": "Retention not resolved",
+        "Meetings without dossier": "Meetings without dossier"
     },
     "nplurals=2; plural=(n != 1);"
 )

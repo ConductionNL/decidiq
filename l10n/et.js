@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Tagasi võetud otsustava organi poolt",
         "Withdrawn by the party who asked": "Tagasi võetud taotleja poolt",
         "Transfer overdue": "Üleandmine hilinenud",
-        "Retention not resolved": "Säilitamine määramata"
+        "Retention not resolved": "Säilitamine määramata",
+        "Meetings without dossier": "Toimikuta koosolekud"
     },
     "nplurals=2; plural=(n != 1);"
 )

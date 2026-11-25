@@ -255,6 +255,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\FillDecisionDecidingBody</step>
             <!--
+                records-management-archiving (REQ-RMA-007): after InitializeSettings
+                imports the meeting's archivalDossier property, every meeting with a
+                dossier gets that dossier's id once, so the archive dashboard does not
+                count it as a meeting without a dossier. Idempotent: a meeting that
+                already names its dossier is left alone. New dossiers link themselves.
+            -->
+            <step>OCA\Decidiq\Repair\FillMeetingArchivalDossier</step>
+            <!--
                 After InitializeSettings imports the register. The schema edit
                 changes the DECLARATION; every row already written still holds
                 the Dutch string, and a filter on the new value returns null

@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Retirada pelo órgão decisor",
         "Withdrawn by the party who asked": "Retirada pela parte requerente",
         "Transfer overdue": "Transferência em atraso",
-        "Retention not resolved": "Conservação não determinada"
+        "Retention not resolved": "Conservação não determinada",
+        "Meetings without dossier": "Reuniões sem processo"
     },
     "nplurals=2; plural=(n != 1);"
 )

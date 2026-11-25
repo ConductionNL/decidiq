@@ -1,0 +1,25 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - records-management-archiving task 6 (REQ-RMA-007). A meeting names its archival dossier, so 'closed meetings without a dossier' is a plain isnull filter on one schema instead of an anti-join across two, which no OpenRegister filter expresses. Written by ArchivalDossierService when it forms (or answers) the meeting's dossier, and once for existing dossiers by the FillMeetingArchivalDossier repair step. The dossier stays the source: its own `meeting` reference is unchanged. Properties only, so no schema version moves, as in 143-a-committee-step-goes-on-the-agenda.",
+  "_spec": "openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "properties": {
+          "archivalDossier": {
+            "title": "Archival dossier",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "archival-dossier",
+            "nullable": true,
+            "facetable": true,
+            "description": "The archival dossier that holds this meeting's records. Empty while no dossier has been formed; a closed meeting with no dossier is an archiving gap (REQ-RMA-007)."
+          }
+        }
+      }
+    }
+  }
+}

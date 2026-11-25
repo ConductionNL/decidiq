@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Atsaucis lēmējorgāns",
         "Withdrawn by the party who asked": "Atsaukusi pieprasītāja puse",
         "Transfer overdue": "Nodošana nokavēta",
-        "Retention not resolved": "Glabāšana nav noteikta"
+        "Retention not resolved": "Glabāšana nav noteikta",
+        "Meetings without dossier": "Sēdes bez lietas"
     },
     "nplurals=2; plural=(n != 1);"
 )

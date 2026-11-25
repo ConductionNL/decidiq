@@ -4585,7 +4585,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Ingetrokken door het bestuursorgaan",
         "Withdrawn by the party who asked": "Ingetrokken door de belanghebbende",
         "Transfer overdue": "Overbrenging te laat",
-        "Retention not resolved": "Bewaartermijn niet bepaald"
+        "Retention not resolved": "Bewaartermijn niet bepaald",
+        "Meetings without dossier": "Vergaderingen zonder dossier"
     },
     "nplurals=2; plural=(n != 1);"
 )

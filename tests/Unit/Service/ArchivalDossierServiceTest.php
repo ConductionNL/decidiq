@@ -34,6 +34,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\ArchivalDossierService;
 use OCA\Decidiq\Service\DossierMemberCollector;
 use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\Records\MeetingDossierLink;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -57,6 +58,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @covers \OCA\Decidiq\Service\DossierMemberCollector
  * @covers \OCA\Decidiq\Exception\DossierRefusedException
  * @covers \OCA\Decidiq\Service\Records\OpenRegisterArchive
+ * @covers \OCA\Decidiq\Service\Records\MeetingDossierLink
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
  * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
  * @uses   \OCA\Decidiq\Service\SystemObjectStore
@@ -80,6 +82,13 @@ class ArchivalDossierServiceTest extends TestCase {
 	 * @var list<array{0: string, 1: array<string, mixed>, 2: ?string, 3: bool, 4: bool}>
 	 */
 	private array $saves = [];
+
+	/**
+	 * Every meeting write (the dossier link), kept apart from the dossier writes: [object, uuid, rbac].
+	 *
+	 * @var list<array{0: array<string, mixed>, 1: ?string, 2: bool}>
+	 */
+	private array $meetingSaves = [];
 
 	/**
 	 * The schema the last setSchema() call chose (ParticipantResolver's read).
@@ -220,6 +229,12 @@ class ArchivalDossierServiceTest extends TestCase {
 				$register = $options->target->register;
 				$schema = $options->target->schema;
 				$uuid = $options->uuid;
+				if ((string)$schema === 'meeting') {
+					$this->meetingSaves[] = [$object, $uuid, $_rbac];
+					$this->store['meeting'][(string)$uuid] = $object;
+					return self::entity(schema: 'meeting', id: (string)$uuid, data: $object);
+				}
+
 				$this->saves[] = [(string)$schema, $object, $uuid, $_rbac, $_multitenancy];
 				$id = ($uuid ?? sprintf('5d1f0a10-0000-4000-8000-%012d', count($this->saves)));
 				$this->store[(string)$schema][$id] = $object;
@@ -283,6 +298,7 @@ class ArchivalDossierServiceTest extends TestCase {
 			groupManager: $groups,
 			l10n: $l10n,
 			archive: new OpenRegisterArchive(container: $container, logger: new NullLogger()),
+			meetingLink: new MeetingDossierLink(objectService: $objectService, logger: new NullLogger()),
 		);
 	}//end service()
 
@@ -340,6 +356,7 @@ class ArchivalDossierServiceTest extends TestCase {
 	protected function setUp(): void {
 		$this->store = [];
 		$this->saves = [];
+		$this->meetingSaves = [];
 		$this->uid = 'griffier';
 		$this->admin = false;
 		$this->tmlo = null;
@@ -404,6 +421,48 @@ class ArchivalDossierServiceTest extends TestCase {
 		self::assertSame($first['id'], $second['id']);
 		self::assertCount(1, $this->saves);
 	}//end testFormingTwiceAnswersTheSameDossier()
+
+	/**
+	 * Forming the dossier points the meeting at it, in system context, and
+	 * keeps the rest of the meeting as it was; forming again writes nothing.
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 *
+	 * @return void
+	 */
+	public function testFormingPointsTheMeetingAtItsDossier(): void {
+		$service = $this->service();
+		$dossier = $service->formForMeeting(meetingId: self::MEETING);
+		$service->formForMeeting(meetingId: self::MEETING);
+
+		self::assertCount(1, $this->meetingSaves, 'the meeting is written once');
+		[$meeting, $uuid, $rbac] = $this->meetingSaves[0];
+		self::assertSame(self::MEETING, $uuid);
+		self::assertFalse($rbac);
+		self::assertSame($dossier['id'], $meeting['archivalDossier']);
+		self::assertSame('Raadsvergadering 10 april 2025', $meeting['title']);
+		self::assertSame('closed', $meeting['lifecycle']);
+		self::assertArrayNotHasKey('id', $meeting);
+		self::assertArrayNotHasKey('@self', $meeting);
+	}//end testFormingPointsTheMeetingAtItsDossier()
+
+	/**
+	 * A dossier formed before meetings named their dossier gets the link the
+	 * next time the meeting's dossier is asked for.
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 *
+	 * @return void
+	 */
+	public function testAnEarlierDossierLinksItsMeetingWhenAskedFor(): void {
+		$this->put('archival-dossier', self::u('old-dossier'), ['title' => 'Eerder', 'meeting' => self::MEETING, 'lifecycle' => 'closed']);
+
+		$dossier = $this->service()->formForMeeting(meetingId: self::MEETING);
+
+		self::assertSame(self::u('old-dossier'), $dossier['id']);
+		self::assertSame([], $this->saves, 'the dossier itself is not written');
+		self::assertSame(self::u('old-dossier'), $this->store['meeting'][self::MEETING]['archivalDossier']);
+	}//end testAnEarlierDossierLinksItsMeetingWhenAskedFor()
 
 	/**
 	 * Closing a dossier whose minutes are not approved is refused naming the

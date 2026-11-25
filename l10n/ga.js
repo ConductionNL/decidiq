@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Tarraingthe siar ag an gcomhlacht cinnteoireachta",
         "Withdrawn by the party who asked": "Tarraingthe siar ag an bpáirtí a d'iarr é",
         "Transfer overdue": "Aistriú thar téarma",
-        "Retention not resolved": "Coinneáil gan réiteach"
+        "Retention not resolved": "Coinneáil gan réiteach",
+        "Meetings without dossier": "Cruinnithe gan chomhad"
     },
     "nplurals=2; plural=(n != 1);"
 )

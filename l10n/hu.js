@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "A döntéshozó szerv vonta vissza",
         "Withdrawn by the party who asked": "A kérelmező fél vonta vissza",
         "Transfer overdue": "Átadás késésben",
-        "Retention not resolved": "Megőrzés nincs meghatározva"
+        "Retention not resolved": "Megőrzés nincs meghatározva",
+        "Meetings without dossier": "Dosszié nélküli ülések"
     },
     "nplurals=2; plural=(n != 1);"
 )

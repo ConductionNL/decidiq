@@ -3348,7 +3348,8 @@ OC.L10N.register(
         "Score {score}, from:": "Бал {score}, з:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)",
         "Transfer overdue": "Перадача пратэрмінавана",
-        "Retention not resolved": "Захоўванне не вызначана"
+        "Retention not resolved": "Захоўванне не вызначана",
+        "Meetings without dossier": "Пасяджэнні без справы"
     },
     "nplurals=2; plural=(n != 1);"
 )

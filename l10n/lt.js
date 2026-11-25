@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Atšaukė sprendimą priimantis organas",
         "Withdrawn by the party who asked": "Atšaukė prašymą pateikusi šalis",
         "Transfer overdue": "Perdavimas vėluoja",
-        "Retention not resolved": "Saugojimas nenustatytas"
+        "Retention not resolved": "Saugojimas nenustatytas",
+        "Meetings without dossier": "Posėdžiai be bylos"
     },
     "nplurals=2; plural=(n != 1);"
 )

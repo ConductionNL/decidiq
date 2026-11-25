@@ -965,7 +965,8 @@ OC.L10N.register(
         "Score {score}, from:": "Score {score}, from:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points})",
         "Transfer overdue": "Transfer overdue",
-        "Retention not resolved": "Retention not resolved"
+        "Retention not resolved": "Retention not resolved",
+        "Meetings without dossier": "Meetings without dossier"
     },
     "nplurals=2; plural=(n != 1);"
 )
