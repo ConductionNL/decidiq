@@ -14,7 +14,7 @@
  That block is display only: it never declares, warns or blocks anything.
 
  @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
- @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
 -->
 <template>
 	<NcDialog
@@ -155,7 +155,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces */
+		/** @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces */
 		positionRows() {
 			return ancillaryContextRows(this.positions, this.subjectTitle)
 		},

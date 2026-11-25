@@ -3,7 +3,7 @@
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
   "_comment": "ADR-037 register fragment, change interests-and-integrity task 2 (REQ-INT-006, REQ-INT-008, REQ-INT-009). Narrows two declared notifications of fragment 81 to what the spec says. (1) The annual review reminder now has the 12-month cutoff: OpenRegister's scheduled filter grammar has `olderThan` and `any`/`all` (as 130-implementation-progress uses), so a disclosure whose reviewedAt, or declaredAt when never reviewed, is under 12 months old is no longer reminded. (2) The gift notification fires only for a gift at or above its body's threshold: a created-trigger filter can only compare a field for equality, so a declared gift carries `thresholdStatus`, which DeclaredGiftThresholdListener stamps on every save from the body's giftThresholdAmount (EUR 50 when the body has no configuration), and the trigger filters on `above`. Properties only, so no schema version moves, as in 134-decision-authority-basis.",
-  "_spec": "openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-009-integrity-notification-to-the-designated-role",
+  "_spec": "openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-009-integrity-notification-to-the-designated-role",
   "components": {
     "schemas": {
       "AncillaryPosition": {

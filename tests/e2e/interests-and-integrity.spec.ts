@@ -20,12 +20,12 @@
  * administrator (no example person carries a Nextcloud account), walk the
  * My declarations panel, and delete what they made.
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md
  */
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 import { openRow } from './support/open-row.ts'
-import { chooseLens } from './support/quick-filter.ts'
+import { chooseLens, pickFirstOptionByKeyboard } from './support/quick-filter.ts'
 
 /**
  * The organisations of the ancillary positions an anonymous reader sees.
@@ -78,16 +78,16 @@ test('AncillaryPositions: the lenses narrow the register and the list exports', 
 	expect(publicRows).toBeLessThan(all)
 
 	await chooseLens(page, 'All')
-	await page
-		.getByRole('button', { name: /Export/ })
-		.first()
-		.click()
-	const dialog = page.getByRole('dialog')
+	// Export is in the index's Actions menu; the dialog offers Excel first, CSV second.
+	await page.getByRole('button', { name: 'Actions', exact: true }).first().click()
+	await page.getByRole('menuitem', { name: /Export/ }).first().click()
+	const dialog = page.getByRole('dialog').last()
+	// The format select does not open on a click inside the dialog; typing filters it, Enter picks.
+	await dialog.locator('#cn-mass-export-format').focus()
+	await page.keyboard.type('CSV')
+	await page.keyboard.press('Enter')
 	const download = page.waitForEvent('download')
-	await dialog
-		.getByRole('button', { name: /Export/ })
-		.last()
-		.click()
+	await dialog.getByRole('button', { name: /^Export$/ }).last().click()
 	expect((await download).suggestedFilename()).toMatch(/\.csv$/)
 })
 
@@ -126,6 +126,18 @@ test('Dashboard: the overdue-review tile is not zero on the example set', async 
 })
 
 const OBJECTS = '/index.php/apps/openregister/api/objects/decidiq'
+
+/**
+ * The text input a declaration dialog marks with a test id: the id sits on the
+ * input itself (NcTextField hands its attributes to the input) or on a wrapper.
+ *
+ * @param {import('@playwright/test').Locator} scope The dialog.
+ * @param {string} testId The test id.
+ * @return {import('@playwright/test').Locator} The input.
+ */
+function textInput(scope, testId: string) {
+	return scope.locator(`input[data-testid="${testId}"], [data-testid="${testId}"] input`).first()
+}
 const JSON_HEADERS = { 'OCS-APIRequest': 'true', 'Content-Type': 'application/json' }
 
 /**
@@ -163,6 +175,9 @@ test('MyDeclarations: the member sees only their own declarations, declares, reg
 		// A new position starts as reported: the lifecycle refuses any other first state.
 		lifecycle: 'reported',
 	})
+	// Staff publish it (reported -> public), so the member can end a public position below.
+	const published = await api.patch(`${BASE}${OBJECTS}/ancillary-position/${position}`, { headers: JSON_HEADERS, data: { lifecycle: 'public' } })
+	expect(published.ok()).toBe(true)
 	try {
 		await page.goto(`${BASE}/index.php/apps/decidiq/my-declarations`)
 		const panel = page.getByTestId('my-declarations-panel')
@@ -184,22 +199,20 @@ test('MyDeclarations: the member sees only their own declarations, declares, reg
 		// Declare another position.
 		await panel.getByTestId('my-declarations-add-position').click()
 		const dialog = page.getByTestId('declaration-position-dialog')
-		await dialog.getByTestId('declaration-organisation').locator('input').fill('E2E Vereniging')
-		await dialog.getByTestId('declaration-role').locator('input').fill('Treasurer')
+		await textInput(dialog, 'declaration-organisation').fill('E2E Vereniging')
+		await textInput(dialog, 'declaration-role').fill('Treasurer')
 		await dialog.getByTestId('declaration-startDate').fill('2026-01-01')
-		await dialog.getByLabel('Governance body').click()
-		await page.getByRole('option').first().click()
+		await pickFirstOptionByKeyboard(page, dialog.getByLabel('Governance body'))
 		await dialog.getByTestId('declaration-position-confirm').click()
 		await expect(rows).toHaveCount(2)
 
 		// Register a gift.
 		await panel.getByTestId('my-declarations-add-gift').click()
 		const gift = page.getByTestId('declaration-gift-dialog')
-		await gift.getByLabel('Governance body').click()
-		await page.getByRole('option').first().click()
-		await gift.getByTestId('declaration-giver').locator('input').fill('E2E Giver')
-		await gift.getByTestId('declaration-description').locator('input').fill('A book')
-		await gift.getByTestId('declaration-estimatedValue').locator('input').fill('20')
+		await pickFirstOptionByKeyboard(page, gift.getByLabel('Governance body'))
+		await textInput(gift, 'declaration-giver').fill('E2E Giver')
+		await textInput(gift, 'declaration-description').fill('A book')
+		await textInput(gift, 'declaration-estimatedValue').fill('20')
 		await gift.getByTestId('declaration-receivedOn').fill('2026-11-01')
 		await gift.getByTestId('declaration-gift-confirm').click()
 		await expect(panel.getByTestId('my-declarations-gift')).toHaveCount(1)
@@ -207,8 +220,10 @@ test('MyDeclarations: the member sees only their own declarations, declares, reg
 		// End the public position.
 		await rows.filter({ hasText: 'E2E Stichting' }).getByTestId('my-declarations-end').click()
 		await page.getByTestId('declaration-end-confirm').click()
-		const ended = await (await api.get(`${BASE}${OBJECTS}/ancillary-position/${position}`, { headers: JSON_HEADERS })).json()
-		expect(ended.lifecycle).toBe('ended')
+		// The dialog saves after it closes; read until the write has landed.
+		const read = async () => (await api.get(`${BASE}${OBJECTS}/ancillary-position/${position}`, { headers: JSON_HEADERS })).json()
+		await expect.poll(async () => (await read()).lifecycle, { timeout: 15_000 }).toBe('ended')
+		const ended = await read()
 		expect(ended.endDate).toBeTruthy()
 	} finally {
 		const own = async (slug: string, field: string) => {

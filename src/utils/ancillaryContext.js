@@ -6,7 +6,7 @@
  * conflict-of-interest surfaces (interests-and-integrity, REQ-INT-007,
  * design D6). Display only: nothing here declares, warns, blocks or scores.
  *
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
  */
 
 /** The lifecycle state of a position that has ended. */
@@ -37,7 +37,7 @@ export function wordsOf(text) {
  * @param {object} position The ancillary position.
  * @param {string} subjectTitle The agenda item's or motion's title.
  * @return {boolean} True when it matches the subject.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
  */
 export function matchesSubject(position, subjectTitle) {
 	const subject = wordsOf(subjectTitle)
@@ -53,7 +53,7 @@ export function matchesSubject(position, subjectTitle) {
  * @param {Array<object>} positions The member's ancillary positions.
  * @param {string} subjectTitle The agenda item's or motion's title.
  * @return {Array<{id: string, organisation: string, role: string, matches: boolean}>} The rows.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
  */
 export function ancillaryContextRows(positions, subjectTitle) {
 	return (positions || [])
@@ -77,7 +77,7 @@ export function ancillaryContextRows(positions, subjectTitle) {
  *
  * @param {Array<object>} positions The person's ancillary positions.
  * @return {boolean} True when there is one to link to.
- * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
+ * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces
  */
 export function hasActivePositions(positions) {
 	return (positions || []).some(

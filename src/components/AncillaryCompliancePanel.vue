@@ -119,7 +119,7 @@ export default {
 		 * One row per active member of the chosen body.
 		 *
 		 * @return {Array<object>} The compliance rows.
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		rows() {
 			return complianceRows(this.memberships, this.positions, Date.now(), this.names)
@@ -173,7 +173,7 @@ export default {
 		 *
 		 * @param {string} bodyId The governance body.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
+		 * @spec openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010-self-service-register-pages-compliance-view-and-dashboard-kpi
 		 */
 		async loadBody(bodyId) {
 			this.memberships = []
