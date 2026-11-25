@@ -93,9 +93,10 @@
 
 ## 5. Verification & handover
 
-- [ ] 5.1 Run the full check suite and the e2e smoke on the feeds; document the
+- [x] 5.1 Run the full check suite and the e2e smoke on the feeds; document the
   release note "decidiq is now the home of raadsinformatie; procest instances
   migrate via `occ decidiq:import-ori` (see procest change `ori-removal`)".
   **Acceptance:** `composer check:strict` clean; feeds e2e green; release note
   present in the PR body; procest `ori-removal` is unblocked (its tasks
   reference this change by name).
+  > 2026-11-25: `tests/e2e/ori-feeds.spec.ts` (REQ-ORIA-004 "Public feeds serve without a session") seeds a public and a non-public meeting with an item and a document each and reads the three feeds anonymously; 1/1 passed on the sandbox (NC 34.0.6 + PostgreSQL 16, OpenRegister main). `composer check:strict` and `npm run lint` on the PR branch: see the PR. The release note is in the PR body. procest `ori-removal` is unblocked once this release ships.
