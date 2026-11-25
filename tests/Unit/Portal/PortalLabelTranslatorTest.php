@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+ * @spec openspec/changes/archive/2026-11-25-council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
  */
 
 declare(strict_types=1);

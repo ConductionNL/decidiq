@@ -769,7 +769,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 * The council calendar's headings are declared, so a Dutch reader reads
 	 * them in Dutch instead of the schema's English titles.
 	 *
-	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 * @spec openspec/changes/archive/2026-11-25-council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
 	 *
 	 * @return void
 	 */
@@ -800,7 +800,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 * The meeting type and the kind of record read as words in the reader's
 	 * language; the stored values they label stay as they are.
 	 *
-	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 * @spec openspec/changes/archive/2026-11-25-council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
 	 *
 	 * @return void
 	 */
