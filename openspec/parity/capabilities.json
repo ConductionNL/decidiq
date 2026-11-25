@@ -1774,7 +1774,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"plan": "openspec/changes/example-set-zuiddrecht",
+				"plan": "openspec/changes/archive/2026-11-25-example-set-zuiddrecht",
 				"state": "built",
 				"evidence": "src/manifest.json setup wizard steps 'example-set' (optionsSource profiles) and 'load-example-set'; lib/Controller/SetupController.php:114-122 status lists profiles, :301-330 loadExampleSet() calls SeedProfileService::install(); lib/Settings/profiles/{municipality,association,corporate,works-council}.json",
 				"owner": "ConductionNL/decidiq",
@@ -8477,9 +8477,9 @@
 			"decidiq": "partial",
 			"built": {
 				"plan": [
-					"openspec/changes/council-calendar-columns-in-the-readers-language",
-					"openspec/changes/council-calendar-meeting-type-in-the-readers-language",
-					"openspec/changes/public-calendar-narrows-with-filter"
+					"openspec/changes/archive/2026-11-25-council-calendar-columns-in-the-readers-language",
+					"openspec/changes/archive/2026-11-25-council-calendar-meeting-type-in-the-readers-language",
+					"openspec/changes/archive/2026-11-25-public-calendar-narrows-with-filter"
 				],
 				"state": "built",
 				"evidence": "lib/Settings/register.d/109-activity-calendar.json MeetingType.audiences (council, executive, joint-arrangement, residents, staff), PublicationRecord.sourceType activity, PublicationPayload.location/audiences; src/utils/activityCalendar.js calendarParams (visible grid scheduledDate range, type ids per audience, governanceBody) used by src/views/meetings/MeetingCalendarView.vue load() with Audience and Body NcSelect filters kept in the route query; PublicationEligibilityService::assertActivityEligible + PublicationPayloadService::buildActivityPayload; AgendaPublicationTab 'Publish to the public calendar'; lib/Portal/PortalContributionProvider.php anonymous publicCalendar collection; tests/Unit/Service/ActivityPublicationTest.php, tests/Unit/Controller/PublicationActivityTest.php, tests/vitest/meetingCalendarLoad.spec.js",

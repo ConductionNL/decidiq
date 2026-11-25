@@ -71,9 +71,10 @@ withdrawable like any publication.
 ### Requirement: REQ-ACAL-005 Residents read the calendar without an account
 
 `PortalContributionProvider` SHALL contribute an anonymous `publicCalendar`
-collection over `publication-payload`, filtered by default to `Vergadering`,
-sorted by `meetingDate`, whose field whitelist holds only `title`, `bodyName`,
-`meetingDate`, `meetingType`, `location`, `audiences` and `oriType`.
+collection over `publication-payload`, narrowed by `filter` to `Vergadering`
+and filtered by default to `Vergadering`, sorted by `meetingDate`, whose field
+whitelist holds only `title`, `bodyName`, `meetingDate`, `meetingType`,
+`location`, `audiences` and `oriType`.
 
 #### Scenario: A resident finds the information evening
 
@@ -87,3 +88,36 @@ sorted by `meetingDate`, whose field whitelist holds only `title`, `bodyName`,
 - WHEN the `publicCalendar` collection is read
 - THEN it is `anonymous: true` and its `fields` hold only the seven calendar fields
 - @e2e exclude declaration contract; covered by PHPUnit on PortalContributionProvider
+
+#### Scenario: The calendar lists meetings, not decisions
+
+- GIVEN published payloads of `oriType` "Vergadering" and "Besluit"
+- WHEN portaliq reads `publicCalendar`
+- THEN only the meetings are read, because the collection's `filter` narrows to `Vergadering`
+- @e2e exclude declaration contract; covered by PHPUnit `PortalContributionProviderTest::testThePublicCalendarIsAnonymousWithCalendarFieldsOnly`
+
+### Requirement: The council calendar reads in the reader's language
+
+The `publicCalendar` collection SHALL declare a label for every field it shows in its columns and detail, through decidiq's catalogue, so the portal never heads it with the schema's English titles. It MUST show only whitelisted fields and SHALL leave the filter fields `audiences` and `oriType` out of its columns and detail.
+
+#### Scenario: A Dutch resident opens the Vergaderkalender
+- GIVEN a resident reads the portal in Dutch
+- WHEN she opens the Vergaderkalender
+- THEN the columns read Datum, Vergadering, Orgaan and Vergaderingstype
+- @e2e exclude declaration contract; covered by PHPUnit `PortalContributionProviderTest::testTheCouncilCalendarHeadingsReadInTheReadersLanguage`
+
+### Requirement: The council calendar names the meeting type in the reader's language
+
+The `publicCalendar` collection SHALL declare `valueLabels` for `meetingType` and `oriType`, and the portal label translator SHALL put every label under a `valueLabels` map into the reader's language through decidiq's catalogue, leaving the stored values that key the map unchanged.
+
+#### Scenario: A Dutch resident reads the meeting type
+- GIVEN a published meeting with meeting type `regular`
+- WHEN a resident who reads the portal in Dutch opens the Vergaderkalender
+- THEN the Vergaderingstype column reads "Gewone vergadering"
+- @e2e exclude declaration contract; covered by PHPUnit `PortalContributionProviderTest::testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage`
+
+#### Scenario: An English reader reads the English word
+- GIVEN the same meeting
+- WHEN a reader without a Dutch catalogue opens the calendar
+- THEN the column reads "Regular meeting"
+- @e2e exclude covered by the same PHPUnit test

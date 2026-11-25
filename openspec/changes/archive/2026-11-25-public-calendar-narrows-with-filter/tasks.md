@@ -1,0 +1,6 @@
+# Tasks: public-calendar-narrows-with-filter
+
+- [x] **T1**: `PortalContributionProvider` declares `filter` on `publicCalendar` and `motionsOpenForAdvice`
+  - PHPUnit `PortalContributionProviderTest::testThePublicCalendarIsAnonymousWithCalendarFieldsOnly` and the motions test assert the `filter`
+- [x] **T2**: Live check on the Zuiddrecht rehearsal with portaliq's anonymous read: "Vergaderkalender" lists the meetings and no decisions
+  - (25 Nov, live on a sandbox rehearsal: Nextcloud 34.0.6 on PostgreSQL 16, OpenRegister main, decidiq, dossiq, portaliq and opencatalogi development, `occ portaliq:example-site:install zuiddrecht`, `occ dossiq:package:install --all`, then `occ openregister:example-set:install zuiddrecht`; read in a headless browser in Dutch, Europe/Amsterdam, signed in as the example resident Sanne de Vries at `/mijn/decidiq/publicCalendar`): the set holds nine publication payloads (three council agendas, six decisions). The page and `GET /portal/api/collections/decidiq/publication-payload?collection=publicCalendar` list the two published meetings, "5-11-2026, 19:30" and "19-11-2026, 19:30", Raadsvergadering, Gemeenteraad Zuiddrecht, and none of the six decisions. The third agenda (3 December) is not listed because its `publicationDate` is 26 November, tomorrow.
