@@ -15,10 +15,11 @@
  * list task 4 asks for; each is fixed with a layout rule on that page, not a
  * phone-only copy of it.
  *
- * Written, not yet run: it needs a live instance with an example set, so the
- * lists have rows and the meeting page has an agenda.
+ * It needs a live instance with an example set (the municipality set), so the
+ * lists have rows and the meeting page has an agenda. Run green 25 Nov 2026,
+ * 66 of 66, on Nextcloud 34 with PostgreSQL.
  *
- * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
+ * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
  */
 import type { Page } from '@playwright/test'
 

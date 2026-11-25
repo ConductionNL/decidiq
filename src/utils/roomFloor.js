@@ -7,7 +7,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+ * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
  */
 
 import { isPublicSpeaker } from './speakingRequests.js'
@@ -18,7 +18,7 @@ import { isPublicSpeaker } from './speakingRequests.js'
  * @param {string} meetingId The meeting UUID.
  * @param {string} participantId The participant given the floor.
  * @return {{path: string, body: {participant: string}}|null} The request.
- * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+ * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
  */
 export function floorRequest(meetingId, participantId) {
 	if (!meetingId || !participantId || isPublicSpeaker({ participantId })) {

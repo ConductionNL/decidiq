@@ -463,7 +463,7 @@ export default {
 		 *
 		 * @param {string} participantId The participant given the floor.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+		 * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
 		 */
 		async announceFloor(participantId) {
 			const request = floorRequest(this.meetingId, participantId)
