@@ -786,6 +786,8 @@
 			"route": "/governance-bodies/:id",
 			"type": "detail",
 			"slots": {
+				"widget-body-step-down-schedule": "StepDownScheduleWidget",
+				"widget-body-participating-orgs": "BodyParticipationsTab",
 				"widget-body-members": "GovernanceBodyMembersTab",
 				"widget-body-template": "GovernanceBodyTemplateTab",
 				"widget-body-efficiency": "GovernanceBodyEfficiencyTab",
@@ -1016,6 +1018,11 @@
 				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"slots": {
+				"widget-meeting-case-system": "MeetingCaseSystemTab",
+				"widget-meeting-document-details": "DocumentMetadataTab",
+				"widget-meeting-paper-renditions": "AgendaPaperRenditionsTab",
+				"widget-meeting-annotations": "DocumentAnnotationsTab",
+				"widget-meeting-document-accessibility": "DocumentAccessibilityTab",
 				"widget-meeting-participants": "MeetingParticipantsTab",
 				"widget-meeting-agenda": "MeetingAgendaTab",
 				"widget-meeting-decisions": "MeetingDecisionsTab",
@@ -1256,6 +1263,15 @@
 			"route": "/agenda-items/:id",
 			"type": "detail",
 			"slots": {
+				"widget-agenda-phase": "AgendaItemPhaseTab",
+				"widget-agenda-case": "AgendaItemCaseTab",
+				"widget-agenda-document-details": "DocumentMetadataTab",
+				"widget-agenda-paper-renditions": "AgendaPaperRenditionsTab",
+				"widget-agenda-annotations": "DocumentAnnotationsTab",
+				"widget-agenda-readers": "AgendaItemReadersTab",
+				"widget-agenda-document-accessibility": "DocumentAccessibilityTab",
+				"widget-agenda-paper-summaries": "AgendaPaperSummariesTab",
+				"widget-agenda-themes": "AgendaItemThemesTab",
 				"widget-agenda-motions": "AgendaMotionsTab",
 				"widget-agenda-type-fields": "AgendaItemTypeFieldsTab",
 				"widget-agenda-conflicts": "AgendaItemConflictsTab",
