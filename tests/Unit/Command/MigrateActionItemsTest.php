@@ -6,7 +6,7 @@
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Command
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -35,7 +35,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  *
  * @covers \OCA\Decidiq\Command\MigrateActionItems
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 class MigrateActionItemsTest extends TestCase {
 

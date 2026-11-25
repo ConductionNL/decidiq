@@ -6,7 +6,7 @@
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -34,7 +34,7 @@ use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
  *
  * @covers \OCA\Decidiq\Service\ActionItemMigrationService
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
  */
 class ActionItemMigrationServiceTest extends TestCase {
 
@@ -253,7 +253,7 @@ class ActionItemMigrationServiceTest extends TestCase {
 	/**
 	 * A row given as data counts by its uuid and owner; a row without a uuid, or that is no object, is passed over.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 *
 	 * @return void
 	 */

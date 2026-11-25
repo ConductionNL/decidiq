@@ -219,7 +219,7 @@ class ActionItemWriter implements ActionItemWriterInterface {
 	 *
 	 * @throws Throwable When the user's tasks cannot be read, so a caller never takes "unreadable" for "absent".
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
 	 */
 	public function findByField(string $field, string $value): ?array {
 		if ($value === '') {

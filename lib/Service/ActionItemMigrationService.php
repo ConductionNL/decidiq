@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,7 +43,7 @@ use Throwable;
  * marked object is skipped; a VTODO that already carries the legacy uuid is
  * reused, so a run interrupted between create and mark creates no duplicate.
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 class ActionItemMigrationService implements ActionItemMigrationServiceInterface {
 
@@ -96,7 +96,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 * @param ActionItemWriterInterface $writer        The VTODO write path, acting as the current user.
 	 * @param LoggerInterface           $logger        The logger.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -110,7 +110,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	public function pendingOwners(): array {
 		$owners = [];
@@ -132,8 +132,8 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return array{migrated: int, delegations: int, skipped: int, failed: int}
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-012-delegation-folds-onto-the-vtodo-assignee
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-012-delegation-folds-onto-the-vtodo-assignee
 	 */
 	public function migrateUser(string $userId): array {
 		$counts = ['migrated' => 0, 'delegations' => 0, 'skipped' => 0, 'failed' => 0];
@@ -173,7 +173,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	public static function toActionItem(array $data, string $uuid): array {
 		$item = [
@@ -197,7 +197,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return string The assignee, or '' when the delegation names none.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-012-delegation-folds-onto-the-vtodo-assignee
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-012-delegation-folds-onto-the-vtodo-assignee
 	 */
 	public static function effectiveAssignee(array $delegation): string {
 		$status = (string)($delegation['status'] ?? $delegation['delegationStatus'] ?? 'active');
@@ -373,7 +373,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return array{uuid: string, owner: string, data: array<string, mixed>}|null
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	private function legacyObject(mixed $row): ?array {
 		if ($row instanceof ObjectEntityInterface) {
@@ -400,7 +400,7 @@ class ActionItemMigrationService implements ActionItemMigrationServiceInterface 
 	 *
 	 * @return array{uuid: string, owner: string, data: array<string, mixed>}|null
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	private static function shaped(string $uuid, string $owner, array $data): ?array {
 		if ($uuid === '') {

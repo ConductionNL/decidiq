@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Throwable;
  * never reachable from a request. A user who cannot be loaded is skipped and
  * logged; the acting user is reset after every user, whatever happened.
  *
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 class MigrateActionItems extends Command {
 
@@ -54,7 +54,7 @@ class MigrateActionItems extends Command {
 	 * @param IUserSession                        $userSession Makes the owner the acting user.
 	 * @param LoggerInterface                     $logger      The logger.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	public function __construct(
 		private readonly ActionItemMigrationServiceInterface $migration,
@@ -70,7 +70,7 @@ class MigrateActionItems extends Command {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'decidiq:migrate-action-items')
@@ -86,7 +86,7 @@ class MigrateActionItems extends Command {
 	 *
 	 * @return int 0 when every user ran without failures, 1 otherwise.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$owners = $this->migration->pendingOwners();
