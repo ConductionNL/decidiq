@@ -57,7 +57,11 @@ class MeetingDossierBackfillTest extends TestCase {
 		$objects->method('find')->willReturnCallback(
 			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
 				$data = ($this->store[(string)$options?->schema][(string)$id] ?? null);
-				return $data === null ? null : self::entity(id: (string)$id, data: $data);
+				if ($data === null) {
+					return null;
+				}
+
+				return self::entity(id: (string)$id, data: $data);
 			}
 		);
 		$objects->method('findAll')->willReturnCallback(

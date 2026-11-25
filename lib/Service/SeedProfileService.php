@@ -89,7 +89,6 @@ class SeedProfileService implements SeedProfileServiceInterface {
 	 * @param ContainerInterface $container  Resolves OpenRegister's importer.
 	 * @param LoggerInterface    $logger     Records what was imported.
 	 * @param DemoDataService    $demoData   Imports the ADR-111 generated dataset.
-	 * @param MeetingDossierBackfill|null $meetingBackfill Points the imported meetings at their archival dossier
 	 *
 	 * @return void
 	 */
@@ -98,7 +97,6 @@ class SeedProfileService implements SeedProfileServiceInterface {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly DemoDataService $demoData,
-		private readonly ?MeetingDossierBackfill $meetingBackfill=null,
 	) {
 	}//end __construct()
 
@@ -380,15 +378,11 @@ class SeedProfileService implements SeedProfileServiceInterface {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	private function linkMeetingsToDossiers(string $profileId): void {
-		if ($this->meetingBackfill === null) {
-			return;
-		}
-
 		try {
-			$this->meetingBackfill->fill();
+			$this->container->get(MeetingDossierBackfill::class)->fill();
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'[SeedProfileService] example set "' . $profileId . '" imported, but its meetings could not be pointed at their archival dossier: ' . $e->getMessage(),
+				'[SeedProfileService] example set "' . $profileId . '" imported, its meetings not pointed at their dossier: ' . $e->getMessage(),
 				['app' => AppIdentity::APP_ID]
 			);
 		}

@@ -31,7 +31,15 @@ final class SeededMeetingsCarryRequiredFieldsTest extends TestCase {
 	 */
 	private static function sets(): array {
 		$root = __DIR__ . '/../../../lib/Settings';
-		return array_merge(glob($root . '/profiles/*.json') ?: [], glob($root . '/example-sets/*.json') ?: []);
+		$sets = [];
+		foreach (['/profiles/*.json', '/example-sets/*.json'] as $pattern) {
+			$found = glob($root . $pattern);
+			if (is_array($found) === true) {
+				$sets = array_merge($sets, $found);
+			}
+		}
+
+		return $sets;
 	}//end sets()
 
 	/**

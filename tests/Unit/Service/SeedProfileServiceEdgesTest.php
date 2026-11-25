@@ -107,7 +107,7 @@ class SeedProfileServiceEdgesTest extends TestCase {
 		$importer = new SeedProfileRecordingImporter();
 		$this->appManager->expects($this->once())->method('getInstalledApps')->willReturn(['files', 'openregister']);
 		$this->appManager->expects($this->once())->method('getAppVersion')->with('decidiq')->willReturn('1.4.2');
-		$this->container->expects($this->once())->method('get')->with(self::IMPORTER)->willReturn($importer);
+		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : throw new RuntimeException('not wired: ' . $id));
 		$this->logger->expects($this->once())->method('info')->with(
 			'[SeedProfileService] imported example set "tiny": 4 object(s).',
 			['app' => 'decidiq']
@@ -140,15 +140,14 @@ class SeedProfileServiceEdgesTest extends TestCase {
 		$importer = new SeedProfileRecordingImporter();
 		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
 		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
-		$this->container->method('get')->willReturn($importer);
 		$backfill = $this->createMock(MeetingDossierBackfill::class);
 		$backfill->expects($this->once())->method('fill')->willReturnCallback(function () use ($importer): int {
 			$this->assertCount(1, $importer->calls, 'the meetings are linked after the import');
 			return 1;
 		});
-		$service = new SeedProfileService($this->appManager, $this->container, $this->logger, $this->demoData, $backfill);
+		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : $backfill);
 
-		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $service->install('tiny'));
+		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $this->service->install('tiny'));
 	}
 
 	/**
@@ -160,13 +159,13 @@ class SeedProfileServiceEdgesTest extends TestCase {
 		$this->writeProfile('a-tiny.json', ['x-openregister' => ['profile' => ['id' => 'tiny'], 'seedData' => ['objects' => ['meeting' => [['slug' => 'm-1']]]]]]);
 		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
 		$this->appManager->method('getAppVersion')->willReturn('1.0.0');
-		$this->container->method('get')->willReturn(new SeedProfileRecordingImporter());
+		$importer = new SeedProfileRecordingImporter();
 		$backfill = $this->createMock(MeetingDossierBackfill::class);
 		$backfill->method('fill')->willThrowException(new RuntimeException('locked'));
-		$this->logger->expects($this->once())->method('warning')->with($this->stringContains('could not be pointed at their archival dossier: locked'));
-		$service = new SeedProfileService($this->appManager, $this->container, $this->logger, $this->demoData, $backfill);
+		$this->container->method('get')->willReturnCallback(fn (string $id): object => $id === self::IMPORTER ? $importer : $backfill);
+		$this->logger->expects($this->once())->method('warning')->with($this->stringContains('not pointed at their dossier: locked'));
 
-		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $service->install('tiny'));
+		$this->assertSame(['objects' => 1, 'profile' => 'tiny'], $this->service->install('tiny'));
 	}
 
 	public function testInstallCountsNothingWhenTheSeedObjectsAreNotAList(): void {
