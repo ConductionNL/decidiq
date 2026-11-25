@@ -114,11 +114,12 @@ export const approvalChainLeafDescriptor = {
  * registry. Idempotent against the AD-13 collision policy.
  *
  * @param {object} [globalRef] Global to attach to (defaults to `window`).
+ * @spec openspec/changes/leaf-integrations/tasks.md
  * @return {void}
  */
 export function registerApprovalChainLeaf(globalRef) {
 	registerLeaf(globalRef, {
-		descriptor: approvalChainLeafDescriptor,
+		register: (integrations) => integrations.register(approvalChainLeafDescriptor),
 		name: 'approval chain',
 	})
 }
