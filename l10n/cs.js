@@ -3348,7 +3348,8 @@ OC.L10N.register(
         "Score {score}, from:": "Skóre {score}, z:",
         "{property}: {value} (+{points})": "{property}: {value} (+{points} b.)",
         "Transfer overdue": "Předání po termínu",
-        "Retention not resolved": "Uchování neurčeno"
+        "Retention not resolved": "Uchování neurčeno",
+        "Meetings without dossier": "Schůze bez spisu"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Tërhequr nga organi vendimmarrës",
         "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese",
         "Transfer overdue": "Transferimi me vonesë",
-        "Retention not resolved": "Ruajtja e papërcaktuar"
+        "Retention not resolved": "Ruajtja e papërcaktuar",
+        "Meetings without dossier": "Mbledhje pa dosje"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -107,6 +107,7 @@ import FileLockOutline from 'vue-material-design-icons/FileLockOutline.vue'
 import FilePdfBox from 'vue-material-design-icons/FilePdfBox.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import FileSign from 'vue-material-design-icons/FileSign.vue'
+import FolderAlertOutline from 'vue-material-design-icons/FolderAlertOutline.vue'
 import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import FormatListChecks from 'vue-material-design-icons/FormatListChecks.vue'
@@ -262,6 +263,7 @@ export default {
 	FilePdfBox,
 	FileReplaceOutline,
 	FileSign,
+	FolderAlertOutline,
 	FolderOutline,
 	FormatListBulleted,
 	FormatListChecks,

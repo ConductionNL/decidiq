@@ -87,3 +87,35 @@ describe('the archive retention counters (REQ-RMA-007)', () => {
 		expect(byLabel['Retention not resolved']).toEqual(unresolved.content.source.filter)
 	})
 })
+
+describe('the meetings-without-dossier counter (REQ-RMA-007)', () => {
+	afterEach(() => vi.unstubAllGlobals())
+
+	const gap = widget('meetings-without-dossier')
+
+	it('sits on the archive dashboard and counts closed meetings through the list endpoint', () => {
+		expect(gap.type).toBe('stat')
+		expect(gap.content.source).toMatchObject({ register: 'decidiq', schema: 'meeting', metric: 'count', via: 'list' })
+		expect(dashboard.config.layout.some((l) => l.widgetId === gap.id)).toBe(true)
+		expect(gap.content.route).toEqual({ name: 'Meetings', query: { lifecycle: 'closed', 'archivalDossier[isnull]': 'true' } })
+	})
+
+	it('is one isnull filter on the meeting, not an anti-join across schemas', async () => {
+		expect(gap.content.source.filter).toEqual({ lifecycle: 'closed', archivalDossier: { isnull: true } })
+		const fetch = vi.fn(async () => ({ ok: true, json: async () => ({ total: 2 }) }))
+		vi.stubGlobal('fetch', fetch)
+		expect(await fetchListTotal('decidiq', 'meeting', gap.content.source.filter, {})).toBe(2)
+		const url = String(fetch.mock.calls[0][0])
+		expect(url).toContain('/apps/openregister/api/objects/decidiq/meeting?')
+		const params = new URLSearchParams(url.split('?')[1])
+		expect(params.get('lifecycle')).toBe('closed')
+		expect(params.get('archivalDossier[isnull]')).toBe('true')
+	})
+
+	it('reads a property the register declares on the meeting', () => {
+		const fragment144 = read('lib/Settings/register.d/144-a-meeting-names-its-archival-dossier.json')
+		const property = fragment144.components.schemas.Meeting.properties.archivalDossier
+		expect(fragment144.components.schemas.Meeting.slug).toBe('meeting')
+		expect(property).toMatchObject({ type: 'string', format: 'uuid', $ref: 'archival-dossier', nullable: true })
+	})
+})

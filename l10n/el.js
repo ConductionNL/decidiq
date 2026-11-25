@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Ανακλήθηκε από το αποφασίζον όργανο",
         "Withdrawn by the party who asked": "Ανακλήθηκε από τον αιτούντα",
         "Transfer overdue": "Καθυστερημένη μεταφορά",
-        "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί"
+        "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί",
+        "Meetings without dossier": "Συνεδριάσεις χωρίς φάκελο"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.28-unstable.20261124180523</version>
+    <version>1.2.28-unstable.20261125090000</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -254,6 +254,14 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 already names a body is left alone. A fresh install has no decisions.
             -->
             <step>OCA\Decidiq\Repair\FillDecisionDecidingBody</step>
+            <!--
+                records-management-archiving (REQ-RMA-007): after InitializeSettings
+                imports the meeting's archivalDossier property, every meeting with a
+                dossier gets that dossier's id once, so the archive dashboard does not
+                count it as a meeting without a dossier. Idempotent: a meeting that
+                already names its dossier is left alone. New dossiers link themselves.
+            -->
+            <step>OCA\Decidiq\Repair\FillMeetingArchivalDossier</step>
             <!--
                 After InitializeSettings imports the register. The schema edit
                 changes the DECLARATION; every row already written still holds

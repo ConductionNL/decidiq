@@ -40,6 +40,7 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
+use OCA\Decidiq\Service\Records\MeetingDossierLink;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -88,7 +89,8 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	}//end __construct()
 
 	/**
-	 * Form the dossier of a meeting, or answer the one it already has.
+	 * Form the dossier of a meeting, or answer the one it already has, and
+	 * point the meeting at it (REQ-RMA-007: closed meetings without a dossier).
 	 *
 	 * @param string $meetingId The meeting
 	 *
@@ -98,6 +100,7 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	 * @throws AccessDeniedException  When the caller is not the meeting's chair, secretary or an administrator
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	public function formForMeeting(string $meetingId): array {
 		$meeting = $this->read(schema: 'meeting', id: $meetingId);
@@ -113,7 +116,9 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 			_multitenancy: false
 		);
 		if ($existing !== []) {
-			return ['id' => (string)$existing[0]->getUuid()] + $existing[0]->jsonSerialize();
+			$dossierId = (string)$existing[0]->getUuid();
+			$this->linkMeeting(meetingId: $meetingId, dossierId: $dossierId);
+			return ['id' => $dossierId] + $existing[0]->jsonSerialize();
 		}
 
 		$dossier = [
@@ -127,7 +132,10 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 			$dossier['governanceBody'] = $body;
 		}
 
-		return $this->write(dossier: $this->gathered(dossier: $dossier, meeting: $meeting), uuid: null);
+		$saved = $this->write(dossier: $this->gathered(dossier: $dossier, meeting: $meeting), uuid: null);
+		$this->linkMeeting(meetingId: $meetingId, dossierId: (string)$saved['id']);
+
+		return $saved;
 	}//end formForMeeting()
 
 	/**
@@ -323,6 +331,22 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	private function read(string $schema, string $id): ?array {
 		return SystemObjectStore::read(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
+
+	/**
+	 * Point the meeting at its dossier. A failure leaves the dossier as it is:
+	 * the link is derived, and the next call or the FillMeetingArchivalDossier
+	 * repair step writes it again.
+	 *
+	 * @param string $meetingId The meeting
+	 * @param string $dossierId Its dossier
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 */
+	private function linkMeeting(string $meetingId, string $dossierId): void {
+		(new MeetingDossierLink(objectService: $this->objectService))->link(meetingId: $meetingId, dossierId: $dossierId);
+	}//end linkMeeting()
 
 	/**
 	 * Write the dossier in system context.

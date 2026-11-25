@@ -3415,7 +3415,8 @@ OC.L10N.register(
         "Withdrawn by the deciding body": "Retrasă de organul decizional",
         "Withdrawn by the party who asked": "Retrasă de partea solicitantă",
         "Transfer overdue": "Transfer întârziat",
-        "Retention not resolved": "Păstrare nedeterminată"
+        "Retention not resolved": "Păstrare nedeterminată",
+        "Meetings without dossier": "Ședințe fără dosar"
     },
     "nplurals=2; plural=(n != 1);"
 )

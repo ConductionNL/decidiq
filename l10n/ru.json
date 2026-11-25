@@ -3417,7 +3417,8 @@
         "Withdrawn by the deciding body": "Отозвано принимающим решение органом",
         "Withdrawn by the party who asked": "Отозвано заявителем",
         "Transfer overdue": "Передача просрочена",
-        "Retention not resolved": "Хранение не определено"
+        "Retention not resolved": "Хранение не определено",
+        "Meetings without dossier": "Заседания без дела"
     },
     "plurals": null
 }
