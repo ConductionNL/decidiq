@@ -24,7 +24,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
- * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
+ * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-010-per-user-legacy-to-vtodo-migration
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.

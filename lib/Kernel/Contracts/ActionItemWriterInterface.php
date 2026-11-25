@@ -81,7 +81,7 @@ interface ActionItemWriterInterface {
 	 *
 	 * @return array<string, mixed>|null The VTODO task array, or null when none holds it.
 	 *
-	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
+	 * @spec openspec/changes/archive/2026-11-25-action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
 	 */
 	public function findByField(string $field, string $value): ?array;
 }//end interface
