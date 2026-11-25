@@ -16,7 +16,7 @@ use OCA\Decidiq\Service\UrgencyWriteGrant;
 use OCA\Decidiq\Service\UrgentSeedImport;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
@@ -56,17 +56,9 @@ class SeedUrgencyGrantsTest extends TestCase {
 	 */
 	private function grants(UrgencyWriteGrant $grant): SeedUrgencyGrants {
 		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
-		$objects->method('find')->willReturnCallback(
-			static function (int|string $id): ObjectEntity {
-				$entity = new ObjectEntity();
-				$entity->setUuid((string)$id);
-				$entity->setObject(['title' => 'Spoed', 'isUrgent' => true]);
-				return $entity;
-			}
-		);
-		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ObjectSaveOptions $options) use ($grant): ObjectEntity {
-				$this->saves[] = [(string)$options->uuid, $grant->isGranted(decisionId: (string)$options->uuid)];
+		$objects->method('patchObject')->willReturnCallback(
+			function (ObjectPatch $patch) use ($grant): ObjectEntity {
+				$this->saves[] = [$patch->objectId, $grant->isGranted(decisionId: $patch->objectId)];
 				return new ObjectEntity();
 			}
 		);

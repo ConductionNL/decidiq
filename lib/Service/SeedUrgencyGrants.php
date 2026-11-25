@@ -23,9 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -107,21 +106,10 @@ class SeedUrgencyGrants {
 	 */
 	private function resave(string $decisionId): void {
 		try {
-			$entity = $this->objectService->find(
-				id: $decisionId,
-				options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'),
-				_rbac: false,
-				_multitenancy: false
-			);
-			if ($entity === null) {
-				return;
-			}
-
-			$decision = (array)$entity->getObject();
-			unset($decision['id'], $decision['@self']);
-			$this->objectService->saveObject(
-				object: $decision,
-				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId),
+			// A patch that writes what is there already: the decision is saved
+			// again and its calculations run, nothing else changes.
+			$this->objectService->patchObject(
+				patch: new ObjectPatch(objectId: $decisionId, data: ['isUrgent' => true], target: new ObjectFindTarget(register: 'decidiq', schema: 'decision')),
 				_rbac: false,
 				_multitenancy: false
 			);
