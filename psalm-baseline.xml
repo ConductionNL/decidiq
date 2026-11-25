@@ -1,0 +1,4471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="7.15.0@2da2040e23d8b54e61be22618bd53517b6bd43df">
+  <file src="lib/Activity/DecidiqProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function parse($language, IEvent $event, ?IEvent $previousEvent = null) {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Activity/GovernanceFilter.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function allowedApps() {]]></code>
+      <code><![CDATA[public function filterTypes(array $types) {]]></code>
+      <code><![CDATA[public function getIcon() {]]></code>
+      <code><![CDATA[public function getIdentifier() {]]></code>
+      <code><![CDATA[public function getName() {]]></code>
+      <code><![CDATA[public function getPriority() {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Activity/GovernanceSetting.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getGroupIdentifier() {]]></code>
+      <code><![CDATA[public function getGroupName() {]]></code>
+      <code><![CDATA[public function getIdentifier() {]]></code>
+      <code><![CDATA[public function getName() {]]></code>
+      <code><![CDATA[public function getPriority() {]]></code>
+      <code><![CDATA[public function isDefaultEnabledNotification() {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/AppInfo/Application.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function boot(IBootContext $context): void {]]></code>
+      <code><![CDATA[public function register(IRegistrationContext $context): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ApprovalStageLapseJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/BoardBookCompileJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ConfidentialityLiftByJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ConnectionReportJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ConsultationAutoCloseJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ConvertPaperToPdfJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/DocumentAccessibilityScanJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>|null]]></code>
+    </PossiblyUnusedReturnValue>
+    <RedundantCast>
+      <code><![CDATA[(array)($meeting?->getObject() ?? [])]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/BackgroundJob/DocumentEmbargoReleaseJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ExportBundleNoticeJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/FullExportJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/GoverningDocumentReleaseJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/MailReplyHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/MeetingReminderJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/PublicationDigestJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/SendMeetingFileJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run($argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/SignedCopyCollectorJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/ThemeRefreshJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/TranscriptRetentionJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/TranscriptionJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/TranslationQueueJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/VotingDeadlineReminderJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/WatermarkCacheSweepJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/WrittenResolutionDeadlineJob.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Command/ApprovalRoutesLegacyCommand.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function configure(): void {]]></code>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Command/ImportFormResponses.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function configure(): void {]]></code>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Command/ImportOriCommand.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function configure(): void {]]></code>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Command/MigrateActionItems.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function configure(): void {]]></code>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Controller/AccessibilityController.php">
+    <RedundantCast>
+      <code><![CDATA[(array)$found->getObject()]]></code>
+      <code><![CDATA[(array)$found->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Controller/ApiController.php">
+    <InvalidOperand>
+      <code><![CDATA[(float)$total / max(1, $limit)]]></code>
+    </InvalidOperand>
+  </file>
+  <file src="lib/Controller/ChangeRecommendationController.php">
+    <RedundantCast>
+      <code><![CDATA[(string) ($this->userSession->getUser()?->getUID() ?? '')]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Controller/CorsJsonController.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$config]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Controller/MinutesResponder.php">
+    <UnusedMethod>
+      <code><![CDATA[failure]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Controller/OutcomeSubscriptionRequest.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$actorId]]></code>
+      <code><![CDATA[$callbackUrl]]></code>
+      <code><![CDATA[$decisionId]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Controller/PublicationSource.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$id]]></code>
+      <code><![CDATA[$type]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Dashboard/DecidiqDashboardWidget.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getIconClass(): string {]]></code>
+      <code><![CDATA[public function getIconUrl(): string {]]></code>
+      <code><![CDATA[public function getId(): string {]]></code>
+      <code><![CDATA[public function getItemsV2(string $userId, ?string $since = null, int $limit = 7): WidgetItems {]]></code>
+      <code><![CDATA[public function getOrder(): int {]]></code>
+      <code><![CDATA[public function getTitle(): string {]]></code>
+      <code><![CDATA[public function getUrl(): ?string {]]></code>
+      <code><![CDATA[public function getWidgetButtons(string $userId): array {]]></code>
+      <code><![CDATA[public function load(): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Event/ApprovalActionRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$completed]]></code>
+      <code><![CDATA[$handled]]></code>
+      <code><![CDATA[$recorded]]></code>
+      <code><![CDATA[$refusal]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/ApprovalRouteConcludedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$actions]]></code>
+      <code><![CDATA[$actor]]></code>
+      <code><![CDATA[$clearance]]></code>
+      <code><![CDATA[$correlationId]]></code>
+      <code><![CDATA[$externalReference]]></code>
+      <code><![CDATA[$outcome]]></code>
+      <code><![CDATA[$sourceApp]]></code>
+      <code><![CDATA[$subject]]></code>
+      <code><![CDATA[$subjectSchema]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/ApprovalRouteRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$actorId]]></code>
+      <code><![CDATA[$correlationId]]></code>
+      <code><![CDATA[$created]]></code>
+      <code><![CDATA[$handled]]></code>
+      <code><![CDATA[$routeId]]></code>
+      <code><![CDATA[$stageCount]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/DecisionConcludedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$correlationId]]></code>
+      <code><![CDATA[$decidedAt]]></code>
+      <code><![CDATA[$decisionType]]></code>
+      <code><![CDATA[$outcome]]></code>
+      <code><![CDATA[$signed]]></code>
+      <code><![CDATA[$signers]]></code>
+      <code><![CDATA[$signingReference]]></code>
+      <code><![CDATA[$subjectRegister]]></code>
+      <code><![CDATA[$subjectSchema]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/DecisionRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$correlationId]]></code>
+      <code><![CDATA[$decisionId]]></code>
+      <code><![CDATA[$handled]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/DecisionStateRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$envelope]]></code>
+      <code><![CDATA[$found]]></code>
+      <code><![CDATA[$handled]]></code>
+      <code><![CDATA[$permitted]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/GovernanceBodyCreatedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$correlationId]]></code>
+      <code><![CDATA[$created]]></code>
+      <code><![CDATA[$externalReference]]></code>
+      <code><![CDATA[$governanceBodyId]]></code>
+      <code><![CDATA[$sourceApp]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/GovernanceBodyRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$actorId]]></code>
+      <code><![CDATA[$created]]></code>
+      <code><![CDATA[$governanceBodyId]]></code>
+      <code><![CDATA[$handled]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/GovernanceBodyStateRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$governanceBody]]></code>
+      <code><![CDATA[$handled]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Event/MeetingRequestedEvent.php">
+    <UnusedProperty>
+      <code><![CDATA[$actorId]]></code>
+      <code><![CDATA[$answer]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Exception/BroadcastRefusedException.php">
+    <UnusedProperty>
+      <code><![CDATA[$status]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Exception/CaseSystemException.php">
+    <UnusedProperty>
+      <code><![CDATA[$status]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Exception/ExportBundleException.php">
+    <UnusedProperty>
+      <code><![CDATA[$status]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Exception/PaperStampRefusedException.php">
+    <UnusedProperty>
+      <code><![CDATA[$status]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Exception/PlannedAgendaReportException.php">
+    <RedundantCast>
+      <code><![CDATA[(int) $this->getCode()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Flow/DecidiqFlowNodeListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Flow/DecidiqRequestDecisionNode.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function configKeys(): array {]]></code>
+      <code><![CDATA[public function execute(FlowNodeCall $call): array {]]></code>
+      <code><![CDATA[public function getDescription(): string {]]></code>
+      <code><![CDATA[public function getDisplayName(): string {]]></code>
+      <code><![CDATA[public function getIcon(): string {]]></code>
+      <code><![CDATA[public function getId(): string {]]></code>
+      <code><![CDATA[public function isAvailableForScope(int $scope): bool {]]></code>
+      <code><![CDATA[public function validateConfig(array $config): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Kernel/Contracts/ApprovalRouteServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/AuditLogServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array{success: bool, entry: array|null, message: string}]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/CaseSystemExchangeServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array{queued:bool}]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/EngagementServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/GoverningDocumentConsolidationServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[bool]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/PublicationServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string,mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/TranscriptionServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string,mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Kernel/Contracts/VotingServiceInterface.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string,mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Lifecycle/DecisionTransitionGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getAvailableActions(string $currentLifecycle, string $domain = 'operations', ?array $policyOverride = null): array {]]></code>
+      <code><![CDATA[public function getKnownActions(): array {]]></code>
+      <code><![CDATA[public function getMissingTerminalFields(array $decision): array {]]></code>
+      <code><![CDATA[public function isEnactAllowed(array $decision): bool {]]></code>
+      <code><![CDATA[public function isQuorumRequired(string $domain, ?array $policyOverride = null): bool {]]></code>
+      <code><![CDATA[public function isTerminalOutcomeState(string $lifecycle): bool {]]></code>
+      <code><![CDATA[public function isTransitionAllowed(string $domain, string $fromState, string $toState, ?array $policyOverride = null): bool {]]></code>
+      <code><![CDATA[public function isVotingOpenAllowed(array $meeting): bool {]]></code>
+      <code><![CDATA[public function isWithdrawable(string $lifecycle): bool {]]></code>
+      <code><![CDATA[public function requiresChairAuthorization(string $domain, string $from, string $to, ?array $policyOverride = null): bool {]]></code>
+      <code><![CDATA[public function resolveTransition(string $action): ?array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Lifecycle/MeetingTransitionGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function isOpenAllowed(array $meeting): bool {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Lifecycle/ProcessTemplatePolicyResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function resolve(?array $template): ?array {]]></code>
+      <code><![CDATA[public function resolveVotingRule(?array $template): ?array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Lifecycle/UrgencyTriggerGuard.php">
+    <UnusedProperty>
+      <code><![CDATA[$participants]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Listener/AbstractRenderLeafListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/AgendaItemChangeListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/AgendaItemConfidentialityListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ApprovalActionRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ApprovalBasisChangeListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ApprovalRouteRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ApprovalRouteSavedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ApprovalTaskDecisionListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ChecklistSaveListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/CommitteeStepAgendaListener.php">
+    <InvalidCast>
+      <code><![CDATA[$entity->getUuid()]]></code>
+    </InvalidCast>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <TypeDoesNotContainType>
+      <code><![CDATA[isset($row['id']) === false && method_exists($entity, 'getUuid') === true]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="lib/Listener/ConfidentialityLapseListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ConfidentialityPublishedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ConfidentialityTermGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DecisionAgendaClearanceGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DecisionCompetenceGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedVariable>
+      <code><![CDATA[$entity]]></code>
+    </UnusedVariable>
+  </file>
+  <file src="lib/Listener/DecisionDecidingBodyListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <RedundantCast>
+      <code><![CDATA[(array)$meeting->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Listener/DecisionRemedyStampListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <RedundantCast>
+      <code><![CDATA[(array)$found->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Listener/DecisionRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DecisionRiskScoreListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DecisionStateRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DecisionTermListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DeclaredGiftThresholdListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DocumentScanOnUploadListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/DocumentTypeFieldsGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/FlowDecisionConcludedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GoalProgressRefreshListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GovernanceBodyRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GovernanceBodyStateRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GovernanceRoleProjectionListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GoverningDocumentCurrentDateListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/GoverningDocumentVersionGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <RedundantCast>
+      <code><![CDATA[(string) reset($slugs)]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Listener/ImplementationUpdateListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/LiftAfterRatificationGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/MeetingDefaultsListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/MeetingFolderListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/MeetingRequestedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/MinutesApprovedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/OfficePaperAddedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/OndermandaatGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <RedundantCondition>
+      <code><![CDATA[is_string($entity->getUuid())]]></code>
+    </RedundantCondition>
+    <TypeDoesNotContainType>
+      <code><![CDATA[isset($row['id']) === false && method_exists($entity, 'getUuid') === true]]></code>
+    </TypeDoesNotContainType>
+    <UnusedVariable>
+      <code><![CDATA[$entity]]></code>
+    </UnusedVariable>
+  </file>
+  <file src="lib/Listener/PaperSummaryTaskListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/ParallelSessionListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/PlannedAgendaItemRulesGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/PlannedAgendaTrackGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <NoValue>
+      <code><![CDATA[$ownId]]></code>
+    </NoValue>
+    <RedundantCondition>
+      <code><![CDATA[is_string($entity->getUuid())]]></code>
+    </RedundantCondition>
+    <TypeDoesNotContainType>
+      <code><![CDATA[$ownId === '' && method_exists($entity, 'getUuid') === true]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="lib/Listener/PlanningCycleCreatedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/PortalCreateOpenParentGuardListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <TypeDoesNotContainType>
+      <code><![CDATA[method_exists($entity, 'getObject') === true]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="lib/Listener/RatificationPlacedReportListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/RatificationPlacementListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+    <TypeDoesNotContainType>
+      <code><![CDATA[isset($meeting['id']) === false && method_exists($entity, 'getUuid') === true]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="lib/Listener/RegisterApprovalChainLeafListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function descriptor(array $optional): LeafDescriptor {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/RegisterDecisionsLeafListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function descriptor(array $optional): LeafDescriptor {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/Registrar/ObjectListenerRegistrar.php">
+    <TypeDoesNotContainType>
+      <code><![CDATA[class_exists($subscription) === true]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="lib/Listener/RoomSystemFeedListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/RoomSystemMessageListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/StepThresholdChangeListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/SubmissionDeadlineListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/TechnicalQuestionListener.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Listener/UrgencyFieldGuardListener.php">
+    <InvalidReturnStatement>
+      <code><![CDATA[[$event->getObject(), []]]]></code>
+    </InvalidReturnStatement>
+    <InvalidReturnType>
+      <code><![CDATA[array{0: object, 1: array<string, mixed>}]]></code>
+    </InvalidReturnType>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(Event $event): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Mcp/McpArgumentValidator.php">
+    <UnusedMethod>
+      <code><![CDATA[validateDueDate]]></code>
+      <code><![CDATA[validateTitle]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$formatter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Mcp/McpMeetingGate.php">
+    <UnusedMethod>
+      <code><![CDATA[blankOrAdminVerdict]]></code>
+      <code><![CDATA[denialError]]></code>
+      <code><![CDATA[denialMessage]]></code>
+      <code><![CDATA[isGranted]]></code>
+      <code><![CDATA[unknownMeetingError]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$formatter]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$scopeResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+      <code><![CDATA[$validator]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Mcp/McpMeetingScopeResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[governanceBodyId]]></code>
+      <code><![CDATA[meetingUuidsForBody]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$formatter]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Middleware/ApiContractMiddleware.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function afterController($controller, $methodName, Response $response): Response {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Middleware/Support/ApiPathAliases.php">
+    <UnusedMethod>
+      <code><![CDATA[key]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Migration/AgendaItemTypeResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MarkLegacyApprovalRoutes.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateActionItemsToDeckLeaf.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateCommentsToTalkLeaf.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateCommitments.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateConfidentialityRecords.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateConsultationsToOneSchema.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateDocumentsToAgendaItems.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateEmailLinksToRegistry.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateIntegrityDisclosures.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateKascommissieToAuditStatement.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateLegacyTemplatesToDecisionTemplate.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateMemberOnboarding.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateParticipationsToCompositions.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigratePlanningCycles.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigratePostsToPositions.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateQuestionsToAgendaItems.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateRegulationsToGoverningDocuments.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateTermRulesToPositionTypes.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateTheLastTwoDutchNames.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/MigrateVveToBodyConfiguration.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/ProjectGovernanceRoleScopes.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/RenameStepTypes.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function migrationLogger(): LoggerInterface {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/RepairApprovalActionStates.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Migration/RepairDecisionStageLabels.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Notification/Notifier.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getID(): string {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function prepare(INotification $notification, string $languageCode): INotification {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Portal/PortalContributionProvider.php">
+    <UnusedProperty>
+      <code><![CDATA[$meetingRecords]]></code>
+      <code><![CDATA[$votingRecords]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Repair/DbValueMigrationGateway.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function columnsOf(string $table): array {]]></code>
+      <code><![CDATA[public function rewrite(string $table, string $column, string $old, string $new): int {]]></code>
+      <code><![CDATA[public function shardTables(): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/FillDecisionDecidingBody.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+    <RedundantCast>
+      <code><![CDATA[(array)$meeting->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Repair/FillMeetingArchivalDossier.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/InitializeSettings.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateAdminGroup.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateAppConfigKeys.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateBoardProxyToProxyAuthorization.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateGovernanceGroupNames.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateRegisterSlug.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateSchemaApplicationId.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MigrateUserPreferences.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/MoveAgendaItemStatusToPhase.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/RenameDutchDecidiqValues.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/RenameDutchVocabularyColumns.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/RepointConflictOfInterestBoardMember.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Repair/SeedDecisionTypes.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function run(IOutput $output): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Search/DecidiqSearchProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getId(): string {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function getOrder(string $route, array $routeParameters): ?int {]]></code>
+      <code><![CDATA[public function search(IUser $user, ISearchQuery $query): SearchResult {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Sections/SettingsSection.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getID(): string {]]></code>
+      <code><![CDATA[public function getIcon(): string {]]></code>
+      <code><![CDATA[public function getName(): string {]]></code>
+      <code><![CDATA[public function getPriority(): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ALVMinutesService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function distribute(string $minutesId): int {]]></code>
+      <code><![CDATA[public function generateALVDraft(string $minutesId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[agendaText]]></code>
+      <code><![CDATA[alvReplacements]]></code>
+      <code><![CDATA[assertAlvMeeting]]></code>
+      <code><![CDATA[assertDistributable]]></code>
+      <code><![CDATA[currentMembers]]></code>
+      <code><![CDATA[memberUids]]></code>
+      <code><![CDATA[membersNotice]]></code>
+      <code><![CDATA[presentCount]]></code>
+      <code><![CDATA[quorumStatus]]></code>
+      <code><![CDATA[renderAlvTemplate]]></code>
+      <code><![CDATA[sendNotice]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$l10nFactory]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$preferences]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AccessibilityOverrideLog.php">
+    <UnusedMethod>
+      <code><![CDATA[firstOf]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ActionItemAnalyticsService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getMyItems(string $nextcloudUid): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[emptyGroups]]></code>
+      <code><![CDATA[groupedItemsOf]]></code>
+      <code><![CDATA[openItemsOf]]></code>
+      <code><![CDATA[participantIdOf]]></code>
+      <code><![CDATA[urgencyOf]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ActionItemExtractionService.php">
+    <UnusedMethod>
+      <code><![CDATA[buildActionItem]]></code>
+      <code><![CDATA[extractAssigneeFromLine]]></code>
+      <code><![CDATA[extractTitleFromPhrase]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ActionItemMigrationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function migrateUser(string $userId): array {]]></code>
+      <code><![CDATA[public function pendingOwners(): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ActionItemWriter.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function create(array $item): ?array {]]></code>
+      <code><![CDATA[public function delete(string $uid): bool {]]></code>
+      <code><![CDATA[public function findByField(string $field, string $value): ?array {]]></code>
+      <code><![CDATA[public function update(string $uid, array $changes): ?array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/AdmissibilityTrail.php">
+    <UnusedProperty>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AdvisoryVoteService.php">
+    <UnusedMethod>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[objectService]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AgendaAccessibilityCheck.php">
+    <UnusedMethod>
+      <code><![CDATA[agendaDocuments]]></code>
+      <code><![CDATA[documentSources]]></code>
+      <code><![CDATA[itemId]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$documentGate]]></code>
+      <code><![CDATA[$files]]></code>
+      <code><![CDATA[$rules]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AgendaAuthorizationGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function requireChairOrAdmin(string $meetingId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireChairOrAdminForAgendaItem(string $agendaItemId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireUser(): ?JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AgendaService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function advanceBobPhase(string $agendaItemId): void {]]></code>
+      <code><![CDATA[public function isSuppressingItemNotices(): bool {]]></code>
+      <code><![CDATA[public function notifyAgendaChanged(string $meetingId): void {]]></code>
+      <code><![CDATA[public function processHamerstukken(string $meetingId): int {]]></code>
+      <code><![CDATA[public function publishAgenda(string $meetingId, ?string $noticeReason=null, array $accessibility=[]): void {]]></code>
+      <code><![CDATA[public function reorderItems(string $meetingId, array $orderedIds): void {]]></code>
+      <code><![CDATA[public function reviseAgenda(string $meetingId): void {]]></code>
+      <code><![CDATA[public function setFormality(string $meetingId, string $itemId, bool $isFormality): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[adoptFormalities]]></code>
+      <code><![CDATA[announcePublication]]></code>
+      <code><![CDATA[isPendingFormality]]></code>
+      <code><![CDATA[itemIdSet]]></code>
+      <code><![CDATA[patchItem]]></code>
+      <code><![CDATA[publishableItems]]></code>
+      <code><![CDATA[readMeeting]]></code>
+      <code><![CDATA[savePublication]]></code>
+      <code><![CDATA[writeOrder]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$accessibilityCheck]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$shortenedNotice]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AmendmentOrderService.php">
+    <UnusedMethod>
+      <code><![CDATA[assertAmendmentIsNext]]></code>
+      <code><![CDATA[assertAmendmentsDecided]]></code>
+      <code><![CDATA[compareOrder]]></code>
+      <code><![CDATA[orderRank]]></code>
+      <code><![CDATA[orderedSiblings]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$motionService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AmendmentTextMerger.php">
+    <UnusedMethod>
+      <code><![CDATA[applyChange]]></code>
+      <code><![CDATA[isApplied]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/AnnotationInput.php">
+    <UnusedMethod>
+      <code><![CDATA[bounded]]></code>
+      <code><![CDATA[drawing]]></code>
+      <code><![CDATA[highlight]]></code>
+      <code><![CDATA[normalised]]></code>
+      <code><![CDATA[points]]></code>
+      <code><![CDATA[readable]]></code>
+      <code><![CDATA[stickyNote]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AnnotationService.php">
+    <UnusedMethod>
+      <code><![CDATA[own]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$csvCell]]></code>
+      <code><![CDATA[$input]]></code>
+      <code><![CDATA[$timeFactory]]></code>
+      <code><![CDATA[$versions]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AppointmentMemberships.php">
+    <UnusedProperty>
+      <code><![CDATA[$contextResolver]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$positionHolds]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AppointmentPositionHolds.php">
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ApprovalActionStateRepair.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function repair(): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ApprovalRouteAdvancer.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<int, string>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/ApprovalRouteCommandService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function holdRoute(]]></code>
+      <code><![CDATA[public function recordAction(array $action): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ApprovalRouteConclusionAnnouncer.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function announceIfConcluded(string $subject, string $correlationId = ''): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ApprovalRouteFlowCompiler.php">
+    <RedundantFunctionCall>
+      <code><![CDATA[array_values]]></code>
+    </RedundantFunctionCall>
+    <UnusedMethod>
+      <code><![CDATA[addEdge]]></code>
+      <code><![CDATA[compileOrder]]></code>
+      <code><![CDATA[endNodes]]></code>
+      <code><![CDATA[exitsOf]]></code>
+      <code><![CDATA[linkEnd]]></code>
+      <code><![CDATA[nextTarget]]></code>
+      <code><![CDATA[orders]]></code>
+      <code><![CDATA[outcomesOf]]></code>
+      <code><![CDATA[performerOf]]></code>
+      <code><![CDATA[returnExit]]></code>
+      <code><![CDATA[returnFormOf]]></code>
+      <code><![CDATA[routeId]]></code>
+      <code><![CDATA[taskNode]]></code>
+      <code><![CDATA[titleOf]]></code>
+      <code><![CDATA[versionOf]]></code>
+      <code><![CDATA[writeNode]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/ApprovalRouteFlowStarter.php">
+    <UnusedMethod>
+      <code><![CDATA[firstOrder]]></code>
+      <code><![CDATA[stepName]]></code>
+      <code><![CDATA[withSubstitutes]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$absences]]></code>
+      <code><![CDATA[$compiler]]></code>
+      <code><![CDATA[$gateway]]></code>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ApprovalRouteService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assertSubjectAccessible(string $subject, string $subjectSchema): void {]]></code>
+      <code><![CDATA[public function heldRouteFrom(array $route, string $subject, string $subjectSchema): HeldRouteRequest {]]></code>
+      <code><![CDATA[public function holdFor(HeldRouteRequest $request): array {]]></code>
+      <code><![CDATA[public function instantiate(]]></code>
+      <code><![CDATA[public function record(array $action): array {]]></code>
+      <code><![CDATA[public function routesWithStagesFor(string $subject): array {]]></code>
+      <code><![CDATA[public function stagesFor(string $subject): array {]]></code>
+    </MissingOverrideAttribute>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/ApprovalStageLapseService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function sweep(?DateTimeImmutable $now = null): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ApprovalStalenessService.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<int, array<string, mixed>>]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/ApprovalThresholdCalculator.php">
+    <InvalidOperand>
+      <code><![CDATA[$share * $approverCount]]></code>
+    </InvalidOperand>
+  </file>
+  <file src="lib/Service/ApprovalWithdrawalNotifier.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[int]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/ArchivalDossierService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assemble(string $dossierId): array {]]></code>
+      <code><![CDATA[public function close(string $dossierId, ?string $overrideReason): array {]]></code>
+      <code><![CDATA[public function formForMeeting(string $meetingId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[formingDossier]]></code>
+      <code><![CDATA[gapList]]></code>
+      <code><![CDATA[gathered]]></code>
+      <code><![CDATA[linkMeeting]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[requireAuthority]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$archive]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$members]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AuditLogService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function append(string $actor, string $action, array $objectUids, array $payload = []): array {]]></code>
+      <code><![CDATA[public function export(string $startDate, string $endDate, string $format = 'json'): array {]]></code>
+      <code><![CDATA[public function query(array $filters = []): array {]]></code>
+      <code><![CDATA[public function verify(?string $entryUuid = null): array {]]></code>
+    </MissingOverrideAttribute>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array{success: bool, entry: array|null, message: string}]]></code>
+    </PossiblyUnusedReturnValue>
+    <UnusedMethod>
+      <code><![CDATA[actionFilter]]></code>
+      <code><![CDATA[entryId]]></code>
+      <code><![CDATA[loadChain]]></code>
+      <code><![CDATA[matchesDateRange]]></code>
+      <code><![CDATA[matchesEqualityFilters]]></code>
+      <code><![CDATA[matchesObjectUuid]]></code>
+      <code><![CDATA[matchingRows]]></code>
+      <code><![CDATA[namespacedActions]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditHashService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/AuditRowFormat.php">
+    <UnusedMethod>
+      <code><![CDATA[csvBody]]></code>
+      <code><![CDATA[csvLine]]></code>
+      <code><![CDATA[jsonBody]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/BoardBook/BoardBookAgenda.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+    <RedundantCast>
+      <code><![CDATA[(array)$entity->getObject()]]></code>
+      <code><![CDATA[(array)$this->objectService->findAll($query)]]></code>
+    </RedundantCast>
+    <RedundantCondition>
+      <code><![CDATA[is_object($entity) === true && method_exists($entity, 'getObject') === true]]></code>
+    </RedundantCondition>
+  </file>
+  <file src="lib/Service/BoardBookService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function compile(string $meetingId, string $userId, string $changeNote=''): array {]]></code>
+      <code><![CDATA[public function freshness(string $meetingId): ?array {]]></code>
+      <code><![CDATA[public function precheck(string $meetingId, string $changeNote): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/BoardEvaluationAccessGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function requireBodyMember(string $evaluationId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireChairOrSecretary(string $evaluationId): ?JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[currentUid]]></code>
+      <code><![CDATA[findEvaluation]]></code>
+      <code><![CDATA[governanceBodyIdOf]]></code>
+      <code><![CDATA[isChairOrSecretary]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/BoardEvaluationReportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function generate(string $evaluationId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[decodeSummary]]></code>
+      <code><![CDATA[markdownLineToHtml]]></code>
+      <code><![CDATA[markdownToHtml]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[renderBreakdown]]></code>
+      <code><![CDATA[renderMarkdown]]></code>
+      <code><![CDATA[resolveBodyName]]></code>
+      <code><![CDATA[sanitize]]></code>
+      <code><![CDATA[tryDocudeskPdf]]></code>
+      <code><![CDATA[writeFile]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$fileService]]></code>
+      <code><![CDATA[$filinqPdf]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/BoardEvaluationResponseService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function resolveResponder(string $evaluationId, string $nextcloudUid): ?string {]]></code>
+      <code><![CDATA[public function submitResponse(string $evaluationId, string $participantId, array $answers): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[evaluationRefusal]]></code>
+      <code><![CDATA[missingInput]]></code>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[recordCompletion]]></code>
+      <code><![CDATA[responseToken]]></code>
+      <code><![CDATA[sanitiseAnswers]]></code>
+      <code><![CDATA[tokenSecret]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/BoardEvaluationScoreService.php">
+    <InvalidOperand>
+      <code><![CDATA[$sum / $counts[$dimension]]]></code>
+      <code><![CDATA[array_sum($dimensionScores) / count($dimensionScores)]]></code>
+    </InvalidOperand>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function closeCycle(string $evaluationId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[collectThemeWords]]></code>
+      <code><![CDATA[computeDimensionScores]]></code>
+      <code><![CDATA[computeThemes]]></code>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[significantWords]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/BordaCount.php">
+    <UnusedMethod>
+      <code><![CDATA[orderByPoints]]></code>
+      <code><![CDATA[outcomeOf]]></code>
+      <code><![CDATA[rankRows]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/BroadcastCaptionService.php">
+    <InvalidOperand>
+      <code><![CDATA[max(0.0, $seconds) * 1000]]></code>
+    </InvalidOperand>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function derive(string $broadcastId, string $language): array {]]></code>
+      <code><![CDATA[public function release(string $broadcastId, string $language): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[attach]]></code>
+      <code><![CDATA[clock]]></code>
+      <code><![CDATA[fileName]]></code>
+      <code><![CDATA[finishedTranscript]]></code>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[requireLanguage]]></code>
+      <code><![CDATA[windowAt]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$folders]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$shares]]></code>
+      <code><![CDATA[$streaming]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$urls]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/BudgetVotingService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {]]></code>
+      <code><![CDATA[public function submitProposal(]]></code>
+      <code><![CDATA[public function validateProposal(string $proposalId, bool $approve): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[budgetIdFromRelations]]></code>
+      <code><![CDATA[compareProposals]]></code>
+      <code><![CDATA[fetchValidatedProposals]]></code>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[persistAward]]></code>
+      <code><![CDATA[relatesToBudget]]></code>
+      <code><![CDATA[resolveBudgetId]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$advisoryVoteService]]></code>
+      <code><![CDATA[$lifecycleService]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CaseDocumentService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function fetch(string $itemId, array $urls, string $userId): array {]]></code>
+      <code><![CDATA[public function link(string $itemId, string $reference): array {]]></code>
+      <code><![CDATA[public function listDocuments(string $itemId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[caseOf]]></code>
+      <code><![CDATA[fetchOne]]></code>
+      <code><![CDATA[fetchedUrls]]></code>
+      <code><![CDATA[item]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$client]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$records]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CaseExchangeRecords.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function find(string $recordId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[findBy]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/CaseSystemClient.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function isConnected(): bool {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/CaseSystemExchangeService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function requestResend(string $recordId, string $userId): array {]]></code>
+      <code><![CDATA[public function requestSend(string $meetingId, string $userId): array {]]></code>
+      <code><![CDATA[public function resend(string $recordId): array {]]></code>
+      <code><![CDATA[public function send(string $meetingId, string $userId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[failedLines]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/ChangeRecommendationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function accept(string $recommendationId, string $deciderUid): array {]]></code>
+      <code><![CDATA[public function motionIdOf(string $recommendationId): ?string {]]></code>
+      <code><![CDATA[public function reject(string $recommendationId, string $deciderUid): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[data]]></code>
+      <code><![CDATA[decidable]]></code>
+      <code><![CDATA[decide]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$merger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CitizenAdviceService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function close(string $motionId): array {]]></code>
+      <code><![CDATA[public function open(string $motionId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[motion]]></code>
+      <code><![CDATA[normalise]]></code>
+      <code><![CDATA[patch]]></code>
+      <code><![CDATA[status]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ClearableField.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$errorMsg]]></code>
+      <code><![CDATA[$isValid]]></code>
+      <code><![CDATA[$param]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/ClosedPaperReads.php">
+    <UnusedProperty>
+      <code><![CDATA[$auditLog]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CommitmentProgressService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function addEntry(string $commitmentId, string $note): array {]]></code>
+      <code><![CDATA[public function canAddProgress(string $commitmentId, string $uid): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[load]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$roleGate]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CompetenceConfirmationGuard.php">
+    <UnusedMethod>
+      <code><![CDATA[isAdmin]]></code>
+      <code><![CDATA[isSignatory]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$scopeGuard]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConfidentialPapers.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function minTrust(): string {]]></code>
+      <code><![CDATA[public function opened(string $itemId, string $documentId, array $subject): bool {]]></code>
+      <code><![CDATA[public function papers(string $itemId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[confidentialItem]]></code>
+      <code><![CDATA[entry]]></code>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[idsOf]]></code>
+      <code><![CDATA[papersOf]]></code>
+      <code><![CDATA[personOf]]></code>
+      <code><![CDATA[rows]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLog]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConfidentialReaders.php">
+    <UnusedMethod>
+      <code><![CDATA[assertNumber]]></code>
+      <code><![CDATA[authorisedItem]]></code>
+      <code><![CDATA[claim]]></code>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[idsOf]]></code>
+      <code><![CDATA[mayChangeReaders]]></code>
+      <code><![CDATA[provision]]></code>
+      <code><![CDATA[readersOf]]></code>
+      <code><![CDATA[row]]></code>
+      <code><![CDATA[save]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$dispatcher]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConfidentialityImposer.php">
+    <UnusedMethod>
+      <code><![CDATA[closeTarget]]></code>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[record]]></code>
+      <code><![CDATA[requireReadableTarget]]></code>
+      <code><![CDATA[requireSelectableGround]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$scopeGuard]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConfidentialityLifter.php">
+    <UnusedMethod>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[otherActive]]></code>
+      <code><![CDATA[readable]]></code>
+      <code><![CDATA[reopenTarget]]></code>
+      <code><![CDATA[requireDecision]]></code>
+      <code><![CDATA[requireLiftable]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$imposer]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConfidentialityRatifier.php">
+    <UnusedMethod>
+      <code><![CDATA[createItem]]></code>
+      <code><![CDATA[date]]></code>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[mayRatify]]></code>
+      <code><![CDATA[needsRatification]]></code>
+      <code><![CDATA[nextMeeting]]></code>
+      <code><![CDATA[readable]]></code>
+      <code><![CDATA[rows]]></code>
+      <code><![CDATA[save]]></code>
+      <code><![CDATA[subjectOf]]></code>
+      <code><![CDATA[text]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$imposer]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConflictDeclaration.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$agendaItemId]]></code>
+      <code><![CDATA[$description]]></code>
+      <code><![CDATA[$membershipId]]></code>
+      <code><![CDATA[$type]]></code>
+    </PossiblyUnusedProperty>
+    <UnusedProperty>
+      <code><![CDATA[$actionTaken]]></code>
+      <code><![CDATA[$severity]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConflictOfInterestAuthorizationGuard.php">
+    <UnusedMethod>
+      <code><![CDATA[isCallerThisMember]]></code>
+      <code><![CDATA[isChairOrSecretary]]></code>
+      <code><![CDATA[meetingIdFromRelations]]></code>
+      <code><![CDATA[readMeetingLink]]></code>
+      <code><![CDATA[resolveMeetingIdFromAgendaItem]]></code>
+      <code><![CDATA[resolveParticipantUuid]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantCrosswalk]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConflictOfInterestService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function declare(ConflictDeclaration $declaration, ?string $callerUid = null): array {]]></code>
+      <code><![CDATA[public function getActiveConflicts(string $membershipId, string $agendaItemId): ?array {]]></code>
+      <code><![CDATA[public function isAuthorizedForMember(string $membershipId, string $agendaItemId, string $callerUid): bool {]]></code>
+      <code><![CDATA[public function membershipForUser(string $uid): ?string {]]></code>
+      <code><![CDATA[public function recordAction(string $declarationId, string $actionTaken, ?string $callerUid = null): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[deniesCaller]]></code>
+      <code><![CDATA[persistDeclaration]]></code>
+      <code><![CDATA[validateDeclarationInput]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLogService]]></code>
+      <code><![CDATA[$authorizationGuard]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ConnectionReportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function refreshFromSave(array $saved): void {]]></code>
+      <code><![CDATA[public function reportBindings(): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ConsultationResponseDocumentService.php">
+    <InvalidArgument>
+      <code><![CDATA[$file]]></code>
+    </InvalidArgument>
+    <UnusedMethod>
+      <code><![CDATA[baseName]]></code>
+      <code><![CDATA[html]]></code>
+      <code><![CDATA[link]]></code>
+      <code><![CDATA[record]]></code>
+      <code><![CDATA[requireAdopted]]></code>
+      <code><![CDATA[store]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$fileService]]></code>
+      <code><![CDATA[$filinqPdf]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/CsvCell.php">
+    <UnusedMethod>
+      <code><![CDATA[inert]]></code>
+      <code><![CDATA[wrap]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/CurrentAgendaItemService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function setCurrentItem(string $meetingId, string $itemId): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DashboardWidgetService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getUserSummary(string $userId, int $now): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/DecisionAuthority.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function forDecision(string $decisionId): ?array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[allocation]]></code>
+      <code><![CDATA[text]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$check]]></code>
+      <code><![CDATA[$contextResolver]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DecisionCompetenceGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assertCompetent(array $decision): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/DecisionContextResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[firstNonEmptyString]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DecisionIntegrationAuthorizationGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function isAuthorizedToReadOutcome(string $decisionId, string $callerUid): bool {]]></code>
+      <code><![CDATA[public function isAuthorizedToSubscribe(string $decisionId, string $callerUid): bool {]]></code>
+      <code><![CDATA[public function resolveOutcomeReadAccess(string $decisionId, string $callerUid): string {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/DecisionIntegrationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function createDecision(array $decisionData, string $actorId): array {]]></code>
+      <code><![CDATA[public function getOutcomeEnvelope(string $decisionId): ?array {]]></code>
+      <code><![CDATA[public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[isPrivateHost]]></code>
+      <code><![CDATA[isRegistryConsumer]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/DecisionLifecycleService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getAvailableTransitions(string $decisionId): array {]]></code>
+      <code><![CDATA[public function transition(string $decisionId, string $action, ?string $currentUserId = null, string $comment = ''): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[attemptTransition]]></code>
+      <code><![CDATA[emitConclusionIfDelegated]]></code>
+      <code><![CDATA[generateResolutionRecord]]></code>
+      <code><![CDATA[noTransitions]]></code>
+      <code><![CDATA[resolveChairRejection]]></code>
+      <code><![CDATA[resolveEnactRejection]]></code>
+      <code><![CDATA[resolvePolicyOverride]]></code>
+      <code><![CDATA[resolvePostPairingRejection]]></code>
+      <code><![CDATA[resolveQuorumRejection]]></code>
+      <code><![CDATA[resolveRejection]]></code>
+      <code><![CDATA[resolveStateGateRejection]]></code>
+      <code><![CDATA[resolveTerminalCompletenessRejection]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appointments]]></code>
+      <code><![CDATA[$auditLogService]]></code>
+      <code><![CDATA[$contextResolver]]></code>
+      <code><![CDATA[$eventDispatcher]]></code>
+      <code><![CDATA[$integrationService]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$templateService]]></code>
+      <code><![CDATA[$transitionGuard]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DecisionListService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function render(string $meetingId, array $minutes): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/DecisionPublicationService.php">
+    <UnusedMethod>
+      <code><![CDATA[envelope]]></code>
+      <code><![CDATA[loadDecision]]></code>
+      <code><![CDATA[persistPublication]]></code>
+      <code><![CDATA[publicationRefusal]]></code>
+      <code><![CDATA[publishActivity]]></code>
+      <code><![CDATA[resolvePublicationRejection]]></code>
+      <code><![CDATA[restrictionRejection]]></code>
+      <code><![CDATA[typeOf]]></code>
+      <code><![CDATA[withRemedyClause]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$confidentiality]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$remedies]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DecisionTransitionRun.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$action]]></code>
+      <code><![CDATA[$comment]]></code>
+      <code><![CDATA[$currentUserId]]></code>
+      <code><![CDATA[$decisionId]]></code>
+    </PossiblyUnusedProperty>
+    <UnusedProperty>
+      <code><![CDATA[$allowedFrom]]></code>
+      <code><![CDATA[$currentLifecycle]]></code>
+      <code><![CDATA[$domain]]></code>
+      <code><![CDATA[$meeting]]></code>
+      <code><![CDATA[$newState]]></code>
+      <code><![CDATA[$policyOverride]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DecisionTypeRegistry.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getTypes(): array {]]></code>
+      <code><![CDATA[public function setTypes(array $types): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/DelegatedAuthorityCheck.php">
+    <UnusedMethod>
+      <code><![CDATA[answer]]></code>
+      <code><![CDATA[answerFromRows]]></code>
+      <code><![CDATA[answerRequest]]></code>
+      <code><![CDATA[covers]]></code>
+      <code><![CDATA[grant]]></code>
+      <code><![CDATA[inForce]]></code>
+      <code><![CDATA[incompleteRequestReason]]></code>
+      <code><![CDATA[namesActor]]></code>
+      <code><![CDATA[permittingParent]]></code>
+      <code><![CDATA[rowInForce]]></code>
+      <code><![CDATA[runsUntil]]></code>
+      <code><![CDATA[startedBy]]></code>
+      <code><![CDATA[verdictFor]]></code>
+      <code><![CDATA[withinCeiling]]></code>
+      <code><![CDATA[withinWindow]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groups]]></code>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DelegationRequest.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$delegate]]></code>
+      <code><![CDATA[$from]]></code>
+      <code><![CDATA[$until]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/DemoDataService.php">
+    <UnusedMethod>
+      <code><![CDATA[configurationService]]></code>
+      <code><![CDATA[descriptorPath]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appManager]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DocumentAccessibilityScanService.php">
+    <RedundantCast>
+      <code><![CDATA[(string)$node->getMimetype()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Service/DocumentPublicationGate.php">
+    <UnusedMethod>
+      <code><![CDATA[decide]]></code>
+      <code><![CDATA[holding]]></code>
+      <code><![CDATA[holdsBack]]></code>
+      <code><![CDATA[override]]></code>
+      <code><![CDATA[reportFor]]></code>
+      <code><![CDATA[summary]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$overrideLog]]></code>
+      <code><![CDATA[$scanner]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DocumentVersionReader.php">
+    <UnusedMethod>
+      <code><![CDATA[readableFile]]></code>
+      <code><![CDATA[storedVersions]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$rootFolder]]></code>
+    </UnusedProperty>
+    <UnusedVariable>
+      <code><![CDATA[$node]]></code>
+    </UnusedVariable>
+  </file>
+  <file src="lib/Service/DossierMemberCollector.php">
+    <UnusedMethod>
+      <code><![CDATA[ids]]></code>
+      <code><![CDATA[minutes]]></code>
+      <code><![CDATA[mostRestrictive]]></code>
+      <code><![CDATA[rows]]></code>
+      <code><![CDATA[votingRounds]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/DraftProvenance.php">
+    <UnusedProperty>
+      <code><![CDATA[$generatedAt]]></code>
+      <code><![CDATA[$providerId]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/EIDASSignatureService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function fetchSigningResult(string $requestId): array {]]></code>
+      <code><![CDATA[public function finalizeMinutes(string $minutesId, array $signatureList): array {]]></code>
+      <code><![CDATA[public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {]]></code>
+      <code><![CDATA[public function validateCertificateChain(string $certThumbprint): array {]]></code>
+      <code><![CDATA[public function verifySignature(string $requestId, string $signature): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[decideStage]]></code>
+      <code><![CDATA[toObjectArray]]></code>
+      <code><![CDATA[updateMinutesRow]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/EffectiveVoteRules.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$abstentionHandling]]></code>
+      <code><![CDATA[$chairCastingVote]]></code>
+      <code><![CDATA[$threshold]]></code>
+      <code><![CDATA[$tieBreakRule]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/EngagementService.php">
+    <InvalidOperand>
+      <code><![CDATA[$speakingMinutes * 2]]></code>
+      <code><![CDATA[($speakingMinutes * 2) + ($speeches * 5)]]></code>
+    </InvalidOperand>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function captureEngagement(]]></code>
+      <code><![CDATA[public function findEngagementForMeeting(string $meetingId): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ExpeditedRoundService.php">
+    <UnusedMethod>
+      <code><![CDATA[bounds]]></code>
+      <code><![CDATA[boundsMessage]]></code>
+      <code><![CDATA[deadlineHours]]></code>
+      <code><![CDATA[decisiveStage]]></code>
+      <code><![CDATA[envelope]]></code>
+      <code><![CDATA[isOpenDecisive]]></code>
+      <code><![CDATA[refusal]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$templates]]></code>
+      <code><![CDATA[$writer]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ExpeditedRoundWriter.php">
+    <UnusedProperty>
+      <code><![CDATA[$timeFactory]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ExportBundleService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function export(ExportRequest $request): array {]]></code>
+      <code><![CDATA[public function pdfAvailable(): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[assertFormat]]></code>
+      <code><![CDATA[decisions]]></code>
+      <code><![CDATA[exportableDecisions]]></code>
+      <code><![CDATA[exportsFolder]]></code>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[inSelectionOrder]]></code>
+      <code><![CDATA[listFilters]]></code>
+      <code><![CDATA[listName]]></code>
+      <code><![CDATA[mergerFor]]></code>
+      <code><![CDATA[readConfig]]></code>
+      <code><![CDATA[requester]]></code>
+      <code><![CDATA[rowsAsArrays]]></code>
+      <code><![CDATA[selectedIds]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$rootFolder]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userSession]]></code>
+      <code><![CDATA[$writer]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ExportBundleWriter.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function removePages(string $uid, array $pages): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[addDecision]]></code>
+      <code><![CDATA[addTextPage]]></code>
+      <code><![CDATA[attachments]]></code>
+      <code><![CDATA[collectPdfInputs]]></code>
+      <code><![CDATA[esc]]></code>
+      <code><![CDATA[exportFailure]]></code>
+      <code><![CDATA[exportResult]]></code>
+      <code><![CDATA[factRows]]></code>
+      <code><![CDATA[facts]]></code>
+      <code><![CDATA[html]]></code>
+      <code><![CDATA[mergedResult]]></code>
+      <code><![CDATA[requireOpenRegister]]></code>
+      <code><![CDATA[safeName]]></code>
+      <code><![CDATA[startMerge]]></code>
+      <code><![CDATA[unique]]></code>
+      <code><![CDATA[workFolder]]></code>
+      <code><![CDATA[writeArchive]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$files]]></code>
+      <code><![CDATA[$jobList]]></code>
+      <code><![CDATA[$pdf]]></code>
+      <code><![CDATA[$tempManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ExportRequest.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$filter]]></code>
+      <code><![CDATA[$format]]></code>
+      <code><![CDATA[$ids]]></code>
+      <code><![CDATA[$list]]></code>
+      <code><![CDATA[$search]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/Feed/RssDocument.php">
+    <UnusedMethod>
+      <code><![CDATA[rfc822]]></code>
+      <code><![CDATA[text]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/FlowDecisionService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function parseRunReference(string $reference): ?array {]]></code>
+      <code><![CDATA[public function raise(]]></code>
+      <code><![CDATA[public function readState(string $decisionId, string $actorId): array {]]></code>
+      <code><![CDATA[public function runReference(string $runUuid, string $nodeId): string {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/Forms/FormResponseImportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function import(string $consultationId): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/FullExportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function build(): string {]]></code>
+      <code><![CDATA[public function latest(): ?array {]]></code>
+      <code><![CDATA[public function open(string $name): ISimpleFile {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/GovernanceBodyCommandService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function upsert(]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/GovernanceBodyQueryService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function lookup(string $sourceApp, string $externalReference, string $governanceBodyId): ?array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/GovernanceReportingService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function exportReport(string $reportId, string $format = 'json'): array {]]></code>
+      <code><![CDATA[public function generateAnnualReport(string $boardId, int $year): array {]]></code>
+      <code><![CDATA[public function listReports(string $boardId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[annualReport]]></code>
+      <code><![CDATA[breaches]]></code>
+      <code><![CDATA[computeAttendanceRate]]></code>
+      <code><![CDATA[computeIndependenceRatio]]></code>
+      <code><![CDATA[exportFailure]]></code>
+      <code><![CDATA[filterByDate]]></code>
+      <code><![CDATA[loadGovernanceData]]></code>
+      <code><![CDATA[loadReport]]></code>
+      <code><![CDATA[normalize]]></code>
+      <code><![CDATA[persistReport]]></code>
+      <code><![CDATA[reportCsv]]></code>
+      <code><![CDATA[rowsLinkedTo]]></code>
+      <code><![CDATA[rowsetQuery]]></code>
+      <code><![CDATA[tallyVotes]]></code>
+      <code><![CDATA[yearMetrics]]></code>
+      <code><![CDATA[yearRows]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/GovernanceRoleScopeProjector.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function reconcileAll(): int {]]></code>
+      <code><![CDATA[public function reconcileFromMemberRow(array $row): void {]]></code>
+      <code><![CDATA[public function removeBody(string $bodyId): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/GovernanceScopeGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function canInitiateSigning(string $userId, string $minutesId): bool {]]></code>
+      <code><![CDATA[public function isInBodyScope(string $userId, string $bodyId, string $scope): bool {]]></code>
+      <code><![CDATA[public function isSignatoryForMinutes(string $userId, string $minutesId): bool {]]></code>
+      <code><![CDATA[public function isSignatoryForSubject(string $userId, string $schema, string $subjectId): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[extractRelation]]></code>
+      <code><![CDATA[meetingOf]]></code>
+      <code><![CDATA[resolveBodyIdForMinutes]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/GoverningDocument/GoverningDocumentRelease.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function sweep(?DateTimeImmutable $now=null): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/GoverningDocumentConsolidationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assertAcceptable(array $version): void {]]></code>
+      <code><![CDATA[public function assertEditable(array $before, array $after): void {]]></code>
+      <code><![CDATA[public function citingDecisions(string $documentId): array {]]></code>
+      <code><![CDATA[public function inForceOn(string $documentId, DateTimeImmutable $date): ?array {]]></code>
+      <code><![CDATA[public function publicView(string $documentId, DateTimeImmutable $today): ?array {]]></code>
+      <code><![CDATA[public function readableDocument(string $documentId): ?array {]]></code>
+      <code><![CDATA[public function recordCurrentEffectiveDate(array $version): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[dateOrNull]]></code>
+      <code><![CDATA[endedBy]]></code>
+      <code><![CDATA[latestSealedOn]]></code>
+      <code><![CDATA[sealedEffectiveDate]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/GuestInvitationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function invite(string $meetingId, string $name, string $email, string $userId): array {]]></code>
+      <code><![CDATA[public function requireOrganiserOf(string $meetingId, string $userId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[agendaTitles]]></code>
+      <code><![CDATA[formatDate]]></code>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[isAdministrator]]></code>
+      <code><![CDATA[isOwner]]></code>
+      <code><![CDATA[loadMeeting]]></code>
+      <code><![CDATA[papersLink]]></code>
+      <code><![CDATA[sendInvitation]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$fileService]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$mailer]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/InductionPackService.php">
+    <InvalidArgument>
+      <code><![CDATA[$open]]></code>
+    </InvalidArgument>
+    <UnusedMethod>
+      <code><![CDATA[completeStep]]></code>
+      <code><![CDATA[copyAll]]></code>
+      <code><![CDATA[copyFile]]></code>
+      <code><![CDATA[copyItem]]></code>
+      <code><![CDATA[folderFor]]></code>
+      <code><![CDATA[folderName]]></code>
+      <code><![CDATA[item]]></code>
+      <code><![CDATA[items]]></code>
+      <code><![CDATA[labelOr]]></code>
+      <code><![CDATA[noteFor]]></code>
+      <code><![CDATA[openStep]]></code>
+      <code><![CDATA[packFor]]></code>
+      <code><![CDATA[writeFile]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$pathwaySteps]]></code>
+      <code><![CDATA[$rootFolder]]></code>
+      <code><![CDATA[$store]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/LegalRemedyResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assertPublishable(array $type): void {]]></code>
+      <code><![CDATA[public function stamp(array $decision, array $type): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ListenerSchemaResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function matchesSchema(?object $entity, string $expectedSlug, array $row = []): bool {]]></code>
+      <code><![CDATA[public function readValue(?object $entity, string $getter): string {]]></code>
+      <code><![CDATA[public function schemaSlug(?object $entity, array $row = []): string {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/LiveDecisionService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function recordDecision(string $meetingId, array $decisionData): string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[createDraftMinutes]]></code>
+      <code><![CDATA[decisionFor]]></code>
+      <code><![CDATA[ensureDraftMinutes]]></code>
+      <code><![CDATA[existingMinutesSlug]]></code>
+      <code><![CDATA[linksMeeting]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/LogEIDASSignatureService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function fetchSigningResult(string $requestId): array {]]></code>
+      <code><![CDATA[public function finalizeMinutes(string $minutesId, array $signatureList): array {]]></code>
+      <code><![CDATA[public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {]]></code>
+      <code><![CDATA[public function validateCertificateChain(string $certThumbprint): array {]]></code>
+      <code><![CDATA[public function verifySignature(string $requestId, string $signature): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MailVoteReplyProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function parseVoteKeyword(string $body): ?string {]]></code>
+      <code><![CDATA[public function processRound(object $objectService, array $round, string $roundId): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MailVoteSigner.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function compute(string $participantId, string $roundId, string $timestamp): string {]]></code>
+      <code><![CDATA[public function sign(array $entry, string $roundId): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MandateSubstitutionService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function end(string $meetingId, string $substitutionId, string $userId): array {]]></code>
+      <code><![CDATA[public function seats(string $meetingId, string $userId): array {]]></code>
+      <code><![CDATA[public function start(string $meetingId, string $outgoingId, string $incomingId, string $reason, string $userId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[assertNoOpenRound]]></code>
+      <code><![CDATA[assertPresiding]]></code>
+      <code><![CDATA[checkedSeat]]></code>
+      <code><![CDATA[isOpen]]></code>
+      <code><![CDATA[now]]></code>
+      <code><![CDATA[resolver]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendmentOrder]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$roleGate]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingBroadcastService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function meetingOf(string $broadcastId): string {]]></code>
+      <code><![CDATA[public function pause(string $broadcastId): array {]]></code>
+      <code><![CDATA[public function recordTestResult(string $broadcastId, string $result, string $note): array {]]></code>
+      <code><![CDATA[public function resume(string $broadcastId): array {]]></code>
+      <code><![CDATA[public function start(string $broadcastId): array {]]></code>
+      <code><![CDATA[public function startTest(string $meetingId): array {]]></code>
+      <code><![CDATA[public function status(string $meetingId): array {]]></code>
+      <code><![CDATA[public function stop(string $broadcastId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[broadcastOfMeeting]]></code>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[newBroadcast]]></code>
+      <code><![CDATA[offset]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[requestLiveCaptions]]></code>
+      <code><![CDATA[requireState]]></code>
+      <code><![CDATA[requireUrl]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$streaming]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userSession]]></code>
+      <code><![CDATA[$windows]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingCommandService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function upsert(array $subject, array $meeting): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MeetingCostService.php">
+    <InvalidOperand>
+      <code><![CDATA[($seconds / 3600) * $attendees]]></code>
+    </InvalidOperand>
+    <UnusedMethod>
+      <code><![CDATA[bodyHourlyRate]]></code>
+      <code><![CDATA[countAttendees]]></code>
+      <code><![CDATA[endOf]]></code>
+      <code><![CDATA[entityUuid]]></code>
+      <code><![CDATA[findBodyParticipants]]></code>
+      <code><![CDATA[getObjectService]]></code>
+      <code><![CDATA[participantData]]></code>
+      <code><![CDATA[relationBodyId]]></code>
+      <code><![CDATA[relationsBodyId]]></code>
+      <code><![CDATA[relationsOf]]></code>
+      <code><![CDATA[resolveAttendeeCount]]></code>
+      <code><![CDATA[resolveElapsedSeconds]]></code>
+      <code><![CDATA[resolveGovernanceBodyId]]></code>
+      <code><![CDATA[resolveHourlyRate]]></code>
+      <code><![CDATA[resolveMeeting]]></code>
+      <code><![CDATA[withUuid]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingFolderService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function ensureMeetingFolders(array $meeting): ?string {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MeetingPackageService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assemble(string $meetingId, string $userId): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MeetingReminderService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function run(int $now): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MeetingRoleGate.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function isChairOrSecretary(string $meetingId, string $userId): bool {]]></code>
+      <code><![CDATA[public function rolesOf(string $meetingId, string $userId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingRuleSource.php">
+    <UnusedMethod>
+      <code><![CDATA[loadBody]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingSeriesService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function generateSeries(string $meetingId, array $pattern, string $actor): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[assertPatternValid]]></code>
+      <code><![CDATA[capOccurrences]]></code>
+      <code><![CDATA[deriveSeriesSlug]]></code>
+      <code><![CDATA[failure]]></code>
+      <code><![CDATA[indexExceptions]]></code>
+      <code><![CDATA[loadTemplate]]></code>
+      <code><![CDATA[monthlyOccurrences]]></code>
+      <code><![CDATA[parseStart]]></code>
+      <code><![CDATA[parseUntil]]></code>
+      <code><![CDATA[planSeries]]></code>
+      <code><![CDATA[recordSeries]]></code>
+      <code><![CDATA[seriesOf]]></code>
+      <code><![CDATA[stepDays]]></code>
+      <code><![CDATA[steppedOccurrences]]></code>
+      <code><![CDATA[success]]></code>
+      <code><![CDATA[templatePayload]]></code>
+      <code><![CDATA[writeSeries]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLogService]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MeetingService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function availableActionsFor(string $meetingId, string $userId): ?array {]]></code>
+      <code><![CDATA[public function transition(string $meetingId, string $action, ?string $currentUserId = null): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[applyTransition]]></code>
+      <code><![CDATA[buildEfficiencyPatch]]></code>
+      <code><![CDATA[chairGateDenies]]></code>
+      <code><![CDATA[chairRefusal]]></code>
+      <code><![CDATA[closePatch]]></code>
+      <code><![CDATA[collectBodyIdCandidates]]></code>
+      <code><![CDATA[publishTransitionActivity]]></code>
+      <code><![CDATA[quorumRefusal]]></code>
+      <code><![CDATA[refusal]]></code>
+      <code><![CDATA[resolveBodyId]]></code>
+      <code><![CDATA[ruleGateRefusal]]></code>
+      <code><![CDATA[saveTransition]]></code>
+      <code><![CDATA[stageContext]]></code>
+      <code><![CDATA[transitionRefusal]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$meetingCostService]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$scopeGuard]]></code>
+      <code><![CDATA[$transitionGuard]]></code>
+      <code><![CDATA[$workflowService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MemberCompetenceService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function confirm(string $id): array {]]></code>
+      <code><![CDATA[public function record(array $data, ?string $id): array {]]></code>
+      <code><![CDATA[public function saveCompetence(array $data, ?string $id): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[checkedCompetence]]></code>
+      <code><![CDATA[existing]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[seat]]></code>
+      <code><![CDATA[uid]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MemberImportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getGroupMembers(string $groupId): ?array {]]></code>
+      <code><![CDATA[public function listGroups(): array {]]></code>
+      <code><![CDATA[public function matchEmails(array $emails): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$userManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesAccessGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function requireChairOrAdmin(string $minutesId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireParticipant(string $minutesId): ?JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[currentUid]]></code>
+      <code><![CDATA[meetingIdFrom]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesContextResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[findObject]]></code>
+      <code><![CDATA[firstRelation]]></code>
+      <code><![CDATA[objectService]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesDocumentService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function generate(string $minutesId, string $format, string $displayName): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/MinutesDraftComposer.php">
+    <UnusedMethod>
+      <code><![CDATA[buildItemSection]]></code>
+      <code><![CDATA[buildSection]]></code>
+      <code><![CDATA[collectRecords]]></code>
+      <code><![CDATA[hasTimeline]]></code>
+      <code><![CDATA[outcomeLines]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/MinutesDraftRun.php">
+    <UnusedProperty>
+      <code><![CDATA[$outcomes]]></code>
+      <code><![CDATA[$provenance]]></code>
+      <code><![CDATA[$runner]]></code>
+      <code><![CDATA[$segments]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesDraftService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function generate(string $transcriptId): array {]]></code>
+      <code><![CDATA[public function isProviderAvailable(): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[fetchObject]]></code>
+      <code><![CDATA[fetchRelated]]></code>
+      <code><![CDATA[getComposer]]></code>
+      <code><![CDATA[preferredProviderId]]></code>
+      <code><![CDATA[resolveMeetingId]]></code>
+      <code><![CDATA[runPrompt]]></code>
+      <code><![CDATA[saveTranscript]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesGenerationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function generateDraft(string $minutesId): string {]]></code>
+      <code><![CDATA[public function reject(string $minutesId, string $comment, string $userId): array {]]></code>
+      <code><![CDATA[public function transition(string $minutesId, string $newLifecycle, string $displayName): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[getObjectService]]></code>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[withSigner]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/MinutesOutcomes.php">
+    <UnusedMethod>
+      <code><![CDATA[linkedTo]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$decisions]]></code>
+      <code><![CDATA[$votingRounds]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesService.php">
+    <UnusedMethod>
+      <code><![CDATA[approverUids]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$preferences]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MinutesWorkflowService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function extractActionItems(string $minutesId): array {]]></code>
+      <code><![CDATA[public function saveExtractedActionItems(string $minutesId, array $confirmed): int {]]></code>
+      <code><![CDATA[public function submitForApproval(string $minutesId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[requireMinutes]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$extractionService]]></code>
+      <code><![CDATA[$minutesService]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionAmendmentService.php">
+    <UnusedMethod>
+      <code><![CDATA[amendmentReferencesMotion]]></code>
+      <code><![CDATA[getLinkResolver]]></code>
+      <code><![CDATA[getObjectService]]></code>
+      <code><![CDATA[hasTextOverlap]]></code>
+      <code><![CDATA[significantWords]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionCoauthorService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function addCoauthor(]]></code>
+      <code><![CDATA[public function getHistory(string $motionId, ?string $callerUid = null): array {]]></code>
+      <code><![CDATA[public function removeCoauthor(]]></code>
+      <code><![CDATA[public function updateMotionText(]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[accessibleMotion]]></code>
+      <code><![CDATA[checkMotionAccess]]></code>
+      <code><![CDATA[detectParagraphConflict]]></code>
+      <code><![CDATA[findMotion]]></code>
+      <code><![CDATA[firstChangedParagraph]]></code>
+      <code><![CDATA[getObjectService]]></code>
+      <code><![CDATA[isConcurrentForeignEdit]]></code>
+      <code><![CDATA[motionOrNull]]></code>
+      <code><![CDATA[paragraphs]]></code>
+      <code><![CDATA[resolveParticipantUuid]]></code>
+      <code><![CDATA[saveMotion]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionForwardingService.php">
+    <UnusedMethod>
+      <code><![CDATA[buildForwardedMotion]]></code>
+      <code><![CDATA[noteForwarding]]></code>
+      <code><![CDATA[notifyApprovalRequired]]></code>
+      <code><![CDATA[nowIso]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$userManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionLinkResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[parentMotionMatches]]></code>
+      <code><![CDATA[readMeetingLink]]></code>
+      <code><![CDATA[relationEntryMatches]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function addCoSigner(string $motionId, string $coSignerName): void {]]></code>
+      <code><![CDATA[public function forwardMotion(string $motionId, string $targetBodyId, string $actorId, string $justification): array {]]></code>
+      <code><![CDATA[public function isPendingCoSigner(string $motionId, string $nextcloudUid): bool {]]></code>
+      <code><![CDATA[public function requestCoSignature(string $motionId, array $participantIds): void {]]></code>
+      <code><![CDATA[public function resolveMeetingId(string $motionId): ?string {]]></code>
+      <code><![CDATA[public function saveBudgetImpact(string $motionId, string $budgetLine, float $amountDelta, string $rationale): void {]]></code>
+      <code><![CDATA[public function setAmendmentVotingOrder(string $motionId, array $orderedAmendmentIds, string $actorId): array {]]></code>
+      <code><![CDATA[public function transitionLifecycle(]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[coSignerUid]]></code>
+      <code><![CDATA[findMotionData]]></code>
+      <code><![CDATA[getLinkResolver]]></code>
+      <code><![CDATA[getNotifier]]></code>
+      <code><![CDATA[getObjectService]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendments]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$forwarding]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$userManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MotionStages.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function forCaller(string $motionId, string $uid): ?array {]]></code>
+      <code><![CDATA[public function mayWithdraw(string $motionId, string $uid): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[canManage]]></code>
+      <code><![CDATA[load]]></code>
+      <code><![CDATA[stringOrNull]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$motionService]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/MultilingualReconciliationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function processQueue(int $maxEntries = 10): array {]]></code>
+      <code><![CDATA[public function queue(string $minutesId, string $sourceLocale, array $targetLocales): array {]]></code>
+      <code><![CDATA[public function status(int $limit = 50): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[collectTargetLocales]]></code>
+      <code><![CDATA[queueEntry]]></code>
+      <code><![CDATA[queueTargets]]></code>
+      <code><![CDATA[saveQueueEntries]]></code>
+      <code><![CDATA[saveQueueEntry]]></code>
+      <code><![CDATA[statusSummary]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/NextcloudTranslationAdapter.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function translate(string $text, string $sourceLocale, string $targetLocale): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/NotificationPreferenceRequestValidator.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function collect(array &$changes): ?string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[allKnownReminderTimes]]></code>
+      <code><![CDATA[clearDelegation]]></code>
+      <code><![CDATA[collectClearableField]]></code>
+      <code><![CDATA[collectDelegation]]></code>
+      <code><![CDATA[collectDelegationBound]]></code>
+      <code><![CDATA[collectToggles]]></code>
+      <code><![CDATA[communicationLanguageField]]></code>
+      <code><![CDATA[delegationError]]></code>
+      <code><![CDATA[delegationRequest]]></code>
+      <code><![CDATA[governanceEmailField]]></code>
+      <code><![CDATA[isNonEmptyArray]]></code>
+      <code><![CDATA[isUserId]]></code>
+      <code><![CDATA[periodBound]]></code>
+      <code><![CDATA[periodIsReversed]]></code>
+      <code><![CDATA[periodShapeError]]></code>
+      <code><![CDATA[urgentPhoneField]]></code>
+      <code><![CDATA[validateCommunication]]></code>
+      <code><![CDATA[validateDelegate]]></code>
+      <code><![CDATA[validateDelegation]]></code>
+      <code><![CDATA[validateDelegationPeriod]]></code>
+      <code><![CDATA[validateDeliveryMethod]]></code>
+      <code><![CDATA[validateReminderTimes]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$request]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/NotificationPreferenceService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function dispatch(]]></code>
+      <code><![CDATA[public function getPreferenceWithDefaults(string $personId): array {]]></code>
+      <code><![CDATA[public function hasActiveDelegationTo(string $delegatorId, string $delegateId, ?DateTimeImmutable $today = null): bool {]]></code>
+      <code><![CDATA[public function updatePreference(string $personId, array $preferences): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$openRegisterSync]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OnboardingChecklistService.php">
+    <UnusedMethod>
+      <code><![CDATA[advance]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$effects]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OnboardingProvisioningService.php">
+    <InvalidArgument>
+      <code><![CDATA[$open]]></code>
+      <code><![CDATA[$open]]></code>
+    </InvalidArgument>
+    <UnusedMethod>
+      <code><![CDATA[completeStep]]></code>
+      <code><![CDATA[endMembership]]></code>
+      <code><![CDATA[linkedUser]]></code>
+      <code><![CDATA[now]]></code>
+      <code><![CDATA[openStep]]></code>
+      <code><![CDATA[personUser]]></code>
+      <code><![CDATA[provisionGroups]]></code>
+      <code><![CDATA[revokePlan]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupChanges]]></code>
+      <code><![CDATA[$groupPolicy]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$pathwaySteps]]></code>
+      <code><![CDATA[$store]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OnboardingStepEffects.php">
+    <UnusedMethod>
+      <code><![CDATA[assertInstallationRecorded]]></code>
+      <code><![CDATA[createMembership]]></code>
+      <code><![CDATA[endMembership]]></code>
+      <code><![CDATA[membershipData]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OnboardingStepRules.php">
+    <UnusedMethod>
+      <code><![CDATA[isSettled]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/OpenRegisterApprovalFlowGateway.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function publishedFlowFor(array $document): string {]]></code>
+      <code><![CDATA[public function startRun(string $flowId, string $decision): string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[optionsClass]]></code>
+      <code><![CDATA[service]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OpenRegisterNotificationPreferenceSync.php">
+    <UnusedMethod>
+      <code><![CDATA[apply]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Ori/OriExportMapper.php">
+    <UnusedMethod>
+      <code><![CDATA[reverse]]></code>
+      <code><![CDATA[withoutNulls]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/Ori/OriFeedService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function agendaItems(): string {]]></code>
+      <code><![CDATA[public function documents(): string {]]></code>
+      <code><![CDATA[public function meetings(): string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[isWithheld]]></code>
+      <code><![CDATA[json]]></code>
+      <code><![CDATA[objects]]></code>
+      <code><![CDATA[publicAgendaItems]]></code>
+      <code><![CDATA[publicMeetings]]></code>
+      <code><![CDATA[withheldDocuments]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$mapper]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$rss]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Ori/OriImportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function import(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport {]]></code>
+      <code><![CDATA[public function preview(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport {]]></code>
+      <code><![CDATA[public function previewRollback(): OriImportReport {]]></code>
+      <code><![CDATA[public function rollback(): OriImportReport {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/OriPersonPublicationRule.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function person(string $personId): ?array {]]></code>
+      <code><![CDATA[public function persons(): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[all]]></code>
+      <code><![CDATA[fields]]></code>
+      <code><![CDATA[publicPersonIds]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OriPublicationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getPublicationStatus(string $votingRoundId): string {]]></code>
+      <code><![CDATA[public function publish(string $votingRoundId): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[buildJsonLd]]></code>
+      <code><![CDATA[getEndpoint]]></code>
+      <code><![CDATA[isValidOriEndpoint]]></code>
+      <code><![CDATA[oriBody]]></code>
+      <code><![CDATA[oriHeaders]]></code>
+      <code><![CDATA[passesDenyList]]></code>
+      <code><![CDATA[publishEndpoint]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$clientService]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/OriSerializer.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function isPayloadLive(array $object): bool {]]></code>
+      <code><![CDATA[public function serialize(string $type, array $object): array {]]></code>
+      <code><![CDATA[public function serializeAllowed(string $type, array $fields): array {]]></code>
+      <code><![CDATA[public function serializeCollection(string $resource, string $type, iterable $objects): array {]]></code>
+      <code><![CDATA[public function serializePayload(array $object, string $fallbackType): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[applyRules]]></code>
+      <code><![CDATA[commitmentFields]]></code>
+      <code><![CDATA[normalise]]></code>
+      <code><![CDATA[parseDate]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/OriVotePublicationRule.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function vote(string $voteId): ?array {]]></code>
+      <code><![CDATA[public function voteEvent(string $roundId): ?array {]]></code>
+      <code><![CDATA[public function voteEvents(): array {]]></code>
+      <code><![CDATA[public function votes(?string $voter): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[all]]></code>
+      <code><![CDATA[ballots]]></code>
+      <code><![CDATA[publicContext]]></code>
+      <code><![CDATA[publicVote]]></code>
+      <code><![CDATA[publicVoteEvent]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$people]]></code>
+      <code><![CDATA[$records]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperDelivery.php">
+    <UnusedProperty>
+      <code><![CDATA[$locator]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$reads]]></code>
+      <code><![CDATA[$stamper]]></code>
+      <code><![CDATA[$views]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperFolderOwner.php">
+    <RedundantCast>
+      <code><![CDATA[(array)$found->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Service/PaperLocator.php">
+    <UnusedMethod>
+      <code><![CDATA[meetingOf]]></code>
+      <code><![CDATA[recordsPaper]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$rootFolder]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperSummaryAccess.php">
+    <UnusedMethod>
+      <code><![CDATA[bodiesOf]]></code>
+      <code><![CDATA[keepsOut]]></code>
+      <code><![CDATA[nameOf]]></code>
+      <code><![CDATA[rows]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperSummaryService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function availability(): array {]]></code>
+      <code><![CDATA[public function canRequest(): bool {]]></code>
+      <code><![CDATA[public function request(string $agendaItemId, int $fileId, string $kind, ?int $comparedFileId=null): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[condensed]]></code>
+      <code><![CDATA[papersOf]]></code>
+      <code><![CDATA[taskInput]]></code>
+      <code><![CDATA[uuid]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$access]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$paperText]]></code>
+      <code><![CDATA[$taskManager]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperText.php">
+    <UnusedMethod>
+      <code><![CDATA[chunkTexts]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PaperVoteRecorder.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function recordVotes(string $votingRoundId, array $votes, string $callerUid): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$caster]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ParticipantResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function hasRole(string $meetingId, string $nextcloudUid, array $roles): bool {]]></code>
+      <code><![CDATA[public function isParticipant(string $meetingId, string $nextcloudUid): bool {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ParticipantToPersonMembershipResolver.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function resolve(string $participantId): ?array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ParticipantUuidLookup.php">
+    <UnusedMethod>
+      <code><![CDATA[belongsToBody]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ParticipationLifecycleService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function transitionBudgetRound(string $budgetId, string $newStatus): array {]]></code>
+      <code><![CDATA[public function transitionConsultation(string $consultationId, string $newStatus): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[deadlineInFuture]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/ParticipationPublicationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function publishBudgetResults(string $budgetId): array {]]></code>
+      <code><![CDATA[public function publishConsultationResults(string $consultationId, string $staffResponse = ''): array {]]></code>
+      <code><![CDATA[public function publishEvaluationResults(string $evaluationId): array {]]></code>
+      <code><![CDATA[public function publishReaction(string $reactionId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[loadSource]]></code>
+      <code><![CDATA[normaliseSaved]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[publishSummary]]></code>
+      <code><![CDATA[resolveGovernanceBodyId]]></code>
+      <code><![CDATA[routeToCatalog]]></code>
+      <code><![CDATA[routeToOpenCatalogi]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$appManager]]></code>
+      <code><![CDATA[$budgetService]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ParticipationResponder.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function citizenAction(callable $operation, ?string $uid, ?string $key = null, int $status = Http::STATUS_OK): JSONResponse {]]></code>
+      <code><![CDATA[public function currentUid(): ?string {]]></code>
+      <code><![CDATA[public function staffAction(callable $operation, ?string $key = null, int $status = Http::STATUS_OK): JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[requireStaff]]></code>
+      <code><![CDATA[respond]]></code>
+      <code><![CDATA[statusForException]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$staffGuard]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ParticipationStaffGuard.php">
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Pathway/MemberGroupChanges.php">
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Pathway/MemberGroupPolicy.php">
+    <UnusedMethod>
+      <code><![CDATA[groupNames]]></code>
+      <code><![CDATA[notAllowed]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Pathway/PathwayResult.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$details]]></code>
+      <code><![CDATA[$message]]></code>
+      <code><![CDATA[$outcome]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/Pathway/PathwayStaffGuard.php">
+    <UnusedMethod>
+      <code><![CDATA[isBodySecretary]]></code>
+      <code><![CDATA[secretariatGroups]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$pathwaySteps]]></code>
+      <code><![CDATA[$settings]]></code>
+      <code><![CDATA[$store]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Pathway/PathwaySteps.php">
+    <RedundantFunctionCall>
+      <code><![CDATA[array_values]]></code>
+    </RedundantFunctionCall>
+  </file>
+  <file src="lib/Service/Pathway/RosterMatcher.php">
+    <UnusedMethod>
+      <code><![CDATA[anyKey]]></code>
+      <code><![CDATA[keys]]></code>
+      <code><![CDATA[personIdFor]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/Pathway/TurnoverPathwayWriter.php">
+    <UnusedMethod>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[openSteps]]></code>
+      <code><![CDATA[saveTo]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PersonParticipantLookup.php">
+    <UnusedMethod>
+      <code><![CDATA[idOf]]></code>
+      <code><![CDATA[participantIdsWhere]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PlannedAgendaReportRenderer.php">
+    <RedundantCast>
+      <code><![CDATA[(string)$key]]></code>
+    </RedundantCast>
+    <UnusedMethod>
+      <code><![CDATA[comparePeriods]]></code>
+      <code><![CDATA[describeFilter]]></code>
+      <code><![CDATA[escape]]></code>
+      <code><![CDATA[groupKey]]></code>
+      <code><![CDATA[heading]]></code>
+      <code><![CDATA[idFrom]]></code>
+      <code><![CDATA[nameOf]]></code>
+      <code><![CDATA[ordered]]></code>
+      <code><![CDATA[rowHtml]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/PlannedAgendaReportService.php">
+    <UnusedMethod>
+      <code><![CDATA[nameField]]></code>
+      <code><![CDATA[names]]></code>
+      <code><![CDATA[namesIn]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[reportFile]]></code>
+      <code><![CDATA[reportsFolder]]></code>
+      <code><![CDATA[requester]]></code>
+      <code><![CDATA[rows]]></code>
+      <code><![CDATA[rowsAsArrays]]></code>
+      <code><![CDATA[save]]></code>
+      <code><![CDATA[topicsOutside]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$pdf]]></code>
+      <code><![CDATA[$renderer]]></code>
+      <code><![CDATA[$rootFolder]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PlanningCycleGenerator.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function stepsFor(string $cycleId, int $year, array $template): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ProcessTemplateService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function create(array $template): array {]]></code>
+      <code><![CDATA[public function delete(string $templateId): void {]]></code>
+      <code><![CDATA[public function duplicate(string $templateId, ?string $newName = null): array {]]></code>
+      <code><![CDATA[public function get(string $templateId): ?array {]]></code>
+      <code><![CDATA[public function list(): array {]]></code>
+      <code><![CDATA[public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array {]]></code>
+      <code><![CDATA[public function update(string $templateId, array $template): array {]]></code>
+      <code><![CDATA[public function validateStateMachine(array $template): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[assertValidStateMachine]]></code>
+      <code><![CDATA[assertValidUrgencyPolicy]]></code>
+      <code><![CDATA[governanceBodyExists]]></code>
+      <code><![CDATA[listFromErrors]]></code>
+      <code><![CDATA[loadBodyTemplate]]></code>
+      <code><![CDATA[loadTemplateByRef]]></code>
+      <code><![CDATA[urgencyPolicyErrors]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$resolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ProofPackageService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function assemble(string $meetingId, string $generatedBy): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ProxyDelegationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void {]]></code>
+      <code><![CDATA[public function revokeProxy(string $votingRoundId, string $fromParticipantId): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[assertBelowProxyCap]]></code>
+      <code><![CDATA[eligibleDelegate]]></code>
+      <code><![CDATA[maxProxiesPerHolder]]></code>
+      <code><![CDATA[notesInMeeting]]></code>
+      <code><![CDATA[notifyDelegate]]></code>
+      <code><![CDATA[objectService]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ProxyHoldings.php">
+    <UnusedMethod>
+      <code><![CDATA[displayName]]></code>
+      <code><![CDATA[grantOf]]></code>
+      <code><![CDATA[grants]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ProxyVoteService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function forMeeting(string $meetingId, ?string $status = null): array {]]></code>
+      <code><![CDATA[public function isAuthorizedToList(string $meetingId, string $callerUid): bool {]]></code>
+      <code><![CDATA[public function revoke(string $proxyId, string $actor, ?string $callerUid = null): array {]]></code>
+      <code><![CDATA[public function suspend(string $proxyId, string $actor, ?string $callerUid = null): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[asRow]]></code>
+      <code><![CDATA[auditIfRevoked]]></code>
+      <code><![CDATA[deniesCaller]]></code>
+      <code><![CDATA[isAuthorizedForTransition]]></code>
+      <code><![CDATA[isChairOrClerk]]></code>
+      <code><![CDATA[matchesMeeting]]></code>
+      <code><![CDATA[resolveParticipantUuid]]></code>
+      <code><![CDATA[transitionFailure]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLogService]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantCrosswalk]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PublicMeetingRecords.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function decision(string $id): ?array {]]></code>
+      <code><![CDATA[public function decisions(): array {]]></code>
+      <code><![CDATA[public function meeting(string $id): ?array {]]></code>
+      <code><![CDATA[public function meetings(): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[date]]></code>
+      <code><![CDATA[join]]></code>
+      <code><![CDATA[published]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PublicVotingRecords.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function members(): array {]]></code>
+      <code><![CDATA[public function record(string $personId): ?array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[activeOn]]></code>
+      <code><![CDATA[date]]></code>
+      <code><![CDATA[eligibleRounds]]></code>
+      <code><![CDATA[newestFirst]]></code>
+      <code><![CDATA[offices]]></code>
+      <code><![CDATA[publicEvents]]></code>
+      <code><![CDATA[publicVotesOf]]></code>
+      <code><![CDATA[recordColumns]]></code>
+      <code><![CDATA[subtitle]]></code>
+      <code><![CDATA[summary]]></code>
+      <code><![CDATA[voteRow]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$personRule]]></code>
+      <code><![CDATA[$voteRule]]></code>
+      <code><![CDATA[$voters]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PublicationConfigService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getAll(): array {]]></code>
+      <code><![CDATA[public function save(array $config): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/PublicationDigestService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function run(int $now): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/PublicationEventRecorder.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function paperAdded(string $schema, string $objectId, string $fileName): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/PublicationService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function publish(string $sourceType, string $sourceId, string $actorId, array $accessibility=[]): array {]]></code>
+      <code><![CDATA[public function rectify(string $recordId, string $actorId, string $reason): array {]]></code>
+      <code><![CDATA[public function withdraw(string $recordId, string $actorId, string $reason, array $keepPapers=[]): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[paperDocuments]]></code>
+      <code><![CDATA[targetCatalogOf]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$configService]]></code>
+      <code><![CDATA[$documentGate]]></code>
+      <code><![CDATA[$eventRecorder]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/PublicationStaffGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function checkRecord(string $recordId): string {]]></code>
+      <code><![CDATA[public function checkSource(string $sourceType, string $sourceId): string {]]></code>
+      <code><![CDATA[public function currentUid(): ?string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[holdsStaffRole]]></code>
+      <code><![CDATA[incomingDocumentMeetingId]]></code>
+      <code><![CDATA[resolveMeetingId]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RankedBallotRules.php">
+    <UnusedMethod>
+      <code><![CDATA[option]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/RatifyingBodyReport.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[mixed]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/ReactionIntakeService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function approveReaction(string $reactionId, ?string $reason = null): array {]]></code>
+      <code><![CDATA[public function rejectReaction(string $reactionId, string $reason): array {]]></code>
+      <code><![CDATA[public function submitReaction(string $consultationId, string $body, ?string $ncUid, ?string $clientSeed = null): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[anonymousAllowedOrRefused]]></code>
+      <code><![CDATA[incrementConsultationSubmissionCount]]></code>
+      <code><![CDATA[resolveModerationStatus]]></code>
+      <code><![CDATA[resolveSubmitterId]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$lifecycleService]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RecordedVoteWriter.php">
+    <UnusedMethod>
+      <code><![CDATA[activeParticipantIds]]></code>
+      <code><![CDATA[castAt]]></code>
+      <code><![CDATA[existingVotes]]></code>
+      <code><![CDATA[openRollCall]]></code>
+      <code><![CDATA[refuseOwnVotes]]></code>
+      <code><![CDATA[validEntries]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendmentOrder]]></code>
+      <code><![CDATA[$ballots]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RecordingRange.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function parse(?string $header, int $size): array|null|false {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/Records/ArchivistGuard.php">
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Records/DestructionCertificateRenderer.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function render(string $dossierId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[certificate]]></code>
+      <code><![CDATA[file]]></code>
+      <code><![CDATA[markdown]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[skipped]]></code>
+      <code><![CDATA[value]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$archive]]></code>
+      <code><![CDATA[$folders]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$pdf]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Records/DossierCategory.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function set(string $dossierId, string $category): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[dossier]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$categories]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Records/DossierDisposition.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function describe(string $dossierId): array {]]></code>
+      <code><![CDATA[public function propose(string $dossierId): array {]]></code>
+      <code><![CDATA[public function reflectOutcome(string $dossierId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[dossier]]></code>
+      <code><![CDATA[listOutcome]]></code>
+      <code><![CDATA[memberEntities]]></code>
+      <code><![CDATA[memberUuids]]></code>
+      <code><![CDATA[proposeDestruction]]></code>
+      <code><![CDATA[proposeTransfer]]></code>
+      <code><![CDATA[route]]></code>
+      <code><![CDATA[stageFor]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$archive]]></code>
+      <code><![CDATA[$categories]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$l10n]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$urlGenerator]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Records/OpenRegisterArchive.php">
+    <UnusedMethod>
+      <code><![CDATA[service]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/Records/SelectionCategoryReader.php">
+    <UnusedMethod>
+      <code><![CDATA[row]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$settings]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RegulatorExportRenderer.php">
+    <UnusedMethod>
+      <code><![CDATA[askDocudesk]]></code>
+      <code><![CDATA[assemblePdf]]></code>
+      <code><![CDATA[buildTextStream]]></code>
+      <code><![CDATA[csvColumns]]></code>
+      <code><![CDATA[renderCsv]]></code>
+      <code><![CDATA[renderPdf]]></code>
+      <code><![CDATA[summariseRow]]></code>
+      <code><![CDATA[tryDelegateToDocudesk]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RegulatorExportService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function download(string $exportId, string $actor): array {]]></code>
+      <code><![CDATA[public function generate(string $boardId, string $scope, string $format, string $actor): array {]]></code>
+      <code><![CDATA[public function listExports(string $boardId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[auditExport]]></code>
+      <code><![CDATA[collect]]></code>
+      <code><![CDATA[collectRows]]></code>
+      <code><![CDATA[failure]]></code>
+      <code><![CDATA[failureDownload]]></code>
+      <code><![CDATA[normalize]]></code>
+      <code><![CDATA[persistExportRecord]]></code>
+      <code><![CDATA[validateRequest]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLogService]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$renderer]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RestrictedPaperViews.php">
+    <UnusedMethod>
+      <code><![CDATA[activeOn]]></code>
+      <code><![CDATA[covers]]></code>
+      <code><![CDATA[rows]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$auditLog]]></code>
+      <code><![CDATA[$imposer]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/RiskScoreEvaluator.php">
+    <FalsableReturnStatement>
+      <code><![CDATA[match (true) {
+			is_bool($value)   => json_encode($value),
+			is_scalar($value) => trim((string)$value),
+			default           => '',
+		}]]></code>
+    </FalsableReturnStatement>
+    <InvalidOperand>
+      <code><![CDATA[$min + 0]]></code>
+      <code><![CDATA[$points + 0]]></code>
+      <code><![CDATA[$score  += $checked['points']]]></code>
+    </InvalidOperand>
+  </file>
+  <file src="lib/Service/RoleGroupMapping.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function normalise(array $mapping): array {]]></code>
+      <code><![CDATA[public function overview(array $config): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[baseline]]></code>
+      <code><![CDATA[describe]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/RoomSystemFeed.php">
+    <RedundantCast>
+      <code><![CDATA[(array)$entity->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Service/RoomSystemMessageService.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+    <RedundantCast>
+      <code><![CDATA[(array)$entity->getObject()]]></code>
+      <code><![CDATA[(array)$saved->getObject()]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Service/RosterTurnoverService.php">
+    <InvalidArgument>
+      <code><![CDATA[$members]]></code>
+      <code><![CDATA[$roster['people']]]></code>
+    </InvalidArgument>
+    <UnusedMethod>
+      <code><![CDATA[activeMembers]]></code>
+      <code><![CDATA[batchOf]]></code>
+      <code><![CDATA[byId]]></code>
+      <code><![CDATA[currentMemberships]]></code>
+      <code><![CDATA[isDate]]></code>
+      <code><![CDATA[isOpen]]></code>
+      <code><![CDATA[openPathways]]></code>
+      <code><![CDATA[personsFor]]></code>
+      <code><![CDATA[rows]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$matcher]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$pathwaySteps]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$writer]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/SeedProfileService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function install(string $profileId): array {]]></code>
+      <code><![CDATA[public function isKnown(string $profileId): bool {]]></code>
+      <code><![CDATA[public function listChoices(): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[configurationService]]></code>
+      <code><![CDATA[descriptorFiles]]></code>
+      <code><![CDATA[pathFor]]></code>
+      <code><![CDATA[readDescriptor]]></code>
+      <code><![CDATA[readProfileMeta]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appManager]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$demoData]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/SettingsService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getSettings(): array {]]></code>
+      <code><![CDATA[public function isOpenRegisterAvailable(): bool {]]></code>
+      <code><![CDATA[public function loadConfiguration(): array {]]></code>
+      <code><![CDATA[public function mergedRegisterConfig(): array {]]></code>
+      <code><![CDATA[public function reloadConfiguration(): array {]]></code>
+      <code><![CDATA[public function roleGroupMapping(): array {]]></code>
+      <code><![CDATA[public function updateSettings(array $data): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[storedSettings]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ShortenedNoticeService.php">
+    <UnusedMethod>
+      <code><![CDATA[hoursUntil]]></code>
+      <code><![CDATA[urgencyReasonOn]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$templates]]></code>
+      <code><![CDATA[$timeFactory]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/SigningRoundService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function collect(string $subjectType, string $subjectId): array {]]></code>
+      <code><![CDATA[public function collectAllSent(): int {]]></code>
+      <code><![CDATA[public function send(string $subjectType, string $subjectId): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/SpeakingRequestService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function agenda(string $meetingId): array {]]></code>
+      <code><![CDATA[public function approve(string $requestId, ?int $minutes=null, ?int $position=null): array {]]></code>
+      <code><![CDATA[public function markOutcome(string $requestId, string $outcome): array {]]></code>
+      <code><![CDATA[public function meetingOf(string $requestId): string {]]></code>
+      <code><![CDATA[public function publicAgenda(string $meetingId): array {]]></code>
+      <code><![CDATA[public function queue(string $meetingId, string $agendaItemId): array {]]></code>
+      <code><![CDATA[public function refer(string $requestId, string $meetingId, ?string $agendaItemId=null): array {]]></code>
+      <code><![CDATA[public function register(array $input, bool $override=false): array {]]></code>
+      <code><![CDATA[public function reject(string $requestId, string $reason): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[bodyOf]]></code>
+      <code><![CDATA[checkAgendaItem]]></code>
+      <code><![CDATA[deadlineHours]]></code>
+      <code><![CDATA[deadlinePassed]]></code>
+      <code><![CDATA[defaultMinutes]]></code>
+      <code><![CDATA[findPolicy]]></code>
+      <code><![CDATA[nextPosition]]></code>
+      <code><![CDATA[pick]]></code>
+      <code><![CDATA[policyOf]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[requestsOf]]></code>
+      <code><![CDATA[requireMeeting]]></code>
+      <code><![CDATA[requireRegistered]]></code>
+      <code><![CDATA[slots]]></code>
+      <code><![CDATA[write]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$slots]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/SpeakingSlots.php">
+    <UnusedMethod>
+      <code><![CDATA[internalEntry]]></code>
+      <code><![CDATA[ordered]]></code>
+      <code><![CDATA[placeOf]]></code>
+      <code><![CDATA[publicEntry]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/StageLapsePolicy.php">
+    <InvalidOperand>
+      <code><![CDATA[$window * $share]]></code>
+    </InvalidOperand>
+  </file>
+  <file src="lib/Service/SubjectClearanceService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function admissibilityOn(string $subject): ?array {]]></code>
+      <code><![CDATA[public function clearanceFor(array $routes): array {]]></code>
+      <code><![CDATA[public function describe(array $clearance): string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$admissibility]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/SubstitutionResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[seatOf]]></code>
+      <code><![CDATA[seatSides]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/SystemWhenNobodySignedIn.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function run(callable $operation): mixed {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/TeamsMeetingService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function create(string $meetingId): array {]]></code>
+      <code><![CDATA[public function status(string $meetingId): array {]]></code>
+    </MissingOverrideAttribute>
+    <TypeDoesNotContainType>
+      <code><![CDATA[$name === '']]></code>
+    </TypeDoesNotContainType>
+    <UnusedMethod>
+      <code><![CDATA[assertCanCarryTeams]]></code>
+      <code><![CDATA[author]]></code>
+      <code><![CDATA[call]]></code>
+      <code><![CDATA[dateOf]]></code>
+      <code><![CDATA[decode]]></code>
+      <code><![CDATA[meeting]]></code>
+      <code><![CDATA[period]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$answers]]></code>
+      <code><![CDATA[$connection]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$time]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/ThemeRefreshService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function refresh(): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/ThemeTimelineBuilder.php">
+    <RedundantCast>
+      <code><![CDATA[(string)(self::firstString(object: $object, keys: $link['title']) ?? '')]]></code>
+    </RedundantCast>
+  </file>
+  <file src="lib/Service/TranscriptRepository.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function fetchTranscript(string $transcriptId): array {]]></code>
+      <code><![CDATA[public function resolveSourceNode(string $path): \OCP\Files\File {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/TranscriptionQueue.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function enqueue(string $transcriptId): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$jobList]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/TranscriptionService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function align(string $transcriptId): array {]]></code>
+      <code><![CDATA[public function attach(]]></code>
+      <code><![CDATA[public function isProviderAvailable(): bool {]]></code>
+      <code><![CDATA[public function listSources(string $meetingId): array {]]></code>
+      <code><![CDATA[public function process(string $transcriptId): array {]]></code>
+      <code><![CDATA[public function setRetentionPolicy(string $bodyId, string $policy, int $days): void {]]></code>
+      <code><![CDATA[public function submit(string $transcriptId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$sourceResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/TranscriptionSourceResolver.php">
+    <UnusedMethod>
+      <code><![CDATA[listMeetingFolderAudio]]></code>
+      <code><![CDATA[listTalkRecordings]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$folderService]]></code>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/TranscriptionStaffGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function currentUserId(): string {]]></code>
+      <code><![CDATA[public function forBody(string $bodyId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function forMeeting(string $meetingId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function forTranscript(string $transcriptId): ?JSONResponse {]]></code>
+      <code><![CDATA[public function forTranscriptListener(string $transcriptId): ?JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[authorize]]></code>
+      <code><![CDATA[isListener]]></code>
+      <code><![CDATA[isStaff]]></code>
+      <code><![CDATA[meetingsOfBody]]></code>
+      <code><![CDATA[meetingsOfTranscript]]></code>
+      <code><![CDATA[toArray]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/UrgencyDeclarationService.php">
+    <UnusedMethod>
+      <code><![CDATA[declaredBy]]></code>
+      <code><![CDATA[envelope]]></code>
+      <code><![CDATA[withRatification]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$grant]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$ratification]]></code>
+      <code><![CDATA[$templates]]></code>
+      <code><![CDATA[$timeFactory]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/UrgentRatificationService.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[int]]></code>
+    </PossiblyUnusedReturnValue>
+    <UnusedReturnValue>
+      <code><![CDATA[array{stage: array<string, mixed>, agendaItem: array<string, mixed>, meeting: array<string, mixed>}]]></code>
+    </UnusedReturnValue>
+  </file>
+  <file src="lib/Service/UrgentReportService.php">
+    <UnusedMethod>
+      <code><![CDATA[envelope]]></code>
+      <code><![CDATA[refusal]]></code>
+      <code><![CDATA[save]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$guard]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$report]]></code>
+      <code><![CDATA[$templates]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VoteBreakdownService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function canReadRound(string $roundId): bool {]]></code>
+      <code><![CDATA[public function forRound(string $roundId): ?array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[factionRows]]></code>
+      <code><![CDATA[memberRow]]></code>
+      <code><![CDATA[person]]></code>
+      <code><![CDATA[relationEntries]]></code>
+      <code><![CDATA[valueOf]]></code>
+      <code><![CDATA[voters]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$people]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VoteContextReader.php">
+    <UnusedMethod>
+      <code><![CDATA[relationsOf]]></code>
+      <code><![CDATA[stageOf]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$read]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingBehaviourService.php">
+    <InvalidOperand>
+      <code><![CDATA[($participated / $totalRounds) * 100]]></code>
+    </InvalidOperand>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getStats(string $participantId, string $governanceBodyId): array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[accumulateRound]]></code>
+      <code><![CDATA[accumulateVote]]></code>
+      <code><![CDATA[closedRoundsForBody]]></code>
+      <code><![CDATA[closedRoundsForMotion]]></code>
+      <code><![CDATA[namesDelegator]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[participantVotes]]></code>
+      <code><![CDATA[participationRate]]></code>
+      <code><![CDATA[proxiesReceived]]></code>
+      <code><![CDATA[registerSlug]]></code>
+      <code><![CDATA[tallyRounds]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$slugResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingDeadlineReminderService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function run(int $now): int {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Service/VotingErrorResponder.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function badRequest(callable $operation): JSONResponse {]]></code>
+      <code><![CDATA[public function badRequestOrNotFound(callable $operation): JSONResponse {]]></code>
+      <code><![CDATA[public function internalError(callable $operation, string $logMessage, array $context, string $response): JSONResponse {]]></code>
+      <code><![CDATA[public function invalidOrMissing(callable $operation): JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingGroupResolver.php">
+    <RedundantCondition>
+      <code><![CDATA[is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true]]></code>
+    </RedundantCondition>
+  </file>
+  <file src="lib/Service/VotingOpenRequestHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function handle(array $params): JSONResponse {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$parser]]></code>
+      <code><![CDATA[$votingService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingOpenRequestParser.php">
+    <UnusedMethod>
+      <code><![CDATA[listValue]]></code>
+      <code><![CDATA[looseString]]></code>
+      <code><![CDATA[payload]]></code>
+      <code><![CDATA[presentValue]]></code>
+      <code><![CDATA[requestError]]></code>
+      <code><![CDATA[ruleError]]></code>
+      <code><![CDATA[strictString]]></code>
+      <code><![CDATA[subjectType]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/VotingOpenedNotifier.php">
+    <UnusedMethod>
+      <code><![CDATA[deadlineLabel]]></code>
+      <code><![CDATA[dispatchToElectorate]]></code>
+      <code><![CDATA[notifyParticipants]]></code>
+      <code><![CDATA[preferenceService]]></code>
+      <code><![CDATA[publishActivity]]></code>
+      <code><![CDATA[subjectTitle]]></code>
+      <code><![CDATA[validUids]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRecordService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function forPerson(string $personId): array {]]></code>
+      <code><![CDATA[public function requireReadablePerson(string $personId): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[activeOn]]></code>
+      <code><![CDATA[row]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participants]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingResultCalculator.php">
+    <InvalidOperand>
+      <code><![CDATA[2 * $base]]></code>
+      <code><![CDATA[2 * $forWeight]]></code>
+      <code><![CDATA[3 * $base]]></code>
+      <code><![CDATA[3 * $forWeight]]></code>
+      <code><![CDATA[4 * $forWeight]]></code>
+    </InvalidOperand>
+    <UnusedMethod>
+      <code><![CDATA[meetsThreshold]]></code>
+      <code><![CDATA[resultOf]]></code>
+      <code><![CDATA[rulesOf]]></code>
+      <code><![CDATA[tieBreak]]></code>
+      <code><![CDATA[tieOutcome]]></code>
+    </UnusedMethod>
+  </file>
+  <file src="lib/Service/VotingRoundCloser.php">
+    <UnusedMethod>
+      <code><![CDATA[afterAdoption]]></code>
+      <code><![CDATA[anonymiseVotes]]></code>
+      <code><![CDATA[createFileFolder]]></code>
+      <code><![CDATA[findObject]]></code>
+      <code><![CDATA[findRound]]></code>
+      <code><![CDATA[incorporateAdoptedAmendment]]></code>
+      <code><![CDATA[markClosed]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[publishOri]]></code>
+      <code><![CDATA[resolveDecisionStage]]></code>
+      <code><![CDATA[stageIdOf]]></code>
+      <code><![CDATA[subjectOf]]></code>
+      <code><![CDATA[transitionSubject]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendmentOrder]]></code>
+      <code><![CDATA[$fileService]]></code>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$motionService]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$oriService]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundGuard.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function requireChair(?string $meetingId = null): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireChairOrSecretary(?string $meetingId = null): ?JSONResponse {]]></code>
+      <code><![CDATA[public function requireSubjectInMeeting(array $params): ?JSONResponse {]]></code>
+      <code><![CDATA[public function resolveMeetingIdFromVotingRound(string $votingRoundId): ?string {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedMethod>
+      <code><![CDATA[findData]]></code>
+      <code><![CDATA[isGloballyAuthorized]]></code>
+      <code><![CDATA[meetingIdFromMotion]]></code>
+      <code><![CDATA[meetingIdOfRound]]></code>
+      <code><![CDATA[motionIdFromAmendment]]></code>
+      <code><![CDATA[relationId]]></code>
+      <code><![CDATA[requireRoles]]></code>
+      <code><![CDATA[resolveMotionId]]></code>
+      <code><![CDATA[subjectOf]]></code>
+      <code><![CDATA[subjectRefusal]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$appConfig]]></code>
+      <code><![CDATA[$container]]></code>
+      <code><![CDATA[$groupManager]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$userSession]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundOpener.php">
+    <UnusedMethod>
+      <code><![CDATA[groupParticipants]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[quorumOrRefuse]]></code>
+      <code><![CDATA[roundOptions]]></code>
+      <code><![CDATA[withExcludedGroupMembers]]></code>
+      <code><![CDATA[withExcludedPresets]]></code>
+      <code><![CDATA[withOptions]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendmentOrder]]></code>
+      <code><![CDATA[$normaliser]]></code>
+      <code><![CDATA[$notifier]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$preflight]]></code>
+      <code><![CDATA[$rankedRules]]></code>
+      <code><![CDATA[$ruleSource]]></code>
+      <code><![CDATA[$votingGroups]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundPreflight.php">
+    <UnusedMethod>
+      <code><![CDATA[assertInEnum]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$motionService]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$templateService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundProjection.php">
+    <UnusedMethod>
+      <code><![CDATA[findObject]]></code>
+      <code><![CDATA[isPubliclyVisible]]></code>
+      <code><![CDATA[motionTitle]]></code>
+      <code><![CDATA[preselectedOption]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$objectService]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundRequest.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$isSecret]]></code>
+      <code><![CDATA[$meetingId]]></code>
+      <code><![CDATA[$motionId]]></code>
+      <code><![CDATA[$votingMethod]]></code>
+    </PossiblyUnusedProperty>
+    <UnusedProperty>
+      <code><![CDATA[$closedAt]]></code>
+      <code><![CDATA[$presetParticipantIds]]></code>
+      <code><![CDATA[$revoteOfRoundId]]></code>
+      <code><![CDATA[$rules]]></code>
+      <code><![CDATA[$votingGroupId]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundResults.php">
+    <UnusedMethod>
+      <code><![CDATA[assertWithinAttendance]]></code>
+      <code><![CDATA[ballotsInRound]]></code>
+      <code><![CDATA[countActive]]></code>
+      <code><![CDATA[countVotes]]></code>
+      <code><![CDATA[loadRound]]></code>
+      <code><![CDATA[objectService]]></code>
+      <code><![CDATA[persistOutcome]]></code>
+      <code><![CDATA[rankedCount]]></code>
+      <code><![CDATA[rankedTally]]></code>
+      <code><![CDATA[storedTotals]]></code>
+      <code><![CDATA[withOutcome]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$amendmentOrder]]></code>
+      <code><![CDATA[$calculator]]></code>
+      <code><![CDATA[$normaliser]]></code>
+      <code><![CDATA[$objectService]]></code>
+      <code><![CDATA[$participantResolver]]></code>
+      <code><![CDATA[$relationFilter]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/VotingRoundRules.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$abstentionHandling]]></code>
+      <code><![CDATA[$governanceBodyId]]></code>
+      <code><![CDATA[$options]]></code>
+      <code><![CDATA[$subjectType]]></code>
+      <code><![CDATA[$tieBreakRule]]></code>
+      <code><![CDATA[$voteThreshold]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="lib/Service/VotingService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function castVote(VoteCast $cast, ?string $callerUid = null): array {]]></code>
+      <code><![CDATA[public function closeVotingRound(string $votingRoundId, ?string $chairCasting = null): array {]]></code>
+      <code><![CDATA[public function closeVotingRoundAnonymised(string $votingRoundId, ?string $chairCasting = null): array {]]></code>
+      <code><![CDATA[public function getPublicState(string $votingRoundId): ?array {]]></code>
+      <code><![CDATA[public function resolveParticipantUuid(string $nextcloudUid): ?string {]]></code>
+      <code><![CDATA[public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array {]]></code>
+    </MissingOverrideAttribute>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[array<string,mixed>]]></code>
+    </PossiblyUnusedReturnValue>
+    <UnusedMethod>
+      <code><![CDATA[closeRound]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$closer]]></code>
+      <code><![CDATA[$opener]]></code>
+      <code><![CDATA[$participants]]></code>
+      <code><![CDATA[$projection]]></code>
+      <code><![CDATA[$results]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/WatermarkCache.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[int]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="lib/Service/WrittenRoundAnswerer.php">
+    <UnusedMethod>
+      <code><![CDATA[voteFor]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$closer]]></code>
+      <code><![CDATA[$store]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/WrittenRoundCloser.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function closeAtDeadline(array $round, DateTimeImmutable $now): bool {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedReturnValue>
+      <code><![CDATA[array<string, mixed>]]></code>
+    </UnusedReturnValue>
+  </file>
+  <file src="lib/Service/WrittenRoundOpener.php">
+    <UnusedMethod>
+      <code><![CDATA[activeVoteStage]]></code>
+      <code><![CDATA[dateTimeOf]]></code>
+      <code><![CDATA[decision]]></code>
+      <code><![CDATA[isActiveVoteStageOf]]></code>
+      <code><![CDATA[now]]></code>
+      <code><![CDATA[requestDeadline]]></code>
+      <code><![CDATA[requestRules]]></code>
+      <code><![CDATA[requestSubject]]></code>
+    </UnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$electorate]]></code>
+      <code><![CDATA[$notifier]]></code>
+      <code><![CDATA[$scopes]]></code>
+      <code><![CDATA[$store]]></code>
+      <code><![CDATA[$time]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/WrittenRoundService.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function answer(string $roundId, string $userId, string $value): array {]]></code>
+      <code><![CDATA[public function open(array $params, string $userId): array {]]></code>
+      <code><![CDATA[public function writtenRound(string $roundId): ?array {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedProperty>
+      <code><![CDATA[$answerer]]></code>
+      <code><![CDATA[$opener]]></code>
+    </UnusedProperty>
+  </file>
+  <file src="lib/Service/WrittenRoundStore.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function findAll(string $schema, array $filters): array {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/Settings/AdminSettings.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getAuthorizedAppConfig(): array {]]></code>
+      <code><![CDATA[public function getForm(): TemplateResponse {]]></code>
+      <code><![CDATA[public function getName(): ?string {]]></code>
+      <code><![CDATA[public function getPriority(): int {]]></code>
+      <code><![CDATA[public function getSection(): string {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+</files>

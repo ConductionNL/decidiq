@@ -7,6 +7,7 @@
     findUnusedBaselineEntry="true"
     findUnusedCode="true"
     findUnusedVariablesAndParams="true"
+    errorBaseline="psalm-baseline.xml"
 >
     <projectFiles>
         <directory name="lib" />
@@ -183,19 +184,6 @@
         <UnusedClass errorLevel="suppress"/>
         <PossiblyUnusedMethod errorLevel="suppress"/>
 
-        <!--
-            A RETURN VALUE NO CALLER READS. Report-worthy but not a type
-            error; these methods return a value for their tests and for
-            future callers. Scoped to the files that have one today.
-        -->
-        <PossiblyUnusedReturnValue>
-            <errorLevel type="suppress">
-                <file name="lib/AppInfo/OpenRegisterAutoloader.php"/>
-                <file name="lib/Service/NotificationPreferenceService.php"/>
-                <file name="lib/Service/RegisterObjectStore.php"/>
-                <file name="lib/Service/TranscriptionService.php"/>
-            </errorLevel>
-        </PossiblyUnusedReturnValue>
 
         <!--
             FALSE "UNUSED" REPORTS CAUSED BY A CLASS PSALM CANNOT RESOLVE.
@@ -225,11 +213,6 @@
                 <file name="lib/Mcp/DecidiqToolProvider.php"/>
             </errorLevel>
         </UnusedProperty>
-        <UnusedVariable>
-            <errorLevel type="suppress">
-                <file name="lib/AppInfo/OpenRegisterAutoloader.php"/>
-            </errorLevel>
-        </UnusedVariable>
 
         <!--
             registerEventListener() is templated on the event class. Both
@@ -243,19 +226,6 @@
             </errorLevel>
         </InvalidArgument>
 
-        <!--
-            array_values() after array_filter() is NOT redundant in these two
-            files: array_filter() keeps keys, and the result is stored as a
-            JSON list. Psalm infers the input as array<never, never> from an
-            `$x['key'] ?? []` read on array<string, mixed>, and concludes the
-            call does nothing.
-        -->
-        <RedundantFunctionCall>
-            <errorLevel type="suppress">
-                <file name="lib/Service/MotionCoauthorService.php"/>
-                <file name="lib/Service/ProxyDelegationService.php"/>
-            </errorLevel>
-        </RedundantFunctionCall>
 
         <!--
             `(int)$e->getCode()` on a caught DomainException. Exception::$code
