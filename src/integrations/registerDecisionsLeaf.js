@@ -122,12 +122,13 @@ export const decisionsLeafDescriptor = {
  * registration of this id wins; a duplicate warns in prod / throws in dev).
  *
  * @param {object} [globalRef] Global to attach to (defaults to `window`).
+ * @spec openspec/changes/leaf-integrations/tasks.md
  *
  * @return {void}
  */
 export function registerDecisionsLeaf(globalRef) {
 	registerLeaf(globalRef, {
-		descriptor: decisionsLeafDescriptor,
+		register: (integrations) => integrations.register(decisionsLeafDescriptor),
 		name: 'decisions',
 	})
 }

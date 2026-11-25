@@ -36,12 +36,12 @@ function isLiveRegistry(current) {
  * not fatal to boot and only warns.
  *
  * @param {object} registry The live registry.
- * @param {{descriptor: object, name: string}} leaf The leaf.
+ * @param {{register: function(object): void, name: string}} leaf The leaf.
  * @return {void}
  */
 function registerLive(registry, leaf) {
 	try {
-		registry.register(leaf.descriptor)
+		leaf.register(registry)
 	} catch (e) {
 		// eslint-disable-next-line no-console
 		console.warn(`[decidiq] ${leaf.name} leaf already registered`, e)
@@ -91,8 +91,12 @@ function queueingRegistry(namespace) {
  * Register a leaf on the shared integration registry.
  *
  * @param {object} [globalRef] Global to attach to (defaults to `window`).
- * @param {{descriptor: object, name: string}} leaf The leaf descriptor and
- *   the name its duplicate warning uses.
+ * @param {{register: function(object): void, name: string}} leaf How the
+ *   leaf registers itself on a registry (live or queue stub), and the name its
+ *   duplicate warning uses. The leaf module makes the
+ *   `integrations.register(descriptor)` call itself, so the server/JS parity
+ *   check (gate-24 R2) finds the registration at its own call site.
+ * @spec openspec/changes/leaf-integrations/tasks.md
  * @return {void}
  */
 export function registerLeaf(globalRef, leaf) {
@@ -105,5 +109,5 @@ export function registerLeaf(globalRef, leaf) {
 		registerLive(namespace.integrations, leaf)
 		return
 	}
-	queueingRegistry(namespace).register(leaf.descriptor)
+	leaf.register(queueingRegistry(namespace))
 }
