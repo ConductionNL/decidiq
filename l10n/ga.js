@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Tarraing siar an cinneadh",
         "Withdrawal failed.": "Theip ar an tarraingt siar.",
         "Withdrawn by the deciding body": "Tarraingthe siar ag an gcomhlacht cinnteoireachta",
-        "Withdrawn by the party who asked": "Tarraingthe siar ag an bpáirtí a d'iarr é"
+        "Withdrawn by the party who asked": "Tarraingthe siar ag an bpáirtí a d'iarr é",
+        "Transfer overdue": "Aistriú thar téarma",
+        "Retention not resolved": "Coinneáil gan réiteach"
     },
     "nplurals=2; plural=(n != 1);"
 )

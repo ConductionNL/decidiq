@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Irtira d-deċiżjoni",
         "Withdrawal failed.": "L-irtirar falla.",
         "Withdrawn by the deciding body": "Irtirata mill-korp li jiddeċiedi",
-        "Withdrawn by the party who asked": "Irtirata mill-parti li talbet"
+        "Withdrawn by the party who asked": "Irtirata mill-parti li talbet",
+        "Transfer overdue": "Trasferiment tard",
+        "Retention not resolved": "Żamma mhux determinata"
     },
     "nplurals=2; plural=(n != 1);"
 )

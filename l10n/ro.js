@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Retrage decizia",
         "Withdrawal failed.": "Retragerea a eșuat.",
         "Withdrawn by the deciding body": "Retrasă de organul decizional",
-        "Withdrawn by the party who asked": "Retrasă de partea solicitantă"
+        "Withdrawn by the party who asked": "Retrasă de partea solicitantă",
+        "Transfer overdue": "Transfer întârziat",
+        "Retention not resolved": "Păstrare nedeterminată"
     },
     "nplurals=2; plural=(n != 1);"
 )

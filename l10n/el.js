@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Ανάκληση απόφασης",
         "Withdrawal failed.": "Η ανάκληση απέτυχε.",
         "Withdrawn by the deciding body": "Ανακλήθηκε από το αποφασίζον όργανο",
-        "Withdrawn by the party who asked": "Ανακλήθηκε από τον αιτούντα"
+        "Withdrawn by the party who asked": "Ανακλήθηκε από τον αιτούντα",
+        "Transfer overdue": "Καθυστερημένη μεταφορά",
+        "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί"
     },
     "nplurals=2; plural=(n != 1);"
 )

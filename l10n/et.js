@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Võta otsus tagasi",
         "Withdrawal failed.": "Tagasivõtmine ebaõnnestus.",
         "Withdrawn by the deciding body": "Tagasi võetud otsustava organi poolt",
-        "Withdrawn by the party who asked": "Tagasi võetud taotleja poolt"
+        "Withdrawn by the party who asked": "Tagasi võetud taotleja poolt",
+        "Transfer overdue": "Üleandmine hilinenud",
+        "Retention not resolved": "Säilitamine määramata"
     },
     "nplurals=2; plural=(n != 1);"
 )

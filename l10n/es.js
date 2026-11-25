@@ -3417,7 +3417,9 @@ OC.L10N.register(
         "Withdraw decision": "Retirar decisión",
         "Withdrawal failed.": "Error al retirar.",
         "Withdrawn by the deciding body": "Retirada por el órgano decisor",
-        "Withdrawn by the party who asked": "Retirada por la parte solicitante"
+        "Withdrawn by the party who asked": "Retirada por la parte solicitante",
+        "Transfer overdue": "Transferencia vencida",
+        "Retention not resolved": "Conservación no resuelta"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Povuci odluku",
         "Withdrawal failed.": "Povlačenje nije uspjelo.",
         "Withdrawn by the deciding body": "Povuklo tijelo koje odlučuje",
-        "Withdrawn by the party who asked": "Povukla stranka koja je podnijela zahtjev"
+        "Withdrawn by the party who asked": "Povukla stranka koja je podnijela zahtjev",
+        "Transfer overdue": "Prijenos kasni",
+        "Retention not resolved": "Čuvanje nije određeno"
     },
     "nplurals=2; plural=(n != 1);"
 )

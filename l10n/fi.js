@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Peru päätös",
         "Withdrawal failed.": "Peruminen epäonnistui.",
         "Withdrawn by the deciding body": "Päättävän elimen peruma",
-        "Withdrawn by the party who asked": "Hakijaosapuolen peruma"
+        "Withdrawn by the party who asked": "Hakijaosapuolen peruma",
+        "Transfer overdue": "Siirto myöhässä",
+        "Retention not resolved": "Säilytystä ei ole määritetty"
     },
     "nplurals=2; plural=(n != 1);"
 )

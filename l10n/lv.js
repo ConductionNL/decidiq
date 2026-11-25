@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Atsaukt lēmumu",
         "Withdrawal failed.": "Atsaukšana neizdevās.",
         "Withdrawn by the deciding body": "Atsaucis lēmējorgāns",
-        "Withdrawn by the party who asked": "Atsaukusi pieprasītāja puse"
+        "Withdrawn by the party who asked": "Atsaukusi pieprasītāja puse",
+        "Transfer overdue": "Nodošana nokavēta",
+        "Retention not resolved": "Glabāšana nav noteikta"
     },
     "nplurals=2; plural=(n != 1);"
 )

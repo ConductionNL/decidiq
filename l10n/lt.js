@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Atšaukti sprendimą",
         "Withdrawal failed.": "Atšaukti nepavyko.",
         "Withdrawn by the deciding body": "Atšaukė sprendimą priimantis organas",
-        "Withdrawn by the party who asked": "Atšaukė prašymą pateikusi šalis"
+        "Withdrawn by the party who asked": "Atšaukė prašymą pateikusi šalis",
+        "Transfer overdue": "Perdavimas vėluoja",
+        "Retention not resolved": "Saugojimas nenustatytas"
     },
     "nplurals=2; plural=(n != 1);"
 )

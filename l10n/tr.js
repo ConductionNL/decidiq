@@ -3413,7 +3413,9 @@ OC.L10N.register(
         "Withdraw decision": "Kararı geri çek",
         "Withdrawal failed.": "Geri çekme başarısız oldu.",
         "Withdrawn by the deciding body": "Karar veren organ tarafından geri çekildi",
-        "Withdrawn by the party who asked": "Talep eden taraf tarafından geri çekildi"
+        "Withdrawn by the party who asked": "Talep eden taraf tarafından geri çekildi",
+        "Transfer overdue": "Aktarım gecikmiş",
+        "Retention not resolved": "Saklama belirlenmedi"
     },
     "nplurals=2; plural=(n != 1);"
 )
