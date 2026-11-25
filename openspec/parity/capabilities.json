@@ -5360,7 +5360,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
-				"plan": "openspec/changes/action-item-vtodo-migration",
+				"plan": "openspec/changes/archive/2026-11-25-action-item-vtodo-migration",
 				"state": "built",
 				"evidence": "DecisionDetail widget decision-actions -> src/components/tabs/ActionItemsSurface.vue (DecisionActionItemsTab or ActionItemDeckBoard); DecisionActionItemsTab.vue:142-143 assignee/dueDate columns, :256 createActionItem({...formData, decision}) -> src/services/actionItemApi.js POST /api/action-items (routes.php:78) -> lib/Service/ActionItemWriter.php:98 create() writes a CalDAV VTODO via OpenRegister TaskService.",
 				"owner": "ConductionNL/decidiq",
