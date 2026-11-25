@@ -436,7 +436,7 @@ $extra = [
         ['name' => 'ori#show',          'url' => '/api/ori/v1/{resource}/{id}', 'verb' => 'GET', 'requirements' => ['resource' => '[a-z\-]+']],
 
         // Public ORI RSS feeds (ori-adoption REQ-ORIA-004).
-        // @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+        // @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
         ['name' => 'oriFeed#meetings',    'url' => '/feed/ori/meetings.rss',     'verb' => 'GET'],
         ['name' => 'oriFeed#agendaItems', 'url' => '/feed/ori/agenda-items.rss', 'verb' => 'GET'],
         ['name' => 'oriFeed#documents',   'url' => '/feed/ori/documents.rss',    'verb' => 'GET'],

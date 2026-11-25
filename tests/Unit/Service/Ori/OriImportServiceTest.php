@@ -6,7 +6,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -177,7 +177,7 @@ final class OriImportServiceTest extends TestCase {
 	 * A historic record keeps its own state: OpenRegister refuses a create in a state other than the initial one
 	 * ("A new object starts in draft") unless the write runs in its keep-lifecycle-states scope.
 	 *
-	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 *
 	 * @return void
 	 */

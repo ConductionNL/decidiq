@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) One mapping step per ORI record type.
  * @SuppressWarnings(PHPMD.TooManyMethods)
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class OriImportService implements OriImportServiceInterface {
 
@@ -157,8 +157,8 @@ class OriImportService implements OriImportServiceInterface {
 	 * @param OriExportMapper                $mapper        Reads ORI records.
 	 * @param LifecycleStatesKeeperInterface $states        Lets a historic record keep its own lifecycle state on create.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
-	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -176,7 +176,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function import(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport {
 		$this->begin(dryRun: false);
@@ -192,7 +192,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function preview(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport {
 		$this->begin(dryRun: true);
@@ -235,7 +235,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function rollback(): OriImportReport {
 		$this->begin(dryRun: false);
@@ -248,7 +248,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return OriImportReport
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function previewRollback(): OriImportReport {
 		$this->begin(dryRun: true);
@@ -641,7 +641,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function importAgendaItems(array $records, array $votes): void {
 		$schema = OriExportMapper::SOURCE_SCHEMAS['agendaItems'];
@@ -775,7 +775,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function importVotes(array $records): void {
 		$schema = OriExportMapper::SOURCE_SCHEMAS['votes'];
@@ -886,7 +886,7 @@ class OriImportService implements OriImportServiceInterface {
 	 *
 	 * @return string The object's uuid; in a dry run a placeholder when it does not exist yet.
 	 *
-	 * @spec openspec/changes/ori-adoption/tasks.md#2-ori-importer-data-migration-target
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/tasks.md#2-ori-importer-data-migration-target
 	 */
 	private function upsert(string $schema, string $tag, array $data, string $label): string {
 		$existing = ($this->tagged[$schema][$tag] ?? null);

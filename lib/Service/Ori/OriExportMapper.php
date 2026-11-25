@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ namespace OCA\Decidiq\Service\Ori;
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) One read and one render per ORI record type.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class OriExportMapper {
 
@@ -148,7 +148,7 @@ class OriExportMapper {
 	 *
 	 * @return array{name: string, seatCount: int|null, coalitionRole: string|null, coalitionRoleSource: mixed}
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readBody(array $record): array {
 		return [
@@ -166,7 +166,7 @@ class OriExportMapper {
 	 *
 	 * @return array{name: string, role: string|null, body: string|null, roleSource: mixed, party: string|null, active: bool}
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readPerson(array $record): array {
 		$role = self::ROLES[(string)($record['role'] ?? '')] ?? [null, null];
@@ -189,7 +189,7 @@ class OriExportMapper {
 	 * @return array<string, mixed> title, meetingType, lifecycle, scheduledDate, endDate, location,
 	 *                              organisation, committee, and the untranslated typeSource/statusSource.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readMeeting(array $record): array {
 		return [
@@ -213,7 +213,7 @@ class OriExportMapper {
 	 *
 	 * @return array<string, mixed> name, documentType, typeSource, classification, url, fileName, contentSize, encodingFormat.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readDocument(array $record): array {
 		$size = self::integer(value: ($record['fileSize'] ?? null));
@@ -238,7 +238,7 @@ class OriExportMapper {
 	 * @return array{title: string, description: string|null, orderNumber: int, meeting: string|null,
 	 *               parentItem: string|null, documents: array<int, string>}
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readAgendaItem(array $record): array {
 		$documents = [];
@@ -267,7 +267,7 @@ class OriExportMapper {
 	 * @return array<string, mixed> subject, decisionType, outcome, agendaItem, votesFor, votesAgainst,
 	 *                              votesAbstain, partyResults, and the untranslated sources.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function readVote(array $record): array {
 		$parties = [];
@@ -302,7 +302,7 @@ class OriExportMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function meeting(array $meeting): array {
 		return self::withoutNulls(
@@ -325,7 +325,7 @@ class OriExportMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function agendaItem(array $item): array {
 		return self::withoutNulls(
@@ -348,7 +348,7 @@ class OriExportMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function document(array $document): array {
 		$size = self::integer(value: ($document['contentSize'] ?? null));
@@ -375,7 +375,7 @@ class OriExportMapper {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function vote(array $round, array $decision=[]): array {
 		$parties = null;

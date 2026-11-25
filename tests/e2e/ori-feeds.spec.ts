@@ -14,7 +14,7 @@
  * The target comes from base-url.ts (BASE_URL / PLAYWRIGHT_BASE_URL /
  * NEXTCLOUD_URL); there is no fallback to a shared container.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md#requirement-req-oria-004-ori-wire-format-interop-shall-live-in-an-adapter-only
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md#requirement-req-oria-004-ori-wire-format-interop-shall-live-in-an-adapter-only
  */
 import type { APIRequestContext } from '@playwright/test'
 

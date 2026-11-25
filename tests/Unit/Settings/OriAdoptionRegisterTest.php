@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -95,7 +95,7 @@ final class OriAdoptionRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md#scenario-new-enum-values-are-accepted
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md#scenario-new-enum-values-are-accepted
 	 */
 	public function testNewEnumValuesAreAcceptedBesideTheOldOnes(): void {
 		$this->assertSame('', $this->errors(data: ['meetingType' => 'informational-session', 'lifecycle' => 'cancelled'], schema: 'Meeting'));
@@ -115,7 +115,7 @@ final class OriAdoptionRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function testTheNewPropertiesAreDeclared(): void {
 		$this->assertSame('digital-document', self::$schemas['AgendaItem']['properties']['documents']['items']['$ref']);
@@ -140,7 +140,7 @@ final class OriAdoptionRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function testEverySchemaTheImportWritesCarriesTheImportTag(): void {
 		foreach (['GovernanceBody', 'Person', 'Membership', 'Meeting', 'DigitalDocument', 'AgendaItem', 'Decision', 'VotingRound'] as $schema) {
@@ -154,7 +154,7 @@ final class OriAdoptionRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md#scenario-existing-objects-remain-valid
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md#scenario-existing-objects-remain-valid
 	 */
 	public function testNoPropertyWasRemoved(): void {
 		$base = json_decode((string)file_get_contents(self::SETTINGS . 'decidesk_register.json'), true)['components']['schemas'];
