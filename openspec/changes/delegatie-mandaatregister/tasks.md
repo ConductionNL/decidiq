@@ -42,8 +42,9 @@
   - GIVEN the "geldig op" date filter set to a boundary date (day of geldigVanaf, day of geldigTot) WHEN applied THEN exactly the in-force set is returned as a pure query (no per-row N+1)
   - GIVEN a filtered list WHEN exported via `CnMassExportDialog` THEN the CSV contains type, delegans, delegataris, onderwerp, financieelPlafond, grondslag, besluit, geldigheid, status; manifest refs use the slug `bevoegdheidstoedeling`, never PascalCase; detail page shows the ondermandaat chain with depth, keyboard-navigable (WCAG 2.1 AA)
 - [x] Implement
-- [ ] Test
+- [x] Test
 - Index: quick filter "In force today" is the in-force query as one OR list request (`status=effective`, `validFrom[lte]=@today`, `validTo[gte]=@today`, `validTo[orNull]=true`); per-delegans, per-delegataris (body, role, person), type, status and validity-date filters are the sidebar facets of the facetable schema properties (`delegatePerson` made facetable); full-text search is OpenRegister's `_search`; CSV export is the index's mass export. Asserted in `AuthorityDelegationRegisterTest`. Left for the live/browser pass: boundary-date runs on a real instance and the exported CSV's columns.
+- Run live (25 Nov 2026, sandbox Nextcloud 34.0.6 + PostgreSQL 16 on :8080, OpenRegister main, decidiq development): `tests/e2e/delegatie-mandaatregister.spec.ts` 9/9. The in-force query returns exactly the in-force set at the boundaries as one list call; the delegate filter lists only its delegations; the index's mass export (Actions, Export, CSV) downloads a CSV whose header carries type, delegatingBody, delegateBody, delegateRole, subject, financialCeiling, statutoryBasis, decision, validFrom, validTo and status (the spec now checks those columns; it looked for an Export button outside the Actions menu). The chain's sub-mandate is a keyboard-reachable button.
 
 ### Task 5: Public register via the published predicate — live intrekking
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-005-public-register-via-the-or-published-predicate-on-the-live-object`
@@ -53,8 +54,9 @@
   - GIVEN a published `van-kracht` toedeling WHEN staff revoke it THEN the next anonymous read shows `ingetrokken` without any republish step
   - GIVEN the schema WHEN reviewed THEN it carries no internal-only or writeOnly fields and its `description` records the publishable-by-construction constraint (D4)
 - [x] Implement
-- [ ] Test
+- [x] Test
 - The public read predicate now also honours withdrawal: public read holds while `publicationDate <= $now` and `depublicationDate` is empty or still ahead (two public rules), on `authority-delegation` and on the old slug alike, and the schema description records the publishable-by-construction constraint. The detail page's Publish / Withdraw header actions PATCH only `publicationDate` / `depublicationDate` on the live object, confirm-gated. Asserted in `AuthorityDelegationRegisterTest`. Left for the API pass: the anonymous read and its negative case on a live instance.
+- Run live (25 Nov 2026, sandbox Nextcloud 34.0.6 + PostgreSQL 16 on :8080, OpenRegister main, decidiq development): a published delegation reads anonymously and an unpublished one does not; an anonymous write is refused; a withdrawal shows on the next anonymous read; depublishing takes it off the public register.
 
 ### Task 6: Assistive bevoegdheidsgrondslag on Decision — display only, never enforcement
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-006-assistive-bevoegdheidsgrondslag-link-on-decision-never-enforcement`
@@ -64,14 +66,15 @@
   - GIVEN a Decision without bevoegdheidsgrondslag, and one referencing an `ingetrokken` toedeling WHEN created/transitioned/enacted THEN no block, error, or warning is raised (negative test — assistive only)
   - GIVEN the base-register edit WHEN diffed THEN only the one property is added; no existing Decision schema content is modified or removed
 - [x] Implement
-- [ ] Test
+- [x] Test
 - Fragment `134-decision-authority-basis.json` adds the one nullable `authorityBasis` reference to `decision` (English name, as the rest of the renamed schema; spec name `bevoegdheidsgrondslag`); nothing in a decision flow reads it. Decision detail shows it in Content and as a "Taken under" list linking to the toedeling (shown only when set); the toedeling detail lists the decisions taken under it. Asserted in `AuthorityDelegationRegisterTest`. Left for the browser pass: the rendered link and the no-block negative run.
+- Run live (25 Nov 2026, sandbox Nextcloud 34.0.6 + PostgreSQL 16 on :8080, OpenRegister main, decidiq development): found that the decision's "Taken under" list ignored its filter and showed another delegation ("1–1 of 9"): it filtered on `id`, which OpenRegister's list route takes as a route parameter and drops. It now filters on `uuid` (`src/manifest.json`, guarded by `tests/vitest/manifestFiltersOnUuid.spec.js`). With that, the decision links to the delegation it names, the delegation lists the decision, and decisions naming a withdrawn delegation or none save without any check.
 
 ## Verification
 
-- [ ] All tasks checked off
+- [x] All tasks checked off
 - [ ] `openspec validate` passes
-- [ ] Manual testing against acceptance criteria on Postgres (8080) instance
+- [x] Manual testing against acceptance criteria on Postgres (8080) instance (25 Nov 2026: the e2e run above on a sandbox PostgreSQL 16 instance on :8080; REQ-DMR-007's expiry notifications are not part of that run)
 - [ ] Code review against spec requirements (REQ-DMR-001…007)
 
 ## Quality checklist

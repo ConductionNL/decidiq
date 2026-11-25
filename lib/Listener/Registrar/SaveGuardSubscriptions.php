@@ -125,9 +125,11 @@ final class SaveGuardSubscriptions {
 		['event' => ObjectCreatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DeclaredGiftThresholdListener::class, 'schemas' => [DeclaredGiftThresholdListener::SCHEMA]],
 		// Confidential agenda items (agenda-item-confidential-papers,
-		// REQ-ACP-003): a paper saved onto a non-public item is not public.
-		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
-		['event' => ObjectUpdatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
+		// REQ-ACP-003): a paper saved onto a non-public item is not public; an
+		// item carries its meeting's body and a paper its item's body and
+		// readers, for the read rules of REQ-ACP-002.
+		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document', 'agenda-item']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document', 'agenda-item']],
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.

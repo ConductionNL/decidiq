@@ -1,0 +1,287 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-item-confidential-papers task 1 (REQ-ACP-002). Read rules that keep a non-public agenda item and its papers to the secretariat, the administrators, the members of the meeting's body (a participant row of that body names their account) and the accounts in authorisedReaders. A public item or paper (public not false, so rows written before the field existed too) stays readable as the register baseline allows (signed-in users and the public principal). Create, update and delete repeat the register baseline unchanged: declaring a schema block replaces the baseline for every action. The body and the readers are copied onto the item and its papers on save (AgendaItemConfidentialityListener), so OpenRegister evaluates the rule on the row itself, in the list SQL and the single read alike. Named after its subject and sorted last so its schema versions win the merge. On a paper the member rules also require that it is not under embargo (embargo-geheimhouding task 6, REQ-EMB-005): while embargoActive is true only staff and the members of its embargoAudience group read it, and those still only within the item's audience; the release job's flip of embargoActive opens it to the rest.",
+  "components": {
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.7.0",
+        "properties": {
+          "governanceBody": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "description": "The governance body of the item's meeting, copied from the meeting on every save. The read rule of a non-public item admits the body's members through it."
+          }
+        },
+        "authorization": {
+          "read": [
+            "decidiq-administrators",
+            "decidesk-administrators",
+            "decidiq-secretariat",
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation"
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "authorisedReaders": {
+                  "$contains": "$userId"
+                }
+              }
+            }
+          ],
+          "list": [
+            "decidiq-administrators",
+            "decidesk-administrators",
+            "decidiq-secretariat",
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation"
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "authorisedReaders": {
+                  "$contains": "$userId"
+                }
+              }
+            }
+          ],
+          "create": [
+            "authenticated"
+          ],
+          "update": [
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "delete": [
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        }
+      },
+      "DigitalDocument": {
+        "slug": "digital-document",
+        "version": "0.6.0",
+        "properties": {
+          "governanceBody": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "description": "The governance body of the paper's agenda item, copied from the item on save. The read rule of a non-public paper admits the body's members through it."
+          },
+          "authorisedReaders": {
+            "title": "Authorised readers",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "The Nextcloud user ids that may read the paper while it is not public: the authorised readers of its agenda item, copied from the item on save."
+          }
+        },
+        "authorization": {
+          "read": [
+            "decidiq-administrators",
+            "decidesk-administrators",
+            "decidiq-secretariat",
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "authorisedReaders": {
+                  "$contains": "$userId"
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            }
+          ],
+          "list": [
+            "decidiq-administrators",
+            "decidesk-administrators",
+            "decidiq-secretariat",
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "authorisedReaders": {
+                  "$contains": "$userId"
+                },
+                "embargoActive": {
+                  "$ne": true
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "public": {
+                  "$ne": false
+                },
+                "_organisation": "$organisation",
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            },
+            {
+              "group": "authenticated",
+              "match": {
+                "governanceBody": {
+                  "$memberOf": {
+                    "schema": "participant",
+                    "register": "decidiq",
+                    "property": "governanceBody",
+                    "match": "nextcloudUserId"
+                  }
+                },
+                "embargoAudience": {
+                  "$in": "$user.groups"
+                }
+              }
+            }
+          ],
+          "create": [
+            "authenticated"
+          ],
+          "update": [
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "delete": [
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        }
+      }
+    }
+  }
+}

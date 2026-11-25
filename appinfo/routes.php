@@ -56,7 +56,7 @@ $extra = [
         // The room's conference and voting system through integriq (live-room-conference-system-link, REQ-RCSL-001, REQ-RCSL-006).
         ['name' => 'roomSystem#meeting',        'url' => '/api/meetings/{id}/room-system',              'verb' => 'GET'],
         ['name' => 'roomSystem#apply',          'url' => '/api/room-system-messages/{id}/apply',        'verb' => 'POST'],
-        // @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
+        // @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-006-the-rooms-cameras-and-microphones-follow-the-speaker
         ['name' => 'roomSystem#floor',          'url' => '/api/meetings/{id}/room-system/floor',        'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],

@@ -106,7 +106,7 @@ class SeedProfileServiceEdgesTest extends TestCase {
 		$importer = new SeedProfileRecordingImporter();
 		$this->appManager->expects($this->once())->method('getInstalledApps')->willReturn(['files', 'openregister']);
 		$this->appManager->expects($this->once())->method('getAppVersion')->with('decidiq')->willReturn('1.4.2');
-		$this->container->expects($this->once())->method('get')->with(self::IMPORTER)->willReturn($importer);
+		$this->container->method('get')->willReturnMap([[self::IMPORTER, $importer]]);
 		$this->logger->expects($this->once())->method('info')->with(
 			'[SeedProfileService] imported example set "tiny": 4 object(s).',
 			['app' => 'decidiq']

@@ -51,6 +51,9 @@
 			"id": "PlanningCycleDetail",
 			"route": "/planning-cycles/:id",
 			"type": "detail",
+			"slots": {
+				"widget-cyclus-steps": "PlanningCycleStepsTab"
+			},
 			"title": "P&C cycle",
 			"_note": "spec: openspec/changes/pc-cyclus/specs/pc-cyclus/spec.md — REQ-PCC-009 cyclus detail with a year-view timeline. Cyclus data leads; the step list renders as a plain related/grid fallback (graceful degradation, design D7). Progress from the declarative counters. Schema ref by slug (pc-cyclus).",
 			"config": {

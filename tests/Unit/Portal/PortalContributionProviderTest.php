@@ -320,7 +320,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
 	 */
 	public function testAncillaryPositionsAreAnonymousWithTheSixPublicFields(): void {
 		$byId = $this->collectionsById();

@@ -9,9 +9,8 @@
  *
  * Runs as the suite's signed-in administrator (the secretariat), on rows it
  * creates and removes again. The read rules of REQ-ACP-002 (a member of the
- * body reads, a member of another body does not) and the view log of
- * REQ-ACP-006 are not built yet (tasks 1 and 5 of the change), so this file
- * has no scenario for them.
+ * body reads, a member of another body does not) run on real accounts in
+ * confidential-agenda-item-readers.spec.ts.
  *
  * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
  */
@@ -63,6 +62,8 @@ async function meetingWithItems(page: Page): Promise<{ meetingId: string; items:
 	const meeting = await createObject(page, ledger, 'meeting', {
 		title: `${tag}-raad`,
 		meetingType: 'regular',
+		meetingMode: 'in-person',
+		lifecycle: 'scheduled',
 		scheduledDate: new Date().toISOString(),
 	})
 	const meetingId = idOf(meeting)
