@@ -38,6 +38,8 @@ final class ClosedItemAudience {
 	 * @param array<string,mixed> $paper The paper.
 	 *
 	 * @return array<string,mixed>
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
 	 */
 	public function closing(array $paper): array {
 		if (($paper['public'] ?? true) === false) {
