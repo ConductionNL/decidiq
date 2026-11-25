@@ -353,10 +353,11 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 			->with('meeting-3', new ObjectFindOptions(register: 'decidiq', schema: 'meeting'), false, false)
 			->willReturn($this->entity(uuid: 'meeting-3', schemaId: '93', payload: ['governanceBody' => 'body-raad']));
 
-		$event = new ObjectCreatingEvent($this->entity(uuid: 'item-7', schemaId: '41', payload: ['title' => 'Verlichting', 'meeting' => 'meeting-3', 'public' => false]));
+		$item  = ['title' => 'Verlichting', 'meeting' => 'meeting-3', 'public' => false];
+		$event = new ObjectCreatingEvent($this->entity(uuid: 'item-7', schemaId: '41', payload: $item));
 		$this->listener->handle($event);
 
-		self::assertSame(['governanceBody' => 'body-raad'], $event->getModifiedData());
+		self::assertSame(expected: ['governanceBody' => 'body-raad'], actual: $event->getModifiedData());
 	}//end testAnItemCarriesItsMeetingsBody()
 
 	/**
@@ -378,8 +379,8 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 		$loose = new ObjectCreatingEvent($this->entity(uuid: 'item-8', schemaId: '41', payload: ['title' => 'Los punt']));
 		$this->listener->handle($loose);
 
-		self::assertSame([], $same->getModifiedData());
-		self::assertSame([], $loose->getModifiedData());
+		self::assertSame(expected: [], actual: $same->getModifiedData());
+		self::assertSame(expected: [], actual: $loose->getModifiedData());
 	}//end testAnItemWithItsBodyOrWithoutMeetingIsLeftAlone()
 
 	/**
@@ -391,12 +392,21 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 */
 	public function testAPaperCarriesItsItemsBodyAndReaders(): void {
 		$this->objectService->method('find')
-			->willReturn($this->entity(uuid: 'item-7', schemaId: '41', payload: ['public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']]));
+			->willReturn(
+				$this->entity(
+					uuid: 'item-7',
+					schemaId: '41',
+					payload: ['public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']]
+				)
+			);
 
 		$event = new ObjectCreatingEvent($this->entity(uuid: 'paper-9', schemaId: '52', payload: ['title' => 'Kostenraming', 'agendaItem' => 'item-7']));
 		$this->listener->handle($event);
 
-		self::assertSame(['governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant'], 'public' => false], $event->getModifiedData());
+		self::assertSame(
+			expected: ['governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant'], 'public' => false],
+			actual: $event->getModifiedData()
+		);
 	}//end testAPaperCarriesItsItemsBodyAndReaders()
 
 	/**
@@ -407,9 +417,10 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffier-adds-a-reader
 	 */
 	public function testAReaderAddedToAClosedItemReachesItsPapers(): void {
+		$closed = ['agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad'];
 		$this->objectService->method('findAll')->willReturn([
-			$this->entity(uuid: 'paper-1', schemaId: '52', payload: ['agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => []]),
-			$this->entity(uuid: 'paper-2', schemaId: '52', payload: ['agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']]),
+			$this->entity(uuid: 'paper-1', schemaId: '52', payload: $closed + ['authorisedReaders' => []]),
+			$this->entity(uuid: 'paper-2', schemaId: '52', payload: $closed + ['authorisedReaders' => ['accountant']]),
 		]);
 
 		$item = ['public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']];
@@ -421,8 +432,8 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 		);
 
 		self::assertSame(
-			[['digital-document', 'paper-1', ['id' => 'paper-1', 'agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad', 'authorisedReaders' => ['accountant']]]],
-			$this->saved
+			expected: [['digital-document', 'paper-1', ['id' => 'paper-1'] + $closed + ['authorisedReaders' => ['accountant']]]],
+			actual: $this->saved
 		);
 	}//end testAReaderAddedToAClosedItemReachesItsPapers()
 }//end class

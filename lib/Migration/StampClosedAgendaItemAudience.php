@@ -58,6 +58,7 @@ class StampClosedAgendaItemAudience implements IRepairStep {
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
+	#[\Override]
 	public function getName(): string {
 		return 'Give Decidiq non-public agenda items and their papers their governance body';
 	}//end getName()
@@ -71,6 +72,7 @@ class StampClosedAgendaItemAudience implements IRepairStep {
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
+	#[\Override]
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
 			$output->info('OpenRegister unavailable — no agenda items to stamp.');

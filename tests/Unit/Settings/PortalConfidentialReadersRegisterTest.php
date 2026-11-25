@@ -76,7 +76,7 @@ class PortalConfidentialReadersRegisterTest extends TestCase {
 		$schemas = json_decode((string)file_get_contents(self::FRAGMENT), true)['components']['schemas'];
 
 		self::assertSame(['agenda-item', 'person'], array_values(array_map(static fn (array $schema): string => (string)($schema['slug'] ?? ''), $schemas)));
-		self::assertSame('1.7.0', MergedRegisterSchema::forSlug(slug: 'agenda-item')['version']);
+		self::assertSame(expected: '1.7.0', actual: MergedRegisterSchema::forSlug(slug: 'agenda-item')['version']);
 		self::assertSame('0.4.0', MergedRegisterSchema::forSlug(slug: 'person')['version']);
 
 	}//end testEveryFragmentSchemaHasASlugAndItsVersionWins()

@@ -54,7 +54,7 @@ class ClosedAgendaItemRestampTest extends TestCase {
 	 * @return void
 	 */
 	public function testOnlyClosedItemsWithoutABodyAreSavedAgain(): void {
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->expects(self::once())->method('findAll')
 			->with(
 				config: ['filters' => ['register' => 'decidiq', 'schema' => 'agenda-item', 'public' => false], 'limit' => 5000],
@@ -69,7 +69,7 @@ class ClosedAgendaItemRestampTest extends TestCase {
 			]);
 		$saved = [];
 		$objects->method('saveObject')->willReturnCallback(
-			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true) use (&$saved): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options, bool $_rbac=true, bool $_multitenancy=true) use (&$saved): ObjectEntity {
 				$saved[] = [(string)$options->uuid, (string)$options->target->schema, $object, $_rbac, $_multitenancy];
 				return new ObjectEntity();
 			}
