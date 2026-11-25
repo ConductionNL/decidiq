@@ -14,7 +14,7 @@
  * The request, the URL builder, the navigation and the messages are passed
  * in, so the module runs under vitest with only the translator mocked.
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 
 import { translate as t } from '@nextcloud/l10n'
@@ -30,7 +30,7 @@ export const REPORT_PATH = '/apps/decidiq/api/planned-agenda/report'
  *
  * @param {object} query The route query.
  * @return {{filter: object, search: string}} The body.
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 export function reportRequest(query = {}) {
 	return filterFromQuery(query, {})
@@ -43,7 +43,7 @@ export function reportRequest(query = {}) {
  *
  * @param {object} error The request's error.
  * @return {string} What to tell the user.
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 export function refusalMessage(error) {
 	const message = error?.response?.data?.message
@@ -66,7 +66,7 @@ export function refusalMessage(error) {
  * @param {function(): object} deps.query The current route query.
  * @param {function(string, string): void} deps.notify Shows a message: kind `success`, `warning` or `error`.
  * @return {{downloadPlannedAgendaReport: function(): Promise<void>}} The handler, keyed by its manifest name.
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 export function createPlannedAgendaReportHandlers({ post, generateUrl, open, query, notify }) {
 	return {
@@ -74,7 +74,7 @@ export function createPlannedAgendaReportHandlers({ post, generateUrl, open, que
 		 * Make the report for the list as filtered and open it.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+		 * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
 		 */
 		async downloadPlannedAgendaReport() {
 			let data

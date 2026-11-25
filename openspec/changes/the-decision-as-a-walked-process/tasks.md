@@ -159,11 +159,14 @@ them reachable is in reachability-scope.md beside this file.
       approval step, are refused too. Proven by
       ApprovalRouteServiceTest::testAVerdictWithoutAGroundIsRefusedAndWritesNothing,
       testASignOffOnAnIntakeStepIsRefused and testAVerdictOnAnApprovalStepIsRefused. -->
-- [ ] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
-      <!-- HALF: the PHPUnit is there, on the service and on both engine paths.
-      The verdict now lands on the decision (`ontvankelijkheid*`) and on the
-      action trail, but no controller, route or projection exposes it to
-      dossiq yet: that consumer contract is the dossiq lane's (11.1). -->
+- [x] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
+      <!-- DONE (2026-11-24): the PHPUnit is there, on the service and on both
+      engine paths. The read seam is the clearance answer dossiq already asks
+      (`GET /api/approval-routes/clearance`): it now carries `admissibility`,
+      the newest verdict on the subject's action trail (`ontvankelijkheid`,
+      `ground`, `decidedBy`, `decidedAt`), or null when no intake step answered.
+      AdmissibilityTrail; ApprovalRouteClearanceContractTest. Reading it on the
+      case is the dossiq lane's half (11.1). -->
 
 ## 5. Withdrawal
 
@@ -285,19 +288,28 @@ them reachable is in reachability-scope.md beside this file.
       ApprovalRouteStepMapper::declaredStepFields() copies it onto the stage.
       Proven by CommitteeStepBodyRegisterTest and
       ApprovalRouteServiceTest::testACommitteeStageCarriesItsBody. -->
-- [ ] 10.2 Place the subject on the body's agenda and read the decision back with meeting and date.
-      <!-- OPEN: needs the governance-body agenda seam (which meeting the item
-      goes on is not decided anywhere yet). -->
+- [x] 10.2 Place the subject on the body's agenda and read the decision back with meeting and date.
+      <!-- DONE (2026-11-24): decided in the PR (#2438): an active committee
+      stage goes, last, on its body's next regular meeting that is still open
+      and in the future; without one it waits (`placementPending`) and the
+      body's next created regular meeting takes it. The body's decision on that
+      agenda item (`agendaItem`, outcome adopted or rejected) closes the stage
+      with the outcome, the decision's date and `decidedInMeeting` (fragment
+      143); adopted walks the route on, rejected ends it at the step.
+      CommitteeAgendaPlacement + CommitteeStepAgendaListener. Stored-stage
+      engine only, like 10.3. -->
 - [x] 10.3 Refuse a single-actor grant on a committee step.
       <!-- DONE (2026-11-23): ApprovalRouteService::record() hands every
       completing act to CommitteeStepGuard before any write; on a committee
       stage it is refused with the body's name (its id when the body cannot be
       read). A return is still allowed. Stored-stage engine only: a route
       compiled to a flow does not read stepKind. -->
-- [ ] 10.4 PHPUnit on the return path and on the refusal.
-      <!-- HALF: the refusal is proven by CommitteeStepGuardTest and
-      ApprovalRouteServiceTest::testOneActorCannotCloseACommitteeStep. The
-      return path waits on 10.2. -->
+- [x] 10.4 PHPUnit on the return path and on the refusal.
+      <!-- DONE (2026-11-24): the refusal is proven by CommitteeStepGuardTest and
+      ApprovalRouteServiceTest::testOneActorCannotCloseACommitteeStep; the
+      return path by CommitteeAgendaPlacementTest (placement on the next
+      meeting, waiting for one, adopted and rejected returns) and
+      CommitteeStepAgendaListenerTest. -->
 
 ## 11. Handover
 

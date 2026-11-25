@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -43,7 +43,7 @@ use Throwable;
 /**
  * Generates the formal advice or consent document of a works-council consultation.
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
  */
 class ConsultationResponseDocumentService {
 
@@ -115,7 +115,7 @@ class ConsultationResponseDocumentService {
 	 *
 	 * @throws ConsultationResponseRefusedException When there is no such traject the caller may read.
 	 *
-	 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+	 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
 	 */
 	public function traject(string $id): array {
 		try {
@@ -141,7 +141,7 @@ class ConsultationResponseDocumentService {
 	 *
 	 * @throws ConsultationResponseRefusedException When the format is unknown, the response is not adopted or the file cannot be stored.
 	 *
-	 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+	 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
 	 */
 	public function generate(string $id, string $format): array {
 		if (in_array($format, self::FORMATS, true) === false) {
@@ -190,7 +190,7 @@ class ConsultationResponseDocumentService {
 	 *
 	 * @return string Markdown.
 	 *
-	 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+	 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
 	 */
 	public function markdown(array $traject): string {
 		$heading = $this->l10n->t('Consent of the works council');

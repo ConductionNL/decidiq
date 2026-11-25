@@ -7,7 +7,7 @@
  user confirms which one realised the item. The flow only links: it never
  creates or changes a meeting, agenda item or decision.
 
- @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+ @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
 -->
 <template>
 	<NcDialog

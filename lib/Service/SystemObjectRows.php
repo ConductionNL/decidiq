@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-lapses-when-the-body-does-not-ratify-it-at-the-next-meeting
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -30,7 +30,7 @@ use Throwable;
  * The objects of the decidiq register that match a filter, as arrays; none when
  * they cannot be read, with a warning naming the filter.
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-lapses-when-the-body-does-not-ratify-it-at-the-next-meeting
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */
 final class SystemObjectRows {
 
@@ -51,7 +51,7 @@ final class SystemObjectRows {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-lapses-when-the-body-does-not-ratify-it-at-the-next-meeting
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
 	 */
 	public static function read(ObjectServiceInterface $objectService, LoggerInterface $logger, array $filters, string $warning): array {
 		try {

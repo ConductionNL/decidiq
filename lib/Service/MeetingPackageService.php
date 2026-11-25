@@ -129,7 +129,7 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 	 *
 	 * @return \Closure(array<string, mixed>, object, string): string
 	 *
-	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
 	 */
 	private function stampFor(array $meeting, string $userId): \Closure {
 		$user   = $this->userManager->get($userId);

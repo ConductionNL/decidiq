@@ -53,7 +53,7 @@
  *
  * Written, not yet run: it needs a live instance with the example set.
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md
  */
 import type { Page } from '@playwright/test'
 

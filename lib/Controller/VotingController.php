@@ -6,7 +6,9 @@
  * Thin REST controller for voting round management, vote casting, and proxy
  * delegation. Every endpoint is guard -> read input -> delegate; the
  * exception-to-status mapping lives in VotingErrorResponder and the
- * open-a-round request shape lives in VotingOpenRequestHandler.
+ * open-a-round request shape lives in VotingOpenRequestHandler. The read-only
+ * views the panel polls (live tally, held proxies) are in
+ * VotingRoundLiveController.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -142,7 +144,7 @@ class VotingController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 *
@@ -199,7 +201,7 @@ class VotingController extends Controller {
 	 *
 	 * @return JSONResponse 201 with the round; 401, 403 or 400 with the reason.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	private function openWritten(array $params): JSONResponse {
 		$userId = $this->userSession->getUser()?->getUID() ?? '';
@@ -221,7 +223,7 @@ class VotingController extends Controller {
 	 *
 	 * @return JSONResponse 201 with the vote and the round; 403, 404 or 400 with the reason.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	private function answerWritten(string $id, string $userId, string $value): JSONResponse {
 		return $this->writtenResponse(
@@ -236,7 +238,7 @@ class VotingController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	private function writtenResponse(callable $operation): JSONResponse {
 		try {

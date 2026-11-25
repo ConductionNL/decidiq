@@ -1,7 +1,7 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Commitments (formerly toezeggingen) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail; schema ref BY SLUG (governance-commitment), never the PascalCase key. The ingekomen-stukken surfaces this fragment used to carry were removed by documents-as-agenda-items: incoming correspondence is an agenda item carrying a configurable kind, so it appears in the agenda rather than in a register of its own. The Dashboard overdue-commitments stat widget lives in the base src/manifest.json, because mergePages replaces a same-id page wholesale and a fragment cannot add one widget to Dashboard without redefining it.",
-	"_spec": "openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 	"menu": [
 		{
 			"id": "Commitments",
@@ -17,7 +17,7 @@
 			"route": "/commitments",
 			"type": "index",
 			"title": "Commitments",
-			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
+			"_note": "spec: openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
 				"showTitle": true,
 				"showTitleIcon": false,
@@ -109,7 +109,7 @@
 				"widget-commitment-publication": "CommitmentPublicationTab"
 			},
 			"title": "Commitment",
-			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
+			"_note": "spec: openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
 				"register": "decidiq",
 				"schema": "governance-commitment",

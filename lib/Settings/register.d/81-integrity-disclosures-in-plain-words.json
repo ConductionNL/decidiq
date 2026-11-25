@@ -108,11 +108,14 @@
 							"type": "scheduled",
 							"intervalSec": 2592000,
 							"filter": {
-								"lifecycle": [
-									"reported",
-									"public",
-									"internal"
-								]
+								"lifecycle": {
+									"operator": "in",
+									"values": [
+										"reported",
+										"public",
+										"internal"
+									]
+								}
 							}
 						},
 						"enabled": true,

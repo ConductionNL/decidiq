@@ -49,7 +49,7 @@ use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
  * Golden test for the translation queue.
  *
  * @covers \OCA\Decidiq\Service\MultilingualReconciliationService
- * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
+ * @uses   \OCA\Decidiq\Service\NextcloudTranslationAdapter
  * @uses   \OCA\Decidiq\Service\TranslationQueueEntryProcessor
  * @uses   \OCA\Decidiq\Support\FleetAppId
  * @uses   \OCA\Decidiq\Service\RowListNormaliser

@@ -44,7 +44,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Service\TeamsMeetingService
  *
- * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+ * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
  *
  * @uses \OCA\Decidiq\Service\SigningAnswer
  * @uses \OCA\Decidiq\Service\IntegriqConnection

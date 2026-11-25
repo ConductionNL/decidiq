@@ -14,7 +14,7 @@
  * one-level guard, the denied-row report contract and the HTML fallback are
  * PHPUnit's (the spec excludes them from e2e).
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md
  */
 import type { Page } from '@playwright/test'
 

@@ -6,7 +6,6 @@ status-note: Completed 2026-06-12 via nc-platform-integration-v1 (Activity provi
 # Nextcloud Integration Specification
 
 ## Purpose
-@e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 Decidiq leverages Nextcloud's platform capabilities to provide a seamless governance experience without reinventing existing functionality. This specification covers integration with Nextcloud Calendar (meeting scheduling), Files (document management), Mail (convocation delivery), Talk (meeting communication), Tasks (action item tracking), Activity (audit feed), Notifications (alerts), Search (universal search), and References (rich link previews). Each integration uses the appropriate OCP interface.
 
@@ -30,6 +29,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - THEN a calendar event MUST be created in each attendee's Nextcloud Calendar
 - AND the event MUST include the meeting link, agenda summary, and document links
 - AND the event MUST have a reminder set to the user's configured preference
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 #### Scenario: Update calendar event when meeting is rescheduled
 
@@ -37,6 +37,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - WHEN the meeting date is changed from July 15 to July 22
 - THEN all attendee calendar events MUST be updated to the new date
 - AND attendees MUST receive a notification about the schedule change
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 #### Scenario: Cancel calendar event when meeting is cancelled
 
@@ -46,6 +47,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - AND attendees MUST receive a cancellation notification
 
 ---
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ### Requirement: Files Integration
 
@@ -86,6 +88,7 @@ The system MUST create Nextcloud Talk conversations for meetings via `OCP\Talk\I
 - AND the conversation description MUST include the meeting date and agenda link
 
 ---
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ### Requirement: Activity Integration
 
@@ -191,6 +194,7 @@ The unified search provider SHALL return meetings the searcher may read, next to
 - **WHEN** a member types a word from the title of the council meeting of 14 October into Nextcloud's search bar
 - **THEN** the meeting is listed with its date
 - **AND** choosing it opens that meeting's page in decidiq
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ## User Stories
 

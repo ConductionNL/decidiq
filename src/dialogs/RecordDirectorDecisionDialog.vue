@@ -6,7 +6,7 @@
   director decided and on which date; a decision contrary to the advice shows
   the suspension term it starts (art. 25 lid 6). The parent saves on @submit,
   with the move to decision-received.
-  @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
+  @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
 -->
 <template>
 	<NcDialog
@@ -82,17 +82,17 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+		/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 		outcomeOptions() {
 			return decisionOutcomes(this.type).map((id) => ({ id, label: this.t('decidiq', OUTCOME_LABELS[id]) }))
 		},
 
-		/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+		/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 		suspension() {
 			return suspensionUntil(this.type, this.outcome, this.date)
 		},
 
-		/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+		/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 		complete() {
 			return decisionIsComplete(this.type, { outcome: this.outcome, date: this.date })
 		},

@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,7 +36,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
  * the snapshot of the electorate. The quorum check of a meeting does not apply:
  * the electorate rule replaces it.
  *
- * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+ * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
  */
 class WrittenRoundOpener {
 
@@ -83,7 +83,7 @@ class WrittenRoundOpener {
 	 * @throws AccessDeniedException When the user is not in the body's signatory scope.
 	 * @throws InvalidArgumentException When the request, the decision or the electorate does not allow the round.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function open(array $params, string $userId): array {
 		$now     = $this->now();
@@ -139,7 +139,7 @@ class WrittenRoundOpener {
 	 *
 	 * @throws InvalidArgumentException When the request cannot open a written round.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function request(array $params, DateTimeImmutable $now): array {
 		$subject = $this->requestSubject(params: $params);
@@ -157,7 +157,7 @@ class WrittenRoundOpener {
 	 *
 	 * @throws InvalidArgumentException When a meeting is given or the decision or body is missing.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	private function requestSubject(array $params): array {
 		if (trim((string)($params['meetingId'] ?? '')) !== '') {
@@ -183,7 +183,7 @@ class WrittenRoundOpener {
 	 *
 	 * @throws InvalidArgumentException When the deadline is missing, unreadable or not in the future.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	private function requestDeadline(array $params, DateTimeImmutable $now): string {
 		$deadline = self::dateTimeOf(value: ($params['votingDeadline'] ?? null));
@@ -207,7 +207,7 @@ class WrittenRoundOpener {
 	 *
 	 * @throws InvalidArgumentException When the rule or threshold is unknown.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	private function requestRules(array $params): array {
 		$rule = (string)($params['writtenRule'] ?? 'unanimous');

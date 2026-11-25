@@ -3408,7 +3408,15 @@ OC.L10N.register(
         "Risk band {band}": "Razina rizika {band}",
         "No risk band": "Nema razine rizika",
         "Score {score}, from:": "Rezultat {score}, iz:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} bod.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} bod.)",
+        "This decision has been withdrawn.": "Ova je odluka povučena.",
+        "Withdraw decision": "Povuci odluku",
+        "Withdrawal failed.": "Povlačenje nije uspjelo.",
+        "Withdrawn by the deciding body": "Povuklo tijelo koje odlučuje",
+        "Withdrawn by the party who asked": "Povukla stranka koja je podnijela zahtjev",
+        "Transfer overdue": "Prijenos kasni",
+        "Retention not resolved": "Čuvanje nije određeno",
+        "Meetings without dossier": "Sjednice bez spisa"
     },
     "nplurals=2; plural=(n != 1);"
 )

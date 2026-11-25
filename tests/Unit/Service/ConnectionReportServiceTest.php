@@ -36,12 +36,14 @@ use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\LogEIDASSignatureService;
-use OCA\Decidiq\Service\LogTranslationAdapter;
+use OCA\Decidiq\Service\NextcloudTranslationAdapter;
 use OCA\Integriq\Event\ConnectionRefreshRequestedEvent;
 use OCA\Integriq\Event\ConnectionStatusReportedEvent;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\TaskProcessing\IManager;
+use OCP\TaskProcessing\TaskTypes\TextToTextTranslate;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -54,7 +56,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Service\ConnectionReportService
  * @uses   \OCA\Decidiq\Service\LogEIDASSignatureService
- * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
+ * @uses   \OCA\Decidiq\Service\NextcloudTranslationAdapter
  * @uses   \OCA\Decidiq\Service\EIDASSignatureService
  * @uses   \OCA\Decidiq\Support\FleetAppId
  */
@@ -66,13 +68,6 @@ class ConnectionReportServiceTest extends TestCase {
 	 * @var string
 	 */
 	private const SOURCE_MAPPER = 'OCA\Integriq\Db\SourceMapper';
-
-	/**
-	 * Integriq's translation service, under the namespace integriq ships today.
-	 *
-	 * @var string
-	 */
-	private const TRANSLATION_SERVICE = 'OCA\Integriq\Service\TranslationService';
 
 	/**
 	 * Mocked event dispatcher.
@@ -146,7 +141,7 @@ class ConnectionReportServiceTest extends TestCase {
 				logger: $logger,
 				auditLogService: $this->createMock(originalClassName: AuditLogService::class),
 			),
-			ITranslationAdapter::class => new LogTranslationAdapter(
+			ITranslationAdapter::class => new NextcloudTranslationAdapter(
 				container: $this->container(bindings: []),
 				logger: $logger,
 			),
@@ -218,7 +213,7 @@ class ConnectionReportServiceTest extends TestCase {
 	}//end service()
 
 	/**
-	 * The shipped fallbacks are reported simulated, one event per connection.
+	 * The shipped fallbacks are reported, one event per connection: signing simulated, translation unconfigured.
 	 *
 	 * @return void
 	 */
@@ -236,8 +231,8 @@ class ConnectionReportServiceTest extends TestCase {
 
 		$this->assertInstanceOf(expected: ConnectionStatusReportedEvent::class, actual: $translation);
 		$this->assertSame(expected: 'translation', actual: $translation->key);
-		$this->assertSame(expected: 'simulated', actual: $translation->status);
-		$this->assertStringContainsString(needle: 'original text', haystack: $translation->message);
+		$this->assertSame(expected: 'unconfigured', actual: $translation->status);
+		$this->assertStringContainsString(needle: 'No Nextcloud translation provider', haystack: $translation->message);
 	}//end testTheLogFallbacksAreReportedSimulated()
 
 	/**
@@ -313,19 +308,24 @@ class ConnectionReportServiceTest extends TestCase {
 	}//end testAnotherSigningServiceIsConfiguredByName()
 
 	/**
-	 * The log translation adapter with an integriq translation service is configured.
+	 * The Nextcloud adapter with a TaskProcessing translate provider is configured.
 	 *
 	 * @return void
 	 */
-	public function testTheLogAdapterWithAnIntegriqProviderIsConfigured(): void {
-		$bindings = $this->fallbackBindings();
-		$bindings[self::TRANSLATION_SERVICE] = new \stdClass();
+	public function testTheNextcloudAdapterWithATranslateProviderIsConfigured(): void {
+		$manager = $this->createMock(originalClassName: IManager::class);
+		$manager->method('getAvailableTaskTypeIds')->willReturn([TextToTextTranslate::ID]);
 
-		[$status, $message] = $this->service(bindings: $bindings)->observeTranslation();
+		$adapter = new NextcloudTranslationAdapter(
+			container: $this->container(bindings: [IManager::class => $manager]),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+		);
+
+		[$status, $message] = $this->service(bindings: [ITranslationAdapter::class => $adapter])->observeTranslation();
 
 		$this->assertSame(expected: 'configured', actual: $status);
-		$this->assertStringContainsString(needle: 'integriq translation service', haystack: $message);
-	}//end testTheLogAdapterWithAnIntegriqProviderIsConfigured()
+		$this->assertStringContainsString(needle: 'Nextcloud translation provider answers', haystack: $message);
+	}//end testTheNextcloudAdapterWithATranslateProviderIsConfigured()
 
 	/**
 	 * Another bound translation adapter is configured, naming its class.
@@ -352,7 +352,7 @@ class ConnectionReportServiceTest extends TestCase {
 
 		$this->service(bindings: $bindings)->reportBindings();
 
-		$this->assertSame(expected: ['error', 'simulated'], actual: array_map(static fn ($event): string => $event->status, $this->sent));
+		$this->assertSame(expected: ['error', 'unconfigured'], actual: array_map(static fn ($event): string => $event->status, $this->sent));
 		$this->assertStringContainsString(
 			needle: 'could not load the signing service: No binding for ' . IEIDASSignatureService::class,
 			haystack: $this->sent[0]->message

@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "Decidiq",
-        "version": "1.2.25-unstable.20261123233523",
+        "version": "1.2.28-unstable.20261124180523",
         "description": "The JSON API of Decidiq, the decision-making app for Nextcloud: governance bodies and their meetings, agendas, motions and amendments, voting rounds, minutes, decisions and action items, publication and the settings behind them. The records themselves are stored in OpenRegister and read and written through its API; this document covers the endpoints Decidiq adds on top, including its public REST surface under /api/v1/{resource}.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -84,6 +84,10 @@
             "description": "Progress entries on a commitment."
         },
         {
+            "name": "confidentiality-restriction",
+            "description": "Imposing a confidentiality restriction."
+        },
+        {
             "name": "conflict-of-interest",
             "description": "REST controller for the ConflictOfInterest entity."
         },
@@ -154,6 +158,10 @@
         {
             "name": "member-import",
             "description": "Admin-only member-import endpoints."
+        },
+        {
+            "name": "member-pathways",
+            "description": "The secretariat's access steps on member onboardings and offboardings."
         },
         {
             "name": "minutes",
@@ -228,6 +236,10 @@
             "description": "Streams a meeting recording with byte ranges."
         },
         {
+            "name": "room-system",
+            "description": "The room's conference and voting system, through integriq."
+        },
+        {
             "name": "setup",
             "description": "First-time setup wizard endpoints."
         },
@@ -236,12 +248,20 @@
             "description": "Send for signature and collect the signed copy."
         },
         {
+            "name": "speaking-request",
+            "description": "Register to speak at a meeting, and the secretariat's moderation."
+        },
+        {
             "name": "store",
             "description": "Declarative store search and install for AppHost-adopting apps."
         },
         {
             "name": "teams-meeting",
             "description": "The Microsoft Teams meeting of a digital or hybrid meeting."
+        },
+        {
+            "name": "theme",
+            "description": "The staff timeline of a theme page."
         },
         {
             "name": "transcription",
@@ -260,28 +280,16 @@
             "description": "A person's voting record."
         },
         {
+            "name": "voting-round-live",
+            "description": "Read-only views of an open voting round for the voting panel."
+        },
+        {
+            "name": "voting-round-proxies",
+            "description": "The proxies a signed-in user holds and has given on a voting round."
+        },
+        {
             "name": "works-council-consultation",
             "description": "The formal response document of a WOR traject."
-        },
-        {
-            "name": "speaking-request",
-            "description": "Register to speak at a meeting, and the secretariat's moderation."
-        },
-        {
-            "name": "room-system",
-            "description": "The room's conference and voting system, through integriq."
-        },
-        {
-            "name": "member-pathways",
-            "description": "The secretariat's access steps on member onboardings and offboardings."
-        },
-        {
-            "name": "theme",
-            "description": "The staff timeline of a theme page."
-        },
-        {
-            "name": "confidentiality-restriction",
-            "description": "Imposing a confidentiality restriction."
         }
     ],
     "paths": {
@@ -7477,6 +7485,51 @@
                 }
             }
         },
+        "/voting-rounds/{id}/live-tally": {
+            "get": {
+                "operationId": "voting-round-live-live-tally",
+                "summary": "The running tally of an open voting round",
+                "description": "The running tally of an open voting round (vot-14). Every signed-in user who can read the round sees how many votes have been cast; the round is looked up with the user's own rights. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "voting-round-live"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The voting round UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
         "/voting-rounds/{id}/cast": {
             "post": {
                 "operationId": "voting-cast",
@@ -7584,6 +7637,49 @@
             }
         },
         "/voting-rounds/{id}/proxy": {
+            "get": {
+                "operationId": "voting-round-proxies-show",
+                "summary": "Which proxies the caller holds and has given on a round",
+                "description": "Which proxies the caller holds and has given on a round. Response: { \"participantId\": \"uuid\", \"held\": [{ \"participantId\", \"displayName\" }], \"granted\": \"uuid\"|null }. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "voting-round-proxies"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The voting round UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            },
             "post": {
                 "operationId": "voting-proxy",
                 "summary": "Grant proxy delegation",

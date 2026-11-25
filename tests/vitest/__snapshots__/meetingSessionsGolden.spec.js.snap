@@ -2,7 +2,7 @@
 
 exports[`meetingSessions golden output > keeps its arrangement over seeded evenings and sessions 1`] = `
 {
-  "digest": "24898c3ab0d6a64ab3c9d546c6ca9a37725d231be8be0eea7ae4c7e2e33a3000",
+  "digest": "726404e3514bcf56f37ada032eff374b22d829ffc59db3bdb5c9b8aebcd845bd",
   "sample": [
     {
       "columns": {
@@ -109,6 +109,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
       },
       "session": {
         "governanceBody": "ev",
+        "lifecycle": "scheduled",
         "parentMeeting": "ev2",
         "room": "Kamer 1",
         "title": "0",
@@ -258,6 +259,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
         },
       },
       "session": {
+        "lifecycle": "scheduled",
         "meetingMode": 0,
         "parentMeeting": "s3",
         "room": "Raadzaal",
@@ -421,6 +423,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
       },
       "session": {
         "isPublic": true,
+        "lifecycle": "scheduled",
         "parentMeeting": "s2",
         "title": "",
       },
@@ -575,6 +578,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
       },
       "session": {
         "governanceBody": "ev2",
+        "lifecycle": "scheduled",
         "meetingMode": true,
         "parentMeeting": "s3",
         "scheduledDate": "2026-11-03T19:30:00Z",
@@ -722,6 +726,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
       },
       "session": {
         "isPublic": true,
+        "lifecycle": "scheduled",
         "parentMeeting": "undefined",
         "scheduledDate": "2026-11-03T00:00:00+01:00",
         "title": "Commissie Bestuur",
@@ -782,6 +787,7 @@ exports[`meetingSessions golden output > keeps its arrangement over seeded eveni
         "chairs": {},
       },
       "session": {
+        "lifecycle": "scheduled",
         "parentMeeting": "undefined",
         "scheduledDate": "2026-11-03T19:30:00+01:00",
         "title": "",

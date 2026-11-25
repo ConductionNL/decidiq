@@ -5,7 +5,7 @@
  * Download report on the long-term agenda: the list's filters go to the
  * endpoint, the saved file opens, and the filinq note or a refusal is shown.
  *
- * @spec openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
+ * @spec openspec/changes/archive/2026-11-24-planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report
  */
 import { describe, expect, it, vi } from 'vitest'
 

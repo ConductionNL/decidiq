@@ -18,7 +18,7 @@ import { generateUrl } from '@nextcloud/router'
  * @param {() => Promise<unknown>} call The moderation call.
  * @param {string} fallback The message when the server gave none.
  * @return {Promise<string>} '' on success, else the message to show.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function runModeration(call, fallback) {
 	try {
@@ -37,7 +37,7 @@ export async function runModeration(call, fallback) {
  *
  * @param {string|number|null} value The field's value.
  * @return {number|null} The number.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export function optionalPositiveInt(value) {
 	if (value === null || value === undefined || String(value).trim() === '') return null
@@ -50,7 +50,7 @@ export function optionalPositiveInt(value) {
  *
  * @param {object|null} request The speaking request row.
  * @return {string} The name.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export function speakerNameOf(request) {
 	const name = request?.topic?.speakerName
@@ -76,7 +76,7 @@ function rowsOf(data) {
  * @param {string} currentMeetingId The request's meeting now.
  * @param {number} [now] Current timestamp (ms).
  * @return {Promise<Array<{id: string, label: string}>>} The choices.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function meetingOptions(bodyId, currentMeetingId, now = Date.now()) {
 	const params = { _limit: 100 }
@@ -106,7 +106,7 @@ export async function meetingOptions(bodyId, currentMeetingId, now = Date.now())
  *
  * @param {string} meetingId The meeting.
  * @return {Promise<Array<{id: string, label: string}>>} The choices.
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
  */
 export async function agendaItemOptions(meetingId) {
 	if (!meetingId) return []

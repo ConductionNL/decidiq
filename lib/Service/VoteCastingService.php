@@ -128,7 +128,7 @@ class VoteCastingService {
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function castVote(VoteCast $cast, ?string $callerUid = null): array {
@@ -163,7 +163,11 @@ class VoteCastingService {
 			);
 		}
 
-		$vote = $this->ballots->buildVote(cast: $cast, existingVote: $this->findExistingVote(cast: $cast));
+		$vote = $this->ballots->buildVote(
+			cast: $cast,
+			existingVote: $this->existingOwnVote(cast: $cast),
+			votingMethod: (string)($round['votingMethod'] ?? '')
+		);
 
 		$saved = $this->objectService()->saveObject(
 			object: $vote,
@@ -175,10 +179,34 @@ class VoteCastingService {
 	}//end castVote()
 
 	/**
-	 * Find this participant's existing ballot in the round, when there is one.
+	 * The ballot this cast overwrites, when there is one.
+	 *
+	 * A proxy ballot never overwrites: assertNotAlreadyRegistered() has just
+	 * refused any earlier proxy ballot for the delegator, and the holder's own
+	 * ballot is a different vote that must survive (a holder casts their own
+	 * vote and the one they were given).
+	 *
+	 * @param VoteCast $cast The settled ballot
+	 *
+	 * @return array<string,mixed>|null The existing own vote, or null.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function existingOwnVote(VoteCast $cast): ?array {
+		if ($cast->isDelegated() === true) {
+			return null;
+		}
+
+		return $this->findExistingVote(cast: $cast);
+	}//end existingOwnVote()
+
+	/**
+	 * Find this participant's existing own ballot in the round, when there is one.
 	 *
 	 * For secret rounds the participant relation is suppressed for anonymity,
-	 * so dedup is keyed on a deterministic voterToken instead.
+	 * so dedup is keyed on a deterministic voterToken instead. Proxy ballots
+	 * the participant cast for someone else are not their own ballot and are
+	 * skipped, so an own vote never overwrites a proxy vote.
 	 *
 	 * @param VoteCast $cast The settled ballot
 	 *
@@ -188,7 +216,12 @@ class VoteCastingService {
 	 */
 	private function findExistingVote(VoteCast $cast): ?array {
 		foreach ($this->existingVoteEntities(cast: $cast) as $entity) {
-			return $entity->jsonSerialize();
+			$vote = $entity->jsonSerialize();
+			if ((bool)($vote['isProxy'] ?? false) === true) {
+				continue;
+			}
+
+			return $vote;
 		}
 
 		return null;

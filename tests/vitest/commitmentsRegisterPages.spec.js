@@ -7,7 +7,7 @@
  * objects and history, and the dashboard tile that counts the commitments
  * over their deadline exactly as the index's Over the deadline lens does.
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/tasks.md#task-3-manifest-fragment--indexdetail-pages--menu-for-both-registers
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/tasks.md#task-3-manifest-fragment--indexdetail-pages--menu-for-both-registers
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -68,7 +68,7 @@ describe('commitments pages', () => {
 })
 
 /**
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-007-dashboard-kpi-for-overdue-open-commitments
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-007-dashboard-kpi-for-overdue-open-commitments
  */
 describe('commitments over deadline tile', () => {
 	const lens = indexPage.config.quickFilters.find((q) => q.label === 'Over the deadline').filter

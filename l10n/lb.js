@@ -3346,7 +3346,10 @@ OC.L10N.register(
         "Risk band {band}": "Risikostuf {band}",
         "No risk band": "Keng Risikostuf",
         "Score {score}, from:": "Punkten {score}, aus:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkten)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkten)",
+        "Transfer overdue": "Iwwerdroung iwwerfälleg",
+        "Retention not resolved": "Openthalt net festgeluecht",
+        "Meetings without dossier": "Sëtzungen ouni Dossier"
     },
     "nplurals=2; plural=(n != 1);"
 )

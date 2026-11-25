@@ -125,7 +125,6 @@ captions and record `liveCaptions` as `requested` when the service accepts and
 - GIVEN a connected streaming service that does not offer live captions
 - WHEN the broadcast goes live
 - THEN `liveCaptions` is `unavailable` and the widget reads "Live captions are not available from this streaming service"
-- @e2e exclude adapter path; covered by PHPUnit with a stubbed integriq call
 
 ### Requirement: REQ-LSTR-006 Subtitles for the recording come from the aligned transcript and cover only the public windows
 

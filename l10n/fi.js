@@ -3408,7 +3408,15 @@ OC.L10N.register(
         "Risk band {band}": "Riskitaso {band}",
         "No risk band": "Ei riskitasoa",
         "Score {score}, from:": "Pisteet {score}, lähteet:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} p)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} p)",
+        "This decision has been withdrawn.": "Tämä päätös on peruttu.",
+        "Withdraw decision": "Peru päätös",
+        "Withdrawal failed.": "Peruminen epäonnistui.",
+        "Withdrawn by the deciding body": "Päättävän elimen peruma",
+        "Withdrawn by the party who asked": "Hakijaosapuolen peruma",
+        "Transfer overdue": "Siirto myöhässä",
+        "Retention not resolved": "Säilytystä ei ole määritetty",
+        "Meetings without dossier": "Kokoukset ilman asiakirjakansiota"
     },
     "nplurals=2; plural=(n != 1);"
 )

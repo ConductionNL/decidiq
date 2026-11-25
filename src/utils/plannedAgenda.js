@@ -13,7 +13,7 @@
  * the item it read and gets back the item to save, with the existing fields
  * and shift-history entries carried forward unchanged.
  *
- * @spec openspec/changes/termijnagenda
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda
  */
 
 export const PLANNED_AGENDA_SCHEMA = 'planned-agenda-item'
@@ -30,7 +30,7 @@ const PERIOD_PATTERN = /^(\d{4})-(?:Q([1-4])|(0[1-9]|1[0-2]))$/
  * @param {string} period A `YYYY-Qn` or `YYYY-MM` string.
  * @return {{year: number, month: number, quarter: boolean}|null} Null when the text is no period.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function parsePeriod(period) {
 	const match = PERIOD_PATTERN.exec(String(period ?? '').trim())
@@ -48,7 +48,7 @@ export function parsePeriod(period) {
  * @param {string} period The text.
  * @return {boolean} True for `YYYY-Qn` and `YYYY-MM`.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function isValidPeriod(period) {
 	return parsePeriod(period) !== null
@@ -60,7 +60,7 @@ export function isValidPeriod(period) {
  * @param {string} period A `YYYY-Qn` or `YYYY-MM` string.
  * @return {string|null} The last day, or null when the text is no period.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function periodLastDay(period) {
 	const parsed = parsePeriod(period)
@@ -77,7 +77,7 @@ export function periodLastDay(period) {
  * @param {string} b The second period.
  * @return {number} Negative, zero or positive, as Array.prototype.sort wants.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function comparePeriods(a, b) {
 	const dayA = periodLastDay(a)
@@ -109,7 +109,7 @@ function localDay(now) {
  * @param {object} item The planned-agenda item.
  * @return {boolean} True for realised and lapsed.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
  */
 export function isTerminal(item) {
 	return TERMINAL_STATES.includes(item?.lifecycle)
@@ -123,7 +123,7 @@ export function isTerminal(item) {
  * @param {Date|number} now The moment to judge at.
  * @return {boolean} True when overdue.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function isOverdue(item, now) {
 	if (!item || isTerminal(item)) return false
@@ -139,7 +139,7 @@ export function isOverdue(item, now) {
  * @param {Date|number} now The moment to judge at.
  * @return {Array<object>} The overdue ones, in input order.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
  */
 export function overdueItems(items, now) {
 	return (Array.isArray(items) ? items : []).filter((item) => isOverdue(item, now))
@@ -151,7 +151,7 @@ export function overdueItems(items, now) {
  * @param {string} period A `YYYY-Qn` or `YYYY-MM` string.
  * @return {string|null} The next period, or null when the text is no period.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-002-planned-period-at-month-or-quarter-granularity
  */
 export function nextPeriod(period) {
 	const parsed = parsePeriod(period)
@@ -175,7 +175,7 @@ export function nextPeriod(period) {
  * @param {Date|number} [now] Used for the first quarter when there are no items.
  * @return {Array<string>} The column periods.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
  */
 export function boardColumns(items, extra = 2, now = Date.now()) {
 	const periods = new Set()
@@ -204,7 +204,7 @@ export function boardColumns(items, extra = 2, now = Date.now()) {
  * @param {Array<string>} columns The column periods.
  * @return {Object<string, Array<object>>} Items per column period.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule
  */
 export function groupByPeriod(items, columns) {
 	const groups = Object.fromEntries(columns.map((period) => [period, []]))
@@ -227,7 +227,7 @@ export function groupByPeriod(items, columns) {
  * @return {object} The item to save.
  * @throws {Error} When the item is final, the period invalid or unchanged, or the reason empty.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-004-every-reschedule-records-a-mandatory-reason-and-preserves-full-shift-history
  */
 export function buildReschedule(item, { toPeriod, reason, user, now }) {
 	if (isTerminal(item)) throw new Error('A realised or lapsed item cannot be rescheduled.')
@@ -261,7 +261,7 @@ export function buildReschedule(item, { toPeriod, reason, user, now }) {
  * @return {object} The item to save.
  * @throws {Error} When the item is already final or the reason empty.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-003-lifecycle-is-declarative-with-shift-and-settle-states
  */
 export function buildLapse(item, reason) {
 	if (isTerminal(item)) throw new Error('This item is already settled.')
@@ -281,7 +281,7 @@ export function buildLapse(item, reason) {
  * @return {object} The item to save.
  * @throws {Error} When the item is already final or neither link is given.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
  */
 export function buildRealise(item, { agendaItem, decision } = {}) {
 	if (isTerminal(item)) throw new Error('This item is already settled.')
@@ -300,7 +300,7 @@ export function buildRealise(item, { agendaItem, decision } = {}) {
  * @param {object} item The item to save.
  * @return {string|null} The problem, or null when the item is fine.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-001-termijnagendaitem-schema-on-openregister
  */
 export function ownerProblem(item) {
 	if (item?.ownerType === 'portfolio-holder' && !item.owner) {
@@ -319,7 +319,7 @@ export function ownerProblem(item) {
  * @param {number} [limit] How many to return.
  * @return {Array<object>} The suggestions.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
  */
 export function suggestRealisations(item, agendaItems, limit = 10) {
 	const words = String(item?.subject ?? '')
@@ -346,7 +346,7 @@ export function suggestRealisations(item, agendaItems, limit = 10) {
  * @param {string} governanceBody The body's id.
  * @return {Promise<{agendaItems: Array<object>, decisions: Array<object>}>} The candidates; empty lists when the body has no meetings or a read fails.
  *
- * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision
  */
 export async function realisationCandidates(fetchCollection, governanceBody) {
 	const empty = { agendaItems: [], decisions: [] }

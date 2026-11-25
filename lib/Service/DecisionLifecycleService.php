@@ -124,25 +124,19 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
-	 * @return array{success: bool, lifecycle: ?string, domain: ?string, actions: array<int, array<string, mixed>>, states: string[], message: string}
+	 * @return array{success: bool, lifecycle: ?string, domain: ?string, actions: array<int, array<string, mixed>>,
+	 *     withdrawable: bool, states: string[], message: string}
 	 */
 	public function getAvailableTransitions(string $decisionId): array {
 		try {
 			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
-				return [
-					'success' => false,
-					'lifecycle' => null,
-					'domain' => null,
-					'actions' => [],
-					'states' => DecisionTransitionGuardInterface::STATES,
-					'message' => "Decision '$decisionId' not found.",
-				];
+				return self::noTransitions(message: "Decision '$decisionId' not found.");
 			}
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
 			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+			$domain = $this->contextResolver->resolveDomain(objectService: $this->objectService, decision: $decision, meeting: $meeting);
 
 			// Process-configuration: when the decision's body has an assigned
 			// process template, its policy drives the guard; null otherwise so
@@ -175,6 +169,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				'lifecycle' => $lifecycle,
 				'domain' => $domain,
 				'actions' => $actions,
+				'withdrawable' => $this->transitionGuard->isWithdrawable(lifecycle: $lifecycle),
 				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'OK',
 			];
@@ -183,17 +178,32 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				'Decidiq: failed to resolve available decision transitions',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
-			return [
-				'success' => false,
-				'lifecycle' => null,
-				'domain' => null,
-				'actions' => [],
-				'states' => DecisionTransitionGuardInterface::STATES,
-				'message' => 'Failed to resolve available transitions.',
-			];
+			return self::noTransitions(message: 'Failed to resolve available transitions.');
 		}//end try
 
 	}//end getAvailableTransitions()
+
+	/**
+	 * The answer when a decision's transitions cannot be listed.
+	 *
+	 * @param string $message Why not
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return array{success: bool, lifecycle: null, domain: null, actions: array<int, array<string, mixed>>,
+	 *     withdrawable: bool, states: string[], message: string}
+	 */
+	private static function noTransitions(string $message): array {
+		return [
+			'success' => false,
+			'lifecycle' => null,
+			'domain' => null,
+			'actions' => [],
+			'withdrawable' => false,
+			'states' => DecisionTransitionGuardInterface::STATES,
+			'message' => $message,
+		];
+	}//end noTransitions()
 
 	/**
 	 * Apply a lifecycle transition to a decision.
@@ -339,7 +349,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		// guard policy when present; null falls back to the hardcoded domain policy.
 		$run = $run->within(
 			meeting: $meeting,
-			domain: $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting),
+			domain: $this->contextResolver->resolveDomain(objectService: $this->objectService, decision: $decision, meeting: $meeting),
 			policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting)
 		);
 
@@ -362,6 +372,52 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 		return $this->resolveStateGateRejection(decision: $decision, run: $run);
 
 	}//end resolveRejection()
+
+	/**
+	 * Enforce the chair-only gate for a decision entering a lifecycle state
+	 * outside the transition map (DecisionWithdrawFlow's `→ withdrawn` edge).
+	 *
+	 * Resolves the linked meeting, the governance domain and the body's
+	 * process-template policy exactly as transition() does, then applies the
+	 * same fail-closed chair gate, so the withdraw flow never duplicates it.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 * @param string $currentLifecycle The decision's current lifecycle state
+	 * @param string $newState The lifecycle state being entered
+	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return string|null Rejection message, or null when the caller is authorized
+	 */
+	public function resolveChairRejectionForDecision(
+		array $decision,
+		string $currentLifecycle,
+		string $newState,
+		?string $currentUserId,
+	): ?string {
+		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
+		$run = (new DecisionTransitionRun(
+			decisionId: (string)($decision['id'] ?? ($decision['uuid'] ?? '')),
+			action: 'withdraw',
+			currentUserId: $currentUserId,
+			comment: ''
+		))->entering(
+			transition: ['from' => [$currentLifecycle], 'to' => $newState],
+			currentLifecycle: $currentLifecycle
+		)->within(
+			meeting: $meeting,
+			domain: $this->contextResolver->resolveDomain(
+				objectService: $this->objectService,
+				decision: $decision,
+				meeting: $meeting
+			),
+			policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting)
+		);
+
+		return $this->resolveChairRejection(run: $run);
+
+	}//end resolveChairRejectionForDecision()
 
 	/**
 	 * Enforce chair-only transitions (OWASP A01:2021 — broken access control).
@@ -563,6 +619,9 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 * All of them are fail-soft — the lifecycle write already persisted, so a
 	 * failure here is logged loudly and never rolls the transition back.
 	 *
+	 * Public so DecisionWithdrawFlow shares the same audit append and
+	 * conclusion event instead of duplicating them.
+	 *
 	 * @param DecisionTransitionRun $run      The applied transition: decision, action, user (audit actor), comment and states
 	 * @param array<string, mixed>  $decision Decision object array (post-transition)
 	 *
@@ -571,7 +630,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 *
 	 * @return void
 	 */
-	private function applyPostTransitionEffects(DecisionTransitionRun $run, array $decision): void {
+	public function applyPostTransitionEffects(DecisionTransitionRun $run, array $decision): void {
 		$decisionId = $run->decisionId;
 		$newState = $run->newState();
 

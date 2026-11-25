@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-001-a-position-holders-remuneration-is-recorded-per-year
+ * @spec openspec/changes/archive/2026-11-24-bodies-director-remuneration/specs/governance-bodies/spec.md#requirement-req-drm-001-a-position-holders-remuneration-is-recorded-per-year
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2

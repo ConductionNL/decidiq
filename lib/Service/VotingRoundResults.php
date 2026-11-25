@@ -123,7 +123,7 @@ class VotingRoundResults {
 	 * @return array<string,mixed> Tally with votesFor, votesAgainst, votesAbstain, total, base, result and applied rules
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	public function tally(string $votingRoundId): array {
 		// Load the round first — the configured rules drive the result computation.
@@ -165,6 +165,65 @@ class VotingRoundResults {
 	}//end tally()
 
 	/**
+	 * The running counts of an open round, read from its ballots, without
+	 * persisting anything (vot-14, #1375).
+	 *
+	 * The round's own votesFor / votesAgainst / votesAbstain are written only
+	 * when the round is closed (or a show-of-hands tally is entered), so a
+	 * panel that polls the round object reads zero for the whole vote. This
+	 * counts the ballots cast so far instead. A show-of-hands round has no
+	 * ballots: the chair-entered counts on the round are returned.
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 *
+	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int, cast: int}|null The counts, or null when the round cannot be read
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function liveCounts(string $votingRoundId): ?array {
+		$round = $this->loadRound(votingRoundId: $votingRoundId);
+		if ($round === null) {
+			return null;
+		}
+
+		if (($round['votingMethod'] ?? '') === 'show-of-hands') {
+			$counts = [
+				'votesFor' => (int)($round['votesFor'] ?? 0),
+				'votesAgainst' => (int)($round['votesAgainst'] ?? 0),
+				'votesAbstain' => (int)($round['votesAbstain'] ?? 0),
+			];
+			return $counts + ['cast' => array_sum($counts)];
+		}
+
+		$ballots = $this->ballotsInRound(votingRoundId: $votingRoundId);
+		$counts = $this->countVotes(voteEntities: $ballots);
+
+		// A ranked ballot is none of for / against / abstain: count it as cast.
+		return $counts + ['cast' => (array_sum($counts) + self::rankedCount(ballots: $ballots))];
+
+	}//end liveCounts()
+
+	/**
+	 * How many of the ballots are ranked ballots.
+	 *
+	 * @param array<int, mixed> $ballots The vote entities of a round
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return int
+	 */
+	private static function rankedCount(array $ballots): int {
+		$ranked = 0;
+		foreach ($ballots as $voteEntity) {
+			if (($voteEntity->jsonSerialize()['value'] ?? '') === RankedBallotRules::VALUE) {
+				$ranked++;
+			}
+		}
+
+		return $ranked;
+	}//end rankedCount()
+
+	/**
 	 * Count a ranked-choice round with a Borda count and store the ranking.
 	 *
 	 * The for, against and abstain counts stay at zero: a ranked ballot is
@@ -177,7 +236,7 @@ class VotingRoundResults {
 	 *
 	 * @return array<string,mixed> The tally, with rankingResult and winningOption.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-003-borda-count-tallying-determines-the-winner
 	 */
 	private function rankedTally(array $round, string $votingRoundId): array {
 		$ballots = [];
@@ -301,7 +360,7 @@ class VotingRoundResults {
 	 *
 	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int}
 	 *
-	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
+	 * @spec openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
 	 */
 	private static function storedTotals(array $round): array {
 		return [

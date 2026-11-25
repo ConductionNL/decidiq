@@ -14,7 +14,7 @@ Publishes eligible decisions, public meeting agendas, and approved minutes as de
 
 ### Requirement: Publication eligibility gates
 
-The system SHALL allow publication only of: `Decision` objects in status `decided` or `enacted`; meeting agendas whose parent `Meeting` has `isPublic: true` and whose convocation has been sent; public activity entries (source type `activity`) for a `Meeting` with `isPublic: true`, which need no convocation and carry no agenda; and `Minutes` objects in lifecycle `approved`. Eligibility SHALL be enforced server-side on every publish request, independent of UI state. The system SHALL maintain a type-level deny-list (`BoardMeeting`, `BoardMinutes`, `BoardMaterial`, `BoardVote`, `ConflictOfInterest`, `BoardAuditLogEntry`, `Vote`, `VotingRound`, and `Resolution` objects of boards with a confidentiality classification) for which publication payload construction SHALL be structurally refused.
+The system SHALL allow publication only of: `Decision` objects in status `decided` or `enacted`; meeting agendas whose parent `Meeting` has `isPublic: true` and whose convocation has been sent; `Minutes` objects in lifecycle `approved`; and `IngekomenStuk` objects in lifecycle `routering-vastgesteld` or `afgedaan` whose confirming meeting is public (toezeggingen-ingekomen-stukken). `Toezegging` objects publish via a `publicatiedatum` predicate on the live object (their schema carries no non-public fields by construction) and are therefore outside the derived-payload eligibility matrix; the predicate SHALL still only ever be set by an explicit staff action. Eligibility SHALL be enforced server-side on every publish request, independent of UI state. The system SHALL maintain a type-level deny-list — `BoardMeeting`, `BoardMinutes`, `BoardMaterial`, `BoardVote`, `ConflictOfInterest`, `BoardAuditLogEntry`, `Vote`, `VotingRound`, and `Resolution` objects of boards with a confidentiality classification — for which publication payload construction SHALL be structurally refused.
 
 #### Scenario: Publish an enacted decision
 
@@ -24,43 +24,36 @@ The system SHALL allow publication only of: `Decision` objects in status `decide
 
 #### Scenario: Draft decision refused
 
-@e2e exclude eligibility-matrix contract, covered by PHPUnit (PublicationEligibilityServiceTest::testDraftDecisionRefused) and Newman against the publish endpoint
+@e2e exclude eligibility-matrix contract — covered by PHPUnit (PublicationEligibilityServiceTest::testDraftDecisionRefused) and Newman against the publish endpoint
 - **GIVEN** a decision in status `draft`
 - **WHEN** a publish request is made for it
 - **THEN** the request is rejected with an eligibility error and no publication payload or `PublicationRecord` is created
 
 #### Scenario: Agenda of a non-public meeting refused
 
-@e2e exclude eligibility-matrix contract, covered by Newman against the publish endpoint
+@e2e exclude eligibility-matrix contract — covered by Newman against the publish endpoint
 - **GIVEN** a meeting with `isPublic: false` and a finalized agenda
 - **WHEN** an agenda publish request is made
 - **THEN** the request is rejected and nothing is published
 
 #### Scenario: Board material structurally refused
 
-@e2e exclude type deny-list contract, covered by PHPUnit on the payload service plus Newman negative test
+@e2e exclude type deny-list contract — covered by PHPUnit on the payload service plus Newman negative test
 - **WHEN** a publish request targets a `BoardMinutes` or `BoardMaterial` object (any status)
 - **THEN** the payload service refuses with a not-publishable error before any eligibility evaluation and no object is created
 
 #### Scenario: Non-staff publish rejected
 
-@e2e exclude API authorization contract, covered by Newman, not a UI flow
+@e2e exclude API authorization contract — covered by Newman, not a UI flow
 - **WHEN** an authenticated user without governance-body authority calls the publish endpoint for an eligible decision
 - **THEN** the request is rejected with HTTP 403 via OpenRegister per-object RBAC and nothing is published
 
-#### Scenario: Activity entry of a public meeting without an agenda
+#### Scenario: Unconfirmed ingekomen stuk refused
 
-@e2e exclude eligibility-matrix contract, covered by PHPUnit (PublicationEligibilityServiceTest) and Newman against the publish endpoint
-- **GIVEN** a meeting with `isPublic: true`, no convocation sent and no agenda
-- **WHEN** an `activity` publish request is made for it
-- **THEN** a `Vergadering` payload is created carrying title, body name, date, meeting type, location and audiences only
-
-#### Scenario: Activity entry of a non-public meeting refused
-
-@e2e exclude eligibility-matrix contract, covered by Newman against the publish endpoint
-- **GIVEN** a meeting with `isPublic: false`
-- **WHEN** an `activity` publish request is made for it
-- **THEN** the request is rejected and nothing is published
+@e2e exclude eligibility-matrix contract — covered by PHPUnit on the eligibility service plus Newman negative test
+- **GIVEN** an `IngekomenStuk` in lifecycle `geregistreerd` or `geagendeerd`
+- **WHEN** a publish request is made for it
+- **THEN** the request is rejected with an eligibility error and no publication payload or `PublicationRecord` is created
 
 ### Requirement: A decision under a confidentiality restriction is never published
 
@@ -249,3 +242,39 @@ For a resident, the app SHALL deliver the digest as a message in the resident's 
 - GIVEN the journalist's daily subscription, one event about an unpublished agenda and two about published decisions
 - WHEN the daily run happens
 - THEN her portal inbox receives one message listing the two decisions
+
+### Requirement: REQ-THP-001 The griffie gathers a long-running topic in a theme
+
+The app SHALL let the secretariat create a theme with a title, an introduction, text blocks, a status, a responsible body and a portfolio holder, and link meetings, agenda items, decisions, commitments and long-term agenda items to it, also from the agenda item and decision pages.
+
+#### Scenario: A theme for the swimming pool
+- GIVEN the council has discussed a new swimming pool in three meetings
+- WHEN the griffier creates the theme "Nieuw zwembad De Hoge Dijk" and adds the credit request and the motion on sustainability from their pages
+- THEN the theme page lists the meetings, the agenda item and the motion
+
+### Requirement: REQ-THP-002 A theme shows a timeline of what belongs to it
+
+The theme page SHALL show a timeline of the linked items by their dates, oldest first, and SHALL mark for staff which entries are not published.
+
+#### Scenario: The story of the pool
+- GIVEN the swimming pool theme with five linked items
+- WHEN the griffier opens it
+- THEN she sees them as a timeline from the first meeting to the planned decision in 2027, with the unpublished commitment marked
+
+### Requirement: REQ-THP-003 A published theme carries only published items
+
+Publishing a theme SHALL use the existing publication path with the publication type theme. The published page SHALL carry the introduction, the blocks and a timeline of only those linked items that have a publication of their own, each linking to it. A theme that is not marked public, or has no published item, SHALL not be published.
+
+#### Scenario: Residents read the theme
+- GIVEN the theme is public and three of its five items are published
+- WHEN the griffier publishes it
+- THEN residents read the theme page with a timeline of those three items, and the other two do not appear
+
+### Requirement: REQ-THP-004 An active published theme stays current
+
+A nightly run SHALL republish every active public theme whose timeline changed since its last version. A concluded theme SHALL not be republished.
+
+#### Scenario: A new decision joins the story
+- GIVEN the council adopted and published the construction decision for the pool
+- WHEN the nightly run passes
+- THEN the published theme's timeline includes the construction decision

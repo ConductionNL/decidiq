@@ -30,6 +30,6 @@ Board **DcSpoedbesluiten** on canvas part 2 (https://claude.ai/artifact/QAAxpcsF
 ## Decisions
 
 - **D1. The body, not the user.** `urgencyDeclaredByBody` is a reference to a `governance-body` (College van B en W) or, for a single-office power such as the mayor's, the body the office belongs to plus `urgencyDeclaredInOffice` (text, "Burgemeester"). The subtitle shows the office when set, else the body name.
-- **D2. Reported is a date, set once.** `reportedToRatifyingBodyAt` is set by the first of: the action Gemeld aan de raad, the ratification agenda item being placed, a raadsinformatiebrief linked to the decision. It is never cleared by a later step. The action is guarded like the declaration (same allowed roles).
+- **D2. Reported is a date, set once.** `reportedToRatifyingBodyAt` is set by the first of: the action Gemeld aan de raad, the ratification agenda item being placed, an agenda item whose kind declares the type field `reportsOnDecision` naming the decision (since documents-as-agenda-items a raadsinformatiebrief is an agenda item of a kind the organisation names; the municipality profile gives its letter kind that field). It is never cleared by a later step. The action is guarded like the declaration (same allowed roles).
 - **D3. Pills say the word.** Ja and Nee are text in a pill, colour from CSS variables, never colour alone.
 - **D4. Counts on the quick filters** come from the list query facets on `awaitingRatification`, no extra request per filter.

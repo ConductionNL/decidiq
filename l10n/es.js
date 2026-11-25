@@ -3408,7 +3408,19 @@ OC.L10N.register(
         "Risk band {band}": "Nivel de riesgo {band}",
         "No risk band": "Sin nivel de riesgo",
         "Score {score}, from:": "Puntuación {score}, a partir de:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} puntos)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} puntos)",
+        "Vote on behalf of": "Votar en nombre de",
+        "Myself": "Yo mismo",
+        "Your vote on behalf of {name} has been recorded.": "Su voto en nombre de {name} ha sido registrado.",
+        "Failed to grant proxy": "No se pudo otorgar el poder",
+        "This decision has been withdrawn.": "Esta decisión ha sido retirada.",
+        "Withdraw decision": "Retirar decisión",
+        "Withdrawal failed.": "Error al retirar.",
+        "Withdrawn by the deciding body": "Retirada por el órgano decisor",
+        "Withdrawn by the party who asked": "Retirada por la parte solicitante",
+        "Transfer overdue": "Transferencia vencida",
+        "Retention not resolved": "Conservación no resuelta",
+        "Meetings without dossier": "Reuniones sin expediente"
     },
     "nplurals=2; plural=(n != 1);"
 )

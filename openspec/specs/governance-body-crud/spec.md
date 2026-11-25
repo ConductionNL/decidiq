@@ -132,8 +132,6 @@ integrity register.
 - **THEN** a "Factions" widget lists those child `GovernanceBody` objects
 - **AND** clicking a row navigates to that faction's own `GovernanceBodyDetail` page
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-organisation-detail.spec.ts ("GovernanceBodyDetail: factions facet lists the seeded factions under their parent council" — asserts both seeded factions "GroenLinks-fractie" and "D66-fractie" render under the Factions heading); that test's own @e2e anchor still targets the pre-archival openspec/changes/organisation-facet-composition/... path so this gate does not match it. The row-click-navigates-to-faction-detail half is not separately asserted — recorded here rather than reported as a total gap.
-
 #### Scenario: No facet widget errors when its register is empty for this body
 - **GIVEN** a GovernanceBody with no `nevenfunctie`, `geschenk`, `body-participation`, `zienswijzeronde`, or faction-`bodyType` child objects referencing it
 - **WHEN** the user views the GovernanceBody detail page

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md
+ * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,7 +43,7 @@ use Throwable;
  * in system context: the caller is the integriq synchronisation user (on
  * create) or a chair or secretary the controller already checked.
  *
- * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md
+ * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md
  */
 class RoomSystemMessageService {
 
@@ -88,7 +88,7 @@ class RoomSystemMessageService {
 	 *
 	 * @return array<string, mixed>|null The message after applying, or null when it does not exist.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 	 */
 	public function applyById(string $messageId): ?array {
 		$message = $this->find(id: $messageId, schema: self::SCHEMA);
@@ -105,7 +105,7 @@ class RoomSystemMessageService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-001-the-room-system-is-an-integriq-connection
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-001-the-room-system-is-an-integriq-connection
 	 */
 	public function isConnected(): bool {
 		return (new IntegriqConnection(objectService: $this->objects))->isLinked(connectionKey: self::CONNECTION_KEY);
@@ -118,7 +118,7 @@ class RoomSystemMessageService {
 	 *
 	 * @return string|null The meeting UUID.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 	 */
 	public function meetingOf(string $messageId): ?string {
 		$message = $this->find(id: $messageId, schema: self::SCHEMA);
@@ -136,7 +136,7 @@ class RoomSystemMessageService {
 	 *
 	 * @return list<array<string, mixed>> The messages.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
 	 */
 	public function forMeeting(string $meetingId): array {
 		if ($meetingId === '') {
@@ -160,8 +160,8 @@ class RoomSystemMessageService {
 	 *
 	 * @return array<string, mixed> The message as stored afterwards.
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-005-a-desk-vote-becomes-a-named-vote-under-the-normal-voting-rules
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-005-a-desk-vote-becomes-a-named-vote-under-the-normal-voting-rules
 	 */
 	public function apply(array $message): array {
 		if (($message['status'] ?? null) === self::APPLIED) {

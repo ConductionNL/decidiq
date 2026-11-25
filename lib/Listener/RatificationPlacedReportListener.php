@@ -8,6 +8,9 @@
  * is set, unless an earlier step already set it. Covers every way the item
  * gets there (the urgency flow placing it, the secretariat moving it, a
  * later placement sweep) because it listens to the item, not to the caller.
+ * An item whose kind declares a `reportsOnDecision` reference field (a
+ * letter from the executive to the body, configured per organisation) counts
+ * as the report as soon as that field names the decision.
  * The write is an invariant of the procedure, not the saver's right, so it
  * runs without RBAC, under the urgency write grant.
  *
@@ -44,7 +47,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Sets an urgent decision's report date when its ratification item is on a meeting.
+ * Sets an urgent decision's report date when an agenda item reports it to the body.
  *
  * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
  *
@@ -58,6 +61,13 @@ class RatificationPlacedReportListener implements IEventListener {
 	 * @var string
 	 */
 	public const SCHEMA_AGENDA_ITEM = 'agenda-item';
+
+	/**
+	 * The type field by which an item's kind says the item reports a decision.
+	 *
+	 * @var string
+	 */
+	public const TYPE_FIELD_REPORTS_ON = 'reportsOnDecision';
 
 	/**
 	 * Constructor.
@@ -99,20 +109,50 @@ class RatificationPlacedReportListener implements IEventListener {
 			return;
 		}
 
-		$decisionId = (new RelationReference())->idOf(value: ($item['ratifiesDecision'] ?? null));
-		if ($decisionId === null || (new RelationReference())->idOf(value: ($item['meeting'] ?? null)) === null) {
-			return;
-		}
-
-		try {
-			$this->stamp(decisionId: $decisionId);
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: the report date of an urgent decision was not set when its ratification was placed',
-				['decision' => $decisionId, 'exception' => $e->getMessage()]
-			);
+		foreach ($this->reportedDecisions(item: $item) as $decisionId) {
+			try {
+				$this->stamp(decisionId: $decisionId);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Decidiq: the report date of an urgent decision was not set when an agenda item reported it',
+					['decision' => $decisionId, 'exception' => $e->getMessage()]
+				);
+			}
 		}
 	}//end handle()
+
+	/**
+	 * The decisions an agenda item reports to the ratifying body.
+	 *
+	 * A ratification item reports its decision once it is on a meeting; an
+	 * item whose kind declares the type field `reportsOnDecision` reports the
+	 * decision that field names, on or off a meeting.
+	 *
+	 * @param array<string, mixed> $item The agenda item.
+	 *
+	 * @return list<string> The decision ids, without duplicates.
+	 *
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once
+	 */
+	public function reportedDecisions(array $item): array {
+		$reference = new RelationReference();
+		$decisions = [];
+
+		$ratified = $reference->idOf(value: ($item['ratifiesDecision'] ?? null));
+		if ($ratified !== null && $reference->idOf(value: ($item['meeting'] ?? null)) !== null) {
+			$decisions[] = $ratified;
+		}
+
+		$typeFields = $item['typeFields'] ?? null;
+		if (is_array($typeFields) === true) {
+			$letter = $reference->idOf(value: ($typeFields[self::TYPE_FIELD_REPORTS_ON] ?? null));
+			if ($letter !== null && in_array($letter, $decisions, true) === false) {
+				$decisions[] = $letter;
+			}
+		}
+
+		return $decisions;
+	}//end reportedDecisions()
 
 	/**
 	 * Set the decision's report date when it is urgent and not yet reported.

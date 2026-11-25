@@ -45,7 +45,7 @@ interface WrittenRoundServiceInterface {
 	 *
 	 * @return array<string, mixed> The stored round.
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function open(array $params, string $userId): array;
 
@@ -56,7 +56,7 @@ interface WrittenRoundServiceInterface {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function writtenRound(string $roundId): ?array;
 
@@ -69,7 +69,7 @@ interface WrittenRoundServiceInterface {
 	 *
 	 * @return array{vote: array<string, mixed>, round: array<string, mixed>}
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
 	 */
 	public function answer(string $roundId, string $userId, string $value): array;
 }//end interface

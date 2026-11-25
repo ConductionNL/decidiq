@@ -136,6 +136,17 @@ interface DecisionTransitionGuardInterface {
 	public function isTerminalOutcomeState(string $lifecycle): bool;
 
 	/**
+	 * Whether a decision in this lifecycle state may be withdrawn (REQ-DWP-005).
+	 *
+	 * @param string $lifecycle The decision's current lifecycle state
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return bool True when the `lifecycle → withdrawn` edge is declared
+	 */
+	public function isWithdrawable(string $lifecycle): bool;
+
+	/**
 	 * Validate whether a from → to edge is permitted by the domain policy.
 	 *
 	 * The transition map itself is validated by the caller (resolveTransition

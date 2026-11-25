@@ -3,7 +3,7 @@
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
   "_comment": "ADR-037 register fragment, change member-onboarding (REQ-MOB-006 / REQ-MOB-008). A governance body names, per role, the Nextcloud groups a member in that role belongs to. Provisioning on an onboarding adds the member to the groups of their role; revocation on an offboarding removes them from every group the body maps, and from no other group. The groups must already exist: provisioning never creates a group. Chair and signatory scopes are not listed here; they follow from the roster through the role-to-scope projection. A body also lists its induction documents: files and links that a joining member receives in a folder in their own Files.",
-  "_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
+  "_spec": "openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md",
   "components": {
     "schemas": {
       "GovernanceBody": {

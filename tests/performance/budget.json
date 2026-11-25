@@ -1,0 +1,11 @@
+{
+	"app": "decidiq",
+	"pages": [
+		{ "name": "Dashboard", "path": "/index.php/apps/decidiq/" },
+		{ "name": "Meetings", "path": "/index.php/apps/decidiq/meetings" },
+		{ "name": "Decisions", "path": "/index.php/apps/decidiq/decisions" },
+		{ "name": "Tasks & Commitments", "path": "/index.php/apps/decidiq/action-items" },
+		{ "name": "Organisation", "path": "/index.php/apps/decidiq/governance-bodies" },
+		{ "name": "My actions", "path": "/index.php/apps/decidiq/my-actions" }
+	]
+}

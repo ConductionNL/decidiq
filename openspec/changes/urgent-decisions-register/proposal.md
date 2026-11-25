@@ -28,7 +28,7 @@ Two things on the board are in neither the list nor `urgent-decision-procedure`:
 ## What changes
 
 1. `decision` gets `urgencyDeclaredByBody` (reference to the governance body, or the office the declarer held) and `reportedToRatifyingBodyAt` (date), in fragment `128-urgent-decisions-register.json`.
-2. The urgency declaration of `urgent-decision-procedure` stores the declaring body. A new action "Gemeld aan de raad" on the decision records the report date, and placing the ratification agenda item or linking a raadsinformatiebrief sets it when still empty.
+2. The urgency declaration of `urgent-decision-procedure` stores the declaring body. A new action "Gemeld aan de raad" on the decision records the report date, and placing the ratification agenda item or registering a letter whose `reportsOnDecision` type field names the decision sets it when still empty.
 3. The list follows the board: subtitle line, Ja/Nee awaiting-ratification pill, lifecycle pill, quick filters Alle spoedbesluiten, Wacht op bekrachtiging and Bekrachtigd with counts, "n van m spoedbesluiten · nieuwste eerst", Downloaden, view modes and the row action Bekijken.
 
 ## Out of scope

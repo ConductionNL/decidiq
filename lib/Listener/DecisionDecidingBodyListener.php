@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+ * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -39,7 +39,7 @@ use Throwable;
  * through setModifiedData(), which OpenRegister merges before the write.
  * Fails soft: a meeting that cannot be read leaves the decision as entered.
  *
- * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+ * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
  *
  * @implements IEventListener<Event>
  */
@@ -73,7 +73,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent) {
@@ -94,7 +94,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	private function fillOn(ObjectCreatingEvent|ObjectUpdatingEvent $event, ?ObjectEntity $entity): void {
 		if ($entity === null) {
@@ -119,7 +119,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	public function bodyFor(array $decision): ?string {
 		if (self::referenceId(value: ($decision['decidingBody'] ?? null)) !== null) {
@@ -141,7 +141,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	private function meetingBody(string $meetingId): ?string {
 		try {
@@ -168,7 +168,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	public static function referenceId(mixed $value): ?string {
 		if (is_array($value) === true) {

@@ -5,7 +5,7 @@
  * The long-term agenda rules: period order and expiry, the board columns, and
  * the reschedule, lapse and realise writes.
  *
- * @spec openspec/changes/termijnagenda
+ * @spec openspec/changes/archive/2026-11-24-termijnagenda
  */
 
 import { describe, expect, it, vi } from 'vitest'

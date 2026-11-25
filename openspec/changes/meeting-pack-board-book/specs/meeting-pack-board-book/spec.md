@@ -25,6 +25,8 @@ The system SHALL let the secretary or chair compile a meeting pack for a Meeting
 
 #### Scenario: Compilation without Docudesk falls back honestly
 
+@e2e exclude the suite's instance has filinq installed, so the fallback cannot be reached from a browser; BoardBookServiceTest::testWithoutFilinqTheFolderPackageIsMadeAndSaidToBeNoPdf and BoardBookRendererTest::testNoFilinqMeansNoPdf cover it, and the compile test above asserts the honest message when it does meet an instance without filinq. (recorded in tests/e2e/meeting-pack-board-book.spec.ts)
+
 - GIVEN an instance where the Docudesk app is not installed
 - WHEN the secretary triggers pack compilation
 - THEN the system MUST NOT pretend a PDF was produced; it SHALL assemble the existing folder-based package (`MeetingPackageService`) with its markdown table of contents instead

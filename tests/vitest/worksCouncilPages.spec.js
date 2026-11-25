@@ -4,7 +4,7 @@
 /**
  * works-council-consultation task 3: the WOR-trajecten list and page.
  *
- * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis
+ * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis
  */
 import { evaluateVisibleWhenLocal } from '@conduction/nextcloud-vue/src/utils/visibleWhen.js'
 import { readFileSync } from 'node:fs'

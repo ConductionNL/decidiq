@@ -44,12 +44,12 @@ Decidiq SHALL report the service bound for `eidas` and `translation` with `Conne
 - **THEN** the `eidas` report SHALL be `simulated`
 - **AND** its message SHALL say that nothing is signed
 
-#### Scenario: The log translation adapter without a provider reports simulated
-@e2e exclude No browser flow can remove a translation provider; tests/Unit/Service/ConnectionReportServiceTest.php builds the real LogTranslationAdapter and asserts the report.
+#### Scenario: The Nextcloud translation adapter without a provider reports unconfigured
+@e2e exclude No browser flow can remove a translation provider; tests/Unit/Service/ConnectionReportServiceTest.php builds the real NextcloudTranslationAdapter and asserts the report.
 
-- **GIVEN** the container binds `LogTranslationAdapter` and no integriq translation service resolves
+- **GIVEN** the container binds `NextcloudTranslationAdapter` and no TaskProcessing translate provider is installed
 - **WHEN** the daily report runs
-- **THEN** the `translation` report SHALL be `simulated`
+- **THEN** the `translation` report SHALL be `unconfigured`
 
 #### Scenario: Without integriq nothing is sent
 @e2e exclude The CI instance installs integriq; tests/Unit/Service/ConnectionReportServiceTest.php and SettingsControllerConnectionReportTest.php cover the absent class and the unchanged save.

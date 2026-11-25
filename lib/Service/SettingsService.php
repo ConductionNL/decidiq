@@ -99,7 +99,7 @@ class SettingsService implements SettingsServiceInterface {
 		// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
 		// A paper added to a meeting or agenda item is scanned in the background unless this reads false.
 		'accessibility_scan_on_upload',
-		// @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+		// @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 		// Comma-separated groups a governance body may map for member
 		// provisioning (OnboardingProvisioningService). Admin-written only.
 		'member_provisioning_groups',

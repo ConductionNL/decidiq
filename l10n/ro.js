@@ -3408,7 +3408,15 @@ OC.L10N.register(
         "Risk band {band}": "Nivel de risc {band}",
         "No risk band": "Fără nivel de risc",
         "Score {score}, from:": "Scor {score}, din:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} puncte)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} puncte)",
+        "This decision has been withdrawn.": "Această decizie a fost retrasă.",
+        "Withdraw decision": "Retrage decizia",
+        "Withdrawal failed.": "Retragerea a eșuat.",
+        "Withdrawn by the deciding body": "Retrasă de organul decizional",
+        "Withdrawn by the party who asked": "Retrasă de partea solicitantă",
+        "Transfer overdue": "Transfer întârziat",
+        "Retention not resolved": "Păstrare nedeterminată",
+        "Meetings without dossier": "Ședințe fără dosar"
     },
     "nplurals=2; plural=(n != 1);"
 )

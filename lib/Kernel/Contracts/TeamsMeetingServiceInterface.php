@@ -34,7 +34,7 @@ interface TeamsMeetingServiceInterface {
 	 *
 	 * @param string $meetingId The meeting
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @throws TeamsMeetingRefusedException When the meeting does not exist (404).
 	 *
@@ -47,7 +47,7 @@ interface TeamsMeetingServiceInterface {
 	 *
 	 * @param string $meetingId The meeting
 	 *
-	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 * @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
 	 *
 	 * @throws TeamsMeetingRefusedException When the meeting cannot carry one (404, 409) or the service refuses (502).
 	 *

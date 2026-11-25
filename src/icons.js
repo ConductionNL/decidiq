@@ -35,7 +35,9 @@ import AlertDecagramOutline from 'vue-material-design-icons/AlertDecagramOutline
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import Api from 'vue-material-design-icons/Api.vue'
+import ArchiveAlertOutline from 'vue-material-design-icons/ArchiveAlertOutline.vue'
 import ArchiveArrowUpOutline from 'vue-material-design-icons/ArchiveArrowUpOutline.vue'
+import ArchiveCancelOutline from 'vue-material-design-icons/ArchiveCancelOutline.vue'
 import ArchiveCheckOutline from 'vue-material-design-icons/ArchiveCheckOutline.vue'
 import ArchiveOutline from 'vue-material-design-icons/ArchiveOutline.vue'
 import ArrowRightCircleOutline from 'vue-material-design-icons/ArrowRightCircleOutline.vue'
@@ -105,6 +107,7 @@ import FileLockOutline from 'vue-material-design-icons/FileLockOutline.vue'
 import FilePdfBox from 'vue-material-design-icons/FilePdfBox.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import FileSign from 'vue-material-design-icons/FileSign.vue'
+import FolderAlertOutline from 'vue-material-design-icons/FolderAlertOutline.vue'
 import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import FormatListChecks from 'vue-material-design-icons/FormatListChecks.vue'
@@ -188,7 +191,9 @@ export default {
 	AlertOctagonOutline,
 	AlertOutline,
 	Api,
+	ArchiveAlertOutline,
 	ArchiveArrowUpOutline,
+	ArchiveCancelOutline,
 	ArchiveCheckOutline,
 	ArchiveOutline,
 	ArrowRightCircleOutline,
@@ -258,6 +263,7 @@ export default {
 	FilePdfBox,
 	FileReplaceOutline,
 	FileSign,
+	FolderAlertOutline,
 	FolderOutline,
 	FormatListBulleted,
 	FormatListChecks,

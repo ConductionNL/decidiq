@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use ArrayObject;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -266,7 +267,7 @@ class VoteCastGoldenTest extends TestCase {
 			static function (string $id) use ($objects, $prefs, $appConfig): object {
 				return match ($id) {
 					'OCA\OpenRegister\Service\ObjectService' => $objects,
-					NotificationPreferenceService::class => $prefs,
+					NotificationPreferenceServiceInterface::class => $prefs,
 					IAppConfig::class => $appConfig,
 					default => throw new RuntimeException('not wired: ' . $id),
 				};

@@ -12,7 +12,7 @@
  * to the papers, so both must exist first. Guests are only invited to a
  * meeting without a governing body (GuestInvitationService refuses others).
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 
 import { generateOcsUrl, generateUrl } from '@nextcloud/router'
@@ -27,7 +27,7 @@ import { roomToken, talkLinksPath } from './videoCall.js'
  * @param {object} form The page form
  * @return {Array<string>} The keys of the missing or wrong fields
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function missingFields(form) {
 	const missing = []
@@ -60,7 +60,7 @@ function endDateOf(start, endTime) {
  * @param {object} form The page form
  * @return {object} The meeting payload
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function meetingPayload(form) {
 	const location = String(form.location || '').trim()
@@ -89,7 +89,7 @@ export function meetingPayload(form) {
  * @param {Array<string>} points The agenda point titles
  * @return {Array<object>} The agenda-item payloads
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function agendaPayloads(meetingId, points) {
 	return (points || [])
@@ -111,7 +111,7 @@ export function agendaPayloads(meetingId, points) {
  * @param {Array<object>} colleagues The participant records picked
  * @return {Array<object>} The meeting-attendance payloads
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export function attendancePayloads(meetingId, colleagues) {
 	return (colleagues || []).map((colleague) => ({
@@ -147,7 +147,7 @@ async function attempt(failures, step, run) {
  * @param {object} api The calls: saveObject(slug, payload), uploadPapers(meetingId, files), createTalkRoom(meetingId, title, uids), inviteGuest(meetingId, guest)
  * @return {Promise<{meetingId: string, failures: Array<object>}>} The meeting and the failed steps
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export async function createAdhocMeeting(form, api) {
 	const meeting = await api.saveObject('meeting', meetingPayload(form))
@@ -200,7 +200,7 @@ export async function createAdhocMeeting(form, api) {
  * @param {Array<File>} files The papers
  * @return {Promise<void>}
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export async function uploadPapers(meetingId, files) {
 	const body = new FormData()
@@ -258,7 +258,7 @@ async function postJson(url, body) {
  * @param {Array<string>} uids The colleagues' Nextcloud user ids
  * @return {Promise<string>} The room token, or ''
  *
- * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+ * @spec openspec/changes/archive/2026-11-24-meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
 export async function createTalkRoom(meetingId, title, uids) {
 	const link = await postJson(generateUrl(`${talkLinksPath(meetingId)}/new`), {

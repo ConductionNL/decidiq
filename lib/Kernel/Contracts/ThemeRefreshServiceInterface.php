@@ -42,7 +42,7 @@ interface ThemeRefreshServiceInterface {
 	 *
 	 * @return array{republished: list<string>, unchanged: list<string>, failed: list<string>} Theme ids by outcome.
 	 *
-	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
+	 * @spec openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current
 	 */
 	public function refresh(): array;
 }//end interface

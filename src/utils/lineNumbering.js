@@ -9,7 +9,7 @@
  * relies on the numbers: a recommendation stores the exact words of its lines
  * (`targetPassage`), and that is what accepting replaces.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
  */
 
 /** The widest a line may be, in characters, for every motion. */
@@ -27,7 +27,7 @@ export const LINE_WIDTH = 80
  *
  * @return {Array<{number: number, text: string, start: number, end: number}>} The lines, numbered from 1.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-001-the-motion-text-can-be-read-with-stable-line-numbers
  */
 export function numberLines(text, width = LINE_WIDTH) {
 	const source = typeof text === 'string' ? text : ''
@@ -72,7 +72,7 @@ export function numberLines(text, width = LINE_WIDTH) {
  *
  * @return {string} The passage.
  *
- * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
+ * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording
  */
 export function passageOf(text, from, to, width = LINE_WIDTH) {
 	const lines = numberLines(text, width)

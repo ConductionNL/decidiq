@@ -2849,6 +2849,16 @@
 						"dateChip": false
 					},
 					{
+						"id": "24",
+						"widgetId": "confidentiality-lifted-awaiting-publication",
+						"gridX": 9,
+						"gridY": 40,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
 						"id": "18",
 						"widgetId": "onboarding-open",
 						"gridX": 0,

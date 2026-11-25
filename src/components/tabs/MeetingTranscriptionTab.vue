@@ -175,8 +175,11 @@
 				</div>
 				<p
 					v-for="(seg, i) in group.segments"
+					:id="segmentAnchor(seg.startTime)"
 					:key="i"
-					class="decidiq-transcription__segment">
+					class="decidiq-transcription__segment"
+					:class="{ 'decidiq-transcription__segment--linked': linkedStart !== null && linkedStart === segmentStart(seg.startTime) }">
+					<span class="decidiq-transcription__time">{{ formatOffset(seg.startTime) }}</span>
 					<strong>{{ seg.speakerLabel }}:</strong> {{ seg.text }}
 				</p>
 			</div>
@@ -327,6 +330,7 @@ import {
 } from '../../utils/minutesDraft.js'
 import { isVideoRecording, itemStartTimes } from '../../utils/recordingJump.js'
 import { saveOrThrow } from '../../utils/saveOrThrow.js'
+import { formatOffset, segmentAnchor, segmentStart, startFromHash } from '../../utils/transcriptSegments.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -391,6 +395,8 @@ export default {
 			sourceOptions: [],
 			selectedSource: null,
 			transcript: null,
+			// The start, in seconds, of the segment the page was opened at.
+			linkedStart: null,
 			agendaTitles: {},
 			draft: null,
 			usedNotice: '',
@@ -581,7 +587,30 @@ export default {
 			} catch (e) {
 				this.transcript = null
 			}
+			this.showLinkedSegment()
 		},
+
+		/**
+		 * Bring the segment the page was opened at into view and play from it.
+		 *
+		 * A speaker's slot on the agenda links here with #transcript-segment-<seconds>.
+		 *
+		 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage
+		 */
+		showLinkedSegment() {
+			this.linkedStart = startFromHash(this.$route?.hash)
+			if (this.linkedStart === null || !this.transcript) return
+			this.$nextTick(() => {
+				const segment = document.getElementById(segmentAnchor(this.linkedStart))
+				if (!segment) return
+				segment.scrollIntoView?.({ block: 'center' })
+				this.playFrom(this.linkedStart)
+			})
+		},
+
+		formatOffset,
+		segmentAnchor,
+		segmentStart,
 
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		async loadAgendaTitles() {
@@ -914,6 +943,18 @@ export default {
 
 .decidiq-transcription__segment {
 	margin: 2px 0;
+	scroll-margin-top: 80px;
+}
+
+.decidiq-transcription__segment--linked {
+	background: var(--color-primary-element-light);
+	border-radius: var(--border-radius);
+}
+
+.decidiq-transcription__time {
+	color: var(--color-text-maxcontrast);
+	font-variant-numeric: tabular-nums;
+	margin-inline-end: 8px;
 }
 
 .decidiq-transcription__section {

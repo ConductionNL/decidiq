@@ -1,7 +1,7 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Speaking rights at meetings (inspreekrecht-plenair) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE: the secretariat's cross-meeting overview of speaking requests (pending first through the default quick filter), a request detail page with its contribution, Files leaf and audit trail, and the per-body speaking policies. Schema refs BY SLUG (speaking-request, speaking-policy), never the PascalCase keys. Moderation (approve/reject/refer) opens registered dialogs from the overview rows, the deadline warning is the speaking-deadline cell widget, and the agenda blocks (AgendaItemSpeakersTab, MeetingSpeakersTab) sit on the base agenda item and meeting pages in src/manifest.json, because a fragment replaces a same-id page wholesale. No menu entries yet: the main menu and the simple structure profile are a fixed design (nav ceiling, structureProfile), so placing these pages there is its own decision; the pages are reachable by route.",
-	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
+	"_spec": "openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
 	"menu": [],
 	"pages": [
 		{
@@ -9,7 +9,7 @@
 			"route": "/speaking-requests",
 			"type": "index",
 			"title": "Speaking requests",
-			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
+			"_note": "spec: openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
 			"config": {
 				"register": "decidiq",
 				"schema": "speaking-request",
@@ -151,7 +151,7 @@
 			"route": "/speaking-requests/:id",
 			"type": "detail",
 			"title": "Speaking request",
-			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage",
+			"_note": "spec: openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage",
 			"config": {
 				"register": "decidiq",
 				"schema": "speaking-request",
@@ -230,7 +230,7 @@
 			"route": "/speaking-policies",
 			"type": "index",
 			"title": "Speaking policies",
-			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-003-per-body-inspraak-policy-schema",
+			"_note": "spec: openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-003-per-body-inspraak-policy-schema",
 			"config": {
 				"register": "decidiq",
 				"schema": "speaking-policy",

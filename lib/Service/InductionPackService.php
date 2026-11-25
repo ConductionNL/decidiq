@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
  * rest still goes; when nothing at all could be delivered the step stays
  * open. The step's reference is the folder.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
  */
 class InductionPackService {
 
@@ -95,7 +95,7 @@ class InductionPackService {
 	 *
 	 * @return PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	public function deliver(string $onboardingId, string $actor): PathwayResult {
 		$open = $this->openStep(onboardingId: $onboardingId);
@@ -142,7 +142,7 @@ class InductionPackService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function noteFor(string $path, array $tally): string {
 		$note = sprintf('Delivered %d item(s) to %s.', count($tally['delivered']), $path);
@@ -161,7 +161,7 @@ class InductionPackService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function completeStep(array $open, array $done): void {
 		$this->store->patch(
@@ -187,7 +187,7 @@ class InductionPackService {
 	 *
 	 * @return array{uuid: string, record: array<string,mixed>, steps: list<array<string,mixed>>, index: int}|PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function openStep(string $onboardingId): array|PathwayResult {
 		$record = $this->store->find(schema: OnboardingProvisioningService::ONBOARDING, uuid: $onboardingId);
@@ -215,7 +215,7 @@ class InductionPackService {
 	 *
 	 * @return array{uid: string, body: array<string,mixed>, items: list<array{title: string, fileId: int|null, url: string|null}>}|PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function packFor(array $record): array|PathwayResult {
 		$uid = trim((string) ($record['ncAccount'] ?? ''));
@@ -242,7 +242,7 @@ class InductionPackService {
 	 *
 	 * @return list<array{title: string, fileId: int|null, url: string|null}>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function items(array $body): array {
 		$listed = ($body['inductionDocuments'] ?? []);
@@ -269,7 +269,7 @@ class InductionPackService {
 	 *
 	 * @return array{title: string, fileId: int|null, url: string|null}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function item(array $item): array {
 		$fileId = null;
@@ -293,7 +293,7 @@ class InductionPackService {
 	 *
 	 * @return array{delivered: list<string>, skipped: list<string>}
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function copyAll(array $target, array $items): array {
 		$tally = ['delivered' => [], 'skipped' => []];
@@ -330,7 +330,7 @@ class InductionPackService {
 	 *
 	 * @return array{0: 'delivered'|'skipped', 1: string} The outcome and the label to tally.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function copyItem(array $target, array $item): array {
 		if ($item['fileId'] === null) {
@@ -354,7 +354,7 @@ class InductionPackService {
 	 *
 	 * @return string|null Null when copied, else why it was skipped.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function copyFile(array $target, int $fileId): ?string {
 		try {
@@ -388,7 +388,7 @@ class InductionPackService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function writeFile(Folder $folder, string $name, string $content): void {
 		if ($folder->nodeExists($name) === true) {
@@ -410,7 +410,7 @@ class InductionPackService {
 	 *
 	 * @return Folder
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function folderFor(string $uid, string $name): Folder {
 		$home = $this->rootFolder->getUserFolder($uid);
@@ -431,7 +431,7 @@ class InductionPackService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function folderName(array $body): string {
 		$name = trim(str_replace(['/', '\\'], '-', (string) ($body['name'] ?? '')));
@@ -450,7 +450,7 @@ class InductionPackService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
 	 */
 	private function labelOr(string $label, string $fallback): string {
 		if ($label === '') {

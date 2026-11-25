@@ -44,7 +44,7 @@ interface PaperSummaryServiceInterface {
 	 *
 	 * @return array{available: bool, summary: bool, comparison: bool} Per kind, and whether any.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	public function availability(): array;
 
@@ -53,7 +53,7 @@ interface PaperSummaryServiceInterface {
 	 *
 	 * @return bool True for a clerk.
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
 	 */
 	public function canRequest(): bool;
 
@@ -69,7 +69,7 @@ interface PaperSummaryServiceInterface {
 	 *
 	 * @throws PaperSummaryRefusedException 401, 403, 422 or 503 with the reason
 	 *
-	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
+	 * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle
 	 */
 	public function request(string $agendaItemId, int $fileId, string $kind, ?int $comparedFileId=null): array;
 }//end interface

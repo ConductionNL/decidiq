@@ -9,7 +9,7 @@
  * x-openregister-lifecycle (lib/Settings/register.d/119-paper-summaries.json),
  * so an action offered here is always a transition OpenRegister accepts.
  *
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 import { generateUrl } from '@nextcloud/router'
 
@@ -27,7 +27,7 @@ const CLERK_ACTIONS = {
  *
  * @param {string} agendaItemId The agenda item.
  * @return {string} The URL.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
 export function requestUrl(agendaItemId) {
 	return generateUrl(
@@ -40,7 +40,7 @@ export function requestUrl(agendaItemId) {
  * viewer may ask.
  *
  * @return {string} The URL.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
 export function availabilityUrl() {
 	return generateUrl('/apps/decidiq/api/paper-summaries/availability')
@@ -54,7 +54,7 @@ export function availabilityUrl() {
  * @param {Array<object>} summaries The agenda item's summaries.
  * @param {boolean} isClerk Whether the viewer is a clerk.
  * @return {Array<object>} The summaries to show.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status
  */
 export function visibleSummaries(summaries, isClerk) {
 	const list = Array.isArray(summaries) ? summaries : []
@@ -74,7 +74,7 @@ export function visibleSummaries(summaries, isClerk) {
  * @param {object} summary The summary.
  * @param {boolean} isClerk Whether the viewer is a clerk.
  * @return {Array<string>} Some of edit, show, hide, retry.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 export function actionsFor(summary, isClerk) {
 	if (!isClerk) return []
@@ -86,7 +86,7 @@ export function actionsFor(summary, isClerk) {
  *
  * @param {object} summary The summary as read.
  * @return {object} Its own fields.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 function ownFields(summary) {
 	const fields = { ...summary }
@@ -103,7 +103,7 @@ function ownFields(summary) {
  * @param {string} reviewer The clerk's display name.
  * @param {Date} now The moment.
  * @return {object} The fields to save.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 export function reviewPayload(summary, status, reviewer, now) {
 	return {
@@ -120,7 +120,7 @@ export function reviewPayload(summary, status, reviewer, now) {
  * @param {object} summary The draft.
  * @param {string} text The corrected text.
  * @return {object} The fields to save.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
  */
 export function editPayload(summary, text) {
 	return { ...ownFields(summary), text }
@@ -132,7 +132,7 @@ export function editPayload(summary, text) {
  * @param {Array<object>} files The item's files as OpenRegister lists them.
  * @param {number|null} without A file id to leave out.
  * @return {Array<{id: number, label: string}>} The options.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
 export function paperOptions(files, without = null) {
 	const list = Array.isArray(files) ? files : []
@@ -149,7 +149,7 @@ export function paperOptions(files, without = null) {
  *
  * @param {object} summary The failed summary.
  * @return {{fileId: number, kind: string, comparedFileId?: number}} The body.
- * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
+ * @spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
 export function retryBody(summary) {
 	const body = {

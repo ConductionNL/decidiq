@@ -751,8 +751,6 @@ The Decision Detail page MUST render three declarative `object-list` widgets, ea
 - WHEN a user opens Decision D's detail page
 - THEN the "Member consultations" widget renders its configured empty-state text instead of an empty table
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "No member consultations reference this decision yet."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 #### Scenario: A decision referenced by a WOR consultation request
 
 - GIVEN a `ConsultationRequest` object whose `relatedDecision` field is set to Decision D
@@ -806,8 +804,6 @@ The Decision Detail page MUST render a declarative `object-list` widget listing 
 - WHEN a user opens Decision D's detail page
 - THEN the "Commitments" widget lists that commitment with its deadline and lifecycle status
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: commitments facet lists a toezegging linked via relatedMotion" — creates a real toezegging referencing the decision and asserts it renders); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 ### Requirement: Decision detail surfaces confidentiality status (REQ-DFC-005)
 
 The Decision Detail page MUST render a read-only declarative `object-list` widget listing `geheimhouding` objects whose `targetDecision` property equals the current decision's id (the case where this decision, or the content it represents, is itself under geheimhouding), showing the resolved ground, the lifecycle state, and the `ratificationDeadline`. This widget MUST NOT offer create/edit actions (`allowCreate: false`) — geheimhouding is imposed through the geheimhoudingenregister's own imposing flow, not from the Decision detail page. Widgets for `Geheimhouding.ratificationDecision` and `Geheimhouding.dissolutionDecision` (this decision acting as another record's confirming or lifting besluit) are explicitly out of scope for this requirement.
@@ -826,8 +822,6 @@ The Decision Detail page MUST render a read-only declarative `object-list` widge
 - GIVEN Decision D has no `Geheimhouding` object referencing it as `targetDecision`
 - WHEN a user opens Decision D's detail page
 - THEN the "Confidentiality" widget renders its configured empty-state text
-
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "This decision has no confidentiality restriction."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
 
 ### Requirement: REQ-SDP-001 The next step is the one primary button
 
@@ -985,3 +979,44 @@ The `decision` schema SHALL expose an `awaitingRatification` field derived decla
 - Decision list supports search, sort, and filter by status/body/date
 - Detail view uses CnDetailPage + CnObjectSidebar with state machine visualization
 - OpenRaadsinformatie `Besluit` mapping is available for each decision
+
+### Requirement: REQ-FUP-001 An adopted decision takes dated progress updates
+
+The app SHALL let the secretariat add an implementation update to a decision that is decided or enacted with outcome adopted: a date, a status (not started, on track, delayed, completed, will not be implemented), an optional percentage and a text, with evidence files attached. It SHALL refuse updates on any other decision. The decision page and the motion page SHALL list the updates newest first.
+
+#### Scenario: The griffier reports progress on a motion
+- GIVEN the council adopted "Motie meer groen in de wijk" in January
+- WHEN the griffier adds an update on 15 June, status delayed, 45 percent, "Aanbesteding uitgesteld tot na de zomer"
+- THEN the motion page lists that update above the one of 1 March
+
+#### Scenario: A rejected motion takes no updates
+- GIVEN a motion the council rejected
+- WHEN the griffier tries to add an update
+- THEN the update is refused with a message that only adopted decisions are followed up
+
+### Requirement: REQ-FUP-002 The decision shows its current implementation status
+
+The decision SHALL carry an implementation status and its date, taken from its newest update by date. A back-dated update SHALL not replace a newer status.
+
+#### Scenario: The status follows the newest update
+- GIVEN a motion whose newest update says on track
+- WHEN an update dated later says delayed
+- THEN the motion's implementation status reads delayed with that date
+
+### Requirement: REQ-FUP-003 The motions and decisions lists filter on implementation status
+
+The Motions and Decisions lists SHALL show the implementation status as a column and offer it as a quick filter.
+
+#### Scenario: The council asks which motions are delayed
+- GIVEN twelve adopted motions, three of them delayed
+- WHEN the griffier filters the Motions list on delayed
+- THEN three motions are listed
+
+### Requirement: REQ-FUP-004 The secretariat is reminded when nobody reported for 90 days
+
+The decision schema SHALL declare a scheduled notification that tells the secretariat about each adopted decision whose status is not completed or will not be implemented and whose last update, or decision date when there is none, is more than 90 days old.
+
+#### Scenario: A silent motion is flagged
+- GIVEN an adopted motion whose last update is 100 days old and says on track
+- WHEN the daily notification run fires
+- THEN each member of the secretariat gets "No progress reported: Motie meer groen in de wijk"

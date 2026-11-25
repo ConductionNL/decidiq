@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -46,7 +46,7 @@ use Psr\Log\LoggerInterface;
  * scopes follow from the roster through the role-to-scope projection, so
  * this class never writes a scope group.
  *
- * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+ * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
  */
 class OnboardingProvisioningService {
 
@@ -162,7 +162,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return string|null Null when the record does not exist; empty when it names no body.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function bodyOf(string $schema, string $id): ?string {
 		$record = $this->store->find(schema: $schema, uuid: $id);
@@ -187,7 +187,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function provision(string $onboardingId, string $actor): PathwayResult {
 		$open = $this->openStep(schema: self::ONBOARDING, uuid: $onboardingId);
@@ -234,7 +234,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
 	 */
 	public function revoke(string $offboardingId, string $actor): PathwayResult {
 		$open = $this->openStep(schema: self::OFFBOARDING, uuid: $offboardingId);
@@ -285,7 +285,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return array{schema: string, uuid: string, record: array<string,mixed>, steps: list<array<string,mixed>>, index: int}|PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	private function openStep(string $schema, string $uuid): array|PathwayResult {
 		$texts  = self::STEP_TEXTS[$schema];
@@ -315,7 +315,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	private function completeStep(array $open, array $done): void {
 		$this->store->patch(
@@ -341,7 +341,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return list<IGroup>|PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	private function provisionGroups(array $record): array|PathwayResult {
 		$role   = (string) ($record['targetRole'] ?? '');
@@ -374,7 +374,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return array{endDate: string, membershipId: string, user: IUser, names: list<string>}|PathwayResult
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
 	 */
 	private function revokePlan(array $record): array|PathwayResult {
 		$endDate = trim((string) ($record['endDate'] ?? ''));
@@ -413,7 +413,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return bool Whether the write held.
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
 	 */
 	private function endMembership(string $membershipId, string $endDate): bool {
 		try {
@@ -432,7 +432,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return IUser|null
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	private function linkedUser(string $uid): ?IUser {
 		$uid = trim($uid);
@@ -450,7 +450,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return IUser|null
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-008-fail-closed-de-provisioning-on-offboarding
 	 */
 	private function personUser(string $personId): ?IUser {
 		if ($personId === '') {
@@ -466,7 +466,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-004-structured-checklist-steps-with-per-step-status
 	 */
 	private function now(): string {
 		return $this->time->getDateTime()->format(DateTimeInterface::ATOM);
@@ -477,7 +477,7 @@ class OnboardingProvisioningService {
 	 *
 	 * @return list<string>
 	 *
-	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
+	 * @spec openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning
 	 */
 	public function allowedGroups(): array {
 		return $this->groupPolicy->allowedGroups();

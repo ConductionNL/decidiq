@@ -41,7 +41,7 @@ use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
  * @uses   \OCA\Decidiq\Service\SystemObjectRows
  * @uses   \OCA\Decidiq\Listener\LapseMoment
  *
- * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
+ * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */
 class ConfidentialityLapseListenerFailureTest extends TestCase {
 

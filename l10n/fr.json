@@ -3410,7 +3410,19 @@
         "Risk band {band}": "Niveau de risque {band}",
         "No risk band": "Aucun niveau de risque",
         "Score {score}, from:": "Score {score}, à partir de :",
-        "{property}: {value} (+{points})": "{property} : {value} (+{points} points)"
+        "{property}: {value} (+{points})": "{property} : {value} (+{points} points)",
+        "Vote on behalf of": "Voter au nom de",
+        "Myself": "Moi-même",
+        "Your vote on behalf of {name} has been recorded.": "Votre vote au nom de {name} a été enregistré.",
+        "Failed to grant proxy": "Échec de l’octroi de la procuration",
+        "This decision has been withdrawn.": "Cette décision a été retirée.",
+        "Withdraw decision": "Retirer la décision",
+        "Withdrawal failed.": "Le retrait a échoué.",
+        "Withdrawn by the deciding body": "Retirée par l'organe décisionnel",
+        "Withdrawn by the party who asked": "Retirée par la partie demanderesse",
+        "Transfer overdue": "Transfert en retard",
+        "Retention not resolved": "Conservation non déterminée",
+        "Meetings without dossier": "Réunions sans dossier"
     },
     "plurals": null
 }

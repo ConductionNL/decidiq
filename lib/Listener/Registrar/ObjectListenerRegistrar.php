@@ -34,7 +34,9 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ApprovalBasisChangeListener;
 use OCA\Decidiq\Listener\StepThresholdChangeListener;
+use OCA\Decidiq\Listener\CommitteeStepAgendaListener;
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
+use OCA\Decidiq\Listener\ConfidentialityPublishedListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\GoalProgressRefreshListener;
 use OCA\Decidiq\Listener\GoverningDocumentCurrentDateListener;
@@ -258,7 +260,7 @@ class ObjectListenerRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
+	 * @spec openspec/changes/archive/2026-11-24-live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
 	 */
 	private function subscribeRoomSystem(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
@@ -307,14 +309,16 @@ class ObjectListenerRegistrar {
 	 *
 	 * A non-public agenda item closes its papers, and an imposed item
 	 * restriction closes the item (REQ-ACP-003/004). A restriction put to a
-	 * body that does not ratify it lapses (REQ-EMB-021).
+	 * body that does not ratify it lapses (REQ-EMB-021). A lifted restriction
+	 * stops awaiting publication when its target is published (REQ-EMB-006).
 	 *
 	 * @param IEventDispatcher $dispatcher The live event dispatcher.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers
-	 * @spec openspec/changes/confidentiality-term-and-lapse
+	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 */
 	private function subscribeConfidentiality(IEventDispatcher $dispatcher): void {
@@ -338,6 +342,16 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [ConfidentialityLapseListener::SCHEMA_MEETING, ConfidentialityLapseListener::SCHEMA_AGENDA_ITEM]
 		);
+
+		// A lifted restriction stops waiting once its item or decision is
+		// public (embargo-geheimhouding REQ-EMB-006, the awaiting-publication tile).
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: ConfidentialityPublishedListener::class,
+			registers: null,
+			schemas: [ConfidentialityPublishedListener::SCHEMA_AGENDA_ITEM, ConfidentialityPublishedListener::SCHEMA_DECISION]
+		);
 	}//end subscribeConfidentiality()
 
 	/**
@@ -358,6 +372,7 @@ class ObjectListenerRegistrar {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-002)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-010)
 	 */
 	private function subscribeStaleApprovals(IEventDispatcher $dispatcher): void {
 		$this->subscribe(
@@ -374,6 +389,18 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [StepThresholdChangeListener::SCHEMA]
 		);
+
+		// A committee step goes on its body's agenda and returns with the
+		// body's decision (REQ-DWP-010).
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $committeeEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $committeeEvent,
+				listener: CommitteeStepAgendaListener::class,
+				registers: null,
+				schemas: CommitteeStepAgendaListener::SCHEMAS
+			);
+		}
 	}//end subscribeStaleApprovals()
 
 	/**

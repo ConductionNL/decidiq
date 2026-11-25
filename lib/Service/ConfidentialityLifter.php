@@ -110,6 +110,7 @@ class ConfidentialityLifter {
 	 * @throws ConfidentialityImposeRefusedException On a refusal (400, 403, 404, 409 or 422).
 	 *
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#scenario-opheffing-recorded-with-conditions
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 */
 	public function lift(string $userId, string $restrictionId, array $params): array {
 		$restriction = $this->readable(id: $restrictionId);
@@ -131,6 +132,7 @@ class ConfidentialityLifter {
 				'lifecycle'           => 'dissolved',
 				'dissolutionDecision' => $request['dissolutionDecision'],
 				'liftingDate'         => $this->time->getDateTime()->format('Y-m-d'),
+				'awaitingPublication' => self::awaitsPublication(restriction: $restriction),
 			]
 		);
 		if ($request['liftingConditions'] !== null) {
@@ -269,6 +271,23 @@ class ConfidentialityLifter {
 			throw new ConfidentialityImposeRefusedException(message: 'The lifting decision was not found.');
 		}
 	}//end requireDecision()
+
+	/**
+	 * Whether a lifted restriction waits for its target to be published.
+	 *
+	 * An agenda item or decision goes back to internal and waits for the normal
+	 * publication run; a document is not reopened by lifting, so it waits for
+	 * nothing here. ConfidentialityPublishedListener clears the flag.
+	 *
+	 * @param array<string, mixed> $restriction The restriction being lifted.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
+	 */
+	public static function awaitsPublication(array $restriction): bool {
+		return isset(self::REOPENED[(string)($restriction['scope'] ?? '')]);
+	}//end awaitsPublication()
 
 	/**
 	 * Return the target's classifier to internal, unless another restriction still closes it.

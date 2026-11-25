@@ -27,7 +27,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
+ * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ use Throwable;
 /**
  * Works out the day a decision has to be taken by.
  *
- * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
+ * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
  */
 final class DecisionTermCalculator {
 
@@ -60,7 +60,7 @@ final class DecisionTermCalculator {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
+	 * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route
 	 */
 	public function termEnd(array $decision, array $type, ?array $contested): ?string {
 		$period = self::period(value: ($type['termPeriod'] ?? null));

@@ -355,7 +355,7 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse The stored entity, or an error.
 	 *
-	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -385,7 +385,7 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse The stored entity, or an error.
 	 *
-	 * @spec openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-objection-advisory-committee/specs/objection-advisory-committee/spec.md
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

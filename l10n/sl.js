@@ -3346,7 +3346,10 @@ OC.L10N.register(
         "Risk band {band}": "Raven tveganja {band}",
         "No risk band": "Brez ravni tveganja",
         "Score {score}, from:": "Ocena {score}, iz:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} toč.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} toč.)",
+        "Transfer overdue": "Predaja zamuja",
+        "Retention not resolved": "Hramba ni določena",
+        "Meetings without dossier": "Seje brez zadeve"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -26,13 +26,14 @@ Build after `urgent-decision-procedure` (it adds the declaration endpoint, `Urge
 
 ### Task 3: Report action and automatic first report date
 - **spec_ref**: `#requirement-req-021-the-report-to-the-ratifying-body-is-recorded-once`
-- **files**: `lib/Controller/DecisionController.php` (`POST /api/decisions/{id}/urgency/reported`), `appinfo/routes.php`, `lib/Service/UrgentRatificationService.php`, raadsinformatiebrief link listener
+- **files**: `lib/Controller/DecisionController.php` (`POST /api/decisions/{id}/urgency/reported`), `appinfo/routes.php`, `lib/Service/UrgentRatificationService.php`, raadsinformatiebrief link listener (built as the `reportsOnDecision` type field in `lib/Listener/RatificationPlacedReportListener.php`)
 - **acceptance_criteria**:
   - GIVEN no report date WHEN the action, the agenda placement or a linked raadsinformatiebrief happens THEN the date is set; GIVEN a date WHEN any of them happens again THEN it stays
   - GIVEN a caller outside the allowed roles WHEN the action is called THEN 403 (with an OCS controller: refuse with a non-403 code plus `error`, see OCS middleware)
-- [ ] Implement
-- [ ] Test (through the real controller and middleware)
+- [x] Implement
+- [x] Test (through the real controller and middleware): written, runs in nightly
 - Built (20 Nov), box left open: `POST /api/decisions/{decisionId}/urgency/reported` (`UrgentProcedureController::reported`, `UrgentReportService`), guarded by the same roles as the declaration through `UrgencyTriggerGuard::mayTrigger` (403 before anything about the decision is revealed; 409 when not urgent; a second call keeps the first date). `RatificationPlacedReportListener` sets the date when an agenda item with `ratifiesDecision` is saved on a meeting, whichever path placed it, and never overwrites. The banner offers "Mark as reported to the ratifying body" and shows the date. Tests: `UrgentReportServiceTest`, `RatificationPlacedReportListenerTest`, `UrgentProcedureControllerTest`. Open: (a) the information-letter trigger. `raadsinformatiebrief` is retired by documents-as-agenda-items, and a letter (an agenda item of a letter kind) has no relation to a decision to listen to; see the question in the PR. (b) the test through the real controller and middleware needs a live instance.
+- Built (24 Nov): the letter trigger. Since documents-as-agenda-items a letter is an agenda item of a kind the organisation names, so the link is configuration: a kind that declares the type field `reportsOnDecision` (a reference) reports the decision it names. `RatificationPlacedReportListener::reportedDecisions()` reads it next to the placed ratification, on or off a meeting, and stamps through the same once-only `RatifyingBodyReport`. The municipality profile gives Raadsinformatiebrief that field. Tests: `RatificationPlacedReportListenerTest` (+3). The test through the real controller and middleware is folder 4 of `tests/integration/decidiq-urgent-decision-procedure.postman_collection.json` (report action 200, the first date stays, 409 when not urgent, a letter on a decision that is not urgent stamps nothing), now in `tests/newman/run-all.sh`: written, runs in nightly, not run here (no live instance).
 
 ### Task 4: List per board DcSpoedbesluiten
 - **spec_ref**: `#requirement-req-022-the-register-reads-as-the-board-draws-it`

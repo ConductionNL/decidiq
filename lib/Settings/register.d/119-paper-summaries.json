@@ -1,6 +1,6 @@
 {
 	"_note": "agenda-ai-paper-summaries (age-16, age-20, plt-27): an AI summary or comparison of a meeting paper is a record with a review status. The review states are a declarative lifecycle and who reads what is a declarative read rule: members read shown summaries only, the secretariat and administrators read all. Generating the text is imperative (PaperSummaryService and PaperSummaryTaskListener: an external AI provider, ADR-031 exception). Numbered 119, not the 92 the design names: 92 was taken by citizen advice on motions.",
-	"_spec": "openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md",
 	"components": {
 		"registers": {
 			"decidiq": {

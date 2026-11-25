@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
@@ -93,7 +94,7 @@ class VoteCastGuard {
 	 *
 	 * @throws \InvalidArgumentException When the ballot does not fit the round.
 	 *
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 */
 	public function ballotValue(array $round, string $value, ?array $ranking): string {
 		return (new RankedBallotRules())->ballotValue(round: $round, value: $value, ranking: $ranking);
@@ -324,8 +325,8 @@ class VoteCastGuard {
 	 */
 	private function hasAbsenceDelegation(string $delegatorId, string $participantId, ?string $callerUid): bool {
 		try {
-			$prefService = $this->container->get(NotificationPreferenceService::class);
-			if ($prefService instanceof NotificationPreferenceService === false) {
+			$prefService = $this->container->get(NotificationPreferenceServiceInterface::class);
+			if ($prefService instanceof NotificationPreferenceServiceInterface === false) {
 				return false;
 			}
 

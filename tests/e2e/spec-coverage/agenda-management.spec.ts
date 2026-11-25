@@ -245,7 +245,6 @@ test('general assembly agenda warns about missing statutory ALV items', async ({
 })
 
 // @e2e openspec/specs/agenda-management/spec.md#group-agenda-items-with-sub-items
-// @e2e openspec/specs/agenda-management/spec.md#sub-items-stay-grouped-under-their-parent-when-reordering
 test('sub-items render nested under their parent in the agenda tab', async ({
 	page,
 	playwright,

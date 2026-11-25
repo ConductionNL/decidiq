@@ -16,7 +16,7 @@
 			"route": "/topic-themes",
 			"type": "index",
 			"title": "Theme pages",
-			"_note": "spec: openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme",
+			"_note": "spec: openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-001-the-griffie-gathers-a-long-running-topic-in-a-theme",
 			"config": {
 				"register": "decidiq",
 				"schema": "governance-theme",
@@ -46,7 +46,7 @@
 			"route": "/topic-themes/:id",
 			"type": "detail",
 			"title": "Theme",
-			"_note": "spec: openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it",
+			"_note": "spec: openspec/changes/archive/2026-11-24-publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it",
 			"config": {
 				"register": "decidiq",
 				"schema": "governance-theme",

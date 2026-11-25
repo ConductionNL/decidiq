@@ -10,7 +10,7 @@
  * repo's vitest, so the logic lives in src/utils/commitmentPublication.js and the
  * wiring is asserted on the manifest and the registry source.
  *
- * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
+ * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md#requirement-req-005-public-toezeggingenlijst-via-the-or-published-predicate
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

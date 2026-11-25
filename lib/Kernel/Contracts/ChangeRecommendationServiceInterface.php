@@ -46,7 +46,7 @@ interface ChangeRecommendationServiceInterface {
 	 *
 	 * @return string|null The motion uuid.
 	 *
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 	 */
 	public function motionIdOf(string $recommendationId): ?string;
 
@@ -60,7 +60,7 @@ interface ChangeRecommendationServiceInterface {
 	 *
 	 * @throws ChangeRecommendationRefusedException When it may not be accepted.
 	 *
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 	 */
 	public function accept(string $recommendationId, string $deciderUid): array;
 
@@ -74,7 +74,7 @@ interface ChangeRecommendationServiceInterface {
 	 *
 	 * @throws ChangeRecommendationRefusedException When it may not be rejected.
 	 *
-	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-004-a-rejected-recommendation-changes-nothing
+	 * @spec openspec/changes/archive/2026-11-24-motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-004-a-rejected-recommendation-changes-nothing
 	 */
 	public function reject(string $recommendationId, string $deciderUid): array;
 }//end interface

@@ -15,12 +15,12 @@
  * Base URL from the environment (tests/e2e/base-url.ts via the config); the
  * run's bodies and decisions are deleted afterwards.
  *
- * Covers, from openspec/changes/insight-decisions-report-by-period-and-body:
+ * Covers, from openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body:
  *   task 3 "Playwright compares the Adopted tile before and after the pick"
  *   task 4 "Body picker and By body chart", end to end
  *   task 5 "Open the same decisions as a list"
  *
- * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md
+ * @spec openspec/changes/archive/2026-11-24-insight-decisions-report-by-period-and-body/specs/dashboard/spec.md
  */
 import type { Locator, Page } from '@playwright/test'
 

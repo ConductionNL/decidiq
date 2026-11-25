@@ -83,6 +83,13 @@ describe('VotingRoundPanel source', () => {
 		expect(source).toMatch(/permissions\.canCastChairVote/)
 		expect(source).toMatch(/permissions\.canClose/)
 	})
+
+	// vot-14 (#1375): the round's own counts stay zero until close.
+	it('reads the open round count from the live-tally endpoint', () => {
+		expect(source).toMatch(/\/live-tally`/)
+		expect(source).toMatch(/this\.loadLiveTally\(\)/)
+		expect(source).toMatch(/for: openSplit\.votesFor/)
+	})
 })
 
 describe('amendment voting context', () => {

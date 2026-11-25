@@ -6,7 +6,7 @@
  its agenda items (inspreekrecht-plenair, REQ-INS-005). The request stays
  pending; the server re-targets it and notifies the registrant.
 
- @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
+ @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer
 -->
 <template>
 	<NcDialog
@@ -76,13 +76,13 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 		speakerName() {
 			return speakerNameOf(this.object)
 		},
 	},
 
-	/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+	/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 	async mounted() {
 		this.loadingMeetings = true
 		this.meetings = await meetingOptions(this.object?.governanceBody || '', this.object?.meeting || '')
@@ -90,13 +90,13 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 		async loadItems() {
 			this.agendaItem = null
 			this.items = this.meeting ? await agendaItemOptions(this.meeting.id) : []
 		},
 
-		/** @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
+		/** @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-005-griffier-moderation-approve-reject-refer */
 		async confirm() {
 			this.working = true
 			this.error = await runModeration(

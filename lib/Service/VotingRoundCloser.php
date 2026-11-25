@@ -102,9 +102,6 @@ class VotingRoundCloser {
 				result: (string)($tally['result'] ?? 'invalid'),
 				votingRoundId: $votingRoundId
 			);
-		}
-
-		if ($round !== null) {
 			$this->resolveDecisionStage(
 				round: $round,
 				result: (string)($tally['result'] ?? 'invalid'),
@@ -176,7 +173,10 @@ class VotingRoundCloser {
 			return null;
 		}
 
-		if (($round['closedAt'] ?? null) === null) {
+		// A closing time preset when the round was opened and still ahead does
+		// not mean closed: closing early stamps the actual moment (#1379).
+		$closedAt = (string)($round['closedAt'] ?? '');
+		if ($closedAt === '' || strtotime($closedAt) > time()) {
 			$round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$this->objectService()->saveObject(
 				object: $round,
@@ -470,7 +470,7 @@ class VotingRoundCloser {
 	 * @return void
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-005-ranked-choice-rounds-inherit-secret-ballot-rules
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-005-ranked-choice-rounds-inherit-secret-ballot-rules
 	 */
 	private function anonymiseVotes(string $votingRoundId): void {
 		try {

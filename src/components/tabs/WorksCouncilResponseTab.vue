@@ -10,8 +10,8 @@
  decision as decision-methods does, never on the traject. The server decides
  who may write the document; anyone else gets its refusal as a message.
 
- @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
- @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+ @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
+ @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
 -->
 <template>
 	<div class="decidiq-tab" data-testid="works-council-response-tab">
@@ -77,7 +77,7 @@ export default {
 	name: 'WorksCouncilResponseTab',
 	components: { NcButton, RecordDirectorDecisionDialog },
 
-	/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+	/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 	mixins: [objectIdLoader],
 
 	data() {
@@ -91,12 +91,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+		/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 		steps() {
 			return nextSteps(this.traject)
 		},
 
-		/** @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
+		/** @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn */
 		hasAny() {
 			const s = this.steps
 			return s.writeDocument || s.recordDecision || Boolean(s.constituencyConsultation) || Boolean(s.relatedDecision)
@@ -107,7 +107,7 @@ export default {
 		/**
 		 * Read the traject.
 		 *
-		 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
+		 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
 		 */
 		async load() {
 			this.traject = null
@@ -123,7 +123,7 @@ export default {
 		 * Save the decision with the move to decision-received, then read the traject again.
 		 *
 		 * @param {{outcome: string, text: string, date: string}} decision The decision
-		 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
+		 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn
 		 */
 		async recordDecision(decision) {
 			this.error = ''
@@ -149,7 +149,7 @@ export default {
 		/**
 		 * Write the response document; the server stores it on the traject and links it.
 		 *
-		 * @spec openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
+		 * @spec openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage
 		 */
 		async writeDocument() {
 			this.error = ''

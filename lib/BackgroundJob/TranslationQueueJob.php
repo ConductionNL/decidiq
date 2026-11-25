@@ -5,9 +5,9 @@
  *
  * Phase 6 — hourly background job that processes a batch of queued
  * translation requests through MultilingualReconciliationService. The
- * default adapter is the dormant LogTranslationAdapter which delegates
- * to openconnector when its translation source is bound; otherwise the
- * job logs the request and leaves the source text in place.
+ * default adapter is NextcloudTranslationAdapter, which translates through
+ * Nextcloud TaskProcessing; without an installed translation provider the
+ * entries fail with a message saying so.
  *
  * @category BackgroundJob
  * @package  OCA\Decidiq\BackgroundJob

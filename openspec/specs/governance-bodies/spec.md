@@ -166,8 +166,6 @@ faction membership.
   and `parentBody` set to the Gemeenteraad Amsterdam object id
 - **THEN** `parentBody` resolves to the Gemeenteraad Amsterdam `GovernanceBody`
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-organisation-detail.spec.ts ("GovernanceBodyDetail: factions facet lists the seeded factions under their parent council" — the seeded factions "GroenLinks-fractie"/"D66-fractie" both carry `parentBody: gemeenteraad-amsterdam`, and the test asserts both render under Gemeenteraad Amsterdam's Factions widget, proving `parentBody` resolution); that test's own @e2e anchor still targets the pre-archival openspec/changes/organisation-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 #### Scenario: Faction members use the same Membership relation as any other body
 - **GIVEN** the "GroenLinks-fractie" `GovernanceBody` from the scenario above
 - **WHEN** a raadslid's `Membership.governanceBody` is set to the faction's object id
@@ -324,3 +322,40 @@ The "Composition" widget SHALL show the current members by gender, age band, nat
 - GIVEN one member has no birth date recorded
 - WHEN the widget shows age bands
 - THEN that member is counted under "not recorded" and in no age band
+
+### Requirement: REQ-DRM-001 A position holder's remuneration is recorded per year
+
+The app SHALL let the secretariat record, per position hold and year, a fixed annual fee, a fee per meeting, an expense allowance, the currency, the decision that set them, and whether the record is disclosed with a publication date. Only the secretariat and administrators SHALL read these records, except that anyone SHALL read a record that is disclosed and whose publication date has passed.
+
+#### Scenario: The company secretary records the chair's fee
+- GIVEN the general meeting decided the supervisory board's fees for 2026
+- WHEN the company secretary records 32000 EUR fixed and 1500 EUR expenses for the chair, linked to that decision
+- THEN the record is saved and shows on the chair's position hold
+
+#### Scenario: A member cannot read a colleague's pay
+- GIVEN the chair's record is not disclosed
+- WHEN a member of the supervisory board lists remuneration
+- THEN the chair's record is not returned
+
+#### Scenario: Disclosed pay is public
+- GIVEN the chair's record is disclosed with publication date 30 April 2026
+- WHEN an anonymous visitor reads it on 1 May 2026
+- THEN the record is returned
+
+### Requirement: REQ-DRM-002 The body page shows this year's remuneration and its total
+
+The governance body page SHALL show the remuneration records of the current year and the total of their fixed fees, to readers allowed to read them.
+
+#### Scenario: The secretary checks the board's cost
+- GIVEN two records for 2026, of 32000 and 24000 EUR fixed
+- WHEN the company secretary opens the supervisory board's page
+- THEN she sees both records and a total of 56000 EUR
+
+### Requirement: REQ-DRM-003 A position hold lists its remuneration over the years
+
+The position hold page SHALL list that hold's remuneration records, newest year first.
+
+#### Scenario: Two years of fees
+- GIVEN the chair's hold has records for 2025 and 2026
+- WHEN the company secretary opens the hold
+- THEN 2026 is listed above 2025

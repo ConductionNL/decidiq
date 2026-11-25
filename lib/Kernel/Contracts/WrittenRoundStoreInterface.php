@@ -45,7 +45,7 @@ interface WrittenRoundStoreInterface {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md
 	 */
 	public function findAll(string $schema, array $filters): array;
 }//end interface

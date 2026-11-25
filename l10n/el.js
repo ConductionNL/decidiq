@@ -3408,7 +3408,15 @@ OC.L10N.register(
         "Risk band {band}": "Επίπεδο κινδύνου {band}",
         "No risk band": "Χωρίς επίπεδο κινδύνου",
         "Score {score}, from:": "Βαθμολογία {score}, από:",
-        "{property}: {value} (+{points})": "{property}: {value} (+{points} μον.)"
+        "{property}: {value} (+{points})": "{property}: {value} (+{points} μον.)",
+        "This decision has been withdrawn.": "Αυτή η απόφαση έχει ανακληθεί.",
+        "Withdraw decision": "Ανάκληση απόφασης",
+        "Withdrawal failed.": "Η ανάκληση απέτυχε.",
+        "Withdrawn by the deciding body": "Ανακλήθηκε από το αποφασίζον όργανο",
+        "Withdrawn by the party who asked": "Ανακλήθηκε από τον αιτούντα",
+        "Transfer overdue": "Καθυστερημένη μεταφορά",
+        "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί",
+        "Meetings without dossier": "Συνεδριάσεις χωρίς φάκελο"
     },
     "nplurals=2; plural=(n != 1);"
 )

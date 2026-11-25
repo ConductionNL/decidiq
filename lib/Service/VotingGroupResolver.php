@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Throwable;
  * relations is open to every member of the body, so an empty resolution would
  * silently widen the vote from the group to everyone. It is refused instead.
  *
- * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+ * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
  */
 class VotingGroupResolver {
 
@@ -59,7 +59,7 @@ class VotingGroupResolver {
 	 * @param ParticipantResolver    $participants  The meeting's participants and body.
 	 * @param ObjectServiceInterface $objectService OpenRegister's object contract, for the group and its persons.
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
 	 */
 	public function __construct(
 		private readonly ParticipantResolver $participants,
@@ -78,7 +78,7 @@ class VotingGroupResolver {
 	 *
 	 * @throws InvalidArgumentException When the group does not exist, is inactive, belongs to another body, or leaves nobody to vote.
 	 *
-	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+	 * @spec openspec/changes/archive/2026-11-24-voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
 	 */
 	public function resolve(string $groupId, string $meetingId, ?string $bodyId = null): array {
 		$group = $this->usableGroup(groupId: $groupId, bodyId: ($bodyId ?? $this->participants->resolveGovernanceBodyId(meetingId: $meetingId)));

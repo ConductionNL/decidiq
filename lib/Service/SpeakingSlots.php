@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Builds speaking slots from a meeting's speaking requests.
  *
- * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+ * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
  */
 class SpeakingSlots {
 
@@ -65,7 +65,7 @@ class SpeakingSlots {
 	 * @return array<string, array{slots: array<int, array<string, mixed>>, pending: array<int, array<string, mixed>>}>
 	 *         Keyed by agenda item id, or `meeting` for meeting-level requests.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
 	 */
 	public function internal(array $requests): array {
 		$agenda = [];
@@ -99,7 +99,7 @@ class SpeakingSlots {
 	 *
 	 * @return array<string, array<string, mixed>> Keyed by agenda item id, or `meeting`.
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
 	 */
 	public function public(array $requests, string $display): array {
 		if (in_array($display, self::DISPLAYS, true) === false) {
@@ -132,7 +132,7 @@ class SpeakingSlots {
 	 *
 	 * @return array<int, array{requestId: string, kind: string, name: string, minutes: int, position: int}>
 	 *
-	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 * @spec openspec/changes/archive/2026-11-24-inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
 	 */
 	public function queue(array $requests, string $agendaItemId): array {
 		$place = $agendaItemId;
