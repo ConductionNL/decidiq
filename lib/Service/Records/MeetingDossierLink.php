@@ -28,9 +28,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Records;
 
-use OCA\Decidiq\Service\SystemObjectStore;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Throwable;
 
 /**
@@ -45,17 +48,30 @@ class MeetingDossierLink {
 	public const PROPERTY = 'archivalDossier';
 
 	/**
+	 * The register both objects live in.
+	 */
+	private const REGISTER = 'decidiq';
+
+	/**
+	 * Where a failed link is reported.
+	 *
+	 * @var LoggerInterface
+	 */
+	private readonly LoggerInterface $logger;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister's object facade
-	 * @param LoggerInterface        $logger        Logger
+	 * @param LoggerInterface|null   $logger        Logger; none drops the failure report
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly LoggerInterface $logger,
+		?LoggerInterface $logger = null,
 	) {
+		$this->logger = ($logger ?? new NullLogger());
 	}//end __construct()
 
 	/**
@@ -78,13 +94,25 @@ class MeetingDossierLink {
 		}
 
 		try {
-			$meeting = SystemObjectStore::readData(objectService: $this->objectService, schema: 'meeting', id: $meetingId);
-			if ($meeting === null || ($meeting[self::PROPERTY] ?? null) === $dossierId) {
+			$entity = $this->objectService->find(
+				id: $meetingId,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: 'meeting'),
+				_rbac: false,
+				_multitenancy: false
+			);
+			$meeting = (array)$entity?->getObject();
+			if ($entity === null || ($meeting[self::PROPERTY] ?? null) === $dossierId) {
 				return false;
 			}
 
+			unset($meeting['id'], $meeting['@self']);
 			$meeting[self::PROPERTY] = $dossierId;
-			SystemObjectStore::write(objectService: $this->objectService, schema: 'meeting', object: $meeting, uuid: $meetingId);
+			$this->objectService->saveObject(
+				object: $meeting,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: 'meeting'), uuid: $meetingId),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: a meeting could not be linked to its archival dossier',

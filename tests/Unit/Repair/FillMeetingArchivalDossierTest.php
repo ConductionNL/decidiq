@@ -89,11 +89,15 @@ class FillMeetingArchivalDossierTest extends TestCase {
 	 * @return ObjectServiceInterface
 	 */
 	private function objectService(bool $saveFails = false): ObjectServiceInterface {
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity {
 				$data = ($this->store[(string)$options?->schema][(string)$id] ?? null);
-				return $data === null ? null : self::entity(id: (string)$id, data: $data);
+				if ($data === null) {
+					return null;
+				}
+
+				return self::entity(id: (string)$id, data: $data);
 			}
 		);
 		$objects->method('findAll')->willReturnCallback(
@@ -146,7 +150,7 @@ class FillMeetingArchivalDossierTest extends TestCase {
 	 * @return IOutput
 	 */
 	private function outputSaying(string $line): IOutput {
-		$output = $this->createMock(IOutput::class);
+		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with($line);
 		return $output;
 	}//end outputSaying()
@@ -168,7 +172,7 @@ class FillMeetingArchivalDossierTest extends TestCase {
 	 * @return void
 	 */
 	public function testItNamesItself(): void {
-		self::assertSame('Point meetings at their archival dossier', self::step(objects: $this->objectService())->getName());
+		self::assertSame(expected: 'Point meetings at their archival dossier', actual: self::step(objects: $this->objectService())->getName());
 	}//end testItNamesItself()
 
 	/**
@@ -190,18 +194,18 @@ class FillMeetingArchivalDossierTest extends TestCase {
 		];
 		$objects = $this->objectService();
 
-		self::step(objects: $objects)->run($this->outputSaying('FillMeetingArchivalDossier: 1 meeting(s) now name their archival dossier.'));
+		self::step(objects: $objects)->run(output: $this->outputSaying(line: 'FillMeetingArchivalDossier: 1 meeting(s) now name their archival dossier.'));
 
-		self::assertCount(1, $this->saves);
+		self::assertCount(expectedCount: 1, haystack: $this->saves);
 		[$schema, $meeting, $uuid, $rbac] = $this->saves[0];
-		self::assertSame('meeting', $schema);
-		self::assertSame('m-1', $uuid);
-		self::assertFalse($rbac, 'written in system context');
-		self::assertSame(['title' => 'Raad 1', 'lifecycle' => 'closed', 'archivalDossier' => 'd-1'], $meeting);
-		self::assertArrayNotHasKey('archivalDossier', $this->store['meeting']['m-3']);
+		self::assertSame(expected: 'meeting', actual: $schema);
+		self::assertSame(expected: 'm-1', actual: $uuid);
+		self::assertFalse(condition: $rbac, message: 'written in system context');
+		self::assertSame(expected: ['title' => 'Raad 1', 'lifecycle' => 'closed', 'archivalDossier' => 'd-1'], actual: $meeting);
+		self::assertArrayNotHasKey(key: 'archivalDossier', array: $this->store['meeting']['m-3']);
 
-		self::step(objects: $objects)->run($this->outputSaying('FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
-		self::assertCount(1, $this->saves, 'a second run writes nothing');
+		self::step(objects: $objects)->run(output: $this->outputSaying(line: 'FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
+		self::assertCount(expectedCount: 1, haystack: $this->saves, message: 'a second run writes nothing');
 	}//end testMeetingsWithADossierAreLinkedOnce()
 
 	/**
@@ -217,10 +221,11 @@ class FillMeetingArchivalDossierTest extends TestCase {
 		$this->store['archival-dossier']['d-last'] = ['title' => 'Dossier', 'meeting' => 'm-last'];
 		$this->store['meeting']['m-last'] = ['title' => 'Laatste'];
 
-		self::step(objects: $this->objectService())->run($this->outputSaying('FillMeetingArchivalDossier: 1 meeting(s) now name their archival dossier.'));
+		self::step(objects: $this->objectService())
+			->run(output: $this->outputSaying(line: 'FillMeetingArchivalDossier: 1 meeting(s) now name their archival dossier.'));
 
-		self::assertSame([0, 500], $this->offsets);
-		self::assertSame('d-last', $this->store['meeting']['m-last']['archivalDossier']);
+		self::assertSame(expected: [0, 500], actual: $this->offsets);
+		self::assertSame(expected: 'd-last', actual: $this->store['meeting']['m-last']['archivalDossier']);
 	}//end testItPagesUntilAShortPage()
 
 	/**
@@ -229,14 +234,15 @@ class FillMeetingArchivalDossierTest extends TestCase {
 	 * @return void
 	 */
 	public function testUnreadableDossiersLinkNothing(): void {
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->method('findAll')->willThrowException(new RuntimeException('register missing'));
 		$objects->expects($this->never())->method('saveObject');
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('info')->with('Decidiq: FillMeetingArchivalDossier found no dossiers', ['exception' => 'register missing']);
 
-		(new FillMeetingArchivalDossier(objectService: $objects, meetingLink: new MeetingDossierLink(objectService: $objects, logger: new NullLogger()), logger: $logger))
-			->run($this->outputSaying('FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
+		$link = new MeetingDossierLink(objectService: $objects, logger: new NullLogger());
+		(new FillMeetingArchivalDossier(objectService: $objects, meetingLink: $link, logger: $logger))
+			->run(output: $this->outputSaying(line: 'FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
 	}//end testUnreadableDossiersLinkNothing()
 
 	/**
@@ -251,14 +257,14 @@ class FillMeetingArchivalDossierTest extends TestCase {
 			'd-locked' => ['title' => 'Vast', 'meeting' => 'm-locked'],
 		];
 		$this->store['meeting'] = ['m-locked' => ['title' => 'Vergrendeld']];
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('warning')->with(
 			'Decidiq: a meeting could not be linked to its archival dossier',
 			['meeting' => 'm-locked', 'dossier' => 'd-locked', 'error' => 'locked']
 		);
 
 		self::step(objects: $this->objectService(saveFails: true), logger: $logger)
-			->run($this->outputSaying('FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
+			->run(output: $this->outputSaying(line: 'FillMeetingArchivalDossier: 0 meeting(s) now name their archival dossier.'));
 	}//end testAMissingMeetingOrAFailedSaveIsNotCounted()
 
 	/**
@@ -267,11 +273,11 @@ class FillMeetingArchivalDossierTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheLinkNeedsBothIds(): void {
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->expects($this->never())->method('find');
 		$link = new MeetingDossierLink(objectService: $objects, logger: new NullLogger());
 
-		self::assertFalse($link->link(meetingId: '', dossierId: 'd-1'));
-		self::assertFalse($link->link(meetingId: 'm-1', dossierId: ''));
+		self::assertFalse(condition: $link->link(meetingId: '', dossierId: 'd-1'));
+		self::assertFalse(condition: $link->link(meetingId: 'm-1', dossierId: ''));
 	}//end testTheLinkNeedsBothIds()
 }//end class

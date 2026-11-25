@@ -41,11 +41,11 @@ use Throwable;
 class FillMeetingArchivalDossier implements IRepairStep {
 
 	/**
-	 * The register slug.
+	 * The filter that selects every archival dossier.
 	 *
-	 * @var string
+	 * @var array<string, string>
 	 */
-	private const REGISTER = 'decidiq';
+	private const DOSSIERS = ['register' => 'decidiq', 'schema' => 'archival-dossier'];
 
 	/**
 	 * How many dossiers are read per page.
@@ -93,12 +93,13 @@ class FillMeetingArchivalDossier implements IRepairStep {
 		$offset = 0;
 		do {
 			$page = $this->page(offset: $offset);
+			$size = count($page);
 			foreach ($page as $dossier) {
 				$linked += (int)$this->meetingLink->link(meetingId: $dossier['meeting'], dossierId: $dossier['id']);
 			}
 
 			$offset += self::PAGE;
-		} while (count($page) === self::PAGE);
+		} while ($size === self::PAGE);
 
 		$output->info(sprintf('FillMeetingArchivalDossier: %d meeting(s) now name their archival dossier.', $linked));
 	}//end run()
@@ -114,16 +115,9 @@ class FillMeetingArchivalDossier implements IRepairStep {
 	 * @return list<array{id: string, meeting: string}>
 	 */
 	private function page(int $offset): array {
+		$config = ['filters' => self::DOSSIERS, 'limit' => self::PAGE, 'offset' => $offset];
 		try {
-			$found = $this->objectService->findAll(
-				config: [
-					'filters' => ['register' => self::REGISTER, 'schema' => 'archival-dossier'],
-					'limit' => self::PAGE,
-					'offset' => $offset,
-				],
-				_rbac: false,
-				_multitenancy: false
-			);
+			$found = $this->objectService->findAll(config: $config, _rbac: false, _multitenancy: false);
 		} catch (Throwable $e) {
 			$this->logger->info('Decidiq: FillMeetingArchivalDossier found no dossiers', ['exception' => $e->getMessage()]);
 			return [];
@@ -158,10 +152,15 @@ class FillMeetingArchivalDossier implements IRepairStep {
 			return ['id' => '', 'meeting' => ''];
 		}
 
+		if ($uuid === '') {
+			$uuid = (string)($row['id'] ?? ($row['@self']['id'] ?? ''));
+		}
+
 		$meeting = ($row['meeting'] ?? '');
-		return [
-			'id' => ($uuid !== '' ? $uuid : (string)($row['id'] ?? ($row['@self']['id'] ?? ''))),
-			'meeting' => (is_string($meeting) === true ? $meeting : ''),
-		];
+		if (is_string($meeting) === false) {
+			$meeting = '';
+		}
+
+		return ['id' => $uuid, 'meeting' => $meeting];
 	}//end pair()
 }//end class

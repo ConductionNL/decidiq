@@ -74,7 +74,6 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	 * @param IGroupManager          $groupManager  Administrator check
 	 * @param IL10N                  $l10n          Translations
 	 * @param OpenRegisterArchive    $archive       The register's TMLO switch
-	 * @param MeetingDossierLink     $meetingLink   Points the meeting at its dossier
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
@@ -86,7 +85,6 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 		private readonly IGroupManager $groupManager,
 		private readonly IL10N $l10n,
 		private readonly OpenRegisterArchive $archive,
-		private readonly MeetingDossierLink $meetingLink,
 	) {
 	}//end __construct()
 
@@ -119,7 +117,7 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 		);
 		if ($existing !== []) {
 			$dossierId = (string)$existing[0]->getUuid();
-			$this->meetingLink->link(meetingId: $meetingId, dossierId: $dossierId);
+			$this->linkMeeting(meetingId: $meetingId, dossierId: $dossierId);
 			return ['id' => $dossierId] + $existing[0]->jsonSerialize();
 		}
 
@@ -135,7 +133,7 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 		}
 
 		$saved = $this->write(dossier: $this->gathered(dossier: $dossier, meeting: $meeting), uuid: null);
-		$this->meetingLink->link(meetingId: $meetingId, dossierId: (string)$saved['id']);
+		$this->linkMeeting(meetingId: $meetingId, dossierId: (string)$saved['id']);
 
 		return $saved;
 	}//end formForMeeting()
@@ -333,6 +331,22 @@ class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	private function read(string $schema, string $id): ?array {
 		return SystemObjectStore::read(objectService: $this->objectService, schema: $schema, id: $id);
 	}//end read()
+
+	/**
+	 * Point the meeting at its dossier. A failure leaves the dossier as it is:
+	 * the link is derived, and the next call or the FillMeetingArchivalDossier
+	 * repair step writes it again.
+	 *
+	 * @param string $meetingId The meeting
+	 * @param string $dossierId Its dossier
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
+	 */
+	private function linkMeeting(string $meetingId, string $dossierId): void {
+		(new MeetingDossierLink(objectService: $this->objectService))->link(meetingId: $meetingId, dossierId: $dossierId);
+	}//end linkMeeting()
 
 	/**
 	 * Write the dossier in system context.

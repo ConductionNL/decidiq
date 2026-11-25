@@ -34,7 +34,6 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\ArchivalDossierService;
 use OCA\Decidiq\Service\DossierMemberCollector;
 use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\Decidiq\Service\Records\MeetingDossierLink;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -298,7 +297,6 @@ class ArchivalDossierServiceTest extends TestCase {
 			groupManager: $groups,
 			l10n: $l10n,
 			archive: new OpenRegisterArchive(container: $container, logger: new NullLogger()),
-			meetingLink: new MeetingDossierLink(objectService: $objectService, logger: new NullLogger()),
 		);
 	}//end service()
 
@@ -435,15 +433,15 @@ class ArchivalDossierServiceTest extends TestCase {
 		$dossier = $service->formForMeeting(meetingId: self::MEETING);
 		$service->formForMeeting(meetingId: self::MEETING);
 
-		self::assertCount(1, $this->meetingSaves, 'the meeting is written once');
+		self::assertCount(expectedCount: 1, haystack: $this->meetingSaves, message: 'the meeting is written once');
 		[$meeting, $uuid, $rbac] = $this->meetingSaves[0];
-		self::assertSame(self::MEETING, $uuid);
-		self::assertFalse($rbac);
-		self::assertSame($dossier['id'], $meeting['archivalDossier']);
-		self::assertSame('Raadsvergadering 10 april 2025', $meeting['title']);
-		self::assertSame('closed', $meeting['lifecycle']);
-		self::assertArrayNotHasKey('id', $meeting);
-		self::assertArrayNotHasKey('@self', $meeting);
+		self::assertSame(expected: self::MEETING, actual: $uuid);
+		self::assertFalse(condition: $rbac);
+		self::assertSame(expected: $dossier['id'], actual: $meeting['archivalDossier']);
+		self::assertSame(expected: 'Raadsvergadering 10 april 2025', actual: $meeting['title']);
+		self::assertSame(expected: 'closed', actual: $meeting['lifecycle']);
+		self::assertArrayNotHasKey(key: 'id', array: $meeting);
+		self::assertArrayNotHasKey(key: '@self', array: $meeting);
 	}//end testFormingPointsTheMeetingAtItsDossier()
 
 	/**
@@ -455,13 +453,14 @@ class ArchivalDossierServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnEarlierDossierLinksItsMeetingWhenAskedFor(): void {
-		$this->put('archival-dossier', self::u('old-dossier'), ['title' => 'Eerder', 'meeting' => self::MEETING, 'lifecycle' => 'closed']);
+		$earlier = self::u(name: 'old-dossier');
+		$this->put(schema: 'archival-dossier', id: $earlier, data: ['title' => 'Eerder', 'meeting' => self::MEETING, 'lifecycle' => 'closed']);
 
 		$dossier = $this->service()->formForMeeting(meetingId: self::MEETING);
 
-		self::assertSame(self::u('old-dossier'), $dossier['id']);
-		self::assertSame([], $this->saves, 'the dossier itself is not written');
-		self::assertSame(self::u('old-dossier'), $this->store['meeting'][self::MEETING]['archivalDossier']);
+		self::assertSame(expected: $earlier, actual: $dossier['id']);
+		self::assertSame(expected: [], actual: $this->saves, message: 'the dossier itself is not written');
+		self::assertSame(expected: $earlier, actual: $this->store['meeting'][self::MEETING]['archivalDossier']);
 	}//end testAnEarlierDossierLinksItsMeetingWhenAskedFor()
 
 	/**
