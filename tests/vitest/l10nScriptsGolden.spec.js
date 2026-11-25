@@ -75,8 +75,10 @@ const L10N = {
 
 const NL_JS =
 	'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hallo"\n    },\n    "nplurals=2; plural=(n > 1);"\n)\n'
+// en.js leaves out every entry equal to its key (scripts/build-l10n-js.js,
+// SOURCE_LOCALE): both en entries of L10N are identities, so none is served.
 const EN_JS =
-	'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hello",\n        "Say \\"hi\\"": "Say \\"hi\\""\n    },\n    "nplurals=2; plural=(n != 1);"\n)\n'
+	'OC.L10N.register(\n    "decidiq",\n    {\n\n    },\n    "nplurals=2; plural=(n != 1);"\n)\n'
 
 /**
  * Write every file of a fixture under a root directory.
