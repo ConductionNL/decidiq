@@ -198,8 +198,10 @@ class DocumentVersionReaderTest extends TestCase {
 	 * @return void
 	 */
 	public function testThePaperIsReadThroughTheAgendaItemBeforeTheMeeting(): void {
-		self::assertSame(expected: ['schema' => 'agenda-item', 'objectId' => 'i'], actual: AnnotationService::paperOf(context: ['agendaItem' => ' i ', 'meeting' => 'm']));
-		self::assertSame(expected: ['schema' => 'meeting', 'objectId' => 'm'], actual: AnnotationService::paperOf(context: ['agendaItem' => '', 'meeting' => 'm']));
+		$both    = AnnotationService::paperOf(context: ['agendaItem' => ' i ', 'meeting' => 'm']);
+		$meeting = AnnotationService::paperOf(context: ['agendaItem' => '', 'meeting' => 'm']);
+		self::assertSame(expected: ['schema' => 'agenda-item', 'objectId' => 'i'], actual: $both);
+		self::assertSame(expected: ['schema' => 'meeting', 'objectId' => 'm'], actual: $meeting);
 		self::assertSame(expected: [], actual: AnnotationService::paperOf(context: []));
 	}//end testThePaperIsReadThroughTheAgendaItemBeforeTheMeeting()
 }//end class

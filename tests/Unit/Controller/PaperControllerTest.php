@@ -136,7 +136,12 @@ class PaperControllerTest extends TestCase {
 			$this->createMock(IRequest::class),
 			$guard,
 			new PaperDelivery(
-				new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class), $this->noMounts()),
+				new PaperLocator(
+					objectService: $objects,
+					rootFolder: $root,
+					logger: $this->createMock(originalClassName: LoggerInterface::class),
+					mountCache: $this->noMounts()
+				),
 				$stamper,
 				$this->createMock(LoggerInterface::class),
 				$this->views ?? $this->createMock(RestrictedPaperViews::class),
