@@ -77,16 +77,15 @@ class ClosedAgendaItemController extends Controller {
 		}
 
 		try {
-			$closedItems = $this->closedItems->forMeeting(meetingId: $meetingId);
+			// A 404, not a 403: who may not read the meeting must not learn it exists.
+			if ($this->closedItems->authorizeMeetingRead(meetingId: $meetingId) === false) {
+				return new JSONResponse(['message' => 'Meeting not found.'], Http::STATUS_NOT_FOUND);
+			}
+
+			return new JSONResponse(['closedItems' => $this->closedItems->forMeeting(meetingId: $meetingId)]);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: closed agenda items could not be read', ['exception' => $e]);
 			return new JSONResponse(['message' => 'The closed agenda items could not be read.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
-
-		if ($closedItems === null) {
-			return new JSONResponse(['message' => 'Meeting not found.'], Http::STATUS_NOT_FOUND);
-		}
-
-		return new JSONResponse(['closedItems' => $closedItems]);
 	}//end index()
 }//end class

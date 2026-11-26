@@ -166,14 +166,15 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	}//end testRowsOfAnotherMeetingAreIgnoredAndEntitiesAreRead()
 
 	/**
-	 * Who cannot read the meeting learns nothing about its agenda.
+	 * Only a meeting the caller reads is authorized, and authorizing reads no item.
 	 *
 	 * @return void
 	 */
-	public function testAnUnreadableMeetingIsRefusedBeforeAnyItemIsRead(): void {
-		$service = $this->service(asCaller: [], all: [$this->item(id: 'b', number: 2, extra: ['public' => false])], meeting: false);
+	public function testOnlyAReadableMeetingIsAuthorized(): void {
+		$closed = $this->item(id: 'b', number: 2, extra: ['public' => false]);
 
-		$this->assertNull(actual: $service->forMeeting(meetingId: 'm-1'));
-		$this->assertSame(expected: [], actual: $this->reads);
-	}//end testAnUnreadableMeetingIsRefusedBeforeAnyItemIsRead()
+		$this->assertFalse(condition: $this->service(asCaller: [], all: [$closed], meeting: false)->authorizeMeetingRead(meetingId: 'm-1'));
+		$this->assertTrue(condition: $this->service(asCaller: [], all: [$closed])->authorizeMeetingRead(meetingId: 'm-1'));
+		$this->assertSame(expected: [], actual: $this->reads, message: 'authorizing reads no item');
+	}//end testOnlyAReadableMeetingIsAuthorized()
 }//end class

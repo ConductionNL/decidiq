@@ -26,6 +26,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use JsonSerializable;
 
 /**
  * Lists where a meeting's hidden closed items sit, and nothing else about them.
@@ -58,26 +59,39 @@ class ClosedAgendaItemNumbers {
 	}//end __construct()
 
 	/**
-	 * The hidden closed items of a meeting, as order number and visible parent.
+	 * Whether the caller may read the meeting, under their own read rules.
 	 *
-	 * The meeting is read as the caller: who may not read the meeting learns
-	 * nothing about its agenda.
+	 * Who may not read the meeting learns nothing about its agenda, so the
+	 * endpoint asks this before forMeeting().
 	 *
 	 * @param string $meetingId The meeting.
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
-	 * @return list<array{orderNumber: int, parentItem: ?string}>|null Sorted by order number; null when the caller cannot read the meeting.
+	 * @return bool
 	 */
-	public function forMeeting(string $meetingId): ?array {
+	public function authorizeMeetingRead(string $meetingId): bool {
 		$meeting = $this->objectService->find(
 			id: $meetingId,
 			options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting')
 		);
-		if ($meeting === null) {
-			return null;
-		}
 
+		return $meeting !== null;
+	}//end authorizeMeetingRead()
+
+	/**
+	 * The hidden closed items of a meeting, as order number and visible parent.
+	 *
+	 * Call authorizeMeetingRead() first: this reads every item of the
+	 * meeting in system context to find the hidden ones.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 *
+	 * @return list<array{orderNumber: int, parentItem: ?string}> Sorted by order number.
+	 */
+	public function forMeeting(string $meetingId): array {
 		$visible = $this->itemIds(rows: $this->items(meetingId: $meetingId, asCaller: true), meetingId: $meetingId);
 
 		$closed = [];
@@ -244,14 +258,15 @@ class ClosedAgendaItemNumbers {
 	 * @return array<string, mixed>|null
 	 */
 	private function rowData(mixed $row): ?array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			$row = $row->jsonSerialize();
+		$data = $row;
+		if ($row instanceof JsonSerializable) {
+			$data = $row->jsonSerialize();
 		}
 
-		if (is_array($row) === false) {
-			return null;
+		if (is_array($data) === true) {
+			return $data;
 		}
 
-		return $row;
+		return null;
 	}//end rowData()
 }//end class
