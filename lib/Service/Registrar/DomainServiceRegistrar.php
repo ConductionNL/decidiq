@@ -39,6 +39,8 @@ use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\LogEIDASSignatureService;
 use OCA\Decidiq\Service\NextcloudTranslationAdapter;
+use OCA\Decidiq\Support\FleetAppId;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -114,7 +116,8 @@ class DomainServiceRegistrar {
 	 * Phase 4 — eIDAS QES integration bindings.
 	 *
 	 * The IEIDASSignatureService binding picks the filinq-delegating
-	 * {@see EIDASSignatureService} when filinq's signing event can be loaded,
+	 * {@see EIDASSignatureService} when filinq is enabled and its signing
+	 * event can be loaded,
 	 * and the dormant {@see LogEIDASSignatureService} fallback otherwise.
 	 *
 	 * Both implementations are individually constructable so tests / DI
@@ -141,10 +144,12 @@ class DomainServiceRegistrar {
 		$context->registerService(
 			IEIDASSignatureService::class,
 			static function ($c): IEIDASSignatureService {
-				// filinq performs the signature (ADR-125): with its signing
-				// event loadable, decidiq hands requests to it; otherwise the
-				// dormant LogEIDASSignatureService answers and nothing is signed.
-				if (EIDASSignatureService::filinqAvailable() === true) {
+				// filinq performs the signature (ADR-125): with filinq enabled
+				// and its signing event loadable, decidiq hands requests to it;
+				// otherwise the dormant LogEIDASSignatureService answers and
+				// nothing is signed.
+				$filinq = FleetAppId::isInstalled(appManager: $c->get(IAppManager::class), canonical: 'filinq');
+				if ($filinq === true && EIDASSignatureService::filinqAvailable() === true) {
 					return $c->get(EIDASSignatureService::class);
 				}
 

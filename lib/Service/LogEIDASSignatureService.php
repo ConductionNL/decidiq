@@ -4,14 +4,13 @@
  * Decidiq dormant eIDAS Signature Service fallback
  *
  * A no-external-call fallback that satisfies {@see IEIDASSignatureService}
- * for deployments that have not (yet) configured openconnector with an
- * eIDAS-QSP Source. Every method emits an audit log entry (so signing
+ * for deployments without filinq, the fleet's signing rail. Every method emits an audit log entry (so signing
  * intents stay forensically traceable) and returns a structured `success: false`
  * payload with the message `eIDAS QES integration is not configured.`
  *
  * The application layer wires this implementation when:
- *  - the openconnector app is absent, OR
- *  - the openconnector Source with slug `eidas-qes` does not resolve at boot.
+ *  - filinq is not enabled, OR
+ *  - filinq's signing event classes cannot be loaded.
  *
  * Controllers and the {@see \OCA\Decidiq\Lifecycle\QesGuard} treat the
  * `success: false` shape as a soft-block rather than a hard 500, so the
