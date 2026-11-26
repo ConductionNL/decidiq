@@ -2097,10 +2097,13 @@
   </file>
   <file src="lib/Service/DocumentVersionReader.php">
     <UnusedMethod>
+      <code><![CDATA[paperFile]]></code>
       <code><![CDATA[readableFile]]></code>
       <code><![CDATA[storedVersions]]></code>
     </UnusedMethod>
     <UnusedProperty>
+      <code><![CDATA[$locator]]></code>
+      <code><![CDATA[$objectService]]></code>
       <code><![CDATA[$rootFolder]]></code>
     </UnusedProperty>
     <UnusedVariable>
@@ -3153,11 +3156,14 @@
   </file>
   <file src="lib/Service/PaperLocator.php">
     <UnusedMethod>
+      <code><![CDATA[fileById]]></code>
+      <code><![CDATA[inObjectFolder]]></code>
       <code><![CDATA[meetingOf]]></code>
       <code><![CDATA[recordsPaper]]></code>
     </UnusedMethod>
     <UnusedProperty>
       <code><![CDATA[$logger]]></code>
+      <code><![CDATA[$mountCache]]></code>
       <code><![CDATA[$objectService]]></code>
       <code><![CDATA[$rootFolder]]></code>
     </UnusedProperty>
