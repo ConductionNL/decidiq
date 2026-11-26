@@ -30,16 +30,20 @@ use OCA\Decidiq\Service\DocumentVersionReader;
 use OCA\Decidiq\Service\PaperLocator;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\Files\Config\ICachedMountInfo;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
+use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 /**
  * Knowing a file id opens nothing: a stored paper needs a readable object
- * that holds it.
+ * that holds it. The paper lives in OpenRegister's own account, found
+ * through the mounts Nextcloud knows for its id.
  *
  * @covers \OCA\Decidiq\Service\DocumentVersionReader
  * @covers \OCA\Decidiq\Service\PaperLocator
@@ -76,13 +80,24 @@ class DocumentVersionReaderTest extends TestCase {
 		$paper->method('getOwner')->willReturn(null);
 		$paper->method('getInternalPath')->willReturn('appdata/openregister/Raadsvoorstel.pdf');
 
-		$userFolder = $this->createMock(Folder::class);
-		$userFolder->method('getFirstNodeById')->willReturn(null);
+		// The caller's own files do not hold the paper; OpenRegister's account
+		// does, and its storage is not set up until its folder is read.
+		$callerFolder = $this->createMock(Folder::class);
+		$callerFolder->method('getFirstNodeById')->willReturn(null);
+		$storeFolder = $this->createMock(Folder::class);
+		$storeFolder->method('getFirstNodeById')->willReturnCallback(static fn (int $id): ?File => $id === self::PAPER ? $paper : null);
 
 		$root = $this->createMock(IRootFolder::class);
-		$root->method('getUserFolder')->willReturn($userFolder);
-		$root->method('getFirstNodeById')->willReturnCallback(static fn (int $id): ?File => $id === self::PAPER ? $paper : null);
+		$root->method('getUserFolder')->willReturnCallback(static fn (string $uid): Folder => $uid === 'openregister' ? $storeFolder : $callerFolder);
+		$root->method('getFirstNodeById')->willReturn(null);
 		$root->method('get')->willThrowException(new NotFoundException('none'));
+
+		$account = $this->createMock(IUser::class);
+		$account->method('getUID')->willReturn('openregister');
+		$mount = $this->createMock(ICachedMountInfo::class);
+		$mount->method('getUser')->willReturn($account);
+		$mounts = $this->createMock(IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->willReturnCallback(static fn (int $id): array => $id === self::PAPER ? [$mount] : []);
 
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
@@ -103,7 +118,7 @@ class DocumentVersionReaderTest extends TestCase {
 		return new DocumentVersionReader(
 			rootFolder: $root,
 			objectService: $objects,
-			locator: new PaperLocator(objectService: $objects, rootFolder: $root, logger: new NullLogger())
+			locator: new PaperLocator(objectService: $objects, rootFolder: $root, logger: new NullLogger(), mountCache: $mounts)
 		);
 	}//end reader()
 

@@ -22,7 +22,6 @@ import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { BASE_URL as BASE } from './base-url.ts'
-import { openRow } from './support/open-row.ts'
 import { writeHeaders } from './workflows/governance-fixture.ts'
 
 const ITEM = 'Vaststelling omgevingsvisie'
@@ -32,20 +31,23 @@ const PAPER = 'tagged-paper.pdf'
 /** The paper this run attached, to remove afterwards; null when the item had one. */
 let attached: { itemId: string, fileId: number } | null = null
 
+/** The agenda item's id, once looked up. */
+let itemId = ''
+
 /**
  * Make sure the agenda item has a PDF paper: attach the fixture when it has none.
  *
  * @param page A page with the administrator's session.
  */
 async function ensurePdfPaper(page: Page): Promise<void> {
-	if (attached !== null) {
+	if (itemId !== '') {
 		return
 	}
 	const list = await page.request.get(`${FILES}?_search=${encodeURIComponent(ITEM)}&_limit=20`)
 	expect(list.ok(), `list agenda items: ${list.status()}`).toBeTruthy()
 	const item = ((await list.json()).results ?? []).find((row: any) => row?.title === ITEM)
 	expect(item, `the agenda item "${ITEM}" exists (municipality example set)`).toBeTruthy()
-	const itemId = String(item.id ?? item['@self']?.id)
+	itemId = String(item.id ?? item['@self']?.id)
 	const files = await page.request.get(`${FILES}/${itemId}/files`)
 	const existing = files.ok() ? ((await files.json()).results ?? []) : []
 	if (existing.some((file: any) => String(file?.mimetype ?? file?.mimeType ?? file?.type ?? '').includes('pdf'))) {
@@ -67,8 +69,10 @@ async function ensurePdfPaper(page: Page): Promise<void> {
  */
 async function openAnnotator(page) {
 	await ensurePdfPaper(page)
-	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-	await openRow(page, ITEM, true)
+	// Straight to the item: the example set's list runs past one page, so
+	// the row is not always on screen.
+	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items/${itemId}`)
+	await expect(page.getByText(ITEM).first()).toBeVisible()
 	// The widget sits below the fold and mounts when it scrolls into view.
 	await page.getByRole('group', { name: 'agenda-annotations' }).scrollIntoViewIfNeeded()
 	await page.getByTestId('document-annotations-open').first().click()
@@ -128,9 +132,11 @@ test.describe('AnnotationView', () => {
 
 	// @e2e document-annotations::no-annotate-action-on-non-pdf-files
 	test('only PDF papers are offered for annotating', async ({ page }) => {
-		await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
-		await openRow(page, 'Vaststelling omgevingsvisie', true)
+		await ensurePdfPaper(page)
+		await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items/${itemId}`)
+		await page.getByRole('group', { name: 'agenda-annotations' }).scrollIntoViewIfNeeded()
 		const rows = page.getByTestId('document-annotations-row')
+		await expect(rows.first()).toBeVisible()
 		for (const name of await rows.allTextContents()) {
 			expect(name.toLowerCase()).toContain('.pdf')
 		}

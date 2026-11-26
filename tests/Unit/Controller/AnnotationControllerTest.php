@@ -44,6 +44,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -246,7 +247,7 @@ class AnnotationControllerTest extends TestCase {
 			versions: new DocumentVersionReader(
 				rootFolder: ($root = $this->rootFolder(readable: $readable)),
 				objectService: $objects,
-				locator: new PaperLocator(objectService: $objects, rootFolder: $root, logger: new NullLogger())
+				locator: new PaperLocator(objectService: $objects, rootFolder: $root, logger: new NullLogger(), mountCache: $this->noMounts())
 			),
 			timeFactory: $clock,
 			csvCell: new CsvCell(),
@@ -586,4 +587,15 @@ class AnnotationControllerTest extends TestCase {
 		self::assertSame(500, $this->controller(uid: 'bob')->counts(meetingId: self::MEETING)->getStatus());
 		self::assertSame(500, $this->controller(uid: 'bob')->export(format: 'csv')->getStatus());
 	}//end testSignedOutAndFailuresMapToTheirStatus()
+
+	/**
+	 * A mount cache that knows no further mounts.
+	 *
+	 * @return IUserMountCache
+	 */
+	private function noMounts(): IUserMountCache {
+		$mounts = $this->createMock(IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->willReturn([]);
+		return $mounts;
+	}//end noMounts()
 }//end class

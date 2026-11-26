@@ -444,6 +444,11 @@ export default {
 					: await fetch(url, {
 						headers: { requesttoken: getRequestToken() },
 					})
+				if (response && !response.ok) {
+					// The paper view says why it refuses (no watermark service, no access).
+					const refusal = await response.json().catch(() => null)
+					if (refusal?.message) throw new Error(refusal.message)
+				}
 				if (!response?.ok) {
 					throw new Error(
 						this.t(
