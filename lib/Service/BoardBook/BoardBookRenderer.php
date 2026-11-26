@@ -62,6 +62,13 @@ class BoardBookRenderer {
 	public const NOT_MERGED = 'merging is not available on this instance';
 
 	/**
+	 * The skip reason of a PDF that cannot be imported.
+	 *
+	 * @var string
+	 */
+	public const UNPARSABLE = 'unparsable or encrypted PDF';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param FilinqPdf         $pdf      Renders and merges through filinq.
@@ -87,15 +94,10 @@ class BoardBookRenderer {
 	 */
 	public function render(array $meeting, string $bodyName, array $items, array $attachments): ?array {
 		$title = 'Vergaderbundel ' . (string)($meeting['title'] ?? '');
-		$flat = $this->plan(meeting: $meeting, bodyName: $bodyName, items: $items, attachments: $attachments);
-		if ($flat['pdfs'] > 0) {
-			$merged = $this->merged(parts: $flat['parts'], title: $title);
-			if ($merged !== null) {
-				return ['pdf' => $merged, 'skipped' => $flat['skipped']];
-			}
-
-			// Filinq cannot merge: one document with a placeholder for every attachment.
-			$flat = $this->plan(meeting: $meeting, bodyName: $bodyName, items: $items, attachments: $attachments, notMerged: self::NOT_MERGED);
+		$agenda = ['meeting' => $meeting, 'bodyName' => $bodyName, 'items' => $items, 'attachments' => $attachments];
+		[$flat, $merged] = $this->mergedPack(agenda: $agenda, title: $title);
+		if ($merged !== null) {
+			return ['pdf' => $merged, 'skipped' => $flat['skipped']];
 		}
 
 		$html = [];
@@ -112,19 +114,82 @@ class BoardBookRenderer {
 	}//end render()
 
 	/**
+	 * The pack's plan and its merged PDF, or the plan to render as one
+	 * document (merged null).
+	 *
+	 * One PDF the merge engine cannot import fails the whole merge. Then each
+	 * attachment is tried on its own: the ones that fail are skipped with a
+	 * placeholder and the rest are merged. When none merges on its own, the
+	 * engine itself is unavailable and every attachment becomes a placeholder.
+	 *
+	 * @param array{meeting: array<string, mixed>, bodyName: string, items: array<int, array<string, mixed>>, attachments: array<string, mixed>} $agenda The agenda.
+	 * @param string $title The document title.
+	 *
+	 * @return array{0: array{parts: array<int, array<string, string>>, skipped: array<int, string>, pdfs: int}, 1: string|null}
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-001-one-click-compilation-of-a-complete-meeting-pack
+	 */
+	private function mergedPack(array $agenda, string $title): array {
+		$flat = $this->plan(agenda: $agenda);
+		if ($flat['pdfs'] === 0) {
+			return [$flat, null];
+		}
+
+		$merged = $this->merged(parts: $flat['parts'], title: $title);
+		if ($merged !== null) {
+			return [$flat, $merged];
+		}
+
+		$unmergeable = $this->unmergeable(parts: $flat['parts']);
+		if (count($unmergeable) < $flat['pdfs']) {
+			$flat = $this->plan(agenda: $agenda, limits: ['unmergeable' => $unmergeable]);
+			$merged = $this->merged(parts: $flat['parts'], title: $title);
+			if ($merged !== null || $flat['pdfs'] === 0) {
+				return [$flat, $merged];
+			}
+		}
+
+		// The engine cannot merge: one document with a placeholder for every attachment.
+		return [$this->plan(agenda: $agenda, limits: ['notMerged' => self::NOT_MERGED]), null];
+	}//end mergedPack()
+
+	/**
+	 * The attachment PDFs the merge engine cannot import on their own, by sha1.
+	 *
+	 * @param array<int, array<string, string>> $parts The parts in order.
+	 *
+	 * @return array<string, true>
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-001-one-click-compilation-of-a-complete-meeting-pack
+	 */
+	private function unmergeable(array $parts): array {
+		$refused = [];
+		foreach ($parts as $part) {
+			if (isset($part['pdf']) === false) {
+				continue;
+			}
+
+			if ($this->pdf->merge(pdfs: [$part['pdf']], bookmarks: [], context: 'one meeting pack paper') === null) {
+				$refused[sha1($part['pdf'])] = true;
+			}
+		}
+
+		return $refused;
+	}//end unmergeable()
+
+	/**
 	 * The pack as parts in order: HTML fragments (with the section's bookmark
 	 * on the part that opens it) and attachment PDFs, and the skip report.
 	 *
-	 * @param array<string, mixed> $meeting The meeting.
-	 * @param string $bodyName The governance body's name.
-	 * @param array<int, array<string, mixed>> $items The agenda items.
-	 * @param array<string, mixed> $attachments The attachments per item: `rows` and `nodes`, both keyed by item id.
-	 * @param string|null $notMerged When set, every attachment becomes a placeholder for this reason.
+	 * @param array{meeting: array<string, mixed>, bodyName: string, items: array<int, array<string, mixed>>, attachments: array<string, mixed>} $agenda The meeting, its body's name, the agenda items and their attachments (`rows` and `nodes`, keyed by item id).
+	 * @param array{notMerged?: string, unmergeable?: array<string, true>} $limits notMerged: every attachment becomes a placeholder for this reason; unmergeable: the sha1 of PDFs the merge engine cannot import.
 	 *
 	 * @return array{parts: array<int, array<string, string>>, skipped: array<int, string>, pdfs: int}
 	 */
-	private function plan(array $meeting, string $bodyName, array $items, array $attachments, ?string $notMerged=null): array {
-		$run = new BoardBookPlan(frontMatter: $this->composer->frontMatter(meeting: $meeting, bodyName: $bodyName, items: $items));
+	private function plan(array $agenda, array $limits=[]): array {
+		$items = $agenda['items'];
+		$attachments = $agenda['attachments'];
+		$run = new BoardBookPlan(frontMatter: $this->composer->frontMatter(meeting: $agenda['meeting'], bodyName: $agenda['bodyName'], items: $items));
 		$bookmarks = $this->composer->bookmarks(items: $items);
 		foreach ($items as $index => $item) {
 			$run->openSection(html: $this->composer->section(item: $item), bookmark: $bookmarks[$index]);
@@ -135,7 +200,7 @@ class BoardBookRenderer {
 			$itemId = (string)($item['id'] ?? '');
 			foreach (($attachments['rows'][$itemId] ?? []) as $position => $file) {
 				$node = ($attachments['nodes'][$itemId][$position] ?? null);
-				$this->place(run: $run, item: $item, file: $file, node: $node, notMerged: $notMerged);
+				$this->place(run: $run, item: $item, file: $file, node: $node, limits: $limits);
 			}
 		}
 
@@ -149,13 +214,13 @@ class BoardBookRenderer {
 	 * @param array<string, mixed> $item    The agenda item.
 	 * @param array<string, mixed> $file    The attachment row.
 	 * @param object|null          $node    The file node it was read from.
-	 * @param string|null          $notMerged When set, the reason no attachment is merged.
+	 * @param array{notMerged?: string, unmergeable?: array<string, true>} $limits Why nothing is merged, and the PDFs the engine cannot import.
 	 *
 	 * @return void
 	 */
-	private function place(BoardBookPlan $run, array $item, array $file, ?object $node, ?string $notMerged): void {
+	private function place(BoardBookPlan $run, array $item, array $file, ?object $node, array $limits): void {
 		$name = (string)($file['name'] ?? '');
-		$reason = $notMerged;
+		$reason = ($limits['notMerged'] ?? null);
 		if ($reason === null) {
 			$reason = $this->composer->unmergeableReason(file: $file, maxBytes: self::MAX_ATTACHMENT_BYTES);
 		}
@@ -164,6 +229,9 @@ class BoardBookRenderer {
 		if ($reason === null) {
 			$content = $this->pdfContent(node: $node);
 			$reason = $this->contentRefusal(content: $content, run: $run);
+			if ($reason === null && isset($limits['unmergeable'][sha1((string)$content)]) === true) {
+				$reason = self::UNPARSABLE;
+			}
 		}
 
 		if ($reason !== null || $content === null) {
@@ -189,7 +257,7 @@ class BoardBookRenderer {
 		}
 
 		if (str_starts_with(ltrim($content), '%PDF') === false || str_contains($content, '/Encrypt') === true) {
-			return 'unparsable or encrypted PDF';
+			return self::UNPARSABLE;
 		}
 
 		if ($run->pdfBytes() + strlen($content) > self::MAX_PACK_BYTES) {
