@@ -18,6 +18,7 @@ import * as agendaRules from '../../src/services/agendaRules.js'
 import * as agendaCopy from '../../src/utils/agendaCopy.js'
 import * as agendaItemTypeFields from '../../src/utils/agendaItemTypeFields.js'
 import * as agendaPublication from '../../src/utils/agendaPublication.js'
+import * as closedAgendaPlaceholders from '../../src/utils/closedAgendaPlaceholders.js'
 import * as documentAccessibility from '../../src/utils/documentAccessibility.js'
 import * as formalities from '../../src/utils/formalities.js'
 import * as saveOrThrowModule from '../../src/utils/saveOrThrow.js'
@@ -111,6 +112,7 @@ function tab(answers) {
 		'../../utils/documentAccessibility.js': documentAccessibility,
 		'../../utils/formalities.js': formalities,
 		'../../utils/annotations.js': { countOf: () => 0 },
+		'../../utils/closedAgendaPlaceholders.js': closedAgendaPlaceholders,
 		'../../store/annotation.js': {
 			useAnnotationStore: () => ({ loadCounts: async () => ({}) }),
 		},

@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Talep eden taraf tarafından geri çekildi",
         "Transfer overdue": "Aktarım gecikmiş",
         "Retention not resolved": "Saklama belirlenmedi",
-        "Meetings without dossier": "Dosyası olmayan toplantılar"
+        "Meetings without dossier": "Dosyası olmayan toplantılar",
+        "Closed item": "Kapalı gündem maddesi"
     },
     "nplurals=2; plural=(n != 1);"
 )

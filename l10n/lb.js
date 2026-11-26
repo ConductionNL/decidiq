@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} Punkten)",
         "Transfer overdue": "Iwwerdroung iwwerfälleg",
         "Retention not resolved": "Openthalt net festgeluecht",
-        "Meetings without dossier": "Sëtzungen ouni Dossier"
+        "Meetings without dossier": "Sëtzungen ouni Dossier",
+        "Closed item": "Zouene Punkt"
     },
     "nplurals=2; plural=(n != 1);"
 )

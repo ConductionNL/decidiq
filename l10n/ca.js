@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} punts)",
         "Transfer overdue": "Transferència endarrerida",
         "Retention not resolved": "Conservació no resolta",
-        "Meetings without dossier": "Reunions sense expedient"
+        "Meetings without dossier": "Reunions sense expedient",
+        "Closed item": "Punt a porta tancada"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -176,15 +176,15 @@
 			<template #column-orderNumber="{ row, value }">
 				<span
 					class="decidiq-tab__order"
-					:class="{ 'decidiq-tab__order--draggable': canManage }"
-					:draggable="canManage"
+					:class="{ 'decidiq-tab__order--draggable': canManage && !isClosedPlaceholder(row) }"
+					:draggable="canManage && !isClosedPlaceholder(row)"
 					:data-testid="`agenda-drag-${row.id}`"
 					@click.stop
 					@dragstart="onDragStart($event, row)"
 					@dragover.prevent
 					@drop.prevent="onDrop(row)">
 					<DragVertical
-						v-if="canManage"
+						v-if="canManage && !isClosedPlaceholder(row)"
 						:size="16"
 						class="decidiq-tab__drag-handle" />
 					{{ value }}
@@ -210,7 +210,10 @@
 				</span>
 			</template>
 			<template #row-actions="{ row }">
-				<CnRowActions :row="row" :actions="rowActions" />
+				<CnRowActions
+					v-if="!isClosedPlaceholder(row)"
+					:row="row"
+					:actions="rowActions" />
 			</template>
 		</CnDataTable>
 
@@ -312,6 +315,10 @@ import {
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
 import { countOf } from '../../utils/annotations.js'
+import {
+	isClosedPlaceholder,
+	withClosedPlaceholders,
+} from '../../utils/closedAgendaPlaceholders.js'
 import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { formalityUrl } from '../../utils/formalities.js'
 import { saveOrThrow } from '../../utils/saveOrThrow.js'
@@ -660,7 +667,17 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				this.rawRows = agendaRows(await this.fetchAgendaItems())
+				const [items, closedItems] = await Promise.all([
+					this.fetchAgendaItems(),
+					this.fetchClosedItems(),
+				])
+				this.rawRows = agendaRows(
+					withClosedPlaceholders(
+						items,
+						closedItems,
+						this.t('decidiq', 'Closed item'),
+					),
+				)
 				// Not awaited: the badges are a hint, the agenda is the page.
 				this.loadAnnotationCounts()
 				await this.loadMeeting()
@@ -695,6 +712,47 @@ export default {
 			// they arrive and the agenda never waits for them.
 			this.loadItemTypes()
 			return items
+		},
+
+		/**
+		 * The closed items of this meeting the caller may not read, number
+		 * only. A failure leaves the gaps as they are: the agenda the caller
+		 * may read still renders.
+		 *
+		 * @return {Promise<Array<object>>} The server's `closedItems`, or none.
+		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 */
+		async fetchClosedItems() {
+			try {
+				const response = await fetch(
+					generateUrl(`/apps/decidiq/api/meetings/${this.objectId}/closed-items`),
+					{ headers: { requesttoken: OC.requestToken, Accept: 'application/json' } },
+				)
+				if (!response.ok) return []
+				const payload = await response.json()
+				return Array.isArray(payload?.closedItems) ? payload.closedItems : []
+			} catch {
+				return []
+			}
+		},
+
+		/**
+		 * @param {?object} row An agenda row.
+		 * @return {boolean} Whether it holds the place of a hidden closed item.
+		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 */
+		isClosedPlaceholder(row) {
+			return isClosedPlaceholder(row)
+		},
+
+		/**
+		 * The rows that are real agenda items, without placeholders, for reordering.
+		 *
+		 * @return {Array<object>} The rows.
+		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 */
+		orderableRows() {
+			return this.rawRows.filter((row) => !isClosedPlaceholder(row))
 		},
 
 		/**
@@ -1035,7 +1093,8 @@ export default {
 		 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
 		 */
 		moveItem(row, delta) {
-			const ids = moveAgendaItem(buildAgendaTree(this.rawRows), row.id, delta)
+			if (isClosedPlaceholder(row)) return
+			const ids = moveAgendaItem(buildAgendaTree(this.orderableRows()), row.id, delta)
 			if (ids) this.persistOrder(ids)
 		},
 
@@ -1061,7 +1120,8 @@ export default {
 			const dragId = this.dragId
 			this.dragId = null
 			if (!this.canManage || !dragId) return
-			const ids = dropAgendaItem(buildAgendaTree(this.rawRows), dragId, row.id)
+			if (isClosedPlaceholder(row)) return
+			const ids = dropAgendaItem(buildAgendaTree(this.orderableRows()), dragId, row.id)
 			if (ids) this.persistOrder(ids)
 		},
 
@@ -1138,6 +1198,7 @@ export default {
 		 * @spec openspec/specs/agenda-management/spec.md
 		 */
 		async openEdit(row) {
+			if (isClosedPlaceholder(row)) return
 			const store = ensureRelationType('agenda-item')
 			if (!this.agendaSchema)
 				this.agendaSchema = await store.fetchSchema('agenda-item')

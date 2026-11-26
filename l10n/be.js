@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} б.)",
         "Transfer overdue": "Перадача пратэрмінавана",
         "Retention not resolved": "Захоўванне не вызначана",
-        "Meetings without dossier": "Пасяджэнні без справы"
+        "Meetings without dossier": "Пасяджэнні без справы",
+        "Closed item": "Закрыты пункт"
     },
     "nplurals=2; plural=(n != 1);"
 )

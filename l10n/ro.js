@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Retrasă de partea solicitantă",
         "Transfer overdue": "Transfer întârziat",
         "Retention not resolved": "Păstrare nedeterminată",
-        "Meetings without dossier": "Ședințe fără dosar"
+        "Meetings without dossier": "Ședințe fără dosar",
+        "Closed item": "Punct închis"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} b.)",
         "Transfer overdue": "Předání po termínu",
         "Retention not resolved": "Uchování neurčeno",
-        "Meetings without dossier": "Schůze bez spisu"
+        "Meetings without dossier": "Schůze bez spisu",
+        "Closed item": "Neveřejný bod"
     },
     "nplurals=2; plural=(n != 1);"
 )

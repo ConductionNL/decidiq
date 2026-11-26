@@ -3420,7 +3420,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Zurückgezogen von der antragstellenden Partei",
         "Transfer overdue": "Übertragung überfällig",
         "Retention not resolved": "Aufbewahrung nicht bestimmt",
-        "Meetings without dossier": "Sitzungen ohne Dossier"
+        "Meetings without dossier": "Sitzungen ohne Dossier",
+        "Closed item": "Nichtöffentlicher Punkt"
     },
     "nplurals=2; plural=(n != 1);"
 )

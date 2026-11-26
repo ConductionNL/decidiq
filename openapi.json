@@ -3683,6 +3683,70 @@
                 }
             }
         },
+        "/meetings/{meetingId}/closed-items": {
+            "get": {
+                "operationId": "closed-agenda-items",
+                "summary": "List the closed agenda items the caller cannot read",
+                "description": "The order number of each non-public agenda item of a meeting that the caller may not read, and its parent when the caller can read that parent; never its id, title or papers. The agenda shows each as \"Besloten punt\". Needs a signed-in Nextcloud user who can read the meeting.",
+                "tags": [
+                    "agenda"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "closedItems": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "orderNumber": {
+                                                        "type": "integer"
+                                                    },
+                                                    "parentItem": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
         "/meetings/{meetingId}/archival-dossier": {
             "post": {
                 "operationId": "archival-dossier-form",

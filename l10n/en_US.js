@@ -966,7 +966,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points})",
         "Transfer overdue": "Transfer overdue",
         "Retention not resolved": "Retention not resolved",
-        "Meetings without dossier": "Meetings without dossier"
+        "Meetings without dossier": "Meetings without dossier",
+        "Closed item": "Closed item"
     },
     "nplurals=2; plural=(n != 1);"
 )

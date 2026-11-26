@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Dregin til baka af umsækjanda",
         "Transfer overdue": "Afhending komin fram yfir",
         "Retention not resolved": "Varðveisla ekki ákveðin",
-        "Meetings without dossier": "Fundir án málsskjala"
+        "Meetings without dossier": "Fundir án málsskjala",
+        "Closed item": "Lokaður dagskrárliður"
     },
     "nplurals=2; plural=(n != 1);"
 )

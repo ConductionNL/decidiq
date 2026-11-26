@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Tërhequr nga pala kërkuese",
         "Transfer overdue": "Transferimi me vonesë",
         "Retention not resolved": "Ruajtja e papërcaktuar",
-        "Meetings without dossier": "Mbledhje pa dosje"
+        "Meetings without dossier": "Mbledhje pa dosje",
+        "Closed item": "Pikë e mbyllur"
     },
     "nplurals=2; plural=(n != 1);"
 )

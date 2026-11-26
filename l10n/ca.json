@@ -3351,7 +3351,8 @@
         "{property}: {value} (+{points})": "{property}: {value} (+{points} punts)",
         "Transfer overdue": "Transferència endarrerida",
         "Retention not resolved": "Conservació no resolta",
-        "Meetings without dossier": "Reunions sense expedient"
+        "Meetings without dossier": "Reunions sense expedient",
+        "Closed item": "Punt a porta tancada"
     },
     "plurals": null
 }

@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Wycofana przez stronę wnioskującą",
         "Transfer overdue": "Przekazanie po terminie",
         "Retention not resolved": "Przechowywanie nieustalone",
-        "Meetings without dossier": "Posiedzenia bez teczki akt"
+        "Meetings without dossier": "Posiedzenia bez teczki akt",
+        "Closed item": "Punkt niejawny"
     },
     "nplurals=2; plural=(n != 1);"
 )

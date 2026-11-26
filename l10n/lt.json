@@ -3418,7 +3418,8 @@
         "Withdrawn by the party who asked": "Atšaukė prašymą pateikusi šalis",
         "Transfer overdue": "Perdavimas vėluoja",
         "Retention not resolved": "Saugojimas nenustatytas",
-        "Meetings without dossier": "Posėdžiai be bylos"
+        "Meetings without dossier": "Posėdžiai be bylos",
+        "Closed item": "Uždaras klausimas"
     },
     "plurals": null
 }
