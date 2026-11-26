@@ -74,7 +74,9 @@ class AnnotationController extends Controller {
 	/**
 	 * The annotations of a document the caller may see, every version.
 	 *
-	 * Query parameters are ignored: what is returned is decided by who asks.
+	 * What is returned is decided by who asks. The agendaItem or meeting
+	 * query only names the object a stored paper is read through; the caller
+	 * must be able to read that object and it must record the paper.
 	 *
 	 * @param int $fileId The Nextcloud file id
 	 *
@@ -88,7 +90,13 @@ class AnnotationController extends Controller {
 	public function index(int $fileId): JSONResponse {
 		return $this->respond(
 			status: Http::STATUS_OK,
-			action: fn (string $userId): array => $this->annotations->listForDocument(fileId: $fileId, userId: $userId)
+			action: fn (string $userId): array => $this->annotations->listForDocument(
+				fileId: $fileId,
+				userId: $userId,
+				paper: AnnotationService::paperOf(
+					context: ['agendaItem' => $this->request->getParam('agendaItem', ''), 'meeting' => $this->request->getParam('meeting', '')]
+				)
+			)
 		);
 	}//end index()
 

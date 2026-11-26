@@ -86,18 +86,20 @@ class AnnotationService {
 	/**
 	 * The annotations of a document the user may see, all versions, by page.
 	 *
-	 * @param int    $fileId The Nextcloud file id
-	 * @param string $userId The user asking
+	 * @param int                                       $fileId The Nextcloud file id
+	 * @param string                                    $userId The user asking
+	 * @param array{schema?: string, objectId?: string} $paper  The meeting or agenda item a stored paper is read through
 	 *
 	 * @return array<string, mixed> results (by page), fileVersion, versionLabel, name and path of the
-	 *                              current version, and canShareWithFaction
+	 *                              current version, the object a stored paper is read through (paper),
+	 *                              and canShareWithFaction
 	 *
 	 * @throws MissingObjectException When the user cannot read the file.
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
 	 */
-	public function listForDocument(int $fileId, string $userId): array {
-		$current = $this->versions->current(userId: $userId, fileId: $fileId);
+	public function listForDocument(int $fileId, string $userId, array $paper = []): array {
+		$current = $this->versions->current(userId: $userId, fileId: $fileId, paper: $paper);
 
 		$results = [];
 		foreach ($this->store->rows(filters: ['fileId' => $fileId]) as $annotation) {
@@ -117,6 +119,7 @@ class AnnotationService {
 			'versionLabel'        => $current['versionLabel'],
 			'name'                => $current['name'],
 			'path'                => $current['path'],
+			'paper'               => $current['paper'],
 			'canShareWithFaction' => $this->visibility->hasFaction(userId: $userId),
 		];
 	}//end listForDocument()
@@ -139,7 +142,7 @@ class AnnotationService {
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-001-annotation-is-an-openregister-object-anchored-to-a-document-version
 	 */
 	public function create(int $fileId, array $data, string $userId): array {
-		$current = $this->versions->current(userId: $userId, fileId: $fileId);
+		$current = $this->versions->current(userId: $userId, fileId: $fileId, paper: self::paperOf(context: $data));
 
 		$annotation = $this->input->anchor(data: $data);
 		$annotation += $this->input->content(data: $data, stored: []);
@@ -368,4 +371,28 @@ class AnnotationService {
 
 		return $annotation;
 	}//end visibleOrMissing()
+
+	/**
+	 * The meeting or agenda item a stored paper was opened from: the agenda
+	 * item when both are named, as its papers are its own.
+	 *
+	 * @param array<string, mixed> $context The request's agendaItem and meeting
+	 *
+	 * @return array{schema?: string, objectId?: string}
+	 *
+	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+	 */
+	public static function paperOf(array $context): array {
+		$agendaItem = trim((string)($context['agendaItem'] ?? ''));
+		if ($agendaItem !== '') {
+			return ['schema' => 'agenda-item', 'objectId' => $agendaItem];
+		}
+
+		$meeting = trim((string)($context['meeting'] ?? ''));
+		if ($meeting !== '') {
+			return ['schema' => 'meeting', 'objectId' => $meeting];
+		}
+
+		return [];
+	}//end paperOf()
 }//end class

@@ -70,12 +70,12 @@ class PaperLocator {
 	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
 	public function locate(string $schema, string $objectId, array $data, int $fileId): ?array {
-		if ($this->recordsPaper(data: $data, fileId: $fileId) === false) {
+		$file = $this->rootFolder->getFirstNodeById($fileId);
+		if (($file instanceof File) === false) {
 			return null;
 		}
 
-		$file = $this->rootFolder->getFirstNodeById($fileId);
-		if (($file instanceof File) === false) {
+		if ($this->recordsPaper(data: $data, fileId: $fileId) === false && self::inObjectFolder(file: $file, objectId: $objectId) === false) {
 			return null;
 		}
 
@@ -143,4 +143,27 @@ class PaperLocator {
 		return false;
 	}//end recordsPaper()
 
+	/**
+	 * Whether the file sits in the object's own folder: OpenRegister keeps
+	 * the files attached to an object in a folder named after its uuid, so a
+	 * PDF attached to the item directly is one of its papers too.
+	 *
+	 * @param File   $file     The file
+	 * @param string $objectId The object uuid
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+	 */
+	private static function inObjectFolder(File $file, string $objectId): bool {
+		if (trim($objectId) === '') {
+			return false;
+		}
+
+		try {
+			return strcasecmp($file->getParent()->getName(), trim($objectId)) === 0;
+		} catch (\Throwable) {
+			return false;
+		}
+	}//end inObjectFolder()
 }//end class
