@@ -30,7 +30,6 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
-use OCA\Decidiq\Support\FleetAppId;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Container\ContainerInterface;
@@ -164,13 +163,13 @@ class ConnectionReportService implements ConnectionReportServiceInterface {
 	/**
 	 * What decidiq sees bound for eIDAS signing, as a status and a message.
 	 *
-	 * The delegating service looks its source up through integriq's
-	 * `Db\SourceMapper`. When that lookup does not resolve, every signing
-	 * request throws, so the report says error rather than configured.
+	 * The delegating service hands every request to filinq (ADR-125), so it
+	 * is reported configured; the log-only fallback is reported simulated.
 	 *
 	 * @return array{0: string, 1: string} The status and the message.
 	 *
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 */
 	public function observeSigning(): array {
 		try {
@@ -187,22 +186,9 @@ class ConnectionReportService implements ConnectionReportServiceInterface {
 			return ['configured', 'A signing service is bound: ' . get_debug_type($service) . '. Decidiq does not test it.'];
 		}
 
-		$sourceMapper = FleetAppId::getService($this->container, 'integriq', 'Db\SourceMapper');
-		if ($sourceMapper === null || method_exists($sourceMapper, 'findBySlug') === false) {
-			return ['error', 'Integriq offers no source lookup decidiq can use, so every signing request fails.'];
-		}
-
-		foreach ([EIDASSignatureService::DOCUDESK_SOURCE_SLUG, EIDASSignatureService::ESIGN_SOURCE_SLUG] as $slug) {
-			if ($this->sourceExists(sourceMapper: $sourceMapper, slug: $slug) === true) {
-				return ['configured', 'The integriq source ' . $slug . ' exists. Decidiq does not test it.'];
-			}
-		}
-
-		return [
-			'unconfigured',
-			'No integriq source named ' . EIDASSignatureService::DOCUDESK_SOURCE_SLUG . ' or '
-			. EIDASSignatureService::ESIGN_SOURCE_SLUG . ' exists. Add one to sign minutes.',
-		];
+		// The delegating service is bound only when filinq's signing event
+		// loads (DomainServiceRegistrar), so it means filinq signs.
+		return ['configured', 'filinq signs on its signing rail. Decidiq does not test it.'];
 	}//end observeSigning()
 
 	/**
@@ -232,25 +218,6 @@ class ConnectionReportService implements ConnectionReportServiceInterface {
 			'No Nextcloud translation provider is installed, so queued translations fail. Install a translation provider app to translate minutes.',
 		];
 	}//end observeTranslation()
-
-	/**
-	 * Whether the source lookup finds a source with this slug.
-	 *
-	 * A lookup that throws counts as not found, the same way the signing
-	 * service treats it.
-	 *
-	 * @param object $sourceMapper The integriq source lookup.
-	 * @param string $slug         The source slug.
-	 *
-	 * @return bool
-	 */
-	private function sourceExists(object $sourceMapper, string $slug): bool {
-		try {
-			return $sourceMapper->findBySlug(slug: $slug) !== null;
-		} catch (Throwable) {
-			return false;
-		}
-	}//end sourceExists()
 
 	/**
 	 * The event class to instantiate, or null when integriq does not ship it.

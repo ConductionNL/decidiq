@@ -39,7 +39,6 @@ use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\LogEIDASSignatureService;
 use OCA\Decidiq\Service\NextcloudTranslationAdapter;
-use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -114,10 +113,9 @@ class DomainServiceRegistrar {
 	/**
 	 * Phase 4 — eIDAS QES integration bindings.
 	 *
-	 * The IEIDASSignatureService binding picks the dormant
-	 * {@see LogEIDASSignatureService} fallback when openconnector is absent or
-	 * its `eidas-qes` Source is not configured; otherwise the
-	 * openconnector-delegating {@see EIDASSignatureService} is used.
+	 * The IEIDASSignatureService binding picks the filinq-delegating
+	 * {@see EIDASSignatureService} when filinq's signing event can be loaded,
+	 * and the dormant {@see LogEIDASSignatureService} fallback otherwise.
 	 *
 	 * Both implementations are individually constructable so tests / DI
 	 * overrides can pick either side without going through the resolver; both
@@ -136,21 +134,17 @@ class DomainServiceRegistrar {
 	 *
 	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 */
 	private function registerEidasBindings(IRegistrationContext $context): void {
-		// Resolve the IEIDASSignatureService interface at request time. If
-		// openconnector's CallService binding is registered, prefer the
-		// delegating implementation; otherwise the dormant LogEIDASSignatureService.
+		// Resolve the IEIDASSignatureService interface at request time.
 		$context->registerService(
 			IEIDASSignatureService::class,
 			static function ($c): IEIDASSignatureService {
-				// Resolved across every namespace integriq has shipped under.
-				// Pinned to the retired name this probe was false on any current
-				// instance, so eIDAS signing silently fell back to the DORMANT
-				// LogEIDASSignatureService — signatures were logged, not made.
-				$hasOpenconnector = FleetAppId::getService($c, 'integriq', 'Service\\CallService') !== null;
-
-				if ($hasOpenconnector === true) {
+				// filinq performs the signature (ADR-125): with its signing
+				// event loadable, decidiq hands requests to it; otherwise the
+				// dormant LogEIDASSignatureService answers and nothing is signed.
+				if (EIDASSignatureService::filinqAvailable() === true) {
 					return $c->get(EIDASSignatureService::class);
 				}
 

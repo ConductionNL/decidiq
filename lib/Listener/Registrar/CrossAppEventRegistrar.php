@@ -48,6 +48,8 @@ use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyStateRequestedListener;
 use OCA\Decidiq\Listener\MeetingRequestedListener;
+use OCA\Decidiq\Listener\SigningConcludedListener;
+use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
@@ -113,6 +115,7 @@ class CrossAppEventRegistrar {
 		}
 
 		$this->registerTaskDecisionListener(context: $context);
+		$this->registerSigningConcludedListener(context: $context);
 
 		// OpenRegister's flow engine asks decidiq for its nodes, and a flow
 		// decision's conclusion wakes the run that asked. Its own registrar,
@@ -132,6 +135,25 @@ class CrossAppEventRegistrar {
 		(new TaskProcessingEventRegistrar())->register(context: $context);
 
 	}//end register()
+
+	/**
+	 * Register the listener for filinq's signing outcome.
+	 *
+	 * The event is filinq's, named as FQN strings for every namespace filinq
+	 * has shipped under: registering a listener for a class that is not
+	 * loaded is harmless, and filinq may load after decidiq.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 */
+	private function registerSigningConcludedListener(IRegistrationContext $context): void {
+		foreach (FleetAppId::classCandidates(canonical: 'filinq', relative: SigningConcludedListener::EVENT) as $event) {
+			$context->registerEventListener(event: $event, listener: SigningConcludedListener::class);
+		}
+	}//end registerSigningConcludedListener()
 
 	/**
 	 * Register the listener that turns an answered approval-stage task into an
