@@ -3420,7 +3420,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Ritirata dalla parte richiedente",
         "Transfer overdue": "Trasferimento scaduto",
         "Retention not resolved": "Conservazione non determinata",
-        "Meetings without dossier": "Riunioni senza fascicolo"
+        "Meetings without dossier": "Riunioni senza fascicolo",
+        "Closed item": "Punto a porte chiuse"
     },
     "nplurals=2; plural=(n != 1);"
 )

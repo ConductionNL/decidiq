@@ -1811,6 +1811,16 @@ exports[`MeetingAgendaTab golden runs > refresh 1`] = `
         "agenda-item",
       ],
       [
+        "fetch",
+        "/index.php/apps/decidiq/api/meetings/mt-1/closed-items",
+        {
+          "headers": {
+            "Accept": "application/json",
+            "requesttoken": "tok",
+          },
+        },
+      ],
+      [
         "fetchCollection",
         "agenda-item",
         "agenda-item",
@@ -1912,6 +1922,16 @@ exports[`MeetingAgendaTab golden runs > refresh 1`] = `
         "agenda-item",
       ],
       [
+        "fetch",
+        "/index.php/apps/decidiq/api/meetings/mt-1/closed-items",
+        {
+          "headers": {
+            "Accept": "application/json",
+            "requesttoken": "tok",
+          },
+        },
+      ],
+      [
         "fetchCollection",
         "agenda-item",
         "agenda-item",
@@ -1962,6 +1982,16 @@ exports[`MeetingAgendaTab golden runs > refresh 1`] = `
         "agenda-item",
       ],
       [
+        "fetch",
+        "/index.php/apps/decidiq/api/meetings/mt-1/closed-items",
+        {
+          "headers": {
+            "Accept": "application/json",
+            "requesttoken": "tok",
+          },
+        },
+      ],
+      [
         "fetchCollection",
         "agenda-item",
         "agenda-item",
@@ -2004,6 +2034,16 @@ exports[`MeetingAgendaTab golden runs > refresh 1`] = `
         "fetchSchema",
         "agenda-item",
         "agenda-item",
+      ],
+      [
+        "fetch",
+        "/index.php/apps/decidiq/api/meetings/mt-1/closed-items",
+        {
+          "headers": {
+            "Accept": "application/json",
+            "requesttoken": "tok",
+          },
+        },
       ],
       [
         "fetchCollection",

@@ -508,6 +508,10 @@ $extra = [
         ['name' => 'annotation#index',      'url' => '/api/documents/{fileId}/annotations',         'verb' => 'GET',    'requirements' => ['fileId' => '\\d+']],
         ['name' => 'annotation#create',     'url' => '/api/documents/{fileId}/annotations',         'verb' => 'POST',   'requirements' => ['fileId' => '\\d+']],
         ['name' => 'annotation#counts',     'url' => '/api/meetings/{meetingId}/annotation-counts', 'verb' => 'GET'],
+        // The order numbers of the closed items the caller cannot read, so the
+        // agenda shows them as "Besloten punt" (agenda-item-confidential-papers).
+        // @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
+        ['name' => 'closedAgendaItem#index', 'url' => '/api/meetings/{meetingId}/closed-items', 'verb' => 'GET'],
         ['name' => 'annotation#export',     'url' => '/api/annotations/export',                    'verb' => 'GET'],
         ['name' => 'annotation#destroyOwn', 'url' => '/api/annotations/own',                       'verb' => 'DELETE'],
         ['name' => 'annotation#update',     'url' => '/api/annotations/{id}',                      'verb' => 'PUT'],

@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Povukla stranka koja je podnijela zahtjev",
         "Transfer overdue": "Prijenos kasni",
         "Retention not resolved": "Čuvanje nije određeno",
-        "Meetings without dossier": "Sjednice bez spisa"
+        "Meetings without dossier": "Sjednice bez spisa",
+        "Closed item": "Zatvorena točka"
     },
     "nplurals=2; plural=(n != 1);"
 )

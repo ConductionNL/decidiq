@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Irtirata mill-parti li talbet",
         "Transfer overdue": "Trasferiment tard",
         "Retention not resolved": "Żamma mhux determinata",
-        "Meetings without dossier": "Laqgħat mingħajr fajl"
+        "Meetings without dossier": "Laqgħat mingħajr fajl",
+        "Closed item": "Punt magħluq"
     },
     "nplurals=2; plural=(n != 1);"
 )

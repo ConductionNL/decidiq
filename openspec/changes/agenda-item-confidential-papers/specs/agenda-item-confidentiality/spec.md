@@ -84,6 +84,13 @@ The meeting pack MUST leave out the papers of a non-public item and list it as "
 - THEN the pack holds the papers of items 6 and 8
 - AND item 7 is listed as "Besloten punt" without papers
 
+#### Scenario: a reader who may not read the item sees its place
+
+- GIVEN item 7 of a meeting is not public and Pieter is not a member of the meeting's body
+- WHEN Pieter opens the agenda of the meeting
+- THEN the agenda shows "Besloten punt" with number 7 where the item sits
+- AND neither its title nor its papers are shown, and it cannot be opened
+
 ### Requirement: REQ-ACP-006 Every read of a closed paper is logged
 
 Each read of a paper of a non-public item MUST be recorded in OpenRegister's audit trail with the reader and the time. The griffie MUST be able to see these entries on the item's history.

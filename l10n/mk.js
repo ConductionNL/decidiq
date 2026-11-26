@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} поени)",
         "Transfer overdue": "Преносот доцни",
         "Retention not resolved": "Чувањето не е утврдено",
-        "Meetings without dossier": "Седници без досие"
+        "Meetings without dossier": "Седници без досие",
+        "Closed item": "Затворена точка"
     },
     "nplurals=2; plural=(n != 1);"
 )

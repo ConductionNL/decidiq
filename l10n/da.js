@@ -3416,7 +3416,8 @@ OC.L10N.register(
         "Withdrawn by the party who asked": "Trukket tilbage af den part, der anmodede",
         "Transfer overdue": "Overførsel forsinket",
         "Retention not resolved": "Opbevaring ikke fastlagt",
-        "Meetings without dossier": "Møder uden sag"
+        "Meetings without dossier": "Møder uden sag",
+        "Closed item": "Lukket punkt"
     },
     "nplurals=2; plural=(n != 1);"
 )

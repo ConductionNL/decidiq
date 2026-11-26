@@ -3349,7 +3349,8 @@ OC.L10N.register(
         "{property}: {value} (+{points})": "{property}: {value} (+{points} poäng)",
         "Transfer overdue": "Överföring försenad",
         "Retention not resolved": "Bevarande inte fastställt",
-        "Meetings without dossier": "Möten utan akt"
+        "Meetings without dossier": "Möten utan akt",
+        "Closed item": "Stängd punkt"
     },
     "nplurals=2; plural=(n != 1);"
 )
