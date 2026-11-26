@@ -738,9 +738,8 @@ test.describe.serial('compiling a real pack', () => {
 			final.state !== 'done',
 			'the second compile job did not run while the test polled',
 		)
-		await page.reload()
-		const after = page.getByTestId('meeting-pack')
-		await after.scrollIntoViewIfNeeded()
+		// The card mounts when it scrolls into view: open it the way the other scenarios do.
+		const after = await openPack(page, meetingId)
 		const rows = after.getByTestId('meeting-pack-version')
 		await expect(rows).toHaveCount(2)
 		await expect(rows.nth(0).locator('td').first()).toHaveText('2')
