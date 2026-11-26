@@ -111,9 +111,10 @@ test.describe('AnnotationView', () => {
 			.getByTestId('annotation-overlay')
 			.first()
 			.click({ position: { x: 120, y: 160 } })
+		// NcTextArea puts the test id on the textarea itself; find it by its label.
 		await page
-			.getByTestId('annotation-composer-text')
-			.locator('textarea')
+			.getByTestId('annotation-composer')
+			.getByRole('textbox', { name: 'Note' })
 			.fill('Navragen bij wethouder: dekking uit reserve?')
 		await page.getByTestId('annotation-composer-save').click()
 		await page.reload()
