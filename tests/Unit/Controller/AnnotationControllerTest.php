@@ -36,6 +36,7 @@ use OCA\Decidiq\Service\AnnotationStore;
 use OCA\Decidiq\Service\AnnotationVisibilityService;
 use OCA\Decidiq\Service\CsvCell;
 use OCA\Decidiq\Service\DocumentVersionReader;
+use OCA\Decidiq\Service\PaperLocator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
@@ -61,6 +62,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\AnnotationStore
  * @uses   \OCA\Decidiq\Service\AnnotationVisibilityService
  * @uses   \OCA\Decidiq\Service\DocumentVersionReader
+ * @uses   \OCA\Decidiq\Service\PaperLocator
  * @uses   \OCA\Decidiq\Service\CsvCell
  */
 class AnnotationControllerTest extends TestCase {
@@ -241,7 +243,11 @@ class AnnotationControllerTest extends TestCase {
 		$service = new AnnotationService(
 			store: new AnnotationStore(objectService: $objects),
 			visibility: $visibility,
-			versions: new DocumentVersionReader(rootFolder: $this->rootFolder(readable: $readable)),
+			versions: new DocumentVersionReader(
+				rootFolder: ($root = $this->rootFolder(readable: $readable)),
+				objectService: $objects,
+				locator: new PaperLocator(objectService: $objects, rootFolder: $root, logger: new NullLogger())
+			),
 			timeFactory: $clock,
 			csvCell: new CsvCell(),
 			input: new AnnotationInput(objectService: $objects)
