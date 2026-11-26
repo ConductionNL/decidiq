@@ -46,8 +46,8 @@ use RuntimeException;
 /**
  * A non-public item closes its papers; an imposed item restriction closes the item.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
  */
 class AgendaItemConfidentialityListenerTest extends TestCase {
 
@@ -346,7 +346,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function testAnItemCarriesItsMeetingsBody(): void {
 		$this->objectService->expects(self::once())->method('find')
@@ -365,7 +365,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function testAnItemWithItsBodyOrWithoutMeetingIsLeftAlone(): void {
 		$this->objectService->expects(self::once())->method('find')
@@ -388,7 +388,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function testAPaperCarriesItsItemsBodyAndReaders(): void {
 		$this->objectService->method('find')
@@ -414,7 +414,7 @@ class AgendaItemConfidentialityListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffier-adds-a-reader
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffier-adds-a-reader
 	 */
 	public function testAReaderAddedToAClosedItemReachesItsPapers(): void {
 		$closed = ['agendaItem' => 'item-7', 'public' => false, 'governanceBody' => 'body-raad'];

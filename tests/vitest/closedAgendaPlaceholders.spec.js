@@ -7,7 +7,7 @@
  * (agenda-item-confidential-papers task 2). This repo's vitest cannot mount
  * a `.vue` file, so the tab's wiring is asserted against its source.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 
 import { readFileSync } from 'node:fs'

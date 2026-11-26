@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -38,7 +38,7 @@ use JsonSerializable;
  * parent only when the caller can read that parent; under a hidden parent it
  * is left out, as the parent's own "Besloten punt" covers it.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 class ClosedAgendaItemNumbers {
 	/**
@@ -51,7 +51,7 @@ class ClosedAgendaItemNumbers {
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -66,7 +66,7 @@ class ClosedAgendaItemNumbers {
 	 *
 	 * @param string $meetingId The meeting.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
 	 * @return bool
 	 */
@@ -87,7 +87,7 @@ class ClosedAgendaItemNumbers {
 	 *
 	 * @param string $meetingId The meeting.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
 	 * @return list<array{orderNumber: int, parentItem: ?string}> Sorted by order number.
 	 */
@@ -113,7 +113,7 @@ class ClosedAgendaItemNumbers {
 	 * @param string                    $meetingId The meeting.
 	 * @param array<string, true>       $visible   Ids the caller can read.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
 	 * @return array{orderNumber: int, parentItem: ?string}|null
 	 */
@@ -141,7 +141,7 @@ class ClosedAgendaItemNumbers {
 	 * @param string                    $meetingId The meeting.
 	 * @param array<string, true>       $visible   Ids the caller can read.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
 	 * @psalm-assert-if-true array<string, mixed> $item
 	 *

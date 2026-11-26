@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
  * Pins what the agenda learns about a closed item it cannot read: its number,
  * and its parent only when that parent is readable.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 class ClosedAgendaItemNumbersTest extends TestCase {
 

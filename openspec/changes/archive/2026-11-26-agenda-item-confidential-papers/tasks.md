@@ -3,7 +3,7 @@
 ## Implementation tasks
 
 ### Task 1: Fields and read rules
-- **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`, `#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers`
+- **spec_ref**: `openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`, `#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers`
 - **files**: `lib/Settings/register.d/129-agenda-item-confidential-papers.json` (new: `public`, `authorisedReaders`, `authorization.read` on AgendaItem and DigitalDocument), register version move and lock-file test (decision 70)
 - **acceptance_criteria**:
   - the read rules are evaluated by OpenRegister's real RBAC evaluator in the test: body member yes, other body no, named reader yes
@@ -16,7 +16,7 @@
 - Note: the fields (`public`, `authorisedReaders`) are in the fragment. The read rules are not yet: the body rule needs the governance body on AgendaItem (it only has `meeting`) for a `$memberOf` rule on participant `governanceBody` matched by `nextcloudUserId`; the named-reader rule is expressible as `{"authorisedReaders":{"$contains":"$userId"}}`. Both need a test through OpenRegister's evaluator, which decidiq's unit suite does not load.
 
 ### Task 2: Item page and Stukken badges (board DcAgendapunt)
-- **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`
+- **spec_ref**: `openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public`
 - **files**: `src/manifest.json` (AgendaItemDetail Kerngegevens field, Stukken badge, Lezers toevoegen for the secretariat), `l10n/` ("Openbaar", "Besloten", "Besloten punt", "Lezers toevoegen")
 - **acceptance_criteria**:
   - matches the board's Kerngegevens and Stukken
@@ -27,7 +27,7 @@
 - Built (27 Nov): "Besloten punt" with only the number. The read rules leave a gap in a non-reader's agenda, and a gap in the numbers alone cannot tell a closed item from a deleted one, so the server says where they sit: `GET /api/meetings/{meetingId}/closed-items` (`ClosedAgendaItemController`, `ClosedAgendaItemNumbers`, in `openapi.json`) reads the meeting as the caller (404 when they cannot read it), then the meeting's items as the caller and in system context, and answers the order number of each non-public item the caller cannot read, with its parent only when the caller reads that parent (under a hidden parent a closed sub-item is left out). Never the id, title or papers. The meeting's Agenda widget (`MeetingAgendaTab`) puts a "Besloten punt" row at each number (`src/utils/closedAgendaPlaceholders.js`); the row opens nothing and has no actions or drag. One string ("Closed item", nl "Besloten punt") in all 38 catalogues. Tests: `ClosedAgendaItemNumbersTest` (5), `ClosedAgendaItemControllerTest` (4), `tests/vitest/closedAgendaPlaceholders.spec.js` (7), the refresh golden in `meetingAgendaTabGolden.spec.js` (now also reads closed-items). New scenario "a reader who may not read the item sees its place" under REQ-ACP-005, covered by `tests/e2e/closed-agenda-item-place.spec.ts` (written, not run: needs a live instance with openregister#11190). The item page itself, reached by a direct link, still answers OpenRegister's 404.
 
 ### Task 3: Inheritance and restriction listener
-- **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public`, `#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item`
+- **spec_ref**: `openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public`, `#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item`
 - **files**: `lib/Listener/AgendaItemConfidentialityListener.php` (new), `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - the test constructs the real OpenRegister object events, not fakes
@@ -36,13 +36,13 @@
 - Note: before-save on `digital-document` (SaveGuardSubscriptions) closes a paper saved onto a non-public item; after-save on `agenda-item` closes the item's public papers; after-save on `confidentiality-restriction` closes the item when scope `item` reaches `imposed` (lifting changes nothing). Writes run with `_rbac: false`: closing is an invariant, not the saver's right.
 
 ### Task 4: Pack and publication leave the item out
-- **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site`
+- **spec_ref**: `openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site`
 - **files**: `lib/Service/MeetingPackageService.php`, `lib/Service/PublicationPayloadService.php`
 - [x] Implement
 - [x] Test (red first): `tests/Unit/Service/MeetingPackageServiceTest.php`, `tests/Unit/Service/PublicationClosedItemTest.php`
 
 ### Task 5: View log
-- **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged`
+- **spec_ref**: `openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged`
 - **files**: the paper download path (`lib/Controller/` that serves meeting papers), `lib/Service/AuditLogService.php`
 - [x] Implement
 - [x] Test (red first): `tests/Unit/Service/ClosedPaperReadsTest.php`, two more in `tests/Unit/Controller/PaperControllerTest.php`

@@ -12,7 +12,7 @@
  * body reads, a member of another body does not) run on real accounts in
  * confidential-agenda-item-readers.spec.ts.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
  */
 import type { Page } from '@playwright/test'
 

@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 /**
  * Records the read of a paper of a non-public item on that item.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
  */
 class ClosedPaperReads {
 
@@ -55,7 +55,7 @@ class ClosedPaperReads {
 	 *
 	 * @param AuditLogServiceInterface $auditLog The OpenRegister audit trail.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public function __construct(
 		private readonly AuditLogServiceInterface $auditLog,
@@ -73,7 +73,7 @@ class ClosedPaperReads {
 	 *
 	 * @return string|null Null when the read may go ahead (recorded, or nothing to record), else the refusal.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
 	 */
 	public function record(string $readerUid, array $paper): ?string {
 		$itemId = trim((string)($paper['agendaItemId'] ?? ''));
@@ -107,7 +107,7 @@ class ClosedPaperReads {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public static function isClosed(array $item): bool {
 		return ($item['public'] ?? true) === false;

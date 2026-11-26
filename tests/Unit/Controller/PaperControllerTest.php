@@ -340,7 +340,7 @@ class PaperControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
 	 */
 	public function testAnItemPaperReadReachesTheClosedPaperLog(): void {
 		$this->reads = $this->createMock(ClosedPaperReads::class);
@@ -362,7 +362,7 @@ class PaperControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public function testAnUnrecordedClosedPaperReadIsRefused(): void {
 		$this->reads = $this->createMock(ClosedPaperReads::class);

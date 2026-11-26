@@ -316,7 +316,7 @@ class ObjectListenerRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers
 	 * @spec openspec/changes/archive/2026-11-24-confidentiality-term-and-lapse
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-006-geheimhoudingenregister-overview-and-awaiting-bekrachtiging-kpi
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-003)

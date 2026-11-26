@@ -80,7 +80,7 @@ describe('confidential papers trust setting', () => {
 })
 
 /**
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
  */
 describe('who may read a closed item (board DcAgendapunt)', () => {
 	it('says nothing while the item is public or unknown', () => {

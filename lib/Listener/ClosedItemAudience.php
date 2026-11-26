@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ final class ClosedItemAudience {
 	 *
 	 * @return array<string,mixed>
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
 	 */
 	public function closing(array $paper): array {
 		if (($paper['public'] ?? true) === false) {
@@ -57,7 +57,7 @@ final class ClosedItemAudience {
 	 *
 	 * @return array<string,mixed>
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function audience(array $row, array $item): array {
 		$changes = [];

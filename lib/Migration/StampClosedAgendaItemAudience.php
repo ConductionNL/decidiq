@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use Throwable;
  * listener stamps it from the meeting and hands body and readers to its papers. Runs after
  * InitializeSettings has imported the register, so the field and the read rules exist.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  */
 class StampClosedAgendaItemAudience implements IRepairStep {
 	/**
@@ -56,7 +56,7 @@ class StampClosedAgendaItemAudience implements IRepairStep {
 	 *
 	 * @return string The name.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	#[\Override]
 	public function getName(): string {
@@ -70,7 +70,7 @@ class StampClosedAgendaItemAudience implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	#[\Override]
 	public function run(IOutput $output): void {

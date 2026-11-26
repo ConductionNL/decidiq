@@ -101,7 +101,7 @@ export function addBody(person, identityType, number) {
  *
  * @param {string|object|null|undefined} value The relation value.
  * @return {string} The id, or '' when there is none.
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
  */
 export function relationId(value) {
 	if (typeof value === 'string') return value
@@ -117,7 +117,7 @@ export function relationId(value) {
  * @param {object} item The agenda item.
  * @param {object|null} body The governance body of the item's meeting, when it could be read.
  * @return {{bodyName: string}|null} The body's name, '' when it is not known.
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
  */
 export function closedItemAudience(item, body) {
 	if (!readersOpen(item)) return null
