@@ -1,15 +1,11 @@
 <?php
 
 /**
- * Unit tests for EIDASSignatureService (openconnector-delegating QES adapter).
+ * Unit tests for EIDASSignatureService (signs through filinq's rail).
  *
- * The tests wire integriq the way a real instance has it: sources are
- * OpenRegister objects found by slug, and the call log is an ObjectEntity.
- * They were written against an openconnector SourceMapper that no current
- * instance has, so the service never resolved in production (EIDAS defect).
- * Original note: the tests stub the CallService via the DI container
- * to verify each delegated method's success / failure surface without requiring
- * the real openconnector app at test time.
+ * filinq's request event is the stub in tests/Stubs/Filinq/Event; the event
+ * dispatcher double plays filinq's listener, which writes the request id (or
+ * a refusal) back onto the same event instance.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service
@@ -20,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,8 +29,10 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\FilinqSigningRequest;
+use OCA\Filinq\Event\DocumentSigningRequestedEvent;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\EventDispatcher\IEventDispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -42,407 +40,328 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for EIDASSignatureService.
  *
- * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
  */
 class EIDASSignatureServiceTest extends TestCase {
 
 	/**
-	 * The arguments after `config` of the last findAll() call.
+	 * The events dispatched.
 	 *
-	 * @var array<int|string, mixed>
+	 * @var array<int, object>
 	 */
-	private array $findAllArgs = [];
+	private array $dispatched = [];
 
 	/**
-	 * The endpoint and config of the calls made to the `docudesk-signing` source.
+	 * The stage saves, as [uuid, object, rbac].
 	 *
-	 * @var array<int, array{endpoint: string, config: array<string, mixed>}>
+	 * @var array<int, array{0: ?string, 1: array<string, mixed>, 2: bool}>
 	 */
-	private array $docudeskCalls = [];
+	private array $saves = [];
 
 	/**
-	 * Build a service wired the way integriq is on a real instance.
+	 * The filters of each findAll() call.
 	 *
-	 * integriq keeps its sources as OpenRegister objects (register `integriq`,
-	 * schema `source`), found by slug through ObjectService; there is no
-	 * `Db\SourceMapper` under any namespace, so the container here answers
-	 * only the CallService. `CallService::call()` returns the call log as an
-	 * ObjectEntity whose object holds `response.body`, which is what the
-	 * double returns.
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $finds = [];
+
+	/**
+	 * Build the service.
 	 *
-	 * @param array<string, mixed> $responseBody Body the source answers with
-	 * @param object|null          $sourceObject Non-null when the `eidas-qes` source is configured
+	 * @param callable|null           $filinq  Plays filinq's listener; null = nobody handles the event
+	 * @param array<int, ObjectEntity> $stages  The signature stages findAll() answers
+	 * @param bool                    $present Whether filinq's classes load
+	 * @param \Throwable|null         $payload Thrown by the payload builder
 	 *
 	 * @return EIDASSignatureService
 	 */
-	private function makeService(array $responseBody, ?object $sourceObject = null): EIDASSignatureService {
-		$callLog = new ObjectEntity();
-		$callLog->setUuid('call-log-1');
-		$callLog->setObject(['response' => ['statusCode' => 200, 'body' => json_encode($responseBody)]]);
-
-		$callService = new class($callLog) {
-			/**
-			 * Constructor.
-			 *
-			 * @param ObjectEntity $result The call log returned from call()
-			 */
-			public function __construct(private readonly ObjectEntity $result) {
-			}
-
-			/**
-			 * The shape of integriq's CallService::call(): a source object in,
-			 * the call log out.
-			 *
-			 * @param ObjectEntity         $source   The source object
-			 * @param string               $endpoint Endpoint path
-			 * @param string               $method   HTTP method
-			 * @param array<string, mixed> $config   Call config
-			 *
-			 * @return ObjectEntity
-			 */
-			public function call(ObjectEntity $source, string $endpoint = '', string $method = 'GET', array $config = []): ObjectEntity {
-				return $this->result;
-			}
-		};
+	private function makeService(?callable $filinq = null, array $stages = [], bool $present = true, ?\Throwable $payload = null): EIDASSignatureService {
+		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
+		if ($payload !== null) {
+			$request->method('payload')->willThrowException($payload);
+		} else {
+			$request->method('payload')->willReturn(
+				[
+					'documentFileId' => 812,
+					'documentName' => 'Notulen.pdf',
+					'signers' => [
+						['userId' => 'chair', 'displayName' => 'Chair', 'email' => 'c@example.org', 'order' => 1],
+						['userId' => 'clerk', 'displayName' => 'Clerk', 'email' => '', 'order' => 2],
+					],
+					'signatureLevel' => 'QES',
+					'signingMode' => 'sequential',
+				]
+			);
+		}
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
-			function (string $id) use ($callService) {
-				if ($id === 'OCA\\Integriq\\Service\\CallService') {
-					return $callService;
-				}
-
-				if ($id === FilinqSigningRequest::class) {
-					return $request;
-				}
-
-				throw new \RuntimeException('Service ' . $id . ' is not registered');
+			static fn (string $id) => match ($id) {
+				FilinqSigningRequest::class => $request,
+				default => throw new \RuntimeException('Service ' . $id . ' is not registered'),
 			}
 		);
 
-		$source = new ObjectEntity();
-		$source->setUuid('source-1');
-		$source->setObject(['slug' => EIDASSignatureService::ESIGN_SOURCE_SLUG, 'location' => 'https://sign.example.org']);
+		$dispatcher = $this->createMock(IEventDispatcher::class);
+		$dispatcher->method('dispatchTyped')->willReturnCallback(
+			function (object $event) use ($filinq): void {
+				$this->dispatched[] = $event;
+				if ($filinq !== null) {
+					$filinq($event);
+				}
+			}
+		);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
-			function (array $config, ...$rest) use ($source, $sourceObject): array {
-				$this->findAllArgs = $rest;
-				$filters = ($config['filters'] ?? []);
-				if (($filters['register'] ?? '') === 'integriq' && ($filters['schema'] ?? '') === 'source'
-					&& ($filters['slug'] ?? '') === EIDASSignatureService::ESIGN_SOURCE_SLUG && $sourceObject !== null
-				) {
-					return [$source];
-				}
-
-				return [];
+			function (array $config) use ($stages): array {
+				$this->finds[] = $config['filters'];
+				return $stages;
+			}
+		);
+		$objectService->method('saveObject')->willReturnCallback(
+			function (array $object, $options, bool $_rbac = true) {
+				$this->saves[] = [$options->uuid, $object, $_rbac];
+				return new ObjectEntity();
 			}
 		);
 
-		$logger = $this->createMock(LoggerInterface::class);
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'ok']);
 
-		return new EIDASSignatureService(container: $container, logger: $logger, auditLogService: $audit, objectService: $objectService);
+		$args = [
+			'container' => $container,
+			'logger' => $this->createMock(LoggerInterface::class),
+			'auditLogService' => $audit,
+			'objectService' => $objectService,
+			'dispatcher' => $dispatcher,
+		];
+
+		if ($present === true) {
+			return new EIDASSignatureService(...$args);
+		}
+
+		return new class(...$args) extends EIDASSignatureService {
+			/**
+			 * filinq is not installed.
+			 *
+			 * @param string $relative The class name
+			 *
+			 * @return string|null
+			 */
+			protected function filinqClass(string $relative): ?string {
+				return null;
+			}
+		};
 	}//end makeService()
 
 	/**
-	 * Initialize returns success with the openconnector-supplied requestId
-	 * and signingUrl.
+	 * A stage as OpenRegister returns it.
+	 *
+	 * @param string               $uuid The stage UUID
+	 * @param array<string, mixed> $data The stage data
+	 *
+	 * @return ObjectEntity
+	 */
+	private function stage(string $uuid, array $data = []): ObjectEntity {
+		$entity = new ObjectEntity();
+		$entity->setUuid($uuid);
+		$entity->setObject(array_merge(['id' => $uuid, 'method' => 'signature', 'signedDocument' => 'min-1'], $data));
+		return $entity;
+	}//end stage()
+
+	/**
+	 * A signature stage asks filinq to sign: the event names the subject, the
+	 * PDF and the signers in order, and the request id is stored on the stage.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-a-signature-stage-asks-filinq-to-sign
 	 *
 	 * @return void
 	 */
-	public function testInitializeReturnsRequestIdFromOpenconnector(): void {
+	public function testSignatureStageAsksFilinqToSign(): void {
 		$service = $this->makeService(
-			responseBody: [
-				'requestId' => 'qes-req-42',
-				'signingUrl' => 'https://qsp.example/sign/42',
-			],
-			sourceObject: new \stdClass()
+			filinq: static function (DocumentSigningRequestedEvent $event): void {
+				$event->setSigningRequestId('sr-9');
+				$event->setHandled(true);
+			},
+			stages: [$this->stage(uuid: 'stage-1')]
 		);
 
-		$result = $service->initializeSigningRequest('min-1', ['m-1', 'm-2']);
+		$result = $service->initializeSigningRequest('min-1', ['p-1', 'p-2']);
 
 		$this->assertTrue($result['success']);
-		$this->assertSame('qes-req-42', $result['requestId']);
-		$this->assertSame('https://qsp.example/sign/42', $result['signingUrl']);
+		$this->assertSame('sr-9', $result['requestId']);
+		$this->assertNull($result['signingUrl']);
 
-	}//end testInitializeReturnsRequestIdFromOpenconnector()
+		$this->assertCount(1, $this->dispatched);
+		$event = $this->dispatched[0];
+		$this->assertInstanceOf(DocumentSigningRequestedEvent::class, $event);
+		$this->assertSame('decidiq', $event->getProvenance()->getSourceApp());
+		$this->assertSame('decidiq', $event->getProvenance()->getSubjectRegister());
+		$this->assertSame('minutes', $event->getProvenance()->getSubjectSchema());
+		$this->assertSame('min-1', $event->getProvenance()->getSubjectId());
+		$this->assertSame('812', $event->getDocumentReference());
+		$this->assertSame('Notulen.pdf', $event->getSubjectLabel());
+		$this->assertSame('QES', $event->getSignatureLevel());
+		$this->assertSame('sequential', $event->getSigningMode());
+		$this->assertSame(['chair', 'clerk'], array_column($event->getSigners(), 'userId'));
+
+		$this->assertSame(['register' => 'decidiq', 'schema' => 'decision-stage', 'method' => 'signature', 'signedDocument' => 'min-1'], $this->finds[0]);
+		$this->assertCount(1, $this->saves);
+		$this->assertSame('stage-1', $this->saves[0][0]);
+		$this->assertSame('sr-9', $this->saves[0][1]['signingReference']);
+		$this->assertFalse($this->saves[0][2], 'the stage bookkeeping is written in system context');
+	}//end testSignatureStageAsksFilinqToSign()
 
 	/**
-	 * The source is admin configuration, so it is read in system context the
-	 * way integriq reads it: a griffier without rights on the integriq
-	 * register still reaches the signing service.
+	 * A decision list is signed from its meeting: the subject schema is meeting.
 	 *
 	 * @return void
 	 */
-	public function testSourceIsReadInSystemContext(): void {
-		$service = $this->makeService(responseBody: ['requestId' => 'r', 'signingUrl' => 'u'], sourceObject: new \stdClass());
+	public function testDecisionListIsSignedFromItsMeeting(): void {
+		$service = $this->makeService(
+			filinq: static function (DocumentSigningRequestedEvent $event): void {
+				$event->setSigningRequestId('sr-2');
+				$event->setHandled(true);
+			}
+		);
 
-		$service->initializeSigningRequest('min-1', ['m-1']);
+		$service->initializeSigningRequest('meeting-1', ['p-1'], 'decision-list');
 
-		$this->assertSame([false, false], array_values($this->findAllArgs));
-
-	}//end testSourceIsReadInSystemContext()
+		$this->assertSame('meeting', $this->dispatched[0]->getProvenance()->getSubjectSchema());
+		$this->assertSame('decision-list/meeting-1', $this->dispatched[0]->getProvenance()->getExternalReference());
+	}//end testDecisionListIsSignedFromItsMeeting()
 
 	/**
-	 * Initialize rejects empty signatories.
+	 * Without filinq the stage stays unresolved: nothing is dispatched or saved.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-no-signing-provider-fails-closed
+	 *
+	 * @return void
+	 */
+	public function testNoFilinqFailsClosed(): void {
+		$result = $this->makeService(present: false)->initializeSigningRequest('min-1', ['p-1']);
+
+		$this->assertFalse($result['success']);
+		$this->assertNull($result['requestId']);
+		$this->assertStringContainsString('filinq is not installed', $result['message']);
+		$this->assertSame([], $this->dispatched);
+		$this->assertSame([], $this->saves);
+	}//end testNoFilinqFailsClosed()
+
+	/**
+	 * An event nobody handles fails closed.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-no-signing-provider-fails-closed
+	 *
+	 * @return void
+	 */
+	public function testUnhandledRequestFailsClosed(): void {
+		$result = $this->makeService(stages: [$this->stage(uuid: 'stage-1')])->initializeSigningRequest('min-1', ['p-1']);
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('filinq did not take the signing request', $result['message']);
+		$this->assertSame([], $this->saves);
+	}//end testUnhandledRequestFailsClosed()
+
+	/**
+	 * filinq's refusal is passed on as the answer.
+	 *
+	 * @return void
+	 */
+	public function testRefusalIsPassedOn(): void {
+		$result = $this->makeService(
+			filinq: static function (DocumentSigningRequestedEvent $event): void {
+				$event->setRefusal('Filinq refused the signing request from decidiq.');
+			}
+		)->initializeSigningRequest('min-1', ['p-1']);
+
+		$this->assertFalse($result['success']);
+		$this->assertSame('Filinq refused the signing request from decidiq.', $result['message']);
+	}//end testRefusalIsPassedOn()
+
+	/**
+	 * A record without a PDF fails closed with the builder's reason.
+	 *
+	 * @return void
+	 */
+	public function testMissingPdfFailsClosed(): void {
+		$result = $this->makeService(payload: new \RuntimeException('No PDF of this minutes to sign was found.'))->initializeSigningRequest('min-1', ['p-1']);
+
+		$this->assertFalse($result['success']);
+		$this->assertStringContainsString('No PDF of this minutes', $result['message']);
+		$this->assertSame([], $this->dispatched);
+	}//end testMissingPdfFailsClosed()
+
+	/**
+	 * Empty input is refused before filinq is asked.
 	 *
 	 * @return void
 	 */
 	public function testInitializeRejectsEmptySignatories(): void {
-		$service = $this->makeService(responseBody: [], sourceObject: new \stdClass());
-
-		$result = $service->initializeSigningRequest('min-1', []);
+		$result = $this->makeService()->initializeSigningRequest('min-1', []);
 
 		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('at least one signatory', $result['message']);
-
+		$this->assertSame([], $this->dispatched);
 	}//end testInitializeRejectsEmptySignatories()
 
 	/**
-	 * Initialize returns success:false when the openconnector source is
-	 * unconfigured (SourceMapper::findBySlug returns null).
+	 * A signed request resolves the stages that wait on it, matched on the
+	 * request id.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-completed-filinq-signing-resolves-the-stage
 	 *
 	 * @return void
 	 */
-	public function testInitializeFailsWhenSourceNotConfigured(): void {
-		$service = $this->makeService(responseBody: [], sourceObject: null);
+	public function testSignedRequestResolvesItsStages(): void {
+		$service = $this->makeService(stages: [$this->stage(uuid: 'stage-1', data: ['signingReference' => 'sr-9'])]);
 
-		$result = $service->initializeSigningRequest('min-1', ['m-1']);
+		$service->resolveSignatureStage(minutesId: 'min-1', signingReference: 'sr-9');
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('not configured', $result['message']);
-
-	}//end testInitializeFailsWhenSourceNotConfigured()
+		$this->assertSame('sr-9', $this->finds[0]['signingReference']);
+		$this->assertArrayNotHasKey('signedDocument', $this->finds[0]);
+		$saved = $this->saves[0][1];
+		$this->assertSame('adopted', $saved['outcome']);
+		$this->assertSame('decided', $saved['status']);
+		$this->assertNotEmpty($saved['decidedAt']);
+		$this->assertSame('signed', $saved['signingOutcome']);
+		$this->assertSame('min-1', $saved['signedDocument']);
+	}//end testSignedRequestResolvesItsStages()
 
 	/**
-	 * VerifySignature surfaces openconnector validation as valid:true.
+	 * A declined request leaves the stage unresolved and records why.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-a-declined-signing-leaves-the-stage-open
 	 *
 	 * @return void
 	 */
-	public function testVerifyReportsValidWhenOpenconnectorAcceptsSignature(): void {
-		$service = $this->makeService(
-			responseBody: [
-				'valid' => true,
-				'certificateThumbprint' => 'thumb-aabb',
-				'timestamp' => '2026-06-10T12:00:00Z',
-			],
-			sourceObject: new \stdClass()
-		);
+	public function testDeclinedRequestLeavesTheStageOpen(): void {
+		$service = $this->makeService(stages: [$this->stage(uuid: 'stage-1', data: ['signingReference' => 'sr-9', 'status' => 'active'])]);
 
-		$result = $service->verifySignature('req-1', 'sig-blob');
+		$this->assertSame(1, $service->recordUnsignedOutcome(signingReference: 'sr-9', outcome: 'declined'));
 
-		$this->assertTrue($result['valid']);
-		$this->assertSame('thumb-aabb', $result['certificateThumbprint']);
-		$this->assertSame('2026-06-10T12:00:00Z', $result['timestamp']);
-
-	}//end testVerifyReportsValidWhenOpenconnectorAcceptsSignature()
+		$saved = $this->saves[0][1];
+		$this->assertSame('declined', $saved['signingOutcome']);
+		$this->assertSame('active', $saved['status']);
+		$this->assertArrayNotHasKey('outcome', $saved);
+		$this->assertArrayNotHasKey('decidedAt', $saved);
+	}//end testDeclinedRequestLeavesTheStageOpen()
 
 	/**
-	 * VerifySignature rejects missing required parameters before opening a
-	 * call to openconnector.
+	 * The checks filinq performs never answer valid in decidiq.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 *
 	 * @return void
 	 */
-	public function testVerifyRejectsMissingParameters(): void {
-		$service = $this->makeService(responseBody: [], sourceObject: new \stdClass());
+	public function testChecksFilinqPerformsFailClosed(): void {
+		$service = $this->makeService();
 
-		$result = $service->verifySignature('', 'sig');
-		$this->assertFalse($result['valid']);
-		$this->assertStringContainsString('required', $result['message']);
-
-		$result2 = $service->verifySignature('req-1', '');
-		$this->assertFalse($result2['valid']);
-		$this->assertStringContainsString('required', $result2['message']);
-
-	}//end testVerifyRejectsMissingParameters()
-
-	/**
-	 * ValidateCertificateChain rejects an empty thumbprint.
-	 *
-	 * @return void
-	 */
-	public function testValidateCertRejectsEmptyThumbprint(): void {
-		$service = $this->makeService(responseBody: [], sourceObject: new \stdClass());
-
-		$result = $service->validateCertificateChain('');
-		$this->assertFalse($result['valid']);
-
-	}//end testValidateCertRejectsEmptyThumbprint()
-
-	/**
-	 * ValidateCertificateChain surfaces openconnector's verdict.
-	 *
-	 * @return void
-	 */
-	public function testValidateCertSurfacesOpenconnectorVerdict(): void {
-		$service = $this->makeService(
-			responseBody: [
-				'valid' => true,
-				'issuer' => 'CN=Example QSP',
-				'trustListLevel' => 'qualified',
-			],
-			sourceObject: new \stdClass()
-		);
-
-		$result = $service->validateCertificateChain('thumb-aabb');
-
-		$this->assertTrue($result['valid']);
-		$this->assertSame('CN=Example QSP', $result['issuer']);
-		$this->assertSame('qualified', $result['trustListLevel']);
-
-	}//end testValidateCertSurfacesOpenconnectorVerdict()
-
-	/**
-	 * Build a service with filinq registered as the `docudesk-signing` source.
-	 *
-	 * @param array<string, mixed>      $responseBody What filinq answers
-	 * @param FilinqSigningRequest|null $request      The request builder
-	 *
-	 * @return EIDASSignatureService
-	 */
-	private function makeFilinqService(array $responseBody, ?FilinqSigningRequest $request): EIDASSignatureService {
-		$callLog = new ObjectEntity();
-		$callLog->setObject(['response' => ['statusCode' => 200, 'body' => json_encode($responseBody)]]);
-
-		$callService = new class($callLog, $this) {
-			/**
-			 * Constructor.
-			 *
-			 * @param ObjectEntity              $result The call log returned from call()
-			 * @param EIDASSignatureServiceTest $test   Records the calls
-			 */
-			public function __construct(private readonly ObjectEntity $result, private readonly EIDASSignatureServiceTest $test) {
-			}
-
-			/**
-			 * Record the call and answer with the call log.
-			 *
-			 * @param ObjectEntity         $source   The source object
-			 * @param string               $endpoint Endpoint path
-			 * @param string               $method   HTTP method
-			 * @param array<string, mixed> $config   Call config
-			 *
-			 * @return ObjectEntity
-			 */
-			public function call(ObjectEntity $source, string $endpoint = '', string $method = 'GET', array $config = []): ObjectEntity {
-				$this->test->recordDocudeskCall(endpoint: $endpoint, config: $config);
-				return $this->result;
-			}
-		};
-
-		$container = $this->createMock(originalClassName: ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			function (string $id) use ($callService, $request) {
-				if ($id === 'OCA\\Integriq\\Service\\CallService') {
-					return $callService;
-				}
-
-				if ($id === FilinqSigningRequest::class) {
-					return $request;
-				}
-
-				throw new \RuntimeException('Service ' . $id . ' is not registered');
-			}
-		);
-
-		$source = new ObjectEntity();
-		$source->setObject(['slug' => EIDASSignatureService::DOCUDESK_SOURCE_SLUG, 'location' => 'https://nc.example.org/index.php/apps/filinq']);
-
-		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
-		$objectService->method('findAll')->willReturnCallback(
-			static function (array $config) use ($source): array {
-				if (($config['filters']['slug'] ?? '') === EIDASSignatureService::DOCUDESK_SOURCE_SLUG) {
-					return [$source];
-				}
-
-				return [];
-			}
-		);
-
-		return new EIDASSignatureService(
-			container: $container,
-			logger: $this->createMock(originalClassName: LoggerInterface::class),
-			auditLogService: $this->createMock(originalClassName: AuditLogService::class),
-			objectService: $objectService
-		);
-	}//end makeFilinqService()
-
-	/**
-	 * Record a call to the `docudesk-signing` source.
-	 *
-	 * @param string               $endpoint Endpoint path
-	 * @param array<string, mixed> $config   Call config
-	 *
-	 * @return void
-	 */
-	public function recordDocudeskCall(string $endpoint, array $config): void {
-		$this->docudeskCalls[] = ['endpoint' => $endpoint, 'config' => $config];
-	}//end recordDocudeskCall()
-
-	/**
-	 * With filinq registered, the request goes to filinq's create route with
-	 * the fields filinq reads, and filinq's `id` comes back as the request id
-	 * (decidiq#1387).
-	 *
-	 * @return void
-	 */
-	public function testFilinqGetsItsOwnRouteAndFields(): void {
-		$body = [
-			'documentFileId' => 812,
-			'documentName' => 'Notulen.pdf',
-			'signers' => [['name' => 'A', 'email' => 'a@example.org', 'order' => 1]],
-			'signingOrder' => 'sequential',
-			'signatureLevel' => 'QES',
-		];
-		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
-		$request->expects($this->once())->method('payload')->with('minutes', 'min-1', ['m-1'])->willReturn($body);
-
-		$result = $this->makeFilinqService(responseBody: ['id' => 'sr-9'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
-
-		$this->assertTrue(condition: $result['success']);
-		$this->assertSame(expected: 'sr-9', actual: $result['requestId']);
-		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
-		$this->assertSame(expected: '/api/signing/requests', actual: $this->docudeskCalls[0]['endpoint']);
-		$this->assertSame(expected: $body, actual: json_decode((string)$this->docudeskCalls[0]['config']['body'], true));
-
-	}//end testFilinqGetsItsOwnRouteAndFields()
-
-	/**
-	 * An answer without an id (filinq's error answer) fails, and closed: the
-	 * openconnector source is not tried after it.
-	 *
-	 * @return void
-	 */
-	public function testFilinqAnswerWithoutIdFailsClosed(): void {
-		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
-		$request->method('payload')->willReturn(['documentFileId' => 1]);
-
-		$result = $this->makeFilinqService(responseBody: ['message' => 'Not found'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
-
-		$this->assertFalse(condition: $result['success']);
-		$this->assertStringContainsString(needle: 'fail-closed', haystack: $result['message']);
-		$this->assertStringContainsString(needle: 'Not found', haystack: $result['message']);
-		$this->assertCount(expectedCount: 1, haystack: $this->docudeskCalls);
-
-	}//end testFilinqAnswerWithoutIdFailsClosed()
-
-	/**
-	 * Without a PDF to sign nothing is posted, and the failure is final.
-	 *
-	 * @return void
-	 */
-	public function testNoPdfPostsNothing(): void {
-		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
-		$request->method('payload')->willThrowException(new \RuntimeException('No PDF of this minutes to sign was found.'));
-
-		$result = $this->makeFilinqService(responseBody: ['id' => 'x'], request: $request)->initializeSigningRequest('min-1', ['m-1']);
-
-		$this->assertFalse(condition: $result['success']);
-		$this->assertStringContainsString(needle: 'No PDF', haystack: $result['message']);
-		$this->assertSame(expected: [], actual: $this->docudeskCalls);
-
-	}//end testNoPdfPostsNothing()
-
+		$this->assertFalse($service->verifySignature('req-1', 'sig')['valid']);
+		$this->assertFalse($service->validateCertificateChain('thumb')['valid']);
+		$this->assertFalse($service->finalizeMinutes('min-1', [['signer' => 'a']])['success']);
+		$this->assertSame('pending', $service->fetchSigningResult('req-1')['status']);
+		$this->assertSame('certificateThumbprint is required.', $service->validateCertificateChain('')['message']);
+		$this->assertSame([], $this->saves, 'a client-sent signature list never marks minutes signed');
+	}//end testChecksFilinqPerformsFailClosed()
 }//end class

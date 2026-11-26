@@ -141,8 +141,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			return $this->refused(message: 'minutesId and at least one signatory are required.');
 		}
 
-		$eventClass      = FleetAppId::resolveClass(canonical: 'filinq', relative: self::REQUEST_EVENT);
-		$provenanceClass = FleetAppId::resolveClass(canonical: 'filinq', relative: self::PROVENANCE);
+		$eventClass      = $this->filinqClass(relative: self::REQUEST_EVENT);
+		$provenanceClass = $this->filinqClass(relative: self::PROVENANCE);
 		if ($eventClass === null || $provenanceClass === null) {
 			return $this->refused(message: 'filinq is not installed, so nothing was sent for signature.');
 		}
@@ -200,6 +200,20 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		];
 
 	}//end initializeSigningRequest()
+
+	/**
+	 * The loadable class of filinq's, under any namespace filinq has shipped
+	 * under, or null when filinq is not there.
+	 *
+	 * @param string $relative The class name relative to filinq's namespace.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return string|null
+	 */
+	protected function filinqClass(string $relative): ?string {
+		return FleetAppId::resolveClass(canonical: 'filinq', relative: $relative);
+	}//end filinqClass()
 
 	/**
 	 * The fail-closed answer of initializeSigningRequest().
