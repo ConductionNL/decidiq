@@ -148,8 +148,9 @@ class DomainServiceRegistrar {
 				// and its signing event loadable, decidiq hands requests to it;
 				// otherwise the dormant LogEIDASSignatureService answers and
 				// nothing is signed.
-				$filinq = FleetAppId::isInstalled(appManager: $c->get(IAppManager::class), canonical: 'filinq');
-				if ($filinq === true && EIDASSignatureService::filinqAvailable() === true) {
+				$filinq = FleetAppId::isInstalled(appManager: $c->get(IAppManager::class), canonical: 'filinq')
+					&& FleetAppId::resolveClass(canonical: 'filinq', relative: EIDASSignatureService::REQUEST_EVENT) !== null;
+				if ($filinq === true) {
 					return $c->get(EIDASSignatureService::class);
 				}
 

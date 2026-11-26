@@ -83,21 +83,4 @@ interface SigningRoundServiceInterface {
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 */
 	public function send(string $subjectType, string $subjectId): array;
-
-	/**
-	 * Record how filinq concluded the signing request a record is out on.
-	 *
-	 * Matched on the request id: an answer for an earlier round of the same
-	 * record is ignored. `signed` links the signed document and marks the
-	 * signers; declined, expired and cancelled mark the round failed.
-	 *
-	 * @param string               $schema     The record's schema (minutes, meeting or decision)
-	 * @param string               $subjectId  The record's UUID
-	 * @param array<string, mixed> $conclusion requestId, status, signedDocumentRef and signedAt
-	 *
-	 * @return array{status: string, message: string}
-	 *
-	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
-	 */
-	public function conclude(string $schema, string $subjectId, array $conclusion): array;
 }//end interface

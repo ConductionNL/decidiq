@@ -470,69 +470,6 @@ class SigningRoundServiceTest extends TestCase {
 	}//end testTheSweepStoresTheCopyOfEveryRoundThatIsOut()
 
 	/**
-	 * filinq reports the request signed: the record links the signed
-	 * document, marks its signers, and what is written validates.
-	 *
-	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-completed-filinq-signing-resolves-the-stage
-	 *
-	 * @return void
-	 */
-	public function testASignedConclusionLinksTheSignedDocument(): void {
-		$service = $this->makeService(
-			schema: 'minutes',
-			data: ['title' => 'Notulen 14 oktober', 'signers' => [['participant' => 'anna', 'order' => 1]], 'signingRequestId' => 'sr-9', 'signingStatus' => 'sent']
-		);
-
-		$result = $service->conclude(
-			schema: 'minutes',
-			subjectId: 'rec-1',
-			conclusion: ['requestId' => 'sr-9', 'status' => 'signed', 'signedDocumentRef' => 'notulen-getekend.pdf', 'signedAt' => '2026-11-26T09:00:00Z']
-		);
-
-		self::assertSame('signed', $result['status']);
-		$written = $this->saved[0]['object'];
-		self::assertSame('signed', $written['signingStatus']);
-		self::assertSame('notulen-getekend.pdf', $written['signedCopy']);
-		self::assertSame('2026-11-26T09:00:00Z', $written['signedAt']);
-		self::assertSame('2026-11-26T09:00:00Z', $written['signers'][0]['signedAt']);
-		self::assertFalse($this->saved[0]['rbac'], 'filinq concludes in a signer\'s session; the record is written in system context');
-		$this->assertValidAgainstSchema(slug: 'minutes', object: $written);
-	}//end testASignedConclusionLinksTheSignedDocument()
-
-	/**
-	 * A declined request marks the round failed.
-	 *
-	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-a-declined-signing-leaves-the-stage-open
-	 *
-	 * @return void
-	 */
-	public function testADeclinedConclusionMarksTheRoundFailed(): void {
-		$service = $this->makeService(schema: 'decision', data: ['signingRequestId' => 'sr-9', 'signingStatus' => 'sent']);
-
-		$result = $service->conclude(schema: 'decision', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-9', 'status' => 'declined']);
-
-		self::assertSame('failed', $result['status']);
-		self::assertSame('failed', $this->saved[0]['object']['signingStatus']);
-		self::assertArrayNotHasKey('signedCopy', $this->saved[0]['object']);
-		$this->assertValidAgainstSchema(slug: 'decision', object: $this->saved[0]['object']);
-	}//end testADeclinedConclusionMarksTheRoundFailed()
-
-	/**
-	 * An answer for an earlier round of the same record changes nothing.
-	 *
-	 * @return void
-	 */
-	public function testAConclusionForAnotherRequestIsIgnored(): void {
-		$service = $this->makeService(schema: 'minutes', data: ['signingRequestId' => 'sr-10', 'signingStatus' => 'sent']);
-
-		$result = $service->conclude(schema: 'minutes', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-9', 'status' => 'signed']);
-
-		self::assertSame('ignored', $result['status']);
-		self::assertSame([], $this->saved);
-		self::assertSame('ignored', $service->conclude(schema: 'agenda-item', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-10', 'status' => 'signed'])['status']);
-	}//end testAConclusionForAnotherRequestIsIgnored()
-
-	/**
 	 * The signature stage's new fields validate against the merged schema.
 	 *
 	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
@@ -542,11 +479,11 @@ class SigningRoundServiceTest extends TestCase {
 	public function testTheStageDeclaresItsSigningRequest(): void {
 		$this->assertValidAgainstSchema(slug: 'decision-stage', object: ['method' => 'signature', 'signingReference' => 'sr-9', 'signingOutcome' => 'declined']);
 		$properties = $this->mergedProperties(slug: 'decision-stage');
-		$result = (new Validator())->validate(
-			json_decode('{"signingOutcome":"maybe"}'),
-			json_decode((string)json_encode(['type' => 'object', 'properties' => $properties]))
+		$result     = (new Validator())->validate(
+			data: json_decode(json: '{"signingOutcome":"maybe"}'),
+			schema: json_decode(json: (string)json_encode(value: ['type' => 'object', 'properties' => $properties]))
 		);
-		self::assertFalse($result->isValid());
+		self::assertFalse(condition: $result->isValid());
 	}//end testTheStageDeclaresItsSigningRequest()
 
 	/**

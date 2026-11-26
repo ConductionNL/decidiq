@@ -22,9 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\Decidiq\Listener\SigningConcludedListener;
-use OCA\Decidiq\Service\EIDASSignatureService;
+use OCA\Decidiq\Service\SigningConclusion;
 use OCA\Filinq\Event\SigningConcludedEvent;
 use OCA\Filinq\Event\SigningProvenance;
 use OCP\EventDispatcher\Event;
@@ -40,27 +39,19 @@ use Psr\Log\LoggerInterface;
 class SigningConcludedListenerTest extends TestCase {
 
 	/**
-	 * The round service double.
+	 * The conclusion double.
 	 *
-	 * @var SigningRoundServiceInterface&MockObject
+	 * @var SigningConclusion&MockObject
 	 */
-	private SigningRoundServiceInterface $rounds;
+	private SigningConclusion $conclusion;
 
 	/**
-	 * The signature service double.
-	 *
-	 * @var EIDASSignatureService&MockObject
-	 */
-	private EIDASSignatureService $signatures;
-
-	/**
-	 * Set up the doubles.
+	 * Set up the double.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->rounds     = $this->createMock(SigningRoundServiceInterface::class);
-		$this->signatures = $this->createMock(EIDASSignatureService::class);
+		$this->conclusion = $this->createMock(originalClassName: SigningConclusion::class);
 	}//end setUp()
 
 	/**
@@ -70,9 +61,8 @@ class SigningConcludedListenerTest extends TestCase {
 	 */
 	private function listener(): SigningConcludedListener {
 		return new SigningConcludedListener(
-			rounds: $this->rounds,
-			signatures: $this->signatures,
-			logger: $this->createMock(LoggerInterface::class)
+			conclusion: $this->conclusion,
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);
 	}//end listener()
 
@@ -85,10 +75,15 @@ class SigningConcludedListenerTest extends TestCase {
 	 * @return SigningConcludedEvent
 	 */
 	private function event(string $status, string $sourceApp = 'decidiq'): SigningConcludedEvent {
+		$signedDocumentRef = null;
+		if ($status === 'signed') {
+			$signedDocumentRef = 'file:913';
+		}
+
 		return new SigningConcludedEvent(
 			signingRequestId: 'sr-9',
 			status: $status,
-			signedDocumentRef: ($status === 'signed' ? 'file:913' : null),
+			signedDocumentRef: $signedDocumentRef,
 			signers: [],
 			signedAt: '2026-11-26T09:00:00Z',
 			provenance: new SigningProvenance(sourceApp: $sourceApp, subjectRegister: 'decidiq', subjectSchema: 'minutes', subjectId: 'min-1'),
@@ -96,87 +91,62 @@ class SigningConcludedListenerTest extends TestCase {
 	}//end event()
 
 	/**
-	 * Signed: the record links the signed document and the stages resolve on
-	 * the request id.
+	 * filinq's outcome for a decidiq request reaches the conclusion with the
+	 * subject and the request it names.
 	 *
 	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-completed-filinq-signing-resolves-the-stage
 	 *
 	 * @return void
 	 */
-	public function testSignedResolvesTheStage(): void {
-		$this->rounds->expects($this->once())->method('conclude')
+	public function testTheOutcomeReachesTheConclusion(): void {
+		$this->conclusion->expects($this->once())->method('record')
 			->with(
 				'minutes',
 				'min-1',
 				['requestId' => 'sr-9', 'status' => 'signed', 'signedDocumentRef' => 'file:913', 'signedAt' => '2026-11-26T09:00:00Z']
 			)
-			->willReturn(['status' => 'signed', 'message' => 'ok']);
-		$this->signatures->expects($this->once())->method('resolveSignatureStage')->with('min-1', 'sr-9');
-		$this->signatures->expects($this->never())->method('recordUnsignedOutcome');
+			->willReturn('signed');
 
-		$this->listener()->handle($this->event(status: 'signed'));
-	}//end testSignedResolvesTheStage()
+		$this->listener()->handle(event: $this->event(status: 'signed'));
+	}//end testTheOutcomeReachesTheConclusion()
 
 	/**
-	 * Declined, expired and cancelled leave the stage unresolved with the reason.
+	 * A declined request is handed on as declined.
 	 *
 	 * @spec openspec/changes/sign-through-the-filinq-rail/specs/decidesk-contract-decision-hub/spec.md#scenario-a-declined-signing-leaves-the-stage-open
 	 *
 	 * @return void
 	 */
-	public function testUnsignedOutcomesLeaveTheStageOpen(): void {
-		$this->rounds->method('conclude')->willReturn(['status' => 'failed', 'message' => 'ok']);
-		$this->signatures->expects($this->never())->method('resolveSignatureStage');
-		$this->signatures->expects($this->exactly(3))->method('recordUnsignedOutcome')
-			->willReturnCallback(
-				function (string $signingReference, string $outcome): int {
-					$this->assertSame('sr-9', $signingReference);
-					$this->assertContains($outcome, ['declined', 'expired', 'cancelled']);
-					return 1;
-				}
-			);
+	public function testADeclinedRequestIsHandedOn(): void {
+		$this->conclusion->expects($this->once())->method('record')
+			->with('minutes', 'min-1', ['requestId' => 'sr-9', 'status' => 'declined', 'signedDocumentRef' => '', 'signedAt' => '2026-11-26T09:00:00Z'])
+			->willReturn('failed');
 
-		foreach (['declined', 'expired', 'cancelled'] as $status) {
-			$this->listener()->handle($this->event(status: $status));
-		}
-	}//end testUnsignedOutcomesLeaveTheStageOpen()
+		$this->listener()->handle(event: $this->event(status: 'declined'));
+	}//end testADeclinedRequestIsHandedOn()
 
 	/**
-	 * Another app's signing request is none of decidiq's business.
+	 * Another app's signing request, or any other event, is ignored.
 	 *
 	 * @return void
 	 */
 	public function testOtherAppsAreIgnored(): void {
-		$this->rounds->expects($this->never())->method('conclude');
-		$this->signatures->expects($this->never())->method('resolveSignatureStage');
+		$this->conclusion->expects($this->never())->method('record');
 
-		$this->listener()->handle($this->event(status: 'signed', sourceApp: 'shillinq'));
-		$this->listener()->handle(new Event());
+		$this->listener()->handle(event: $this->event(status: 'signed', sourceApp: 'shillinq'));
+		$this->listener()->handle(event: new Event());
 	}//end testOtherAppsAreIgnored()
-
-	/**
-	 * An answer for a request the record is not out on touches no stage.
-	 *
-	 * @return void
-	 */
-	public function testUnmatchedRequestTouchesNoStage(): void {
-		$this->rounds->method('conclude')->willReturn(['status' => 'ignored', 'message' => 'The record is not out on this signing request.']);
-		$this->signatures->expects($this->never())->method('resolveSignatureStage');
-		$this->signatures->expects($this->never())->method('recordUnsignedOutcome');
-
-		$this->listener()->handle($this->event(status: 'signed'));
-	}//end testUnmatchedRequestTouchesNoStage()
 
 	/**
 	 * A failure in decidiq never reaches filinq's signing flow.
 	 *
 	 * @return void
 	 */
-	public function testFailureIsContained(): void {
-		$this->rounds->method('conclude')->willThrowException(new \RuntimeException('database gone'));
+	public function testAFailureIsContained(): void {
+		$this->conclusion->method('record')->willThrowException(new \RuntimeException(message: 'database gone'));
 
-		$this->listener()->handle($this->event(status: 'signed'));
+		$this->listener()->handle(event: $this->event(status: 'signed'));
 
-		$this->addToAssertionCount(1);
-	}//end testFailureIsContained()
+		$this->addToAssertionCount(count: 1);
+	}//end testAFailureIsContained()
 }//end class

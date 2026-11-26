@@ -41,6 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
@@ -106,18 +107,6 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	}//end __construct()
 
 	/**
-	 * Whether filinq's signing door can be reached on this instance.
-	 *
-	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
-	 *
-	 * @return bool True when filinq's request event and provenance classes load.
-	 */
-	public static function filinqAvailable(): bool {
-		return FleetAppId::resolveClass(canonical: 'filinq', relative: self::REQUEST_EVENT) !== null
-			&& FleetAppId::resolveClass(canonical: 'filinq', relative: self::PROVENANCE) !== null;
-	}//end filinqAvailable()
-
-	/**
 	 * {@inheritDoc}
 	 *
 	 * Dispatches filinq's `DocumentSigningRequestedEvent` with the record as
@@ -158,7 +147,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 				provenance: new $provenanceClass(
 					sourceApp: self::SOURCE_APP,
 					subjectRegister: 'decidiq',
-					subjectSchema: (SigningRoundService::schemaFor(subjectType: $subjectType) ?? $subjectType),
+					subjectSchema: (SigningRoundServiceInterface::SUBJECTS[$subjectType] ?? $subjectType),
 					subjectId: $minutesId,
 					externalReference: $subjectType . '/' . $minutesId,
 					correlationId: $minutesId,
