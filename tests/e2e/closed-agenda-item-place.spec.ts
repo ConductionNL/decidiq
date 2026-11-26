@@ -15,7 +15,7 @@
  * Written, not run here: it needs a live instance with OpenRegister's
  * `$memberOf` read rules (openregister#11190).
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 import type { PlaywrightWorkerArgs } from '@playwright/test'
 

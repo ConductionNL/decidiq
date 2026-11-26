@@ -720,7 +720,7 @@ export default {
 		 * may read still renders.
 		 *
 		 * @return {Promise<Array<object>>} The server's `closedItems`, or none.
-		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 		 */
 		async fetchClosedItems() {
 			try {
@@ -739,7 +739,7 @@ export default {
 		/**
 		 * @param {?object} row An agenda row.
 		 * @return {boolean} Whether it holds the place of a hidden closed item.
-		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 		 */
 		isClosedPlaceholder(row) {
 			return isClosedPlaceholder(row)
@@ -749,7 +749,7 @@ export default {
 		 * The rows that are real agenda items, without placeholders, for reordering.
 		 *
 		 * @return {Array<object>} The rows.
-		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+		 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 		 */
 		orderableRows() {
 			return this.rawRows.filter((row) => !isClosedPlaceholder(row))

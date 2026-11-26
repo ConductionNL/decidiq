@@ -9,7 +9,7 @@
  * numbers of those items (GET /api/meetings/{id}/closed-items) and nothing
  * else; these rows fill the gaps as "Besloten punt" with the number only.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 
 const PLACEHOLDER_PREFIX = 'closed-item-'
@@ -20,7 +20,7 @@ const PLACEHOLDER_PREFIX = 'closed-item-'
  * @param {?object} row An agenda row.
  * @return {boolean} True for a placeholder.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 export function isClosedPlaceholder(row) {
 	return row?.closedPlaceholder === true
@@ -38,7 +38,7 @@ export function isClosedPlaceholder(row) {
  * @param {string} title The translated "Besloten punt".
  * @return {Array<object>} The items followed by the placeholders.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 export function withClosedPlaceholders(items, closedItems, title) {
 	const list = items || []

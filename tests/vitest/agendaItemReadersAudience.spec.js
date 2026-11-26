@@ -5,7 +5,7 @@
  * The readers widget on a closed agenda item reads the body of the item's
  * meeting so it can say who may read the item (board DcAgendapunt).
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
  */
 import * as path from 'path'
 import { describe, expect, it, vi } from 'vitest'

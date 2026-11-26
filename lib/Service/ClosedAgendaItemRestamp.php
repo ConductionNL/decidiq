@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
  * body's members would not pass its read rule. Saving it again lets the confidentiality
  * listener stamp the body from the meeting and hand the body and readers to its papers.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  */
 class ClosedAgendaItemRestamp {
 
@@ -58,7 +58,7 @@ class ClosedAgendaItemRestamp {
 	 *
 	 * @return int How many items were saved.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function restamp(): int {
 		$items = $this->objectService->findAll(

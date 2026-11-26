@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -75,7 +75,7 @@ class ClosedAgendaItemReadRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	public function testAnItemAdmitsOnlyItsAuthorisedReaders(): void {
 		$authorization = MergedRegisterSchema::forSlug(slug: 'agenda-item')['authorization'];
@@ -91,7 +91,7 @@ class ClosedAgendaItemReadRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 * @spec openspec/changes/embargo-geheimhouding/specs/embargo-geheimhouding/spec.md#requirement-req-emb-005-member-facing-embargo-with-scheduled-timed-release
 	 */
 	public function testAPaperUnderEmbargoAdmitsOnlyItsAudience(): void {
@@ -120,7 +120,7 @@ class ClosedAgendaItemReadRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	#[DataProvider('guardedSchemas')]
 	public function testWritingKeepsTheRegisterBaseline(string $slug): void {
@@ -140,7 +140,7 @@ class ClosedAgendaItemReadRulesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	#[DataProvider('guardedSchemas')]
 	public function testEveryMatchedFieldIsDeclared(string $slug): void {

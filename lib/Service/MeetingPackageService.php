@@ -426,7 +426,7 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 	 *
 	 * @param array<string, mixed> $item Agenda item row
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md
 	 *
 	 * @return array<string, mixed>
 	 */

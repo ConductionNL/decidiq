@@ -34,7 +34,7 @@ use RuntimeException;
 /**
  * The endpoint's answers: 200 with the numbers, 401, 404 and 500.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
  */
 class ClosedAgendaItemControllerTest extends TestCase {
 

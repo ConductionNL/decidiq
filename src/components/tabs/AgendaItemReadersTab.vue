@@ -206,7 +206,7 @@ export default {
 		/**
 		 * @return {{bodyName: string}|null} Who may read the item while it is closed.
 		 *
-		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+		 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
 		 */
 		audience() {
 			return closedItemAudience(this.item, this.body)
@@ -242,7 +242,7 @@ export default {
 		 * Read the governance body of a closed item's meeting, for its name.
 		 * Fail-soft: without it the line names no body.
 		 *
-		 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
+		 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
 		 */
 		async loadBody() {
 			this.body = null

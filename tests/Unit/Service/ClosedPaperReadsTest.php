@@ -27,7 +27,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for ClosedPaperReads.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
  */
 class ClosedPaperReadsTest extends TestCase {
 
@@ -62,7 +62,7 @@ class ClosedPaperReadsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-the-griffie-checks-who-read-the-paper
 	 */
 	public function testAReadOfAClosedPaperIsRecordedOnTheItem(): void {
 		$refusal = $this->reads()->record(
@@ -87,7 +87,7 @@ class ClosedPaperReadsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public function testAnOpenPaperIsNotRecorded(): void {
 		$reads = $this->reads();
@@ -103,7 +103,7 @@ class ClosedPaperReadsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-006-every-read-of-a-closed-paper-is-logged
 	 */
 	public function testAnUnrecordedReadIsRefused(): void {
 		$refusal = $this->reads(succeeds: false)->record(readerUid: 'sanne.mulder', paper: ['agendaItemId' => 'item-7', 'item' => ['public' => false], 'fileId' => 42]);

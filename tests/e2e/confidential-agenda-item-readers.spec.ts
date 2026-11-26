@@ -14,7 +14,7 @@
  * that account reads the item and its paper, and the other member still does
  * not.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-002-only-authorised-readers-can-read-a-non-public-item-and-its-papers
  */
 import type { PlaywrightWorkerArgs } from '@playwright/test'
 

@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -97,8 +97,8 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	public function handle(Event $event): void {
 		try {
@@ -115,7 +115,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
 	 */
 	private function dispatch(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent || $event instanceof ObjectUpdatingEvent) {
@@ -136,7 +136,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
 	 */
 	private function beforePaperSave(ObjectCreatingEvent|ObjectUpdatingEvent $event): void {
 		$entity = self::savedEntity(event: $event);
@@ -168,8 +168,8 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return array<string,mixed> The fields to set, empty when the paper is right.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
 	 */
 	private function paperChanges(array $paper, string $itemId): array {
 		// An item that cannot be read closes the paper: a confidential item
@@ -196,7 +196,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	private function beforeItemSave(ObjectCreatingEvent|ObjectUpdatingEvent $event): void {
 		$entity = self::savedEntity(event: $event);
@@ -228,7 +228,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return object|null The entity, or null when the event carries none.
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
 	 */
 	private static function savedEntity(ObjectCreatingEvent|ObjectUpdatingEvent $event): ?object {
 		if ($event instanceof ObjectUpdatingEvent) {
@@ -272,7 +272,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	private function afterRestrictionSave(ObjectCreatedEvent|ObjectUpdatedEvent $event, object $entity, array $row): void {
 		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_RESTRICTION, row: $row) === false) {
@@ -292,7 +292,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	private function becameImposed(ObjectCreatedEvent|ObjectUpdatedEvent $event, array $row): bool {
 		if (self::isImposedOnItem(row: $row) === false) {
@@ -314,7 +314,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	private static function isImposedOnItem(array $row): bool {
 		return ($row['scope'] ?? null) === 'item' && ($row['lifecycle'] ?? null) === 'imposed';
@@ -327,7 +327,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return object|null
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	private static function previous(ObjectCreatedEvent|ObjectUpdatedEvent $event): ?object {
 		if ($event instanceof ObjectUpdatedEvent) {
@@ -344,7 +344,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-geheimhouding-imposed-by-the-college
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-geheimhouding-imposed-by-the-college
 	 */
 	private function closeItem(?string $itemId): void {
 		if ($itemId === null) {
@@ -372,8 +372,8 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
-	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
 	private function closePapers(string $itemId, array $item): void {
 		if ($itemId === '') {

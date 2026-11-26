@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Only a non-public item with a meeting and without a body is saved again.
  *
- * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+ * @spec openspec/changes/archive/2026-11-26-agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
  */
 class ClosedAgendaItemRestampTest extends TestCase {
 
