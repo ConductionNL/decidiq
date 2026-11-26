@@ -152,7 +152,7 @@ class DomainServiceRegistrarTest extends TestCase {
 	 * @return IAppManager
 	 */
 	private function appManager(array $enabled): IAppManager {
-		$manager = $this->createMock(IAppManager::class);
+		$manager = $this->createMock(originalClassName: IAppManager::class);
 		$manager->method('isEnabledForAnyone')->willReturnCallback(static fn (string $app): bool => in_array($app, $enabled, true));
 		return $manager;
 	}//end appManager()

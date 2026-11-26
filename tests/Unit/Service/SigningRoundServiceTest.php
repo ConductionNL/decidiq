@@ -140,7 +140,7 @@ class SigningRoundServiceTest extends TestCase {
 		// The transport double: it records what the round hands it and
 		// answers like a signing transport does (a status answer is read
 		// the way the shipped SigningAnswer reads one).
-		$signing = $this->createMock(IEIDASSignatureService::class);
+		$signing = $this->createMock(originalClassName: IEIDASSignatureService::class);
 		$signing->method('initializeSigningRequest')->willReturnCallback(
 			function (string $subjectId, array $signatories, string $subjectType = 'minutes'): array {
 				$this->calls[] = ['endpoint' => '/initiate', 'body' => ['subjectId' => $subjectId, 'signatories' => $signatories, 'subjectType' => $subjectType]];
@@ -477,7 +477,10 @@ class SigningRoundServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheStageDeclaresItsSigningRequest(): void {
-		$this->assertValidAgainstSchema(slug: 'decision-stage', object: ['method' => 'signature', 'signingReference' => 'sr-9', 'signingOutcome' => 'declined']);
+		$this->assertValidAgainstSchema(
+			slug: 'decision-stage',
+			object: ['method' => 'signature', 'signingReference' => 'sr-9', 'signingOutcome' => 'declined']
+		);
 		$properties = $this->mergedProperties(slug: 'decision-stage');
 		$result     = (new Validator())->validate(
 			data: json_decode(json: '{"signingOutcome":"maybe"}'),
