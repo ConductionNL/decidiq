@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service\BoardBook;
 
 use OCP\Constants;
 use OCP\Files\Node;
+use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
@@ -49,11 +50,13 @@ class BoardBookDelivery {
 	 * @param IShareManager   $shares The share manager.
 	 * @param IUserManager    $users  Whether an attendee has an account.
 	 * @param LoggerInterface $logger The logger.
+	 * @param IConfig         $config Whether the instance lets users accept shares themselves.
 	 */
 	public function __construct(
 		private readonly IShareManager $shares,
 		private readonly IUserManager $users,
 		private readonly LoggerInterface $logger,
+		private readonly IConfig $config,
 	) {
 	}//end __construct()
 
@@ -116,10 +119,21 @@ class BoardBookDelivery {
 			$share->setNode($file);
 			$share->setShareType(IShare::TYPE_USER);
 			$share->setSharedWith($uid);
-			$share->setSharedBy($sharedBy);
+			// Shared by the account that holds the file: the pack lives in
+			// the meeting's OpenRegister folder, outside the compiler's own
+			// files, and a share is resolved through its sharer's folder.
+			$share->setSharedBy(self::holder(file: $file, fallback: $sharedBy));
 			// Read only: without the share bit it cannot be shared on.
 			$share->setPermissions(Constants::PERMISSION_READ);
-			$this->shares->createShare($share);
+			$share = $this->shares->createShare($share);
+			// The pack is compiled by a background job, where Nextcloud's own
+			// listener that accepts a new user share cannot read the file (it
+			// is not in the job user's files); without it the pack waits as a
+			// pending share and is not in the attendee's Files. An instance
+			// that asks users to accept shares themselves keeps that.
+			if ($this->config->getSystemValueBool('sharing.enable_share_accept', false) === false) {
+				$this->shares->acceptShare($share, $uid);
+			}
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: meeting pack delivery failed', ['uid' => $uid, 'exception' => $e->getMessage()]);
 			return 'share failed';
@@ -148,4 +162,28 @@ class BoardBookDelivery {
 
 		return 'attendee';
 	}//end nameOf()
+
+	/**
+	 * The account that holds a file, or the fallback when it has no owner.
+	 *
+	 * @param Node   $file     The file.
+	 * @param string $fallback Who compiled it.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-006-offline-delivery-into-attendees-own-files
+	 */
+	private static function holder(Node $file, string $fallback): string {
+		try {
+			$owner = $file->getOwner();
+		} catch (Throwable) {
+			$owner = null;
+		}
+
+		if ($owner === null) {
+			return $fallback;
+		}
+
+		return $owner->getUID();
+	}//end holder()
 }//end class

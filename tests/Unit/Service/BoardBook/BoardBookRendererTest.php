@@ -180,4 +180,48 @@ class BoardBookRendererTest extends TestCase {
 
 		$this->assertNull(actual: (new BoardBookRenderer(pdf: $pdf, composer: new BoardBookComposer()))->render(meeting: [], bodyName: '', items: [['id' => 'a', 'title' => 'x']], attachments: ['rows' => [], 'nodes' => []]));
 	}//end testNoFilinqMeansNoPdf()
+
+	/**
+	 * One PDF the engine cannot import fails the whole merge; it alone is
+	 * skipped and the other papers are still merged (found live: a broken
+	 * PDF turned every paper of the pack into a placeholder).
+	 *
+	 * @return void
+	 */
+	public function testAPdfTheEngineCannotImportIsSkippedAndTheRestMerged(): void {
+		$items = [['id' => 'a', 'orderNumber' => 3, 'title' => 'Kadernota']];
+		$attachments = [
+			'rows'  => [
+				'a' => [
+					['name' => 'goed.pdf', 'mime' => 'application/pdf', 'size' => 9],
+					['name' => 'kapot.pdf', 'mime' => 'application/pdf', 'size' => 9],
+				],
+			],
+			'nodes' => [
+				'a' => [self::node(name: 'goed.pdf', content: '%PDF-1.7 goed'), self::node(name: 'kapot.pdf', content: '%PDF-1.4 kapot')],
+			],
+		];
+		$pdf = $this->createMock(originalClassName: FilinqPdf::class);
+		$pdf->method('fromHtml')->willReturn('HTML');
+		$merges = [];
+		$pdf->method('merge')->willReturnCallback(
+			static function (array $pdfs) use (&$merges): ?string {
+				$merges[] = $pdfs;
+				if (in_array('%PDF-1.4 kapot', $pdfs, true) === true) {
+					return null;
+				}
+
+				return 'MERGED';
+			}
+		);
+
+		$renderer = new BoardBookRenderer(pdf: $pdf, composer: new BoardBookComposer());
+		$result   = $renderer->render(meeting: [], bodyName: '', items: $items, attachments: $attachments);
+
+		$this->assertSame(expected: 'MERGED', actual: $result['pdf']);
+		$this->assertSame(expected: ['03 - Kadernota/kapot.pdf (' . BoardBookRenderer::UNPARSABLE . ')'], actual: $result['skipped']);
+		$last = end($merges);
+		$this->assertContains(needle: '%PDF-1.7 goed', haystack: $last);
+		$this->assertNotContains(needle: '%PDF-1.4 kapot', haystack: $last);
+	}//end testAPdfTheEngineCannotImportIsSkippedAndTheRestMerged()
 }//end class

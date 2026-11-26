@@ -191,6 +191,7 @@ async function meetingWith(
 	const meeting = await createObject(page, ledger, 'meeting', {
 		title,
 		meetingType: 'regular',
+		meetingMode: 'in-person',
 		scheduledDate: '2026-12-09T19:30:00Z',
 		location: 'Raadzaal',
 		governanceBody: bodyId,
@@ -253,8 +254,10 @@ async function status(
 	request: APIRequestContext,
 	meetingId: string,
 ): Promise<Record<string, any>> {
+	// A raw request carries no request token; the OCS header passes
+	// Nextcloud's CSRF check the way the app's own requests do.
 	const res = await request.get(`${API}/${meetingId}/board-book/status`, {
-		headers: { Accept: 'application/json' },
+		headers: { Accept: 'application/json', 'OCS-APIRequest': 'true' },
 	})
 	expect(res.status(), await res.text()).toBe(200)
 	return res.json()
@@ -287,6 +290,8 @@ async function settled(page: Page, meetingId: string): Promise<Record<string, an
  */
 async function openPack(page: Page, meetingId: string) {
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/${meetingId}`)
+	// The pack sits far down the page and mounts when its card scrolls into view.
+	await page.getByRole('group', { name: 'meeting-pack' }).scrollIntoViewIfNeeded()
 	const widget = page.getByTestId('meeting-pack')
 	await widget.scrollIntoViewIfNeeded()
 	await expect(widget).toBeVisible({ timeout: 20_000 })
@@ -385,6 +390,7 @@ test.beforeAll(async ({ browser }) => {
 		await createObject(page, ledger, 'governance-body', {
 			name: `${tag}-raad`,
 			bodyType: 'legislative',
+			domain: 'municipality',
 		}),
 	)
 	await createObject(page, ledger, 'participant', {
@@ -439,6 +445,8 @@ test.afterAll(async ({ browser }) => {
 })
 
 test.describe.serial('compiling a real pack', () => {
+	// A compilation runs as a background job and may take up to COMPILE_TIMEOUT.
+	test.describe.configure({ timeout: COMPILE_TIMEOUT + 60_000 })
 	let meetingId = ''
 	let titles: string[] = []
 	let compiled = false
@@ -535,6 +543,8 @@ test.describe.serial('compiling a real pack', () => {
 		compiled = true
 
 		await page.reload()
+		await page.getByRole('group', { name: 'meeting-pack' }).scrollIntoViewIfNeeded()
+		await page.getByRole('group', { name: 'meeting-pack' }).scrollIntoViewIfNeeded()
 		const after = page.getByTestId('meeting-pack')
 		await after.scrollIntoViewIfNeeded()
 		const rows = after.getByTestId('meeting-pack-version')
@@ -728,9 +738,8 @@ test.describe.serial('compiling a real pack', () => {
 			final.state !== 'done',
 			'the second compile job did not run while the test polled',
 		)
-		await page.reload()
-		const after = page.getByTestId('meeting-pack')
-		await after.scrollIntoViewIfNeeded()
+		// The card mounts when it scrolls into view: open it the way the other scenarios do.
+		const after = await openPack(page, meetingId)
 		const rows = after.getByTestId('meeting-pack-version')
 		await expect(rows).toHaveCount(2)
 		await expect(rows.nth(0).locator('td').first()).toHaveText('2')
