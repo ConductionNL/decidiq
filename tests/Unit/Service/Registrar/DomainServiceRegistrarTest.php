@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\LogEIDASSignatureService;
 use OCA\Decidiq\Service\NextcloudTranslationAdapter;
 use OCA\Decidiq\Service\Registrar\DomainServiceRegistrar;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\App\IAppManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -93,31 +94,39 @@ class DomainServiceRegistrarTest extends TestCase {
 	}//end testTheMcpToolProviderIsAliased()
 
 	/**
-	 * With integriq's CallService present, eIDAS signing delegates.
+	 * With filinq enabled, eIDAS signing goes through filinq's rail.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 *
 	 * @return void
 	 */
-	public function testEidasDelegatesWhenIntegriqResolves(): void {
+	public function testEidasDelegatesWhenFilinqIsEnabled(): void {
 		$delegating = $this->createMock(IEIDASSignatureService::class);
 		$container = $this->container(
-			services: [EIDASSignatureService::class => $delegating],
-			callService: true
+			services: [EIDASSignatureService::class => $delegating, IAppManager::class => $this->appManager(enabled: ['filinq'])],
+			callService: false
 		);
 
 		$this->assertSame($delegating, ($this->factories[IEIDASSignatureService::class])($container));
-	}//end testEidasDelegatesWhenIntegriqResolves()
+	}//end testEidasDelegatesWhenFilinqIsEnabled()
 
 	/**
-	 * Without integriq, eIDAS signing is the dormant log service.
+	 * Without filinq, eIDAS signing is the dormant log service, even when
+	 * integriq is there: no integriq Source signs any more.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 *
 	 * @return void
 	 */
-	public function testEidasIsDormantWithoutIntegriq(): void {
+	public function testEidasIsDormantWithoutFilinq(): void {
 		$dormant = $this->createMock(IEIDASSignatureService::class);
-		$container = $this->container(services: [LogEIDASSignatureService::class => $dormant], callService: false);
+		$container = $this->container(
+			services: [LogEIDASSignatureService::class => $dormant, IAppManager::class => $this->appManager(enabled: ['integriq'])],
+			callService: true
+		);
 
 		$this->assertSame($dormant, ($this->factories[IEIDASSignatureService::class])($container));
-	}//end testEidasIsDormantWithoutIntegriq()
+	}//end testEidasIsDormantWithoutFilinq()
 
 	/**
 	 * The translation adapter is the Nextcloud TaskProcessing adapter.
@@ -134,6 +143,19 @@ class DomainServiceRegistrarTest extends TestCase {
 
 		$this->assertInstanceOf(expected: NextcloudTranslationAdapter::class, actual: $adapter);
 	}//end testTheTranslationAdapterIsTheNextcloudAdapter()
+
+	/**
+	 * An app manager with the given apps enabled.
+	 *
+	 * @param array<int, string> $enabled The enabled app ids.
+	 *
+	 * @return IAppManager
+	 */
+	private function appManager(array $enabled): IAppManager {
+		$manager = $this->createMock(originalClassName: IAppManager::class);
+		$manager->method('isEnabledForAnyone')->willReturnCallback(static fn (string $app): bool => in_array($app, $enabled, true));
+		return $manager;
+	}//end appManager()
 
 	/**
 	 * A container holding the given services; any CallService id resolves only when asked to.

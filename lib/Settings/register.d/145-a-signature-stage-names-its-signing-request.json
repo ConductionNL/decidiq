@@ -1,0 +1,30 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change sign-through-the-filinq-rail (REQ-DCDH-005). A signature stage names the filinq signing request it waits on, so filinq's SigningConcludedEvent is matched on the request and never on the signed record alone (a record can be sent for signature more than once). A declined, expired or cancelled signing leaves the stage unresolved and says so in signingOutcome.",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.6.0",
+        "properties": {
+          "signingReference": {
+            "type": "string",
+            "title": "Signing request",
+            "description": "The filinq signing request this signature stage waits on.",
+            "nullable": true
+          },
+          "signingOutcome": {
+            "type": "string",
+            "title": "Signing outcome",
+            "description": "How the filinq signing request ended: signed, declined, expired or cancelled. Empty while it is out for signature.",
+            "enum": ["signed", "declined", "expired", "cancelled"],
+            "nullable": true,
+            "facetable": true
+          }
+        }
+      }
+    }
+  }
+}

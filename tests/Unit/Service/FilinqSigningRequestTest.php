@@ -104,7 +104,7 @@ class FilinqSigningRequestTest extends TestCase {
 						['path' => 'Decidesk/Board/2026-10-01 Meeting/Minutes/Notulen v3.md', 'format' => 'markdown'],
 					],
 				],
-				'participant/p-2' => ['displayName' => 'Chair', 'email' => 'chair@example.org'],
+				'participant/p-2' => ['displayName' => 'Chair', 'email' => 'chair@example.org', 'nextcloudUserId' => 'chair'],
 				'person/p-1' => ['name' => 'Secretary', 'email' => 'sec@example.org'],
 			],
 			folders: $folders
@@ -115,10 +115,11 @@ class FilinqSigningRequestTest extends TestCase {
 		$this->assertSame(expected: 812, actual: $payload['documentFileId']);
 		$this->assertSame(expected: 'Notulen v2.pdf', actual: $payload['documentName']);
 		$this->assertSame(expected: 'QES', actual: $payload['signatureLevel']);
+		$this->assertSame(expected: 'sequential', actual: $payload['signingMode']);
 		$this->assertSame(
 			expected: [
-				['name' => 'Chair', 'email' => 'chair@example.org', 'order' => 1],
-				['name' => 'Secretary', 'email' => 'sec@example.org', 'order' => 2],
+				['userId' => 'chair', 'displayName' => 'Chair', 'email' => 'chair@example.org', 'order' => 1],
+				['userId' => '', 'displayName' => 'Secretary', 'email' => 'sec@example.org', 'order' => 2],
 			],
 			actual: $payload['signers']
 		);
@@ -166,7 +167,7 @@ class FilinqSigningRequestTest extends TestCase {
 
 		$this->assertSame(expected: 77, actual: $payload['documentFileId']);
 		$this->assertSame(expected: 'Besluitenlijst.pdf', actual: $payload['documentName']);
-		$this->assertSame(expected: [['name' => 'p-1', 'email' => '', 'order' => 1]], actual: $payload['signers']);
+		$this->assertSame(expected: [['userId' => '', 'displayName' => 'p-1', 'email' => '', 'order' => 1]], actual: $payload['signers']);
 
 	}//end testDecisionListUsesTheMeetingsDecisionListPdf()
 }//end class

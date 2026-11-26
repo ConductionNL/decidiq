@@ -3,12 +3,12 @@
 /**
  * Decidiq Filinq Signing Request
  *
- * Builds the body decidiq posts to filinq's `POST api/signing/requests`
- * route (filinq `SigningController::createRequest`), in the field names
- * filinq's `SigningService::createRequest()` reads: `documentFileId` (the
- * Nextcloud file id of the PDF that is signed), `documentName`, `signers`
- * and `signatureLevel`. Kept apart from EIDASSignatureService, which owns
- * the transport through integriq.
+ * Builds what decidiq hands filinq on its `DocumentSigningRequestedEvent`,
+ * in the field names filinq's `SigningService::createRequest()` reads:
+ * `documentFileId` (the Nextcloud file id of the PDF that is signed),
+ * `documentName`, `signers` (userId, displayName, email, order),
+ * `signatureLevel` and `signingMode`. Kept apart from EIDASSignatureService,
+ * which dispatches the event.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -20,6 +20,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+ * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,14 +42,6 @@ use RuntimeException;
 class FilinqSigningRequest {
 
 	/**
-	 * Filinq's route that creates a signing request, relative to the
-	 * `docudesk-signing` source's location (filinq's app root).
-	 *
-	 * @var string
-	 */
-	public const ENDPOINT = '/api/signing/requests';
-
-	/**
 	 * Construct the builder.
 	 *
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
@@ -61,7 +54,7 @@ class FilinqSigningRequest {
 	}//end __construct()
 
 	/**
-	 * The request body filinq's `SigningService::createRequest()` reads.
+	 * The request fields filinq's `SigningService::createRequest()` reads.
 	 *
 	 * @param string        $subjectType minutes, decision-list or motion
 	 * @param string        $subjectId   The record's UUID
@@ -72,6 +65,7 @@ class FilinqSigningRequest {
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 */
 	public function payload(string $subjectType, string $subjectId, array $signatories): array {
 		$file = $this->document(subjectType: $subjectType, subjectId: $subjectId);
@@ -80,7 +74,7 @@ class FilinqSigningRequest {
 			'documentFileId' => $file->getId(),
 			'documentName' => $file->getName(),
 			'signers' => $this->signers(signatories: $signatories),
-			'signingOrder' => 'sequential',
+			'signingMode' => 'sequential',
 			'signatureLevel' => 'QES',
 		];
 	}//end payload()
@@ -172,7 +166,9 @@ class FilinqSigningRequest {
 	 *
 	 * @param array<string> $signatories Participant (or Person) UUIDs, in signing order
 	 *
-	 * @return array<int, array{name: string, email: string, order: int}>
+	 * @return array<int, array{userId: string, displayName: string, email: string, order: int}>
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 */
 	private function signers(array $signatories): array {
 		$signers = [];
@@ -181,7 +177,8 @@ class FilinqSigningRequest {
 			$who  = ($this->record(schema: 'participant', uuid: $uuid) ?? $this->record(schema: 'person', uuid: $uuid) ?? []);
 
 			$signers[] = [
-				'name' => (string)($who['displayName'] ?? ($who['name'] ?? $uuid)),
+				'userId' => (string)($who['nextcloudUserId'] ?? ''),
+				'displayName' => (string)($who['displayName'] ?? ($who['name'] ?? $uuid)),
 				'email' => (string)($who['email'] ?? ''),
 				'order' => ($index + 1),
 			];

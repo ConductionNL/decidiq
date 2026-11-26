@@ -68,27 +68,26 @@ entry carries an `under-notice` marker for regulator review.
 
 ## 4. eIDAS QES integration
 
-The portal supports **Qualified Electronic Signatures** for minutes and
-written resolutions via `openconnector` → an external eIDAS QTSP.
+The portal supports **Qualified Electronic Signatures** for minutes,
+decision lists and motions. decidiq decides who signs and in which order;
+**filinq** performs the signature on the fleet's signing rail (ADR-125).
 
 Configuration:
 
-1. Install + enable `openconnector`.
-2. Configure an eIDAS-QTSP source (e.g. Connective / Itsme / DigiD HSM).
-3. Decidiq's `EIDASSignatureService` will auto-discover the source on
-   startup. To pin a specific source, set the appconfig key
-   `decidesk:eidas_source_id` to the openconnector source UUID.
-4. Validate the integration with **Validate certificate** (a POST to
-   `/api/eidas/validate-cert` with the member's cert PEM). The response
-   includes the EU Trusted List match result.
+1. Install + enable `filinq`, and configure its signature levels and
+   providers there (once, for every app).
+2. Nothing to configure in decidiq: with filinq enabled, signing requests
+   go to filinq; without it, signing is switched off and nothing is
+   marked signed. **Settings → Connections** shows which one answers.
 
-The QES flow:
+The flow:
 
-1. **Initiate** — `POST /api/minutes/{id}/eidas/initiate` queues the
-   signing job.
-2. **Verify** — `POST /api/minutes/{id}/eidas/verify` polls the QTSP.
-3. **Finalize** — `POST /api/minutes/{id}/eidas/finalize` stores the
-   signed PDF + the QTSP attestation.
+1. **Send for signature** — decidiq hands the record's PDF and its
+   signers, in order, to filinq. The record shows *sent*.
+2. **Sign** — the signers sign in filinq.
+3. **Concluded** — filinq reports back: *signed* links the signed copy on
+   the record and resolves its signature stage; *declined*, *expired* or
+   *cancelled* marks the round failed and the stage stays open.
 
 Verify EU Trusted List freshness with
 `occ decidiq:eidas:tl-status` (currently logged at INFO; expose to a

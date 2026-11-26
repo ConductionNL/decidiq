@@ -189,23 +189,34 @@ Any tampering with row N invalidates every subsequent row.
 
 ## 6. eIDAS qualified signatures
 
-Phase 4 wires the
-`EIDASSignatureService` to openconnector's e-sign abstraction:
+decidiq decides **who** signs and **when** (signatory resolution, the
+approval route, `QesGuard`); **filinq** performs the signature on the
+fleet's signing rail (hydra ADR-125). `EIDASSignatureService` hands a
+record to filinq in process, under the requesting user, through filinq's
+typed events (ADR-041):
 
 ```
-EIDASSignatureService::initiate(minutesId)
-   ↓ openconnector e-sign source (Connective / Itsme / DigiD)
-   ↓ QTSP response (poll via verify)
-EIDASSignatureService::finalize(minutesId, attestationBundle)
-   ↓ ObjectService::saveObject(board-minutes, { qesAttestation: ... })
-   ↓ AuditLogService::append({ action: 'qes-signed', ... })
+SigningRoundService::send(subjectType, subjectId)
+   ↓ EIDASSignatureService::initializeSigningRequest()
+   ↓ DocumentSigningRequestedEvent (subject decidiq/<schema>/<id>, PDF file id,
+     signers in order, level QES)        → filinq creates the signing request
+   ↓ signing request id read back off the event, stored on the record
+     (signingRequestId) and on its method=signature stages (signingReference)
+filinq: SigningConcludedEvent (sourceApp=decidiq)
+   ↓ SigningConcludedListener
+   ↓ signed:    record signingStatus=signed + signedCopy, stages resolved
+                (outcome=adopted, decidedAt) through resolveSignatureStage()
+   ↓ declined / expired / cancelled: record signingStatus=failed, stages stay
+                unresolved with signingOutcome naming why
 ```
 
-Certificate validation goes through the EU Trusted List (LOTL); when
-LOTL fetch fails, the controller returns `503` with a
-`Trusted List unavailable` body. Per ADR-031, the actual handshake with
-the QTSP is done by `openconnector` so decidiq never holds a private
-key.
+Without filinq the binding is the dormant `LogEIDASSignatureService`, and
+the flow fails closed: nothing is sent and nothing is marked signed.
+Certificate checks and signature verification happen in filinq;
+decidiq's `verifySignature()` / `validateCertificateChain()` never answer
+valid on their own, and a signature list a client sends to `finalize` is
+never taken as proof. decidiq reaches no signing service through an
+integriq Source and never holds a private key.
 
 ## 7. CalDAV bridge {#caldav}
 

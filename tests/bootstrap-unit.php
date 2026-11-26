@@ -265,6 +265,16 @@ if (class_exists('\\OCA\\Filinq\\Exception\\ConversionFailedException') === fals
 	require_once __DIR__ . '/Stubs/Filinq/Exception/ConversionFailedException.php';
 }
 
+// The filinq signing events (sign-through-the-filinq-rail). EIDASSignatureService
+// and SigningConcludedListener reach them by string class name through
+// FleetAppId, so decidiq stays installable without filinq; the stubs mirror
+// filinq's classes and load only when its real classes are absent.
+foreach (['SigningProvenance', 'DocumentSigningRequestedEvent', 'SigningConcludedEvent'] as $filinqStubEvent) {
+	if (class_exists('\\OCA\\Filinq\\Event\\' . $filinqStubEvent) === false) {
+		require_once __DIR__ . '/Stubs/Filinq/Event/' . $filinqStubEvent . '.php';
+	}
+}
+
 // ObjectService, ObjectEntity, Register and Schema need no require_once: the
 // PSR-4 root registered above resolves them to tests/Stubs/Service/ and
 // tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real

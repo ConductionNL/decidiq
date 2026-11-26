@@ -3,22 +3,23 @@
 /**
  * Decidiq eIDAS Signature Service
  *
- * Delegates QES (Qualified Electronic Signature) work to the openconnector
- * `e-sign` Source. Openconnector configures the QSP credentials, signing
- * profile and EU Trusted List access; this service merely composes calls
- * via openconnector's CallService.
+ * The domain app decides who signs and when; filinq performs the signature on
+ * the fleet's signing rail (hydra ADR-125). This service hands a record to
+ * filinq by dispatching filinq's `DocumentSigningRequestedEvent` in process,
+ * under the requesting user, and reads the signing request id back off the
+ * same event. filinq reports the outcome later with `SigningConcludedEvent`,
+ * which {@see \OCA\Decidiq\Listener\SigningConcludedListener} handles.
  *
- * The service is constructed via the DI container with a lazy openconnector
- * lookup. If openconnector is absent or the e-sign Source is not configured,
- * the Application wires the dormant {@see LogEIDASSignatureService} fallback
- * instead — the controller / guard never see a hard 500.
+ * There is no HTTP Source hop any more: the `docudesk-signing` and `eidas-qes`
+ * integriq Sources were never configured and integriq ships no e-sign
+ * adapter, so that path was dark. Without filinq, every method here fails
+ * closed: nothing is sent, verified or marked signed.
  *
  * Retargeted onto the unified `minutes` / `decision` entities (ADR-006).
- * C5 (decision-methods) wires the "signature" decision method: when eIDAS
- * signing completes via {@see self::finalizeMinutes()}, the service locates
- * the related DecisionStage of method=signature and resolves it (sets
- * outcome=adopted + decidedAt + links the signedDocument). See
- * {@see self::resolveSignatureStage()} for the stage-resolution seam (C5 D5).
+ * C5 (decision-methods) wires the "signature" decision method: when filinq
+ * reports a request signed, {@see self::resolveSignatureStage()} resolves the
+ * method=signature DecisionStage (outcome=adopted + decidedAt + the signed
+ * document linked).
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -31,7 +32,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -40,159 +41,571 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 /**
- * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
+ * Signs through filinq's signing rail.
  *
- * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
  * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
  */
 class EIDASSignatureService implements IEIDASSignatureService {
 
 	/**
-	 * The openconnector Source slug that addresses the configured QSP.
+	 * filinq's request event, relative to its namespace.
 	 *
 	 * @var string
 	 */
-	public const ESIGN_SOURCE_SLUG = 'eidas-qes';
+	public const REQUEST_EVENT = 'Event\DocumentSigningRequestedEvent';
 
 	/**
-	 * Docudesk integration slug for the signing registry source (contract #2).
-	 * When a source with this slug is registered in the integration registry,
-	 * the docudesk e-signature path takes precedence over openconnector (REQ-DCDH-005).
+	 * filinq's provenance value object, relative to its namespace.
 	 *
 	 * @var string
 	 */
-	public const DOCUDESK_SOURCE_SLUG = 'docudesk-signing';
+	public const PROVENANCE = 'Event\SigningProvenance';
+
+	/**
+	 * The source app filinq echoes on its conclusion event.
+	 *
+	 * @var string
+	 */
+	public const SOURCE_APP = 'decidiq';
+
+	/**
+	 * The answer of every check filinq performs instead of decidiq.
+	 *
+	 * @var string
+	 */
+	private const FILINQ_CHECKS = 'filinq checks signatures on its signing rail; decidiq does not.';
 
 	/**
 	 * Construct the eIDAS service.
 	 *
-	 * @param ContainerInterface $container DI container (lazy openconnector lookup)
-	 * @param LoggerInterface $logger Logger
-	 * @param AuditLogService $auditLogService Audit log dependency
-	 * @param ObjectServiceInterface $objectService The OpenRegister object service
-	 * @param SigningAnswer $answers Reads the signing service's answers
+	 * @param ContainerInterface     $container       DI container (builds the request payload)
+	 * @param LoggerInterface        $logger          Logger
+	 * @param AuditLogService        $auditLogService Audit log dependency
+	 * @param ObjectServiceInterface $objectService   The OpenRegister object service
+	 * @param IEventDispatcher       $dispatcher      Dispatches filinq's request event
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
-		private readonly SigningAnswer $answers = new SigningAnswer(),
+		private readonly IEventDispatcher $dispatcher,
 	) {
 	}//end __construct()
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * The signatories go out in the order given and the service is told to
-	 * keep it (`signingOrder: sequential`): the first signs first.
+	 * Dispatches filinq's `DocumentSigningRequestedEvent` with the record as
+	 * subject, the PDF's file id, the signatories in order and the signature
+	 * level, and reads the signing request id back off the event. The id is
+	 * stored on the method=signature stages that wait on this record, so the
+	 * conclusion is matched on the request. Without filinq, or when filinq
+	 * does not handle the request, it answers `success: false` (fail closed).
 	 *
-	 * @param string $minutesId UUID of the record to sign (minutes, meeting or decision)
+	 * @param string        $minutesId   UUID of the record to sign (minutes, meeting or decision)
 	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
-	 * @param string $subjectType What is signed: minutes, decision-list or motion
+	 * @param string        $subjectType What is signed: minutes, decision-list or motion
 	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
 	public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		if ($minutesId === '' || $signatories === []) {
-			return [
-				'success' => false,
-				'requestId' => null,
-				'signingUrl' => null,
-				'message' => 'minutesId and at least one signatory are required.',
-			];
+			return $this->refused(message: 'minutesId and at least one signatory are required.');
 		}
 
-		// Contract #2: prefer docudesk for document e-signature when available (REQ-DCDH-005).
-		// Null means no docudesk source is registered; any answer, failed or
-		// not, is final (fail-closed): a lower-trust path never takes over.
-		$docudeskResult = $this->composeDocudeskSigningRequest(
-			minutesId: $minutesId,
-			signatories: $signatories,
-			subjectType: $subjectType
-		);
-		if ($docudeskResult !== null) {
-			return $docudeskResult;
+		[$requestId, $message] = $this->handToFilinq(minutesId: $minutesId, signatories: $signatories, subjectType: $subjectType);
+		if ($requestId === null) {
+			return $this->refused(message: $message);
 		}
 
-		// Fallback to openconnector e-sign Source (REQ-DCDH-005).
-		$payload = [
-			'minutesId' => $minutesId,
-			'subjectType' => $subjectType,
-			'subjectId' => $minutesId,
-			'signatories' => array_values(array_map('strval', $signatories)),
-			'signingOrder' => 'sequential',
-			'profile' => 'eIDAS-QES',
-			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
-		];
-
-		try {
-			$response = $this->invokeOpenconnector(
-				action: 'initiate',
-				payload: $payload
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: eIDAS initiate failed',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'requestId' => null,
-				'signingUrl' => null,
-				'message' => 'Failed to initialize signing request: ' . $e->getMessage(),
-			];
-		}
-
-		$requestId = (string)($response['requestId'] ?? '');
-		$signingUrl = (string)($response['signingUrl'] ?? '');
+		$this->markStagesSent(minutesId: $minutesId, requestId: $requestId);
 
 		$this->auditLogService->append(
 			actor: 'system',
 			action: 'signature',
 			objectUids: [$minutesId, $requestId],
-			payload: ['phase' => 'initiate', 'signatories' => array_values($signatories)]
+			payload: ['phase' => 'initiate', 'signer' => 'filinq', 'signatories' => array_values($signatories)]
 		);
 
 		return [
 			'success' => true,
-			'requestId' => $this->nullIfEmpty(value: $requestId),
-			'signingUrl' => $this->nullIfEmpty(value: $signingUrl),
-			'message' => 'Signing request initiated.',
+			'requestId' => $requestId,
+			'signingUrl' => null,
+			'message' => 'Sent to filinq for signature.',
 		];
 
 	}//end initializeSigningRequest()
 
 	/**
-	 * Normalise an optional string field: '' becomes null, everything else is
-	 * returned unchanged. Used for every nullable field in the response shapes.
+	 * Dispatch filinq's request event for the record and read the answer.
 	 *
-	 * @param string $value The raw field value
+	 * @param string        $minutesId   The record's UUID
+	 * @param array<string> $signatories Ordered member UUIDs
+	 * @param string        $subjectType minutes, decision-list or motion
 	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return array{0: ?string, 1: string} The request id (null when nothing was sent) and why not.
+	 */
+	private function handToFilinq(string $minutesId, array $signatories, string $subjectType): array {
+		$eventClass      = $this->filinqClass(relative: self::REQUEST_EVENT);
+		$provenanceClass = $this->filinqClass(relative: self::PROVENANCE);
+		if ($eventClass === null || $provenanceClass === null) {
+			return [null, 'filinq is not installed, so nothing was sent for signature.'];
+		}
+
+		try {
+			$event = $this->requestEvent(
+				classes: [$eventClass, $provenanceClass],
+				subject: ['id' => $minutesId, 'type' => $subjectType],
+				signatories: $signatories
+			);
+			$this->dispatcher->dispatchTyped($event);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidiq: the signing request could not be handed to filinq',
+				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
+			);
+			return [null, 'Failed to initialize signing request: ' . $e->getMessage()];
+		}
+
+		return $this->answerOf(event: $event);
+	}//end handToFilinq()
+
+	/**
+	 * What filinq wrote back on the request event: the request id, or why
+	 * nothing was sent.
+	 *
+	 * @param object $event filinq's DocumentSigningRequestedEvent, after dispatch
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return array{0: ?string, 1: string}
+	 */
+	private function answerOf(object $event): array {
+		$requestId = (string)$event->getSigningRequestId();
+		if ($event->isHandled() !== true || $requestId === '') {
+			return [null, (string)($event->getRefusal() ?? 'filinq did not take the signing request, so nothing was sent for signature.')];
+		}
+
+		return [$requestId, ''];
+	}//end answerOf()
+
+	/**
+	 * Build filinq's request event: the record as subject, its PDF, the
+	 * signers in order and the signature level.
+	 *
+	 * @param array{0: string, 1: string}          $classes     filinq's event and provenance classes
+	 * @param array{id: string, type: string}      $subject     The record's UUID and subject type
+	 * @param array<string>                        $signatories Ordered member UUIDs
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return object filinq's DocumentSigningRequestedEvent
+	 */
+	private function requestEvent(array $classes, array $subject, array $signatories): object {
+		[$eventClass, $provenanceClass] = $classes;
+
+		$payload = $this->container->get(FilinqSigningRequest::class)->payload(
+			subjectType: $subject['type'],
+			subjectId: $subject['id'],
+			signatories: array_values(array_map('strval', $signatories))
+		);
+
+		return new $eventClass(
+			provenance: new $provenanceClass(
+				sourceApp: self::SOURCE_APP,
+				subjectRegister: 'decidiq',
+				subjectSchema: (SigningRoundServiceInterface::SUBJECTS[$subject['type']] ?? $subject['type']),
+				subjectId: $subject['id'],
+				externalReference: $subject['type'] . '/' . $subject['id'],
+				correlationId: $subject['id'],
+			),
+			subjectLabel: (string)$payload['documentName'],
+			documentReference: (string)$payload['documentFileId'],
+			signers: $payload['signers'],
+			signatureLevel: (string)$payload['signatureLevel'],
+			signingMode: (string)$payload['signingMode'],
+		);
+	}//end requestEvent()
+
+	/**
+	 * The loadable class of filinq's, under any namespace filinq has shipped
+	 * under, or null when filinq is not there.
+	 *
+	 * @param string $relative The class name relative to filinq's namespace.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 *
 	 * @return string|null
 	 */
-	private function nullIfEmpty(string $value): ?string {
-		if ($value === '') {
-			return null;
+	protected function filinqClass(string $relative): ?string {
+		return FleetAppId::resolveClass(canonical: 'filinq', relative: $relative);
+	}//end filinqClass()
+
+	/**
+	 * The fail-closed answer of initializeSigningRequest().
+	 *
+	 * @param string $message Why nothing was sent.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
+	 */
+	private function refused(string $message): array {
+		return [
+			'success' => false,
+			'requestId' => null,
+			'signingUrl' => null,
+			'message' => $message,
+		];
+	}//end refused()
+
+	/**
+	 * Name the signing request on every method=signature stage that waits on
+	 * this record. A failed write is logged; the request itself stands.
+	 *
+	 * @param string $minutesId The signed record's UUID
+	 * @param string $requestId filinq's signing request id
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return void
+	 */
+	private function markStagesSent(string $minutesId, string $requestId): void {
+		try {
+			$stages = $this->signatureStages(filters: ['signedDocument' => $minutesId]);
+			foreach ($stages as $stage) {
+				$current = $this->toObjectArray(entity: $stage);
+				$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+				if ($stageId === '') {
+					continue;
+				}
+
+				$this->saveStage(stage: array_merge($current, ['signingReference' => $requestId, 'signingOutcome' => null]), stageId: $stageId);
+			}
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not name the signing request on the signature stage',
+				['minutesId' => $minutesId, 'requestId' => $requestId, 'exception' => $e->getMessage()]
+			);
+		}//end try
+	}//end markStagesSent()
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * The outcome comes back through filinq's `SigningConcludedEvent`; there is no
+	 * signing service to poll, so a request out for signature reads as pending.
+	 *
+	 * @param string $requestId The signing request id
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
+	 */
+	public function fetchSigningResult(string $requestId): array {
+		if ($requestId === '') {
+			return ['status' => 'pending', 'document' => null, 'fileName' => null, 'message' => 'requestId is required.'];
 		}
 
-		return $value;
-	}//end nullIfEmpty()
+		return [
+			'status' => 'pending',
+			'document' => null,
+			'fileName' => null,
+			'message' => 'filinq reports the outcome when the signing concludes.',
+		];
+	}//end fetchSigningResult()
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Signatures are verified by filinq, which places them; decidiq has nothing to verify
+	 * against, so it never answers valid (fail closed).
+	 *
+	 * @param string $requestId UUID of the signing request
+	 * @param string $signature Base-64 encoded signature blob
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
+	 *
+	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
+	 */
+	public function verifySignature(string $requestId, string $signature): array {
+		$message = self::FILINQ_CHECKS;
+		if ($requestId === '' || $signature === '') {
+			$message = 'requestId and signature are required.';
+		}
+
+		return [
+			'valid' => false,
+			'certificateThumbprint' => null,
+			'timestamp' => null,
+			'message' => $message,
+		];
+	}//end verifySignature()
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Minutes are finalised when filinq reports the signing request signed
+	 * ({@see \OCA\Decidiq\Listener\SigningConcludedListener}); a list of
+	 * signatures sent by a client is never taken as proof (fail closed).
+	 *
+	 * @param string                    $minutesId     UUID of the BoardMinutes record
+	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
+	 *
+	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
+	 */
+	public function finalizeMinutes(string $minutesId, array $signatureList): array {
+		$message = 'Minutes are finalised when filinq reports the signing concluded.';
+		if ($minutesId === '' || $signatureList === []) {
+			$message = 'minutesId and at least one signature are required.';
+		}
+
+		return [
+			'success' => false,
+			'pdfArchiveReference' => null,
+			'hashSha256' => null,
+			'message' => $message,
+		];
+	}//end finalizeMinutes()
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Certificates are checked by filinq, which places the signatures; decidiq
+	 * never answers a chain valid on its own (fail closed).
+	 *
+	 * @param string $certThumbprint SHA-256 thumbprint of the cert
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
+	 *
+	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
+	 */
+	public function validateCertificateChain(string $certThumbprint): array {
+		$message = self::FILINQ_CHECKS;
+		if ($certThumbprint === '') {
+			$message = 'certificateThumbprint is required.';
+		}
+
+		return [
+			'valid' => false,
+			'issuer' => null,
+			'trustListLevel' => null,
+			'message' => $message,
+		];
+	}//end validateCertificateChain()
+
+	/**
+	 * Resolve the method=signature DecisionStages of a signed record: link the
+	 * signed document, set outcome=adopted and stamp decidedAt (C5 D5).
+	 *
+	 * With a signing reference, the stages are the ones that wait on that
+	 * filinq request, so a record sent for signature twice resolves only the
+	 * round that was signed. Without one, the stages are found by the record
+	 * they sign (`signedDocument`). A failed lookup or write is logged; it
+	 * never surfaces as an error.
+	 *
+	 * @param string      $minutesId        UUID of the signed record
+	 * @param string|null $signingReference filinq's signing request id
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+	 *
+	 * @return void
+	 */
+	public function resolveSignatureStage(string $minutesId, ?string $signingReference = null): void {
+		try {
+			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
+			foreach ($this->signatureStages(filters: $this->stageFilters(minutesId: $minutesId, signingReference: $signingReference)) as $stage) {
+				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
+			}
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: failed to resolve the method=signature DecisionStage',
+				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
+			);
+		}//end try
+
+	}//end resolveSignatureStage()
+
+	/**
+	 * Which signature stages a resolution is for: the ones waiting on the
+	 * signing request when it is known, else the ones signing the record.
+	 *
+	 * @param string      $minutesId        UUID of the signed record
+	 * @param string|null $signingReference filinq's signing request id
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return array<string, string>
+	 */
+	private function stageFilters(string $minutesId, ?string $signingReference): array {
+		if ((string)$signingReference === '') {
+			return ['signedDocument' => $minutesId];
+		}
+
+		return ['signingReference' => (string)$signingReference];
+	}//end stageFilters()
+
+	/**
+	 * Record on the stages of a signing request that it ended without a
+	 * signature. The stages stay unresolved.
+	 *
+	 * @param string $signingReference filinq's signing request id
+	 * @param string $outcome          declined, expired or cancelled
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return int The number of stages that now carry the outcome.
+	 */
+	public function recordUnsignedOutcome(string $signingReference, string $outcome): int {
+		$recorded = 0;
+		try {
+			foreach ($this->signatureStages(filters: ['signingReference' => $signingReference]) as $stage) {
+				$current = $this->toObjectArray(entity: $stage);
+				$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+				if ($stageId === '') {
+					continue;
+				}
+
+				$this->saveStage(stage: array_merge($current, ['signingOutcome' => $outcome]), stageId: $stageId);
+				$this->auditLogService->append(
+					actor: 'system',
+					action: 'signature',
+					objectUids: [$signingReference, $stageId],
+					payload: ['phase' => 'not-signed', 'outcome' => $outcome, 'stageId' => $stageId]
+				);
+				$recorded++;
+			}
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not record the signing outcome on the signature stage',
+				['signingReference' => $signingReference, 'outcome' => $outcome, 'exception' => $e->getMessage()]
+			);
+		}//end try
+
+		return $recorded;
+	}//end recordUnsignedOutcome()
+
+	/**
+	 * The method=signature stages matching the given filters.
+	 *
+	 * Read and written in system context: filinq concludes a request in the
+	 * last signer's session (or a job), and that signer need not be allowed
+	 * to edit the stage. The stage is found by the request filinq names.
+	 *
+	 * @param array<string, string> $filters Extra filters on the stage.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return array<int, mixed>
+	 */
+	private function signatureStages(array $filters): array {
+		$found = $this->objectService->findAll(
+			[
+				'filters' => array_merge(
+					[
+						'register' => 'decidiq',
+						'schema' => 'decision-stage',
+						'method' => 'signature',
+					],
+					$filters
+				),
+			],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		return array_values((array)($found['results'] ?? $found));
+	}//end signatureStages()
+
+	/**
+	 * Mark one signature stage adopted and decided, and audit it.
+	 *
+	 * @param mixed                $stage   The DecisionStage as found.
+	 * @param array<string, mixed> $signing minutesId, signingReference (or null) and decidedAt.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
+	 */
+	private function decideStage(mixed $stage, array $signing): void {
+		if (is_object($stage) === false) {
+			return;
+		}
+
+		$current = $this->toObjectArray(entity: $stage);
+
+		$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+		if ($stageId === '') {
+			return;
+		}
+
+		$patch = [
+			'outcome' => 'adopted',
+			'decidedAt' => $signing['decidedAt'],
+			'status' => 'decided',
+		];
+		if ($signing['signingReference'] !== null) {
+			$patch['signingReference'] = $signing['signingReference'];
+			$patch['signingOutcome']   = 'signed';
+		}
+
+		$this->saveStage(stage: array_merge($current, $patch), stageId: $stageId);
+
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$signing['minutesId'], $stageId],
+			payload: [
+				'phase' => 'resolve-signature-stage',
+				'stageId' => $stageId,
+				'decidedAt' => $signing['decidedAt'],
+			]
+		);
+	}//end decideStage()
+
+	/**
+	 * Save a DecisionStage.
+	 *
+	 * @param array<string, mixed> $stage   The stage data.
+	 * @param string               $stageId The stage UUID.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return void
+	 */
+	private function saveStage(array $stage, string $stageId): void {
+		$this->objectService->saveObject(
+			object: $stage,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
+				uuid: $stageId
+			),
+			_rbac: false,
+			_multitenancy: false
+		);
+	}//end saveStage()
 
 	/**
 	 * Read an ObjectService entity as a plain array, preferring getObject()
@@ -211,610 +624,4 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		return (array)$entity->jsonSerialize();
 	}//end toObjectArray()
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param string $requestId UUID of the signing request
-	 * @param string $signature Base-64 encoded signature blob
-	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
-	 *
-	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
-	 */
-	public function verifySignature(string $requestId, string $signature): array {
-		if ($requestId === '' || $signature === '') {
-			return [
-				'valid' => false,
-				'certificateThumbprint' => null,
-				'timestamp' => null,
-				'message' => 'requestId and signature are required.',
-			];
-		}
-
-		try {
-			$response = $this->invokeOpenconnector(
-				action: 'verify',
-				payload: [
-					'requestId' => $requestId,
-					'signature' => $signature,
-				]
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: eIDAS verifySignature failed',
-				['requestId' => $requestId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'valid' => false,
-				'certificateThumbprint' => null,
-				'timestamp' => null,
-				'message' => 'Failed to verify signature: ' . $e->getMessage(),
-			];
-		}
-
-		$valid = (bool)($response['valid'] ?? false);
-		$thumbprint = (string)($response['certificateThumbprint'] ?? '');
-		$timestamp = (string)($response['timestamp'] ?? gmdate('Y-m-d\TH:i:s\Z'));
-
-		$messageOut = 'Signature rejected.';
-		if ($valid === true) {
-			$messageOut = 'Signature verified.';
-		}
-
-		return [
-			'valid' => $valid,
-			'certificateThumbprint' => $this->nullIfEmpty(value: $thumbprint),
-			'timestamp' => $timestamp,
-			'message' => $messageOut,
-		];
-
-	}//end verifySignature()
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param string $minutesId UUID of the BoardMinutes record
-	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
-	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
-	 *
-	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
-	 */
-	public function finalizeMinutes(string $minutesId, array $signatureList): array {
-		if ($minutesId === '' || $signatureList === []) {
-			return [
-				'success' => false,
-				'pdfArchiveReference' => null,
-				'hashSha256' => null,
-				'message' => 'minutesId and at least one signature are required.',
-			];
-		}
-
-		try {
-			$response = $this->invokeOpenconnector(
-				action: 'finalize',
-				payload: [
-					'minutesId' => $minutesId,
-					'signatures' => array_values($signatureList),
-				]
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: eIDAS finalize failed',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'pdfArchiveReference' => null,
-				'hashSha256' => null,
-				'message' => 'Failed to finalize minutes: ' . $e->getMessage(),
-			];
-		}
-
-		$archiveReference = (string)($response['pdfArchiveReference'] ?? '');
-		$hash = (string)($response['hashSha256'] ?? '');
-
-		// Persist the archive reference + hash + signers on the Minutes row,
-		// in the fields the Minutes schema declares (register fragment 97).
-		// This wrote `version: signed` into the integer revision number and
-		// signature tuples into the list of signer names, so the save was
-		// refused and nothing was kept.
-		$this->updateMinutesRow(
-			minutesId: $minutesId,
-			patch: [
-				'signingStatus' => 'signed',
-				'signedCopy' => $archiveReference,
-				'signedCopyHash' => $hash,
-				'signedAt' => gmdate('Y-m-d\TH:i:s\Z'),
-				'signedBy' => $this->answers->signerNames(signatureList: $signatureList),
-			]
-		);
-
-		// C5 (decision-methods D5): resolve the method=signature DecisionStage
-		// that is linked to these minutes, if one exists.
-		$this->resolveSignatureStage(minutesId: $minutesId);
-
-		$this->auditLogService->append(
-			actor: 'system',
-			action: 'signature',
-			objectUids: [$minutesId],
-			payload: [
-				'phase' => 'finalize',
-				'pdfArchiveReference' => $archiveReference,
-				'hashSha256' => $hash,
-				'signatures' => count($signatureList),
-			]
-		);
-
-		return [
-			'success' => true,
-			'pdfArchiveReference' => $this->nullIfEmpty(value: $archiveReference),
-			'hashSha256' => $this->nullIfEmpty(value: $hash),
-			'message' => 'Minutes finalized.',
-		];
-
-	}//end finalizeMinutes()
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @param string $certThumbprint SHA-256 thumbprint of the cert
-	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
-	 *
-	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
-	 */
-	public function validateCertificateChain(string $certThumbprint): array {
-		if ($certThumbprint === '') {
-			return [
-				'valid' => false,
-				'issuer' => null,
-				'trustListLevel' => null,
-				'message' => 'certificateThumbprint is required.',
-			];
-		}
-
-		try {
-			$response = $this->invokeOpenconnector(
-				action: 'validate-cert',
-				payload: ['certificateThumbprint' => $certThumbprint]
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: eIDAS validateCertificateChain failed',
-				['certificateThumbprint' => $certThumbprint, 'exception' => $e->getMessage()]
-			);
-			return [
-				'valid' => false,
-				'issuer' => null,
-				'trustListLevel' => null,
-				'message' => 'Failed to validate certificate: ' . $e->getMessage(),
-			];
-		}
-
-		$valid = (bool)($response['valid'] ?? false);
-		$issuer = (string)($response['issuer'] ?? '');
-		$level = (string)($response['trustListLevel'] ?? '');
-
-		$validateMessage = 'Certificate not on EU Trusted List.';
-		if ($valid === true) {
-			$validateMessage = 'Certificate chain valid.';
-		}
-
-		return [
-			'valid' => $valid,
-			'issuer' => $this->nullIfEmpty(value: $issuer),
-			'trustListLevel' => $this->nullIfEmpty(value: $level),
-			'message' => $validateMessage,
-		];
-
-	}//end validateCertificateChain()
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * Asks the `eidas-qes` source's `status` action. The service answers with
-	 * `status` and, once signed, the signed document base64-encoded in
-	 * `document` with an optional `fileName`. Any status that is not a finished
-	 * one reads as pending, so a round is only closed on a clear answer; a
-	 * signed answer without a decodable document also reads as pending, so
-	 * nothing half-stored is ever linked.
-	 *
-	 * @param string $requestId The signing service's request reference
-	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
-	 *
-	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
-	 */
-	public function fetchSigningResult(string $requestId): array {
-		if ($requestId === '') {
-			return ['status' => 'pending', 'document' => null, 'fileName' => null, 'message' => 'requestId is required.'];
-		}
-
-		try {
-			$response = $this->invokeOpenconnector(action: 'status', payload: ['requestId' => $requestId]);
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: could not ask the signing service for a request status',
-				['requestId' => $requestId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'status' => 'pending',
-				'document' => null,
-				'fileName' => null,
-				'message' => 'Could not reach the signing service: ' . $e->getMessage(),
-			];
-		}
-
-		return $this->answers->result(response: $response);
-	}//end fetchSigningResult()
-
-
-	/**
-	 * Invoke the openconnector e-sign source via the CallService. The
-	 * openconnector Source slug is fixed (see ::ESIGN_SOURCE_SLUG); the action
-	 * is sent as a relative path the Source's mapper resolves into a concrete
-	 * API call.
-	 *
-	 * @param string $action One of initiate|verify|finalize|validate-cert|status
-	 * @param array<string, mixed> $payload Action-specific payload
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function invokeOpenconnector(string $action, array $payload): array {
-		// Resolve openconnector's CallService lazily. If the app is absent
-		// or the binding is missing, throw — the DI factory uses the
-		// LogEIDASSignatureService fallback when openconnector is unwired.
-		// Resolved across every namespace integriq has shipped under, still
-		// throwing when nothing resolves so the DI factory keeps falling back to
-		// LogEIDASSignatureService rather than proceeding against nothing.
-		$callService = FleetAppId::getService($this->container, 'integriq', 'Service\CallService')
-			?? throw new RuntimeException('Integriq CallService is not available under any known namespace.');
-		$source = $this->integriqSource(slug: self::ESIGN_SOURCE_SLUG);
-		if ($source === null) {
-			throw new RuntimeException("Openconnector source '" . self::ESIGN_SOURCE_SLUG . "' is not configured.");
-		}
-
-		$response = $callService->call(
-			source: $source,
-			endpoint: '/' . $action,
-			method: 'POST',
-			config: [
-				'body' => json_encode($payload),
-				'headers' => ['Content-Type' => 'application/json'],
-			]
-		);
-
-		$body = $this->answers->body(response: $response);
-
-		$decoded = null;
-		if ($body !== '') {
-			$decoded = json_decode($body, true);
-		}
-
-		if (is_array($decoded) === false) {
-			return [];
-		}
-
-		return $decoded;
-	}//end invokeOpenconnector()
-
-	/**
-	 * Find an integriq source by slug.
-	 *
-	 * The integriq app keeps its sources as OpenRegister objects (register
-	 * `integriq`, schema `source`); its own controllers find them this way. There is no
-	 * `Db\SourceMapper` under any namespace integriq has shipped since the
-	 * sources moved into OpenRegister, so the lookup this replaces threw on
-	 * every instance and no signing request ever left decidiq.
-	 *
-	 * @param string $slug The source's slug.
-	 *
-	 * @return object|null The source object, or null when none is configured.
-	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
-	 */
-	private function integriqSource(string $slug): ?object {
-		// Sources are admin configuration, not the signer's data: integriq reads
-		// them in system context too (ConnectionStore::findSourceBySlug()), so a
-		// griffier without rights on the integriq register still reaches them.
-		$found = $this->objectService->findAll(
-			config: ['filters' => ['register' => 'integriq', 'schema' => 'source', 'slug' => $slug]],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		foreach (($found['results'] ?? $found) as $item) {
-			if (is_object($item) === false || method_exists($item, 'getObject') === false) {
-				continue;
-			}
-
-			if ((string)($item->getObject()['slug'] ?? '') === $slug) {
-				return $item;
-			}
-		}
-
-		return null;
-	}//end integriqSource()
-
-
-	/**
-	 * Resolve the DecisionStage of method=signature that is linked (via the
-	 * Minutes → Meeting → Decision chain or directly via signedDocument) to the
-	 * finalised minutes. When found, links the DigitalDocument (signedDocument),
-	 * sets outcome=adopted, and stamps decidedAt (C5 D5 / design decision-methods
-	 * #4).
-	 *
-	 * The lookup strategy: search for a DecisionStage whose signedDocument UUID
-	 * matches the minutesId being finalised (treating the Minutes record itself as
-	 * the DigitalDocument proxy here, since signedDocument is the sealed artefact).
-	 * If openconnector is absent or the stage is not found, the method degrades
-	 * silently (warning log) — the signing artefact is still persisted.
-	 *
-	 * @param string $minutesId UUID of the finalised Minutes record
-	 * @param string|null $signingReference Optional signing reference (docudesk signingRequest id) to store on the stage
-	 *
-	 * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
-	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
-	 *
-	 * @return void
-	 */
-	public function resolveSignatureStage(string $minutesId, ?string $signingReference = null): void {
-		try {
-			// Find any DecisionStage with method=signature whose signedDocument
-			// points at this minutes record. Seeds and UI will wire the correct
-			// DigitalDocument UUID; the service resolves the stage it finds.
-			// ObjectService::findAll() takes a single $config array — the
-			// named-argument form (register:/schema:/filters:) threw "Unknown
-			// named parameter" and was swallowed by the catch below, so the
-			// signature stage was never resolved. Register/schema are read from
-			// inside `filters`.
-			$results = $this->objectService->findAll(
-				[
-					'filters' => [
-						'register' => 'decidiq',
-						'schema' => 'decision-stage',
-						'method' => 'signature',
-						'signedDocument' => $minutesId,
-					],
-				]
-			);
-
-			if (empty($results) === true) {
-				return;
-			}
-
-			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
-
-			foreach ($results as $stage) {
-				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
-			}
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: failed to resolve method=signature DecisionStage after finalizeMinutes',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-		}//end try
-
-	}//end resolveSignatureStage()
-
-	/**
-	 * Mark one signature stage adopted and decided, and audit it.
-	 *
-	 * @param mixed                $stage   The DecisionStage as found.
-	 * @param array<string, mixed> $signing minutesId, signingReference (or null) and decidedAt.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
-	 */
-	private function decideStage(mixed $stage, array $signing): void {
-		$current = $this->toObjectArray(entity: $stage);
-
-		$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
-		if ($stageId === '') {
-			return;
-		}
-
-		$patch = [
-			'outcome' => 'adopted',
-			'decidedAt' => $signing['decidedAt'],
-			'status' => 'decided',
-		];
-		if ($signing['signingReference'] !== null) {
-			$patch['signingReference'] = $signing['signingReference'];
-		}
-
-		$this->objectService->saveObject(
-			object: array_merge($current, $patch),
-			options: new ObjectSaveOptions(
-				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'),
-				uuid: $stageId
-			)
-		);
-
-		$this->auditLogService->append(
-			actor: 'system',
-			action: 'signature',
-			objectUids: [$signing['minutesId'], $stageId],
-			payload: [
-				'phase' => 'resolve-signature-stage',
-				'stageId' => $stageId,
-				'decidedAt' => $signing['decidedAt'],
-			]
-		);
-	}//end decideStage()
-
-	/**
-	 * The registered docudesk (filinq) source, or null when there is none or
-	 * the source registry cannot be read.
-	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
-	 *
-	 * @return object|null The source, or null.
-	 */
-	private function docudeskSource(): ?object {
-		try {
-			return $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
-		} catch (\Throwable) {
-			// Openconnector absent or source not configured — docudesk unavailable.
-			return null;
-		}
-	}//end docudeskSource()
-
-	/**
-	 * Compose a docudesk signingRequest via the ADR-019 integration registry
-	 * (cross-app contract #2 / REQ-DCDH-005). Returns the same shape as
-	 * initializeSigningRequest. Returns null when docudesk is absent (allows
-	 * the openconnector fallback to proceed).
-	 *
-	 * Docudesk is filinq: the request goes to filinq's
-	 * `POST api/signing/requests` route with the fields its
-	 * `SigningService::createRequest()` reads (`documentFileId`,
-	 * `documentName`, `signers`, `signatureLevel`), built by
-	 * {@see FilinqSigningRequest}; the request id is read back from `id`.
-	 *
-	 * The method is fail-closed: when docudesk is registered but returns an
-	 * error, we propagate the error and do NOT fall through to openconnector —
-	 * the document must not be silently "signed" by a lower-trust path.
-	 *
-	 * @param string $minutesId UUID of the Minutes / document record
-	 * @param array<string> $signatories Ordered list of Person UUIDs
-	 * @param string $subjectType What is signed: minutes, decision-list or motion
-	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
-	 *
-	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}|null
-	 */
-	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): ?array {
-		$source = $this->docudeskSource();
-		if ($source === null) {
-			// Docudesk not registered — fall through to openconnector silently.
-			return null;
-		}
-
-		// Docudesk IS registered — compose the signingRequest (fail-closed from here).
-		try {
-			// Built by the container, so a missing collaborator fails closed below.
-			$payload = $this->container->get(FilinqSigningRequest::class)->payload(
-				subjectType: $subjectType,
-				subjectId: $minutesId,
-				signatories: array_values(array_map('strval', $signatories))
-			);
-
-			$callService = FleetAppId::getService($this->container, 'integriq', 'Service\CallService')
-				?? throw new RuntimeException('Integriq CallService is not available under any known namespace.');
-			$response = $callService->call(
-				source: $source,
-				endpoint: FilinqSigningRequest::ENDPOINT,
-				method: 'POST',
-				config: [
-					'body' => json_encode($payload),
-					'headers' => ['Content-Type' => 'application/json'],
-				]
-			);
-
-			$decoded = $this->decodeDocudeskResponse(response: $response);
-
-			$requestId = (string)($decoded['id'] ?? ($decoded['signingRequestId'] ?? ''));
-			$signingUrl = (string)($decoded['signingUrl'] ?? '');
-			if ($requestId === '') {
-				// An error answer (a 404, a validation message) carries no id.
-				throw new RuntimeException('Filinq created no signing request: ' . (string)($decoded['message'] ?? ($decoded['error'] ?? 'no id in the answer')));
-			}
-
-			$this->auditLogService->append(
-				actor: 'system',
-				action: 'signature',
-				objectUids: [$minutesId, $requestId],
-				payload: ['phase' => 'docudesk-initiate', 'signatories' => array_values($signatories)]
-			);
-
-			return [
-				'success' => true,
-				'requestId' => $this->nullIfEmpty(value: $requestId),
-				'signingUrl' => $this->nullIfEmpty(value: $signingUrl),
-				'message' => 'Signing request composed via docudesk.',
-			];
-		} catch (\Throwable $e) {
-			// Docudesk was registered but failed — fail CLOSED (REQ-DCDH-005).
-			$this->logger->error(
-				'Decidiq: docudesk signingRequest composition failed (fail-closed)',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'requestId' => null,
-				'signingUrl' => null,
-				'message' => 'Docudesk signing failed (fail-closed): ' . $e->getMessage(),
-			];
-		}//end try
-
-	}//end composeDocudeskSigningRequest()
-
-	/**
-	 * Decode a docudesk CallService response body into an array.
-	 *
-	 * Fail-closed: throws when the body is absent or not valid JSON, so the
-	 * caller never treats an unparseable answer as a successful signature.
-	 *
-	 * @param mixed $response The raw CallService response object
-	 *
-	 * @throws RuntimeException When the response carries no decodable JSON body.
-	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
-	 *
-	 * @return array<string, mixed> The decoded response body
-	 */
-	private function decodeDocudeskResponse(mixed $response): array {
-		$body = $this->answers->body(response: $response);
-
-		$decoded = null;
-		if ($body !== '') {
-			$decoded = json_decode($body, true);
-		}
-
-		if (is_array($decoded) === false) {
-			throw new RuntimeException('Docudesk returned non-JSON response.');
-		}
-
-		return $decoded;
-	}//end decodeDocudeskResponse()
-
-
-	/**
-	 * Persist a partial update on a Minutes row. Wrapped in a try/catch so
-	 * a failed write degrades the response to a warning without leaking a 500.
-	 *
-	 * @param string $minutesId Minutes UUID
-	 * @param array<string, mixed> $patch Fields to merge
-	 *
-	 * @return void
-	 */
-	private function updateMinutesRow(string $minutesId, array $patch): void {
-		try {
-			$entity = $this->objectService->find(
-				id: $minutesId,
-				options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes')
-			);
-			if ($entity === null) {
-				return;
-			}
-
-			$this->objectService->saveObject(
-				object: array_merge($this->toObjectArray(entity: $entity), $patch),
-				options: new ObjectSaveOptions(
-					target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'),
-					uuid: $minutesId
-				)
-			);
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: failed to persist signed Minutes row',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-		}//end try
-
-	}//end updateMinutesRow()
 }//end class

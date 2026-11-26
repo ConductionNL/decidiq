@@ -63,13 +63,6 @@ use RuntimeException;
 class ConnectionReportServiceTest extends TestCase {
 
 	/**
-	 * Integriq's source lookup, under the namespace integriq ships today.
-	 *
-	 * @var string
-	 */
-	private const SOURCE_MAPPER = 'OCA\Integriq\Db\SourceMapper';
-
-	/**
 	 * Mocked event dispatcher.
 	 *
 	 * @var IEventDispatcher&MockObject
@@ -149,7 +142,7 @@ class ConnectionReportServiceTest extends TestCase {
 	}//end fallbackBindings()
 
 	/**
-	 * The delegating signing service, as the registrar binds it when integriq is present.
+	 * The delegating signing service, as the registrar binds it when filinq is present.
 	 *
 	 * @return EIDASSignatureService
 	 */
@@ -159,43 +152,9 @@ class ConnectionReportServiceTest extends TestCase {
 			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			auditLogService: $this->createMock(originalClassName: AuditLogService::class),
 			objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
+			dispatcher: $this->createMock(originalClassName: IEventDispatcher::class),
 		);
 	}//end delegatingSigner()
-
-	/**
-	 * A source lookup that knows the given slugs.
-	 *
-	 * @param array<int, string> $slugs The slugs that exist.
-	 *
-	 * @return object
-	 */
-	private function sourceMapper(array $slugs): object {
-		return new class($slugs) {
-
-			/**
-			 * Constructor.
-			 *
-			 * @param array<int, string> $slugs The slugs that exist.
-			 */
-			public function __construct(private readonly array $slugs) {
-			}//end __construct()
-
-			/**
-			 * Find a source by slug.
-			 *
-			 * @param string $slug The slug.
-			 *
-			 * @return object|null
-			 */
-			public function findBySlug(string $slug): ?object {
-				if (in_array($slug, $this->slugs, true) === true) {
-					return (object)['slug' => $slug];
-				}
-
-				return null;
-			}//end findBySlug()
-		};
-	}//end sourceMapper()
 
 	/**
 	 * The service as production builds it.
@@ -236,61 +195,22 @@ class ConnectionReportServiceTest extends TestCase {
 	}//end testTheLogFallbacksAreReportedSimulated()
 
 	/**
-	 * The delegating signer without integriq's source lookup is an error, not configured.
+	 * The delegating signer hands every request to filinq, so it is configured
+	 * and says it is untested.
 	 *
-	 * Integriq on development ships no `Db\SourceMapper`, so every signing
-	 * request throws before it reaches a source.
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-4
 	 *
 	 * @return void
 	 */
-	public function testTheDelegatingSignerWithoutASourceLookupIsAnError(): void {
+	public function testTheFilinqSignerIsConfigured(): void {
 		$service = $this->service(bindings: [IEIDASSignatureService::class => $this->delegatingSigner()]);
 
 		[$status, $message] = $service->observeSigning();
 
-		$this->assertSame(expected: 'error', actual: $status);
-		$this->assertStringContainsString(needle: 'every signing request fails', haystack: $message);
-	}//end testTheDelegatingSignerWithoutASourceLookupIsAnError()
-
-	/**
-	 * The delegating signer with a signing source is configured, and says it is untested.
-	 *
-	 * @return void
-	 */
-	public function testTheDelegatingSignerWithASourceIsConfigured(): void {
-		$service = $this->service(
-			bindings: [
-				IEIDASSignatureService::class => $this->delegatingSigner(),
-				self::SOURCE_MAPPER => $this->sourceMapper(slugs: [EIDASSignatureService::ESIGN_SOURCE_SLUG]),
-			]
-		);
-
-		[$status, $message] = $service->observeSigning();
-
 		$this->assertSame(expected: 'configured', actual: $status);
-		$this->assertStringContainsString(needle: 'eidas-qes exists', haystack: $message);
+		$this->assertStringContainsString(needle: 'filinq signs', haystack: $message);
 		$this->assertStringContainsString(needle: 'does not test', haystack: $message);
-	}//end testTheDelegatingSignerWithASourceIsConfigured()
-
-	/**
-	 * The delegating signer with a lookup but no signing source is unconfigured, naming both slugs.
-	 *
-	 * @return void
-	 */
-	public function testTheDelegatingSignerWithoutASourceIsUnconfigured(): void {
-		$service = $this->service(
-			bindings: [
-				IEIDASSignatureService::class => $this->delegatingSigner(),
-				self::SOURCE_MAPPER => $this->sourceMapper(slugs: ['some-other-source']),
-			]
-		);
-
-		[$status, $message] = $service->observeSigning();
-
-		$this->assertSame(expected: 'unconfigured', actual: $status);
-		$this->assertStringContainsString(needle: 'docudesk-signing', haystack: $message);
-		$this->assertStringContainsString(needle: 'eidas-qes', haystack: $message);
-	}//end testTheDelegatingSignerWithoutASourceIsUnconfigured()
+	}//end testTheFilinqSignerIsConfigured()
 
 	/**
 	 * Another bound signing service is configured, naming its class.

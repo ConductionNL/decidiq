@@ -30,8 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Service\AuditLogService;
-use OCA\Decidiq\Service\EIDASSignatureService;
+use OCA\Decidiq\Service\IEIDASSignatureService;
+use OCA\Decidiq\Service\SigningAnswer;
 use OCA\Decidiq\Service\SigningRoundService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -39,7 +39,6 @@ use OCA\OpenRegister\Service\FileService;
 use OCP\Files\File;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
@@ -80,13 +79,6 @@ class SigningRoundServiceTest extends TestCase {
 	private array $answers = [];
 
 	/**
-	 * The real signing adapter the service was built around.
-	 *
-	 * @var EIDASSignatureService|null
-	 */
-	private ?EIDASSignatureService $signing = null;
-
-	/**
 	 * Build the service around one stored record.
 	 *
 	 * @param string               $schema The schema slug of the record
@@ -95,59 +87,14 @@ class SigningRoundServiceTest extends TestCase {
 	 * @return SigningRoundService
 	 */
 	private function makeService(string $schema, array $data): SigningRoundService {
-		$test = $this;
-
-		$callService = new class($test) {
-			/**
-			 * Constructor.
-			 *
-			 * @param SigningRoundServiceTest $test The test collecting the calls
-			 */
-			public function __construct(private readonly SigningRoundServiceTest $test) {
-			}
-
-			/**
-			 * The shape of integriq's CallService::call().
-			 *
-			 * @param ObjectEntity         $source   The source object
-			 * @param string               $endpoint Endpoint path
-			 * @param string               $method   HTTP method
-			 * @param array<string, mixed> $config   Call config
-			 *
-			 * @return ObjectEntity
-			 */
-			public function call(ObjectEntity $source, string $endpoint = '', string $method = 'GET', array $config = []): ObjectEntity {
-				return $this->test->answer(endpoint: $endpoint, method: $method, config: $config);
-			}
-		};
-
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($callService) {
-				if ($id === 'OCA\\Integriq\\Service\\CallService') {
-					return $callService;
-				}
-
-				throw new \RuntimeException('Service ' . $id . ' is not registered');
-			}
-		);
-
-		$source = new ObjectEntity();
-		$source->setUuid('source-1');
-		$source->setObject(['slug' => EIDASSignatureService::ESIGN_SOURCE_SLUG]);
-
 		$record = new ObjectEntity();
 		$record->setUuid('rec-1');
 		$record->setObject($data);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
-			static function (array $config) use ($source, $record, $schema): array {
+			static function (array $config) use ($record, $schema): array {
 				$filters = ($config['filters'] ?? []);
-				if (($filters['register'] ?? '') === 'integriq' && ($filters['slug'] ?? '') === EIDASSignatureService::ESIGN_SOURCE_SLUG) {
-					return [$source];
-				}
-
 				if (($filters['register'] ?? '') === 'decidiq' && ($filters['schema'] ?? '') === $schema
 					&& ($filters['signingStatus'] ?? '') === 'sent' && ($record->getObject()['signingStatus'] ?? '') === 'sent'
 				) {
@@ -158,7 +105,7 @@ class SigningRoundServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			static function (int|string $id, ?ObjectFindOptions $options = null) use ($record, $schema): ?ObjectEntity {
+			static function (int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true) use ($record, $schema): ?ObjectEntity {
 				$_extend = $options?->extend ?? [];
 				$files = $options?->files ?? false;
 				$register = $options?->register;
@@ -171,12 +118,12 @@ class SigningRoundServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array|ObjectEntity $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($record): ObjectEntity {
+			function (array|ObjectEntity $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true) use ($record): ObjectEntity {
 				$extend = $options->extend ?? [];
 				$register = $options->target->register;
 				$schema = $options->target->schema;
 				$uuid = $options->uuid;
-				$this->saved[] = ['schema' => (string)$schema, 'object' => (array)$object];
+				$this->saved[] = ['schema' => (string)$schema, 'object' => (array)$object, 'rbac' => $_rbac];
 				$record->setObject((array)$object);
 				return $record;
 			}
@@ -190,17 +137,28 @@ class SigningRoundServiceTest extends TestCase {
 			}
 		);
 
-		$audit = $this->createMock(AuditLogService::class);
-		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'ok']);
-
-		$signing = new EIDASSignatureService(
-			container: $container,
-			logger: $this->createMock(LoggerInterface::class),
-			auditLogService: $audit,
-			objectService: $objectService
+		// The transport double: it records what the round hands it and
+		// answers like a signing transport does (a status answer is read
+		// the way the shipped SigningAnswer reads one).
+		$signing = $this->createMock(originalClassName: IEIDASSignatureService::class);
+		$signing->method('initializeSigningRequest')->willReturnCallback(
+			function (string $subjectId, array $signatories, string $subjectType = 'minutes'): array {
+				$this->calls[] = ['endpoint' => '/initiate', 'body' => ['subjectId' => $subjectId, 'signatories' => $signatories, 'subjectType' => $subjectType]];
+				$answer = ($this->answers['/initiate'] ?? []);
+				return [
+					'success' => (($answer['requestId'] ?? '') !== ''),
+					'requestId' => ($answer['requestId'] ?? null),
+					'signingUrl' => ($answer['signingUrl'] ?? null),
+					'message' => (string)($answer['message'] ?? 'answered'),
+				];
+			}
 		);
-
-		$this->signing = $signing;
+		$signing->method('fetchSigningResult')->willReturnCallback(
+			function (string $requestId): array {
+				$this->calls[] = ['endpoint' => '/status', 'body' => ['requestId' => $requestId]];
+				return (new SigningAnswer())->result(response: ($this->answers['/status'] ?? []));
+			}
+		);
 
 		return new SigningRoundService(
 			objectService: $objectService,
@@ -315,7 +273,6 @@ class SigningRoundServiceTest extends TestCase {
 		self::assertCount(1, $this->calls);
 		self::assertSame('/initiate', $this->calls[0]['endpoint']);
 		self::assertSame(['anna', 'pieter'], $this->calls[0]['body']['signatories']);
-		self::assertSame('sequential', $this->calls[0]['body']['signingOrder']);
 		self::assertSame('motion', $this->calls[0]['body']['subjectType']);
 		self::assertSame('rec-1', $this->calls[0]['body']['subjectId']);
 	}//end testTheSigningServiceReceivesTheSignersInOrder()
@@ -513,30 +470,24 @@ class SigningRoundServiceTest extends TestCase {
 	}//end testTheSweepStoresTheCopyOfEveryRoundThatIsOut()
 
 	/**
-	 * Finalising signed minutes writes only what the Minutes schema declares:
-	 * it wrote `version: signed` into an integer field and signer tuples into
-	 * a list of names, so OpenRegister refused the save and nothing was kept.
+	 * The signature stage's new fields validate against the merged schema.
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
 	 *
 	 * @return void
 	 */
-	public function testFinalisedMinutesValidateAgainstTheMinutesSchema(): void {
-		$this->answers['/finalize'] = ['pdfArchiveReference' => 'archive/notulen-14-oktober.pdf', 'hashSha256' => str_repeat('a', 64)];
-		$this->makeService(schema: 'minutes', data: ['title' => 'Notulen 14 oktober', 'version' => 3]);
-
-		$result = $this->signing->finalizeMinutes(
-			'rec-1',
-			[['signer' => 'anna', 'signature' => 'sig-a', 'timestamp' => '2026-10-15T10:00:00Z']]
+	public function testTheStageDeclaresItsSigningRequest(): void {
+		$this->assertValidAgainstSchema(
+			slug: 'decision-stage',
+			object: ['method' => 'signature', 'signingReference' => 'sr-9', 'signingOutcome' => 'declined']
 		);
-
-		self::assertTrue($result['success']);
-		self::assertCount(1, $this->saved);
-		$written = $this->saved[0]['object'];
-		self::assertSame(3, $written['version']);
-		self::assertSame('signed', $written['signingStatus']);
-		self::assertSame('archive/notulen-14-oktober.pdf', $written['signedCopy']);
-		self::assertSame(['anna'], $written['signedBy']);
-		$this->assertValidAgainstSchema(slug: 'minutes', object: $written);
-	}//end testFinalisedMinutesValidateAgainstTheMinutesSchema()
+		$properties = $this->mergedProperties(slug: 'decision-stage');
+		$result     = (new Validator())->validate(
+			data: json_decode(json: '{"signingOutcome":"maybe"}'),
+			schema: json_decode(json: (string)json_encode(value: ['type' => 'object', 'properties' => $properties]))
+		);
+		self::assertFalse(condition: $result->isValid());
+	}//end testTheStageDeclaresItsSigningRequest()
 
 	/**
 	 * The merged schemas refuse what they should, or the validation above
