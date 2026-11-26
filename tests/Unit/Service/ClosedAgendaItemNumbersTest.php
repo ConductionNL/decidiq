@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\ClosedAgendaItemNumbers;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -52,12 +51,21 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 */
 	private function service(array $asCaller, array $all, bool $meeting=true): ClosedAgendaItemNumbers {
 		$this->reads = [];
-		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturn($meeting === true ? $this->createMock(ObjectEntityInterface::class) : null);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$found   = null;
+		if ($meeting === true) {
+			$found = $this->createMock(originalClassName: ObjectEntityInterface::class);
+		}
+
+		$objects->method('find')->willReturn($found);
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config, bool $_rbac=true, bool $_multitenancy=true) use ($asCaller, $all): array {
 				$this->reads[] = [$_rbac, $_multitenancy, $config['filters']];
-				return $_rbac === true ? $asCaller : ['results' => $all];
+				if ($_rbac === true) {
+					return $asCaller;
+				}
+
+				return ['results' => $all];
 			}
 		);
 
@@ -83,17 +91,17 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 * @return void
 	 */
 	public function testAHiddenClosedItemIsListedByNumberOnly(): void {
-		$open   = $this->item('a', 1);
-		$closed = $this->item('b', 2, ['public' => false, 'title' => 'Aankoop percelen Lindelaan']);
+		$open   = $this->item(id: 'a', number: 1);
+		$closed = $this->item(id: 'b', number: 2, extra: ['public' => false, 'title' => 'Aankoop percelen Lindelaan']);
 
-		$result = $this->service(asCaller: [$open], all: [$open, $closed])->forMeeting('m-1');
+		$result = $this->service(asCaller: [$open], all: [$open, $closed])->forMeeting(meetingId: 'm-1');
 
-		$this->assertSame([['orderNumber' => 2, 'parentItem' => null]], $result);
-		$this->assertStringNotContainsString('Lindelaan', json_encode($result));
-		$this->assertStringNotContainsString('"b"', json_encode($result));
-		$this->assertSame([true, true], array_slice($this->reads[0], 0, 2), 'the first read applies the caller rules');
-		$this->assertSame([false, false], array_slice($this->reads[1], 0, 2), 'the second read sees every item');
-		$this->assertSame('m-1', $this->reads[1][2]['meeting']);
+		$this->assertSame(expected: [['orderNumber' => 2, 'parentItem' => null]], actual: $result);
+		$this->assertStringNotContainsString(needle: 'Lindelaan', haystack: json_encode(value: $result));
+		$this->assertStringNotContainsString(needle: '"b"', haystack: json_encode(value: $result));
+		$this->assertSame(expected: [true, true], actual: [$this->reads[0][0], $this->reads[0][1]], message: 'the first read applies the caller rules');
+		$this->assertSame(expected: [false, false], actual: [$this->reads[1][0], $this->reads[1][1]], message: 'the second read sees every item');
+		$this->assertSame(expected: 'm-1', actual: $this->reads[1][2]['meeting']);
 	}//end testAHiddenClosedItemIsListedByNumberOnly()
 
 	/**
@@ -102,13 +110,13 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 * @return void
 	 */
 	public function testReadableAndPublicItemsAreNotListed(): void {
-		$closed = $this->item('b', 2, ['public' => false]);
-		$public = $this->item('c', 3, ['public' => true]);
-		$legacy = $this->item('d', 4);
+		$closed = $this->item(id: 'b', number: 2, extra: ['public' => false]);
+		$public = $this->item(id: 'c', number: 3, extra: ['public' => true]);
+		$legacy = $this->item(id: 'd', number: 4);
 
-		$result = $this->service(asCaller: [$closed], all: [$closed, $public, $legacy])->forMeeting('m-1');
+		$result = $this->service(asCaller: [$closed], all: [$closed, $public, $legacy])->forMeeting(meetingId: 'm-1');
 
-		$this->assertSame([], $result);
+		$this->assertSame(expected: [], actual: $result);
 	}//end testReadableAndPublicItemsAreNotListed()
 
 	/**
@@ -117,19 +125,19 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 * @return void
 	 */
 	public function testASubItemNamesOnlyAReadableParent(): void {
-		$parent       = $this->item('p', 1);
-		$hiddenParent = $this->item('q', 3, ['public' => false]);
-		$subOfOpen    = $this->item('s1', 2, ['public' => false, 'parentItem' => ['id' => 'p']]);
-		$subOfHidden  = $this->item('s2', 4, ['public' => false, 'parentItem' => 'q']);
+		$parent       = $this->item(id: 'p', number: 1);
+		$hiddenParent = $this->item(id: 'q', number: 3, extra: ['public' => false]);
+		$subOfOpen    = $this->item(id: 's1', number: 2, extra: ['public' => false, 'parentItem' => ['id' => 'p']]);
+		$subOfHidden  = $this->item(id: 's2', number: 4, extra: ['public' => false, 'parentItem' => 'q']);
 
-		$result = $this->service(asCaller: [$parent], all: [$subOfHidden, $hiddenParent, $subOfOpen, $parent])->forMeeting('m-1');
+		$result = $this->service(asCaller: [$parent], all: [$subOfHidden, $hiddenParent, $subOfOpen, $parent])->forMeeting(meetingId: 'm-1');
 
 		$this->assertSame(
-			[
+			expected: [
 				['orderNumber' => 2, 'parentItem' => 'p'],
 				['orderNumber' => 3, 'parentItem' => null],
 			],
-			$result
+			actual: $result
 		);
 	}//end testASubItemNamesOnlyAReadableParent()
 
@@ -139,7 +147,7 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 * @return void
 	 */
 	public function testRowsOfAnotherMeetingAreIgnoredAndEntitiesAreRead(): void {
-		$other  = $this->item('x', 1, ['public' => false, 'meeting' => 'm-2']);
+		$other  = $this->item(id: 'x', number: 1, extra: ['public' => false, 'meeting' => 'm-2']);
 		$noId   = ['meeting' => 'm-1', 'orderNumber' => 2, 'public' => false];
 		$entity = new class () implements \JsonSerializable {
 			/**
@@ -152,9 +160,9 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 			}
 		};
 
-		$result = $this->service(asCaller: ['not a row'], all: [$other, $noId, $entity, 42])->forMeeting('m-1');
+		$result = $this->service(asCaller: ['not a row'], all: [$other, $noId, $entity, 42])->forMeeting(meetingId: 'm-1');
 
-		$this->assertSame([['orderNumber' => 5, 'parentItem' => null]], $result);
+		$this->assertSame(expected: [['orderNumber' => 5, 'parentItem' => null]], actual: $result);
 	}//end testRowsOfAnotherMeetingAreIgnoredAndEntitiesAreRead()
 
 	/**
@@ -163,15 +171,9 @@ class ClosedAgendaItemNumbersTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableMeetingIsRefusedBeforeAnyItemIsRead(): void {
-		$service = $this->service(asCaller: [], all: [$this->item('b', 2, ['public' => false])], meeting: false);
+		$service = $this->service(asCaller: [], all: [$this->item(id: 'b', number: 2, extra: ['public' => false])], meeting: false);
 
-		try {
-			$service->forMeeting('m-1');
-			$this->fail('expected MissingObjectException');
-		} catch (MissingObjectException $e) {
-			$this->assertSame('Meeting not found.', $e->getMessage());
-		}
-
-		$this->assertSame([], $this->reads);
+		$this->assertNull(actual: $service->forMeeting(meetingId: 'm-1'));
+		$this->assertSame(expected: [], actual: $this->reads);
 	}//end testAnUnreadableMeetingIsRefusedBeforeAnyItemIsRead()
 }//end class

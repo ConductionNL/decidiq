@@ -41,34 +41,53 @@ class ClosedAgendaItemControllerTest extends TestCase {
 	/**
 	 * Build the controller over a real service and a fake object service.
 	 *
-	 * @param bool            $signedIn Whether a user is signed in.
-	 * @param bool            $meeting  Whether the meeting is readable.
-	 * @param \Throwable|null $failure  What findAll throws, if anything.
-	 * @param LoggerInterface|null $logger The logger.
+	 * @param bool                 $signedIn Whether a user is signed in.
+	 * @param bool                 $meeting  Whether the meeting is readable.
+	 * @param \Throwable|null      $failure  What findAll throws, if anything.
+	 * @param LoggerInterface|null $logger   The logger.
 	 *
 	 * @return ClosedAgendaItemController
 	 */
-	private function controller(bool $signedIn=true, bool $meeting=true, ?\Throwable $failure=null, ?LoggerInterface $logger=null): ClosedAgendaItemController {
-		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturn($meeting === true ? $this->createMock(ObjectEntityInterface::class) : null);
+	private function controller(
+		bool $signedIn=true,
+		bool $meeting=true,
+		?\Throwable $failure=null,
+		?LoggerInterface $logger=null
+	): ClosedAgendaItemController {
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$found   = null;
+		if ($meeting === true) {
+			$found = $this->createMock(originalClassName: ObjectEntityInterface::class);
+		}
+
+		$objects->method('find')->willReturn($found);
 		$objects->method('findAll')->willReturnCallback(
 			static function (array $config, bool $_rbac=true) use ($failure): array {
 				if ($failure !== null) {
 					throw $failure;
 				}
 
-				$closed = ['id' => 'b', 'meeting' => 'm-1', 'orderNumber' => 7, 'public' => false];
-				return $_rbac === true ? [] : [$closed];
+				if ($_rbac === true) {
+					return [];
+				}
+
+				return [['id' => 'b', 'meeting' => 'm-1', 'orderNumber' => 7, 'public' => false]];
 			}
 		);
-		$session = $this->createMock(IUserSession::class);
-		$session->method('getUser')->willReturn($signedIn === true ? $this->createMock(IUser::class) : null);
+
+		$user = null;
+		if ($signedIn === true) {
+			$user = $this->createMock(originalClassName: IUser::class);
+		}
+
+		$session = $this->createMock(originalClassName: IUserSession::class);
+		$session->method('getUser')->willReturn($user);
 
 		return new ClosedAgendaItemController(
-			request: $this->createMock(IRequest::class),
-			closedItems: new ClosedAgendaItemNumbers(objectService: $objects),
+			request: $this->createMock(originalClassName: IRequest::class),
 			userSession: $session,
-			logger: ($logger ?? $this->createMock(LoggerInterface::class))
+			closedItems: new ClosedAgendaItemNumbers(objectService: $objects),
+			logger: ($logger ?? $this->createMock(originalClassName: LoggerInterface::class))
 		);
 	}//end controller()
 
@@ -78,10 +97,10 @@ class ClosedAgendaItemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testItAnswersTheHiddenNumbers(): void {
-		$response = $this->controller()->index('m-1');
+		$response = $this->controller()->index(meetingId: 'm-1');
 
-		$this->assertSame(200, $response->getStatus());
-		$this->assertSame(['closedItems' => [['orderNumber' => 7, 'parentItem' => null]]], $response->getData());
+		$this->assertSame(expected: 200, actual: $response->getStatus());
+		$this->assertSame(expected: ['closedItems' => [['orderNumber' => 7, 'parentItem' => null]]], actual: $response->getData());
 	}//end testItAnswersTheHiddenNumbers()
 
 	/**
@@ -90,7 +109,7 @@ class ClosedAgendaItemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testItRefusesAnonymousCallers(): void {
-		$this->assertSame(401, $this->controller(signedIn: false)->index('m-1')->getStatus());
+		$this->assertSame(expected: 401, actual: $this->controller(signedIn: false)->index(meetingId: 'm-1')->getStatus());
 	}//end testItRefusesAnonymousCallers()
 
 	/**
@@ -99,10 +118,10 @@ class ClosedAgendaItemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableMeetingAnswers404(): void {
-		$response = $this->controller(meeting: false)->index('m-1');
+		$response = $this->controller(meeting: false)->index(meetingId: 'm-1');
 
-		$this->assertSame(404, $response->getStatus());
-		$this->assertSame(['message' => 'Meeting not found.'], $response->getData());
+		$this->assertSame(expected: 404, actual: $response->getStatus());
+		$this->assertSame(expected: ['message' => 'Meeting not found.'], actual: $response->getData());
 	}//end testAnUnreadableMeetingAnswers404()
 
 	/**
@@ -111,12 +130,12 @@ class ClosedAgendaItemControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFailedReadAnswers500AndIsLogged(): void {
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('error')->with('Decidiq: closed agenda items could not be read');
 
-		$response = $this->controller(failure: new RuntimeException('db down'), logger: $logger)->index('m-1');
+		$response = $this->controller(failure: new RuntimeException(message: 'db down'), logger: $logger)->index(meetingId: 'm-1');
 
-		$this->assertSame(500, $response->getStatus());
-		$this->assertSame(['message' => 'The closed agenda items could not be read.'], $response->getData());
+		$this->assertSame(expected: 500, actual: $response->getStatus());
+		$this->assertSame(expected: ['message' => 'The closed agenda items could not be read.'], actual: $response->getData());
 	}//end testAFailedReadAnswers500AndIsLogged()
 }//end class

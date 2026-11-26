@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
@@ -68,17 +67,15 @@ class ClosedAgendaItemNumbers {
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 *
-	 * @throws MissingObjectException When the caller cannot read the meeting.
-	 *
-	 * @return list<array{orderNumber: int, parentItem: ?string}> Sorted by order number.
+	 * @return list<array{orderNumber: int, parentItem: ?string}>|null Sorted by order number; null when the caller cannot read the meeting.
 	 */
-	public function forMeeting(string $meetingId): array {
+	public function forMeeting(string $meetingId): ?array {
 		$meeting = $this->objectService->find(
 			id: $meetingId,
 			options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting')
 		);
 		if ($meeting === null) {
-			throw new MissingObjectException('Meeting not found.');
+			return null;
 		}
 
 		$visible = $this->itemIds(rows: $this->items(meetingId: $meetingId, asCaller: true), meetingId: $meetingId);
@@ -107,25 +104,43 @@ class ClosedAgendaItemNumbers {
 	 * @return array{orderNumber: int, parentItem: ?string}|null
 	 */
 	private function hiddenClosedEntry(?array $item, string $meetingId, array $visible): ?array {
-		if ($item === null || ($item['public'] ?? true) !== false || $this->onMeeting(item: $item, meetingId: $meetingId) === false) {
-			return null;
-		}
-
-		$id = $this->idOf(item: $item);
-		if ($id === '' || isset($visible[$id]) === true) {
+		if ($this->isHiddenClosed(item: $item, meetingId: $meetingId, visible: $visible) === false) {
 			return null;
 		}
 
 		$parent = $this->refId(ref: ($item['parentItem'] ?? null));
-		if ($parent !== '' && isset($visible[$parent]) === false) {
+		if ($parent === '') {
+			return ['orderNumber' => (int)($item['orderNumber'] ?? 0), 'parentItem' => null];
+		}
+
+		if (isset($visible[$parent]) === false) {
 			return null;
 		}
 
-		return [
-			'orderNumber' => (int)($item['orderNumber'] ?? 0),
-			'parentItem'  => ($parent === '' ? null : $parent),
-		];
+		return ['orderNumber' => (int)($item['orderNumber'] ?? 0), 'parentItem' => $parent];
 	}//end hiddenClosedEntry()
+
+	/**
+	 * Whether an item is non-public, on this meeting, and not readable by the caller.
+	 *
+	 * @param array<string, mixed>|null $item      The item data.
+	 * @param string                    $meetingId The meeting.
+	 * @param array<string, true>       $visible   Ids the caller can read.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 *
+	 * @psalm-assert-if-true array<string, mixed> $item
+	 *
+	 * @return bool
+	 */
+	private function isHiddenClosed(?array $item, string $meetingId, array $visible): bool {
+		if ($item === null || ($item['public'] ?? true) !== false) {
+			return false;
+		}
+
+		$id = $this->idOf(item: $item);
+		return $id !== '' && isset($visible[$id]) === false && $this->onMeeting(item: $item, meetingId: $meetingId) === true;
+	}//end isHiddenClosed()
 
 	/**
 	 * The agenda item rows of the meeting, as the caller or in system context.
@@ -188,8 +203,7 @@ class ClosedAgendaItemNumbers {
 	 * @return string
 	 */
 	private function idOf(array $item): string {
-		$id = ($item['id'] ?? ($item['@self']['id'] ?? ''));
-		return is_scalar($id) === true ? (string)$id : '';
+		return $this->scalarString(value: ($item['id'] ?? ($item['@self']['id'] ?? '')));
 	}//end idOf()
 
 	/**
@@ -204,8 +218,23 @@ class ClosedAgendaItemNumbers {
 			$ref = ($ref['id'] ?? ($ref['uuid'] ?? ''));
 		}
 
-		return is_scalar($ref) === true ? (string)$ref : '';
+		return $this->scalarString(value: $ref);
 	}//end refId()
+
+	/**
+	 * A scalar as a string; '' for anything else.
+	 *
+	 * @param mixed $value The value.
+	 *
+	 * @return string
+	 */
+	private function scalarString(mixed $value): string {
+		if (is_scalar($value) === false) {
+			return '';
+		}
+
+		return (string)$value;
+	}//end scalarString()
 
 	/**
 	 * A row as an array, or null when it is neither an array nor serialisable.
@@ -219,6 +248,10 @@ class ClosedAgendaItemNumbers {
 			$row = $row->jsonSerialize();
 		}
 
-		return is_array($row) === true ? $row : null;
+		if (is_array($row) === false) {
+			return null;
+		}
+
+		return $row;
 	}//end rowData()
 }//end class

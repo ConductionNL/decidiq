@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ClosedAgendaItemNumbers;
 use OCP\AppFramework\Controller;
@@ -45,16 +44,16 @@ class ClosedAgendaItemController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest                $request     HTTP request
+	 * @param IUserSession            $userSession Who is asking
 	 * @param ClosedAgendaItemNumbers $closedItems The hidden closed items
-	 * @param IUserSession            $userSession User session
-	 * @param LoggerInterface         $logger      Logger
+	 * @param LoggerInterface         $logger      Where a failed read is logged
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ClosedAgendaItemNumbers $closedItems,
 		private readonly IUserSession $userSession,
+		private readonly ClosedAgendaItemNumbers $closedItems,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
@@ -78,12 +77,16 @@ class ClosedAgendaItemController extends Controller {
 		}
 
 		try {
-			return new JSONResponse(['closedItems' => $this->closedItems->forMeeting(meetingId: $meetingId)]);
-		} catch (MissingObjectException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+			$closedItems = $this->closedItems->forMeeting(meetingId: $meetingId);
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: closed agenda items could not be read', ['exception' => $e]);
 			return new JSONResponse(['message' => 'The closed agenda items could not be read.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+
+		if ($closedItems === null) {
+			return new JSONResponse(['message' => 'Meeting not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		return new JSONResponse(['closedItems' => $closedItems]);
 	}//end index()
 }//end class
