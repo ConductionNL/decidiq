@@ -238,7 +238,7 @@ class FillMeetingArchivalDossierTest extends TestCase {
 		$objects->method('findAll')->willThrowException(new RuntimeException('register missing'));
 		$objects->expects($this->never())->method('saveObject');
 		$logger = $this->createMock(originalClassName: LoggerInterface::class);
-		$logger->expects($this->once())->method('info')->with('Decidiq: FillMeetingArchivalDossier found no dossiers', ['exception' => 'register missing']);
+		$logger->expects($this->once())->method('info')->with('Decidiq: MeetingDossierBackfill found no dossiers', ['exception' => 'register missing']);
 
 		$link = new MeetingDossierLink(objectService: $objects, logger: new NullLogger());
 		(new FillMeetingArchivalDossier(objectService: $objects, meetingLink: $link, logger: $logger))

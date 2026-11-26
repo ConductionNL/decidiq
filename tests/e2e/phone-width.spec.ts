@@ -15,10 +15,11 @@
  * list task 4 asks for; each is fixed with a layout rule on that page, not a
  * phone-only copy of it.
  *
- * Written, not yet run: it needs a live instance with an example set, so the
- * lists have rows and the meeting page has an agenda.
+ * It needs a live instance with an example set (the municipality set), so the
+ * lists have rows and the meeting page has an agenda. Run green 25 Nov 2026,
+ * 66 of 66, on Nextcloud 34 with PostgreSQL.
  *
- * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
+ * @spec openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width
  */
 import type { Page } from '@playwright/test'
 
@@ -26,7 +27,6 @@ import { expect, test } from '@playwright/test'
 import fs from 'node:fs'
 import path from 'node:path'
 import { BASE_URL as BASE } from './base-url.ts'
-import { openRow } from './support/open-row.ts'
 
 const WIDTH = 360
 const HEIGHT = 740
@@ -68,9 +68,18 @@ function manifestPages(): ManifestPage[] {
  * @return {Promise<number>} The overflow; 0 when none.
  */
 async function sidewaysOverflow(page: Page): Promise<number> {
-	return page.evaluate(() =>
-		Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
-	)
+	// Nextcloud scrolls an app inside #app-content, not the document, so a wide
+	// page shows up there and the document still reads exactly the viewport.
+	return page.evaluate(() => {
+		const scrollers = ['#app-content', '#app-content-vue', 'main']
+			.map((selector) => document.querySelector(selector))
+			.filter((element): element is HTMLElement => element !== null)
+		return Math.max(
+			0,
+			document.documentElement.scrollWidth - window.innerWidth,
+			...scrollers.map((element) => element.scrollWidth - element.clientWidth),
+		)
+	})
 }
 
 test.use({ viewport: { width: WIDTH, height: HEIGHT } })
@@ -115,7 +124,8 @@ test(`MeetingDetail: the agenda reads in one column and its actions are reachabl
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings`)
 	const firstRow = page.locator('tbody tr').first()
 	await expect(firstRow).toBeVisible()
-	await openRow(page, (await firstRow.innerText()).split('\n')[0].trim())
+	// The list's first cell is the date block, so the row has no title line to look it up by: open its link.
+	await firstRow.getByTestId('cn-row-link').first().click()
 	await page.waitForLoadState('domcontentloaded')
 	await expect(page.locator('main').first()).toBeVisible()
 

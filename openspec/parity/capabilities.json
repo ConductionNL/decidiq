@@ -6646,7 +6646,7 @@
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "high",
-			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS. Specified in openspec/changes/ori-adoption (OpenSpec pass 2026-09-27).",
+			"note": "No RSS or email alert for citizens. The ORI publications feed is pollable JSON-LD, not RSS. Specified in openspec/changes/archive/2026-11-25-ori-adoption (OpenSpec pass 2026-09-27).",
 			"notubiz": "yes",
 			"ibabs": "partial",
 			"go-raadsinformatie": "partial",
@@ -7169,27 +7169,25 @@
 			"area": "participation",
 			"name": "Let citizens submit a contribution through the public portal.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144)",
+				"state": "built",
+				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144); tests/e2e/portal-citizen-contribution.spec.ts run live 2/2 (25 Nov 2026, Nextcloud 34 + PostgreSQL 16 with portaliq development and portaliq#2809): a resident's reaction reaches the griffie pending, is approved and shows approved on Mijn inspraak; a reaction on a closed consultation is refused with 409 and nothing is created",
 				"owner": "ConductionNL/portaliq",
 				"spec": "openspec/specs/portal-citizen-create-actions",
-				"change": "portal-citizen-contribution-live-pass",
 				"requirement": [
 					"openspec/specs/portal-citizen-create-actions :: Citizen reacts to an open consultation via a scope-stamped create action (REQ-DKPCA-001)",
 					"openspec/specs/portal-citizen-create-actions :: Citizen proposes a budget item into an open participatory budget via a scope-stamped create action (REQ-DKPCA-002)",
-					"openspec/changes/portal-citizen-contribution-live-pass/specs/portal-citizen-create-actions :: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)"
+					"openspec/specs/portal-citizen-create-actions :: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)"
 				],
-				"plan": "openspec/changes/portal-citizen-contribution-live-pass",
-				"readOn": "2026-10-30"
+				"readOn": "2026-11-25"
 			},
 			"reachedOn": "nothing reaches it in decidiq: portaliq discovers the provider by convention; the portal UI lives in portaliq",
 			"provider": "portaliq",
 			"providerHow": "read-from-code",
 			"feature": "citizen-participation",
 			"featureConfidence": "medium",
-			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates, but the portal that executes the declaration is portaliq and cannot be proven from this repo.",
+			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates; the round trip through portaliq is proven live by tests/e2e/portal-citizen-contribution.spec.ts.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -7762,7 +7760,7 @@
 				"evidence": "decidiq has no login of its own: every controller relies on the Nextcloud session (IUserSession, e.g. lib/Controller/VotingBehaviourController.php:108); navigation entry appinfo/info.xml <navigations>; SSO is supplied by Nextcloud's user_oidc / user_saml apps",
 				"owner": "nextcloud/server",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-001 Members sign in with the organisation's single sign-on through Nextcloud"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-001 Members sign in with the organisation's single sign-on through Nextcloud"
 			},
 			"reachedOn": "Nextcloud login page, then the Decidiq app (/apps/decidiq/)",
 			"provider": "nextcloud",
@@ -7913,7 +7911,7 @@
 				"evidence": "grep @media in src: one hit, src/components/liveMeeting/AgendaItemTimer.vue:346 (prefers-reduced-motion); no isMobile / breakpoint handling in decidiq's own components; layout comes from @nextcloud/vue and the manifest-driven Cn* pages",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-008 Every page works at phone width",
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-008 Every page works at phone width",
 				"plan": "openspec/changes/platform-baseline-on-nextcloud"
 			},
 			"reachedOn": "Whole app in a phone browser (not checked)",
@@ -7949,7 +7947,7 @@
 				"evidence": "appinfo/info.xml Nextcloud app (min-version 32, max 34); decidiq-compose.yaml:67 services (postgres:16-alpine, nextcloud:34-apache); hard dependency on OpenRegister",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-004 decidiq runs on any self-hosted Nextcloud with OpenRegister"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-004 decidiq runs on any self-hosted Nextcloud with OpenRegister"
 			},
 			"reachedOn": "Installed from the Nextcloud App Store on your own Nextcloud",
 			"provider": "decidiq",
@@ -8810,7 +8808,7 @@
 				"evidence": "decidiq has no user administration of its own: users and groups are Nextcloud's, managed by admins or group sub-admins in Nextcloud's Users settings; lib/Controller/MemberImportController.php:71 groups() reads Nextcloud groups to import body members; lib/Service/GovernanceRoleScopeProjector.php:247 creates the per-body chair and signatory groups itself under fixed names",
 				"owner": "nextcloud/server",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-003 A functional administrator manages users and groups in Nextcloud"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-003 A functional administrator manages users and groups in Nextcloud"
 			},
 			"reachedOn": "Nextcloud Users settings (/settings/users); GovernanceBodyDetail Members widget 'Import from Nextcloud group'",
 			"provider": "nextcloud",
@@ -9999,7 +9997,7 @@
 				"evidence": "decidiq has no login of its own and relies on the Nextcloud session (matrix row plt-01, e.g. lib/Controller/VotingBehaviourController.php:108 IUserSession); grep -rniE 'mfa|two.?factor|2fa|totp' lib src: none in decidiq; second factors and their enforcement come from Nextcloud's two-factor providers (twofactor_totp, WebAuthn) and the admin Security setting",
 				"owner": "nextcloud/server",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-002 A second sign-in factor is enforced by Nextcloud"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-002 A second sign-in factor is enforced by Nextcloud"
 			},
 			"reachedOn": "Nextcloud login, with two-factor enforced under Administration settings > Security",
 			"provider": "nextcloud",
@@ -10346,7 +10344,7 @@
 				"evidence": "appinfo/info.xml Nextcloud app on the customer's own Nextcloud with OpenRegister as the store (matrix row plt-06, decidiq-compose.yaml:67); grep -rnoE 'https?://' lib: no hardcoded outbound host (lib/Service/OriSerializer.php:49 argu.co is a JSON-LD context name, not a call); outbound traffic only to endpoints the admin sets (ORI endpoint, lib/Settings/connections.json:4-11; integriq sources)",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
 			},
 			"reachedOn": "Wherever the organisation hosts its Nextcloud; outbound endpoints set on the admin settings page",
 			"provider": "decidiq",
@@ -10448,7 +10446,7 @@
 				"evidence": "decidiq stores records only in the instance's OpenRegister database and documents only in its Nextcloud Files, and calls no host the administrator did not configure (rows plt-06 and plt-32: appinfo/info.xml, decidiq-compose.yaml, grep -rnoE 'https?://' lib). The ISO 27001 certificate therefore belongs to whoever hosts the instance; whether Conduction's hosted offering carries one was not checked.",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
 			},
 			"notubiz": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -10474,7 +10472,7 @@
 				"evidence": "Read 2026-10-30: the speaker queue lives in the browser (src/utils/speakerQueue.js, src/components/liveMeeting/SpeakerQueuePanel.vue); nothing sends the current speaker anywhere. openspec/changes/archive/2026-11-24-live-room-conference-system-link adds the inbound room-system connection (integriq) and Participant.roomSeat, not the outbound speaker signal.",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-006 The room's cameras and microphones follow the speaker",
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-006 The room's cameras and microphones follow the speaker",
 				"plan": "openspec/changes/platform-baseline-on-nextcloud"
 			},
 			"notubiz": "unknown",
@@ -10505,7 +10503,7 @@
 				"evidence": "lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json AncillaryPosition.publicationDate: a verified public position with a past publication date is anonymously readable through OpenRegister's published predicate; staff keep the register on the person page (DcPersoon, rows bod-05 and bod-09). Missing half: lib/Portal/PortalContributionProvider.php offers the portal no ancillary-positions collection, so no portal page lists them.",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-baseline-on-nextcloud",
-				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-007 Residents read members' ancillary positions without an account",
+				"requirement": "openspec/changes/archive/2026-11-25-platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-007 Residents read members' ancillary positions without an account",
 				"plan": "openspec/changes/platform-baseline-on-nextcloud"
 			},
 			"notubiz": "unknown",

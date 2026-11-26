@@ -46,8 +46,12 @@ use Throwable;
 /**
  * Closes papers of a non-public agenda item, and an item whose restriction is imposed.
  *
- * - Before a paper is saved: a paper of a non-public item is saved with public false.
- * - After an item is saved non-public: every paper of it that is still public is closed.
+ * - Before an item is saved: it carries its meeting's governance body, so the read rule
+ *   of a non-public item admits the body's members (REQ-ACP-002).
+ * - Before a paper is saved: a paper of a non-public item is saved with public false, and
+ *   every paper of an item carries the item's governance body and authorised readers.
+ * - After an item is saved non-public: every paper of it is closed and carries the item's
+ *   body and readers.
  * - After a restriction with scope item reaches imposed: its item is closed, papers too.
  *   Lifting (ratified, dissolved) changes nothing; reopening is the griffier's choice.
  *
@@ -60,6 +64,8 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	public const SCHEMA_DOCUMENT = 'digital-document';
 
 	public const SCHEMA_RESTRICTION = 'confidentiality-restriction';
+
+	public const SCHEMA_MEETING = 'meeting';
 
 	/**
 	 * The most papers closed for one item in one pass.
@@ -113,6 +119,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 */
 	private function dispatch(Event $event): void {
 		if ($event instanceof ObjectCreatingEvent || $event instanceof ObjectUpdatingEvent) {
+			$this->beforeItemSave(event: $event);
 			$this->beforePaperSave(event: $event);
 			return;
 		}
@@ -138,16 +145,81 @@ class AgendaItemConfidentialityListener implements IEventListener {
 		}
 
 		$paper = array_merge((array)$entity->getObject(), $event->getModifiedData());
-		if ($this->isPublicPaper(entity: $entity, paper: $paper) === false) {
+		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_DOCUMENT, row: $paper) === false) {
 			return;
 		}
 
-		if ($this->onClosedItem(paper: $paper) === false) {
+		$itemId = self::referenceId(value: ($paper['agendaItem'] ?? null));
+		if ($itemId === null) {
 			return;
 		}
 
-		$event->setModifiedData(array_merge($event->getModifiedData(), ['public' => false]));
+		$changes = $this->paperChanges(paper: $paper, itemId: $itemId);
+		if ($changes !== []) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), $changes));
+		}
 	}//end beforePaperSave()
+
+	/**
+	 * What a paper of an item must change: closed when the item is not public, and the item's body and readers.
+	 *
+	 * @param array<string,mixed> $paper  The paper with its pending changes.
+	 * @param string              $itemId Its agenda item.
+	 *
+	 * @return array<string,mixed> The fields to set, empty when the paper is right.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 */
+	private function paperChanges(array $paper, string $itemId): array {
+		// An item that cannot be read closes the paper: a confidential item
+		// must not leak a paper because the lookup failed.
+		try {
+			$item = $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM);
+		} catch (Throwable $e) {
+			$this->logger->warning('Decidiq: agenda item of a paper could not be read; the paper is saved closed', ['exception' => $e->getMessage()]);
+			return (new ClosedItemAudience())->closing(paper: $paper);
+		}
+
+		$changes = (new ClosedItemAudience())->audience(row: $paper, item: ($item ?? []));
+		if ($this->isPublic(item: $item) === false) {
+			$changes += (new ClosedItemAudience())->closing(paper: $paper);
+		}
+
+		return $changes;
+	}//end paperChanges()
+
+	/**
+	 * An agenda item carries its meeting's governance body, so its read rule can admit the body's members.
+	 *
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
+	 */
+	private function beforeItemSave(ObjectCreatingEvent|ObjectUpdatingEvent $event): void {
+		$entity = self::savedEntity(event: $event);
+		if ($entity === null) {
+			return;
+		}
+
+		$item = array_merge((array)$entity->getObject(), $event->getModifiedData());
+		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_AGENDA_ITEM, row: $item) === false) {
+			return;
+		}
+
+		$meetingId = self::referenceId(value: ($item['meeting'] ?? null));
+		if ($meetingId === null) {
+			return;
+		}
+
+		$meeting = $this->load(id: $meetingId, schema: self::SCHEMA_MEETING);
+		$body = self::referenceId(value: ($meeting['governanceBody'] ?? null));
+		if ($body !== null && self::referenceId(value: ($item['governanceBody'] ?? null)) !== $body) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), ['governanceBody' => $body]));
+		}
+	}//end beforeItemSave()
 
 	/**
 	 * The object a before-save event is about to store.
@@ -167,51 +239,6 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	}//end savedEntity()
 
 	/**
-	 * Whether the saved object is a paper that is still marked public.
-	 *
-	 * @param object              $entity The entity being saved.
-	 * @param array<string,mixed> $paper  Its data with the pending changes.
-	 *
-	 * @return bool
-	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
-	 */
-	private function isPublicPaper(object $entity, array $paper): bool {
-		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_DOCUMENT, row: $paper) === false) {
-			return false;
-		}
-
-		return ($paper['public'] ?? true) !== false;
-	}//end isPublicPaper()
-
-	/**
-	 * Whether the paper is on an agenda item that is not public.
-	 *
-	 * @param array<string,mixed> $paper The paper's data.
-	 *
-	 * @return bool
-	 *
-	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
-	 */
-	private function onClosedItem(array $paper): bool {
-		$itemId = self::referenceId(value: ($paper['agendaItem'] ?? null));
-		if ($itemId === null) {
-			return false;
-		}
-
-		// An item that cannot be read closes the paper: a confidential item
-		// must not leak a paper because the lookup failed.
-		try {
-			$item = $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: agenda item of a paper could not be read; the paper is saved closed', ['exception' => $e->getMessage()]);
-			return true;
-		}
-
-		return $this->isPublic(item: $item) === false;
-	}//end onClosedItem()
-
-	/**
 	 * After an item or a restriction is saved, close what must be closed.
 	 *
 	 * @param ObjectCreatedEvent|ObjectUpdatedEvent $event The after-save event.
@@ -227,7 +254,7 @@ class AgendaItemConfidentialityListener implements IEventListener {
 		$row = (new EntityPayloadReader())->payloadOf(entity: $entity);
 		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_AGENDA_ITEM, row: $row) === true) {
 			if ($this->isPublic(item: $row) === false) {
-				$this->closePapers(itemId: (string)($entity->getUuid() ?? ($row['id'] ?? '')));
+				$this->closePapers(itemId: (string)($entity->getUuid() ?? ($row['id'] ?? '')), item: $row);
 			}
 
 			return;
@@ -334,19 +361,21 @@ class AgendaItemConfidentialityListener implements IEventListener {
 		}
 
 		// Directly as well, so the papers close even when the item's own save event is not delivered.
-		$this->closePapers(itemId: $itemId);
+		$this->closePapers(itemId: $itemId, item: $item);
 	}//end closeItem()
 
 	/**
-	 * Set public to false on every paper of the item that is still public.
+	 * Close every paper of a non-public item and give it the item's body and readers.
 	 *
-	 * @param string $itemId The agenda item id.
+	 * @param string              $itemId The agenda item id.
+	 * @param array<string,mixed> $item   The agenda item.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 * @spec openspec/changes/agenda-item-confidential-papers/tasks.md#task-1-fields-and-read-rules
 	 */
-	private function closePapers(string $itemId): void {
+	private function closePapers(string $itemId, array $item): void {
 		if ($itemId === '') {
 			return;
 		}
@@ -362,12 +391,13 @@ class AgendaItemConfidentialityListener implements IEventListener {
 
 		foreach ($papers as $paper) {
 			$data = (new EntityPayloadReader())->payloadOf(entity: $paper);
-			if (($data['public'] ?? true) === false) {
+			$changes = (new ClosedItemAudience())->closing(paper: $data) + (new ClosedItemAudience())->audience(row: $data, item: $item);
+			if ($changes === []) {
 				continue;
 			}
 
 			$uuid = (string)($paper->getUuid() ?? ($data['id'] ?? ''));
-			$this->save(object: array_merge($data, ['public' => false]), schema: self::SCHEMA_DOCUMENT, uuid: $uuid);
+			$this->save(object: array_merge($data, $changes), schema: self::SCHEMA_DOCUMENT, uuid: $uuid);
 		}
 	}//end closePapers()
 

@@ -993,6 +993,7 @@
 						"slug": "informatieavond-windpark-noord",
 						"title": "Informatieavond windpark Noord",
 						"type": "meeting-type-informatieavond",
+						"meetingType": "informational-session",
 						"governanceBody": "gemeenteraad-amsterdam",
 						"scheduledDate": "2027-04-08T19:30:00+02:00",
 						"endDate": "2027-04-08T21:30:00+02:00",

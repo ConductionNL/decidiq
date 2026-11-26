@@ -686,13 +686,15 @@ export default {
 
 .adhoc-meeting__fields {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	/* min(): a column never asks for more than the card has (REQ-PLB-008). */
+	grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 	gap: 16px;
 	align-items: end;
 }
 
 .adhoc-meeting__when {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 

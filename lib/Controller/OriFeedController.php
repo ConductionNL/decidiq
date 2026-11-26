@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use Throwable;
  * public meetings, rendered by OriFeedService. A failure answers 500 with an
  * empty body rather than a partial feed.
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 class OriFeedController extends Controller {
 
@@ -52,7 +52,7 @@ class OriFeedController extends Controller {
 	 * @param OriFeedServiceInterface $feeds Renders the feeds.
 	 * @param LoggerInterface $logger  Logs a failed feed.
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function __construct(
 		string $appName,
@@ -68,7 +68,7 @@ class OriFeedController extends Controller {
 	 *
 	 * @return DataDisplayResponse
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -82,7 +82,7 @@ class OriFeedController extends Controller {
 	 *
 	 * @return DataDisplayResponse
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -96,7 +96,7 @@ class OriFeedController extends Controller {
 	 *
 	 * @return DataDisplayResponse
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

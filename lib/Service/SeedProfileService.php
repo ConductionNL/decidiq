@@ -43,6 +43,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
+use OCA\Decidiq\Service\Records\MeetingDossierBackfill;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -208,6 +209,8 @@ class SeedProfileService implements SeedProfileServiceInterface {
 	 * @throws RuntimeException When the id is unknown or OpenRegister is absent.
 	 *
 	 * @spec openspec/specs/seed-profiles/spec.md#requirement-import-one-example-set
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	public function install(string $profileId): array {
 		if ($profileId === self::GENERATED_PROFILE) {
@@ -233,17 +236,36 @@ class SeedProfileService implements SeedProfileServiceInterface {
 			}
 		}
 
-		$this->configurationService()->importFromApp(
+		$importer = $this->configurationService();
+		$version  = $this->appManager->getAppVersion(AppIdentity::APP_ID);
+		$import   = static fn (): mixed => $importer->importFromApp(
 			appId: AppIdentity::APP_ID . '.profile.' . $profileId,
 			data: $data,
-			version: $this->appManager->getAppVersion(AppIdentity::APP_ID),
+			version: $version,
 			force: true
 		);
+
+		// The set's own urgent decisions pass the urgency field guard while it
+		// is imported; without that service the import runs as is.
+		(new UrgentSeedImport())->run(container: $this->container, descriptor: $data, import: $import);
 
 		$this->logger->info(
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
 			['app' => AppIdentity::APP_ID]
 		);
+
+		// An example set writes each archival dossier's `meeting` but not the
+		// meeting's `archivalDossier`, so its meetings are pointed at their
+		// dossiers now, as the app does when it forms one. A failure is logged
+		// and never fails the import.
+		try {
+			$this->container->get(MeetingDossierBackfill::class)->fill();
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'[SeedProfileService] example set "' . $profileId . '" imported, its meetings not pointed at their dossier: ' . $e->getMessage(),
+				['app' => AppIdentity::APP_ID]
+			);
+		}
 
 		return [
 			'objects' => $objects,

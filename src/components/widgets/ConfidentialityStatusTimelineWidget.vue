@@ -670,7 +670,9 @@ export default {
 	gap: 10px;
 }
 
-.cn-confidentiality-timeline__item--pending {
+/* A pending stage dims only its decorative icon: dimming the row dropped its
+   muted text below WCAG 2.1 AA contrast (1.4.3, axe color-contrast). */
+.cn-confidentiality-timeline__item--pending .cn-confidentiality-timeline__icon {
 	opacity: 0.7;
 }
 

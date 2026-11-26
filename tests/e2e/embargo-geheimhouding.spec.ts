@@ -55,6 +55,7 @@ test.beforeAll(async ({ browser }) => {
 	const body = await createObject(page, ledger, 'governance-body', {
 		name: `${tag}-raad`,
 		bodyType: 'legislative',
+		domain: 'municipality',
 	})
 	ids.body = objId(body)
 	const meeting = await createObject(page, ledger, 'meeting', {
@@ -137,23 +138,27 @@ test('dissolving the restriction puts its document back on the feed', async ({
 	page,
 	playwright,
 }) => {
-	const resp = await page.request.put(
-		`${BASE}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction/${ids.restriction}`,
-		{
-			headers: await writeHeaders(page),
-			data: {
-				scope: 'document',
-				targetDocument: ids.restricted,
-				ground: ids.ground,
-				imposedBy: 'body',
-				imposedByBody: ids.body,
-				imposedAt: ids.imposedAt,
-				lifecycle: 'dissolved',
-				liftingDate: new Date().toISOString().slice(0, 10),
+	// The ground requires ratification, and a restriction on such a ground is only
+	// lifted once ratified (LiftAfterRatificationGuard): ratify, then dissolve.
+	for (const lifecycle of ['ratified', 'dissolved']) {
+		const resp = await page.request.put(
+			`${BASE}/index.php/apps/openregister/api/objects/decidiq/confidentiality-restriction/${ids.restriction}`,
+			{
+				headers: await writeHeaders(page),
+				data: {
+					scope: 'document',
+					targetDocument: ids.restricted,
+					ground: ids.ground,
+					imposedBy: 'body',
+					imposedByBody: ids.body,
+					imposedAt: ids.imposedAt,
+					lifecycle,
+					...(lifecycle === 'dissolved' ? { liftingDate: new Date().toISOString().slice(0, 10) } : {}),
+				},
 			},
-		},
-	)
-	expect(resp.ok(), await resp.text()).toBe(true)
+		)
+		expect(resp.ok(), await resp.text()).toBe(true)
+	}
 
 	const anonymous = await playwright.request.newContext({
 		storageState: { cookies: [], origins: [] },

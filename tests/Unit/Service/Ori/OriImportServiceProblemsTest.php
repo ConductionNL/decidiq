@@ -6,7 +6,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+ * @spec openspec/changes/archive/2026-11-25-ori-adoption/specs/ori-adoption/spec.md
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ final class OriImportServiceProblemsTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->store = new InMemoryObjects();
-		$this->import = new OriImportService($this->store->service($this), new OriExportMapper());
+		$this->import = new OriImportService(objectService: $this->store->service($this), mapper: new OriExportMapper(), states: $this->store->keeper());
 		$this->store->seed('ori', 'vergadering', ['id' => 'v1', 'slug' => 'raad-1', 'name' => 'Raad', 'type' => 'raadsvergadering', 'status' => 'confirmed', 'startDate' => '2026-01-10T19:30:00+01:00', 'organisation' => 'Gemeenteraad Voorbeeldstad']);
 		$this->store->seed('ori', 'agendapunt', ['id' => 'a1', 'slug' => 'ap-1', 'subject' => 'Motie', 'sortOrder' => 1, 'vergadering' => 'raad-1']);
 	}
@@ -202,7 +202,7 @@ final class OriImportServiceProblemsTest extends TestCase {
 			static fn (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()): ObjectEntityInterface => $inner->saveObject(object: $object, options: new ObjectSaveOptions(target: new ObjectFindTarget(register: $options->target->register, schema: $options->target->schema), uuid: $options->uuid, extend: $options->extend ?? []))
 		);
 
-		$report = (new OriImportService($service, new OriExportMapper()))->import();
+		$report = (new OriImportService(objectService: $service, mapper: new OriExportMapper(), states: $this->store->keeper()))->import();
 
 		$this->assertSame(1, $report->sourceCounts()['fractie']);
 		$group = $this->store->tagged('governance-body', 'ori:uuid-f1');
