@@ -144,7 +144,7 @@ class DomainServiceRegistrar {
 		$context->registerService(
 			IEIDASSignatureService::class,
 			static function ($c): IEIDASSignatureService {
-				// filinq performs the signature (ADR-125): with filinq enabled
+				// Filinq performs the signature (ADR-125): with filinq enabled
 				// and its signing event loadable, decidiq hands requests to it;
 				// otherwise the dormant LogEIDASSignatureService answers and
 				// nothing is signed.

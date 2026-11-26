@@ -3,7 +3,7 @@
 /**
  * Decidiq SigningConcludedListener
  *
- * filinq dispatches `SigningConcludedEvent` when a signing request another
+ * The filinq app dispatches `SigningConcludedEvent` when a signing request another
  * app raised reaches its end (signed, declined, expired or cancelled). For a
  * request decidiq raised, this listener hands the outcome to
  * {@see SigningConclusion}, which records it on the signed record and its

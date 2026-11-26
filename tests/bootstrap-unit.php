@@ -265,7 +265,7 @@ if (class_exists('\\OCA\\Filinq\\Exception\\ConversionFailedException') === fals
 	require_once __DIR__ . '/Stubs/Filinq/Exception/ConversionFailedException.php';
 }
 
-// filinq's signing events (sign-through-the-filinq-rail). EIDASSignatureService
+// The filinq signing events (sign-through-the-filinq-rail). EIDASSignatureService
 // and SigningConcludedListener reach them by string class name through
 // FleetAppId, so decidiq stays installable without filinq; the stubs mirror
 // filinq's classes and load only when its real classes are absent.

@@ -34,7 +34,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
@@ -53,6 +52,14 @@ class SigningConclusion {
 	 * @var list<string>
 	 */
 	public const UNSIGNED = ['declined', 'expired', 'cancelled'];
+
+	/**
+	 * The schemas a signing round runs on: minutes, a meeting's decision
+	 * list and a motion (SigningRoundServiceInterface::SUBJECTS).
+	 *
+	 * @var list<string>
+	 */
+	private const SCHEMAS = ['minutes', 'meeting', 'decision'];
 
 	/**
 	 * Constructor.
@@ -83,7 +90,7 @@ class SigningConclusion {
 		$requestId = (string)($conclusion['requestId'] ?? '');
 		$status    = (string)($conclusion['status'] ?? '');
 		$data      = $this->recordOutOn(schema: $schema, subjectId: $subjectId, requestId: $requestId);
-		if ($data === null || ($status !== 'signed' && in_array($status, self::UNSIGNED, true) === false)) {
+		if ($data === null || $this->isOutcome(status: $status) === false) {
 			return 'ignored';
 		}
 
@@ -112,6 +119,19 @@ class SigningConclusion {
 	}//end record()
 
 	/**
+	 * Whether filinq's status is an end: signed, declined, expired or cancelled.
+	 *
+	 * @param string $status The status filinq reported
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return bool
+	 */
+	private function isOutcome(string $status): bool {
+		return $status === 'signed' || in_array($status, self::UNSIGNED, true) === true;
+	}//end isOutcome()
+
+	/**
 	 * The record's data when it is out for signature on this request, else null.
 	 *
 	 * @param string $schema    The record's schema
@@ -123,27 +143,41 @@ class SigningConclusion {
 	 * @return array<string, mixed>|null
 	 */
 	private function recordOutOn(string $schema, string $subjectId, string $requestId): ?array {
-		if ($requestId === '' || in_array($schema, SigningRoundServiceInterface::SUBJECTS, true) === false) {
+		if ($requestId === '' || in_array($schema, self::SCHEMAS, true) === false) {
 			return null;
 		}
 
-		$entity = $this->objectService->find(
-			id: $subjectId,
-			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
-			_rbac: false,
-			_multitenancy: false
+		$data = $this->dataOf(
+			entity: $this->objectService->find(
+				id: $subjectId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			)
 		);
-		if (is_object($entity) === false || method_exists($entity, 'getObject') === false) {
-			return null;
-		}
-
-		$data = (array)$entity->getObject();
 		if ((string)($data['signingRequestId'] ?? '') !== $requestId) {
 			return null;
 		}
 
 		return $data;
 	}//end recordOutOn()
+
+	/**
+	 * The data of a found object, [] when nothing was found.
+	 *
+	 * @param mixed $entity What the object service found
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function dataOf(mixed $entity): array {
+		if (is_object($entity) === false || method_exists($entity, 'getObject') === false) {
+			return [];
+		}
+
+		return (array)$entity->getObject();
+	}//end dataOf()
 
 	/**
 	 * What a signed request writes on the record: the signed document, the
@@ -162,28 +196,56 @@ class SigningConclusion {
 			$signedAt = gmdate('Y-m-d\TH:i:s\Z');
 		}
 
-		$signers = [];
-		foreach ((array)($data['signers'] ?? []) as $entry) {
-			if (is_string($entry) === true) {
-				$entry = ['participant' => $entry];
-			}
-
-			if (is_array($entry) === false) {
-				continue;
-			}
-
-			if (empty($entry['signedAt']) === true) {
-				$entry['signedAt'] = $signedAt;
-			}
-
-			$signers[] = $entry;
-		}
-
 		return [
-			'signers' => $signers,
+			'signers' => $this->stampSigners(signers: (array)($data['signers'] ?? []), signedAt: $signedAt),
 			'signingStatus' => 'signed',
 			'signedCopy' => (string)($conclusion['signedDocumentRef'] ?? ''),
 			'signedAt' => $signedAt,
 		];
 	}//end signedPatch()
+
+	/**
+	 * Every signer, with the signing time on each that has none yet.
+	 *
+	 * @param array<int, mixed> $signers  The record's signers
+	 * @param string            $signedAt When the request was signed
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function stampSigners(array $signers, string $signedAt): array {
+		$stamped = [];
+		foreach ($signers as $entry) {
+			if (is_string($entry) === true) {
+				$entry = ['participant' => $entry];
+			}
+
+			if (is_array($entry) === true) {
+				$entry['signedAt'] = $this->signedAtOf(entry: $entry, signedAt: $signedAt);
+				$stamped[]         = $entry;
+			}
+		}
+
+		return $stamped;
+	}//end stampSigners()
+
+	/**
+	 * A signer's own signing time, or the request's when it has none.
+	 *
+	 * @param array<string, mixed> $entry    The signer
+	 * @param string               $signedAt When the request was signed
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return string
+	 */
+	private function signedAtOf(array $entry, string $signedAt): string {
+		$own = (string)($entry['signedAt'] ?? '');
+		if ($own === '') {
+			return $signedAt;
+		}
+
+		return $own;
+	}//end signedAtOf()
 }//end class

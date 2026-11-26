@@ -67,7 +67,13 @@ class SigningConclusionTest extends TestCase {
 
 		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
-			static fn (int|string $id, ?ObjectFindOptions $options = null): ?ObjectEntity => ($id === 'rec-1' && $options?->schema === $schema) ? $record : null
+			static function (int|string $id, ?ObjectFindOptions $options = null) use ($record, $schema): ?ObjectEntity {
+				if ($id === 'rec-1' && $options?->schema === $schema) {
+					return $record;
+				}
+
+				return null;
+			}
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (array $object, ObjectSaveOptions $options, bool $_rbac = true) use ($record): ObjectEntity {
@@ -114,7 +120,8 @@ class SigningConclusionTest extends TestCase {
 		$this->assertSame(expected: 'notulen-getekend.pdf', actual: $written['signedCopy']);
 		$this->assertSame(expected: '2026-11-26T09:00:00Z', actual: $written['signedAt']);
 		$this->assertSame(expected: ['anna', 'pieter'], actual: array_column(array: $written['signers'], column_key: 'participant'));
-		$this->assertSame(expected: ['2026-11-26T09:00:00Z', '2026-11-26T09:00:00Z'], actual: array_column(array: $written['signers'], column_key: 'signedAt'));
+		$stamps = array_column(array: $written['signers'], column_key: 'signedAt');
+		$this->assertSame(expected: ['2026-11-26T09:00:00Z', '2026-11-26T09:00:00Z'], actual: $stamps);
 		$this->assertFalse(condition: $this->saved[0]['rbac'], message: 'filinq concludes in a signer\'s session; the record is written in system context');
 	}//end testASignedRequestLinksTheDocumentAndResolvesTheStage()
 
@@ -133,7 +140,8 @@ class SigningConclusionTest extends TestCase {
 			$this->signatures->expects($this->never())->method('resolveSignatureStage');
 			$this->signatures->expects($this->once())->method('recordUnsignedOutcome')->with('sr-9', $outcome);
 
-			$this->assertSame(expected: 'failed', actual: $service->record(schema: 'decision', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-9', 'status' => $outcome]));
+			$status = $service->record(schema: 'decision', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-9', 'status' => $outcome]);
+			$this->assertSame(expected: 'failed', actual: $status);
 			$this->assertSame(expected: 'failed', actual: $this->saved[0]['object']['signingStatus']);
 			$this->assertArrayNotHasKey(key: 'signedCopy', array: $this->saved[0]['object']);
 		}
@@ -150,10 +158,16 @@ class SigningConclusionTest extends TestCase {
 		$this->signatures->expects($this->never())->method('resolveSignatureStage');
 		$this->signatures->expects($this->never())->method('recordUnsignedOutcome');
 
-		$this->assertSame(expected: 'ignored', actual: $service->record(schema: 'minutes', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-9', 'status' => 'signed']));
-		$this->assertSame(expected: 'ignored', actual: $service->record(schema: 'minutes', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-10', 'status' => 'pending']));
-		$this->assertSame(expected: 'ignored', actual: $service->record(schema: 'agenda-item', subjectId: 'rec-1', conclusion: ['requestId' => 'sr-10', 'status' => 'signed']));
-		$this->assertSame(expected: 'ignored', actual: $service->record(schema: 'minutes', subjectId: 'gone', conclusion: ['requestId' => 'sr-10', 'status' => 'signed']));
+		$answers = [
+			['minutes', 'rec-1', 'sr-9', 'signed'],
+			['minutes', 'rec-1', 'sr-10', 'pending'],
+			['agenda-item', 'rec-1', 'sr-10', 'signed'],
+			['minutes', 'gone', 'sr-10', 'signed'],
+		];
+		foreach ($answers as [$schema, $subjectId, $requestId, $status]) {
+			$recorded = $service->record(schema: $schema, subjectId: $subjectId, conclusion: ['requestId' => $requestId, 'status' => $status]);
+			$this->assertSame(expected: 'ignored', actual: $recorded);
+		}
 		$this->assertSame(expected: [], actual: $this->saved);
 	}//end testAnAnswerForAnotherRoundIsIgnored()
 }//end class

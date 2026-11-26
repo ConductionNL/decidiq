@@ -3,7 +3,7 @@
 /**
  * Decidiq eIDAS Signature Service
  *
- * decidiq decides who signs and when; filinq performs the signature through
+ * The domain app decides who signs and when; filinq performs the signature on
  * the fleet's signing rail (hydra ADR-125). This service hands a record to
  * filinq by dispatching filinq's `DocumentSigningRequestedEvent` in process,
  * under the requesting user, and reads the signing request id back off the
@@ -130,46 +130,9 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			return $this->refused(message: 'minutesId and at least one signatory are required.');
 		}
 
-		$eventClass      = $this->filinqClass(relative: self::REQUEST_EVENT);
-		$provenanceClass = $this->filinqClass(relative: self::PROVENANCE);
-		if ($eventClass === null || $provenanceClass === null) {
-			return $this->refused(message: 'filinq is not installed, so nothing was sent for signature.');
-		}
-
-		try {
-			$payload = $this->container->get(FilinqSigningRequest::class)->payload(
-				subjectType: $subjectType,
-				subjectId: $minutesId,
-				signatories: array_values(array_map('strval', $signatories))
-			);
-
-			$event = new $eventClass(
-				provenance: new $provenanceClass(
-					sourceApp: self::SOURCE_APP,
-					subjectRegister: 'decidiq',
-					subjectSchema: (SigningRoundServiceInterface::SUBJECTS[$subjectType] ?? $subjectType),
-					subjectId: $minutesId,
-					externalReference: $subjectType . '/' . $minutesId,
-					correlationId: $minutesId,
-				),
-				subjectLabel: (string)$payload['documentName'],
-				documentReference: (string)$payload['documentFileId'],
-				signers: $payload['signers'],
-				signatureLevel: (string)$payload['signatureLevel'],
-				signingMode: (string)$payload['signingMode'],
-			);
-			$this->dispatcher->dispatchTyped($event);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: the signing request could not be handed to filinq',
-				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
-			);
-			return $this->refused(message: 'Failed to initialize signing request: ' . $e->getMessage());
-		}//end try
-
-		$requestId = (string)($event->getSigningRequestId() ?? '');
-		if ($event->isHandled() !== true || $requestId === '') {
-			return $this->refused(message: ($event->getRefusal() ?? 'filinq did not take the signing request, so nothing was sent for signature.'));
+		[$requestId, $message] = $this->handToFilinq(minutesId: $minutesId, signatories: $signatories, subjectType: $subjectType);
+		if ($requestId === null) {
+			return $this->refused(message: $message);
 		}
 
 		$this->markStagesSent(minutesId: $minutesId, requestId: $requestId);
@@ -189,6 +152,99 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		];
 
 	}//end initializeSigningRequest()
+
+	/**
+	 * Dispatch filinq's request event for the record and read the answer.
+	 *
+	 * @param string        $minutesId   The record's UUID
+	 * @param array<string> $signatories Ordered member UUIDs
+	 * @param string        $subjectType minutes, decision-list or motion
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return array{0: ?string, 1: string} The request id (null when nothing was sent) and why not.
+	 */
+	private function handToFilinq(string $minutesId, array $signatories, string $subjectType): array {
+		$eventClass      = $this->filinqClass(relative: self::REQUEST_EVENT);
+		$provenanceClass = $this->filinqClass(relative: self::PROVENANCE);
+		if ($eventClass === null || $provenanceClass === null) {
+			return [null, 'filinq is not installed, so nothing was sent for signature.'];
+		}
+
+		try {
+			$event = $this->requestEvent(
+				classes: [$eventClass, $provenanceClass],
+				subject: ['id' => $minutesId, 'type' => $subjectType],
+				signatories: $signatories
+			);
+			$this->dispatcher->dispatchTyped($event);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidiq: the signing request could not be handed to filinq',
+				['minutesId' => $minutesId, 'exception' => $e->getMessage()]
+			);
+			return [null, 'Failed to initialize signing request: ' . $e->getMessage()];
+		}
+
+		return $this->answerOf(event: $event);
+	}//end handToFilinq()
+
+	/**
+	 * What filinq wrote back on the request event: the request id, or why
+	 * nothing was sent.
+	 *
+	 * @param object $event filinq's DocumentSigningRequestedEvent, after dispatch
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return array{0: ?string, 1: string}
+	 */
+	private function answerOf(object $event): array {
+		$requestId = (string)$event->getSigningRequestId();
+		if ($event->isHandled() !== true || $requestId === '') {
+			return [null, (string)($event->getRefusal() ?? 'filinq did not take the signing request, so nothing was sent for signature.')];
+		}
+
+		return [$requestId, ''];
+	}//end answerOf()
+
+	/**
+	 * Build filinq's request event: the record as subject, its PDF, the
+	 * signers in order and the signature level.
+	 *
+	 * @param array{0: string, 1: string}          $classes     filinq's event and provenance classes
+	 * @param array{id: string, type: string}      $subject     The record's UUID and subject type
+	 * @param array<string>                        $signatories Ordered member UUIDs
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-2
+	 *
+	 * @return object filinq's DocumentSigningRequestedEvent
+	 */
+	private function requestEvent(array $classes, array $subject, array $signatories): object {
+		[$eventClass, $provenanceClass] = $classes;
+
+		$payload = $this->container->get(FilinqSigningRequest::class)->payload(
+			subjectType: $subject['type'],
+			subjectId: $subject['id'],
+			signatories: array_values(array_map('strval', $signatories))
+		);
+
+		return new $eventClass(
+			provenance: new $provenanceClass(
+				sourceApp: self::SOURCE_APP,
+				subjectRegister: 'decidiq',
+				subjectSchema: (SigningRoundServiceInterface::SUBJECTS[$subject['type']] ?? $subject['type']),
+				subjectId: $subject['id'],
+				externalReference: $subject['type'] . '/' . $subject['id'],
+				correlationId: $subject['id'],
+			),
+			subjectLabel: (string)$payload['documentName'],
+			documentReference: (string)$payload['documentFileId'],
+			signers: $payload['signers'],
+			signatureLevel: (string)$payload['signatureLevel'],
+			signingMode: (string)$payload['signingMode'],
+		);
+	}//end requestEvent()
 
 	/**
 	 * The loadable class of filinq's, under any namespace filinq has shipped
@@ -256,7 +312,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * filinq reports the outcome through `SigningConcludedEvent`; there is no
+	 * The outcome comes back through filinq's `SigningConcludedEvent`; there is no
 	 * signing service to poll, so a request out for signature reads as pending.
 	 *
 	 * @param string $requestId The signing request id
@@ -281,7 +337,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * filinq verifies the signatures it places; decidiq has nothing to verify
+	 * Signatures are verified by filinq, which places them; decidiq has nothing to verify
 	 * against, so it never answers valid (fail closed).
 	 *
 	 * @param string $requestId UUID of the signing request
@@ -336,7 +392,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * filinq checks the certificates of the signatures it places; decidiq
+	 * Certificates are checked by filinq, which places the signatures; decidiq
 	 * never answers a chain valid on its own (fail closed).
 	 *
 	 * @param string $certThumbprint SHA-256 thumbprint of the cert
@@ -379,13 +435,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 */
 	public function resolveSignatureStage(string $minutesId, ?string $signingReference = null): void {
 		try {
-			$filters = ['signedDocument' => $minutesId];
-			if ($signingReference !== null && $signingReference !== '') {
-				$filters = ['signingReference' => $signingReference];
-			}
-
 			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
-			foreach ($this->signatureStages(filters: $filters) as $stage) {
+			foreach ($this->signatureStages(filters: $this->stageFilters(minutesId: $minutesId, signingReference: $signingReference)) as $stage) {
 				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
 			}
 		} catch (\Throwable $e) {
@@ -396,6 +447,25 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		}//end try
 
 	}//end resolveSignatureStage()
+
+	/**
+	 * Which signature stages a resolution is for: the ones waiting on the
+	 * signing request when it is known, else the ones signing the record.
+	 *
+	 * @param string      $minutesId        UUID of the signed record
+	 * @param string|null $signingReference filinq's signing request id
+	 *
+	 * @spec openspec/changes/sign-through-the-filinq-rail/tasks.md#task-3
+	 *
+	 * @return array<string, string>
+	 */
+	private function stageFilters(string $minutesId, ?string $signingReference): array {
+		if ((string)$signingReference === '') {
+			return ['signedDocument' => $minutesId];
+		}
+
+		return ['signingReference' => (string)$signingReference];
+	}//end stageFilters()
 
 	/**
 	 * Record on the stages of a signing request that it ended without a

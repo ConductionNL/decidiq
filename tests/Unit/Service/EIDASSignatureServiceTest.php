@@ -3,7 +3,7 @@
 /**
  * Unit tests for EIDASSignatureService (signs through filinq's rail).
  *
- * filinq's request event is the stub in tests/Stubs/Filinq/Event; the event
+ * The filinq request event is the stub in tests/Stubs/Filinq/Event; the event
  * dispatcher double plays filinq's listener, which writes the request id (or
  * a refusal) back onto the same event instance.
  *
@@ -75,7 +75,12 @@ class EIDASSignatureServiceTest extends TestCase {
 	 *
 	 * @return EIDASSignatureService
 	 */
-	private function makeService(?callable $filinq = null, array $stages = [], bool $present = true, ?\Throwable $payload = null): EIDASSignatureService {
+	private function makeService(
+		?callable $filinq = null,
+		array $stages = [],
+		bool $present = true,
+		?\Throwable $payload = null
+	): EIDASSignatureService {
 		$request = $this->createMock(originalClassName: FilinqSigningRequest::class);
 		if ($payload !== null) {
 			$request->method('payload')->willThrowException($payload);
@@ -94,7 +99,7 @@ class EIDASSignatureServiceTest extends TestCase {
 			);
 		}
 
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			static fn (string $id) => match ($id) {
 				FilinqSigningRequest::class => $request,
@@ -102,7 +107,7 @@ class EIDASSignatureServiceTest extends TestCase {
 			}
 		);
 
-		$dispatcher = $this->createMock(IEventDispatcher::class);
+		$dispatcher = $this->createMock(originalClassName: IEventDispatcher::class);
 		$dispatcher->method('dispatchTyped')->willReturnCallback(
 			function (object $event) use ($filinq): void {
 				$this->dispatched[] = $event;
@@ -112,7 +117,7 @@ class EIDASSignatureServiceTest extends TestCase {
 			}
 		);
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($stages): array {
 				$this->finds[] = $config['filters'];
@@ -126,12 +131,12 @@ class EIDASSignatureServiceTest extends TestCase {
 			}
 		);
 
-		$audit = $this->createMock(AuditLogService::class);
+		$audit = $this->createMock(originalClassName: AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'ok']);
 
 		$args = [
 			'container' => $container,
-			'logger' => $this->createMock(LoggerInterface::class),
+			'logger' => $this->createMock(originalClassName: LoggerInterface::class),
 			'auditLogService' => $audit,
 			'objectService' => $objectService,
 			'dispatcher' => $dispatcher,
@@ -189,28 +194,29 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		$result = $service->initializeSigningRequest('min-1', ['p-1', 'p-2']);
 
-		$this->assertTrue($result['success']);
-		$this->assertSame('sr-9', $result['requestId']);
-		$this->assertNull($result['signingUrl']);
+		$this->assertTrue(condition: $result['success']);
+		$this->assertSame(expected: 'sr-9', actual: $result['requestId']);
+		$this->assertNull(actual: $result['signingUrl']);
 
-		$this->assertCount(1, $this->dispatched);
+		$this->assertCount(expectedCount: 1, haystack: $this->dispatched);
 		$event = $this->dispatched[0];
-		$this->assertInstanceOf(DocumentSigningRequestedEvent::class, $event);
-		$this->assertSame('decidiq', $event->getProvenance()->getSourceApp());
-		$this->assertSame('decidiq', $event->getProvenance()->getSubjectRegister());
-		$this->assertSame('minutes', $event->getProvenance()->getSubjectSchema());
-		$this->assertSame('min-1', $event->getProvenance()->getSubjectId());
-		$this->assertSame('812', $event->getDocumentReference());
-		$this->assertSame('Notulen.pdf', $event->getSubjectLabel());
-		$this->assertSame('QES', $event->getSignatureLevel());
-		$this->assertSame('sequential', $event->getSigningMode());
-		$this->assertSame(['chair', 'clerk'], array_column($event->getSigners(), 'userId'));
+		$this->assertInstanceOf(expected: DocumentSigningRequestedEvent::class, actual: $event);
+		$this->assertSame(expected: 'decidiq', actual: $event->getProvenance()->getSourceApp());
+		$this->assertSame(expected: 'decidiq', actual: $event->getProvenance()->getSubjectRegister());
+		$this->assertSame(expected: 'minutes', actual: $event->getProvenance()->getSubjectSchema());
+		$this->assertSame(expected: 'min-1', actual: $event->getProvenance()->getSubjectId());
+		$this->assertSame(expected: '812', actual: $event->getDocumentReference());
+		$this->assertSame(expected: 'Notulen.pdf', actual: $event->getSubjectLabel());
+		$this->assertSame(expected: 'QES', actual: $event->getSignatureLevel());
+		$this->assertSame(expected: 'sequential', actual: $event->getSigningMode());
+		$this->assertSame(expected: ['chair', 'clerk'], actual: array_column($event->getSigners(), 'userId'));
 
-		$this->assertSame(['register' => 'decidiq', 'schema' => 'decision-stage', 'method' => 'signature', 'signedDocument' => 'min-1'], $this->finds[0]);
-		$this->assertCount(1, $this->saves);
-		$this->assertSame('stage-1', $this->saves[0][0]);
-		$this->assertSame('sr-9', $this->saves[0][1]['signingReference']);
-		$this->assertFalse($this->saves[0][2], 'the stage bookkeeping is written in system context');
+		$expected = ['register' => 'decidiq', 'schema' => 'decision-stage', 'method' => 'signature', 'signedDocument' => 'min-1'];
+		$this->assertSame(expected: $expected, actual: $this->finds[0]);
+		$this->assertCount(expectedCount: 1, haystack: $this->saves);
+		$this->assertSame(expected: 'stage-1', actual: $this->saves[0][0]);
+		$this->assertSame(expected: 'sr-9', actual: $this->saves[0][1]['signingReference']);
+		$this->assertFalse(condition: $this->saves[0][2], message: 'the stage bookkeeping is written in system context');
 	}//end testSignatureStageAsksFilinqToSign()
 
 	/**
@@ -228,8 +234,8 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		$service->initializeSigningRequest('meeting-1', ['p-1'], 'decision-list');
 
-		$this->assertSame('meeting', $this->dispatched[0]->getProvenance()->getSubjectSchema());
-		$this->assertSame('decision-list/meeting-1', $this->dispatched[0]->getProvenance()->getExternalReference());
+		$this->assertSame(expected: 'meeting', actual: $this->dispatched[0]->getProvenance()->getSubjectSchema());
+		$this->assertSame(expected: 'decision-list/meeting-1', actual: $this->dispatched[0]->getProvenance()->getExternalReference());
 	}//end testDecisionListIsSignedFromItsMeeting()
 
 	/**
@@ -242,11 +248,11 @@ class EIDASSignatureServiceTest extends TestCase {
 	public function testNoFilinqFailsClosed(): void {
 		$result = $this->makeService(present: false)->initializeSigningRequest('min-1', ['p-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertNull($result['requestId']);
-		$this->assertStringContainsString('filinq is not installed', $result['message']);
-		$this->assertSame([], $this->dispatched);
-		$this->assertSame([], $this->saves);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertNull(actual: $result['requestId']);
+		$this->assertStringContainsString(needle: 'filinq is not installed', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->dispatched);
+		$this->assertSame(expected: [], actual: $this->saves);
 	}//end testNoFilinqFailsClosed()
 
 	/**
@@ -259,9 +265,9 @@ class EIDASSignatureServiceTest extends TestCase {
 	public function testUnhandledRequestFailsClosed(): void {
 		$result = $this->makeService(stages: [$this->stage(uuid: 'stage-1')])->initializeSigningRequest('min-1', ['p-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('filinq did not take the signing request', $result['message']);
-		$this->assertSame([], $this->saves);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'filinq did not take the signing request', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->saves);
 	}//end testUnhandledRequestFailsClosed()
 
 	/**
@@ -276,8 +282,8 @@ class EIDASSignatureServiceTest extends TestCase {
 			}
 		)->initializeSigningRequest('min-1', ['p-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertSame('Filinq refused the signing request from decidiq.', $result['message']);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertSame(expected: 'Filinq refused the signing request from decidiq.', actual: $result['message']);
 	}//end testRefusalIsPassedOn()
 
 	/**
@@ -286,11 +292,12 @@ class EIDASSignatureServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testMissingPdfFailsClosed(): void {
-		$result = $this->makeService(payload: new \RuntimeException('No PDF of this minutes to sign was found.'))->initializeSigningRequest('min-1', ['p-1']);
+		$service = $this->makeService(payload: new \RuntimeException(message: 'No PDF of this minutes to sign was found.'));
+		$result  = $service->initializeSigningRequest('min-1', ['p-1']);
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('No PDF of this minutes', $result['message']);
-		$this->assertSame([], $this->dispatched);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertStringContainsString(needle: 'No PDF of this minutes', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->dispatched);
 	}//end testMissingPdfFailsClosed()
 
 	/**
@@ -301,8 +308,8 @@ class EIDASSignatureServiceTest extends TestCase {
 	public function testInitializeRejectsEmptySignatories(): void {
 		$result = $this->makeService()->initializeSigningRequest('min-1', []);
 
-		$this->assertFalse($result['success']);
-		$this->assertSame([], $this->dispatched);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertSame(expected: [], actual: $this->dispatched);
 	}//end testInitializeRejectsEmptySignatories()
 
 	/**
@@ -318,14 +325,14 @@ class EIDASSignatureServiceTest extends TestCase {
 
 		$service->resolveSignatureStage(minutesId: 'min-1', signingReference: 'sr-9');
 
-		$this->assertSame('sr-9', $this->finds[0]['signingReference']);
-		$this->assertArrayNotHasKey('signedDocument', $this->finds[0]);
+		$this->assertSame(expected: 'sr-9', actual: $this->finds[0]['signingReference']);
+		$this->assertArrayNotHasKey(key: 'signedDocument', array: $this->finds[0]);
 		$saved = $this->saves[0][1];
-		$this->assertSame('adopted', $saved['outcome']);
-		$this->assertSame('decided', $saved['status']);
-		$this->assertNotEmpty($saved['decidedAt']);
-		$this->assertSame('signed', $saved['signingOutcome']);
-		$this->assertSame('min-1', $saved['signedDocument']);
+		$this->assertSame(expected: 'adopted', actual: $saved['outcome']);
+		$this->assertSame(expected: 'decided', actual: $saved['status']);
+		$this->assertNotEmpty(actual: $saved['decidedAt']);
+		$this->assertSame(expected: 'signed', actual: $saved['signingOutcome']);
+		$this->assertSame(expected: 'min-1', actual: $saved['signedDocument']);
 	}//end testSignedRequestResolvesItsStages()
 
 	/**
@@ -338,13 +345,13 @@ class EIDASSignatureServiceTest extends TestCase {
 	public function testDeclinedRequestLeavesTheStageOpen(): void {
 		$service = $this->makeService(stages: [$this->stage(uuid: 'stage-1', data: ['signingReference' => 'sr-9', 'status' => 'active'])]);
 
-		$this->assertSame(1, $service->recordUnsignedOutcome(signingReference: 'sr-9', outcome: 'declined'));
+		$this->assertSame(expected: 1, actual: $service->recordUnsignedOutcome(signingReference: 'sr-9', outcome: 'declined'));
 
 		$saved = $this->saves[0][1];
-		$this->assertSame('declined', $saved['signingOutcome']);
-		$this->assertSame('active', $saved['status']);
-		$this->assertArrayNotHasKey('outcome', $saved);
-		$this->assertArrayNotHasKey('decidedAt', $saved);
+		$this->assertSame(expected: 'declined', actual: $saved['signingOutcome']);
+		$this->assertSame(expected: 'active', actual: $saved['status']);
+		$this->assertArrayNotHasKey(key: 'outcome', array: $saved);
+		$this->assertArrayNotHasKey(key: 'decidedAt', array: $saved);
 	}//end testDeclinedRequestLeavesTheStageOpen()
 
 	/**
@@ -357,11 +364,11 @@ class EIDASSignatureServiceTest extends TestCase {
 	public function testChecksFilinqPerformsFailClosed(): void {
 		$service = $this->makeService();
 
-		$this->assertFalse($service->verifySignature('req-1', 'sig')['valid']);
-		$this->assertFalse($service->validateCertificateChain('thumb')['valid']);
-		$this->assertFalse($service->finalizeMinutes('min-1', [['signer' => 'a']])['success']);
-		$this->assertSame('pending', $service->fetchSigningResult('req-1')['status']);
-		$this->assertSame('certificateThumbprint is required.', $service->validateCertificateChain('')['message']);
-		$this->assertSame([], $this->saves, 'a client-sent signature list never marks minutes signed');
+		$this->assertFalse(condition: $service->verifySignature('req-1', 'sig')['valid']);
+		$this->assertFalse(condition: $service->validateCertificateChain('thumb')['valid']);
+		$this->assertFalse(condition: $service->finalizeMinutes('min-1', [['signer' => 'a']])['success']);
+		$this->assertSame(expected: 'pending', actual: $service->fetchSigningResult('req-1')['status']);
+		$this->assertSame(expected: 'certificateThumbprint is required.', actual: $service->validateCertificateChain('')['message']);
+		$this->assertSame(expected: [], actual: $this->saves, message: 'a client-sent signature list never marks minutes signed');
 	}//end testChecksFilinqPerformsFailClosed()
 }//end class
