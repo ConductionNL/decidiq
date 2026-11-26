@@ -122,8 +122,8 @@ class BoardBookRenderer {
 	 * placeholder and the rest are merged. When none merges on its own, the
 	 * engine itself is unavailable and every attachment becomes a placeholder.
 	 *
-	 * @param array{meeting: array<string, mixed>, bodyName: string, items: array<int, array<string, mixed>>, attachments: array<string, mixed>} $agenda The agenda.
-	 * @param string $title The document title.
+	 * @param array<string, mixed> $agenda The meeting, bodyName, items and attachments.
+	 * @param string               $title  The document title.
 	 *
 	 * @return array{0: array{parts: array<int, array<string, string>>, skipped: array<int, string>, pdfs: int}, 1: string|null}
 	 *
@@ -181,15 +181,18 @@ class BoardBookRenderer {
 	 * The pack as parts in order: HTML fragments (with the section's bookmark
 	 * on the part that opens it) and attachment PDFs, and the skip report.
 	 *
-	 * @param array{meeting: array<string, mixed>, bodyName: string, items: array<int, array<string, mixed>>, attachments: array<string, mixed>} $agenda The meeting, its body's name, the agenda items and their attachments (`rows` and `nodes`, keyed by item id).
-	 * @param array{notMerged?: string, unmergeable?: array<string, true>} $limits notMerged: every attachment becomes a placeholder for this reason; unmergeable: the sha1 of PDFs the merge engine cannot import.
+	 * @param array<string, mixed> $agenda The meeting, its body's name (bodyName), the agenda items and
+	 *                                     their attachments (`rows` and `nodes`, keyed by item id).
+	 * @param array<string, mixed> $limits notMerged: every attachment becomes a placeholder for this
+	 *                                     reason; unmergeable: the sha1 of PDFs the engine cannot import.
 	 *
 	 * @return array{parts: array<int, array<string, string>>, skipped: array<int, string>, pdfs: int}
 	 */
 	private function plan(array $agenda, array $limits=[]): array {
 		$items = $agenda['items'];
 		$attachments = $agenda['attachments'];
-		$run = new BoardBookPlan(frontMatter: $this->composer->frontMatter(meeting: $agenda['meeting'], bodyName: $agenda['bodyName'], items: $items));
+		$frontMatter = $this->composer->frontMatter(meeting: $agenda['meeting'], bodyName: $agenda['bodyName'], items: $items);
+		$run = new BoardBookPlan(frontMatter: $frontMatter);
 		$bookmarks = $this->composer->bookmarks(items: $items);
 		foreach ($items as $index => $item) {
 			$run->openSection(html: $this->composer->section(item: $item), bookmark: $bookmarks[$index]);
@@ -214,7 +217,7 @@ class BoardBookRenderer {
 	 * @param array<string, mixed> $item    The agenda item.
 	 * @param array<string, mixed> $file    The attachment row.
 	 * @param object|null          $node    The file node it was read from.
-	 * @param array{notMerged?: string, unmergeable?: array<string, true>} $limits Why nothing is merged, and the PDFs the engine cannot import.
+	 * @param array<string, mixed> $limits Why nothing is merged, and the PDFs the engine cannot import.
 	 *
 	 * @return void
 	 */

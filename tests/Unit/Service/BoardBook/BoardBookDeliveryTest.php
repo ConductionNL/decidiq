@@ -68,7 +68,7 @@ class BoardBookDeliveryTest extends TestCase {
 		);
 
 		// The pack lives in OpenRegister's account, so that account shares it.
-		$holder = $this->createMock(IUser::class);
+		$holder = $this->createMock(originalClassName: IUser::class);
 		$holder->method('getUID')->willReturn('openregister');
 		$file = $this->createMock(File::class);
 		$file->method('getOwner')->willReturn($holder);
@@ -106,8 +106,13 @@ class BoardBookDeliveryTest extends TestCase {
 			}
 		);
 
-		$failures = (new BoardBookDelivery(shares: $shares, users: $users, logger: $this->createMock(LoggerInterface::class), config: $this->config(askUsers: false)))
-			->deliver(file: $file, participants: $participants, sharedBy: 'griffier');
+		$delivery = new BoardBookDelivery(
+			shares: $shares,
+			users: $users,
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			config: $this->config(askUsers: false)
+		);
+		$failures = $delivery->deliver(file: $file, participants: $participants, sharedBy: 'griffier');
 
 		$this->assertSame(expected: ['j.jansen' => Constants::PERMISSION_READ, 'a.bos' => Constants::PERMISSION_READ], actual: $recorded);
 		$this->assertCount(expectedCount: 2, haystack: $created);
@@ -138,8 +143,13 @@ class BoardBookDeliveryTest extends TestCase {
 		$file = $this->createMock(originalClassName: File::class);
 		$file->method('getOwner')->willReturn(null);
 
-		$failures = (new BoardBookDelivery(shares: $shares, users: $users, logger: $this->createMock(originalClassName: LoggerInterface::class), config: $this->config(askUsers: true)))
-			->deliver(file: $file, participants: [['displayName' => 'Jan', 'nextcloudUserId' => 'j.jansen']], sharedBy: 'griffier');
+		$delivery = new BoardBookDelivery(
+			shares: $shares,
+			users: $users,
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			config: $this->config(askUsers: true)
+		);
+		$failures = $delivery->deliver(file: $file, participants: [['displayName' => 'Jan', 'nextcloudUserId' => 'j.jansen']], sharedBy: 'griffier');
 
 		$this->assertSame(expected: [], actual: $failures);
 	}//end testSharesStayPendingWhereUsersAcceptThemselves()
