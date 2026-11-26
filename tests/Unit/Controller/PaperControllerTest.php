@@ -36,6 +36,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\IL10N;
@@ -135,7 +136,12 @@ class PaperControllerTest extends TestCase {
 			$this->createMock(IRequest::class),
 			$guard,
 			new PaperDelivery(
-				new PaperLocator($objects, $root, $this->createMock(LoggerInterface::class)),
+				new PaperLocator(
+					objectService: $objects,
+					rootFolder: $root,
+					logger: $this->createMock(originalClassName: LoggerInterface::class),
+					mountCache: $this->noMounts()
+				),
 				$stamper,
 				$this->createMock(LoggerInterface::class),
 				$this->views ?? $this->createMock(RestrictedPaperViews::class),
@@ -369,4 +375,15 @@ class PaperControllerTest extends TestCase {
 
 		self::assertSame(503, $response->getStatus());
 	}//end testAnUnrecordedClosedPaperReadIsRefused()
+
+	/**
+	 * A mount cache that knows no further mounts.
+	 *
+	 * @return IUserMountCache
+	 */
+	private function noMounts(): IUserMountCache {
+		$mounts = $this->createMock(originalClassName: IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->willReturn(value: []);
+		return $mounts;
+	}//end noMounts()
 }//end class

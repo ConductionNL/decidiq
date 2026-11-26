@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCP\Files\Config\IUserMountCache;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use Psr\Log\LoggerInterface;
@@ -46,6 +47,7 @@ class PaperLocator {
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 * @param IRootFolder            $rootFolder    Reads the paper
 	 * @param LoggerInterface        $logger        Logger
+	 * @param IUserMountCache        $mountCache    Names the account a stored paper lives in
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
@@ -53,6 +55,7 @@ class PaperLocator {
 		private readonly ObjectServiceInterface $objectService,
 		private readonly IRootFolder $rootFolder,
 		private readonly LoggerInterface $logger,
+		private readonly IUserMountCache $mountCache,
 	) {
 	}//end __construct()
 
@@ -70,12 +73,12 @@ class PaperLocator {
 	 * @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
 	 */
 	public function locate(string $schema, string $objectId, array $data, int $fileId): ?array {
-		if ($this->recordsPaper(data: $data, fileId: $fileId) === false) {
+		$file = $this->fileById(fileId: $fileId);
+		if ($file === null) {
 			return null;
 		}
 
-		$file = $this->rootFolder->getFirstNodeById($fileId);
-		if (($file instanceof File) === false) {
+		if ($this->recordsPaper(data: $data, fileId: $fileId) === false && self::inObjectFolder(file: $file, objectId: $objectId) === false) {
 			return null;
 		}
 
@@ -143,4 +146,63 @@ class PaperLocator {
 		return false;
 	}//end recordsPaper()
 
+	/**
+	 * The file by its id, wherever it is stored.
+	 *
+	 * The root folder only finds a file on a storage that is set up in this
+	 * request; OpenRegister keeps an object's files in its own account, which
+	 * usually is not. The mounts Nextcloud knows for the id name the account,
+	 * and reading through that account's folder sets its storage up.
+	 *
+	 * @param int $fileId The file id
+	 *
+	 * @return File|null
+	 *
+	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+	 */
+	private function fileById(int $fileId): ?File {
+		$file = $this->rootFolder->getFirstNodeById($fileId);
+		if ($file instanceof File) {
+			return $file;
+		}
+
+		foreach ($this->mountCache->getMountsForFileId($fileId) as $mount) {
+			try {
+				$file = $this->rootFolder->getUserFolder($mount->getUser()->getUID())->getFirstNodeById($fileId);
+			} catch (\Throwable $e) {
+				$this->logger->debug('Decidiq: paper not reachable through a mount', ['fileId' => $fileId, 'exception' => $e->getMessage()]);
+				continue;
+			}
+
+			if ($file instanceof File) {
+				return $file;
+			}
+		}
+
+		return null;
+	}//end fileById()
+
+	/**
+	 * Whether the file sits in the object's own folder: OpenRegister keeps
+	 * the files attached to an object in a folder named after its uuid, so a
+	 * PDF attached to the item directly is one of its papers too.
+	 *
+	 * @param File   $file     The file
+	 * @param string $objectId The object uuid
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+	 */
+	private static function inObjectFolder(File $file, string $objectId): bool {
+		if (trim($objectId) === '') {
+			return false;
+		}
+
+		try {
+			return strcasecmp($file->getParent()->getName(), trim($objectId)) === 0;
+		} catch (\Throwable) {
+			return false;
+		}
+	}//end inObjectFolder()
 }//end class

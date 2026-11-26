@@ -56,6 +56,8 @@ export const useAnnotationStore = defineStore('annotation', {
 		versionLabel: '',
 		name: '',
 		path: '',
+		paper: null,
+		context: {},
 		canShareWithFaction: false,
 		loading: false,
 		error: '',
@@ -67,20 +69,23 @@ export const useAnnotationStore = defineStore('annotation', {
 		 * Read the annotations of a document.
 		 *
 		 * @param {number} fileId The Nextcloud file id.
+		 * @param {{agendaItem?: string, meeting?: string}} context Where the document was opened from.
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
 		 */
-		async load(fileId) {
+		async load(fileId, context = {}) {
 			this.fileId = Number(fileId)
+			this.context = { ...context }
 			this.loading = true
 			this.error = ''
 			try {
-				const data = await request(annotationsUrl(this.fileId))
+				const data = await request(annotationsUrl(this.fileId, this.context))
 				this.annotations = Array.isArray(data.results) ? data.results : []
 				this.fileVersion = String(data.fileVersion || '')
 				this.versionLabel = String(data.versionLabel || '')
 				this.name = String(data.name || '')
 				this.path = String(data.path || '')
+				this.paper = data.paper?.schema && data.paper?.objectId ? { schema: String(data.paper.schema), objectId: String(data.paper.objectId) } : null
 				this.canShareWithFaction = data.canShareWithFaction === true
 			} catch (error) {
 				this.annotations = []

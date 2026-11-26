@@ -33,14 +33,38 @@ export const COLORS = {
 }
 
 /**
- * The address of a document's annotations.
+ * The address of a document's annotations. The meeting or agenda item it was
+ * opened from goes along, so a paper OpenRegister stores can be read through
+ * that object.
  *
  * @param {number|string} fileId The Nextcloud file id.
+ * @param {{agendaItem?: string, meeting?: string}} context Where the document was opened from.
  * @return {string} The URL.
  * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-002-visibility-is-private-by-default-and-enforced-server-side
  */
-export function annotationsUrl(fileId) {
-	return generateUrl(`/apps/decidiq/api/documents/${Number(fileId)}/annotations`)
+export function annotationsUrl(fileId, context = {}) {
+	const url = generateUrl(`/apps/decidiq/api/documents/${Number(fileId)}/annotations`)
+	const query = new URLSearchParams()
+	for (const key of ['agendaItem', 'meeting']) {
+		if (context?.[key]) query.set(key, String(context[key]))
+	}
+	const search = query.toString()
+	return search === '' ? url : `${url}?${search}`
+}
+
+/**
+ * The address a paper OpenRegister stores is read through: decidiq's paper
+ * view, so its watermark and view log apply to the annotator too.
+ *
+ * @param {{schema: string, objectId: string}} paper The meeting or agenda item the paper belongs to.
+ * @param {number|string} fileId The paper's file id.
+ * @return {string} The URL.
+ * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+ */
+export function paperViewUrl(paper, fileId) {
+	return generateUrl(
+		`/apps/decidiq/api/papers/${encodeURIComponent(paper.schema)}/${encodeURIComponent(paper.objectId)}/${Number(fileId)}/view`,
+	)
 }
 
 /**
@@ -390,4 +414,24 @@ export function versionUrl(userId, fileId, fileVersion) {
 	return generateRemoteUrl(
 		`dav/versions/${encodeURIComponent(userId)}/versions/${Number(fileId)}/${encodeURIComponent(fileVersion)}`,
 	)
+}
+
+/**
+ * Where the annotator fetches the document on screen. A paper OpenRegister
+ * stores is read through decidiq's paper view, and only its current version
+ * (no address for an earlier one: empty); a file in the user's own files
+ * through WebDAV, an earlier version through Nextcloud's file versions.
+ *
+ * @param {object} source The document.
+ * @param {{schema: string, objectId: string}|null} source.paper The object a stored paper is read through.
+ * @param {string} source.userId The user.
+ * @param {number|string} source.fileId The file id.
+ * @param {string} source.path The path in the user's files.
+ * @param {string} source.version The earlier version asked for, empty for the current one.
+ * @return {string} The URL, empty when the version cannot be read.
+ * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+ */
+export function documentUrl({ paper, userId, fileId, path, version }) {
+	if (paper) return version ? '' : paperViewUrl(paper, fileId)
+	return version ? versionUrl(userId, fileId, version) : davUrl(userId, path)
 }

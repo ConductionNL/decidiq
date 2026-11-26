@@ -21,12 +21,14 @@ import {
 	countOf,
 	countsUrl,
 	davUrl,
+	documentUrl,
 	drawnOnPage,
 	exportUrl,
 	isPdf,
 	otherVersionLabel,
 	ownUrl,
 	panelList,
+	paperViewUrl,
 	pdfRows,
 	quadRect,
 	quadsFromRects,
@@ -214,6 +216,27 @@ describe('the annotate entry and the agenda counts', () => {
 		expect(versionUrl('anna', 42, '1750000000')).toBe(
 			'http://localhost/remote.php/dav/versions/anna/versions/42/1750000000',
 		)
+		expect(annotationsUrl(42, { agendaItem: 'i1', meeting: 'm 1', other: 'x' })).toBe(
+			'/index.php/apps/decidiq/api/documents/42/annotations?agendaItem=i1&meeting=m+1',
+		)
+		expect(paperViewUrl({ schema: 'agenda-item', objectId: 'i1' }, '77')).toBe(
+			'/index.php/apps/decidiq/api/papers/agenda-item/i1/77/view',
+		)
+	})
+
+	it('reads a stored paper through the paper view, own files through WebDAV', () => {
+		const paper = { schema: 'meeting', objectId: 'm1' }
+		expect(documentUrl({ paper, userId: 'anna', fileId: 77, path: '', version: '' })).toBe(
+			'/index.php/apps/decidiq/api/papers/meeting/m1/77/view',
+		)
+		// The paper view serves only the current version.
+		expect(documentUrl({ paper, userId: 'anna', fileId: 77, path: '', version: '1' })).toBe('')
+		expect(documentUrl({ paper: null, userId: 'anna', fileId: 42, path: '/Stuk.pdf', version: '' })).toBe(
+			'http://localhost/remote.php/dav/files/anna/Stuk.pdf',
+		)
+		expect(documentUrl({ paper: null, userId: 'anna', fileId: 42, path: '/Stuk.pdf', version: '9' })).toBe(
+			'http://localhost/remote.php/dav/versions/anna/versions/42/9',
+		)
 	})
 })
 
@@ -254,8 +277,32 @@ describe('annotation store', () => {
 		expect(store.fileVersion).toBe('200')
 		expect(store.versionLabel).toBe('v2')
 		expect(store.path).toBe('/Stuk.pdf')
+		expect(store.paper).toBe(null)
 		expect(store.canShareWithFaction).toBe(true)
 		expect(store.error).toBe('')
+	})
+
+	it('names where a stored paper was opened from and keeps the object it is read through', async () => {
+		globalThis.fetch = vi
+			.fn()
+			.mockResolvedValueOnce(
+				answer({
+					results: [],
+					fileVersion: '300',
+					versionLabel: 'v1',
+					name: 'Raadsvoorstel.pdf',
+					path: '',
+					paper: { schema: 'agenda-item', objectId: 'i1' },
+				}),
+			)
+		const store = useAnnotationStore()
+		await store.load(77, { agendaItem: 'i1' })
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			'/index.php/apps/decidiq/api/documents/77/annotations?agendaItem=i1',
+			expect.objectContaining({ method: 'GET' }),
+		)
+		expect(store.path).toBe('')
+		expect(store.paper).toEqual({ schema: 'agenda-item', objectId: 'i1' })
 	})
 
 	it('shows the server message when a document cannot be read', async () => {

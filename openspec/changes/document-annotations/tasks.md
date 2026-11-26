@@ -82,6 +82,8 @@
 
 - [ ] All tasks checked off and `openspec validate` passes
 - [ ] Manual run-through of every spec scenario on the Postgres dev instance (localhost:8080), including the private-annotation leak checks as a second user
+  - Live 26 Nov 2026 (sandbox Nextcloud 34.0.6 + PostgreSQL 16 + Redis, OpenRegister main, filinq development for the watermark, municipality example set). Playwright `tests/e2e/document-annotations.spec.ts` 3/3 (open the annotator from an agenda item, sticky note survives a reload and is deleted, only PDF papers offered). API walk with three users (author, a participant of the body in the author's faction, a participant outside it), 11/11: highlight with full anchor, sticky note at a point, freehand path; a private note absent from a colleague's list under every query variant and from their export; faction-shared seen by the faction colleague (author shown) and not by the other participant; body-shared seen by a participant of the body; a non-author's update and delete refused (403) and the note unchanged; no faction record: canShareWithFaction false and a faction write refused (422); counts per agenda item; own export (CSV); bulk delete empties list and counts.
+  - Not walked: the two re-versioning scenarios (REQ-ANN-004). A paper OpenRegister stores is read through decidiq's paper view (decision 25 Nov 2026), which serves only its current version, so an earlier version of such a paper cannot be shown in the annotator; this box stays open for that.
 - [ ] Hydra gates green (`scripts/run-hydra-gates.sh`), including spec/e2e coverage on the new scenarios
 
 ## Quality checklist
