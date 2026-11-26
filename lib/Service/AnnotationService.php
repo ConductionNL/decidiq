@@ -86,9 +86,9 @@ class AnnotationService {
 	/**
 	 * The annotations of a document the user may see, all versions, by page.
 	 *
-	 * @param int                                       $fileId The Nextcloud file id
-	 * @param string                                    $userId The user asking
-	 * @param array{schema?: string, objectId?: string} $paper  The meeting or agenda item a stored paper is read through
+	 * @param int                  $fileId  The Nextcloud file id
+	 * @param string               $userId  The user asking
+	 * @param array<string, mixed> $context The agendaItem or meeting a stored paper was opened from
 	 *
 	 * @return array<string, mixed> results (by page), fileVersion, versionLabel, name and path of the
 	 *                              current version, the object a stored paper is read through (paper),
@@ -98,8 +98,8 @@ class AnnotationService {
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
 	 */
-	public function listForDocument(int $fileId, string $userId, array $paper = []): array {
-		$current = $this->versions->current(userId: $userId, fileId: $fileId, paper: $paper);
+	public function listForDocument(int $fileId, string $userId, array $context = []): array {
+		$current = $this->versions->current(userId: $userId, fileId: $fileId, paper: self::paperOf(context: $context));
 
 		$results = [];
 		foreach ($this->store->rows(filters: ['fileId' => $fileId]) as $annotation) {

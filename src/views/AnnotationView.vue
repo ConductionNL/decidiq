@@ -432,35 +432,10 @@ export default {
 			this.renderError = ''
 			this.pages = []
 			try {
-				const url = documentUrl({
-					paper: this.store.paper,
-					userId: this.userId,
-					fileId: this.fileId,
-					path: this.store.path,
-					version: this.viewingOtherVersion ? this.shownVersion : '',
-				})
-				const response = url === ''
-					? null
-					: await fetch(url, {
-						headers: { requesttoken: getRequestToken() },
-					})
-				if (response && !response.ok) {
-					// The paper view says why it refuses (no watermark service, no access).
-					const refusal = await response.json().catch(() => null)
-					if (refusal?.message) throw new Error(refusal.message)
-				}
-				if (!response?.ok) {
-					throw new Error(
-						this.t(
-							'decidiq',
-							'This version of the document is no longer available.',
-						),
-					)
-				}
-
+				const bytes = await this.fetchShown()
 				const pdfjs = await loadPdfJs()
 				const pdf = await pdfjs.getDocument({
-					data: await response.arrayBuffer(),
+					data: bytes,
 					isEvalSupported: false,
 				}).promise
 				const pages = []
@@ -491,6 +466,32 @@ export default {
 			} finally {
 				this.rendering = false
 			}
+		},
+
+		/**
+		 * The bytes of the version on screen. A refusal of the paper view is
+		 * shown as it says (no watermark service, no access); anything else
+		 * that cannot be read is an unavailable version.
+		 *
+		 * @return {Promise<ArrayBuffer>} The PDF.
+		 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents
+		 */
+		async fetchShown() {
+			const url = documentUrl({
+				paper: this.store.paper,
+				userId: this.userId,
+				fileId: this.fileId,
+				path: this.store.path,
+				version: this.viewingOtherVersion ? this.shownVersion : '',
+			})
+			const unavailable = this.t('decidiq', 'This version of the document is no longer available.')
+			if (url === '') throw new Error(unavailable)
+			const response = await fetch(url, { headers: { requesttoken: getRequestToken() } })
+			if (!response.ok) {
+				const refusal = await response.json().catch(() => null)
+				throw new Error(refusal?.message || unavailable)
+			}
+			return response.arrayBuffer()
 		},
 
 		/**

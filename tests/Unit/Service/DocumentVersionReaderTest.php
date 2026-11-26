@@ -70,10 +70,10 @@ class DocumentVersionReaderTest extends TestCase {
 	 * @return DocumentVersionReader
 	 */
 	private function reader(?array $item, string $folder=self::ITEM, ?array &$reads=null): DocumentVersionReader {
-		$parent = $this->createMock(Folder::class);
+		$parent = $this->createMock(originalClassName: Folder::class);
 		$parent->method('getName')->willReturn($folder);
 
-		$paper = $this->createMock(File::class);
+		$paper = $this->createMock(originalClassName: File::class);
 		$paper->method('getMTime')->willReturn(1764000000);
 		$paper->method('getName')->willReturn('Raadsvoorstel.pdf');
 		$paper->method('getParent')->willReturn($parent);
@@ -82,34 +82,34 @@ class DocumentVersionReaderTest extends TestCase {
 
 		// The caller's own files do not hold the paper; OpenRegister's account
 		// does, and its storage is not set up until its folder is read.
-		$callerFolder = $this->createMock(Folder::class);
+		$callerFolder = $this->createMock(originalClassName: Folder::class);
 		$callerFolder->method('getFirstNodeById')->willReturn(null);
-		$storeFolder = $this->createMock(Folder::class);
-		$storeFolder->method('getFirstNodeById')->willReturnCallback(static fn (int $id): ?File => $id === self::PAPER ? $paper : null);
+		$storeFolder = $this->createMock(originalClassName: Folder::class);
+		$storeFolder->method('getFirstNodeById')->willReturnMap([[self::PAPER, $paper]]);
 
-		$root = $this->createMock(IRootFolder::class);
-		$root->method('getUserFolder')->willReturnCallback(static fn (string $uid): Folder => $uid === 'openregister' ? $storeFolder : $callerFolder);
+		$root = $this->createMock(originalClassName: IRootFolder::class);
+		$root->method('getUserFolder')->willReturnMap([['openregister', $storeFolder], ['carol', $callerFolder], ['dave', $callerFolder]]);
 		$root->method('getFirstNodeById')->willReturn(null);
 		$root->method('get')->willThrowException(new NotFoundException('none'));
 
-		$account = $this->createMock(IUser::class);
+		$account = $this->createMock(originalClassName: IUser::class);
 		$account->method('getUID')->willReturn('openregister');
-		$mount = $this->createMock(ICachedMountInfo::class);
+		$mount = $this->createMock(originalClassName: ICachedMountInfo::class);
 		$mount->method('getUser')->willReturn($account);
-		$mounts = $this->createMock(IUserMountCache::class);
-		$mounts->method('getMountsForFileId')->willReturnCallback(static fn (int $id): array => $id === self::PAPER ? [$mount] : []);
+		$mounts = $this->createMock(originalClassName: IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->willReturnMap([[self::PAPER, null, [$mount]]]);
 
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (...$args) use ($item, &$reads): ?ObjectEntityInterface {
 				$reads[] = ($args[1] ?? null)?->schema;
 				// The caller's own read: rbac and multitenancy stay on.
-				self::assertTrue(($args[2] ?? true) === true && ($args[3] ?? true) === true);
+				self::assertTrue(condition: ($args[2] ?? true) === true && ($args[3] ?? true) === true);
 				if ($item === null) {
 					throw new \RuntimeException('not allowed');
 				}
 
-				$entity = $this->createMock(ObjectEntityInterface::class);
+				$entity = $this->createMock(originalClassName: ObjectEntityInterface::class);
 				$entity->method('getObject')->willReturn($item);
 				return $entity;
 			}
@@ -133,12 +133,12 @@ class DocumentVersionReaderTest extends TestCase {
 		$current = $this->reader(item: ['title' => 'Omgevingsvisie'], reads: $reads)
 			->current(userId: 'carol', fileId: self::PAPER, paper: ['schema' => 'agenda-item', 'objectId' => self::ITEM]);
 
-		self::assertSame('1764000000', $current['fileVersion']);
-		self::assertSame('v1', $current['versionLabel']);
-		self::assertSame('Raadsvoorstel.pdf', $current['name']);
-		self::assertSame('', $current['path']);
-		self::assertSame(['schema' => 'agenda-item', 'objectId' => self::ITEM], $current['paper']);
-		self::assertSame(['agenda-item'], $reads);
+		self::assertSame(expected: '1764000000', actual: $current['fileVersion']);
+		self::assertSame(expected: 'v1', actual: $current['versionLabel']);
+		self::assertSame(expected: 'Raadsvoorstel.pdf', actual: $current['name']);
+		self::assertSame(expected: '', actual: $current['path']);
+		self::assertSame(expected: ['schema' => 'agenda-item', 'objectId' => self::ITEM], actual: $current['paper']);
+		self::assertSame(expected: ['agenda-item'], actual: $reads);
 	}//end testAStoredPaperIsReadThroughItsAgendaItem()
 
 	/**
@@ -150,7 +150,7 @@ class DocumentVersionReaderTest extends TestCase {
 		$current = $this->reader(item: ['paperRenditions' => [['sourceFileId' => 76, 'pdfFileId' => self::PAPER]]], folder: 'elsewhere')
 			->current(userId: 'carol', fileId: self::PAPER, paper: ['schema' => 'agenda-item', 'objectId' => self::ITEM]);
 
-		self::assertSame(['schema' => 'agenda-item', 'objectId' => self::ITEM], $current['paper']);
+		self::assertSame(expected: ['schema' => 'agenda-item', 'objectId' => self::ITEM], actual: $current['paper']);
 	}//end testARecordedRenditionIsReadThroughItsAgendaItem()
 
 	/**
@@ -159,7 +159,7 @@ class DocumentVersionReaderTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableItemOpensNoPaper(): void {
-		$this->expectException(MissingObjectException::class);
+		$this->expectException(exception: MissingObjectException::class);
 		$this->reader(item: null)->current(userId: 'dave', fileId: self::PAPER, paper: ['schema' => 'agenda-item', 'objectId' => self::ITEM]);
 	}//end testAnUnreadableItemOpensNoPaper()
 
@@ -169,7 +169,7 @@ class DocumentVersionReaderTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnItemThatDoesNotHoldThePaperOpensNothing(): void {
-		$this->expectException(MissingObjectException::class);
+		$this->expectException(exception: MissingObjectException::class);
 		$this->reader(item: ['title' => 'Ander punt'])
 			->current(userId: 'carol', fileId: self::PAPER, paper: ['schema' => 'agenda-item', 'objectId' => self::OTHER]);
 	}//end testAnItemThatDoesNotHoldThePaperOpensNothing()
@@ -185,9 +185,9 @@ class DocumentVersionReaderTest extends TestCase {
 			$reads = [];
 			try {
 				$this->reader(item: ['title' => 'x'], reads: $reads)->current(userId: 'carol', fileId: self::PAPER, paper: $paper);
-				self::fail('A paper opened without a readable object that holds it.');
+				self::fail(message: 'A paper opened without a readable object that holds it.');
 			} catch (MissingObjectException) {
-				self::assertSame([], $reads);
+				self::assertSame(expected: [], actual: $reads);
 			}
 		}
 	}//end testNoObjectOrAnotherSchemaOpensNothing()
@@ -198,8 +198,8 @@ class DocumentVersionReaderTest extends TestCase {
 	 * @return void
 	 */
 	public function testThePaperIsReadThroughTheAgendaItemBeforeTheMeeting(): void {
-		self::assertSame(['schema' => 'agenda-item', 'objectId' => 'i'], AnnotationService::paperOf(context: ['agendaItem' => ' i ', 'meeting' => 'm']));
-		self::assertSame(['schema' => 'meeting', 'objectId' => 'm'], AnnotationService::paperOf(context: ['agendaItem' => '', 'meeting' => 'm']));
-		self::assertSame([], AnnotationService::paperOf(context: []));
+		self::assertSame(expected: ['schema' => 'agenda-item', 'objectId' => 'i'], actual: AnnotationService::paperOf(context: ['agendaItem' => ' i ', 'meeting' => 'm']));
+		self::assertSame(expected: ['schema' => 'meeting', 'objectId' => 'm'], actual: AnnotationService::paperOf(context: ['agendaItem' => '', 'meeting' => 'm']));
+		self::assertSame(expected: [], actual: AnnotationService::paperOf(context: []));
 	}//end testThePaperIsReadThroughTheAgendaItemBeforeTheMeeting()
 }//end class

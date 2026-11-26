@@ -377,8 +377,8 @@ class PaperControllerTest extends TestCase {
 	 * @return IUserMountCache
 	 */
 	private function noMounts(): IUserMountCache {
-		$mounts = $this->createMock(IUserMountCache::class);
-		$mounts->method('getMountsForFileId')->willReturn([]);
+		$mounts = $this->createMock(originalClassName: IUserMountCache::class);
+		$mounts->method('getMountsForFileId')->willReturn(value: []);
 		return $mounts;
 	}//end noMounts()
 }//end class

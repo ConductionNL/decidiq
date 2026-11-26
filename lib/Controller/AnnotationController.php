@@ -93,9 +93,7 @@ class AnnotationController extends Controller {
 			action: fn (string $userId): array => $this->annotations->listForDocument(
 				fileId: $fileId,
 				userId: $userId,
-				paper: AnnotationService::paperOf(
-					context: ['agendaItem' => $this->request->getParam('agendaItem', ''), 'meeting' => $this->request->getParam('meeting', '')]
-				)
+				context: ['agendaItem' => $this->request->getParam('agendaItem', ''), 'meeting' => $this->request->getParam('meeting', '')]
 			)
 		);
 	}//end index()
