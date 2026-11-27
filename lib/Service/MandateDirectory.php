@@ -62,11 +62,6 @@ use Throwable;
 class MandateDirectory {
 
 	/**
-	 * Schema slug of the local mandate register.
-	 */
-	private const SCHEMA_TOEDELING = 'bevoegdheidstoedeling';
-
-	/**
 	 * The one status under which a toedeling grants anything.
 	 */
 	private const STATUS_EFFECTIVE = 'effective';
@@ -74,7 +69,7 @@ class MandateDirectory {
 	/**
 	 * Constructor.
 	 *
-	 * @param RegisterObjectStore $store Reads the bevoegdheidstoedeling rows.
+	 * @param RegisterObjectStore $store Reads the authority-delegation rows.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -172,6 +167,8 @@ class MandateDirectory {
 	 * @param string $mandate The mandate reference.
 	 *
 	 * @return array<string, mixed>|null The row.
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
 	 */
 	private function resolve(string $mandate): ?array {
 		$mandate = trim($mandate);
@@ -180,7 +177,7 @@ class MandateDirectory {
 		}
 
 		try {
-			return $this->store->find(schema: self::SCHEMA_TOEDELING, uuid: $mandate);
+			return (new AuthorityDelegationRows(store: $this->store))->find(uuid: $mandate);
 		} catch (Throwable) {
 			return null;
 		}

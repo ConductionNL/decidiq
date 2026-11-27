@@ -6,7 +6,7 @@
  * Answers one question for any app that gates an act on authority: may this
  * account perform this act, for this amount, on this date, under an authority
  * the register records? The register is the delegatie- en mandaatregister
- * (`bevoegdheidstoedeling`). An app that used to keep its own mandate matrix
+ * (`authority-delegation`, formerly `bevoegdheidstoedeling`). An app that used to keep its own mandate matrix
  * asks here instead, so the matrix lives in one place.
  *
  * 🔑 DECIDIQ ANSWERS, THE ASKING APP ENFORCES. REQ-DMR-006 keeps the register
@@ -61,11 +61,6 @@ class DelegatedAuthorityCheck {
 	public const REASON_OVER_CEILING = 'over-ceiling';
 
 	public const REASON_UNREADABLE = 'register-unreadable';
-
-	/**
-	 * Schema slug of the register this check reads.
-	 */
-	private const SCHEMA = 'bevoegdheidstoedeling';
 
 	/**
 	 * The one status under which a toedeling grants anything.
@@ -123,7 +118,7 @@ class DelegatedAuthorityCheck {
 		}
 
 		try {
-			$rows = $this->store->findAll(schema: self::SCHEMA, filters: ['status' => self::STATUS_EFFECTIVE]);
+			$rows = (new AuthorityDelegationRows(store: $this->store))->findAll(filters: ['status' => self::STATUS_EFFECTIVE]);
 		} catch (Throwable) {
 			return $this->answer(reason: self::REASON_UNREADABLE);
 		}
@@ -303,10 +298,12 @@ class DelegatedAuthorityCheck {
 	 * @param string $parentId The parent's uuid.
 	 *
 	 * @return array<string, mixed> The parent, or [] when it covers nothing.
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
 	 */
 	private function permittingParent(string $parentId): array {
 		try {
-			$parent = $this->store->find(schema: self::SCHEMA, uuid: $parentId);
+			$parent = (new AuthorityDelegationRows(store: $this->store))->find(uuid: $parentId);
 		} catch (Throwable) {
 			return [];
 		}

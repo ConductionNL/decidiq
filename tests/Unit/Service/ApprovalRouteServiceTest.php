@@ -74,7 +74,7 @@ class ApprovalRouteServiceTest extends TestCase {
 			private const REQUIRED = [
 				'decision-stage' => ['sequence', 'stageType', 'status', 'decisionMakerType', 'label'],
 				'approval-action' => ['subject', 'step', 'actor', 'action'],
-				'bevoegdheidstoedeling' => ['type', 'subject', 'decision', 'validFrom', 'status'],
+				'authority-delegation' => ['type', 'subject', 'decision', 'validFrom', 'status'],
 			];
 
 			/**
@@ -82,7 +82,7 @@ class ApprovalRouteServiceTest extends TestCase {
 			 *
 			 * @var array<string, array<string, array<string, mixed>>>
 			 */
-			public array $rows = ['decision-stage' => [], 'approval-action' => [], 'bevoegdheidstoedeling' => []];
+			public array $rows = ['decision-stage' => [], 'approval-action' => [], 'authority-delegation' => []];
 
 			/**
 			 * @var int
