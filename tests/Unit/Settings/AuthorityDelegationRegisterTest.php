@@ -225,4 +225,66 @@ class AuthorityDelegationRegisterTest extends TestCase {
 		$this->assertContains('decision-authority-basis', array_column($detail['layout'], 'widgetId'));
 		$this->assertContains('authorityBasis', self::widget($detail, 'decision-content')['content']['include']);
 	}//end testTheLinkIsShownInBothDirections()
+	/**
+	 * A delegation cannot be stored without the decision it was granted by.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-001-bevoegdheidstoedeling-schema
+	 */
+	public function testADelegationNeedsItsGrantingDecision(): void {
+		$schema = self::schemas()['AuthorityDelegation'];
+
+		$this->assertContains(needle: 'decision', haystack: $schema['required']);
+		$this->assertSame(expected: 'uuid', actual: $schema['properties']['decision']['format']);
+	}//end testADelegationNeedsItsGrantingDecision()
+
+	/**
+	 * The lifecycle runs draft, effective, then withdrawn or lapsed, and nothing leaves a terminal state.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-002-declarative-status-lifecycle-with-intrekking-traced-to-a-revoking-decision
+	 */
+	public function testTheLifecycleEndsInWithdrawnOrLapsed(): void {
+		$lifecycle = self::schemas()['AuthorityDelegation']['x-openregister-lifecycle'];
+
+		$this->assertSame(expected: 'status', actual: $lifecycle['field']);
+		$this->assertSame(expected: 'draft', actual: $lifecycle['initial']);
+		$this->assertSame(expected: ['withdrawn', 'lapsed'], actual: $lifecycle['terminal']);
+		$this->assertSame(
+			expected: ['draft>effective', 'effective>withdrawn', 'effective>lapsed'],
+			actual: array_map(static fn (array $edge): string => $edge['from'] . '>' . $edge['to'], $lifecycle['transitions'])
+		);
+		$this->assertSame(expected: [], actual: array_values(array_intersect(array_column($lifecycle['transitions'], 'from'), $lifecycle['terminal'])));
+	}//end testTheLifecycleEndsInWithdrawnOrLapsed()
+
+	/**
+	 * The two expiry reminders compare validTo with a window: an in-force delegation
+	 * ending within 60 or 14 days is reminded once per expiry date, named in the
+	 * subject; an open-ended one has no validTo to match, and a terminal one fails
+	 * the status clause.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-007-declarative-geldigheid-expiry-notifications
+	 */
+	public function testTheExpiryRemindersWatchTheEndDate(): void {
+		$rules = self::schemas()['AuthorityDelegation']['x-openregister-notifications'];
+
+		foreach (['bevoegdheidExpiry60' => 'P60D', 'bevoegdheidExpiry14' => 'P14D'] as $name => $window) {
+			$trigger = $rules[$name]['trigger'];
+			$this->assertSame(expected: 'scheduled', actual: $trigger['type'], message: $name);
+			$this->assertSame(
+				expected: ['status' => 'effective', 'validTo' => ['operator' => 'withinNext', 'value' => $window]],
+				actual: $trigger['filter'],
+				message: $name
+			);
+			$this->assertSame(expected: ['validTo'], actual: $trigger['dedupeFields'], message: $name);
+			$this->assertLessThanOrEqual(expected: 86400, actual: $trigger['intervalSec'], message: $name . ' is evaluated at least daily');
+			foreach (['nl', 'en'] as $locale) {
+				$this->assertStringContainsString(needle: '{{validTo}}', haystack: $rules[$name]['subject'][$locale], message: $name . ' ' . $locale);
+			}
+		}
+	}//end testTheExpiryRemindersWatchTheEndDate()
 }//end class

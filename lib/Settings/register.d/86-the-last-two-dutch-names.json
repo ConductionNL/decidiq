@@ -355,10 +355,17 @@
 					"bevoegdheidExpiry60": {
 						"trigger": {
 							"type": "scheduled",
-							"intervalSec": 5184000,
+							"intervalSec": 86400,
 							"filter": {
-								"status": "effective"
-							}
+								"status": "effective",
+								"validTo": {
+									"operator": "withinNext",
+									"value": "P60D"
+								}
+							},
+							"dedupeFields": [
+								"validTo"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -377,18 +384,25 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: bevoegdheidstoedeling verloopt binnen 60 dagen — {{subject}}",
-							"en": "Reminder: authorization expires within 60 days — {{subject}}"
+							"nl": "Rappel: bevoegdheidstoedeling verloopt binnen 60 dagen, op {{validTo}} — {{subject}}",
+							"en": "Reminder: authorization expires within 60 days, on {{validTo}} — {{subject}}"
 						},
-						"_note": "Pre-expiry rappel at ~60 days (REQ-DMR-007). intervalSec 5184000 (~60 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets status van-kracht only, so no notification fires for concept/ingetrokken/vervallen or for a toedeling without geldigTot; the 'geldigTot within window' comparison is carried by the scheduled engine's window semantics, which the simple filter shape cannot express as a date comparison — verify OR's scheduled-notification engine interprets these two triggers as 60-day/14-day before-expiry rappels during live import."
+						"_note": "Pre-expiry rappel 60 days before validTo (REQ-DMR-007). OpenRegister's scheduled engine applies only the date window a trigger declares, so the window is the validTo clause (withinNext P60D); a record without validTo has no date to compare and never matches, and the status clause keeps draft, withdrawn and lapsed records silent. intervalSec 86400 is how often the rule is evaluated (daily, so the rappel lands close to the window edge); dedupeFields validTo sends it once per expiry date and again only when validTo changes. Window length is PROVISIONAL (griffie-configurable tuning deferred). Fixed 27 Nov 2026: before this the rule filtered on status alone and reminded every in-force record, open-ended ones included."
 					},
 					"bevoegdheidExpiry14": {
 						"trigger": {
 							"type": "scheduled",
-							"intervalSec": 1209600,
+							"intervalSec": 86400,
 							"filter": {
-								"status": "effective"
-							}
+								"status": "effective",
+								"validTo": {
+									"operator": "withinNext",
+									"value": "P14D"
+								}
+							},
+							"dedupeFields": [
+								"validTo"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -407,10 +421,10 @@
 							}
 						],
 						"subject": {
-							"nl": "Rappel: bevoegdheidstoedeling verloopt binnen 14 dagen — {{subject}}",
-							"en": "Reminder: authorization expires within 14 days — {{subject}}"
+							"nl": "Rappel: bevoegdheidstoedeling verloopt binnen 14 dagen, op {{validTo}} — {{subject}}",
+							"en": "Reminder: authorization expires within 14 days, on {{validTo}} — {{subject}}"
 						},
-						"_note": "Pre-expiry rappel at ~14 days (REQ-DMR-007). intervalSec 1209600 (~14 days) is PROVISIONAL. Filters status van-kracht so no notification fires for terminal or open-ended (no geldigTot) toedelingen. Same window-semantics caveat as bevoegdheidExpiry60. Recipients approximate 'the responsible staff group' via object-acl (read) + decidesk-members group."
+						"_note": "Pre-expiry rappel 14 days before validTo (REQ-DMR-007). OpenRegister's scheduled engine applies only the date window a trigger declares, so the window is the validTo clause (withinNext P14D); a record without validTo has no date to compare and never matches, and the status clause keeps draft, withdrawn and lapsed records silent. intervalSec 86400 is how often the rule is evaluated (daily, so the rappel lands close to the window edge); dedupeFields validTo sends it once per expiry date and again only when validTo changes. Window length is PROVISIONAL (griffie-configurable tuning deferred). Fixed 27 Nov 2026: before this the rule filtered on status alone and reminded every in-force record, open-ended ones included."
 					}
 				},
 				"authorization": {
