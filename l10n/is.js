@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Afhending komin fram yfir",
         "Retention not resolved": "Varðveisla ekki ákveðin",
         "Meetings without dossier": "Fundir án málsskjala",
-        "Closed item": "Lokaður dagskrárliður"
+        "Closed item": "Lokaður dagskrárliður",
+        "Depth {depth}": "Dýpt {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

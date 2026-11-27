@@ -3423,7 +3423,8 @@
         "Transfer overdue": "Übertragung überfällig",
         "Retention not resolved": "Aufbewahrung nicht bestimmt",
         "Meetings without dossier": "Sitzungen ohne Dossier",
-        "Closed item": "Nichtöffentlicher Punkt"
+        "Closed item": "Nichtöffentlicher Punkt",
+        "Depth {depth}": "Tiefe {depth}"
     },
     "plurals": null
 }

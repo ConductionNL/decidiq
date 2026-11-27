@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Odovzdanie po termíne",
         "Retention not resolved": "Uchovávanie neurčené",
         "Meetings without dossier": "Zasadnutia bez spisu",
-        "Closed item": "Neverejný bod"
+        "Closed item": "Neverejný bod",
+        "Depth {depth}": "Hĺbka {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

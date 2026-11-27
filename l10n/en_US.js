@@ -967,7 +967,8 @@ OC.L10N.register(
         "Transfer overdue": "Transfer overdue",
         "Retention not resolved": "Retention not resolved",
         "Meetings without dossier": "Meetings without dossier",
-        "Closed item": "Closed item"
+        "Closed item": "Closed item",
+        "Depth {depth}": "Depth {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

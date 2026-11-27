@@ -73,6 +73,11 @@
 				</nav>
 
 				<div class="cn-delegation-chain__meta">
+					<span
+						class="cn-delegation-chain__depth"
+						data-testid="delegation-chain-depth">
+						{{ t('decidiq', 'Depth {depth}', { depth }) }}
+					</span>
 					<span v-if="subject" class="cn-delegation-chain__subject">{{
 						subject
 					}}</span>
@@ -233,6 +238,17 @@ export default {
 		 */
 		decisionId() {
 			return this.safeObjectData[this.cfg.decisionRefField] || null
+		},
+
+		/**
+		 * The toedeling's depth in its chain: the number of ancestors above
+		 * it, so a hoofdmandaat is depth 0 and its ondermandaat depth 1.
+		 *
+		 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-003-ondermandaat-chains-are-permitted-displayed-and-cycle-free
+		 * @return {number} The depth.
+		 */
+		depth() {
+			return this.ancestors.length
 		},
 
 		/**
@@ -568,6 +584,11 @@ export default {
 	align-items: center;
 	gap: 12px;
 	padding: calc(2 * var(--default-grid-baseline, 4px));
+}
+
+.cn-delegation-chain__depth {
+	font-size: 0.9rem;
+	color: var(--color-text-maxcontrast);
 }
 
 .cn-delegation-chain__subject {

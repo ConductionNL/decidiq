@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Transfer overdue": "Átadás késésben",
         "Retention not resolved": "Megőrzés nincs meghatározva",
         "Meetings without dossier": "Dosszié nélküli ülések",
-        "Closed item": "Zárt napirendi pont"
+        "Closed item": "Zárt napirendi pont",
+        "Depth {depth}": "Mélység: {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

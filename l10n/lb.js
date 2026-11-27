@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Iwwerdroung iwwerfälleg",
         "Retention not resolved": "Openthalt net festgeluecht",
         "Meetings without dossier": "Sëtzungen ouni Dossier",
-        "Closed item": "Zouene Punkt"
+        "Closed item": "Zouene Punkt",
+        "Depth {depth}": "Déift {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

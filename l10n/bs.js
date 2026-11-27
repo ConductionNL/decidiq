@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Prijenos kasni",
         "Retention not resolved": "Čuvanje nije određeno",
         "Meetings without dossier": "Sjednice bez dosijea",
-        "Closed item": "Zatvorena tačka"
+        "Closed item": "Zatvorena tačka",
+        "Depth {depth}": "Dubina {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

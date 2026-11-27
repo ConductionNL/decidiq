@@ -3419,7 +3419,8 @@
         "Transfer overdue": "Transferimi me vonesë",
         "Retention not resolved": "Ruajtja e papërcaktuar",
         "Meetings without dossier": "Mbledhje pa dosje",
-        "Closed item": "Pikë e mbyllur"
+        "Closed item": "Pikë e mbyllur",
+        "Depth {depth}": "Thellësia {depth}"
     },
     "plurals": null
 }

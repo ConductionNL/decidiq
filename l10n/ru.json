@@ -3419,7 +3419,8 @@
         "Transfer overdue": "Передача просрочена",
         "Retention not resolved": "Хранение не определено",
         "Meetings without dossier": "Заседания без дела",
-        "Closed item": "Закрытый пункт"
+        "Closed item": "Закрытый пункт",
+        "Depth {depth}": "Глубина {depth}"
     },
     "plurals": null
 }

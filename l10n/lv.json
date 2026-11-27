@@ -3419,7 +3419,8 @@
         "Transfer overdue": "Nodošana nokavēta",
         "Retention not resolved": "Glabāšana nav noteikta",
         "Meetings without dossier": "Sēdes bez lietas",
-        "Closed item": "Slēgts jautājums"
+        "Closed item": "Slēgts jautājums",
+        "Depth {depth}": "Dziļums {depth}"
     },
     "plurals": null
 }

@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Transfer întârziat",
         "Retention not resolved": "Păstrare nedeterminată",
         "Meetings without dossier": "Ședințe fără dosar",
-        "Closed item": "Punct închis"
+        "Closed item": "Punct închis",
+        "Depth {depth}": "Adâncime {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )
