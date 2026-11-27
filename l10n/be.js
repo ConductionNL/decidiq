@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Захоўванне не вызначана",
         "Meetings without dossier": "Пасяджэнні без справы",
         "Closed item": "Закрыты пункт",
-        "Consolidated text": "Кансалідаваны тэкст"
+        "Consolidated text": "Кансалідаваны тэкст",
+        "Depth {depth}": "Глыбіня {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

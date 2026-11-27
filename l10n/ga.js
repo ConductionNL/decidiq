@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Retention not resolved": "Coinneáil gan réiteach",
         "Meetings without dossier": "Cruinnithe gan chomhad",
         "Closed item": "Mír iata",
-        "Consolidated text": "Téacs comhdhlúite"
+        "Consolidated text": "Téacs comhdhlúite",
+        "Depth {depth}": "Doimhneacht {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

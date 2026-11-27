@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Openthalt net festgeluecht",
         "Meetings without dossier": "Sëtzungen ouni Dossier",
         "Closed item": "Zouene Punkt",
-        "Consolidated text": "Konsolidéierten Text"
+        "Consolidated text": "Konsolidéierten Text",
+        "Depth {depth}": "Déift {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -82,7 +82,8 @@
 
 - [x] REQ-DMR-002, server side: a save that moves a delegation into `withdrawn` without `withdrawnBy` is refused (`OndermandaatGuardListener`, message names `withdrawnBy`). Only the move is judged, so a row already withdrawn (one carried across by the rename) and a lapse are left alone. Tests: `OndermandaatGuardListenerTest::testAWithdrawalMustNameTheRevokingDecision`, `testAnEarlierWithdrawalAndALapseAreLeftAlone`.
 - [ ] REQ-DMR-002, the action: a Revoke header action on the delegation detail, shown when `status` is `effective`, that asks for the revoking decision and saves `status: withdrawn` with `withdrawnBy` in one PATCH. Needs a manifest action with a decision picker (design).
-- [ ] REQ-DMR-003: the chain widget shows the breadcrumb but not the depth the scenario names ("depth 1"); `DelegationChainWidget.vue` plus a vitest assertion and the new string in every locale.
+- [x] REQ-DMR-003: the chain widget shows the breadcrumb but not the depth the scenario names ("depth 1"); `DelegationChainWidget.vue` plus a vitest assertion and the new string in every locale.
+  - Built (27 Nov): the widget shows "Depth {depth}", the number of ancestors it walked up (a hoofdmandaat is depth 0, its ondermandaat depth 1; a defensive cycle stops the count like it stops the walk). The string is in all 38 catalogues. Test: `tests/vitest/delegationChainDepth.spec.js` (5).
 - [ ] REQ-DMR-004: "in force on date X" works for today only; a date choice that fills the same four-key query with X instead of `@today`.
 
 ## Quality checklist

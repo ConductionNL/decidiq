@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Retention not resolved": "Säilytystä ei ole määritetty",
         "Meetings without dossier": "Kokoukset ilman asiakirjakansiota",
         "Closed item": "Suljettu kohta",
-        "Consolidated text": "Konsolidoitu teksti"
+        "Consolidated text": "Konsolidoitu teksti",
+        "Depth {depth}": "Syvyys {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

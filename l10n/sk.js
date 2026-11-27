@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Uchovávanie neurčené",
         "Meetings without dossier": "Zasadnutia bez spisu",
         "Closed item": "Neverejný bod",
-        "Consolidated text": "Konsolidované znenie"
+        "Consolidated text": "Konsolidované znenie",
+        "Depth {depth}": "Hĺbka {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3422,7 +3422,8 @@ OC.L10N.register(
         "Retention not resolved": "Aufbewahrung nicht bestimmt",
         "Meetings without dossier": "Sitzungen ohne Dossier",
         "Closed item": "Nichtöffentlicher Punkt",
-        "Consolidated text": "Konsolidierte Fassung"
+        "Consolidated text": "Konsolidierte Fassung",
+        "Depth {depth}": "Tiefe {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Bevarande inte fastställt",
         "Meetings without dossier": "Möten utan akt",
         "Closed item": "Stängd punkt",
-        "Consolidated text": "Konsoliderad text"
+        "Consolidated text": "Konsoliderad text",
+        "Depth {depth}": "Djup {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

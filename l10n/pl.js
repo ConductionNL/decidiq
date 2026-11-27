@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Retention not resolved": "Przechowywanie nieustalone",
         "Meetings without dossier": "Posiedzenia bez teczki akt",
         "Closed item": "Punkt niejawny",
-        "Consolidated text": "Tekst jednolity"
+        "Consolidated text": "Tekst jednolity",
+        "Depth {depth}": "Głębokość {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Hramba ni določena",
         "Meetings without dossier": "Seje brez zadeve",
         "Closed item": "Zaprta točka",
-        "Consolidated text": "Prečiščeno besedilo"
+        "Consolidated text": "Prečiščeno besedilo",
+        "Depth {depth}": "Globina {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

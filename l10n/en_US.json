@@ -967,6 +967,7 @@
         "Retention not resolved": "Retention not resolved",
         "Meetings without dossier": "Meetings without dossier",
         "Closed item": "Closed item",
-        "Consolidated text": "Consolidated text"
+        "Consolidated text": "Consolidated text",
+        "Depth {depth}": "Depth {depth}"
     }
 }

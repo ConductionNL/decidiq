@@ -3420,7 +3420,8 @@
         "Retention not resolved": "Ruajtja e papërcaktuar",
         "Meetings without dossier": "Mbledhje pa dosje",
         "Closed item": "Pikë e mbyllur",
-        "Consolidated text": "Teksti i konsoliduar"
+        "Consolidated text": "Teksti i konsoliduar",
+        "Depth {depth}": "Thellësia {depth}"
     },
     "plurals": null
 }

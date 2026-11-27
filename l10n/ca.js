@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Conservació no resolta",
         "Meetings without dossier": "Reunions sense expedient",
         "Closed item": "Punt a porta tancada",
-        "Consolidated text": "Text consolidat"
+        "Consolidated text": "Text consolidat",
+        "Depth {depth}": "Profunditat {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

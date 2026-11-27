@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Retention not resolved": "Conservaziun betg determinada",
         "Meetings without dossier": "Radunanzas senza dossier",
         "Closed item": "Punct betg public",
-        "Consolidated text": "Text consolidà"
+        "Consolidated text": "Text consolidà",
+        "Depth {depth}": "Profunditad {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

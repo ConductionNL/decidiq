@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Retention not resolved": "Η διατήρηση δεν έχει καθοριστεί",
         "Meetings without dossier": "Συνεδριάσεις χωρίς φάκελο",
         "Closed item": "Κλειστό θέμα",
-        "Consolidated text": "Κωδικοποιημένο κείμενο"
+        "Consolidated text": "Κωδικοποιημένο κείμενο",
+        "Depth {depth}": "Βάθος {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

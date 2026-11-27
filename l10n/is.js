@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "Retention not resolved": "Varðveisla ekki ákveðin",
         "Meetings without dossier": "Fundir án málsskjala",
         "Closed item": "Lokaður dagskrárliður",
-        "Consolidated text": "Samsteypt útgáfa"
+        "Consolidated text": "Samsteypt útgáfa",
+        "Depth {depth}": "Dýpt {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )
