@@ -90,9 +90,9 @@ class OndermandaatGuardListener implements IEventListener {
 			$row['id'] = $entity->getUuid();
 		}
 
-		$empty = $this->fields->emptyGroups(row: $row, groups: OndermandaatGuardService::PARTY_GROUPS);
-		if ($empty !== []) {
-			$this->refuse(event: $event, message: 'The toedeling was not saved: name ' . implode(' and ', $empty) . '.');
+		$missing = $this->missingParts(row: $row, event: $event);
+		if ($missing !== null) {
+			$this->refuse(event: $event, message: $missing);
 			return;
 		}
 
@@ -105,6 +105,68 @@ class OndermandaatGuardListener implements IEventListener {
 			$this->refuse(event: $event, message: 'The toedeling was not saved: its ondermandaat chain could not be checked. Try again in a moment.');
 		}
 	}//end handle()
+
+	/**
+	 * Why the save lacks something it must carry, or null when it is complete.
+	 *
+	 * A toedeling names both parties; a withdrawal names the decision that
+	 * revoked it.
+	 *
+	 * @param array<string, mixed>                    $row   The row being saved.
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
+	 *
+	 * @return string|null The refusal, or null.
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-002-declarative-status-lifecycle-with-intrekking-traced-to-a-revoking-decision
+	 */
+	private function missingParts(array $row, ObjectCreatingEvent|ObjectUpdatingEvent $event): ?string {
+		$empty = $this->fields->emptyGroups(row: $row, groups: OndermandaatGuardService::PARTY_GROUPS);
+		if ($empty !== []) {
+			return 'The toedeling was not saved: name ' . implode(' and ', $empty) . '.';
+		}
+
+		if ($event instanceof ObjectUpdatingEvent && $this->isUntracedWithdrawal(row: $row, old: $event->getOldObject()) === true) {
+			return 'The delegation was not withdrawn: name the decision that revoked it (withdrawnBy).';
+		}
+
+		return null;
+	}//end missingParts()
+
+	/**
+	 * Whether this update withdraws the delegation without naming the revoking decision.
+	 *
+	 * Only the move into `withdrawn` is judged: a row already withdrawn
+	 * before this save, such as one carried across by the rename, is left
+	 * as it is stored.
+	 *
+	 * @param array<string, mixed> $row The row being saved.
+	 * @param mixed                $old The stored object before the save.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-002-declarative-status-lifecycle-with-intrekking-traced-to-a-revoking-decision
+	 */
+	private function isUntracedWithdrawal(array $row, mixed $old): bool {
+		if (($row['status'] ?? null) !== 'withdrawn') {
+			return false;
+		}
+
+		$before = [];
+		if (is_object($old) === true) {
+			$before = (new EntityPayloadReader())->payloadOf(entity: $old);
+		}
+
+		if (($before['status'] ?? null) === 'withdrawn') {
+			return false;
+		}
+
+		$revokedBy = ($row['withdrawnBy'] ?? null);
+		if (is_array($revokedBy) === true) {
+			$revokedBy = ($revokedBy['id'] ?? ($revokedBy['uuid'] ?? null));
+		}
+
+		return is_string($revokedBy) === false || trim($revokedBy) === '';
+	}//end isUntracedWithdrawal()
 
 	/**
 	 * Stop a save, telling the person why.
