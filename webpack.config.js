@@ -2,6 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  */
+const { LibraryStylesheetCopy, withLeanBundles } = require('@conduction/nextcloud-vue/webpack')
 const path = require('path')
 const fs = require('fs')
 const webpack = require('webpack')
@@ -239,4 +240,11 @@ webpackConfig.resolve.fallback = {
 // be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
 // the exports field. No alias needed; the pin alone is sufficient.
 
-module.exports = webpackConfig
+// nextcloud-vue's stylesheet goes to css/nextcloud-vue.css, which
+// templates/index.php links instead of decidiq-main inserting ~1.1 MB of CSS
+// text on every load.
+webpackConfig.plugins.push(new LibraryStylesheetCopy())
+
+// css-loader writes no source maps into the JavaScript, and @nextcloud/vue's
+// index is side-effect free (one Nc* import no longer bundles every component).
+module.exports = withLeanBundles(webpackConfig)

@@ -186,3 +186,5 @@ test-results/
 
 # WCAG scan output (platform-accessibility-audit-report): generated per run
 tests/axe/report.json
+# nextcloud-vue stylesheet, copied by webpack.config.js (LibraryStylesheetCopy)
+/css/nextcloud-vue.css
