@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Przekazanie po terminie",
         "Retention not resolved": "Przechowywanie nieustalone",
         "Meetings without dossier": "Posiedzenia bez teczki akt",
-        "Closed item": "Punkt niejawny"
+        "Closed item": "Punkt niejawny",
+        "Depth {depth}": "Głębokość {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

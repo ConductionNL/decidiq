@@ -4588,7 +4588,8 @@ OC.L10N.register(
         "Retention not resolved": "Bewaartermijn niet bepaald",
         "Meetings without dossier": "Vergaderingen zonder dossier",
         "The archival dossier that holds this meeting's records. Empty while no dossier has been formed; a closed meeting with no dossier is an archiving gap (REQ-RMA-007).": "Het archiefdossier met de stukken van deze vergadering. Leeg zolang er geen dossier is gevormd; een gesloten vergadering zonder dossier is een gat in het archief (REQ-RMA-007).",
-        "Closed item": "Besloten punt"
+        "Closed item": "Besloten punt",
+        "Depth {depth}": "Diepte {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

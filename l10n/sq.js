@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Transferimi me vonesë",
         "Retention not resolved": "Ruajtja e papërcaktuar",
         "Meetings without dossier": "Mbledhje pa dosje",
-        "Closed item": "Pikë e mbyllur"
+        "Closed item": "Pikë e mbyllur",
+        "Depth {depth}": "Thellësia {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

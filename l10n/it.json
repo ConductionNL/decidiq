@@ -3423,7 +3423,8 @@
         "Transfer overdue": "Trasferimento scaduto",
         "Retention not resolved": "Conservazione non determinata",
         "Meetings without dossier": "Riunioni senza fascicolo",
-        "Closed item": "Punto a porte chiuse"
+        "Closed item": "Punto a porte chiuse",
+        "Depth {depth}": "Profondità {depth}"
     },
     "plurals": null
 }

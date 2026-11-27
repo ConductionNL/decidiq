@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Передача просрочена",
         "Retention not resolved": "Хранение не определено",
         "Meetings without dossier": "Заседания без дела",
-        "Closed item": "Закрытый пункт"
+        "Closed item": "Закрытый пункт",
+        "Depth {depth}": "Глубина {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

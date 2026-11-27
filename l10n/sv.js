@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Överföring försenad",
         "Retention not resolved": "Bevarande inte fastställt",
         "Meetings without dossier": "Möten utan akt",
-        "Closed item": "Stängd punkt"
+        "Closed item": "Stängd punkt",
+        "Depth {depth}": "Djup {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )

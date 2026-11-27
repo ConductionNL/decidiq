@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Transferiment en retard",
         "Retention not resolved": "Conservaziun betg determinada",
         "Meetings without dossier": "Radunanzas senza dossier",
-        "Closed item": "Punct betg public"
+        "Closed item": "Punct betg public",
+        "Depth {depth}": "Profunditad {depth}"
     },
     "nplurals=2; plural=(n != 1);"
 )
