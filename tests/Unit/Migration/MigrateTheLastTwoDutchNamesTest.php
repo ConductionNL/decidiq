@@ -222,6 +222,93 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 	}//end testASecondRunCopiesNothing()
 
 	/**
+	 * A delegation copied before authority-delegation declared the account fields
+	 * gets them from its source on the next run; nothing else is copied again.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
+	 */
+	public function testAnEarlierCopyGetsTheAccountFieldsBack(): void {
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+
+		$copy    = [
+			'id' => 'ad-1',
+			'migratedFromObject' => 'bt-1',
+			'type' => 'mandate',
+			'subject' => 'Subsidies tot 50.000 euro',
+			'decision' => self::DECISION,
+			'validFrom' => '2026-01-01',
+			'status' => 'withdrawn',
+		];
+		$service = $this->makeObjectService(
+			delegations: [self::delegation(id: 'bt-1', extra: ['delegateUser' => 'alice', 'delegateGroup' => 'signers', 'acts' => ['subsidy-decision']])],
+			existing: ['authority-delegation' => [$copy]],
+		);
+		$this->container->method('get')->willReturn($service);
+
+		$this->migration->run(output: $this->output);
+
+		self::assertCount(expectedCount: 1, haystack: $service->saves);
+		self::assertSame(expected: 'ad-1', actual: $service->saveUuids[0]);
+		$written = $service->writtenFor('authority-delegation')[0];
+		self::assertSame(expected: 'alice', actual: $written['delegateUser']);
+		self::assertSame(expected: 'signers', actual: $written['delegateGroup']);
+		self::assertSame(expected: ['subsidy-decision'], actual: $written['acts']);
+		// The copy's own state wins: the source still says effective.
+		self::assertSame(expected: 'withdrawn', actual: $written['status']);
+		self::assertArrayNotHasKey(key: 'id', array: $written);
+		self::assertSame(expected: [], actual: MergedRegisterSchema::violations(slug: 'authority-delegation', payload: $written));
+
+	}//end testAnEarlierCopyGetsTheAccountFieldsBack()
+
+	/**
+	 * A copy that already holds the account fields is left alone, also when the source differs.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
+	 */
+	public function testACopyWithItsOwnAccountFieldsIsLeftAlone(): void {
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+
+		$service = $this->makeObjectService(
+			delegations: [self::delegation(id: 'bt-1', extra: ['delegateUser' => 'alice', 'acts' => ['subsidy-decision']])],
+			existing: ['authority-delegation' => [['id' => 'ad-1', 'migratedFromObject' => 'bt-1', 'delegateUser' => 'bob', 'acts' => ['other-act']]]],
+		);
+		$this->container->method('get')->willReturn($service);
+
+		$this->migration->run(output: $this->output);
+
+		self::assertCount(expectedCount: 0, haystack: $service->saves);
+
+	}//end testACopyWithItsOwnAccountFieldsIsLeftAlone()
+
+	/**
+	 * A first copy carries the account fields now that the target declares them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
+	 */
+	public function testAFirstCopyCarriesTheAccountFields(): void {
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+
+		$service = $this->makeObjectService(
+			delegations: [self::delegation(id: 'bt-1', extra: ['delegateUser' => 'alice', 'acts' => ['subsidy-decision']])],
+		);
+		$this->container->method('get')->willReturn($service);
+
+		$this->migration->run(output: $this->output);
+
+		$written = $service->writtenFor('authority-delegation');
+		self::assertCount(expectedCount: 1, haystack: $written);
+		self::assertSame(expected: 'alice', actual: $written[0]['delegateUser']);
+		self::assertSame(expected: ['subsidy-decision'], actual: $written[0]['acts']);
+
+	}//end testAFirstCopyCarriesTheAccountFields()
+
+	/**
 	 * Nothing runs when OpenRegister is unavailable.
 	 *
 	 * @return void
@@ -264,6 +351,13 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 			 * @var array<int,array{0:string,1:array<string,mixed>,2:string}>
 			 */
 			public array $saves = [];
+
+			/**
+			 * The uuid each save named, '' for a new object.
+			 *
+			 * @var array<int,string>
+			 */
+			public array $saveUuids = [];
 
 			/**
 			 * Constructor.
@@ -394,6 +488,7 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 				$schema = $options->target->schema;
 				$id = 'new-' . $schema . '-' . (count($this->saves) + 1);
 				$this->saves[] = [$schema, $object, $id];
+				$this->saveUuids[] = (string)($options->uuid ?? '');
 
 				return ($object + ['id' => $id]);
 

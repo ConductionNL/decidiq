@@ -148,7 +148,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
         <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
-             governing document takes effect on its planned date.
+             governing document takes effect on its planned date; and
+             (governing-documents-register REQ-GDR-003) a version in effect moves
+             to replaced once a later version of its document has taken effect.
              @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
         <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>

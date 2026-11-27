@@ -1,0 +1,41 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change delegated-authority-check (REQ-DMR-008). The account, group and act keys that let another app ask whether an account holds an authority were added to bevoegdheidstoedeling (fragment 54); the rename to authority-delegation (fragment 86) did not carry them, so the copy dropped them and the check found nothing to grant. They are declared here on authority-delegation, unchanged. Properties only, so no schema version moves, as in 134-decision-authority-basis.",
+	"_spec": "openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md",
+	"components": {
+		"schemas": {
+			"AuthorityDelegation": {
+				"slug": "authority-delegation",
+				"properties": {
+					"delegateUser": {
+						"title": "Delegate (account)",
+						"type": "string",
+						"facetable": true,
+						"example": "j.devries",
+						"description": "The Nextcloud account that holds this authority. Optional. Together with delegateGroup and acts it lets an app ask whether a person may perform an act; a toedeling without either stays documentation only."
+					},
+					"delegateGroup": {
+						"title": "Delegate (group)",
+						"type": "string",
+						"facetable": true,
+						"example": "afdelingshoofden-samenleving",
+						"description": "The Nextcloud group whose members hold this authority, for an authority given to a function rather than a named person. Optional."
+					},
+					"acts": {
+						"title": "Acts",
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"example": [
+							"subsidy-decision"
+						],
+						"description": "The act keys this authority covers, as the asking app names them (for example a decision type or a case type). An empty list covers no act: the delegated authority check never reads an empty list as 'everything'."
+					}
+				}
+			}
+		}
+	}
+}

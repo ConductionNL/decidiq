@@ -32,7 +32,7 @@ use RuntimeException;
  * The rows go through the REAL RegisterObjectStore over an in-memory object
  * facade that applies the schema and status filters the way OpenRegister
  * does, and every fixture row validates against the real merged
- * bevoegdheidstoedeling schema, so a field the schema does not carry cannot
+ * authority-delegation schema, so a field the schema does not carry cannot
  * make a test pass.
  *
  * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
@@ -82,7 +82,7 @@ class DelegatedAuthorityCheckTest extends TestCase {
 				$filters = ($config['filters'] ?? []);
 				$out     = [];
 				foreach ($rows as $row) {
-					if (($filters['schema'] ?? '') !== 'bevoegdheidstoedeling') {
+					if (($filters['schema'] ?? '') !== 'authority-delegation') {
 						continue;
 					}
 
@@ -274,7 +274,7 @@ class DelegatedAuthorityCheckTest extends TestCase {
 		$files    = array_merge([$settings . 'decidesk_register.json'], (glob($settings . 'register.d/*.json') ?: []));
 		foreach ($files as $file) {
 			$doc      = json_decode((string)file_get_contents($file), true);
-			$fragment = ($doc['components']['schemas']['Bevoegdheidstoedeling'] ?? null);
+			$fragment = ($doc['components']['schemas']['AuthorityDelegation'] ?? null);
 			if (is_array($fragment) === true) {
 				$schema = array_replace_recursive($schema, $fragment);
 			}

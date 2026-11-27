@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
+use DateTimeImmutable;
 use OCA\Decidiq\Kernel\Contracts\GoverningDocumentReleaseInterface;
+use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentSuccession;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -47,9 +49,10 @@ class GoverningDocumentReleaseJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory                      $time    The clock.
-	 * @param GoverningDocumentReleaseInterface $release The release.
-	 * @param LoggerInterface                   $logger  The logger.
+	 * @param ITimeFactory                      $time       The clock.
+	 * @param GoverningDocumentReleaseInterface $release    The release.
+	 * @param LoggerInterface                   $logger     The logger.
+	 * @param GoverningDocumentSuccession       $succession Moves superseded versions to replaced.
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
 	 */
@@ -57,6 +60,7 @@ class GoverningDocumentReleaseJob extends TimedJob {
 		ITimeFactory $time,
 		private readonly GoverningDocumentReleaseInterface $release,
 		private readonly LoggerInterface $logger,
+		private readonly GoverningDocumentSuccession $succession,
 	) {
 		parent::__construct(time: $time);
 		$this->setInterval(seconds: self::INTERVAL_SECONDS);
@@ -72,6 +76,8 @@ class GoverningDocumentReleaseJob extends TimedJob {
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-006-a-document-takes-effect-on-a-date-it-was-given
 	 */
 	protected function run(mixed $argument): void {
+		$this->settleVersions();
+
 		try {
 			$result = $this->release->sweep();
 		} catch (\Throwable $e) {
@@ -93,4 +99,27 @@ class GoverningDocumentReleaseJob extends TimedJob {
 			);
 		}
 	}//end run()
+
+	/**
+	 * Move the versions a later version has taken over from to replaced.
+	 *
+	 * Runs before the release and on its own, so a failing release does not
+	 * hold it up. A refused patch is logged by the succession itself.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-003-version-immutability-once-effective
+	 */
+	private function settleVersions(): void {
+		try {
+			$settled = $this->succession->settle(today: new DateTimeImmutable('@' . $this->time->getTime()));
+		} catch (\Throwable $e) {
+			$this->logger->error('Decidiq: the governing-document succession failed', ['reason' => $e->getMessage()]);
+			return;
+		}
+
+		if ($settled['replaced'] > 0 || $settled['failed'] > 0) {
+			$this->logger->info('Decidiq: governing-document succession finished', $settled);
+		}
+	}//end settleVersions()
 }//end class

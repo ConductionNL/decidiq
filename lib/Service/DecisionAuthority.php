@@ -47,11 +47,6 @@ use Throwable;
 class DecisionAuthority implements DecisionAuthorityInterface {
 
 	/**
-	 * Schema slug of the allocation rows the check answers with.
-	 */
-	private const ALLOCATION_SCHEMA = 'bevoegdheidstoedeling';
-
-	/**
 	 * Reads the decision.
 	 *
 	 * @var DecisionContextResolver
@@ -129,10 +124,12 @@ class DecisionAuthority implements DecisionAuthorityInterface {
 	 * @param string $uuid The allocation id.
 	 *
 	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
 	 */
 	private function allocation(string $uuid): array {
 		try {
-			return ($this->store->find(schema: self::ALLOCATION_SCHEMA, uuid: $uuid) ?? []);
+			return ((new AuthorityDelegationRows(store: $this->store))->find(uuid: $uuid) ?? []);
 		} catch (Throwable $failure) {
 			$this->logger->warning('[DecisionAuthority] allocation unreadable: ' . $failure->getMessage());
 			return [];

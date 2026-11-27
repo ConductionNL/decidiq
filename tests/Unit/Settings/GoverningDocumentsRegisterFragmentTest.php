@@ -121,6 +121,20 @@ class GoverningDocumentsRegisterFragmentTest extends TestCase {
 		self::assertArrayNotHasKey('authorization', self::schemas()['GoverningDocumentVersie'], 'versions are never read anonymously');
 	}//end testOnlyAPublicDocumentIsReadAnonymously()
 
+	/**
+	 * A version number is a positive integer.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testAVersionNumberIsPositive(): void {
+		$number = self::schemas()['GoverningDocumentVersie']['properties']['versionNumber'];
+
+		self::assertSame(expected: 'integer', actual: $number['type']);
+		self::assertSame(expected: 1, actual: $number['minimum']);
+	}//end testAVersionNumberIsPositive()
+
 	public function testTheStatutenChainIsSeededWithItsDeedAndItsAmendment(): void {
 		$documents = self::seeds('association.json', 'governing-document');
 		$versions  = self::seeds('association.json', 'governing-document-versie');
