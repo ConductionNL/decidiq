@@ -84,13 +84,13 @@ class SealedObjectFileWriteListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ObjectServiceInterface          $objectService  Reads the owning object.
 	 * @param ListenerSchemaResolverInterface $schemaResolver Names the owning object's schema.
-	 * @param LoggerInterface                 $logger         The log.
+	 * @param ObjectServiceInterface          $objectService  Reads the owning object.
+	 * @param LoggerInterface                 $logger         Logs an owner that could not be read.
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
 		private readonly ListenerSchemaResolverInterface $schemaResolver,
+		private readonly ObjectServiceInterface $objectService,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

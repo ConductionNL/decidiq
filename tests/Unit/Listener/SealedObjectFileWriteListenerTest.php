@@ -120,13 +120,13 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 		$entities = [];
 		$slugs    = [];
 		foreach ($records as $uuid => [$slug, $row]) {
-			$entity = $this->createMock(ObjectEntity::class);
+			$entity = $this->createMock(originalClassName: ObjectEntity::class);
 			$entity->method('getObject')->willReturn($row);
 			$entities[$uuid]          = $entity;
 			$slugs[spl_object_id($entity)] = $slug;
 		}
 
-		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(
 			function (int|string $id) use ($entities): ObjectEntity {
 				$this->lookups++;
@@ -142,12 +142,12 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 			}
 		);
 
-		$resolver = $this->createMock(ListenerSchemaResolverInterface::class);
+		$resolver = $this->createMock(originalClassName: ListenerSchemaResolverInterface::class);
 		$resolver->method('schemaSlug')->willReturnCallback(
 			static fn (?object $entity): string => ($slugs[spl_object_id($entity)] ?? '')
 		);
 
-		return new SealedObjectFileWriteListener($objects, $resolver, new NullLogger());
+		return new SealedObjectFileWriteListener(schemaResolver: $resolver, objectService: $objects, logger: new NullLogger());
 	}//end listener()
 
 	/**
@@ -159,7 +159,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	 * @return Folder
 	 */
 	private function folder(string $name, ?Folder $parent = null): Folder {
-		$folder = $this->createMock(Folder::class);
+		$folder = $this->createMock(originalClassName: Folder::class);
 		$folder->method('getName')->willReturn($name);
 		if ($parent === null) {
 			$folder->method('getParent')->willThrowException(new RuntimeException('top'));
@@ -179,7 +179,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	 * @return File
 	 */
 	private function file(string $name, Folder $parent): File {
-		$file = $this->createMock(File::class);
+		$file = $this->createMock(originalClassName: File::class);
 		$file->method('getName')->willReturn($name);
 		$file->method('getParent')->willReturn($parent);
 		return $file;
@@ -206,10 +206,10 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 
 		try {
 			$this->listener()->handle(new BeforeNodeWrittenEvent($text));
-			self::fail('The overwrite was not refused.');
+			self::fail(message: 'The overwrite was not refused.');
 		} catch (HintException $e) {
-			self::assertStringContainsString('in-effect', $e->getMessage());
-			self::assertSame(FileWriteEvent::HTTP_STATUS, $e->getCode());
+			self::assertStringContainsString(needle: 'in-effect', haystack: $e->getMessage());
+			self::assertSame(expected: FileWriteEvent::HTTP_STATUS, actual: $e->getCode());
 		}
 	}//end testReplacingTheTextOfAVersionInEffectIsRefused()
 
@@ -221,7 +221,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	public function testAddingAFileToAVersionInEffectIsRefused(): void {
 		$extra = $this->file(name: 'bijlage.pdf', parent: $this->objectFolder(uuid: self::IN_EFFECT));
 
-		$this->expectException(HintException::class);
+		$this->expectException(exception: HintException::class);
 		$this->listener()->handle(new BeforeNodeCreatedEvent($extra));
 	}//end testAddingAFileToAVersionInEffectIsRefused()
 
@@ -233,8 +233,8 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	public function testRemovingTheTextOfAReplacedVersionIsAborted(): void {
 		$text = $this->file(name: 'statuten-v1.pdf', parent: $this->objectFolder(uuid: self::REPLACED));
 
-		$this->expectException(AbortedEventException::class);
-		$this->expectExceptionMessage('replaced');
+		$this->expectException(exception: AbortedEventException::class);
+		$this->expectExceptionMessage(message: 'replaced');
 		$this->listener()->handle(new BeforeNodeDeletedEvent($text));
 	}//end testRemovingTheTextOfAReplacedVersionIsAborted()
 
@@ -247,7 +247,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 		$source = $this->file(name: 'nieuw.pdf', parent: $this->objectFolder(uuid: self::DRAFT));
 		$target = $this->file(name: 'nieuw.pdf', parent: $this->objectFolder(uuid: self::IN_EFFECT));
 
-		$this->expectException(AbortedEventException::class);
+		$this->expectException(exception: AbortedEventException::class);
 		$this->listener()->handle(new BeforeNodeRenamedEvent($source, $target));
 	}//end testMovingAFileIntoASealedVersionIsAborted()
 
@@ -257,7 +257,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testRemovingTheFolderOfASealedVersionIsAborted(): void {
-		$this->expectException(AbortedEventException::class);
+		$this->expectException(exception: AbortedEventException::class);
 		$this->listener()->handle(new BeforeNodeDeletedEvent($this->objectFolder(uuid: self::IN_EFFECT)));
 	}//end testRemovingTheFolderOfASealedVersionIsAborted()
 
@@ -270,8 +270,8 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 		$sub  = $this->folder(name: 'bijlagen', parent: $this->objectFolder(uuid: self::IN_EFFECT));
 		$file = $this->file(name: 'kaart.pdf', parent: $sub);
 
-		self::assertSame(self::IN_EFFECT, SealedObjectFileWriteListener::ownerFolderOf(node: $file));
-		self::assertNotNull($this->listener()->refusalFor(node: $file));
+		self::assertSame(expected: self::IN_EFFECT, actual: SealedObjectFileWriteListener::ownerFolderOf(node: $file));
+		self::assertNotNull(actual: $this->listener()->refusalFor(node: $file));
 	}//end testAFileInASubfolderOfASealedVersionIsRefused()
 
 	/**
@@ -285,7 +285,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 		$listener->handle(new BeforeNodeWrittenEvent($this->file(name: 'statuten-v3.pdf', parent: $this->objectFolder(uuid: self::DRAFT))));
 		$listener->handle(new BeforeNodeCreatedEvent($this->objectFolder(uuid: self::IN_EFFECT)));
 
-		self::assertSame(1, $this->lookups);
+		self::assertSame(expected: 1, actual: $this->lookups);
 	}//end testADraftVersionAndANewFolderPass()
 
 	/**
@@ -298,9 +298,9 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 
 		$this->listener()->handle(new BeforeNodeWrittenEvent($paper));
 
-		self::assertNull(SealedObjectFileWriteListener::sealedRefusal(slug: 'agenda-item', row: ['status' => 'in-effect']));
-		self::assertNotNull(SealedObjectFileWriteListener::sealedRefusal(slug: 'governing-document-versie', row: ['status' => 'lapsed']));
-		self::assertNull(SealedObjectFileWriteListener::sealedRefusal(slug: 'governing-document-versie', row: ['status' => 'adopted']));
+		self::assertNull(actual: SealedObjectFileWriteListener::sealedRefusal(slug: 'agenda-item', row: ['status' => 'in-effect']));
+		self::assertNotNull(actual: SealedObjectFileWriteListener::sealedRefusal(slug: 'governing-document-versie', row: ['status' => 'lapsed']));
+		self::assertNull(actual: SealedObjectFileWriteListener::sealedRefusal(slug: 'governing-document-versie', row: ['status' => 'adopted']));
 	}//end testAnotherSchemaIsNotSealed()
 
 	/**
@@ -313,10 +313,10 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 
 		$notes = $this->file(name: 'notes.txt', parent: $this->folder(name: 'Documents', parent: $this->folder(name: 'files')));
 		$listener->handle(new BeforeNodeWrittenEvent($notes));
-		self::assertSame(0, $this->lookups);
+		self::assertSame(expected: 0, actual: $this->lookups);
 
 		$listener->handle(new BeforeNodeWrittenEvent($this->file(name: 'x.pdf', parent: $this->objectFolder(uuid: self::UNKNOWN))));
-		self::assertSame(1, $this->lookups);
+		self::assertSame(expected: 1, actual: $this->lookups);
 	}//end testFilesOutsideARecordPass()
 
 	/**
@@ -325,8 +325,8 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnreadableRecordRefuses(): void {
-		$this->expectException(HintException::class);
-		$this->expectExceptionMessage('could not be checked');
+		$this->expectException(exception: HintException::class);
+		$this->expectExceptionMessage(message: 'could not be checked');
 		$this->listener()->handle(new BeforeNodeWrittenEvent($this->file(name: 'x.pdf', parent: $this->objectFolder(uuid: self::BROKEN))));
 	}//end testAnUnreadableRecordRefuses()
 
@@ -338,7 +338,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	public function testAfterEventsAreIgnored(): void {
 		$this->listener()->handle(new NodeWrittenEvent($this->file(name: 'statuten-v2.pdf', parent: $this->objectFolder(uuid: self::IN_EFFECT))));
 
-		self::assertSame(0, $this->lookups);
+		self::assertSame(expected: 0, actual: $this->lookups);
 	}//end testAfterEventsAreIgnored()
 
 	/**
@@ -348,7 +348,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 	 */
 	public function testTheRegistrarListensToEveryBeforeWriteEvent(): void {
 		$registered = [];
-		$context    = $this->createMock(IRegistrationContext::class);
+		$context    = $this->createMock(originalClassName: IRegistrationContext::class);
 		$context->method('registerEventListener')->willReturnCallback(
 			static function (string $event, string $listener) use (&$registered): void {
 				$registered[] = [$event, $listener];
@@ -358,7 +358,7 @@ class SealedObjectFileWriteListenerTest extends TestCase {
 		(new FilesEventRegistrar())->register(context: $context);
 
 		foreach ([BeforeNodeCreatedEvent::class, BeforeNodeWrittenEvent::class, BeforeNodeRenamedEvent::class, BeforeNodeDeletedEvent::class] as $event) {
-			self::assertContains([$event, SealedObjectFileWriteListener::class], $registered);
+			self::assertContains(needle: [$event, SealedObjectFileWriteListener::class], haystack: $registered);
 		}
 	}//end testTheRegistrarListensToEveryBeforeWriteEvent()
 }//end class
