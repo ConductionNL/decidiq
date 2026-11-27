@@ -78,6 +78,12 @@ class GoverningDocumentVersionGuardListenerTest extends TestCase {
 			);
 		}
 
+		// One decision exists: `besluit`.
+		$decisions = ['besluit' => $this->entity(row: ['id' => 'besluit'])];
+		$objects->method('find')->willReturnCallback(
+			static fn (int|string $id): ?ObjectEntity => ($decisions[(string)$id] ?? null)
+		);
+
 		return new GoverningDocumentVersionGuardListener(new GoverningDocumentConsolidationService($objects), new NullLogger());
 	}//end listener()
 
@@ -107,6 +113,23 @@ class GoverningDocumentVersionGuardListenerTest extends TestCase {
 
 		self::assertFalse($event->isPropagationStopped());
 	}//end testATracedAmendmentIsSaved()
+
+	/**
+	 * An amendment naming a decision that does not exist is stopped before it is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testAnAmendmentNamingAMissingDecisionIsStoppedBeforeItIsSaved(): void {
+		$row   = ['document' => 'doc', 'versionNumber' => 2, 'status' => 'draft', 'determinedBy' => 'besluit-gone'];
+		$event = new ObjectCreatingEvent($this->entity(row: $row));
+
+		$this->listener()->handle(event: $event);
+
+		self::assertTrue(condition: $event->isPropagationStopped());
+		self::assertStringContainsString(needle: 'besluit-gone does not exist', haystack: (string)$event->getErrors()['message']);
+	}//end testAnAmendmentNamingAMissingDecisionIsStoppedBeforeItIsSaved()
 
 	public function testUnreadableVersionsStopTheSave(): void {
 		$event = new ObjectCreatingEvent($this->entity(['document' => 'doc', 'versionNumber' => 2, 'determinedBy' => 'besluit']));

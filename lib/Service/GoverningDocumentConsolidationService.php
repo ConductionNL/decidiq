@@ -96,6 +96,11 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	public const DECISION_SCHEMA = 'decision';
 
 	/**
+	 * The placeholder the example sets write for a reference not made yet.
+	 */
+	private const NIL_UUID = '00000000-0000-0000-0000-000000000000';
+
+	/**
 	 * The most citing decisions one read lists.
 	 *
 	 * @var int
@@ -185,7 +190,49 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		self::assertTraced(others: $others, version: $version);
 		self::assertUniqueNumber(others: $others, version: $version);
 		self::assertActivationOrder(others: $others, version: $version);
+		$this->assertDecisionResolves(version: $version);
 	}//end assertAcceptable()
+
+	/**
+	 * Refuse a version whose enacting decision does not exist.
+	 *
+	 * The trace rule asks for a resolvable decision, not a filled-in field.
+	 * Checked while the version is still open: once sealed, `determinedBy`
+	 * is frozen, and a later change of state (to replaced or lapsed) must
+	 * not fail on a decision removed since. A decision that cannot be read
+	 * refuses the save, as a sibling read does. The nil uuid is the example
+	 * sets' placeholder for "no decision yet" and is not looked up.
+	 *
+	 * @param array<string, mixed> $version The version about to be saved.
+	 *
+	 * @return void
+	 *
+	 * @throws GoverningDocumentVersionRefusedException When it is refused.
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	private function assertDecisionResolves(array $version): void {
+		$decision = self::reference(value: ($version['determinedBy'] ?? null));
+		if (in_array($decision, ['', self::NIL_UUID], true) === true || self::isSealed(version: $version) === true) {
+			return;
+		}
+
+		try {
+			$found = $this->systemRead(id: $decision, schema: self::DECISION_SCHEMA);
+		} catch (Throwable $e) {
+			throw new GoverningDocumentVersionRefusedException(
+				message: 'The version was not saved: its enacting decision could not be read to check it. Try again in a moment.',
+				code: 0,
+				previous: $e
+			);
+		}
+
+		if ($found === null) {
+			throw new GoverningDocumentVersionRefusedException(
+				message: 'The version was not saved: its enacting decision (determinedBy) ' . $decision . ' does not exist.'
+			);
+		}
+	}//end assertDecisionResolves()
 
 	/**
 	 * Refuse an edit of a sealed version's frozen fields (REQ-GDR-003).

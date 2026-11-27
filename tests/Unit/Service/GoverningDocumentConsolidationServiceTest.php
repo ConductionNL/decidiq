@@ -245,6 +245,78 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		$this->service->assertAcceptable(['document' => self::DOC, 'versionNumber' => 4, 'status' => 'draft']);
 	}//end testAnUnnumberedSealedSiblingStillRequiresTheDecision()
 
+	/**
+	 * An open version naming a decision that does not exist is refused, naming the reference.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testAnAmendmentNamingAMissingDecisionIsRefused(): void {
+		$this->objects->method('find')->willReturn(null);
+		$this->expectException(exception: GoverningDocumentVersionRefusedException::class);
+		$this->expectExceptionMessage(message: 'besluit-gone does not exist');
+
+		$this->service->assertAcceptable(['document' => self::DOC, 'versionNumber' => 3, 'status' => 'draft', 'determinedBy' => 'besluit-gone']);
+	}//end testAnAmendmentNamingAMissingDecisionIsRefused()
+
+	/**
+	 * The decision is read as the system from the decision schema; an unreadable one refuses.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testTheDecisionIsReadAsTheSystemAndAFailedReadRefuses(): void {
+		$this->objects->expects(self::once())->method('find')
+			->with('besluit-2026', self::callback(callback: static fn ($options): bool => $options->schema === 'decision'), false, false)
+			->willThrowException(new \RuntimeException('unavailable'));
+		$this->expectException(exception: GoverningDocumentVersionRefusedException::class);
+		$this->expectExceptionMessage(message: 'could not be read');
+
+		$this->service->assertAcceptable(
+			['document' => self::DOC, 'versionNumber' => 3, 'status' => 'adopted', 'determinedBy' => 'besluit-2026']
+		);
+	}//end testTheDecisionIsReadAsTheSystemAndAFailedReadRefuses()
+
+	/**
+	 * A sealed version is not re-checked: its decision is frozen and may since have gone.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testASealedVersionIsNotReCheckedForItsDecision(): void {
+		$this->objects->expects(self::never())->method('find');
+
+		$this->service->assertAcceptable(
+			[
+				'id' => 'v2',
+				'document' => self::DOC,
+				'versionNumber' => 2,
+				'effectiveDate' => '2022-01-01',
+				'status' => 'replaced',
+				'determinedBy' => 'besluit-2021',
+			]
+		);
+	}//end testASealedVersionIsNotReCheckedForItsDecision()
+
+	/**
+	 * The example sets' nil-uuid placeholder on a draft first version is not looked up.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testTheNilPlaceholderIsNotLookedUp(): void {
+		$this->versions = [];
+		$this->objects->expects(self::never())->method('find');
+
+		$this->service->assertAcceptable(
+			['document' => 'reglement', 'versionNumber' => 1, 'status' => 'draft', 'determinedBy' => '00000000-0000-0000-0000-000000000000']
+		);
+	}//end testTheNilPlaceholderIsNotLookedUp()
+
 	public function testADuplicateVersionNumberIsRefused(): void {
 		$this->expectException(GoverningDocumentVersionRefusedException::class);
 		$this->expectExceptionMessage('already has a version 2');
@@ -276,6 +348,7 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 	}//end testPuttingAVersionInEffectAfterTheLatestIsAccepted()
 
 	public function testADraftWithAnEarlierDateIsNotYetRefused(): void {
+		$this->objects->method('find')->willReturn($this->document(row: ['id' => 'besluit-x']));
 		$this->service->assertAcceptable(['id' => 'v3', 'document' => self::DOC, 'versionNumber' => 3, 'effectiveDate' => '2021-06-01', 'status' => 'draft', 'determinedBy' => 'besluit-x']);
 		$this->addToAssertionCount(1);
 	}//end testADraftWithAnEarlierDateIsNotYetRefused()
