@@ -197,6 +197,55 @@ class OndermandaatGuardListenerTest extends TestCase {
 		}
 	}//end testPartiesNamedByReferenceOrByTheOldFieldNamesAreSaved()
 
+	/**
+	 * Withdrawing a delegation without the revoking decision is stopped; with it, it is saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-002-declarative-status-lifecycle-with-intrekking-traced-to-a-revoking-decision
+	 */
+	public function testAWithdrawalMustNameTheRevokingDecision(): void {
+		$stored = $this->entity(row: self::PARTIES + ['status' => 'effective'], uuid: 'mandaat');
+
+		$untraced = new ObjectUpdatingEvent($this->entity(row: self::PARTIES + ['status' => 'withdrawn'], uuid: 'mandaat'), $stored);
+		$this->listener()->handle(event: $untraced);
+		self::assertTrue(condition: $untraced->isPropagationStopped());
+		self::assertSame(
+			expected: ['message' => 'The delegation was not withdrawn: name the decision that revoked it (withdrawnBy).'],
+			actual: $untraced->getErrors()
+		);
+
+		$traced = new ObjectUpdatingEvent(
+			$this->entity(row: self::PARTIES + ['status' => 'withdrawn', 'withdrawnBy' => 'intrekkingsbesluit-2026'], uuid: 'mandaat'),
+			$stored
+		);
+		$this->listener()->handle(event: $traced);
+		self::assertFalse(condition: $traced->isPropagationStopped());
+	}//end testAWithdrawalMustNameTheRevokingDecision()
+
+	/**
+	 * A delegation already withdrawn before the save, and a lapse, are not judged.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-002-declarative-status-lifecycle-with-intrekking-traced-to-a-revoking-decision
+	 */
+	public function testAnEarlierWithdrawalAndALapseAreLeftAlone(): void {
+		$already = new ObjectUpdatingEvent(
+			$this->entity(row: self::PARTIES + ['status' => 'withdrawn', 'publicationDate' => '2026-01-01'], uuid: 'mandaat'),
+			$this->entity(row: self::PARTIES + ['status' => 'withdrawn'], uuid: 'mandaat')
+		);
+		$this->listener()->handle(event: $already);
+		self::assertFalse(condition: $already->isPropagationStopped());
+
+		$lapse = new ObjectUpdatingEvent(
+			$this->entity(row: self::PARTIES + ['status' => 'lapsed'], uuid: 'mandaat'),
+			$this->entity(row: self::PARTIES + ['status' => 'effective'], uuid: 'mandaat')
+		);
+		$this->listener()->handle(event: $lapse);
+		self::assertFalse(condition: $lapse->isPropagationStopped());
+	}//end testAnEarlierWithdrawalAndALapseAreLeftAlone()
+
 	public function testAnotherSchemaIsLeftAlone(): void {
 		$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => 'decision', 'parentAllocation' => 'delegatie']));
 
