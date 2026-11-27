@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob;
+use DateTimeImmutable;
 use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentRelease;
+use OCA\Decidiq\Service\GoverningDocument\GoverningDocumentSuccession;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -43,6 +45,19 @@ class GoverningDocumentReleaseJobTest extends TestCase {
 
 	private GoverningDocumentRelease&MockObject $release;
 	private LoggerInterface&MockObject $logger;
+	/**
+	 * The succession the job runs first.
+	 *
+	 * @var GoverningDocumentSuccession&MockObject
+	 */
+	private GoverningDocumentSuccession&MockObject $succession;
+
+	/**
+	 * The clock.
+	 *
+	 * @var ITimeFactory&MockObject
+	 */
+	private ITimeFactory&MockObject $time;
 
 	/**
 	 * Set up the mocks.
@@ -53,6 +68,9 @@ class GoverningDocumentReleaseJobTest extends TestCase {
 		parent::setUp();
 		$this->release = $this->createMock(GoverningDocumentRelease::class);
 		$this->logger  = $this->createMock(LoggerInterface::class);
+		$this->succession = $this->createMock(originalClassName: GoverningDocumentSuccession::class);
+		$this->succession->method('settle')->willReturn(['replaced' => 0, 'failed' => 0]);
+		$this->time = $this->createMock(originalClassName: ITimeFactory::class);
 	}//end setUp()
 
 	/**
@@ -61,7 +79,7 @@ class GoverningDocumentReleaseJobTest extends TestCase {
 	 * @return GoverningDocumentReleaseJob
 	 */
 	private function runJob(): GoverningDocumentReleaseJob {
-		$job = new GoverningDocumentReleaseJob(time: $this->createMock(ITimeFactory::class), release: $this->release, logger: $this->logger);
+		$job = new GoverningDocumentReleaseJob(time: $this->time, release: $this->release, logger: $this->logger, succession: $this->succession);
 		(new ReflectionMethod($job, 'run'))->invoke($job, null);
 
 		return $job;
@@ -107,4 +125,40 @@ class GoverningDocumentReleaseJobTest extends TestCase {
 
 		$this->runJob();
 	}//end testAFailingReleaseIsLogged()
+
+	/**
+	 * The run settles the versions for the clock's day and reports what moved, even when the release fails.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-003-version-immutability-once-effective
+	 */
+	public function testItSettlesTheVersionsForTheClocksDay(): void {
+		$this->time->method('getTime')->willReturn((int)(new DateTimeImmutable('2027-03-01T02:00:00Z'))->format('U'));
+		$this->succession = $this->createMock(originalClassName: GoverningDocumentSuccession::class);
+		$this->succession->expects(self::once())->method('settle')
+			->with(self::callback(callback: static fn (DateTimeImmutable $today): bool => $today->format('Y-m-d') === '2027-03-01'))
+			->willReturn(['replaced' => 2, 'failed' => 0]);
+		$this->release->method('sweep')->willThrowException(new RuntimeException('register unreadable'));
+		$this->logger->expects(self::once())->method('info')->with(self::stringContains(string: 'succession finished'), ['replaced' => 2, 'failed' => 0]);
+		$this->logger->expects(self::once())->method('error')->with(self::stringContains(string: 'release failed'));
+
+		$this->runJob();
+	}//end testItSettlesTheVersionsForTheClocksDay()
+
+	/**
+	 * A failing succession is logged and the release still runs.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-003-version-immutability-once-effective
+	 */
+	public function testAFailingSuccessionDoesNotHoldUpTheRelease(): void {
+		$this->succession = $this->createMock(originalClassName: GoverningDocumentSuccession::class);
+		$this->succession->method('settle')->willThrowException(new RuntimeException('register unreadable'));
+		$this->release->expects(self::once())->method('sweep')->willReturn(['released' => [], 'overdue' => [], 'failed' => []]);
+		$this->logger->expects(self::once())->method('error')->with(self::stringContains(string: 'succession failed'));
+
+		$this->runJob();
+	}//end testAFailingSuccessionDoesNotHoldUpTheRelease()
 }//end class

@@ -80,7 +80,14 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 	private static function statutenChain(): array {
 		return [
 			['id' => 'v1', 'document' => self::DOC, 'versionNumber' => 1, 'effectiveDate' => '1990-05-01', 'status' => 'replaced'],
-			['id' => 'v2', 'document' => self::DOC, 'versionNumber' => 2, 'effectiveDate' => '2022-01-01', 'status' => 'in-effect', 'determinedBy' => 'besluit-2021'],
+			[
+				'id' => 'v2',
+				'document' => self::DOC,
+				'versionNumber' => 2,
+				'effectiveDate' => '2022-01-01',
+				'status' => 'in-effect',
+				'determinedBy' => 'besluit-2021',
+			],
 		];
 	}//end statutenChain()
 
@@ -197,6 +204,46 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		$this->service->assertAcceptable(['document' => self::DOC, 'versionNumber' => 2, 'status' => 'draft']);
 		$this->addToAssertionCount(1);
 	}//end testOnlyDraftSiblingsDoNotMakeAVersionAnAmendment()
+
+	/**
+	 * The constitutive first version moves on to replaced without a decision once a later version is sealed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testTheConstitutiveVersionMayMoveOnAfterALaterVersionSeals(): void {
+		$this->versions = [
+			[
+				'id' => 'v2',
+				'document' => self::DOC,
+				'versionNumber' => 2,
+				'effectiveDate' => '2022-01-01',
+				'status' => 'in-effect',
+				'determinedBy' => 'besluit-2021',
+			],
+		];
+
+		$this->service->assertAcceptable(
+			['id' => 'v1', 'document' => self::DOC, 'versionNumber' => 1, 'effectiveDate' => '2005-06-01', 'status' => 'replaced']
+		);
+		$this->addToAssertionCount(count: 1);
+	}//end testTheConstitutiveVersionMayMoveOnAfterALaterVersionSeals()
+
+	/**
+	 * A sealed sibling without a number to compare still makes an untraced version an amendment.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	public function testAnUnnumberedSealedSiblingStillRequiresTheDecision(): void {
+		$this->versions = [['id' => 'vx', 'document' => self::DOC, 'effectiveDate' => '2022-01-01', 'status' => 'in-effect']];
+		$this->expectException(exception: GoverningDocumentVersionRefusedException::class);
+		$this->expectExceptionMessage(message: 'determinedBy');
+
+		$this->service->assertAcceptable(['document' => self::DOC, 'versionNumber' => 4, 'status' => 'draft']);
+	}//end testAnUnnumberedSealedSiblingStillRequiresTheDecision()
 
 	public function testADuplicateVersionNumberIsRefused(): void {
 		$this->expectException(GoverningDocumentVersionRefusedException::class);

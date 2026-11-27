@@ -326,7 +326,7 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		}
 
 		foreach ($others as $other) {
-			if (self::isSealed(version: $other) === true) {
+			if (self::isSealed(version: $other) === true && self::precedes(other: $other, version: $version) === true) {
 				throw new GoverningDocumentVersionRefusedException(
 					message: 'The version was not saved: this document already has a version in effect, '
 						. 'so an amendment must name the decision that enacted it (determinedBy).'
@@ -334,6 +334,31 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 			}
 		}
 	}//end assertTraced()
+
+	/**
+	 * Whether another version comes before this one in the document's numbering.
+	 *
+	 * Only an earlier sealed version makes this one an amendment: the
+	 * constitutive first version stays untraced when a later version seals,
+	 * and moves on to replaced or lapsed without naming a decision. Without
+	 * two version numbers to compare, the other version counts as earlier.
+	 *
+	 * @param array<string, mixed> $other   Another version of the document.
+	 * @param array<string, mixed> $version The version about to be saved.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision
+	 */
+	private static function precedes(array $other, array $version): bool {
+		$theirs = ($other['versionNumber'] ?? null);
+		$mine   = ($version['versionNumber'] ?? null);
+		if (is_numeric($theirs) === false || is_numeric($mine) === false) {
+			return true;
+		}
+
+		return (int)$theirs < (int)$mine;
+	}//end precedes()
 
 	/**
 	 * Refuse a version number the document already has.
