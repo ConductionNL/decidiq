@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Opbevaring ikke fastlagt",
         "Meetings without dossier": "Møder uden sag",
         "Closed item": "Lukket punkt",
+        "Consolidated text": "Konsolideret tekst",
         "Depth {depth}": "Dybde {depth}"
     },
     "nplurals=2; plural=(n != 1);"

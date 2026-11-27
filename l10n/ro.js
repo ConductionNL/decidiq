@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Păstrare nedeterminată",
         "Meetings without dossier": "Ședințe fără dosar",
         "Closed item": "Punct închis",
+        "Consolidated text": "Text consolidat",
         "Depth {depth}": "Adâncime {depth}"
     },
     "nplurals=2; plural=(n != 1);"

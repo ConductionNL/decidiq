@@ -3422,6 +3422,7 @@ OC.L10N.register(
         "Retention not resolved": "Conservation non déterminée",
         "Meetings without dossier": "Réunions sans dossier",
         "Closed item": "Point à huis clos",
+        "Consolidated text": "Texte consolidé",
         "Depth {depth}": "Profondeur {depth}"
     },
     "nplurals=2; plural=(n != 1);"

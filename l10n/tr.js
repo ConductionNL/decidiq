@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Saklama belirlenmedi",
         "Meetings without dossier": "Dosyası olmayan toplantılar",
         "Closed item": "Kapalı gündem maddesi",
+        "Consolidated text": "Konsolide metin",
         "Depth {depth}": "Derinlik {depth}"
     },
     "nplurals=2; plural=(n != 1);"

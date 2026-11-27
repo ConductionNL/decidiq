@@ -3419,6 +3419,7 @@ OC.L10N.register(
         "Retention not resolved": "Megőrzés nincs meghatározva",
         "Meetings without dossier": "Dosszié nélküli ülések",
         "Closed item": "Zárt napirendi pont",
+        "Consolidated text": "Egységes szerkezetbe foglalt szöveg",
         "Depth {depth}": "Mélység: {depth}"
     },
     "nplurals=2; plural=(n != 1);"

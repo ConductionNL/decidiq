@@ -3420,6 +3420,7 @@
         "Retention not resolved": "Oppbevaring ikke fastsatt",
         "Meetings without dossier": "Møter uten mappe",
         "Closed item": "Lukket sak",
+        "Consolidated text": "Konsolidert tekst",
         "Depth {depth}": "Dybde {depth}"
     },
     "plurals": null

@@ -3353,6 +3353,7 @@
         "Retention not resolved": "Зберігання не визначено",
         "Meetings without dossier": "Засідання без справи",
         "Closed item": "Закритий пункт",
+        "Consolidated text": "Консолідований текст",
         "Depth {depth}": "Глибина {depth}"
     },
     "plurals": null

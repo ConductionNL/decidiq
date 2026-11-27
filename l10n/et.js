@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Säilitamine määramata",
         "Meetings without dossier": "Toimikuta koosolekud",
         "Closed item": "Kinnine päevakorrapunkt",
+        "Consolidated text": "Konsolideeritud tekst",
         "Depth {depth}": "Sügavus {depth}"
     },
     "nplurals=2; plural=(n != 1);"

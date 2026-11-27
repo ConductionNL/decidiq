@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Ruajtja e papërcaktuar",
         "Meetings without dossier": "Mbledhje pa dosje",
         "Closed item": "Pikë e mbyllur",
+        "Consolidated text": "Teksti i konsoliduar",
         "Depth {depth}": "Thellësia {depth}"
     },
     "nplurals=2; plural=(n != 1);"

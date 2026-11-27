@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Żamma mhux determinata",
         "Meetings without dossier": "Laqgħat mingħajr fajl",
         "Closed item": "Punt magħluq",
+        "Consolidated text": "Test konsolidat",
         "Depth {depth}": "Fond {depth}"
     },
     "nplurals=2; plural=(n != 1);"

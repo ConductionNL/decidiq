@@ -3420,6 +3420,7 @@
         "Retention not resolved": "Хранение не определено",
         "Meetings without dossier": "Заседания без дела",
         "Closed item": "Закрытый пункт",
+        "Consolidated text": "Консолидированный текст",
         "Depth {depth}": "Глубина {depth}"
     },
     "plurals": null

@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Glabāšana nav noteikta",
         "Meetings without dossier": "Sēdes bez lietas",
         "Closed item": "Slēgts jautājums",
+        "Consolidated text": "Konsolidētais teksts",
         "Depth {depth}": "Dziļums {depth}"
     },
     "nplurals=2; plural=(n != 1);"

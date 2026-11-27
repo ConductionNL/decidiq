@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Retention not resolved": "Saugojimas nenustatytas",
         "Meetings without dossier": "Posėdžiai be bylos",
         "Closed item": "Uždaras klausimas",
+        "Consolidated text": "Konsoliduotas tekstas",
         "Depth {depth}": "Gylis {depth}"
     },
     "nplurals=2; plural=(n != 1);"
