@@ -100,6 +100,18 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	];
 
 	/**
+	 * Properties a target schema declared only after rows had been copied to it,
+	 * by target slug. A copy made before then dropped them (the copy keeps only
+	 * declared properties), so a later run carries each one over from the source
+	 * where the copy has none. A value the copy already holds is never replaced.
+	 *
+	 * @var array<string,array<int,string>>
+	 */
+	private const LATE_PROPERTIES = [
+		'authority-delegation' => ['delegateUser', 'delegateGroup', 'acts'],
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
@@ -178,6 +190,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 			foreach ($rows as $row) {
 				$origin = $this->identifierOf(object: $row);
 				if ($origin === '' || isset($existing[$origin]) === true) {
+					$copied += $this->backfill(objectService: $objectService, target: $target, copy: ($existing[$origin] ?? []), source: $row);
 					continue;
 				}
 
@@ -198,7 +211,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 						),
 						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $target))
 					);
-					$existing[$origin]  = true;
+					$existing[$origin]  = ($this->toArray(entity: $saved) ?? [self::ORIGIN_KEY => $origin]);
 					$copiedIds[$origin] = $this->identifierOf(object: $this->toArray(entity: $saved));
 					$copied++;
 				} catch (Throwable $e) {
@@ -221,7 +234,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 * @param object $objectService The OR ObjectService.
 	 * @param string $schema        The target schema.
 	 *
-	 * @return array<string,bool> Keyed by source identifier.
+	 * @return array<string,array<string,mixed>> The copies, keyed by source identifier.
 	 */
 	private function originIndex(object $objectService, string $schema): array {
 		$index = [];
@@ -229,13 +242,76 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 		foreach ($this->readRows(objectService: $objectService, schema: $schema, limit: 10000) as $row) {
 			$origin = trim((string)($row[self::ORIGIN_KEY] ?? ''));
 			if ($origin !== '') {
-				$index[$origin] = true;
+				$index[$origin] = $row;
 			}
 		}
 
 		return $index;
 
 	}//end originIndex()
+
+	/**
+	 * Carry late-declared properties from a source row onto its existing copy.
+	 *
+	 * 🔴 FAIL SOFT, as the copy: a row that cannot be written is logged and
+	 * left for the next run.
+	 *
+	 * @param object              $objectService The OR ObjectService.
+	 * @param string              $target        The target schema slug.
+	 * @param array<string,mixed> $copy          The existing copy, or [] when there is none.
+	 * @param array<string,mixed> $source        The legacy row.
+	 *
+	 * @return int 1 when the copy was updated, else 0.
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
+	 */
+	private function backfill(object $objectService, string $target, array $copy, array $source): int {
+		$missing = $this->lateValues(target: $target, copy: $copy, source: $source);
+		$uuid    = $this->identifierOf(object: $copy);
+		if ($missing === [] || $uuid === '') {
+			return 0;
+		}
+
+		$payload = array_diff_key($copy, array_flip(['id', 'uuid', '@self']));
+		try {
+			$objectService->setRegister(self::REGISTER);
+			$objectService->setSchema($target);
+			$objectService->saveObject(
+				object: ($missing + $payload),
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $target), uuid: $uuid)
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning('Decidiq: final rename backfill failed for one row', ['error' => $e->getMessage(), 'schema' => $target, 'uuid' => $uuid]);
+			return 0;
+		}
+
+		return 1;
+
+	}//end backfill()
+
+	/**
+	 * The late-declared values the source holds and the copy lacks.
+	 *
+	 * @param string              $target The target schema slug.
+	 * @param array<string,mixed> $copy   The existing copy.
+	 * @param array<string,mixed> $source The legacy row.
+	 *
+	 * @return array<string,mixed> Property to value.
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
+	 */
+	private function lateValues(string $target, array $copy, array $source): array {
+		$missing = [];
+		foreach ((self::LATE_PROPERTIES[$target] ?? []) as $property) {
+			$value = ($source[$property] ?? null);
+			if (in_array($value, [null, '', []], true) === false && in_array(($copy[$property] ?? null), [null, '', []], true) === true) {
+				$missing[$property] = $value;
+			}
+		}
+
+		return $missing;
+
+	}//end lateValues()
 
 	/**
 	 * Order the rows so a parent allocation is copied before its sub-delegations.

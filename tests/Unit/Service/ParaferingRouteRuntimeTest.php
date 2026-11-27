@@ -64,7 +64,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			public array $rows = [
 				'decision-stage' => [],
 				'approval-action' => [],
-				'bevoegdheidstoedeling' => [],
+				'authority-delegation' => [],
 			];
 
 			/**
@@ -76,7 +76,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			private const REQUIRED = [
 				'decision-stage' => ['sequence', 'stageType', 'status', 'decisionMakerType', 'label'],
 				'approval-action' => ['subject', 'step', 'actor', 'action'],
-				'bevoegdheidstoedeling' => ['type', 'subject', 'decision', 'validFrom', 'status'],
+				'authority-delegation' => ['type', 'subject', 'decision', 'validFrom', 'status'],
 			];
 
 			/**
@@ -428,7 +428,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAWithdrawnLocalMandateRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'withdrawn',
 			'delegatePerson' => 'bob',
@@ -454,7 +454,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testALocalMandateForSomeoneElseRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'mallory',
@@ -480,7 +480,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnEffectiveLocalMandatePassesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'bob',
@@ -508,7 +508,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnExpiredLocalMandateRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'bob',
