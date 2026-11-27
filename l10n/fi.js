@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Siirto myöhässä",
         "Retention not resolved": "Säilytystä ei ole määritetty",
         "Meetings without dossier": "Kokoukset ilman asiakirjakansiota",
-        "Closed item": "Suljettu kohta"
+        "Closed item": "Suljettu kohta",
+        "Consolidated text": "Konsolidoitu teksti"
     },
     "nplurals=2; plural=(n != 1);"
 )

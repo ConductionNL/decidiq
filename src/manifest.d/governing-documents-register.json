@@ -187,6 +187,7 @@
 							"statusField": "status",
 							"decisionRefField": "determinedBy",
 							"decisionRoute": "DecisionDetail",
+							"versionRoute": "GoverningDocumentVersieDetail",
 							"inForceControl": true,
 							"extraFields": [
 								{

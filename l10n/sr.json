@@ -3352,7 +3352,8 @@
         "Transfer overdue": "Предаја касни",
         "Retention not resolved": "Чување није одређено",
         "Meetings without dossier": "Седнице без досијеа",
-        "Closed item": "Затворена тачка"
+        "Closed item": "Затворена тачка",
+        "Consolidated text": "Пречишћени текст"
     },
     "plurals": null
 }

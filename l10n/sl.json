@@ -3352,7 +3352,8 @@
         "Transfer overdue": "Predaja zamuja",
         "Retention not resolved": "Hramba ni določena",
         "Meetings without dossier": "Seje brez zadeve",
-        "Closed item": "Zaprta točka"
+        "Closed item": "Zaprta točka",
+        "Consolidated text": "Prečiščeno besedilo"
     },
     "plurals": null
 }

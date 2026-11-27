@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Aistriú thar téarma",
         "Retention not resolved": "Coinneáil gan réiteach",
         "Meetings without dossier": "Cruinnithe gan chomhad",
-        "Closed item": "Mír iata"
+        "Closed item": "Mír iata",
+        "Consolidated text": "Téacs comhdhlúite"
     },
     "nplurals=2; plural=(n != 1);"
 )

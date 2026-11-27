@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Perdavimas vėluoja",
         "Retention not resolved": "Saugojimas nenustatytas",
         "Meetings without dossier": "Posėdžiai be bylos",
-        "Closed item": "Uždaras klausimas"
+        "Closed item": "Uždaras klausimas",
+        "Consolidated text": "Konsoliduotas tekstas"
     },
     "nplurals=2; plural=(n != 1);"
 )

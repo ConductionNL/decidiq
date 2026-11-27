@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Üleandmine hilinenud",
         "Retention not resolved": "Säilitamine määramata",
         "Meetings without dossier": "Toimikuta koosolekud",
-        "Closed item": "Kinnine päevakorrapunkt"
+        "Closed item": "Kinnine päevakorrapunkt",
+        "Consolidated text": "Konsolideeritud tekst"
     },
     "nplurals=2; plural=(n != 1);"
 )

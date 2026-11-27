@@ -37,6 +37,7 @@ exports[`register widget cfg > RegisterVersionTimelineWidget takes the content, 
   "statusField": "status",
   "versionNumberField": "versionNumber",
   "versionRegister": "own",
+  "versionRoute": "",
   "versionSchema": "",
 }
 `;
@@ -52,6 +53,7 @@ exports[`register widget cfg > RegisterVersionTimelineWidget takes the content, 
   "statusField": "status",
   "versionNumberField": "versionNumber",
   "versionRegister": "decidiq",
+  "versionRoute": "",
   "versionSchema": "",
 }
 `;

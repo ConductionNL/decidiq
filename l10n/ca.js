@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Transferència endarrerida",
         "Retention not resolved": "Conservació no resolta",
         "Meetings without dossier": "Reunions sense expedient",
-        "Closed item": "Punt a porta tancada"
+        "Closed item": "Punt a porta tancada",
+        "Consolidated text": "Text consolidat"
     },
     "nplurals=2; plural=(n != 1);"
 )

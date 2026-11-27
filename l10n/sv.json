@@ -3352,7 +3352,8 @@
         "Transfer overdue": "Överföring försenad",
         "Retention not resolved": "Bevarande inte fastställt",
         "Meetings without dossier": "Möten utan akt",
-        "Closed item": "Stängd punkt"
+        "Closed item": "Stängd punkt",
+        "Consolidated text": "Konsoliderad text"
     },
     "plurals": null
 }

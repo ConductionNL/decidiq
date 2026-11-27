@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Trasferiment tard",
         "Retention not resolved": "Żamma mhux determinata",
         "Meetings without dossier": "Laqgħat mingħajr fajl",
-        "Closed item": "Punt magħluq"
+        "Closed item": "Punt magħluq",
+        "Consolidated text": "Test konsolidat"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3419,7 +3419,8 @@
         "Transfer overdue": "Üleandmine hilinenud",
         "Retention not resolved": "Säilitamine määramata",
         "Meetings without dossier": "Toimikuta koosolekud",
-        "Closed item": "Kinnine päevakorrapunkt"
+        "Closed item": "Kinnine päevakorrapunkt",
+        "Consolidated text": "Konsolideeritud tekst"
     },
     "plurals": null
 }

@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Overførsel forsinket",
         "Retention not resolved": "Opbevaring ikke fastlagt",
         "Meetings without dossier": "Møder uden sag",
-        "Closed item": "Lukket punkt"
+        "Closed item": "Lukket punkt",
+        "Consolidated text": "Konsolideret tekst"
     },
     "nplurals=2; plural=(n != 1);"
 )

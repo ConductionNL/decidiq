@@ -3421,7 +3421,8 @@ OC.L10N.register(
         "Transfer overdue": "Übertragung überfällig",
         "Retention not resolved": "Aufbewahrung nicht bestimmt",
         "Meetings without dossier": "Sitzungen ohne Dossier",
-        "Closed item": "Nichtöffentlicher Punkt"
+        "Closed item": "Nichtöffentlicher Punkt",
+        "Consolidated text": "Konsolidierte Fassung"
     },
     "nplurals=2; plural=(n != 1);"
 )

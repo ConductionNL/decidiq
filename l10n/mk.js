@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Преносот доцни",
         "Retention not resolved": "Чувањето не е утврдено",
         "Meetings without dossier": "Седници без досие",
-        "Closed item": "Затворена точка"
+        "Closed item": "Затворена точка",
+        "Consolidated text": "Пречистен текст"
     },
     "nplurals=2; plural=(n != 1);"
 )

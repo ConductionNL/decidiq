@@ -160,6 +160,14 @@
 								|| t('decidiq', 'View decision')
 							}}
 						</NcButton>
+						<NcButton
+							v-if="cfg.versionRoute && row.id"
+							variant="tertiary"
+							class="cn-version-timeline__text"
+							data-testid="version-timeline-text-link"
+							@click="openVersion(row.id)">
+							{{ t('decidiq', 'Consolidated text') }}
+						</NcButton>
 					</div>
 				</li>
 			</ol>
@@ -208,7 +216,10 @@ export default {
 		/**
 		 * `{ versionRegister?, versionSchema, parentRefField, effectiveDateField,
 		 * versionNumberField?, statusField?, decisionRefField?, lapseDateField?,
-		 * decisionRoute?, extraFields?: Array<{field,label,format?}> }`
+		 * decisionRoute?, versionRoute?, extraFields?: Array<{field,label,format?}> }`
+		 *
+		 * `versionRoute` names the version's own detail page; when set, each
+		 * row links there, to the version's consolidated text.
 		 *
 		 * @type {object}
 		 */
@@ -261,6 +272,7 @@ export default {
 					statusField: 'status',
 					decisionRefField: '',
 					decisionRoute: 'DecisionDetail',
+					versionRoute: '',
 				}),
 
 				extraFields: Array.isArray(c.extraFields) ? c.extraFields : [],
@@ -611,6 +623,22 @@ export default {
 			this.$router.push({
 				name: this.cfg.decisionRoute,
 				params: { id: decisionId },
+			})
+		},
+
+		/**
+		 * Navigate to a version's own detail page, which carries its
+		 * consolidated text.
+		 *
+		 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages
+		 * @param {string} versionId The version id.
+		 * @return {void}
+		 */
+		openVersion(versionId) {
+			if (!versionId || !this.cfg.versionRoute) return
+			this.$router.push({
+				name: this.cfg.versionRoute,
+				params: { id: versionId },
 			})
 		},
 	},

@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Transferência em atraso",
         "Retention not resolved": "Conservação não determinada",
         "Meetings without dossier": "Reuniões sem processo",
-        "Closed item": "Ponto à porta fechada"
+        "Closed item": "Ponto à porta fechada",
+        "Consolidated text": "Texto consolidado"
     },
     "nplurals=2; plural=(n != 1);"
 )

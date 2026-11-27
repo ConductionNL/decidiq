@@ -3417,7 +3417,8 @@ OC.L10N.register(
         "Transfer overdue": "Aktarım gecikmiş",
         "Retention not resolved": "Saklama belirlenmedi",
         "Meetings without dossier": "Dosyası olmayan toplantılar",
-        "Closed item": "Kapalı gündem maddesi"
+        "Closed item": "Kapalı gündem maddesi",
+        "Consolidated text": "Konsolide metin"
     },
     "nplurals=2; plural=(n != 1);"
 )

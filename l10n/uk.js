@@ -3350,7 +3350,8 @@ OC.L10N.register(
         "Transfer overdue": "Передачу прострочено",
         "Retention not resolved": "Зберігання не визначено",
         "Meetings without dossier": "Засідання без справи",
-        "Closed item": "Закритий пункт"
+        "Closed item": "Закритий пункт",
+        "Consolidated text": "Консолідований текст"
     },
     "nplurals=2; plural=(n != 1);"
 )

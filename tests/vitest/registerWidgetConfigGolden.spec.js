@@ -66,6 +66,7 @@ const FULL_VERSION_CONTENT = {
 	statusField: 'st',
 	decisionRefField: 'dec',
 	decisionRoute: 'Route',
+	versionRoute: 'VersionRoute',
 	extraFields: ['a'],
 }
 
