@@ -75,7 +75,14 @@
 - [x] All tasks checked off
 - [ ] `openspec validate` passes
 - [x] Manual testing against acceptance criteria on Postgres (8080) instance (25 Nov 2026: the e2e run above on a sandbox PostgreSQL 16 instance on :8080; REQ-DMR-007's expiry notifications are not part of that run)
-- [ ] Code review against spec requirements (REQ-DMR-001…007)
+- [x] Code review against spec requirements (REQ-DMR-001…007)
+  - Reviewed 27 Nov 2026, every scenario against the schema `authority-delegation` (fragment 86), the guards, the manifest fragment and their tests. Covered: REQ-DMR-001, 003 (guard), 005, 006, the in-force-today view of 004. Fixed here: REQ-DMR-007 reminded every in-force delegation, open-ended ones included, because both scheduled rules filtered on `status` alone and OpenRegister applies only a date window the rule declares. Both now carry `validTo withinNext P60D / P14D`, are evaluated daily, are deduplicated on `validTo` and name the end date in the subject (`AuthorityDelegationRegisterTest::testTheExpiryRemindersWatchTheEndDate`). Added unit tests for the lifecycle map (`testTheLifecycleEndsInWithdrawnOrLapsed`) and the required decision (`testADelegationNeedsItsGrantingDecision`). What the review left open is listed under Follow-ups.
+
+## Follow-ups from the code review
+
+- [ ] REQ-DMR-002: a Revoke header action on the delegation detail, shown when `status` is `effective`, that asks for the revoking decision and saves `status: withdrawn` with `withdrawnBy` in one PATCH; today `withdrawn` can be saved with `withdrawnBy` empty.
+- [ ] REQ-DMR-003: the chain widget shows the breadcrumb but not the depth the scenario names ("depth 1"); `DelegationChainWidget.vue` plus a vitest assertion and the new string in every locale.
+- [ ] REQ-DMR-004: "in force on date X" works for today only; a date choice that fills the same four-key query with X instead of `@today`.
 
 ## Quality checklist
 
