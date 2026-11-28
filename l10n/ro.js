@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Ședințe fără dosar",
         "Closed item": "Punct închis",
         "Consolidated text": "Text consolidat",
-        "Depth {depth}": "Adâncime {depth}"
+        "Depth {depth}": "Adâncime {depth}",
+        "In force on": "În vigoare la"
     },
     "nplurals=2; plural=(n != 1);"
 )

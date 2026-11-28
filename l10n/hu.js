@@ -3420,7 +3420,8 @@ OC.L10N.register(
         "Meetings without dossier": "Dosszié nélküli ülések",
         "Closed item": "Zárt napirendi pont",
         "Consolidated text": "Egységes szerkezetbe foglalt szöveg",
-        "Depth {depth}": "Mélység: {depth}"
+        "Depth {depth}": "Mélység: {depth}",
+        "In force on": "Hatályos ekkor"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Fundir án málsskjala",
         "Closed item": "Lokaður dagskrárliður",
         "Consolidated text": "Samsteypt útgáfa",
-        "Depth {depth}": "Dýpt {depth}"
+        "Depth {depth}": "Dýpt {depth}",
+        "In force on": "Í gildi þann"
     },
     "nplurals=2; plural=(n != 1);"
 )

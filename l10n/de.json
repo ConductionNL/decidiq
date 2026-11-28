@@ -3425,7 +3425,8 @@
         "Meetings without dossier": "Sitzungen ohne Dossier",
         "Closed item": "Nichtöffentlicher Punkt",
         "Consolidated text": "Konsolidierte Fassung",
-        "Depth {depth}": "Tiefe {depth}"
+        "Depth {depth}": "Tiefe {depth}",
+        "In force on": "Gültig am"
     },
     "plurals": null
 }

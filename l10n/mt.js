@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Laqgħat mingħajr fajl",
         "Closed item": "Punt magħluq",
         "Consolidated text": "Test konsolidat",
-        "Depth {depth}": "Fond {depth}"
+        "Depth {depth}": "Fond {depth}",
+        "In force on": "Fis-seħħ fil-"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3421,7 +3421,8 @@
         "Meetings without dossier": "Fundir án málsskjala",
         "Closed item": "Lokaður dagskrárliður",
         "Consolidated text": "Samsteypt útgáfa",
-        "Depth {depth}": "Dýpt {depth}"
+        "Depth {depth}": "Dýpt {depth}",
+        "In force on": "Í gildi þann"
     },
     "plurals": null
 }

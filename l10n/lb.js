@@ -3352,7 +3352,8 @@ OC.L10N.register(
         "Meetings without dossier": "Sëtzungen ouni Dossier",
         "Closed item": "Zouene Punkt",
         "Consolidated text": "Konsolidéierten Text",
-        "Depth {depth}": "Déift {depth}"
+        "Depth {depth}": "Déift {depth}",
+        "In force on": "Gëlteg den"
     },
     "nplurals=2; plural=(n != 1);"
 )

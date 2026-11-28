@@ -3423,7 +3423,8 @@ OC.L10N.register(
         "Meetings without dossier": "Sitzungen ohne Dossier",
         "Closed item": "Nichtöffentlicher Punkt",
         "Consolidated text": "Konsolidierte Fassung",
-        "Depth {depth}": "Tiefe {depth}"
+        "Depth {depth}": "Tiefe {depth}",
+        "In force on": "Gültig am"
     },
     "nplurals=2; plural=(n != 1);"
 )

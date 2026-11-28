@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Συνεδριάσεις χωρίς φάκελο",
         "Closed item": "Κλειστό θέμα",
         "Consolidated text": "Κωδικοποιημένο κείμενο",
-        "Depth {depth}": "Βάθος {depth}"
+        "Depth {depth}": "Βάθος {depth}",
+        "In force on": "Σε ισχύ στις"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Cruinnithe gan chomhad",
         "Closed item": "Mír iata",
         "Consolidated text": "Téacs comhdhlúite",
-        "Depth {depth}": "Doimhneacht {depth}"
+        "Depth {depth}": "Doimhneacht {depth}",
+        "In force on": "I bhfeidhm ar"
     },
     "nplurals=2; plural=(n != 1);"
 )

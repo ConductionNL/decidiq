@@ -3421,7 +3421,8 @@
         "Meetings without dossier": "Toimikuta koosolekud",
         "Closed item": "Kinnine päevakorrapunkt",
         "Consolidated text": "Konsolideeritud tekst",
-        "Depth {depth}": "Sügavus {depth}"
+        "Depth {depth}": "Sügavus {depth}",
+        "In force on": "Kehtiv kuupäeval"
     },
     "plurals": null
 }

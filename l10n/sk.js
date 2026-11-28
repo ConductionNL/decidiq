@@ -3352,7 +3352,8 @@ OC.L10N.register(
         "Meetings without dossier": "Zasadnutia bez spisu",
         "Closed item": "Neverejný bod",
         "Consolidated text": "Konsolidované znenie",
-        "Depth {depth}": "Hĺbka {depth}"
+        "Depth {depth}": "Hĺbka {depth}",
+        "In force on": "Platné ku dňu"
     },
     "nplurals=2; plural=(n != 1);"
 )

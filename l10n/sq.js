@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Mbledhje pa dosje",
         "Closed item": "Pikë e mbyllur",
         "Consolidated text": "Teksti i konsoliduar",
-        "Depth {depth}": "Thellësia {depth}"
+        "Depth {depth}": "Thellësia {depth}",
+        "In force on": "Në fuqi më"
     },
     "nplurals=2; plural=(n != 1);"
 )

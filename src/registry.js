@@ -127,6 +127,7 @@ import GoalParentWidget from './components/widgets/GoalParentWidget.vue'
 import GoalProgressWidget from './components/widgets/GoalProgressWidget.vue'
 import GoalStepBar from './components/widgets/GoalStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
+import InForceOnDateFilter from './components/widgets/InForceOnDateFilter.vue'
 import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import ConfidentialityDecisionDialog from './dialogs/ConfidentialityDecisionDialog.vue'
 import ConfidentialityImposeDialog from './dialogs/ConfidentialityImposeDialog.vue'
@@ -325,6 +326,9 @@ export default {
 	// Step-down schedule of a body (bodies-term-of-office-and-step-down, bod-07).
 	// @custom-widget-ratchet exclude the step-down schedule unions two schemas (memberships and position holds) into one list sorted by end date, which one object-list cannot do
 	StepDownScheduleWidget: page(StepDownScheduleWidget),
+	// The 'geldig op' date choice above the delegations index (delegatie-mandaatregister, REQ-DMR-004).
+	// @custom-widget-ratchet exclude no built-in index filter takes a user-chosen date into a four-key validity-window query (status, validFrom <= X, validTo >= X or empty); the widget only writes that query into the address
+	InForceOnDateFilter: page(InForceOnDateFilter),
 	DecisionGoalWidget: page(DecisionGoalWidget),
 	// The goal page (goals-linked-to-decisions Task 4, board DcDoel).
 	// @custom-widget-ratchet exclude the progress card counts objects of three schemas against their totals, which one stats tile cannot do

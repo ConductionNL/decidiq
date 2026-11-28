@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Kokoukset ilman asiakirjakansiota",
         "Closed item": "Suljettu kohta",
         "Consolidated text": "Konsolidoitu teksti",
-        "Depth {depth}": "Syvyys {depth}"
+        "Depth {depth}": "Syvyys {depth}",
+        "In force on": "Voimassa"
     },
     "nplurals=2; plural=(n != 1);"
 )

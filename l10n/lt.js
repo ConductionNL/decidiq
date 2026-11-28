@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Posėdžiai be bylos",
         "Closed item": "Uždaras klausimas",
         "Consolidated text": "Konsoliduotas tekstas",
-        "Depth {depth}": "Gylis {depth}"
+        "Depth {depth}": "Gylis {depth}",
+        "In force on": "Galioja"
     },
     "nplurals=2; plural=(n != 1);"
 )

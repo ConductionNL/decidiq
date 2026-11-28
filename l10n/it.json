@@ -3425,7 +3425,8 @@
         "Meetings without dossier": "Riunioni senza fascicolo",
         "Closed item": "Punto a porte chiuse",
         "Consolidated text": "Testo consolidato",
-        "Depth {depth}": "Profondità {depth}"
+        "Depth {depth}": "Profondità {depth}",
+        "In force on": "In vigore il"
     },
     "plurals": null
 }
