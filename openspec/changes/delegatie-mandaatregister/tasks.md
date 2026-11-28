@@ -73,7 +73,7 @@
 ## Verification
 
 - [x] All tasks checked off
-- [ ] `openspec validate` passes
+- [x] `openspec validate` passes (28 Nov 2026: `openspec validate <change> --type change` reports valid; `--strict` still lists the long-requirement and extra-section warnings, which are spec-shape notes, not errors)
 - [x] Manual testing against acceptance criteria on Postgres (8080) instance (25 Nov 2026: the e2e run above on a sandbox PostgreSQL 16 instance on :8080; REQ-DMR-007's expiry notifications are not part of that run)
 - [x] Code review against spec requirements (REQ-DMR-001…007)
   - Reviewed 27 Nov 2026, every scenario against the schema `authority-delegation` (fragment 86), the guards, the manifest fragment and their tests. Covered: REQ-DMR-001, 003 (guard), 005, 006, the in-force-today view of 004. Fixed here: REQ-DMR-007 reminded every in-force delegation, open-ended ones included, because both scheduled rules filtered on `status` alone and OpenRegister applies only a date window the rule declares. Both now carry `validTo withinNext P60D / P14D`, are evaluated daily, are deduplicated on `validTo` and name the end date in the subject (`AuthorityDelegationRegisterTest::testTheExpiryRemindersWatchTheEndDate`). Added unit tests for the lifecycle map (`testTheLifecycleEndsInWithdrawnOrLapsed`) and the required decision (`testADelegationNeedsItsGrantingDecision`). What the review left open is listed under Follow-ups.
