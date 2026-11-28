@@ -239,4 +239,10 @@ webpackConfig.resolve.fallback = {
 // be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
 // the exports field. No alias needed; the pin alone is sufficient.
 
-module.exports = webpackConfig
+// nextcloud-vue's stylesheet is linked by templates/index.php as css/nextcloud-vue.css
+// (LibraryStylesheetCopy) instead of inserted from the main bundle as text.
+const { LibraryStylesheetCopy, withLeanBundles } = require('@conduction/nextcloud-vue/webpack')
+webpackConfig.plugins.push(new LibraryStylesheetCopy())
+
+// Shared chunks take only what every page loads; no CSS source maps inside the JavaScript.
+module.exports = withLeanBundles(webpackConfig)
