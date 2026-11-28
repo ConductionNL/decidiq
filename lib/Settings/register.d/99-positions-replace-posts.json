@@ -1,0 +1,28 @@
+{
+	"_note": "configurable-types-domain-model task 3.5 — a position is a PositionType on the body's configuration and holding it is a PositionHold on the holder's membership. Post and Membership.post said the same thing without a duration or a hold type. An appointment's target positions now point at position types, and enacting it writes a position hold instead of a `post` on the membership. Stored posts, the memberships that name one and the appointments that target one are copied across by MigratePostsToPositions, and the example sets seed position types and holds, so Post is inactive. The file sorts after 97- so its Decision version is the one that lands.",
+	"_spec": "openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md",
+	"components": {
+		"schemas": {
+			"Decision": {
+				"version": "1.11.0",
+				"properties": {
+					"targetPosts": {
+						"title": "Target positions",
+						"description": "Revealed when decisionType=appointment. Zero or more positions on the target body that the appointment fills. Enacting the appointment gives each new membership a position hold on its paired position, from the enactment day. Optional; none means a role-only appointment.",
+						"items": {
+							"$ref": "position-type"
+						}
+					}
+				}
+			},
+			"Post": {
+				"version": "0.3.0",
+				"x-openregister": {
+					"active": false,
+					"hardDelete": false
+				},
+				"description": "SUPERSEDED (configurable-types-domain-model): a position is a PositionType on the body's configuration, and holding it is a PositionHold on the holder's membership, with a duration and a hold type. `label` became the position's `name`, `role` its `key`, and `startDate`/`endDate`, which described the holder rather than the position, became the hold's. Stored rows are copied by MigratePostsToPositions; the definition and slug stay so they remain readable."
+			}
+		}
+	}
+}

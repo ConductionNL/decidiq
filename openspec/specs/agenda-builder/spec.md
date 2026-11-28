@@ -115,3 +115,31 @@ The app SHALL allow the secretary or chair to assign a Participant as spokespers
 #### Scenario: Remove spokesperson
 - **WHEN** the user clicks the remove icon next to the assigned spokesperson
 - **THEN** the relation is deleted and the "Spreker" column shows "—"
+
+### Requirement: REQ-ATC-001 Start an agenda from a template
+
+The meeting Agenda widget SHALL offer to add the items of an agenda template in order.
+
+#### Scenario: The secretary uses the standard agenda
+- GIVEN agenda template Raadsvergadering lists opening, minutes, questions and closing
+- WHEN the secretary starts the agenda of a new council meeting from it
+- THEN the agenda holds those four items in that order
+
+### Requirement: REQ-ATC-002 Copy items or a whole agenda from an earlier meeting
+
+The Agenda widget SHALL copy chosen items, or all items, from an earlier meeting, and a meeting series SHALL copy the agenda to each meeting it creates.
+
+#### Scenario: An item carries over
+- GIVEN item Housing plan was postponed at the meeting of 7 October
+- WHEN the secretary copies it from that meeting into the meeting of 14 October
+- THEN the item appears on the new agenda with its description
+
+### Requirement: Copy the whole agenda of an earlier meeting
+
+The agenda copy dialog SHALL let the secretary copy every item of a chosen earlier meeting onto the current meeting's agenda in one step, keeping their order and descriptions.
+
+#### Scenario: The secretary copies last week's agenda
+
+- **GIVEN** the meeting of 7 October with five agenda items and an empty meeting of 14 October
+- **WHEN** the secretary chooses to copy all items from 7 October onto the agenda of 14 October
+- **THEN** the agenda of 14 October holds the same five items in the same order with their descriptions

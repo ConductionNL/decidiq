@@ -1,0 +1,4778 @@
+{
+    "matrix:draft:schedule": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "scheduled"
+                }
+            },
+            "message": "Meeting transitioned to 'scheduled'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "scheduled"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "schedule",
+                    "to": "scheduled"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "scheduled",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:draft:open": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'open' a meeting in 'draft' state. Allowed from: scheduled, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:draft:pause": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'pause' a meeting in 'draft' state. Allowed from: opened."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:draft:resume": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'resume' a meeting in 'draft' state. Allowed from: paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:draft:adjourn": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'adjourn' a meeting in 'draft' state. Allowed from: opened, paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:draft:close": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'close' a meeting in 'draft' state. Allowed from: scheduled, opened, paused, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:draft:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:draft": {
+        "returns": {
+            "lifecycle": "draft",
+            "actions": [
+                "schedule"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            }
+        ]
+    },
+    "matrix:scheduled:schedule": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'schedule' a meeting in 'scheduled' state. Allowed from: draft."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:scheduled:open": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:scheduled:pause": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'pause' a meeting in 'scheduled' state. Allowed from: opened."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:scheduled:resume": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'resume' a meeting in 'scheduled' state. Allowed from: paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:scheduled:adjourn": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'adjourn' a meeting in 'scheduled' state. Allowed from: opened, paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:scheduled:close": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "scheduled",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:scheduled:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:scheduled": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "matrix:opened:schedule": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'schedule' a meeting in 'opened' state. Allowed from: draft."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:opened:open": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'open' a meeting in 'opened' state. Allowed from: scheduled, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:opened:pause": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "paused"
+                }
+            },
+            "message": "Meeting transitioned to 'paused'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "paused"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "pause",
+                    "to": "paused"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "paused",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:opened:resume": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'resume' a meeting in 'opened' state. Allowed from: paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:opened:adjourn": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "adjourned"
+                }
+            },
+            "message": "Meeting transitioned to 'adjourned'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "adjourned"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "adjourn",
+                    "to": "adjourned"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "adjourned",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:opened:close": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "opened",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:opened:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:opened": {
+        "returns": {
+            "lifecycle": "opened",
+            "actions": [
+                "pause",
+                "adjourn",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "matrix:paused:schedule": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'schedule' a meeting in 'paused' state. Allowed from: draft."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:paused:open": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'open' a meeting in 'paused' state. Allowed from: scheduled, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:paused:pause": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'pause' a meeting in 'paused' state. Allowed from: opened."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:paused:resume": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "opened"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "resume",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:paused:adjourn": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "adjourned"
+                }
+            },
+            "message": "Meeting transitioned to 'adjourned'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "adjourned"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "adjourned"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "adjourn",
+                    "to": "adjourned"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "adjourned",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:paused:close": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "paused",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:paused:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:paused": {
+        "returns": {
+            "lifecycle": "paused",
+            "actions": [
+                "resume",
+                "adjourn",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "adjourned"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "matrix:adjourned:schedule": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'schedule' a meeting in 'adjourned' state. Allowed from: draft."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:adjourned:open": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:adjourned:pause": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'pause' a meeting in 'adjourned' state. Allowed from: opened."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:adjourned:resume": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'resume' a meeting in 'adjourned' state. Allowed from: paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:adjourned:adjourn": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'adjourn' a meeting in 'adjourned' state. Allowed from: opened, paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:adjourned:close": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "adjourned",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "matrix:adjourned:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:adjourned": {
+        "returns": {
+            "lifecycle": "adjourned",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "matrix:closed:schedule": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'schedule' a meeting in 'closed' state. Allowed from: draft."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:open": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'open' a meeting in 'closed' state. Allowed from: scheduled, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:pause": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'pause' a meeting in 'closed' state. Allowed from: opened."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:resume": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'resume' a meeting in 'closed' state. Allowed from: paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:adjourn": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'adjourn' a meeting in 'closed' state. Allowed from: opened, paused."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:close": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Cannot 'close' a meeting in 'closed' state. Allowed from: scheduled, opened, paused, adjourned."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "matrix:closed:dance": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Unknown action. Valid actions: schedule, open, pause, resume, adjourn, close."
+        },
+        "calls": []
+    },
+    "actions:closed": {
+        "returns": {
+            "lifecycle": "closed",
+            "actions": []
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "chair-gate-relations:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "relations": {
+                        "governanceBody": "body-1"
+                    },
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "relations": {
+                            "governanceBody": "body-1"
+                        },
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations-pascal:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "relations": {
+                        "GovernanceBody": {
+                            "id": "body-1"
+                        }
+                    },
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "relations": {
+                            "GovernanceBody": {
+                                "id": "body-1"
+                            }
+                        },
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations-pascal:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations-pascal:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations-pascal:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relations-pascal:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-both-spellings:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "relations": {
+                        "GovernanceBody": "body-2",
+                        "governanceBody": "body-1"
+                    },
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "relations": {
+                            "GovernanceBody": "body-2",
+                            "governanceBody": "body-1"
+                        },
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-both-spellings:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-both-spellings:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-both-spellings:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-both-spellings:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "governanceBody": "body-1",
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "governanceBody": "body-1",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat-pascal:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "GovernanceBody": [
+                        "body-1"
+                    ],
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "GovernanceBody": [
+                            "body-1"
+                        ],
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat-pascal:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat-pascal:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat-pascal:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-flat-pascal:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relation-first:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-2",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relation-first:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-2",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relation-first:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relation-first:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-2",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-relation-first:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-2",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-empty-relation:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "relations": {
+                        "governanceBody": ""
+                    },
+                    "governanceBody": "body-1",
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "relations": {
+                            "governanceBody": ""
+                        },
+                        "governanceBody": "body-1",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-empty-relation:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-empty-relation:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-empty-relation:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-empty-relation:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-no-body:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-no-body:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-no-body:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-no-body:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-no-body:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-junk-body:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-junk-body:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-junk-body:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-junk-body:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-junk-body:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-forged-body:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-9",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-forged-body:transition/open/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-9",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-forged-body:transition/open/": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            }
+        ]
+    },
+    "chair-gate-forged-body:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-9",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-forged-body:actions//member-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-9",
+                    "chair"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "chair-gate-close:transition/close/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "governanceBody": "body-1",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "chair-1",
+                    "body-1",
+                    "chair"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "opened",
+                        "governanceBody": "body-1",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "governanceBody": "body-1",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-close:transition/close/member-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "chair-gate-close:transition/pause/member-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "paused",
+                    "governanceBody": "body-1"
+                }
+            },
+            "message": "Meeting transitioned to 'paused'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "paused",
+                        "governanceBody": "body-1"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "pause",
+                    "to": "paused"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "paused",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "chair-gate-close:actions//member-1": {
+        "returns": {
+            "lifecycle": "opened",
+            "actions": [
+                "pause",
+                "adjourn"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "isInBodyScope": [
+                    "member-1",
+                    "body-1",
+                    "chair"
+                ]
+            }
+        ]
+    },
+    "domain-refuses:transition/pause/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Transition 'pause' is not permitted in 'corporate' domain."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "corporate",
+                    "opened",
+                    "paused"
+                ]
+            }
+        ]
+    },
+    "domain-refuses:transition/adjourn/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "adjourned",
+                    "domain": "corporate"
+                }
+            },
+            "message": "Meeting transitioned to 'adjourned'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "corporate",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "corporate",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "adjourned",
+                        "domain": "corporate"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "adjourn",
+                    "to": "adjourned"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "adjourned",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "domain-refuses:actions//chair-1": {
+        "returns": {
+            "lifecycle": "opened",
+            "actions": [
+                "adjourn",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "corporate",
+                    "opened",
+                    "paused"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "corporate",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "corporate",
+                    "opened",
+                    "adjourned"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "corporate",
+                    "opened",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "corporate",
+                    "opened",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "quorum-required-not-met:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Quorum is not met. Cannot open meeting."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "isOpenAllowed": {
+                    "lifecycle": "scheduled"
+                }
+            }
+        ]
+    },
+    "quorum-required-not-met:actions//chair-1": {
+        "returns": {
+            "lifecycle": "scheduled",
+            "actions": [
+                "open",
+                "close"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            }
+        ]
+    },
+    "quorum-required-met:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "openedAt": "gisteren"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "isOpenAllowed": {
+                    "lifecycle": "adjourned",
+                    "openedAt": "gisteren"
+                }
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "openedAt": "gisteren"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "quorum-not-required:transition/open/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "opened",
+                    "openedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'opened'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "to": "opened"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "opened",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "close-with-cost:transition/close/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "title": "Raad",
+                    "closedAt": "<time>",
+                    "meetingCost": 123.45
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "paused",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "paused",
+                        "title": "Raad",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "title": "Raad",
+                        "closedAt": "<time>",
+                        "meetingCost": 123.45
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "Raad",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "close-cost-null:transition/close/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "adjourned",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "adjourned",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "close-cost-throws:transition/close/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "closed",
+                    "closedAt": "<time>"
+                }
+            },
+            "message": "Meeting transitioned to 'closed'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "closed"
+                ]
+            },
+            {
+                "calculateForMeeting": [
+                    "mt-1",
+                    {
+                        "lifecycle": "scheduled",
+                        "closedAt": "<time>"
+                    }
+                ]
+            },
+            {
+                "debug": "Decidiq: meetingCost computation skipped on close",
+                "context": {
+                    "meetingId": "mt-1",
+                    "error": "cost down"
+                }
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "closed",
+                        "closedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "close",
+                    "to": "closed"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "closed",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "missing:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Meeting 'mt-1' not found."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "missing:actions//chair-1": {
+        "returns": null,
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "does-not-exist:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Meeting 'mt-1' not found."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "does-not-exist:actions//chair-1": {
+        "returns": null,
+        "calls": [
+            {
+                "find": "mt-1"
+            }
+        ]
+    },
+    "find-throws:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Transition failed. See server log for details."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "error": "Decidiq: meeting lifecycle transition failed",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "exception": "register down"
+                }
+            }
+        ]
+    },
+    "save-throws:transition/open/chair-1": {
+        "returns": {
+            "success": false,
+            "meeting": null,
+            "message": "Transition failed. See server log for details."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "scheduled",
+                    "opened"
+                ]
+            },
+            {
+                "isQuorumRequired": "operations"
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "opened",
+                        "openedAt": "<time>"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "error": "Decidiq: meeting lifecycle transition failed",
+                "context": {
+                    "id": "mt-1",
+                    "action": "open",
+                    "exception": "no write access"
+                }
+            }
+        ]
+    },
+    "activity-fails:transition/schedule/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "scheduled"
+                }
+            },
+            "message": "Meeting transitioned to 'scheduled'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "scheduled"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "schedule",
+                    "to": "scheduled"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "scheduled",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            },
+            {
+                "debug": "Decidiq: activity publish skipped",
+                "context": {
+                    "error": "activity down"
+                }
+            }
+        ]
+    },
+    "defaults:transition/schedule/chair-1": {
+        "returns": {
+            "success": true,
+            "meeting": {
+                "saved": {
+                    "lifecycle": "scheduled"
+                }
+            },
+            "message": "Meeting transitioned to 'scheduled'."
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "saveObject": [
+                    {
+                        "lifecycle": "scheduled"
+                    },
+                    [
+                        [],
+                        "decidiq",
+                        "meeting",
+                        "mt-1",
+                        true,
+                        true,
+                        false,
+                        true,
+                        null,
+                        null,
+                        false
+                    ]
+                ]
+            },
+            {
+                "info": "Decidiq: meeting lifecycle transitioned",
+                "context": {
+                    "id": "mt-1",
+                    "action": "schedule",
+                    "to": "scheduled"
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ActivityPublisherService"
+            },
+            {
+                "publishGovernanceEvent": [
+                    "meeting_transition",
+                    "mt-1",
+                    "scheduled",
+                    "meeting",
+                    "mt-1",
+                    "meetings"
+                ]
+            }
+        ]
+    },
+    "defaults:actions//chair-1": {
+        "returns": {
+            "lifecycle": "draft",
+            "actions": [
+                "schedule"
+            ]
+        },
+        "calls": [
+            {
+                "find": "mt-1"
+            },
+            {
+                "isTransitionAllowed": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            },
+            {
+                "requiresChairAuthorization": [
+                    "operations",
+                    "draft",
+                    "scheduled"
+                ]
+            }
+        ]
+    }
+}

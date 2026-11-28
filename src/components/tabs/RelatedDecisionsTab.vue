@@ -154,12 +154,23 @@ import { NcButton } from '@nextcloud/vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import RelatedDecisionAddModal from '../../modals/RelatedDecisionAddModal.vue'
+import { saveOrThrow } from '../../utils/saveOrThrow.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 // The five typed peer-relation fields on Decision (design D1). amends is the
 // existing relation (decision modifies decision); supersedes/repeals are
 // effect-bearing for effective-status; implements/refersTo are informational.
 const RELATION_TYPES = ['supersedes', 'repeals', 'amends', 'implements', 'refersTo']
+
+/**
+ * A relation field as a list; anything that is not an array is empty.
+ *
+ * @param {Array|object|string|null} value The relation field.
+ * @return {Array} The references.
+ */
+function listOf(value) {
+	return Array.isArray(value) ? value : []
+}
 
 export default {
 	name: 'RelatedDecisionsTab',
@@ -277,35 +288,7 @@ export default {
 			this.outgoing = {}
 			this.incoming = {}
 			try {
-				const store = ensureRelationType('decision')
-				this.decision = await store.fetchObject('decision', this.objectId)
-				const selfId =
-					this.decision?.id || this.decision?.uuid || String(this.objectId)
-
-				// Outgoing: resolve each id in the relation arrays to its decision.
-				const allDecisions = await store.fetchCollection('decision', {
-					_limit: 500,
-				})
-				const byId = new Map()
-				for (const d of allDecisions || []) byId.set(d.id || d.uuid, d)
-
-				const out = {}
-				const inc = {}
-				for (const type of RELATION_TYPES) {
-					const refs = Array.isArray(this.decision?.[type])
-						? this.decision[type]
-						: []
-					out[type] = refs
-						.map((r) => byId.get(this.refId(r)))
-						.filter(Boolean)
-					// Incoming: any decision whose `type` array contains selfId.
-					inc[type] = (allDecisions || []).filter((d) => {
-						const arr = Array.isArray(d[type]) ? d[type] : []
-						return arr.some((r) => this.refId(r) === selfId)
-					})
-				}
-				this.outgoing = out
-				this.incoming = inc
+				await this.loadRelations()
 			} catch (e) {
 				this.error =
 					e?.message
@@ -313,6 +296,49 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * Load the decision and every decision, then resolve the relations
+		 * both ways.
+		 *
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		async loadRelations() {
+			const store = ensureRelationType('decision')
+			this.decision = await store.fetchObject('decision', this.objectId)
+			const selfId =
+				this.decision?.id || this.decision?.uuid || String(this.objectId)
+			const allDecisions =
+				(await store.fetchCollection('decision', { _limit: 500 })) || []
+			const { outgoing, incoming } = this.relationsByType(allDecisions, selfId)
+			this.outgoing = outgoing
+			this.incoming = incoming
+		},
+
+		/**
+		 * Per relation type, the decisions this one points at (outgoing) and
+		 * the decisions that point at it (incoming).
+		 *
+		 * @param {Array<object>} allDecisions Every decision.
+		 * @param {string} selfId This decision's id.
+		 * @return {{outgoing: object, incoming: object}} Decisions keyed by relation type.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		relationsByType(allDecisions, selfId) {
+			const byId = new Map()
+			for (const d of allDecisions) byId.set(d.id || d.uuid, d)
+			const outgoing = {}
+			const incoming = {}
+			for (const type of RELATION_TYPES) {
+				outgoing[type] = listOf(this.decision?.[type])
+					.map((r) => byId.get(this.refId(r)))
+					.filter(Boolean)
+				incoming[type] = allDecisions.filter((d) =>
+					listOf(d[type]).some((r) => this.refId(r) === selfId),
+				)
+			}
+			return { outgoing, incoming }
 		},
 
 		/**
@@ -364,7 +390,7 @@ export default {
 					return
 				}
 				const next = [...existing, targetId]
-				await store.saveObject('decision', {
+				await saveOrThrow(store, 'decision', {
 					id: this.objectId,
 					[type]: next,
 				})
@@ -399,7 +425,7 @@ export default {
 				)
 					.map((r) => this.refId(r))
 					.filter((id) => id !== rowId)
-				await store.saveObject('decision', {
+				await saveOrThrow(store, 'decision', {
 					id: this.objectId,
 					[type]: next,
 				})
@@ -426,32 +452,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTabLoading.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-
 .decidiq-related__group {
 	display: flex;
 	flex-direction: column;

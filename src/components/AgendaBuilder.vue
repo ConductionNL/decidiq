@@ -389,6 +389,7 @@ import {
 } from '../services/agendaRules.js'
 import { fetchRecurringAgendaItems } from '../services/recurringAgendaItems.js'
 import { useObjectStore } from '../store/store.js'
+import { saveOrThrow } from '../utils/saveOrThrow.js'
 
 /**
  * @spec openspec/specs/agenda-management/spec.md
@@ -651,7 +652,7 @@ export default {
 				0,
 			)
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					title: payload.title,
 					itemType: payload.itemType,
 					estimatedDuration: payload.estimatedDuration,
@@ -694,7 +695,7 @@ export default {
 		 */
 		async assignSpokesperson(item, participant) {
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					...item,
 					relations: {
 						...(item.relations ?? {}),
@@ -717,7 +718,7 @@ export default {
 			try {
 				const relations = { ...(item.relations ?? {}) }
 				delete relations.spokesperson
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					...item,
 					relations,
 				})
@@ -792,7 +793,7 @@ export default {
 				if (!src) continue
 
 				try {
-					await this.objectStore.saveObject('agenda-item', {
+					await saveOrThrow(this.objectStore, 'agenda-item', {
 						title: src.title,
 						itemType: src.itemType,
 						estimatedDuration: src.estimatedDuration,
@@ -822,7 +823,7 @@ export default {
 			const nextOrder =
 				this.localItems.filter((i) => i.status !== 'voorstel').length + 1
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					...item,
 					status: null,
 					orderNumber: nextOrder,
@@ -839,7 +840,7 @@ export default {
 		 */
 		async rejectProposal(item) {
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					...item,
 					status: 'rejected',
 				})
@@ -859,7 +860,7 @@ export default {
 		 */
 		async submitProposal(payload) {
 			try {
-				await this.objectStore.saveObject('agenda-item', {
+				await saveOrThrow(this.objectStore, 'agenda-item', {
 					title: payload.title,
 					description: payload.description,
 					status: 'voorstel',

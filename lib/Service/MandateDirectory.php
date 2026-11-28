@@ -43,7 +43,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -57,14 +57,9 @@ use Throwable;
 /**
  * Judges a presented mandate reference against the local toedeling register.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class MandateDirectory {
-
-	/**
-	 * Schema slug of the local mandate register.
-	 */
-	private const SCHEMA_TOEDELING = 'bevoegdheidstoedeling';
 
 	/**
 	 * The one status under which a toedeling grants anything.
@@ -74,7 +69,7 @@ class MandateDirectory {
 	/**
 	 * Constructor.
 	 *
-	 * @param RegisterObjectStore $store Reads the bevoegdheidstoedeling rows.
+	 * @param RegisterObjectStore $store Reads the authority-delegation rows.
 	 */
 	public function __construct(
 		private readonly RegisterObjectStore $store,
@@ -91,7 +86,7 @@ class MandateDirectory {
 	 *
 	 * @throws RuntimeException When the reference resolves locally and the row refuses.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertMayActUnder(string $mandate, string $actor): void {
 		$row = $this->resolve(mandate: $mandate);
@@ -172,6 +167,8 @@ class MandateDirectory {
 	 * @param string $mandate The mandate reference.
 	 *
 	 * @return array<string, mixed>|null The row.
+	 *
+	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
 	 */
 	private function resolve(string $mandate): ?array {
 		$mandate = trim($mandate);
@@ -180,7 +177,7 @@ class MandateDirectory {
 		}
 
 		try {
-			return $this->store->find(schema: self::SCHEMA_TOEDELING, uuid: $mandate);
+			return (new AuthorityDelegationRows(store: $this->store))->find(uuid: $mandate);
 		} catch (Throwable) {
 			return null;
 		}

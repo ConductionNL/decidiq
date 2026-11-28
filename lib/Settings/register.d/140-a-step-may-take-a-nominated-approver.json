@@ -1,0 +1,49 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process task 9.1 (REQ-DWP-009). A route step may let the requester name its approver, bounded by a Nextcloud group: `nominationGroup` on the ApprovalRoute step. ApprovalNomination checks the nominee is in that group when the route is sent and writes the nominee as the step's person; ApprovalRouteStepMapper copies the bound onto the stage, and `nominatedBy` records who named the approver. Properties only, so no schema version moves, as in 137-a-committee-step-names-its-body.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-009-an-applicant-may-name-their-own-approver",
+  "components": {
+    "schemas": {
+      "ApprovalRoute": {
+        "slug": "approval-route",
+        "properties": {
+          "steps": {
+            "title": "Steps",
+            "type": "array",
+            "description": "The ordered steps, with the walked-process additions. Every addition defaults to today's behaviour, so no stored route changes meaning.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "nominationGroup": {
+                  "title": "Nominated from group",
+                  "type": "string",
+                  "maxLength": 255,
+                  "description": "When set, the person who sends the route names this step's approver, and that person must be a member of this Nextcloud group. A nomination outside the group is refused. When empty, the step keeps its own actor and any nomination sent to it is ignored (REQ-DWP-009)."
+                }
+              }
+            }
+          }
+        }
+      },
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "properties": {
+          "nominationGroup": {
+            "title": "Nominated from group",
+            "type": "string",
+            "maxLength": 255,
+            "description": "The group the approver of this stage was nominated from. COPIED onto the stage at instantiation, not read back off the route (REQ-AR-012)."
+          },
+          "nominatedBy": {
+            "title": "Nominated by",
+            "type": "string",
+            "maxLength": 255,
+            "description": "The user who named this stage's approver when the route was sent (REQ-DWP-009)."
+          }
+        }
+      }
+    }
+  }
+}

@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\MeetingFolderServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -46,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class MeetingFolderService {
+class MeetingFolderService implements MeetingFolderServiceInterface {
 
 	/**
 	 * Subfolders created under every meeting folder.
@@ -97,23 +98,14 @@ class MeetingFolderService {
 
 			$leafName = $uuid;
 			if ($title !== '') {
-				$leafName = $title;
+				$leafName = $title . $this->sessionSuffix(meeting: $meeting, uuid: $uuid);
 			}
 
 			$segments[] = trim($date . ' ' . $this->sanitize(name: $leafName));
 
 			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 
-			$path = '';
-			foreach ($segments as $segment) {
-				$prefix = $path;
-				$path = $segment;
-				if ($prefix !== '') {
-					$path = $prefix . '/' . $segment;
-				}
-
-				$fileService->createFolder($path);
-			}
+			$path = MeetingFileTree::createPath(fileService: $fileService, segments: $segments);
 
 			foreach (self::SUBFOLDERS as $subfolder) {
 				$fileService->createFolder($path . '/' . $subfolder);
@@ -131,6 +123,32 @@ class MeetingFolderService {
 		}//end try
 
 	}//end ensureMeetingFolders()
+
+	/**
+	 * What keeps a session's folder apart from its sibling sessions' folders.
+	 *
+	 * A session takes its evening's body and date, so two sessions with the
+	 * same title would otherwise share one folder, and the second session's
+	 * subtitles and recording files would overwrite the first's. A session
+	 * (a meeting with a `parentMeeting`) therefore carries its own uuid,
+	 * whole, since only the whole uuid is sure to differ; a meeting that is
+	 * no session keeps its folder name.
+	 *
+	 * @param array<string, mixed> $meeting The meeting.
+	 * @param string               $uuid    The meeting's uuid.
+	 *
+	 * @return string The suffix, empty for a meeting that is no session.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
+	 */
+	private function sessionSuffix(array $meeting, string $uuid): string {
+		$parent = $meeting['parentMeeting'] ?? null;
+		if (is_string($parent) === false || trim($parent) === '' || $uuid === '') {
+			return '';
+		}
+
+		return ' (' . $uuid . ')';
+	}//end sessionSuffix()
 
 	/**
 	 * Write a file into a subfolder of a meeting's folder tree (fail-soft).
@@ -164,12 +182,7 @@ class MeetingFolderService {
 			// CreateFolder is idempotent and returns the (existing or new) Folder node.
 			$folderNode = $fileService->createFolder($folderPath);
 
-			try {
-				$existing = $folderNode->get($safeName);
-				$existing->putContent($content);
-			} catch (\OCP\Files\NotFoundException) {
-				$folderNode->newFile($safeName, $content);
-			}
+			MeetingFileTree::putFile(folderNode: $folderNode, name: $safeName, content: $content);
 
 			$filePath = $folderPath . '/' . $safeName;
 			$this->logger->info('Decidiq: meeting file written', ['path' => $filePath]);
@@ -187,6 +200,96 @@ class MeetingFolderService {
 	}//end writeMeetingFile()
 
 	/**
+	 * Find a file in a meeting subfolder, or null when it is not there.
+	 *
+	 * @param array<string, mixed> $meeting   Meeting object payload
+	 * @param string               $subfolder Subfolder name
+	 * @param string               $fileName  File name including extension
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+	 *
+	 * @return \OCP\Files\File|null The file, or null when it does not exist or Files is unavailable
+	 */
+	public function meetingFile(array $meeting, string $subfolder, string $fileName): ?\OCP\Files\File {
+		$meetingPath = $this->ensureMeetingFolders(meeting: $meeting);
+		if ($meetingPath === null) {
+			return null;
+		}
+
+		return $this->fileNode(folderPath: $meetingPath . '/' . $this->sanitize(name: $subfolder), name: $this->sanitize(name: $fileName));
+
+	}//end meetingFile()
+
+	/**
+	 * Find a file this service wrote, by the path writeMeetingFile() returned.
+	 *
+	 * @param string $path The path.
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return \OCP\Files\File|null The file, or null when it is not there or Files is unavailable.
+	 */
+	public function fileAt(string $path): ?\OCP\Files\File {
+		$slash = strrpos($path, '/');
+		if ($slash === false) {
+			return null;
+		}
+
+		return $this->fileNode(folderPath: substr($path, 0, $slash), name: substr($path, ($slash + 1)));
+
+	}//end fileAt()
+
+	/**
+	 * The file with this name in this folder, or null when it is not a file or Files is unavailable.
+	 *
+	 * @param string $folderPath The folder path, created when missing
+	 * @param string $name       The file name
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return \OCP\Files\File|null The file, or null.
+	 */
+	private function fileNode(string $folderPath, string $name): ?\OCP\Files\File {
+		try {
+			$node = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder($folderPath)->get($name);
+		} catch (\Throwable) {
+			return null;
+		}
+
+		if (($node instanceof \OCP\Files\File) === false) {
+			return null;
+		}
+
+		return $node;
+
+	}//end fileNode()
+
+	/**
+	 * Read back a file this service wrote, by the path writeMeetingFile() returned.
+	 *
+	 * @param string $path The path.
+	 *
+	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
+	 *
+	 * @return string|null The content, or null when the file cannot be read.
+	 */
+	public function readMeetingFile(string $path): ?string {
+		$slash = strrpos($path, '/');
+		if ($slash === false) {
+			return null;
+		}
+
+		try {
+			$folder = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder(substr($path, 0, $slash));
+			return (string)$folder->get(substr($path, ($slash + 1)))->getContent();
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: meeting file read failed', ['path' => $path, 'error' => $e->getMessage()]);
+			return null;
+		}
+
+	}//end readMeetingFile()
+
+	/**
 	 * Resolve the governance-body display name from the meeting's relation.
 	 *
 	 * @param array<string, mixed> $meeting Meeting object payload
@@ -197,27 +300,17 @@ class MeetingFolderService {
 	 */
 	private function resolveBodyName(array $meeting): string {
 		$bodyId = $meeting['governanceBody'] ?? ($meeting['body'] ?? ($meeting['relations']['GovernanceBody'][0] ?? null));
-		if (is_array($bodyId) === true) {
-			$bodyId = ($bodyId['id'] ?? null);
-		}
-
-		if (is_string($bodyId) === false || $bodyId === '') {
+		if (is_string($bodyId) === false && is_array($bodyId) === false) {
 			return '';
 		}
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
 		} catch (\Throwable) {
 			return '';
 		}
 
-		if ($entity === null) {
-			return '';
-		}
-
-		$body = (array)$entity->jsonSerialize();
-		return (string)($body['name'] ?? ($body['title'] ?? ''));
+		return MeetingFileTree::bodyName(objectService: $objectService, bodyId: $bodyId);
 	}//end resolveBodyName()
 
 	/**

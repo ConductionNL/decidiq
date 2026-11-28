@@ -30,6 +30,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -67,7 +70,10 @@ class PublicationRepository {
 	 * @return string The created payload object UUID.
 	 */
 	public function persistPayload(array $payload): string {
-		$saved = $this->objectService()->saveObject(object: $payload, register: 'decidiq', schema: 'publication-payload');
+		$saved = $this->objectService()->saveObject(
+			object: $payload,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-payload'))
+		);
 
 		return $this->extractId(saved: $saved);
 	}//end persistPayload()
@@ -84,11 +90,17 @@ class PublicationRepository {
 	 */
 	public function persistRecord(array $record, ?string $uuid = null): string {
 		if ($uuid !== null) {
-			$this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record', uuid: $uuid);
+			$this->objectService()->saveObject(
+				object: $record,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-record'), uuid: $uuid)
+			);
 			return $uuid;
 		}
 
-		$saved = $this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record');
+		$saved = $this->objectService()->saveObject(
+			object: $record,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-record'))
+		);
 
 		return $this->extractId(saved: $saved);
 	}//end persistRecord()
@@ -105,7 +117,7 @@ class PublicationRepository {
 	 * @return array<string,mixed> The record data.
 	 */
 	public function loadRecord(string $recordId): array {
-		$entity = $this->objectService()->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
+		$entity = $this->objectService()->find(id: $recordId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-record'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Publication record not found: ' . $recordId);
 		}
@@ -131,7 +143,7 @@ class PublicationRepository {
 	public function setDepublicationDate(string $payloadId, string $timestamp): void {
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $payloadId, register: 'decidiq', schema: 'publication-payload');
+			$entity = $objectService->find(id: $payloadId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-payload'));
 			if ($entity === null) {
 				return;
 			}
@@ -141,9 +153,10 @@ class PublicationRepository {
 
 			$objectService->saveObject(
 				object: $data,
-				register: 'decidiq',
-				schema: 'publication-payload',
-				uuid: $payloadId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-payload'),
+					uuid: $payloadId
+				)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
@@ -176,7 +189,7 @@ class PublicationRepository {
 		try {
 			$objectService = $this->objectService();
 			if ($source === null) {
-				$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: 'decision');
+				$entity = $objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 				if ($entity === null) {
 					return;
 				}
@@ -192,7 +205,10 @@ class PublicationRepository {
 			$source['isPublished'] = $isPublished;
 			$source['publishedAt'] = $publishedAt;
 
-			$objectService->saveObject(object: $source, register: 'decidiq', schema: 'decision', uuid: $sourceId);
+			$objectService->saveObject(
+				object: $source,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $sourceId)
+			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
 		}//end try
@@ -217,22 +233,35 @@ class PublicationRepository {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
+	 * A miss is logged as a warning, so an object saved without a derivable
+	 * id is loud instead of a silent '' reference (#400).
+	 *
 	 * @return string The UUID, or '' when it cannot be determined.
 	 */
 	private function extractId(mixed $saved): string {
+		$id = '';
 		if (is_object($saved) === true) {
-			return $this->extractObjectId(saved: $saved);
+			$id = $this->extractObjectId(saved: $saved);
 		}
 
 		if (is_array($saved) === true) {
-			return $this->stringId(id: ($saved['id'] ?? $saved['uuid'] ?? ($saved['@self']['id'] ?? null)));
+			$id = $this->stringId(id: ($saved['id'] ?? $saved['uuid'] ?? ($saved['@self']['id'] ?? null)));
 		}
 
-		return '';
+		if ($id === '') {
+			$this->logger->warning('Decidiq publication: saved object has no derivable id', ['type' => get_debug_type($saved)]);
+		}
+
+		return $id;
 	}//end extractId()
 
 	/**
 	 * Extract a UUID from an ObjectEntity-like save result.
+	 *
+	 * Reads the serialized id only. `ObjectEntity::getUuid()` is served by
+	 * `Entity::__call()`, so a `method_exists()` guard on it was false for
+	 * every real entity and never ran; `jsonSerialize()` injects `id` from the
+	 * uuid, so it is the one path production takes (#400).
 	 *
 	 * @param object $saved The save result.
 	 *
@@ -241,13 +270,6 @@ class PublicationRepository {
 	 * @return string The UUID, or '' when it cannot be determined.
 	 */
 	private function extractObjectId(object $saved): string {
-		if (method_exists($saved, 'getUuid') === true) {
-			$uuid = $this->stringId(id: $saved->getUuid());
-			if ($uuid !== '') {
-				return $uuid;
-			}
-		}
-
 		if (method_exists($saved, 'jsonSerialize') === false) {
 			return '';
 		}

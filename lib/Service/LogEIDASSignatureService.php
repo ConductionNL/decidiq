@@ -4,14 +4,13 @@
  * Decidiq dormant eIDAS Signature Service fallback
  *
  * A no-external-call fallback that satisfies {@see IEIDASSignatureService}
- * for deployments that have not (yet) configured openconnector with an
- * eIDAS-QSP Source. Every method emits an audit log entry (so signing
+ * for deployments without filinq, the fleet's signing rail. Every method emits an audit log entry (so signing
  * intents stay forensically traceable) and returns a structured `success: false`
  * payload with the message `eIDAS QES integration is not configured.`
  *
  * The application layer wires this implementation when:
- *  - the openconnector app is absent, OR
- *  - the openconnector Source with slug `eidas-qes` does not resolve at boot.
+ *  - filinq is not enabled, OR
+ *  - filinq's signing event classes cannot be loaded.
  *
  * Controllers and the {@see \OCA\Decidiq\Lifecycle\QesGuard} treat the
  * `success: false` shape as a soft-block rather than a hard 500, so the
@@ -26,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -40,7 +39,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Dormant fallback for {@see IEIDASSignatureService}.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 class LogEIDASSignatureService implements IEIDASSignatureService {
 
@@ -66,17 +65,18 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $minutesId UUID of the Minutes record
+	 * @param string $minutesId UUID of the record to sign
 	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	public function initializeSigningRequest(string $minutesId, array $signatories): array {
+	public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		$this->logger->warning(
 			'Decidiq: dormant eIDAS adapter received initializeSigningRequest',
-			['minutesId' => $minutesId, 'signatories' => $signatories]
+			['minutesId' => $minutesId, 'subjectType' => $subjectType, 'signatories' => $signatories]
 		);
 
 		$this->auditLogService->append(
@@ -102,10 +102,31 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * With no signing service configured nothing is ever out for signature,
+	 * so a round stays pending and nothing is stored.
+	 *
+	 * @param string $requestId The signing service's request reference
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
+	 */
+	public function fetchSigningResult(string $requestId): array {
+		return [
+			'status' => 'pending',
+			'document' => null,
+			'fileName' => null,
+			'message' => self::UNCONFIGURED_MESSAGE,
+		];
+	}//end fetchSigningResult()
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * @param string $requestId UUID of the signing request
 	 * @param string $signature Base-64 encoded signature blob
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
 	 */
@@ -130,7 +151,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the BoardMinutes record
 	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
 	 */
@@ -165,7 +186,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $certThumbprint SHA-256 thumbprint of the cert
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
 	 */

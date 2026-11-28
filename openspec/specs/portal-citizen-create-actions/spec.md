@@ -24,7 +24,7 @@ parent is not open. `minTrust` MUST be `low`.
 - THEN a `ConsultationReaction` is created with `submitterId` stamped from `subjectRef`, `moderationStatus: 'pending'` and `submittedAt` stamped server-side
 - AND a client-supplied `submitterId`, `moderationStatus`, `moderationReason` or `publicatiedatum` is ignored (not in the whitelist)
 - AND a `createReaction` against a consultation whose `status` is not `open` fails closed
-- @e2e exclude decidiq only declares this action in its portal manifest; portaliq renders the citizen form, so decidiq has no page to drive. PortalContributionProviderTest::testCreateReactionActionShape pins the whitelist and the stamped set, and PortalCreateOpenParentGuardListenerTest::testReactionOnClosedConsultationRejected pins the fail-closed parent guard. The browser flow is tracked in ConductionNL/decidiq#1277.
+- @e2e tests/e2e/portal-citizen-contribution.spec.ts
 
 ### Requirement: Citizen proposes a budget item into an open participatory budget via a scope-stamped create action (REQ-DKPCA-002)
 
@@ -89,3 +89,23 @@ spam given the low trust gate.
 - AND the four read/inbox collections keep no write action, and a non-`citizen` audience still returns null
 - @e2e exclude a provider contract with no browser surface: PortalContributionProviderTest::testCitizenManifestDeclaresExactlyTheTwoCreateActions and ::testUnknownAudienceYieldsNull pin it. Tracked in ConductionNL/decidiq#1277 with the other portal create actions.
 
+### Requirement: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)
+
+A reaction or budget proposal a resident submits through the public portal SHALL arrive in decidiq as a `ConsultationReaction` or `BudgetProposal` at moderation status `pending`, visible to the griffie on the consultation's moderation list. The resident SHALL see the contribution on Mijn inspraak with its status, and SHALL see the new status there after the griffie approves or rejects it.
+
+#### Scenario: A resident reacts and the griffie approves
+
+- GIVEN portaliq and decidiq on one instance and the open consultation Herinrichting Marktplein
+- WHEN resident Jan-Willem submits a reaction on the portal
+- THEN the griffie sees it on the consultation's moderation list as pending
+- AND Mijn inspraak lists it as in behandeling
+- AND after the griffie approves it, Mijn inspraak shows it as approved
+- @e2e tests/e2e/portal-citizen-contribution.spec.ts
+
+#### Scenario: A reaction on a closed consultation is refused end to end
+
+- GIVEN a consultation whose status is closed
+- WHEN a resident submits a reaction to it on the portal
+- THEN the portal shows that reacting is closed
+- AND no `ConsultationReaction` is created in decidiq
+- @e2e tests/e2e/portal-citizen-contribution.spec.ts

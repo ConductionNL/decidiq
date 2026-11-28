@@ -339,3 +339,236 @@ test('live tally shows the active rules and the computed base while the round is
 		await api.dispose()
 	}
 })
+
+/*
+ * Roll call recorded by name (voting-named-paper-vote-entry, task 5).
+ *
+ * The chair (the admin session) records each member's choice on an open
+ * roll-call round through the "Record votes by name" sheet; a member, signed
+ * in with an EMPTY storage state as a non-admin user, sees the notice and no
+ * vote buttons. Totals are read back by closing the round through the API, so
+ * the test asserts what the sheet saved, not what it claims to have saved.
+ */
+test.describe('roll call recorded by name', () => {
+	test.describe.configure({ mode: 'serial' })
+
+	const runId = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`
+	const memberUid = `e2e-npv-${runId}`
+	const memberPass = `Npv-${runId}-Pw1!`
+	const seeded: Array<[string, string]> = []
+	const ids: Record<string, string> = {}
+	let api: APIRequestContext
+
+	/**
+	 * Seed one object and remember it for teardown.
+	 *
+	 * @param schema The schema.
+	 * @param body The object.
+	 *
+	 * @return The id.
+	 */
+	async function seed(schema: string, body: object): Promise<string> {
+		const id = await createObject(api, schema, body)
+		expect(id, `the seeded ${schema} must carry an id`).toBeTruthy()
+		seeded.push([schema, id as string])
+		return id as string
+	}
+
+	/**
+	 * A motion in voting with an open roll-call round, in the seeded meeting.
+	 *
+	 * @param title The motion title.
+	 *
+	 * @return The motion and round ids.
+	 */
+	async function rollCall(title: string): Promise<{ motionId: string; roundId: string }> {
+		const motionId = await seed(MOTION_SCHEMA, {
+			decisionType: 'motion',
+			title,
+			text: 'That the votes be recorded by name.',
+			decisionDate: '2026-06-20T10:00:00+00:00',
+			outcome: 'adopted',
+			motionType: 'motion',
+			proposer: 'E2E NPV',
+			lifecycle: 'voting',
+			submittedAt: '2026-06-19T09:00:00+00:00',
+			meeting: ids.meeting,
+		})
+		const roundId = await seed('voting-round', {
+			votingMethod: 'roll-call',
+			isSecret: false,
+			openedAt: '2026-06-20T10:05:00+00:00',
+			voteThreshold: 'simple-majority',
+			abstentionHandling: 'exclude',
+			tieBreakRule: 'rejected',
+			relations: [{ register: 'decidiq', schema: 'motion', id: motionId }],
+		})
+		return { motionId, roundId }
+	}
+
+	test.beforeAll(async () => {
+		api = await newApiContext()
+		const created = await api.post(`${BASE}/ocs/v2.php/cloud/users?format=json`, {
+			data: { userid: memberUid, password: memberPass },
+		})
+		expect(created.ok(), `provisioning ${memberUid}: ${await created.text()}`).toBe(true)
+
+		ids.body = await seed('governance-body', { name: `E2E NPV body ${runId}`, bodyType: 'legislative' })
+		ids.meeting = await seed('meeting', {
+			title: `E2E NPV meeting ${runId}`,
+			meetingType: 'regular',
+			scheduledDate: '2026-06-20T10:00:00+00:00',
+			meetingMode: 'in-person',
+			lifecycle: 'opened',
+			quorumRequired: 1,
+			governanceBody: ids.body,
+		})
+		ids.chair = await seed('participant', {
+			displayName: 'E2E NPV Chair',
+			role: 'chair',
+			nextcloudUserId: ADMIN_USER,
+			party: 'Partij Noord',
+			governanceBody: ids.body,
+		})
+		ids.member = await seed('participant', {
+			displayName: 'E2E NPV Member',
+			role: 'member',
+			nextcloudUserId: memberUid,
+			party: 'Partij Noord',
+			governanceBody: ids.body,
+		})
+		ids.other = await seed('participant', {
+			displayName: 'E2E NPV Other',
+			role: 'member',
+			party: 'Partij Zuid',
+			governanceBody: ids.body,
+		})
+	})
+
+	test.afterAll(async () => {
+		for (const [schema, id] of seeded.reverse()) {
+			await deleteObject(api, schema, id)
+		}
+		await api
+			.delete(`${BASE}/ocs/v2.php/cloud/users/${memberUid}?format=json`)
+			.catch(() => undefined)
+		await api.dispose()
+	})
+
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+	test('the chair lists every member, sets a party at once, and the saved votes are what closes', async ({ page }) => {
+		test.setTimeout(120_000)
+		const { motionId, roundId } = await rollCall(`E2E NPV motion A ${runId}`)
+
+		test.skip(
+			!(await openVotingRoundTab(page, motionId)),
+			'Voting round tab not deployed on this instance (deploy mismatch)',
+		)
+
+		await expect(page.locator('[data-testid="roll-call-notice"]')).toBeVisible({ timeout: 10_000 })
+		await page.locator('[data-testid="recorded-votes-open"]').click()
+		const sheet = page.locator('[data-testid="recorded-votes-modal"]')
+		await expect(sheet).toBeVisible({ timeout: 8_000 })
+
+		for (const [key, name, party] of [
+			['chair', 'E2E NPV Chair', 'Partij Noord'],
+			['member', 'E2E NPV Member', 'Partij Noord'],
+			['other', 'E2E NPV Other', 'Partij Zuid'],
+		]) {
+			const row = sheet.locator(`[data-testid="recorded-votes-member-${ids[key]}"]`)
+			await expect(row, `${name} must be listed`).toBeVisible()
+			await expect(row).toContainText(name)
+			await expect(row).toContainText(party)
+		}
+
+		// The whole of Partij Noord votes for, through the party control.
+		await sheet.getByLabel('Party', { exact: true }).click()
+		await page.getByRole('option', { name: 'Partij Noord' }).click()
+		await sheet.getByLabel('Vote of the party', { exact: true }).click()
+		await page.getByRole('option', { name: 'For', exact: true }).click()
+		await sheet.locator('[data-testid="recorded-votes-party-apply"]').click()
+		await sheet
+			.locator(`[data-testid="recorded-votes-member-${ids.other}"]`)
+			.getByText('Against', { exact: true })
+			.click()
+
+		await sheet.locator('[data-testid="recorded-votes-submit"]').click()
+		await expect(sheet).toBeHidden({ timeout: 10_000 })
+
+		const closed = await api.post(`/index.php/apps/decidiq/api/voting-rounds/${roundId}/close`, {
+			data: { anonymise: false },
+		})
+		expect(closed.status(), await closed.text()).toBe(200)
+		const round = await closed.json()
+		expect(round.votesFor, 'both members of Partij Noord were recorded for').toBe(2)
+		expect(round.votesAgainst).toBe(1)
+		expect(round.result).toBe('adopted')
+	})
+
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-003-the-recorded-list-is-refused-as-a-whole-when-any-entry-is-wrong
+	test('a refused list names the member concerned and keeps the entries', async ({ page }) => {
+		test.setTimeout(120_000)
+		const { motionId, roundId } = await rollCall(`E2E NPV motion B ${runId}`)
+		// The member cast their own vote: recording over it must be refused.
+		await seed('vote', {
+			value: 'abstain',
+			weight: 1,
+			isProxy: false,
+			entryMode: 'cast',
+			castAt: '2026-06-20T10:07:00+00:00',
+			relations: [
+				{ register: 'decidiq', schema: 'voting-round', id: roundId },
+				{ register: 'decidiq', schema: 'participant', id: ids.member },
+			],
+		})
+
+		test.skip(
+			!(await openVotingRoundTab(page, motionId)),
+			'Voting round tab not deployed on this instance (deploy mismatch)',
+		)
+
+		await page.locator('[data-testid="recorded-votes-open"]').click()
+		const sheet = page.locator('[data-testid="recorded-votes-modal"]')
+		await expect(sheet).toBeVisible({ timeout: 8_000 })
+		for (const key of ['chair', 'member', 'other']) {
+			await sheet
+				.locator(`[data-testid="recorded-votes-member-${ids[key]}"]`)
+				.getByText('For', { exact: true })
+				.click()
+		}
+		await sheet.locator('[data-testid="recorded-votes-submit"]').click()
+
+		const message = sheet.locator('[data-testid="recorded-votes-message"]')
+		await expect(message).toBeVisible({ timeout: 10_000 })
+		await expect(message).toContainText('E2E NPV Member')
+		await expect(sheet, 'the sheet stays open to be corrected').toBeVisible()
+		await expect(
+			sheet.locator(`[data-testid="recorded-votes-member-${ids.other}"]`).getByRole('radio', { name: 'For', exact: true }),
+			'the entries are kept',
+		).toBeChecked()
+	})
+
+	// @e2e openspec/changes/archive/2026-11-24-voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+	test('a member sees the roll call notice and no vote buttons', async ({ browser }) => {
+		test.setTimeout(120_000)
+		const { motionId } = await rollCall(`E2E NPV motion C ${runId}`)
+
+		const context = await browser.newContext({
+			storageState: { cookies: [], origins: [] },
+			httpCredentials: { username: memberUid, password: memberPass, send: 'always' },
+		})
+		try {
+			const page = await context.newPage()
+			test.skip(
+				!(await openVotingRoundTab(page, motionId)),
+				'Voting round tab not reachable for a member on this instance',
+			)
+			await expect(page.locator('[data-testid="roll-call-notice"]')).toBeVisible({ timeout: 10_000 })
+			await expect(page.getByRole('button', { name: 'Vote for' })).toHaveCount(0)
+			await expect(page.getByRole('button', { name: 'Vote against' })).toHaveCount(0)
+			await expect(page.locator('[data-testid="recorded-votes-open"]')).toHaveCount(0)
+		} finally {
+			await context.close()
+		}
+	})
+})

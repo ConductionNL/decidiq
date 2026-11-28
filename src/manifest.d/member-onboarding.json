@@ -1,7 +1,7 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Member onboarding and offboarding (member-onboarding-in-plain-words) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for both registers; schema refs BY SLUG (member-onboarding / member-offboarding), never PascalCase. DECLARATIVE CORE ONLY: the progress dashboard widgets of REQ-MOB-011 (records-per-lifecycle + overdue-steps KPI) belong in the base src/manifest.json Dashboard page (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it) and are DEFERRED here to keep this change to the two allowed files. The detail-page checklist actions (complete/skip/execute provisioning) and the bulk-intake suggestion list are imperative surfaces also out of core scope; these pages render the record, its steps and its references declaratively.",
-	"_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md",
 	"menu": [
 		{
 			"id": "MemberOnboarding",
@@ -24,7 +24,7 @@
 			"route": "/member-onboarding",
 			"type": "index",
 			"title": "Onboarding",
-			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Onboarding index; columns person/targetBody/targetRole/trigger/lifecycle; quick filters on lifecycle, trigger and batch. The dashboard overdue-KPI/status widgets (REQ-MOB-011) deep-link here pre-filtered.",
+			"_note": "spec: openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Onboarding index; columns person/targetBody/targetRole/trigger/lifecycle; quick filters on lifecycle, trigger and batch. The dashboard overdue-KPI/status widgets (REQ-MOB-011) deep-link here pre-filtered.",
 			"config": {
 				"register": "decidiq",
 				"schema": "member-onboarding",
@@ -60,19 +60,22 @@
 			"id": "MemberOnboardingDetail",
 			"route": "/member-onboarding/:id",
 			"type": "detail",
+			"slots": { "widget-onboarding-checklist": "OnboardingChecklistTab" },
 			"title": "Member onboarding",
-			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/targetBody/targetRole/trigger/installation fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/installationMeeting/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step complete/skip/execute-provisioning actions and the induction-pack delivery are imperative surfaces DEFERRED (design D3/D6, out of declarative core).",
+			"_note": "spec: openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/targetBody/targetRole/trigger/installation fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/installationMeeting/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The Checklist widget marks a step done or skipped (bodies-onboarding-checklist-walkthrough); execute-provisioning and the induction-pack delivery stay DEFERRED (design D3/D6).",
 			"config": {
 				"register": "decidiq",
 				"schema": "member-onboarding",
 				"_note": "MemberOnboardingDetail (REQ-MOB-012). Schema BY SLUG member-onboarding.",
 				"widgets": [
 					{ "id": "onboarding-data", "type": "data", "title": "Member onboarding", "icon": "AccountGroup", "content": { "columns": 2 } },
-					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{ "id": "onboarding-checklist", "type": "custom", "component": "OnboardingChecklistTab", "title": "Checklist", "icon": "FormatListChecks", "_note": "bodies-onboarding-checklist-walkthrough (REQ-MOBW-001, bod-08): the steps with their status; the secretary, chair or an administrator marks an open step done or skips an optional one, and the server runs the membership effect." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "onboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "onboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+					{ "id": "2", "widgetId": "onboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "onboarding-checklist", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -89,7 +92,7 @@
 			"route": "/member-offboarding",
 			"type": "index",
 			"title": "Offboarding",
-			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Offboarding index; columns person/body/endReason/trigger/endDate/lifecycle; quick filters on lifecycle, trigger and batch.",
+			"_note": "spec: openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Offboarding index; columns person/body/endReason/trigger/endDate/lifecycle; quick filters on lifecycle, trigger and batch.",
 			"config": {
 				"register": "decidiq",
 				"schema": "member-offboarding",
@@ -125,19 +128,22 @@
 			"id": "MemberOffboardingDetail",
 			"route": "/member-offboarding/:id",
 			"type": "detail",
+			"slots": { "widget-offboarding-checklist": "OnboardingChecklistTab" },
 			"title": "Member offboarding",
-			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/body/membership/trigger/endDate/endReason/exit-confirmation/lifecycle); the checklist steps render inside the data widget; person/body/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step revocation/end-date execution is an imperative surface DEFERRED (design D3, out of declarative core).",
+			"_note": "spec: openspec/changes/archive/2026-11-24-member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/body/membership/trigger/endDate/endReason/exit-confirmation/lifecycle); the checklist steps render inside the data widget; person/body/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step revocation/end-date execution is an imperative surface DEFERRED (design D3, out of declarative core).",
 			"config": {
 				"register": "decidiq",
 				"schema": "member-offboarding",
 				"_note": "MemberOffboardingDetail (REQ-MOB-012). Schema BY SLUG member-offboarding.",
 				"widgets": [
 					{ "id": "offboarding-data", "type": "data", "title": "Member offboarding", "icon": "AccountGroup", "content": { "columns": 2 } },
-					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{ "id": "offboarding-checklist", "type": "custom", "component": "OnboardingChecklistTab", "title": "Checklist", "icon": "FormatListChecks", "_note": "bodies-onboarding-checklist-walkthrough (REQ-MOBW-001, bod-08): the steps with their status; the secretary, chair or an administrator marks an open step done or skips an optional one, and the server runs the membership effect." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "offboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "offboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+					{ "id": "2", "widgetId": "offboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "offboarding-checklist", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,

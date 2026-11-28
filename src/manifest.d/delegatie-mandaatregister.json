@@ -38,7 +38,17 @@
 						"label": "Volmacht",
 						"filter": { "type": "power-of-attorney" }
 					},
-					{ "label": "Machtiging", "filter": { "type": "authorisation" } }
+					{ "label": "Machtiging", "filter": { "type": "authorisation" } },
+					{
+						"label": "In force today",
+						"_note": "REQ-DMR-004 'geldig op' for today as one OR list query: in force, valid from today or earlier, and valid until today or later or open-ended (validTo[orNull]). Any other date: the In force on date choice above the list (InForceOnDateFilter) writes the same four keys for that day.",
+						"filter": {
+							"status": "effective",
+							"validFrom[lte]": "@today",
+							"validTo[gte]": "@today",
+							"validTo[orNull]": true
+						}
+					}
 				],
 				"columns": [
 					{ "key": "type", "label": "Type", "widget": "badge" },
@@ -59,6 +69,14 @@
 						"primary": true
 					}
 				],
+				"statRow": [
+					{
+						"id": "in-force-on-date",
+						"type": "InForceOnDateFilter",
+						"title": "",
+						"_note": "REQ-DMR-004 'geldig op' for any day: choosing a day writes status effective, validFrom[lte], validTo[gte] and validTo[orNull] for that day into the address, which the index merges into its list fetch (one OpenRegister query). Clearing it takes the four keys off and keeps the other filters."
+					}
+				],
 				"showMassExport": true,
 				"sidebar": { "enabled": true, "showMetadata": true },
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -73,7 +91,39 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "authority-delegation",
-				"_note": "BevoegdheidstoedelingDetail (REQ-DMR-003/004/005/006). Toedeling data leads 8-wide, publication stacked right; the linked delegans/delegatarisBody/delegatarisPersoon/besluit/ingetrokkenDoor/parentToedeling render as resolved references in the data + Related widgets. The Related widget also surfaces the ondermandaat chain (parent link + list of ondermandaten, keyboard-navigable, depth walked from the loaded chain — never stored) and the reverse lookup of decisions referencing this toedeling as bevoegdheidsgrondslag (REQ-DMR-006). Files leaf for the scanned mandaatbesluit PDF. Audit trail is a sidebar tab. The publish/withdraw actions (setting publicationDate/depublicationDate) and the chain display are wired by Tasks 4-5.",
+				"_note": "BevoegdheidstoedelingDetail (REQ-DMR-003/004/005/006). Toedeling data leads 8-wide, publication stacked right; the linked delegans/delegatarisBody/delegatarisPersoon/besluit/ingetrokkenDoor/parentToedeling render as resolved references in the data + Related widgets. The Related widget also surfaces the ondermandaat chain (parent link + list of ondermandaten, keyboard-navigable, depth walked from the loaded chain — never stored) and the reverse lookup of decisions referencing this toedeling as bevoegdheidsgrondslag (REQ-DMR-006). Files leaf for the scanned mandaatbesluit PDF. Audit trail is a sidebar tab. The publish/withdraw header actions PATCH publicationDate/depublicationDate on the live object (REQ-DMR-005); the decisions list is the REQ-DMR-006 reverse lookup.",
+				"headerActions": [
+					{
+						"id": "publish",
+						"type": "api-call",
+						"label": "Publish",
+						"icon": "Earth",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/authority-delegation/@objectId",
+						"payload": { "publicationDate": "@now", "depublicationDate": null },
+						"confirm": true,
+						"confirmTitle": "Publish this delegation or mandate?",
+						"confirmMessage": "Anyone can then read it on the public register, including later changes such as a withdrawal.",
+						"successMessage": "Published on the public register.",
+						"errorMessage": "Could not publish it.",
+						"visibleWhen": { "any": [ { "field": "publicationDate", "op": "empty" }, { "field": "depublicationDate", "op": "notEmpty" } ] }
+					},
+					{
+						"id": "withdraw-publication",
+						"type": "api-call",
+						"label": "Withdraw from the public register",
+						"icon": "EarthOff",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/authority-delegation/@objectId",
+						"payload": { "depublicationDate": "@now" },
+						"confirm": true,
+						"confirmTitle": "Withdraw it from the public register?",
+						"confirmMessage": "The public can no longer read it. Its record and status stay as they are.",
+						"successMessage": "Withdrawn from the public register.",
+						"errorMessage": "Could not withdraw it.",
+						"visibleWhen": { "all": [ { "field": "publicationDate", "op": "notEmpty" }, { "field": "depublicationDate", "op": "empty" } ] }
+					}
+				],
 				"widgets": [
 					{
 						"id": "toedeling-data",
@@ -113,6 +163,27 @@
 							"detailRoute": "AuthorityDelegationDetail",
 							"decisionRoute": "DecisionDetail"
 						}
+					},
+					{
+						"id": "toedeling-decisions",
+						"type": "object-list",
+						"title": "Decisions taken under it",
+						"icon": "Gavel",
+						"_note": "REQ-DMR-006 reverse lookup: the decisions that name this delegation or mandate as their authorityBasis ('genomen krachtens'). Documentation only.",
+						"content": {
+							"register": "decidiq",
+							"schema": "decision",
+							"filter": { "authorityBasis": "@objectId" },
+							"sort": { "field": "decisionDate", "dir": "desc" },
+							"columns": [
+								{ "key": "title", "label": "Title", "widget": "link" },
+								{ "key": "decisionDate", "label": "Date", "widget": "date" },
+								{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+							],
+							"limit": 10,
+							"emptyText": "No decision names this delegation or mandate as the authority it was taken under.",
+							"rowRoute": "DecisionDetail"
+						}
 					}
 				],
 				"layout": [
@@ -145,6 +216,14 @@
 						"widgetId": "toedeling-chain",
 						"gridX": 0,
 						"gridY": 9,
+						"gridWidth": 12,
+						"gridHeight": 4
+					},
+					{
+						"id": "5",
+						"widgetId": "toedeling-decisions",
+						"gridX": 0,
+						"gridY": 13,
 						"gridWidth": 12,
 						"gridHeight": 4
 					}

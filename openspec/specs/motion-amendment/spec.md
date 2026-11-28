@@ -16,6 +16,7 @@ Motions and amendments are the formal mechanisms for proposing decisions and mod
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Motion and Amendment entity definitions including property tables, Akoma Ntoso alignment, and OpenRaadsinformatie mapping.
+
 ## Requirements
 
 ---
@@ -152,6 +153,81 @@ The system MUST support motion withdrawal by the proposer before voting. Motions
 - AND the withdrawal MUST be recorded in the audit trail
 - AND the motion MUST remain visible in the meeting record but marked as withdrawn
 
+### Requirement: REQ-SUBW-001 A meeting can open submission at a set time
+
+A meeting SHALL carry an optional `submissionOpensAt` beside `submissionDeadline`, and the meeting page SHALL show both.
+
+#### Scenario: The griffier sets the window
+- GIVEN the council meeting of 14 October
+- WHEN the griffier sets submission to open on 4 October at 09:00 and close on 13 October at 12:00
+- THEN the meeting's Planning widget shows "Submission opens 4 October 09:00" and "Submission deadline 13 October 12:00"
+
+### Requirement: REQ-SUBW-002 A motion or amendment submitted before the window opens is refused
+
+The app SHALL refuse, with HTTP 422 and a message naming the opening time, the creation of a motion or an amendment for a meeting whose `submissionOpensAt` lies in the future. Without an opening time, submission SHALL be open until the deadline, as before.
+
+#### Scenario: A member is too early
+- GIVEN submission for the council meeting of 14 October opens on 4 October at 09:00
+- WHEN council member Pieter submits a motion on 2 October
+- THEN the motion is refused with "Submission of motions and amendments for this meeting opens on 4 October 2026 09:00."
+
+#### Scenario: Inside the window
+- GIVEN the same meeting
+- WHEN Pieter submits the motion on 6 October
+- THEN the motion is created
+
+### Requirement: REQ-SUBW-003 A window that opens after it closes is refused
+
+The app SHALL refuse to save a meeting whose `submissionOpensAt` is not before its `submissionDeadline`.
+
+#### Scenario: A typo in the dates
+- GIVEN the griffier sets submission to open on 14 October and close on 13 October
+- WHEN she saves the meeting
+- THEN the save is refused with "The submission window opens after it closes."
+
+### Requirement: REQ-AMT-001 An adopted amendment changes the motion text
+
+When a voting round adopts an amendment, the system SHALL work the amendment's change into the parent motion's `text`, so the motion text is the final text with every adopted amendment merged in. An amendment MAY name `targetPassage`, the exact words it replaces; the first occurrence of that passage MUST then be replaced by `proposedText`. Without a passage, `proposedText` (or, for an amendment written before these fields existed, its `text`) MUST become the motion's whole wording. The motion MUST keep its first wording once in `originalText` and MUST append to `amendmentHistory` an entry with the amendment, the mode (`passage` or `full`), the text before, the text after and the time. An amendment that already has an entry in `amendmentHistory` MUST NOT be applied again. A passage that does not occur in the motion text, or an amendment with no replacement text, MUST be refused and the motion text MUST stay unchanged.
+
+Built after the fact (spec written 2026-10-07, matrix row mot-20, #1394): `lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json` declares `targetPassage`, `proposedText`, `originalText` and `amendmentHistory` on `decision`; `lib/Service/VotingRoundCloser.php` `incorporateAdoptedAmendment()` calls `lib/Service/MotionAmendmentService.php` `applyAmendment()` when a round adopts an amendment, which saves the result of `lib/Service/AmendmentTextMerger.php` `merge()`. A refusal is logged by the closer and does not stop the round from closing.
+
+#### Scenario: An adopted amendment replaces its passage
+
+- GIVEN the motion "Verlichting fietspaden 2027" with the text "Een krediet van 640.000 euro beschikbaar stellen."
+- AND an amendment with `targetPassage` "640.000 euro" and `proposedText` "735.000 euro"
+- WHEN the amendment's voting round closes as adopted
+- THEN the motion text reads "Een krediet van 735.000 euro beschikbaar stellen."
+- AND `originalText` holds the first wording
+- AND `amendmentHistory` has one entry with mode `passage` and the text before and after
+- @e2e exclude proven by PHPUnit tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage; the merge runs server-side when a round closes
+
+#### Scenario: A second adopted amendment keeps the first wording
+
+- GIVEN a motion that already carries one applied amendment in `amendmentHistory`
+- WHEN a second amendment is adopted
+- THEN `originalText` still holds the wording from before the first amendment
+- AND `amendmentHistory` has two entries, in the order they were applied
+- @e2e exclude proven by PHPUnit testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory
+
+#### Scenario: A passage that is not in the text is refused
+
+- GIVEN an amendment whose `targetPassage` does not occur in the motion text
+- WHEN its voting round closes as adopted
+- THEN the motion text is not changed
+- AND no entry is added to `amendmentHistory`
+- @e2e exclude proven by PHPUnit testApplyAmendmentRefusesAPassageThatIsNotInTheText
+
+### Requirement: An amendment can target a proposal as well as a motion
+
+A member SHALL be able to submit an amendment against a proposal on the agenda, a decision that is not a motion, in the same way as against a motion. The amendment SHALL be stored with a reference to that proposal and SHALL be listed on the proposal's page.
+
+#### Scenario: A member amends a proposal
+
+- **GIVEN** the proposal "Parking policy 2027" on the agenda of the council
+- **WHEN** a member submits an amendment with new text for one of its paragraphs
+- **THEN** the amendment is stored with a reference to that proposal and starts as a draft
+- **AND** the proposal's page lists the amendment with the difference against the proposal text
+
 ## User Stories
 
 1. **Member submitting a motion**: As a member, I want to submit a motion or proposal for the ALV agenda with supporting arguments so that my topic is formally discussed and voted on. (Source: intelligence DB #54)
@@ -169,3 +245,84 @@ The system MUST support motion withdrawal by the proposer before voting. Motions
 - Motion lifecycle follows defined status transitions
 - Motion withdrawal is supported and recorded
 - OpenRaadsinformatie `Motie`/`Amendement` mapping is available
+
+### Requirement: REQ-MCR-001 The motion text can be read with stable line numbers
+
+The motion page SHALL offer a line-numbered view of the motion text. Lines MUST break at word boundaries at no more than 80 characters, a paragraph break MUST start a new line, and the same text MUST always produce the same numbers.
+
+#### Scenario: The griffier turns on line numbers
+
+- GIVEN the motion "Verlichting fietspaden 2027" with three paragraphs
+- WHEN the griffier turns on Regelnummers on the motion page
+- THEN every line of the text shows its number, starting at 1
+- AND opening the page again shows the same numbers on the same lines
+
+### Requirement: REQ-MCR-002 A recommendation names its lines, its passage and its new wording
+
+The chair or secretary SHALL be able to recommend a change by picking a first and last line, writing the new wording and an optional reason. The system MUST store a `change-recommendation` linked to the motion with `lineFrom`, `lineTo`, the exact text of those lines as `targetPassage`, `proposedText`, `reason` and status `pending`. Anyone else MUST NOT be able to create one.
+
+#### Scenario: The griffier recommends a corrected amount
+
+- GIVEN lines 4 and 5 of the motion read "Een krediet van 640.000 euro beschikbaar stellen"
+- WHEN the griffier picks lines 4 to 5 under Wijziging aanbevelen, enters "Een krediet van 645.000 euro beschikbaar stellen" and the reason "Bedrag uit de begrotingswijziging"
+- THEN a pending recommendation for lines 4 to 5 shows under Aanbevolen wijzigingen
+
+#### Scenario: A member cannot recommend
+
+- GIVEN a council member who is not chair or secretary of the meeting
+- WHEN she opens the motion page
+- THEN Wijziging aanbevelen is not shown
+- AND creating a recommendation through the API is refused
+
+### Requirement: REQ-MCR-003 The chair or secretary accepts a recommendation into the text without a vote
+
+When the chair or secretary accepts a pending recommendation, the system SHALL replace its `targetPassage` in the motion text with its `proposedText` as an adopted amendment does (REQ-AMT-001): `originalText` keeps the first wording and `amendmentHistory` gains an entry that names the recommendation. The recommendation MUST become `accepted` with who decided and when. No voting round SHALL be opened. Accepting MUST be refused once the motion is in `voting` or later.
+
+#### Scenario: Accepting the corrected amount
+
+- GIVEN the pending recommendation for lines 4 to 5
+- WHEN the secretary presses Accept
+- THEN the motion text reads "645.000 euro"
+- AND the recommendation shows Geaccepteerd with the secretary's name and the date
+- AND the motion's history has an entry for this recommendation
+
+#### Scenario: Too late to accept
+
+- GIVEN a motion whose voting round is open
+- WHEN the chair presses Accept on a pending recommendation
+- THEN the request is refused and the text is unchanged
+
+### Requirement: REQ-MCR-004 A rejected recommendation changes nothing
+
+When the chair or secretary rejects a pending recommendation, the system SHALL set it to `rejected` with who decided and when, and MUST NOT change the motion. A rejected recommendation MUST stay listed.
+
+#### Scenario: Rejecting a wording suggestion
+
+- GIVEN a pending recommendation to reword line 9
+- WHEN the chair presses Reject
+- THEN the recommendation shows Afgewezen
+- AND the motion text and history are unchanged
+
+### Requirement: REQ-MCR-005 A recommendation whose passage has changed cannot be accepted
+
+When a recommendation's `targetPassage` no longer occurs in the motion text, the system SHALL show it as "Passage changed" and MUST refuse to accept it, leaving the motion and the recommendation unchanged.
+
+#### Scenario: An amendment changed the lines first
+
+- GIVEN a pending recommendation on lines 4 to 5
+- AND an adopted amendment that rewrote line 4
+- WHEN the secretary presses Accept on the recommendation
+- THEN the request is refused with "The passage has changed since this recommendation was made"
+- AND the recommendation stays pending, marked Passage changed
+
+### Requirement: REQ-MCR-006 The motion page lists every recommendation with its status
+
+The motion page SHALL show an "Aanbevolen wijzigingen" card below Amendementen listing every recommendation of the motion, oldest first, with its lines, its status and, when opened, the tracked change between the passage and the new wording. Accept and Reject MUST show only to the chair and secretary, and only on a pending recommendation.
+
+#### Scenario: A member reads the recommendations
+
+- GIVEN a motion with one accepted, one rejected and one pending recommendation
+- WHEN a council member opens the motion page
+- THEN all three are listed with their status
+- AND opening one shows the removed words struck through in red and the added words underlined in green
+- AND no Accept or Reject button is shown to her

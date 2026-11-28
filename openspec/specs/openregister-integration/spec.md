@@ -6,7 +6,6 @@ status-note: 2026-06-12 audit — all 3 requirements verified in code. Delivered
 # OpenRegister Integration Specification
 
 ## Purpose
-@e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 OpenRegister is the data layer for Decidiq. All Decidiq entities (meetings, decisions, agenda items, votes, resolutions, bodies, process templates) are stored as OpenRegister objects with schema validation. This specification covers the register and schema definitions, the repair step that imports them, the JSON-based register configuration file, and the data access patterns used by the frontend and backend.
 
@@ -34,6 +33,7 @@ The system MUST define all Decidiq schemas in a single `lib/Settings/decidesk_re
 - THEN it MUST contain a valid OpenAPI 3.0.0 document with `components.schemas` for all entity types
 - AND each schema MUST include `@type` with the appropriate Schema.org or Akoma Ntoso type annotation
 - AND each schema MUST define required properties, property types, and validation rules
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 #### Scenario: Schema properties match ARCHITECTURE.md definitions
 
@@ -41,6 +41,7 @@ The system MUST define all Decidiq schemas in a single `lib/Settings/decidesk_re
 - WHEN comparing with the register config schemas
 - THEN all properties defined in ARCHITECTURE.md MUST be present in the corresponding schema
 - AND property types and validation rules MUST match
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 #### Scenario: Register config includes cross-references between schemas
 
@@ -50,6 +51,7 @@ The system MUST define all Decidiq schemas in a single `lib/Settings/decidesk_re
 - AND the frontend MUST be able to resolve references for display
 
 ---
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 ### Requirement: Repair Step Import
 
@@ -64,6 +66,7 @@ The system MUST import the register configuration during app installation and up
 - THEN a register named `decidesk` MUST be created in OpenRegister
 - AND all schemas from `decidesk_register.json` MUST be imported
 - AND the register MUST be ready for data storage
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 #### Scenario: App upgrade updates schemas without data loss
 
@@ -74,6 +77,7 @@ The system MUST import the register configuration during app installation and up
 - AND new properties MUST have default values where applicable
 
 ---
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 ### Requirement: Frontend Data Access Pattern
 
@@ -88,6 +92,7 @@ The frontend MUST access Decidiq data via the OpenRegister API using `useObjectS
 - THEN it MUST use `useObjectStore` to fetch objects from the `decidesk` register with the `decision` schema
 - AND the store MUST handle pagination, filtering, and sorting via OpenRegister API parameters
 - AND loading and error states MUST be managed by the store
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 #### Scenario: Create a new meeting via object store
 
@@ -98,6 +103,7 @@ The frontend MUST access Decidiq data via the OpenRegister API using `useObjectS
 - AND validation errors MUST be displayed to the user
 
 ---
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
 
 ### Requirement: Backend Service Access
 
@@ -112,6 +118,28 @@ Backend services (VotingService, WorkflowService) MUST access OpenRegister data 
 - THEN it MUST query OpenRegister for all vote objects linked to the voting round
 - AND it MUST use the ObjectService or VoteMapper to retrieve the data
 - AND calculations MUST be performed on the retrieved data without caching in a separate table
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
+
+### Requirement: REQ-PFE-001 An administrator exports all data
+
+An administrator SHALL be able to export every decidiq record and its files in one archive with a description of the format.
+
+#### Scenario: The organisation leaves
+- GIVEN the municipality moves to another supplier
+- WHEN the administrator presses Export all data
+- THEN she receives a link to an archive with every record per type and the meeting files
+- AND the archive holds one JSON file per record type, the files of meetings, agenda items and decisions under files/<type>/<id>/, and a manifest.json naming each type, its count and its relations
+
+#### Scenario: A record type that cannot be read is named, not dropped
+- GIVEN one record type cannot be read while the export runs
+- WHEN the export finishes
+- THEN the manifest lists that type under skipped with the reason, and the other types are in the archive
+- @e2e exclude Pure backend/data-layer spec — register JSON config, repair step, and OR API access patterns are server-side contracts verified by RegisterJsonTest.php and PHP unit tests. The frontend data-access pattern (useObjectStore) is a library contract with no dedicated decidiq UI form to drive.
+
+#### Scenario: Only administrators export, and only exports download
+- GIVEN a member who is not an administrator
+- WHEN she asks for the export or its download
+- THEN she is refused; and a download name that is not an export answers 404
 
 ## User Stories
 

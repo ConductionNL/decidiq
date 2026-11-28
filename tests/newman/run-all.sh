@@ -18,6 +18,18 @@
 #                                             once publicationDate <= now, NOT before,
 #                                             and gone after depublicationDate —
 #                                             publish-decisions-via-opencatalogi 5.2)
+#   - decidiq-named-paper-vote.postman_collection.json
+#                                             (roll-call votes recorded by name:
+#                                             voting-named-paper-vote-entry)
+#   - decidiq-delegation-register.postman_collection.json
+#                                             (delegation and mandate register: anon
+#                                             read of a published delegation, not of an
+#                                             unpublished one, live withdrawal —
+#                                             delegatie-mandaatregister REQ-DMR-005)
+#   - decidiq-records-management.postman_collection.json
+#                                             (archival dossier: form, gather, close
+#                                             with gaps, disposition, own category —
+#                                             records-management-archiving)
 #   - board-portal.postman_collection.json   (enterprise board-portal surface:
 #                                             Board / BoardMember / BoardMeeting /
 #                                             Resolution / BoardVote / RegulatorExport /
@@ -79,10 +91,21 @@ COLLECTIONS=(
   "${INTEGRATION_DIR}/decidiq-minutes.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-user-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-voting-rules.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-named-paper-vote.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-admin-settings.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-process-config.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-motion-amendment.postman_collection.json"
   "${INTEGRATION_DIR}/decidiq-publication-anon-read.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-decisions-report-cut.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-microsoft-365.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-long-term-agenda-tracks.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-delegation-register.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-records-management.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-urgent-decision-procedure.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-paper-summaries.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-implementation-progress.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-mandate-remuneration.postman_collection.json"
+  "${INTEGRATION_DIR}/decidiq-room-system-link.postman_collection.json"
   "${INTEGRATION_DIR}/board-portal.postman_collection.json"
 )
 

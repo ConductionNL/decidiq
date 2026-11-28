@@ -19,6 +19,7 @@ Meeting management covers the full lifecycle of governance meetings: creation, s
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Meeting entity definition including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
+
 ## Requirements
 
 ---
@@ -199,6 +200,109 @@ universal `meeting`; its CalDAV sync uses the universal `meeting` path
 - WHEN it is persisted
 - THEN CalDAV sync occurs via the universal `meeting` listener (no `BoardMeetingCalDavBridge`)
 
+### Requirement: REQ-MRB-001 A new meeting takes its type and body defaults
+
+When a meeting is created, fields left empty SHALL be filled from its meeting type and then from its governance body.
+
+#### Scenario: The clerk plans a committee meeting
+- GIVEN meeting type Commissie sets 90 minutes and quorum 5
+- WHEN the clerk creates a meeting of type Commissie without entering either
+- THEN the meeting page shows 90 minutes and quorum 5
+
+### Requirement: REQ-MRB-002 Votes follow the body rules
+
+Opening a voting round SHALL use the governance body's voting rule and quorum rule, not fixed values.
+
+#### Scenario: A two-thirds vote
+- GIVEN the supervisory board requires a two-thirds majority
+- WHEN the chair opens a voting round on a motion of that board
+- THEN the round shows the two-thirds rule and decides by it
+
+### Requirement: REQ-PPS-001 An evening holds parallel sessions, and each session is a meeting
+
+A meeting SHALL be able to point at a parent meeting, making it a session of that evening. A session SHALL have its own agenda, minutes, decisions, votes, transcript and broadcast, as any meeting does. The app SHALL refuse a session of a session, a session scheduled outside its evening's times, and a meeting that is its own parent. A new session SHALL take the evening's body, publicity and mode when those are left empty.
+
+#### Scenario: The griffier splits a committee evening
+- GIVEN the meeting "Commissieavond 3 november" from 18:00 to 23:00
+- WHEN the griffier adds the sessions Commissie Ruimte, Commissie Bestuur and Commissie Samenleving at 19:30 in three rooms
+- THEN three meetings exist with that evening as their parent, each with its own empty agenda
+
+#### Scenario: A session outside the evening
+- GIVEN the same evening
+- WHEN the griffier schedules a session at 23:30
+- THEN the save is refused with a message naming the evening's times
+
+### Requirement: REQ-PPS-002 The evening's page shows its sessions side by side
+
+The page of a meeting with sessions SHALL show its sessions next to each other, each with its room, chair, time, lifecycle, first agenda items and live status, linking to the session. A session's page SHALL name its evening and link the sibling sessions.
+
+#### Scenario: One overview of the evening
+- GIVEN the three sessions of 3 November
+- WHEN a council member opens the evening's page
+- THEN he sees three columns, one per session, and opens Commissie Bestuur from its column
+
+### Requirement: REQ-PPS-003 The calendar and the meetings list group sessions under their evening
+
+The meetings calendar SHALL show an evening once, with its sessions inside it, and the meetings list SHALL filter on the evening.
+
+#### Scenario: The calendar on 3 November
+- GIVEN the evening and its three sessions
+- WHEN the griffier opens the meetings calendar at 3 November
+- THEN one event shows, holding the three sessions
+
+### Requirement: REQ-PPS-004 Each session's broadcast names its evening for residents
+
+When a session is broadcast, its broadcast SHALL carry the evening's title, and the portal's list of live and recent meetings SHALL show it, so residents find an evening's sessions together.
+
+#### Scenario: A resident looks for tonight's committees
+- GIVEN the three sessions are broadcast
+- WHEN a resident opens the portal's live and recent meetings
+- THEN the three broadcasts are listed together under "Commissieavond 3 november"
+
+### Requirement: REQ-PPS-005 Each parallel session keeps its own recording and subtitles
+
+Each session of an evening SHALL keep its own recording and its own subtitles, apart from the other sessions of that evening, and the session's page SHALL play its own recording with its own subtitles.
+
+#### Scenario: Two sessions are recorded at the same time
+- GIVEN an evening with two sessions held in two rooms at the same time
+- WHEN both sessions are recorded and subtitled
+- THEN each session's page plays the recording of that session with the subtitles of that session
+- AND neither page shows the other session's recording or subtitles
+
+### Requirement: A body limits which voting methods its meetings may use
+
+A governance body SHALL be able to declare the voting methods its meetings may use. Opening a voting round in a meeting of that body SHALL offer only those methods and SHALL refuse any other. A body that declares none SHALL allow every method.
+
+#### Scenario: Only the allowed methods are offered
+
+- **GIVEN** a body that allows only for-against-abstain and roll call
+- **WHEN** the chair of one of its meetings opens a voting round
+- **THEN** only those two methods are offered
+- **AND** a request to open a round by show of hands is refused with a message naming the allowed methods
+
+### Requirement: Shortened-notice deviation recording for emergency convocations
+
+For a meeting with `meetingType=extraordinary` that is linked to an urgent decision's expedited procedure, the system SHALL allow the convocation to be sent with an actual notice below the body's regular notice period (`noticePeriodDays`), and MUST record the deviation on the meeting: `shortenedNotice` (boolean), `actualNoticeHours` (the notice actually given at send time), and `noticeDeviationReason` (string, required when `shortenedNotice` is true — defaulting to the decision's `urgencyReason`). The send MUST be rejected when the actual notice is below the governing body's `urgencyPolicy.minimumNoticeFloorHours`, and MUST be rejected for a `regular` meeting (the deviation path is exclusive to `extraordinary` meetings). The existing "overdue/warning" pre-send hint (noticeRules) SHALL, for a recorded deviation, present as a deliberate shortened-notice state rather than an error. Per-recipient delivery tracking SHALL apply unchanged.
+
+#### Scenario: Deviation recorded on an emergency convocation
+
+- GIVEN an `extraordinary` meeting for an urgent decision, a body with `noticePeriodDays=15` and `urgencyPolicy.minimumNoticeFloorHours=48`, and a meeting scheduled 72 hours out
+- WHEN the secretary sends the convocation confirming the shortened notice
+- THEN the notice is delivered to all members with per-recipient delivery entries
+- AND the meeting records `shortenedNotice=true`, `actualNoticeHours=72`, and the deviation reason
+
+#### Scenario: Floor enforcement rejects too-short notice
+
+- GIVEN the same body (`minimumNoticeFloorHours=48`) and a meeting scheduled 24 hours out
+- WHEN the secretary attempts to send the convocation
+- THEN the send is rejected naming the 48-hour floor and no deliveries or deviation are recorded
+
+#### Scenario: Regular meetings cannot use the deviation path
+
+- GIVEN a `regular` meeting whose convocation would be sent after the statutory deadline
+- WHEN the secretary sends the notice
+- THEN the existing overdue warning behaviour applies unchanged and no `shortenedNotice` deviation can be recorded
+
 ## User Stories
 
 1. **Secretary sending ALV convocation**: As secretary, I want to send the ALV convocation to all voting members via their preferred channel so that I can prove all members were properly notified within the statutory deadline. (Source: intelligence DB #46)
@@ -220,3 +324,46 @@ universal `meeting`; its CalDAV sync uses the universal `meeting` path
 - Voting is blocked when quorum is not met
 - Meeting list supports search, filter, and calendar view
 - OpenRaadsinformatie `Vergadering`/`Zitting` mapping is available
+
+### Requirement: REQ-MAH-001 An organiser runs their own ad hoc meeting
+
+The user who created a meeting SHALL be able to edit and delete it, and SHALL be able to invite guests from outside by email.
+
+Guests from outside are invited only to a meeting without a governing body. This is the security default, confirmed by Ruben on 9 Oct 2026 (decision 138): a public link to a council folder must never reach its confidential papers.
+
+The Nieuw overleg page (board DcAdhocOverleg, route `/meetings/new`, reached through New ad hoc meeting on the meeting index) SHALL set up such a meeting on one page: title, date and time with an end time, place, an optional Talk conversation, agenda points, papers, and colleagues and guests in one list (Naam, E-mail, Soort, Acties). Nothing is written until Overleg aanmaken. Then the meeting is saved first as a draft without a body, followed by its agenda items, the colleagues' attendance, the papers and the Talk conversation; guests are invited last so their mail lists the agenda. A step that fails after the meeting exists is listed on the page with a link to the meeting.
+
+#### Scenario: A project lead invites an outside advisor
+- GIVEN project lead Anna created meeting Kick-off windpark
+- WHEN she invites guest advisor@example.org
+- THEN the advisor gets an invitation with the date, the agenda and a link to the papers
+
+@e2e exclude needs a mail catcher on the live instance; covered by tests/Unit/Service/GuestInvitationServiceTest.php::testTheOrganiserInvitesAnOutsideAdvisor and testTheInvitationCarriesTheDateTheAgendaAndTheLink; Playwright owed (tasks.md Task 3)
+
+#### Scenario: Someone who did not organise the meeting cannot invite or edit
+- GIVEN Pieter did not create meeting Kick-off windpark
+- WHEN he invites a guest or edits the meeting
+- THEN it is refused
+
+@e2e exclude covered by tests/Unit/Service/GuestInvitationServiceTest.php::testSomeoneWhoDidNotOrganiseTheMeetingIsRefused and tests/Unit/RegisterAuthorizationTest.php::testTheOrganiserOfAMeetingKeepsEditingIt; a two-user Playwright run is owed
+
+#### Scenario: A meeting of a governing body takes no guests from outside
+- GIVEN a council meeting whose folder can hold confidential papers
+- WHEN the organiser tries to invite a guest by email
+- THEN it is refused, because a public link to that folder must never reach confidential papers
+
+@e2e exclude covered by tests/Unit/Service/GuestInvitationServiceTest.php::testAMeetingOfAGoverningBodyTakesNoGuests
+
+#### Scenario: The participants list shows who is a guest (board DcAdhocOverleg)
+- GIVEN an ad hoc meeting with a colleague and an invited guest
+- WHEN the organiser opens the participants
+- THEN each row reads Medewerker or Gast, and Gast uitnodigen sits next to Add participant
+
+@e2e exclude covered by tests/vitest/guestInvitation.spec.js (isGuest, the button only on a meeting without a body); a Playwright run is owed
+
+#### Scenario: The organiser sets up a meeting with guests on one page
+- GIVEN Anna opens New ad hoc meeting on the meeting index
+- WHEN she fills in the title, date and place, adds agenda point Opening en kennismaking and guest k.ouali@example.org, and chooses Overleg aanmaken
+- THEN a draft meeting without a body is created with that agenda item, the guest is invited, and the meeting page opens
+
+Covered by tests/vitest/adhocMeeting.spec.js (payloads valid against the merged meeting, agenda-item and meeting-attendance schemas; the order of the steps; failures reported) and tests/e2e/meeting-ad-hoc-with-guests.spec.ts (not yet run on a live instance).

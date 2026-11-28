@@ -29,8 +29,11 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
-use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
@@ -53,7 +56,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/decision-management/spec.md
  */
-class DecisionLifecycleService {
+class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	/**
 	 * Terminal-outcome lifecycle states that conclude a delegated decision.
 	 *
@@ -74,10 +77,17 @@ class DecisionLifecycleService {
 	private readonly DecisionContextResolver $contextResolver;
 
 	/**
+	 * Materializes the memberships and position holds an enacted appointment creates.
+	 *
+	 * @var AppointmentMemberships
+	 */
+	private readonly AppointmentMemberships $appointments;
+
+	/**
 	 * Constructor for DecisionLifecycleService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
+	 * @param DecisionTransitionGuardInterface $transitionGuard Pure transition map + per-domain policy guard
 	 * @param AuditLogService $auditLogService Hash-chained append-only audit log
 	 * @param ProcessTemplateService $templateService Resolves a body's process-template policy override (process-configuration)
 	 * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
@@ -86,7 +96,7 @@ class DecisionLifecycleService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly DecisionTransitionGuard $transitionGuard,
+		private readonly DecisionTransitionGuardInterface $transitionGuard,
 		private readonly AuditLogService $auditLogService,
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
@@ -94,6 +104,11 @@ class DecisionLifecycleService {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
+		$this->appointments = new AppointmentMemberships(
+			objectService: $objectService,
+			logger: $logger,
+			contextResolver: $this->contextResolver
+		);
 
 	}//end __construct()
 
@@ -109,25 +124,19 @@ class DecisionLifecycleService {
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
-	 * @return array{success: bool, lifecycle: ?string, domain: ?string, actions: array<int, array<string, mixed>>, states: string[], message: string}
+	 * @return array{success: bool, lifecycle: ?string, domain: ?string, actions: array<int, array<string, mixed>>,
+	 *     withdrawable: bool, states: string[], message: string}
 	 */
 	public function getAvailableTransitions(string $decisionId): array {
 		try {
 			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
 			if ($decision === null) {
-				return [
-					'success' => false,
-					'lifecycle' => null,
-					'domain' => null,
-					'actions' => [],
-					'states' => DecisionTransitionGuard::STATES,
-					'message' => "Decision '$decisionId' not found.",
-				];
+				return self::noTransitions(message: "Decision '$decisionId' not found.");
 			}
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
 			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+			$domain = $this->contextResolver->resolveDomain(objectService: $this->objectService, decision: $decision, meeting: $meeting);
 
 			// Process-configuration: when the decision's body has an assigned
 			// process template, its policy drives the guard; null otherwise so
@@ -160,7 +169,8 @@ class DecisionLifecycleService {
 				'lifecycle' => $lifecycle,
 				'domain' => $domain,
 				'actions' => $actions,
-				'states' => DecisionTransitionGuard::STATES,
+				'withdrawable' => $this->transitionGuard->isWithdrawable(lifecycle: $lifecycle),
+				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'OK',
 			];
 		} catch (\Throwable $e) {
@@ -168,17 +178,32 @@ class DecisionLifecycleService {
 				'Decidiq: failed to resolve available decision transitions',
 				['id' => $decisionId, 'exception' => $e->getMessage()]
 			);
-			return [
-				'success' => false,
-				'lifecycle' => null,
-				'domain' => null,
-				'actions' => [],
-				'states' => DecisionTransitionGuard::STATES,
-				'message' => 'Failed to resolve available transitions.',
-			];
+			return self::noTransitions(message: 'Failed to resolve available transitions.');
 		}//end try
 
 	}//end getAvailableTransitions()
+
+	/**
+	 * The answer when a decision's transitions cannot be listed.
+	 *
+	 * @param string $message Why not
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return array{success: bool, lifecycle: null, domain: null, actions: array<int, array<string, mixed>>,
+	 *     withdrawable: bool, states: string[], message: string}
+	 */
+	private static function noTransitions(string $message): array {
+		return [
+			'success' => false,
+			'lifecycle' => null,
+			'domain' => null,
+			'actions' => [],
+			'withdrawable' => false,
+			'states' => DecisionTransitionGuardInterface::STATES,
+			'message' => $message,
+		];
+	}//end noTransitions()
 
 	/**
 	 * Apply a lifecycle transition to a decision.
@@ -210,66 +235,10 @@ class DecisionLifecycleService {
 		}
 
 		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
-			if ($decision === null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => "Decision '$decisionId' not found.",
-				];
-			}
-
-			$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
-
-			// Every guard (transition map, domain policy, chair-only fail-closed,
-			// quorum before `voting`, outcome before `enact`) reports through one
-			// rejection message; null means the transition may proceed.
-			$rejection = $this->resolveRejection(
-				objectService: $this->objectService,
-				decision: $decision,
-				transition: $transition,
-				action: $action,
-				currentLifecycle: $currentLifecycle,
-				currentUserId: $currentUserId
-			);
-			if ($rejection !== null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => $rejection,
-				];
-			}
-
-			$patch = ['lifecycle' => $transition['to']];
-			if ($transition['to'] === 'enacted') {
-				$patch['enactedAt'] = date(DATE_ATOM);
-			}
-
-			// Object-level write ACL: saveObject() throws when the session user lacks
-			// write access on this specific object (caught below, generic error).
-			$updated = $this->objectService->saveObject(
-				object: array_merge($decision, $patch),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId,
-			);
-
-			$this->applyPostTransitionEffects(
-				objectService: $this->objectService,
-				decision: array_merge($decision, $patch),
+			return $this->attemptTransition(
 				decisionId: $decisionId,
-				action: $action,
-				currentLifecycle: $currentLifecycle,
-				newState: $transition['to'],
-				currentUserId: $currentUserId,
-				comment: $comment
+				job: ['transition' => $transition, 'action' => $action, 'currentUserId' => $currentUserId, 'comment' => $comment]
 			);
-
-			return [
-				'success' => true,
-				'decision' => $updated->jsonSerialize(),
-				'message' => "Decision transitioned to '{$transition['to']}'.",
-			];
 		} catch (DoesNotExistException) {
 			return [
 				'success' => false,
@@ -291,77 +260,164 @@ class DecisionLifecycleService {
 	}//end transition()
 
 	/**
+	 * Load the decision, run every guard and, when none rejects, apply the transition.
+	 *
+	 * Exceptions propagate to transition(), which answers them.
+	 *
+	 * @param string               $decisionId The decision.
+	 * @param array<string, mixed> $job        transition (resolved), action, currentUserId and comment.
+	 *
+	 * @return array{success: bool, decision: array<string, mixed>|null, message: string}
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 */
+	private function attemptTransition(string $decisionId, array $job): array {
+		$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
+		if ($decision === null) {
+			return [
+				'success' => false,
+				'decision' => null,
+				'message' => "Decision '$decisionId' not found.",
+			];
+		}
+
+		$transition = $job['transition'];
+		$run = (new DecisionTransitionRun(decisionId: $decisionId, action: $job['action'], currentUserId: $job['currentUserId'], comment: $job['comment']))
+			->entering(transition: $transition, currentLifecycle: (string)($decision['lifecycle'] ?? 'draft'));
+
+		// Every guard (transition map, domain policy, chair-only fail-closed,
+		// quorum before `voting`, outcome before `enact`) reports through one
+		// rejection message; null means the transition may proceed.
+		$rejection = $this->resolveRejection(run: $run, decision: $decision);
+		if ($rejection !== null) {
+			return [
+				'success' => false,
+				'decision' => null,
+				'message' => $rejection,
+			];
+		}
+
+		$patch = ['lifecycle' => $transition['to']];
+		if ($transition['to'] === 'enacted') {
+			$patch['enactedAt'] = date(DATE_ATOM);
+		}
+
+		// Object-level write ACL: saveObject() throws when the session user lacks
+		// write access on this specific object (caught below, generic error).
+		$updated = $this->objectService->saveObject(
+			object: array_merge($decision, $patch),
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'),
+				uuid: $decisionId
+			)
+		);
+
+		$this->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
+
+		return [
+			'success' => true,
+			'decision' => $updated->jsonSerialize(),
+			'message' => "Decision transitioned to '{$transition['to']}'.",
+		];
+	}//end attemptTransition()
+
+	/**
 	 * Resolve why a requested transition must be refused, or null when it may proceed.
 	 *
 	 * Evaluated in the documented order: transition-map from-state, per-domain
 	 * policy, chair-only authorization (fail closed), then the state-entry
 	 * gates (quorum before `voting`, outcome before `enact`).
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $decision Decision object array
-	 * @param array<string, mixed> $transition Resolved transition descriptor (from/to)
-	 * @param string $action Requested transition action
-	 * @param string $currentLifecycle The decision's current lifecycle state
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 * @param DecisionTransitionRun $run      The transition: action, user and states
+	 * @param array<string, mixed>  $decision Decision object array
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
 	 * @return string|null Rejection message, or null when the transition is permitted
 	 */
-	private function resolveRejection(
-		object $objectService,
-		array $decision,
-		array $transition,
-		string $action,
-		string $currentLifecycle,
-		?string $currentUserId,
-	): ?string {
-		if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
+	private function resolveRejection(DecisionTransitionRun $run, array $decision): ?string {
+		$currentLifecycle = $run->currentLifecycle();
+		if ($run->startsFromAllowedState() === false) {
 			$allowed = $this->transitionGuard->getAvailableActions(currentLifecycle: $currentLifecycle);
-			return "Cannot '$action' a decision in '$currentLifecycle' state. "
+			return "Cannot '{$run->action}' a decision in '$currentLifecycle' state. "
 				. 'Allowed transitions from this state: ' . implode(', ', $allowed) . '.';
 		}
 
-		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
-		$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
 
 		// Process-configuration: a body's assigned process template drives the
 		// guard policy when present; null falls back to the hardcoded domain policy.
-		$policyOverride = $this->resolvePolicyOverride(decision: $decision, meeting: $meeting);
+		$run = $run->within(
+			meeting: $meeting,
+			domain: $this->contextResolver->resolveDomain(objectService: $this->objectService, decision: $decision, meeting: $meeting),
+			policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting)
+		);
 
 		// Domain-level transition validation (default-deny for unknown domains).
 		$isAllowed = $this->transitionGuard->isTransitionAllowed(
-			domain: $domain,
+			domain: $run->domain(),
 			fromState: $currentLifecycle,
-			toState: $transition['to'],
-			policyOverride: $policyOverride
+			toState: $run->newState(),
+			policyOverride: $run->policyOverride()
 		);
 		if ($isAllowed === false) {
-			return "Transition '$action' is not permitted in the '$domain' domain.";
+			return "Transition '{$run->action}' is not permitted in the '{$run->domain()}' domain.";
 		}
 
-		$chairRejection = $this->resolveChairRejection(
-			objectService: $objectService,
-			meeting: $meeting,
-			domain: $domain,
-			currentLifecycle: $currentLifecycle,
-			newState: $transition['to'],
-			policyOverride: $policyOverride,
-			currentUserId: $currentUserId
-		);
+		$chairRejection = $this->resolveChairRejection(run: $run);
 		if ($chairRejection !== null) {
 			return $chairRejection;
 		}
 
-		return $this->resolveStateGateRejection(
-			decision: $decision,
-			meeting: $meeting,
-			domain: $domain,
-			newState: $transition['to'],
-			policyOverride: $policyOverride
-		);
+		return $this->resolveStateGateRejection(decision: $decision, run: $run);
 
 	}//end resolveRejection()
+
+	/**
+	 * Enforce the chair-only gate for a decision entering a lifecycle state
+	 * outside the transition map (DecisionWithdrawFlow's `→ withdrawn` edge).
+	 *
+	 * Resolves the linked meeting, the governance domain and the body's
+	 * process-template policy exactly as transition() does, then applies the
+	 * same fail-closed chair gate, so the withdraw flow never duplicates it.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 * @param string $currentLifecycle The decision's current lifecycle state
+	 * @param string $newState The lifecycle state being entered
+	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return string|null Rejection message, or null when the caller is authorized
+	 */
+	public function resolveChairRejectionForDecision(
+		array $decision,
+		string $currentLifecycle,
+		string $newState,
+		?string $currentUserId,
+	): ?string {
+		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
+		$run = (new DecisionTransitionRun(
+			decisionId: (string)($decision['id'] ?? ($decision['uuid'] ?? '')),
+			action: 'withdraw',
+			currentUserId: $currentUserId,
+			comment: ''
+		))->entering(
+			transition: ['from' => [$currentLifecycle], 'to' => $newState],
+			currentLifecycle: $currentLifecycle
+		)->within(
+			meeting: $meeting,
+			domain: $this->contextResolver->resolveDomain(
+				objectService: $this->objectService,
+				decision: $decision,
+				meeting: $meeting
+			),
+			policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting)
+		);
+
+		return $this->resolveChairRejection(run: $run);
+
+	}//end resolveChairRejectionForDecision()
 
 	/**
 	 * Enforce chair-only transitions (OWASP A01:2021 — broken access control).
@@ -369,42 +425,28 @@ class DecisionLifecycleService {
 	 * FAILS CLOSED: a chair-only transition with no resolvable chair is
 	 * rejected, never skipped.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed>|null $meeting Linked meeting object array, when any
-	 * @param string $domain Governance domain driving the policy
-	 * @param string $currentLifecycle The decision's current lifecycle state
-	 * @param string $newState The lifecycle state being entered
-	 * @param array<string, mixed>|null $policyOverride Process-template policy override, when any
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 * @param DecisionTransitionRun $run The transition: requesting user, states, meeting, domain and policy override
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
 	 * @return string|null Rejection message, or null when the caller is authorized
 	 */
-	private function resolveChairRejection(
-		object $objectService,
-		?array $meeting,
-		string $domain,
-		string $currentLifecycle,
-		string $newState,
-		?array $policyOverride,
-		?string $currentUserId,
-	): ?string {
+	private function resolveChairRejection(DecisionTransitionRun $run): ?string {
 		$requiresChair = $this->transitionGuard->requiresChairAuthorization(
-			domain: $domain,
-			from: $currentLifecycle,
-			to: $newState,
-			policyOverride: $policyOverride
+			domain: $run->domain(),
+			from: $run->currentLifecycle(),
+			to: $run->newState(),
+			policyOverride: $run->policyOverride()
 		);
 		if ($requiresChair !== true) {
 			return null;
 		}
 
 		$chairNcUserId = $this->contextResolver->resolveChairUserId(
-			objectService: $objectService,
-			meeting: $meeting
+			objectService: $this->objectService,
+			meeting: $run->meeting()
 		);
-		if ($chairNcUserId === null || $currentUserId !== $chairNcUserId) {
+		if ($chairNcUserId === null || $run->currentUserId !== $chairNcUserId) {
 			return 'Only the meeting chair may perform this transition.';
 		}
 
@@ -418,76 +460,110 @@ class DecisionLifecycleService {
 	 * posts/candidates pairing gate (design.md D1, appointment-decision-type-
 	 * membership): zero or exactly one `targetPosts` entry is never
 	 * ambiguous, but more than one entry MUST match `candidates`' length
-	 * exactly (paired by array index) or materializeAppointmentMemberships()
+	 * exactly (paired by array index) or AppointmentMemberships::materialize()
 	 * would have to guess the pairing — rejected here, fail closed, before
 	 * the lifecycle write happens. Non-appointment decisions never carry
 	 * `targetPosts`, so this branch never fires for them.
 	 *
+	 * @param array<string, mixed>  $decision Decision object array
+	 * @param DecisionTransitionRun $run      The transition: the state being entered, meeting, domain and policy override
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 * @spec openspec/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 *
+	 * @return string|null Rejection message, or null when the state may be entered
+	 */
+	private function resolveStateGateRejection(array $decision, DecisionTransitionRun $run): ?string {
+		$newState = $run->newState();
+		if ($newState === 'voting') {
+			return $this->resolveQuorumRejection(run: $run);
+		}
+
+		if ($newState === 'enacted') {
+			$rejection = $this->resolveEnactRejection(decision: $decision);
+			if ($rejection !== null) {
+				return $rejection;
+			}
+		}
+
+		return $this->resolveTerminalCompletenessRejection(decision: $decision, newState: $newState);
+	}//end resolveStateGateRejection()
+
+	/**
+	 * The enact gates: the adopted outcome, then the appointment posts/candidates pairing.
+	 *
 	 * @param array<string, mixed> $decision Decision object array
-	 * @param array<string, mixed>|null $meeting Linked meeting object array, when any
-	 * @param string $domain Governance domain driving the policy
-	 * @param string $newState The lifecycle state being entered
-	 * @param array<string, mixed>|null $policyOverride Process-template policy override, when any
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
 	 *
+	 * @return string|null Rejection message, or null when the decision may be enacted
+	 */
+	private function resolveEnactRejection(array $decision): ?string {
+		// Outcome gate: only adopted decisions may be enacted.
+		if ($this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
+			return "Only decisions with outcome 'adopted' may be enacted.";
+		}
+
+		return $this->resolvePostPairingRejection(decision: $decision);
+	}//end resolveEnactRejection()
+
+	/**
+	 * Appointment posts/candidates pairing gate (design.md D1).
+	 *
+	 * Zero or exactly one `targetPosts` entry is never ambiguous (every
+	 * candidate gets no post, or the same single post); more than one entry
+	 * MUST match `candidates`' length exactly, paired by array index, or
+	 * AppointmentMemberships::materialize() would have to guess. Non-appointment
+	 * decisions never carry `targetPosts`, so this never fires for them.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 *
+	 * @return string|null Rejection message, or null when the posts can be paired
+	 */
+	private function resolvePostPairingRejection(array $decision): ?string {
+		$targetPosts = (array)($decision['targetPosts'] ?? []);
+		if (($decision['decisionType'] ?? '') !== 'appointment' || count($targetPosts) <= 1) {
+			return null;
+		}
+
+		$candidateCount = count((array)($decision['candidates'] ?? []));
+		if (count($targetPosts) === $candidateCount) {
+			return null;
+		}
+
+		return "Cannot enact: 'targetPosts' has " . count($targetPosts) . ' entries but '
+			. "'candidates' has " . $candidateCount . ' — provide zero, one, or exactly '
+			. 'one target post per candidate.';
+	}//end resolvePostPairingRejection()
+
+	/**
+	 * Terminal-state completeness: a decided/enacted/archived decision needs its result.
+	 *
+	 * This gate is the reason `outcome` and `decisionDate` could safely leave
+	 * the schema's unconditional `required[]`: an in-flight motion
+	 * (draft/proposed/deliberating/voting) legitimately has neither and a
+	 * `withdrawn` decision never acquires them, but a decision that reaches
+	 * `decided`/`enacted`/`archived` without them is a real defect — and
+	 * dropping the requirement outright would have made that undetectable.
+	 *
+	 * It is enforced HERE, at the transition boundary, rather than as a
+	 * JSON-Schema `if`/`then` on the schema, because OpenRegister cannot
+	 * enforce a conditional `required`: Schema::getSchemaObject() rebuilds the
+	 * validated schema from a fixed key list, so the block is discarded before
+	 * the validator ever runs (measured — see the register's
+	 * `x-decidesk-terminal-completeness` note).
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 * @param string               $newState The state being entered
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
 	 * @return string|null Rejection message, or null when the state may be entered
 	 */
-	private function resolveStateGateRejection(
-		array $decision,
-		?array $meeting,
-		string $domain,
-		string $newState,
-		?array $policyOverride,
-	): ?string {
-		if ($newState === 'voting') {
-			return $this->resolveQuorumRejection(
-				meeting: $meeting,
-				domain: $domain,
-				policyOverride: $policyOverride
-			);
-		}
-
-		// Outcome gate: only adopted decisions may be enacted.
-		if ($newState === 'enacted') {
-			if ($this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
-				return "Only decisions with outcome 'adopted' may be enacted.";
-			}
-
-			// Appointment posts/candidates pairing gate (decision-management,
-			// appointment-decision-type-membership, design.md D1): zero or
-			// exactly one `targetPosts` entry is never ambiguous (every
-			// candidate gets no post, or the same single post); more than one
-			// entry MUST match `candidates`' length exactly, paired by array
-			// index, or materializeAppointmentMemberships() would have to
-			// guess. Non-appointment decisions never carry `targetPosts`, so
-			// this never fires for them.
-			$targetPosts = (array)($decision['targetPosts'] ?? []);
-			if (($decision['decisionType'] ?? '') === 'appointment' && count($targetPosts) > 1) {
-				$candidateCount = count((array)($decision['candidates'] ?? []));
-				if (count($targetPosts) !== $candidateCount) {
-					return "Cannot enact: 'targetPosts' has " . count($targetPosts) . ' entries but '
-						. "'candidates' has " . $candidateCount . ' — provide zero, one, or exactly '
-						. 'one target post per candidate.';
-				}
-			}
-		}
-
-		// Terminal-state completeness. This gate is the reason `outcome` and
-		// `decisionDate` could safely leave the schema's unconditional
-		// `required[]`: an in-flight motion (draft/proposed/deliberating/voting)
-		// legitimately has neither and a `withdrawn` decision never acquires
-		// them, but a decision that reaches `decided`/`enacted`/`archived`
-		// without them is a real defect — and dropping the requirement outright
-		// would have made that undetectable.
-		//
-		// It is enforced HERE, at the transition boundary, rather than as a
-		// JSON-Schema `if`/`then` on the schema, because OpenRegister cannot
-		// enforce a conditional `required`: Schema::getSchemaObject() rebuilds
-		// the validated schema from a fixed key list, so the block is discarded
-		// before the validator ever runs (measured — see the register's
-		// `x-decidesk-terminal-completeness` note).
+	private function resolveTerminalCompletenessRejection(array $decision, string $newState): ?string {
 		if ($this->transitionGuard->isTerminalOutcomeState(lifecycle: $newState) === false) {
 			return null;
 		}
@@ -499,8 +575,7 @@ class DecisionLifecycleService {
 
 		return "A decision cannot enter '$newState' without a recorded result. "
 			. 'Missing or invalid: ' . implode(', ', $missing) . '.';
-
-	}//end resolveStateGateRejection()
+	}//end resolveTerminalCompletenessRejection()
 
 	/**
 	 * Enforce the quorum gate before entering `voting` (OWASP A01:2021).
@@ -509,22 +584,21 @@ class DecisionLifecycleService {
 	 * standalone decisions (written-resolution path, BW 2:40) carry quorum on
 	 * their voting round instead.
 	 *
-	 * @param array<string, mixed>|null $meeting Linked meeting object array, when any
-	 * @param string $domain Governance domain driving the policy
-	 * @param array<string, mixed>|null $policyOverride Process-template policy override, when any
+	 * @param DecisionTransitionRun $run The transition: meeting, domain and policy override
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
 	 * @return string|null Rejection message, or null when voting may open
 	 */
-	private function resolveQuorumRejection(?array $meeting, string $domain, ?array $policyOverride): ?string {
+	private function resolveQuorumRejection(DecisionTransitionRun $run): ?string {
+		$meeting = $run->meeting();
 		if ($meeting === null) {
 			return null;
 		}
 
 		$quorumRequired = $this->transitionGuard->isQuorumRequired(
-			domain: $domain,
-			policyOverride: $policyOverride
+			domain: $run->domain(),
+			policyOverride: $run->policyOverride()
 		);
 		if ($quorumRequired !== true) {
 			return null;
@@ -545,39 +619,26 @@ class DecisionLifecycleService {
 	 * All of them are fail-soft — the lifecycle write already persisted, so a
 	 * failure here is logged loudly and never rolls the transition back.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $decision Decision object array (post-transition)
-	 * @param string $decisionId UUID of the transitioned decision
-	 * @param string $action The applied transition action
-	 * @param string $currentLifecycle The pre-transition lifecycle state
-	 * @param string $newState The post-transition lifecycle state
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user (audit actor)
-	 * @param string $comment Transition comment recorded in the audit entry
+	 * Public so DecisionWithdrawFlow shares the same audit append and
+	 * conclusion event instead of duplicating them.
+	 *
+	 * @param DecisionTransitionRun $run      The applied transition: decision, action, user (audit actor), comment and states
+	 * @param array<string, mixed>  $decision Decision object array (post-transition)
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 *
 	 * @return void
 	 */
-	private function applyPostTransitionEffects(
-		object $objectService,
-		array $decision,
-		string $decisionId,
-		string $action,
-		string $currentLifecycle,
-		string $newState,
-		?string $currentUserId,
-		string $comment,
-	): void {
+	public function applyPostTransitionEffects(DecisionTransitionRun $run, array $decision): void {
+		$decisionId = $run->decisionId;
+		$newState = $run->newState();
+
 		// Enacting generates the formal resolution record (resolution-minutes
 		// spec): the lifecycle write persisted already, so a resolution failure
 		// is logged loudly but does not roll the transition back.
 		if ($newState === 'enacted') {
-			$this->generateResolutionRecord(
-				objectService: $objectService,
-				decision: $decision,
-				decisionId: $decisionId
-			);
+			$this->generateResolutionRecord(decision: $decision, decisionId: $decisionId);
 
 			// Appointment adoption materializes Membership records
 			// (decision-management, appointment-decision-type-membership): the
@@ -586,24 +647,20 @@ class DecisionLifecycleService {
 			if ((string)($decision['decisionType'] ?? '') === 'appointment'
 				&& (string)($decision['outcome'] ?? '') === 'adopted'
 			) {
-				$this->materializeAppointmentMemberships(
-					objectService: $objectService,
-					decision: $decision,
-					decisionId: $decisionId
-				);
+				$this->appointments->materialize(decision: $decision, decisionId: $decisionId);
 			}
 		}
 
 		// Hash-chained immutable audit entry for the transition (WBTR).
 		$audit = $this->auditLogService->append(
-			actor: ($currentUserId ?? 'system'),
+			actor: ($run->currentUserId ?? 'system'),
 			action: 'decision-transition',
 			objectUids: [$decisionId],
 			payload: [
-				'transition' => $action,
-				'from' => $currentLifecycle,
+				'transition' => $run->action,
+				'from' => $run->currentLifecycle(),
 				'to' => $newState,
-				'comment' => $comment,
+				'comment' => $run->comment,
 			]
 		);
 		if ($audit['success'] === false) {
@@ -611,13 +668,13 @@ class DecisionLifecycleService {
 			// recorded the change); surface the chain failure loudly.
 			$this->logger->error(
 				'Decidiq: decision transition persisted but audit chain append failed',
-				['id' => $decisionId, 'action' => $action, 'message' => $audit['message']]
+				['id' => $decisionId, 'action' => $run->action, 'message' => $audit['message']]
 			);
 		}
 
 		$this->logger->info(
 			'Decidiq: decision lifecycle transitioned',
-			['id' => $decisionId, 'action' => $action, 'from' => $currentLifecycle, 'to' => $newState]
+			['id' => $decisionId, 'action' => $run->action, 'from' => $run->currentLifecycle(), 'to' => $newState]
 		);
 
 		// Cross-app event contract (decidesk-decision-events): when a
@@ -625,11 +682,7 @@ class DecisionLifecycleService {
 		// outcome, emit DecisionConcludedEvent so the originating consumer
 		// app can perform its own downstream side effects. Internal
 		// (no-provenance) decisions emit nothing. Fail-soft — never roll back.
-		$this->emitConclusionIfDelegated(
-			decision: $decision,
-			decisionId: $decisionId,
-			newState: $newState
-		);
+		$this->emitConclusionIfDelegated(run: $run, decision: $decision);
 
 	}//end applyPostTransitionEffects()
 
@@ -643,15 +696,16 @@ class DecisionLifecycleService {
 	 * resolved — no duplication). Fail-soft: any error is logged and the
 	 * already-persisted transition is never rolled back.
 	 *
-	 * @param array<string, mixed> $decision Decision object array (post-transition)
-	 * @param string $decisionId UUID of the transitioned decision
-	 * @param string $newState The post-transition lifecycle state
+	 * @param DecisionTransitionRun $run      The applied transition: decision and new state
+	 * @param array<string, mixed>  $decision Decision object array (post-transition)
 	 *
 	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 *
 	 * @return void
 	 */
-	private function emitConclusionIfDelegated(array $decision, string $decisionId, string $newState): void {
+	private function emitConclusionIfDelegated(DecisionTransitionRun $run, array $decision): void {
+		$decisionId = $run->decisionId;
+		$newState = $run->newState();
 		if (in_array($newState, self::TERMINAL_OUTCOME_STATES, true) === false) {
 			return;
 		}
@@ -710,7 +764,6 @@ class DecisionLifecycleService {
 	 * decision text as full text, legal basis, adoption and effective dates,
 	 * and the meeting link when present.
 	 *
-	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the enacted decision
 	 *
@@ -718,7 +771,7 @@ class DecisionLifecycleService {
 	 *
 	 * @return void
 	 */
-	private function generateResolutionRecord(object $objectService, array $decision, string $decisionId): void {
+	private function generateResolutionRecord(array $decision, string $decisionId): void {
 		try {
 			$meetingId = $this->contextResolver->resolveRelationId(
 				value: $this->contextResolver->readMeetingReference(decision: $decision)
@@ -737,10 +790,9 @@ class DecisionLifecycleService {
 				$resolution['meeting'] = $meetingId;
 			}
 
-			$objectService->saveObject(
+			$this->objectService->saveObject(
 				object: $resolution,
-				register: 'decidiq',
-				schema: 'decision'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -750,106 +802,6 @@ class DecisionLifecycleService {
 		}//end try
 
 	}//end generateResolutionRecord()
-
-	/**
-	 * Materialize one Membership per candidate when an appointment decision
-	 * is adopted and enacted, and write the created ids back onto the
-	 * decision's `appointedMemberships` field.
-	 *
-	 * Each Membership gets `role=targetRole`, `startDate=enactedAt`, the
-	 * paired `post` (design.md D1: no post when `targetPosts` is empty, the
-	 * one entry shared by every candidate when it has exactly one, else the
-	 * post at `index % count($targetPosts)` — a no-op modulo once the
-	 * enact-time pairing gate above has confirmed the lengths match, so
-	 * every candidate lands on its own index), `governanceBody=targetBody`
-	 * when resolvable, and either `person` (when the candidate carries one)
-	 * or `label=externalName` for a not-yet-registered candidate. Absent
-	 * fields are dropped rather than written as null (`array_filter`),
-	 * matching how every other guarded write in this file only sets what it
-	 * knows.
-	 *
-	 * Idempotency guard: skips when `appointedMemberships` is already
-	 * non-empty — `enacted` is not re-enterable through the transition
-	 * guard, so this is a defensive second layer (design.md Risk 2), not the
-	 * primary protection.
-	 *
-	 * Fail-soft, matching generateResolutionRecord(): the lifecycle write
-	 * already persisted, so a materialization failure is logged loudly and
-	 * never rolls the transition back.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $decision Decision object array (post-transition)
-	 * @param string $decisionId UUID of the enacted decision
-	 *
-	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
-	 *
-	 * @return void
-	 */
-	private function materializeAppointmentMemberships(object $objectService, array $decision, string $decisionId): void {
-		$candidates = (array)($decision['candidates'] ?? []);
-		if ($candidates === [] || (array)($decision['appointedMemberships'] ?? []) !== []) {
-			return;
-		}
-
-		try {
-			$targetPosts = (array)($decision['targetPosts'] ?? []);
-			$targetRole = (string)($decision['targetRole'] ?? '');
-			$targetBody = $this->contextResolver->resolveRelationId(value: ($decision['targetBody'] ?? null));
-			$enactedAt = (string)($decision['enactedAt'] ?? '');
-
-			$membershipIds = [];
-			foreach (array_values($candidates) as $index => $candidate) {
-				$candidate = (array)$candidate;
-
-				// D1 pairing: an empty `targetPosts` never has index 0, so the
-				// null-coalesce below is what makes the empty case a role-only
-				// Membership (no post) without a separate branch for it.
-				$post = $this->contextResolver->resolveRelationId(
-					value: ($targetPosts[($index % max(count($targetPosts), 1))] ?? null)
-				);
-
-				$personId = $this->contextResolver->resolveRelationId(value: ($candidate['person'] ?? null));
-
-				$label = null;
-				if ($personId === null) {
-					$label = (string)($candidate['externalName'] ?? '');
-				}
-
-				$membership = array_filter(
-					[
-						'role' => $targetRole,
-						'startDate' => $enactedAt,
-						'governanceBody' => $targetBody,
-						'post' => $post,
-						'person' => $personId,
-						'label' => $label,
-					],
-					static fn (mixed $value): bool => $value !== null
-				);
-
-				$created = $objectService->saveObject(
-					object: $membership,
-					register: 'decidiq',
-					schema: 'membership'
-				);
-
-				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
-			}
-
-			$objectService->saveObject(
-				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
-			);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: decision enacted but appointment Membership materialization failed',
-				['id' => $decisionId, 'exception' => $e->getMessage()]
-			);
-		}//end try
-
-	}//end materializeAppointmentMemberships()
 
 	/**
 	 * Resolve the process-template policy override for a decision (process-configuration).

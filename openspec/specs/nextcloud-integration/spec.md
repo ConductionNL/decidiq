@@ -6,12 +6,12 @@ status-note: Completed 2026-06-12 via nc-platform-integration-v1 (Activity provi
 # Nextcloud Integration Specification
 
 ## Purpose
-@e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 Decidiq leverages Nextcloud's platform capabilities to provide a seamless governance experience without reinventing existing functionality. This specification covers integration with Nextcloud Calendar (meeting scheduling), Files (document management), Mail (convocation delivery), Talk (meeting communication), Tasks (action item tracking), Activity (audit feed), Notifications (alerts), Search (universal search), and References (rich link previews). Each integration uses the appropriate OCP interface.
 
 **Standards**: Nextcloud OCP interfaces, CalDAV (RFC 4791), WebDAV
 **Feature tier**: V1
+
 ## Requirements
 
 ---
@@ -29,6 +29,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - THEN a calendar event MUST be created in each attendee's Nextcloud Calendar
 - AND the event MUST include the meeting link, agenda summary, and document links
 - AND the event MUST have a reminder set to the user's configured preference
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 #### Scenario: Update calendar event when meeting is rescheduled
 
@@ -36,6 +37,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - WHEN the meeting date is changed from July 15 to July 22
 - THEN all attendee calendar events MUST be updated to the new date
 - AND attendees MUST receive a notification about the schedule change
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 #### Scenario: Cancel calendar event when meeting is cancelled
 
@@ -45,6 +47,7 @@ The system MUST create Nextcloud Calendar events for scheduled meetings via `OCP
 - AND attendees MUST receive a cancellation notification
 
 ---
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ### Requirement: Files Integration
 
@@ -85,6 +88,7 @@ The system MUST create Nextcloud Talk conversations for meetings via `OCP\Talk\I
 - AND the conversation description MUST include the meeting date and agenda link
 
 ---
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ### Requirement: Activity Integration
 
@@ -161,6 +165,36 @@ The system MUST register a search provider via `OCP\Search\IProvider` (`IRegistr
 - GIVEN a decision the searching user has no OpenRegister read access to
 - WHEN the user searches for that decision's title
 - THEN the provider MUST NOT return it (the provider queries ObjectService with RBAC enabled and never passes `_rbac: false`)
+
+### Requirement: REQ-MUS-001 Minutes appear in Nextcloud's unified search
+
+decidiq's unified search provider SHALL search minutes as well as decisions and meetings. A minutes hit SHALL show the minutes title, the word Minutes, its lifecycle and its approval date when it has one, and SHALL open the minutes page.
+
+#### Scenario: A member finds what was said
+- GIVEN the minutes of the council meeting of 14 October mention "woningbouw Noord"
+- WHEN council member Pieter types "woningbouw" into Nextcloud's search bar
+- THEN the Decidiq governance section lists those minutes with their approval date, and clicking opens the minutes page
+
+### Requirement: REQ-MUS-002 Search shows only minutes the searcher may read
+
+The provider SHALL return only minutes the searcher may read under OpenRegister's read rules.
+
+#### Scenario: Closed-session minutes stay hidden
+- GIVEN minutes of a closed session that council member Pieter may not read
+- WHEN he searches a word that appears in them
+- THEN those minutes are not listed
+@e2e exclude which minutes a member may read is OpenRegister's read rule, not the provider's; the provider keeps that rule on, proven by tests/Unit/Search/DecidiqSearchProviderTest.php testSearchKeepsOpenRegisterReadRules
+
+### Requirement: Meetings appear in Nextcloud's unified search
+
+The unified search provider SHALL return meetings the searcher may read, next to decisions and minutes, each with its title and date, and SHALL open the meeting page when a result is chosen.
+
+#### Scenario: A member finds a meeting from the search bar
+
+- **WHEN** a member types a word from the title of the council meeting of 14 October into Nextcloud's search bar
+- **THEN** the meeting is listed with its date
+- **AND** choosing it opens that meeting's page in decidiq
+- @e2e exclude V1 feature — all scenarios are OCP backend integrations (Calendar IManager, Files IRootFolder, Talk IBroker, Activity IManager, Notification IManager, Search IProvider). None of the integrations have a dedicated UI page built in the SPA; they are server-side hooks with no Playwright-accessible surface.
 
 ## User Stories
 

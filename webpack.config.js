@@ -1,3 +1,7 @@
+/**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
 const path = require('path')
 const fs = require('fs')
 const webpack = require('webpack')
@@ -22,10 +26,6 @@ webpackConfig.entry = {
 	adminSettings: {
 		import: path.join(__dirname, 'src', 'settings.js'),
 		filename: appId + '-settings.js',
-	},
-	personalSettings: {
-		import: path.join(__dirname, 'src', 'personal.js'),
-		filename: appId + '-personal.js',
 	},
 	// Global integration-leaf bootstrap loaded on EVERY Nextcloud page via
 	// Util::addInitScript (ADR-019). Registers the "Besluitvorming" decisions
@@ -239,4 +239,10 @@ webpackConfig.resolve.fallback = {
 // be required from @nextcloud/vue's CJS bundle without webpack 5 tripping on
 // the exports field. No alias needed; the pin alone is sufficient.
 
-module.exports = webpackConfig
+// nextcloud-vue's stylesheet is linked by templates/index.php as css/nextcloud-vue.css
+// (LibraryStylesheetCopy) instead of inserted from the main bundle as text.
+const { LibraryStylesheetCopy, withLeanBundles } = require('@conduction/nextcloud-vue/webpack')
+webpackConfig.plugins.push(new LibraryStylesheetCopy())
+
+// Shared chunks take only what every page loads; no CSS source maps inside the JavaScript.
+module.exports = withLeanBundles(webpackConfig)

@@ -33,8 +33,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationReportServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -44,7 +46,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-005-dashboard-report-and-optional-publication-reuse-existing-surfaces
  */
-class BoardEvaluationReportService {
+class BoardEvaluationReportService implements BoardEvaluationReportServiceInterface {
 	/**
 	 * Constructor.
 	 *
@@ -75,7 +77,7 @@ class BoardEvaluationReportService {
 	 */
 	public function generate(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: "BoardEvaluation {$evaluationId} not found.");
 		}
@@ -319,26 +321,12 @@ class BoardEvaluationReportService {
 			$segments[] = 'Evaluations';
 			$segments[] = $this->sanitize(name: (string)($evaluation['cycleLabel'] ?? 'cycle'));
 
-			$path = '';
-			foreach ($segments as $segment) {
-				$prefix = $path;
-				$path = $segment;
-				if ($prefix !== '') {
-					$path = $prefix . '/' . $segment;
-				}
-
-				$this->fileService->createFolder($path);
-			}
+			$path = MeetingFileTree::createPath(fileService: $this->fileService, segments: $segments);
 
 			$folderNode = $this->fileService->createFolder($path);
 			$safeName = $this->sanitize(name: $fileName);
 
-			try {
-				$existing = $folderNode->get($safeName);
-				$existing->putContent($content);
-			} catch (\OCP\Files\NotFoundException) {
-				$folderNode->newFile($safeName, $content);
-			}
+			MeetingFileTree::putFile(folderNode: $folderNode, name: $safeName, content: $content);
 
 			return $path . '/' . $safeName;
 		} catch (\Throwable $e) {
@@ -361,26 +349,7 @@ class BoardEvaluationReportService {
 	 */
 	private function resolveBodyName(array $evaluation, object $objectService): string {
 		$bodyId = $evaluation['governanceBody'] ?? ($evaluation['relations']['governanceBody'][0] ?? null);
-		if (is_array($bodyId) === true) {
-			$bodyId = ($bodyId['id'] ?? null);
-		}
-
-		if (is_string($bodyId) === false || $bodyId === '') {
-			return '';
-		}
-
-		try {
-			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
-		} catch (\Throwable) {
-			return '';
-		}
-
-		if ($entity === null) {
-			return '';
-		}
-
-		$body = (array)$entity->jsonSerialize();
-		return (string)($body['name'] ?? ($body['title'] ?? ''));
+		return MeetingFileTree::bodyName(objectService: $objectService, bodyId: $bodyId);
 	}//end resolveBodyName()
 
 	/**

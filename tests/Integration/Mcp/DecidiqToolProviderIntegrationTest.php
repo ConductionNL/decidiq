@@ -60,9 +60,9 @@ class DecidiqToolProviderIntegrationTest extends TestCase {
 		// Gate: skip the entire class when openregister's orchestrator service is absent.
 		// This check uses McpToolsService rather than IMcpToolProvider because the
 		// service class is more likely to be registered in the runtime container.
-		if (class_exists(\OCA\OpenRegister\Mcp\McpToolsService::class) === false) {
+		if (class_exists(\OCA\OpenRegister\Mcp\Service\Mcp\McpToolsService::class) === false) {
 			$this->markTestSkipped(
-				'Skipping integration tests: OCA\OpenRegister\Mcp\McpToolsService not found. '
+				'Skipping integration tests: OCA\OpenRegister\Mcp\Service\Mcp\McpToolsService not found. '
 				. 'Install openregister (PR #1466 — ai-chat-companion-orchestrator) to run these tests.'
 			);
 		}

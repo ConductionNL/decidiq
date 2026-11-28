@@ -1,0 +1,38 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-change-notices-reach-members (REQ-ACN-003, REQ-ACN-004, matrix row age-18, issue #1381). A member can switch agenda notices off like the other notices, and a meeting remembers when each member last got an agenda change notice, so a burst of edits sends one.",
+  "components": {
+    "schemas": {
+      "NotificationPreference": {
+        "slug": "notification-preference",
+        "version": "0.3.0",
+        "properties": {
+          "agendaChanged": {
+            "title": "Agenda published or changed",
+            "type": "boolean",
+            "description": "Notify when the agenda of a meeting you take part in is published, revised or changed.",
+            "default": true
+          }
+        }
+      },
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.4.0",
+        "properties": {
+          "agendaNoticeSentAt": {
+            "title": "Agenda notice sent at",
+            "type": "object",
+            "description": "When each member last received an agenda change notice for this meeting.",
+            "x-notes": "A map of Nextcloud user id to date-time, written by AgendaService::notifyAgendaChanged(). A member who got a notice less than five minutes ago is not sent another; the agenda version is recorded either way.",
+            "additionalProperties": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    }
+  }
+}

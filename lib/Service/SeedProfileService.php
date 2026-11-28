@@ -41,7 +41,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
+use OCA\Decidiq\Service\Records\MeetingDossierBackfill;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -50,9 +52,9 @@ use RuntimeException;
 /**
  * Lists the example sets this app ships and imports the one an operator picked.
  *
- * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md
+ * @spec openspec/specs/seed-profiles/spec.md
  */
-class SeedProfileService {
+class SeedProfileService implements SeedProfileServiceInterface {
 	/**
 	 * App-relative directory holding the example-set descriptors.
 	 *
@@ -81,17 +83,6 @@ class SeedProfileService {
 	public const GENERATED_PROFILE = 'generated';
 
 	/**
-	 * The answer that means "plant nothing".
-	 *
-	 * 🔴 NOT THE ABSENCE OF AN ANSWER. An operator who declines has FINISHED the
-	 * step; a step that can never be marked done reopens the wizard over every
-	 * page (nextcloud-vue#806).
-	 *
-	 * @var string
-	 */
-	public const NONE_PROFILE = 'none';
-
-	/**
 	 * Constructor.
 	 *
 	 * @param IAppManager        $appManager Resolves this app's path and version.
@@ -118,7 +109,7 @@ class SeedProfileService {
 	 *
 	 * @return array<int, array{id: string, label: string, description: string, objectCount: integer, icon: string}> The sets.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-list-example-sets
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-list-example-sets
 	 */
 	public function listProfiles(): array {
 		$profiles = [];
@@ -161,7 +152,7 @@ class SeedProfileService {
 	 *
 	 * @return array<int, array{id: string, label: string, description: string, objectCount: integer, icon: string}> The answers.
 	 *
-	 * @spec openspec/changes/example-set-cards/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
+	 * @spec openspec/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
 	 */
 	public function listChoices(): array {
 		$choices = [
@@ -185,7 +176,7 @@ class SeedProfileService {
 	 *
 	 * @return boolean True when the id is importable.
 	 *
-	 * @spec openspec/changes/example-set-cards/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
+	 * @spec openspec/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
 	 */
 	public function isKnown(string $profileId): bool {
 		if ($profileId === self::GENERATED_PROFILE) {
@@ -217,7 +208,9 @@ class SeedProfileService {
 	 *
 	 * @throws RuntimeException When the id is unknown or OpenRegister is absent.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-import-one-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-import-one-example-set
+	 * @spec openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure/spec.md
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard
 	 */
 	public function install(string $profileId): array {
 		if ($profileId === self::GENERATED_PROFILE) {
@@ -243,17 +236,36 @@ class SeedProfileService {
 			}
 		}
 
-		$this->configurationService()->importFromApp(
-			appId: Application::APP_ID . '.profile.' . $profileId,
+		$importer = $this->configurationService();
+		$version  = $this->appManager->getAppVersion(AppIdentity::APP_ID);
+		$import   = static fn (): mixed => $importer->importFromApp(
+			appId: AppIdentity::APP_ID . '.profile.' . $profileId,
 			data: $data,
-			version: $this->appManager->getAppVersion(Application::APP_ID),
+			version: $version,
 			force: true
 		);
 
+		// The set's own urgent decisions pass the urgency field guard while it
+		// is imported; without that service the import runs as is.
+		(new UrgentSeedImport())->run(container: $this->container, descriptor: $data, import: $import);
+
 		$this->logger->info(
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
-			['app' => Application::APP_ID]
+			['app' => AppIdentity::APP_ID]
 		);
+
+		// An example set writes each archival dossier's `meeting` but not the
+		// meeting's `archivalDossier`, so its meetings are pointed at their
+		// dossiers now, as the app does when it forms one. A failure is logged
+		// and never fails the import.
+		try {
+			$this->container->get(MeetingDossierBackfill::class)->fill();
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'[SeedProfileService] example set "' . $profileId . '" imported, its meetings not pointed at their dossier: ' . $e->getMessage(),
+				['app' => AppIdentity::APP_ID]
+			);
+		}
 
 		return [
 			'objects' => $objects,
@@ -268,7 +280,7 @@ class SeedProfileService {
 	 * @return array<int, string> The paths, sorted.
 	 */
 	private function descriptorFiles(): array {
-		$dir = ($this->appManager->getAppPath(Application::APP_ID) . self::PROFILE_DIR);
+		$dir = ($this->appManager->getAppPath(AppIdentity::APP_ID) . self::PROFILE_DIR);
 		if (is_dir($dir) === false) {
 			return [];
 		}

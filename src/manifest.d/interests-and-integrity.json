@@ -1,6 +1,6 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Interests & integrity (interests-and-integrity) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). MyDeclarations self-service page + Nevenfuncties/NevenfunctieDetail + Geschenken/GeschenkDetail index/detail pages; schema refs BY SLUG (nevenfunctie / geschenk), never PascalCase. Stable-name contract for member-onboarding: capability interests-and-integrity, slug nevenfunctie, page id MyDeclarations. The Dashboard 'Nevenfuncties zonder actuele review' stat widget and the per-body compliance panel on the Nevenfuncties index (REQ-INT-010) are frontend/base-manifest work (Task 5) and are NOT part of this declarative-core fragment: mergePages replaces a same-id page wholesale, so the Dashboard widget lives in the base src/manifest.json. MyDeclarations here is the declarative index shell over the member's own nevenfuncties; the geschenken register, annual-confirm, end-position, and publish/withdraw actions are plain saveObject field writes wired by frontend components (Task 4).",
+	"_note": "Interests & integrity (interests-and-integrity) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). MyDeclarations self-service page + Nevenfuncties/NevenfunctieDetail + Geschenken/GeschenkDetail index/detail pages; schema refs BY SLUG (nevenfunctie / geschenk), never PascalCase. Stable-name contract for member-onboarding: capability interests-and-integrity, slug nevenfunctie, page id MyDeclarations. The Dashboard 'Nevenfuncties zonder actuele review' stat widget and the per-body compliance panel on the Nevenfuncties index (REQ-INT-010) are frontend/base-manifest work (Task 5) and are NOT part of this declarative-core fragment: mergePages replaces a same-id page wholesale, so the Dashboard widget lives in the base src/manifest.json. MyDeclarations here is the declarative index shell over the member's own nevenfuncties; the member's own declarations and their actions are the MyDeclarationsPanel slot, and publish/withdraw are header actions on the two detail pages (Task 4).",
 	"menu": [
 		{
 			"id": "MyDeclarations",
@@ -30,7 +30,8 @@
 			"route": "/my-declarations",
 			"type": "index",
 			"title": "My declarations",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Self-service page (REQ-INT-010) — stable deep-link target for member-onboarding's nevenfuncties-intake step. Declarative index shell over the current user's own nevenfuncties; add/edit, end-position, and annual-confirm actions plus the member's geschenken block are plain saveObject field writes wired by frontend components (Task 4, out of the declarative core). Members see and edit only their own objects via OR per-object RBAC (owner scope).",
+			"slots": { "below-header": "MyDeclarationsPanel" },
+			"_note": "spec: openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Self-service page (REQ-INT-010) — stable deep-link target for member-onboarding's nevenfuncties-intake step. Declarative index shell over the current user's own nevenfuncties; The MyDeclarationsPanel slot lists the member's own positions and gifts and carries the declare, register-gift, end-position and annual-confirm actions, each a plain saveObject of the whole object (Task 4). Members see and edit only their own objects via OR per-object RBAC (owner scope).",
 			"config": {
 				"register": "decidiq",
 				"schema": "ancillary-position",
@@ -66,7 +67,8 @@
 			"route": "/ancillary-positions",
 			"type": "index",
 			"title": "Other positions",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/remunerated/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties) is a frontend addition (Task 5), not part of this declarative fragment.",
+			"_note": "spec: openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-010. Per-body nevenfunctiesregister (REQ-INT-001/REQ-INT-010). Columns person/organisatie/functie/remunerated/qualitateQua/governanceBody/lifecycle; quick filters on lifecycle; per-body filtering via the index facet on governanceBody. CSV export via ExportService + CnMassExportDialog. The overdue-review KPI deep-link (Dashboard, base manifest) targets this page pre-filtered; the per-body compliance panel (client-side join of memberships × nevenfuncties, AncillaryCompliancePanel) renders in the below-header slot.",
+			"slots": { "below-header": "AncillaryCompliancePanel" },
 			"config": {
 				"register": "decidiq",
 				"schema": "ancillary-position",
@@ -103,10 +105,42 @@
 			"route": "/ancillary-positions/:id",
 			"type": "detail",
 			"title": "Other position",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001. Nevenfunctie detail. Declaration data leads 8-wide, publication stacked right; the linked person/governanceBody render as resolved references in the data + Related widgets. Publish/withdraw, end-position, and annual-confirm are plain saveObject field writes wired by frontend components (Task 4). Audit trail is a sidebar tab.",
+			"_note": "spec: openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-001. Nevenfunctie detail. Declaration data leads 8-wide, publication stacked right; the linked person/governanceBody render as resolved references in the data + Related widgets. Publish/withdraw are header actions that PATCH publicationDate/depublicationDate on the live object (REQ-INT-004); update is staff-only in the schema, so the server refuses anyone else. End-position and annual-confirm live on MyDeclarations (Task 4). Audit trail is a sidebar tab.",
 			"config": {
 				"register": "decidiq",
 				"schema": "ancillary-position",
+				"headerActions": [
+					{
+						"id": "publish",
+						"type": "api-call",
+						"label": "Publish",
+						"icon": "Earth",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/ancillary-position/@objectId",
+						"payload": { "publicationDate": "@now", "depublicationDate": null },
+						"confirm": true,
+						"confirmTitle": "Publish this other position?",
+						"confirmMessage": "Anyone can then read it on the public register, including later changes such as its end.",
+						"successMessage": "Published on the public register.",
+						"errorMessage": "Could not publish it.",
+						"visibleWhen": { "any": [ { "field": "publicationDate", "op": "empty" }, { "field": "depublicationDate", "op": "notEmpty" } ] }
+					},
+					{
+						"id": "withdraw-publication",
+						"type": "api-call",
+						"label": "Withdraw from the public register",
+						"icon": "EarthOff",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/ancillary-position/@objectId",
+						"payload": { "depublicationDate": "@now" },
+						"confirm": true,
+						"confirmTitle": "Withdraw it from the public register?",
+						"confirmMessage": "The public can no longer read it. Its record stays as it is.",
+						"successMessage": "Withdrawn from the public register.",
+						"errorMessage": "Could not withdraw it.",
+						"visibleWhen": { "all": [ { "field": "publicationDate", "op": "notEmpty" }, { "field": "depublicationDate", "op": "empty" } ] }
+					}
+				],
 				"widgets": [
 					{ "id": "nevenfunctie-data", "type": "data", "title": "Other position", "icon": "Briefcase", "content": { "columns": 2 } },
 					{ "id": "nevenfunctie-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
@@ -130,7 +164,7 @@
 			"route": "/declared-gifts",
 			"type": "index",
 			"title": "Gifts",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Per-body geschenkenregister (REQ-INT-005/REQ-INT-006/REQ-INT-010). Columns recipient/type/gever/omschrijving/geschatteWaarde/besluit; quick filters on type and besluit; per-body filtering and the boven-drempel filter via the index facet (boven-drempel is a frontend render rule comparing geschatteWaarde to the body's policy threshold — REQ-INT-006). CSV export via ExportService + CnMassExportDialog.",
+			"_note": "spec: openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Per-body geschenkenregister (REQ-INT-005/REQ-INT-006/REQ-INT-010). Columns recipient/type/gever/omschrijving/geschatteWaarde/besluit; quick filters on type and besluit; per-body filtering and the boven-drempel filter via the index facet (boven-drempel is a frontend render rule comparing geschatteWaarde to the body's policy threshold — REQ-INT-006). CSV export via ExportService + CnMassExportDialog.",
 			"config": {
 				"register": "decidiq",
 				"schema": "declared-gift",
@@ -167,10 +201,42 @@
 			"route": "/declared-gifts/:id",
 			"type": "detail",
 			"title": "Gift",
-			"_note": "spec: openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Geschenk detail. Registration data leads 8-wide, publication stacked right; the linked recipient/governanceBody render as resolved references in the data + Related widgets. The boven-drempel badge and publish/withdraw (per body policy) are frontend actions (Task 4/5). Audit trail is a sidebar tab.",
+			"_note": "spec: openspec/changes/archive/2026-11-25-interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-005. Geschenk detail. Registration data leads 8-wide, publication stacked right; the linked recipient/governanceBody render as resolved references in the data + Related widgets. The boven-drempel badge is a frontend render rule (Task 5); publish/withdraw are header actions that PATCH publicationDate/depublicationDate on the live object, and update is staff-only in the schema. Audit trail is a sidebar tab.",
 			"config": {
 				"register": "decidiq",
 				"schema": "declared-gift",
+				"headerActions": [
+					{
+						"id": "publish",
+						"type": "api-call",
+						"label": "Publish",
+						"icon": "Earth",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/declared-gift/@objectId",
+						"payload": { "publicationDate": "@now", "depublicationDate": null },
+						"confirm": true,
+						"confirmTitle": "Publish this gift?",
+						"confirmMessage": "Anyone can then read it on the public register, including later changes such as its end.",
+						"successMessage": "Published on the public register.",
+						"errorMessage": "Could not publish it.",
+						"visibleWhen": { "any": [ { "field": "publicationDate", "op": "empty" }, { "field": "depublicationDate", "op": "notEmpty" } ] }
+					},
+					{
+						"id": "withdraw-publication",
+						"type": "api-call",
+						"label": "Withdraw from the public register",
+						"icon": "EarthOff",
+						"method": "PATCH",
+						"url": "/apps/openregister/api/objects/decidiq/declared-gift/@objectId",
+						"payload": { "depublicationDate": "@now" },
+						"confirm": true,
+						"confirmTitle": "Withdraw it from the public register?",
+						"confirmMessage": "The public can no longer read it. Its record stays as it is.",
+						"successMessage": "Withdrawn from the public register.",
+						"errorMessage": "Could not withdraw it.",
+						"visibleWhen": { "all": [ { "field": "publicationDate", "op": "notEmpty" }, { "field": "depublicationDate", "op": "empty" } ] }
+					}
+				],
 				"widgets": [
 					{ "id": "geschenk-data", "type": "data", "title": "Gift", "icon": "Package", "content": { "columns": 2 } },
 					{ "id": "geschenk-related", "type": "related", "title": "Related", "icon": "LinkVariant" }

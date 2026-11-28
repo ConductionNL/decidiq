@@ -35,6 +35,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceRequestValidatorInterface;
 use OCP\IRequest;
 
 /**
@@ -42,7 +43,7 @@ use OCP\IRequest;
  *
  * @spec openspec/specs/user-settings/spec.md
  */
-class NotificationPreferenceRequestValidator {
+class NotificationPreferenceRequestValidator implements NotificationPreferenceRequestValidatorInterface {
 	/**
 	 * Boolean notification toggles accepted by the endpoint.
 	 *
@@ -55,6 +56,7 @@ class NotificationPreferenceRequestValidator {
 		'taskAssigned',
 		'commentMention',
 		'meetingReminder',
+		'agendaChanged',
 	];
 
 	/**
@@ -160,22 +162,51 @@ class NotificationPreferenceRequestValidator {
 			return null;
 		}
 
-		if (is_array($reminderTimes) === false || $reminderTimes === []) {
+		if ($this->isNonEmptyArray(value: $reminderTimes) === false) {
 			return 'Invalid reminderTimes. Expected a non-empty array of: ' . implode(', ', self::REMINDER_TIMES) . '.';
 		}
 
-		$clean = [];
-		foreach ($reminderTimes as $time) {
-			if (is_string($time) === false || in_array($time, self::REMINDER_TIMES, true) === false) {
-				return 'Invalid reminderTimes entry. Expected one of: ' . implode(', ', self::REMINDER_TIMES) . '.';
-			}
-
-			$clean[] = $time;
+		if ($this->allKnownReminderTimes(times: $reminderTimes) === false) {
+			return 'Invalid reminderTimes entry. Expected one of: ' . implode(', ', self::REMINDER_TIMES) . '.';
 		}
 
-		$changes['reminderTimes'] = array_values(array_unique($clean));
+		$changes['reminderTimes'] = array_values(array_unique($reminderTimes));
 		return null;
 	}//end validateReminderTimes()
+
+	/**
+	 * Whether a raw request value is a non-empty array.
+	 *
+	 * @param mixed $value Raw request value
+	 *
+	 * @return bool
+	 *
+	 * @phpstan-assert-if-true non-empty-array<mixed> $value
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function isNonEmptyArray(mixed $value): bool {
+		return is_array($value) === true && $value !== [];
+	}//end isNonEmptyArray()
+
+	/**
+	 * Whether every entry is a known reminder-time token.
+	 *
+	 * @param array<mixed> $times Raw reminderTimes entries
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function allKnownReminderTimes(array $times): bool {
+		foreach ($times as $time) {
+			if (is_string($time) === false || in_array($time, self::REMINDER_TIMES, true) === false) {
+				return false;
+			}
+		}
+
+		return true;
+	}//end allKnownReminderTimes()
 
 	/**
 	 * Validate + collect the delegation fields (delegate, delegationFrom, delegationUntil).
@@ -191,40 +222,92 @@ class NotificationPreferenceRequestValidator {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	private function validateDelegation(array &$changes): ?string {
-		$delegate = $this->request->getParam('delegate');
-		$from = $this->request->getParam('delegationFrom');
-		$until = $this->request->getParam('delegationUntil');
-		if ($delegate === null && $from === null && $until === null) {
+		$request = $this->delegationRequest();
+		if ($request->isAbsent() === true) {
 			return null;
 		}
 
-		if ($delegate !== null && (string)$delegate === '') {
-			// Clear the delegation entirely.
-			$changes['delegate'] = null;
-			$changes['delegationFrom'] = null;
-			$changes['delegationUntil'] = null;
+		if ($request->clears() === true) {
+			$this->clearDelegation(changes: $changes);
 			return null;
 		}
 
-		$error = $this->validateDelegationPeriod(from: $from, until: $until);
+		return $this->collectDelegation(changes: $changes, request: $request);
+	}//end validateDelegation()
+
+	/**
+	 * Read the three raw delegation fields from the request.
+	 *
+	 * @return DelegationRequest
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationRequest(): DelegationRequest {
+		return new DelegationRequest(
+			delegate: $this->request->getParam('delegate'),
+			from: $this->request->getParam('delegationFrom'),
+			until: $this->request->getParam('delegationUntil'),
+		);
+	}//end delegationRequest()
+
+	/**
+	 * Clear the delegation entirely: delegate and both period bounds.
+	 *
+	 * @param array<string, mixed> $changes Accumulated validated changes (by reference)
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function clearDelegation(array &$changes): void {
+		$changes['delegate'] = null;
+		$changes['delegationFrom'] = null;
+		$changes['delegationUntil'] = null;
+	}//end clearDelegation()
+
+	/**
+	 * Validate a set delegation and collect its delegate and bounds.
+	 *
+	 * @param array<string, mixed> $changes Accumulated validated changes (by reference)
+	 * @param DelegationRequest    $request The raw delegation fields
+	 *
+	 * @return string|null An error message, or null when valid
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function collectDelegation(array &$changes, DelegationRequest $request): ?string {
+		$error = $this->delegationError(request: $request);
 		if ($error !== null) {
 			return $error;
 		}
 
-		if ($delegate !== null) {
-			$error = $this->validateDelegate(delegate: $delegate, until: $until);
-			if ($error !== null) {
-				return $error;
-			}
-
-			$changes['delegate'] = $delegate;
+		if ($request->delegate !== null) {
+			$changes['delegate'] = $request->delegate;
 		}
 
-		$this->collectDelegationBound(changes: $changes, field: 'delegationFrom', value: $from);
-		$this->collectDelegationBound(changes: $changes, field: 'delegationUntil', value: $until);
+		$this->collectDelegationBound(changes: $changes, field: 'delegationFrom', value: $request->from);
+		$this->collectDelegationBound(changes: $changes, field: 'delegationUntil', value: $request->until);
 
 		return null;
-	}//end validateDelegation()
+	}//end collectDelegation()
+
+	/**
+	 * The first error of a set delegation: its period first, then its delegate.
+	 *
+	 * @param DelegationRequest $request The raw delegation fields
+	 *
+	 * @return string|null An error message, or null when valid
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationError(DelegationRequest $request): ?string {
+		$error = $this->validateDelegationPeriod(from: $request->from, until: $request->until);
+		if ($error !== null || $request->delegate === null) {
+			return $error;
+		}
+
+		return $this->validateDelegate(delegate: $request->delegate, until: $request->until);
+	}//end delegationError()
 
 	/**
 	 * Validate the shape and ordering of the delegation period bounds.
@@ -242,20 +325,52 @@ class NotificationPreferenceRequestValidator {
 			'delegationUntil' => $this->periodBound(value: $until),
 		];
 
+		$error = $this->periodShapeError(bounds: $bounds);
+		if ($error !== null) {
+			return $error;
+		}
+
+		if ($this->periodIsReversed(bounds: $bounds) === true) {
+			return 'Invalid delegation period: delegationUntil must not be before delegationFrom.';
+		}
+
+		return null;
+	}//end validateDelegationPeriod()
+
+	/**
+	 * The error for the first period bound that is not an ISO date.
+	 *
+	 * @param array<string, string|null> $bounds Normalised bounds by field
+	 *
+	 * @return string|null An error message, or null when both are absent or ISO dates
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function periodShapeError(array $bounds): ?string {
 		foreach ($bounds as $field => $value) {
 			if ($value !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
 				return "Invalid {$field}. Expected an ISO date (YYYY-MM-DD).";
 			}
 		}
 
+		return null;
+	}//end periodShapeError()
+
+	/**
+	 * Whether both bounds are set and the end lies before the start.
+	 *
+	 * @param array<string, string|null> $bounds Normalised bounds by field
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function periodIsReversed(array $bounds): bool {
 		$start = $bounds['delegationFrom'];
 		$end = $bounds['delegationUntil'];
-		if ($start !== null && $end !== null && $end < $start) {
-			return 'Invalid delegation period: delegationUntil must not be before delegationFrom.';
-		}
 
-		return null;
-	}//end validateDelegationPeriod()
+		return $start !== null && $end !== null && $end < $start;
+	}//end periodIsReversed()
 
 	/**
 	 * Normalise one raw period bound: absent/empty becomes null, anything else a string.
@@ -287,7 +402,7 @@ class NotificationPreferenceRequestValidator {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	private function validateDelegate(mixed $delegate, mixed $until): ?string {
-		if (is_string($delegate) === false || preg_match('/^[a-zA-Z0-9_.@\- ]{1,64}$/', $delegate) !== 1) {
+		if ($this->isUserId(value: $delegate) === false) {
 			return 'Invalid delegate. Expected a Nextcloud user id.';
 		}
 
@@ -297,6 +412,19 @@ class NotificationPreferenceRequestValidator {
 
 		return null;
 	}//end validateDelegate()
+
+	/**
+	 * Whether a raw value has the shape of a Nextcloud user id.
+	 *
+	 * @param mixed $value Raw request value
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function isUserId(mixed $value): bool {
+		return is_string($value) === true && preg_match('/^[a-zA-Z0-9_.@\- ]{1,64}$/', $value) === 1;
+	}//end isUserId()
 
 	/**
 	 * Record one delegation period bound, mapping an empty string onto an explicit null.
@@ -334,67 +462,96 @@ class NotificationPreferenceRequestValidator {
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
 	private function validateCommunication(array &$changes): ?string {
-		$error = $this->collectClearableField(
-			changes: $changes,
+		$fields = [
+			$this->governanceEmailField(),
+			$this->urgentPhoneField(),
+			$this->communicationLanguageField(),
+		];
+		foreach ($fields as $field) {
+			$error = $this->collectClearableField(changes: $changes, field: $field);
+			if ($error !== null) {
+				return $error;
+			}
+		}
+
+		return null;
+	}//end validateCommunication()
+
+	/**
+	 * The governanceEmail override: a valid e-mail address.
+	 *
+	 * @return ClearableField
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function governanceEmailField(): ClearableField {
+		return new ClearableField(
 			param: 'governanceEmail',
 			isValid: static fn ($value): bool => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
 			errorMsg: 'Invalid governanceEmail. Expected a valid e-mail address.'
 		);
-		if ($error !== null) {
-			return $error;
-		}
+	}//end governanceEmailField()
 
-		$error = $this->collectClearableField(
-			changes: $changes,
+	/**
+	 * The urgentPhone override: digits, +, -, (), spaces.
+	 *
+	 * @return ClearableField
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function urgentPhoneField(): ClearableField {
+		return new ClearableField(
 			param: 'urgentPhone',
 			isValid: static fn ($value): bool => preg_match('/^[0-9+()\/\- ]{4,32}$/', $value) === 1,
 			errorMsg: 'Invalid urgentPhone. Expected a phone number (digits, +, -, (), spaces).'
 		);
-		if ($error !== null) {
-			return $error;
-		}
+	}//end urgentPhoneField()
 
-		return $this->collectClearableField(
-			changes: $changes,
+	/**
+	 * The communicationLanguage override: one of the supported languages.
+	 *
+	 * @return ClearableField
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function communicationLanguageField(): ClearableField {
+		return new ClearableField(
 			param: 'communicationLanguage',
 			isValid: static fn ($value): bool => in_array($value, self::COMMUNICATION_LANGUAGES, true),
 			errorMsg: 'Invalid communicationLanguage. Expected one of: ' . implode(', ', self::COMMUNICATION_LANGUAGES) . '.'
 		);
-
-	}//end validateCommunication()
+	}//end communicationLanguageField()
 
 	/**
 	 * Read one optional request parameter that may also be cleared.
 	 *
 	 * Absent (null) leaves $changes untouched; an empty string records an explicit
 	 * null so the stored override falls back to the Nextcloud account default; any
-	 * other value must be a string that satisfies $isValid.
+	 * other value must be a string that satisfies the field's check.
 	 *
 	 * @param array<string, mixed> $changes Accumulated validated changes (by reference)
-	 * @param string $param Request parameter / change key
-	 * @param callable(string):bool $isValid Predicate applied to a non-empty string value
-	 * @param string $errorMsg Message returned when the predicate fails
+	 * @param ClearableField       $field   The parameter, its check and its error message
 	 *
 	 * @return string|null An error message, or null when valid/absent
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
-	private function collectClearableField(array &$changes, string $param, callable $isValid, string $errorMsg): ?string {
-		$raw = $this->request->getParam($param);
+	private function collectClearableField(array &$changes, ClearableField $field): ?string {
+		$raw = $this->request->getParam($field->param);
 		if ($raw === null) {
 			return null;
 		}
 
 		if ((string)$raw === '') {
-			$changes[$param] = null;
+			$changes[$field->param] = null;
 			return null;
 		}
 
-		if (is_string($raw) === false || $isValid($raw) === false) {
-			return $errorMsg;
+		if ($field->accepts(raw: $raw) === false) {
+			return $field->errorMsg;
 		}
 
-		$changes[$param] = $raw;
+		$changes[$field->param] = $raw;
 
 		return null;
 	}//end collectClearableField()

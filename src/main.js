@@ -11,6 +11,7 @@ import {
 	registerLeafIntegrations,
 	registerTranslations,
 } from '@conduction/nextcloud-vue'
+import { getCapabilities } from '@nextcloud/capabilities'
 import { loadState } from '@nextcloud/initial-state'
 import {
 	loadTranslations,
@@ -23,18 +24,29 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { registerDetailWidgets } from './components/widgets/registerDetailWidgets.js'
+import { registerReportWidgets } from './components/widgets/registerReportWidgets.js'
 import appIcons from './icons.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
-import menuLayout from './menu-layout.json'
+import menuLayoutFull from './menu-layout.json'
+import menuLayoutSimple from './menu-layout.simple.json'
 import pinia from './pinia.js'
 import registry from './registry.js'
 import { initializeStores } from './store/store.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { currentPermissions } from './utils/permissions.js'
+import {
+	buildProfiledManifest,
+	navTheming,
+	resolveStructureProfile,
+	STRUCTURE_FULL,
+	STRUCTURE_SETTING,
+} from './utils/structureProfile.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
-import '@conduction/nextcloud-vue/css/index.css'
+// Library CSS: templates/index.php links css/nextcloud-vue.css (LibraryStylesheetCopy in
+// webpack.config.js), so the sheet stays parsed between page loads instead of being
+// inserted from this bundle as text.
 // NL Design System token mapping (ADR-010)
 import './assets/nl-design.css'
 // Global (unscoped) app styles
@@ -123,7 +135,27 @@ const fragments = fragmentCtx
 	.keys()
 	.sort()
 	.map((key) => fragmentCtx(key))
-const mergedManifest = buildManifest(bundledManifest, fragments, menuLayout)
+
+// THE STRUCTURE PROFILE picks the layout file. The page controller provides
+// `menu_structure` as initial state: `simple` (the default) or `full` (the
+// navigation and pages as they were). Both are built from the same manifest
+// and the same fragments, so every page stays routable in either. See
+// `utils/structureProfile.js` for what a profile file may hold.
+const structureProfile = resolveStructureProfile(
+	loadState('decidiq', STRUCTURE_SETTING, ''),
+)
+const menuLayout =
+	structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple
+// The simple profile's brand block names the instance through its theming
+// capabilities (`@theming.name`, `@theming.logo`), so the navigation shows the
+// municipality the instance belongs to without the app naming one.
+const mergedManifest = buildProfiledManifest(
+	buildManifest,
+	bundledManifest,
+	fragments,
+	menuLayout,
+	{ theming: navTheming(getCapabilities()) },
+)
 
 // The permissions this account holds, from the server's own answer rather than
 // from `window`. `DashboardController` pushes `isAdmin` into initial state and
@@ -283,6 +315,16 @@ setActivePinia(pinia)
 		// pages; every other page is unaffected.
 		// eslint-disable-next-line no-console
 		console.error('Boot: registerDetailWidgets() failed', e)
+	}
+
+	try {
+		// The report dashboards' own widgets (document-accessibility-check:
+		// the accessibility report's CSV export). Same timing as above.
+		await registerReportWidgets()
+	} catch (e) {
+		// Non-fatal: only the export button is missing from its report.
+		// eslint-disable-next-line no-console
+		console.error('Boot: registerReportWidgets() failed', e)
 	}
 
 	// Vue 3 (ADR-066): mount App as the root component directly and pass the

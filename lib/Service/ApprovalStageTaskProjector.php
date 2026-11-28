@@ -39,13 +39,17 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
+use OCA\OpenRegister\Service\Task\TaskTrigger;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -53,9 +57,9 @@ use Throwable;
 /**
  * Keeps the OR task inbox agreeing with a subject's approval stages.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalStageTaskProjector {
+class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface {
 
 	/**
 	 * OpenRegister's flow-task service, resolved by name so decidiq does not
@@ -67,16 +71,6 @@ class ApprovalStageTaskProjector {
 	 * @var string
 	 */
 	private const TASK_SERVICE = 'OCA\\OpenRegister\\Service\\Task\\TaskService';
-
-	/**
-	 * The provenance marker a projected task carries in its templateId.
-	 *
-	 * The decision listener trusts this marker to know which terminal tasks
-	 * are approval-stage asks, so it is a contract, not a label.
-	 *
-	 * @var string
-	 */
-	public const TEMPLATE_ID = 'decidiq:approval-stage';
 
 	/**
 	 * Constructor.
@@ -107,9 +101,24 @@ class ApprovalStageTaskProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sync(string $subject, array $stages): void {
+		foreach ($stages as $stage) {
+			try {
+				$this->syncWaitingOn(stage: $stage);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Decidiq: could not record who an approval stage waits on',
+					[
+						'subject' => $subject,
+						'stage' => ($stage['id'] ?? null),
+						'error' => $e->getMessage(),
+					]
+				);
+			}
+		}
+
 		$tasks = $this->taskService();
 		if ($tasks === null) {
 			return;
@@ -130,6 +139,41 @@ class ApprovalStageTaskProjector {
 			}
 		}
 	}//end sync()
+
+	/**
+	 * Keep `waitingOn` naming the person an active stage waits on, and empty otherwise.
+	 *
+	 * A list of "what waits for me" filters on this one field with plain
+	 * equality, which is the filter the register answers; it cannot read the
+	 * stage status and the assignee together through the task surface.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 *
+	 * @return void
+	 */
+	private function syncWaitingOn(array $stage): void {
+		$id = (string)($stage['id'] ?? '');
+		if ($id === '') {
+			return;
+		}
+
+		$wanted = '';
+		if ((string)($stage['status'] ?? '') === 'active') {
+			$wanted = trim((string)($stage['assignedPerson'] ?? ''));
+		}
+
+		$current = trim((string)($stage['waitingOn'] ?? ''));
+		if ($wanted === $current) {
+			return;
+		}
+
+		$value = null;
+		if ($wanted !== '') {
+			$value = $wanted;
+		}
+
+		$this->store->patch(schema: 'decision-stage', data: ['waitingOn' => $value], uuid: $id);
+	}//end syncWaitingOn()
 
 	/**
 	 * Bring one stage's task in line with its status.
@@ -168,6 +212,8 @@ class ApprovalStageTaskProjector {
 	 * @param array<string, mixed> $stage The active stage.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
 	 */
 	private function openTask(object $tasks, string $subject, array $stage): void {
 		$assignee = trim((string)($stage['assignedPerson'] ?? ''));
@@ -176,24 +222,28 @@ class ApprovalStageTaskProjector {
 		}
 
 		$label = (string)($stage['label'] ?? '');
-		$task = $tasks->import(
-			data: [
-				'title' => trim('Sign-off: ' . $label),
-				'description' => sprintf(
-					'Approval stage %d (%s) for subject %s.',
-					(int)($stage['sequence'] ?? 0),
-					(string)($stage['stageType'] ?? ''),
-					$subject
-				),
-				'state' => 'enabled',
-				'performerType' => 'user',
-				'assignee' => $assignee,
-				'objectUuid' => $subject,
-				'templateId' => self::TEMPLATE_ID,
-				'nodeId' => (string)($stage['id'] ?? ''),
-			],
-			actor: $assignee,
-		);
+		$data = [
+			'title' => trim('Sign-off: ' . $label),
+			'description' => sprintf(
+				'Approval stage %d (%s) for subject %s.',
+				(int)($stage['sequence'] ?? 0),
+				(string)($stage['stageType'] ?? ''),
+				$subject
+			),
+			'state' => 'enabled',
+			'performerType' => 'user',
+			'assignee' => $assignee,
+			'objectUuid' => $subject,
+			'templateId' => self::TEMPLATE_ID,
+			'nodeId' => (string)($stage['id'] ?? ''),
+		];
+
+		$dueAt = $this->dueAtOf(stage: $stage);
+		if ($dueAt !== null) {
+			$data['dueAt'] = $dueAt;
+		}
+
+		$task = $tasks->import(data: $data, actor: $assignee);
 
 		$uuid = '';
 		if (is_object($task) === true && method_exists($task, 'getUuid') === true) {
@@ -211,6 +261,35 @@ class ApprovalStageTaskProjector {
 
 		$this->store->patch(schema: 'decision-stage', data: ['taskUuid' => $uuid], uuid: (string)$stage['id']);
 	}//end openTask()
+
+	/**
+	 * The stage's due date as the task surface takes it, or null.
+	 *
+	 * The inbox sorts and flags overdue work on the task's own due date, so a
+	 * stage that is due carries that date onto its task; without it the list
+	 * shows the subject and the step but not when the answer is expected. A
+	 * date that does not parse is left off rather than passed on: the task
+	 * surface refuses an unparseable date, and a refused import would cost the
+	 * approver the whole task instead of only its due date.
+	 *
+	 * @param array<string, mixed> $stage The active stage.
+	 *
+	 * @return string|null The due date in ISO 8601, or null when there is none.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-001-an-open-approval-is-a-work-item
+	 */
+	private function dueAtOf(array $stage): ?string {
+		$raw = trim((string)($stage['dueAt'] ?? ''));
+		if ($raw === '') {
+			return null;
+		}
+
+		try {
+			return (new DateTimeImmutable($raw))->format(DateTimeInterface::ATOM);
+		} catch (Throwable) {
+			return null;
+		}
+	}//end dueAtOf()
 
 	/**
 	 * Close the ask: the stage no longer waits, so neither should the inbox.
@@ -233,8 +312,10 @@ class ApprovalStageTaskProjector {
 			try {
 				$tasks->consume(
 					uuid: $taskUuid,
-					source: self::TEMPLATE_ID,
-					reason: 'The approval stage this task asked about is no longer awaiting an answer.'
+					trigger: new TaskTrigger(
+						source: self::TEMPLATE_ID,
+						reason: 'The approval stage this task asked about is no longer awaiting an answer.'
+					)
 				);
 			} catch (Throwable $e) {
 				$this->logger->info(

@@ -1,0 +1,24 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process task 2.3 (REQ-DWP-002). Changing a step's threshold recomputes the step (StepThresholdRecomputer, on every decision-stage update) and is recorded as an approval action with the old and the new value (`thresholdBefore`, `thresholdAfter`, fragment 80) and who made the change. This widens the action enum with `threshold-changed`; enums merge as a union, so every existing verb stays. Properties only, so no schema version moves.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-002-a-step-accepts-a-share-of-its-approvers",
+  "components": {
+    "schemas": {
+      "ApprovalAction": {
+        "slug": "approval-action",
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string",
+            "enum": [
+              "threshold-changed"
+            ],
+            "description": "Widened with `threshold-changed`: an administrator changed the threshold of the step, which recomputed its outcome. The action carries the old and the new value in `thresholdBefore` and `thresholdAfter` (REQ-DWP-002)."
+          }
+        }
+      }
+    }
+  }
+}

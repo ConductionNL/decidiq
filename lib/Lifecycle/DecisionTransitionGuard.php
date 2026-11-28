@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
+
 /**
  * Guard for decision lifecycle transitions.
  *
@@ -38,22 +40,7 @@ namespace OCA\Decidiq\Lifecycle;
  *
  * @spec openspec/specs/decision-management/spec.md
  */
-class DecisionTransitionGuard {
-
-	/**
-	 * Ordered lifecycle states of the decision state machine.
-	 *
-	 * @var string[]
-	 */
-	public const STATES = [
-		'draft',
-		'proposed',
-		'deliberating',
-		'voting',
-		'decided',
-		'enacted',
-		'archived',
-	];
+class DecisionTransitionGuard implements DecisionTransitionGuardInterface {
 
 	/**
 	 * Lifecycle states in which a decision has actually been DECIDED.
@@ -132,6 +119,26 @@ class DecisionTransitionGuard {
 		'decide' => ['from' => ['voting', 'deliberating'],   'to' => 'decided'],
 		'enact' => ['from' => ['decided'],                  'to' => 'enacted'],
 		'archive' => ['from' => ['decided', 'enacted'],       'to' => 'archived'],
+	];
+
+	/**
+	 * Lifecycle states a decision may be withdrawn from.
+	 *
+	 * Mirrors the `* → withdrawn` edges of the schema's
+	 * `x-openregister-lifecycle` block ("reachable from any non-terminal state
+	 * before `enacted`"); DecisionTransitionMatrixTest pins the parity.
+	 * Withdrawal is not an action in TRANSITIONS because it carries its own
+	 * payload (who withdrew it and why, REQ-DWP-005) and has its own endpoint,
+	 * DecisionLifecycleService::withdraw().
+	 *
+	 * @var string[]
+	 */
+	public const WITHDRAWABLE_STATES = [
+		'draft',
+		'proposed',
+		'deliberating',
+		'voting',
+		'decided',
 	];
 
 	/**
@@ -362,6 +369,19 @@ class DecisionTransitionGuard {
 	public function isVotingOpenAllowed(array $meeting): bool {
 		return ($meeting['quorumWith'] ?? false) === true;
 	}//end isVotingOpenAllowed()
+
+	/**
+	 * Whether a decision in this lifecycle state may be withdrawn.
+	 *
+	 * @param string $lifecycle The decision's current lifecycle state
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return bool True when the `lifecycle → withdrawn` edge is declared
+	 */
+	public function isWithdrawable(string $lifecycle): bool {
+		return in_array(needle: $lifecycle, haystack: self::WITHDRAWABLE_STATES, strict: true);
+	}//end isWithdrawable()
 
 	/**
 	 * Check whether a decision may be enacted: only decisions with a positive

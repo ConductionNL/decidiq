@@ -1,0 +1,170 @@
+{
+    "OCA\\Decidiq\\Listener\\RegisterApprovalChainLeafListener": {
+        "real": [
+            {
+                "descriptor": {
+                    "id": "decidiq-approval-chain",
+                    "label": "T:Parafering",
+                    "icon": "Signature",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": "own-script",
+                "referenceType": "approval-route",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "withStrategy": [
+            {
+                "descriptor": {
+                    "id": "decidiq-approval-chain",
+                    "label": "T:Parafering",
+                    "icon": "Signature",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": "own-script",
+                "referenceType": "approval-route",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "withoutStrategy": [
+            {
+                "descriptor": {
+                    "id": "decidiq-approval-chain",
+                    "label": "T:Parafering",
+                    "icon": "Signature",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": null,
+                "referenceType": "approval-route",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "refusedWarnings": [
+            {
+                "message": "Decidiq could not register the decidiq-approval-chain leaf: registration refused",
+                "exceptionIsThrown": true
+            }
+        ],
+        "otherEventWarnings": []
+    },
+    "OCA\\Decidiq\\Listener\\RegisterDecisionsLeafListener": {
+        "real": [
+            {
+                "descriptor": {
+                    "id": "decidesk-decisions",
+                    "label": "T:Besluitvorming",
+                    "icon": "Gavel",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": "own-script",
+                "referenceType": "decision",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "withStrategy": [
+            {
+                "descriptor": {
+                    "id": "decidesk-decisions",
+                    "label": "T:Besluitvorming",
+                    "icon": "Gavel",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": "own-script",
+                "referenceType": "decision",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "withoutStrategy": [
+            {
+                "descriptor": {
+                    "id": "decidesk-decisions",
+                    "label": "T:Besluitvorming",
+                    "icon": "Gavel",
+                    "requiredApp": "decidiq",
+                    "group": "workflow",
+                    "surfaces": [
+                        "user-dashboard",
+                        "app-dashboard",
+                        "detail-page",
+                        "single-entity"
+                    ],
+                    "kinds": [
+                        "render-surface"
+                    ],
+                    "renderMode": "mount"
+                },
+                "loadStrategy": null,
+                "referenceType": "decision",
+                "requiresPermission": null,
+                "provider": null
+            }
+        ],
+        "refusedWarnings": [
+            {
+                "message": "Decidiq could not register the decidesk-decisions leaf: registration refused",
+                "exceptionIsThrown": true
+            }
+        ],
+        "otherEventWarnings": []
+    }
+}

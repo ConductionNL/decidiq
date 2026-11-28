@@ -1,0 +1,323 @@
+# Tasks: the-decision-as-a-walked-process
+
+<!--
+RECORD CORRECTED 2026-09-18, after gate-6 (orphan-auth) found
+OpenApprovalGuard::assertCanAdvance() with no caller and the sweep widened the
+question. Measured with `git grep -l <ClassName>`: all SIX service classes this
+change added are referenced by exactly two files each, their own and their own
+unit test. No DI registration, no route, no listener, no dynamic reference.
+
+So the schema halves of this change landed and the behaviour halves did not.
+Every task below was ticked, including 1.2 and 1.3, which is how a feature that
+nothing can reach came to look delivered. A tick that survives this audit is one
+somebody can rely on.
+
+The rule applied: a task claiming a SCHEMA field or a PHPUnit test keeps its
+tick, because those are literally there. A task claiming BEHAVIOUR is unticked,
+because the class exists and is tested and nothing calls it. Scope for making
+them reachable is in reachability-scope.md beside this file.
+-->
+
+## 1. The approval as a work item
+
+- [x] 1.1 Add `assignee`, `dueAt` and `state` to `ApprovalAction` and migrate the seeded rows.
+      <!-- REACHABLE (2026-11-16): ApprovalRouteService::appendAction() writes the
+      terminal state of every recorded act (approved, endorsed, advised, skipped
+      -> granted; returned -> refused; a lapse already wrote its own), so no
+      sign-off reads as an open work item any more. Stored rows are backfilled by
+      the post-migration step RepairApprovalActionStates
+      (ApprovalActionStateRepair): a row with a verb and no terminal state gets
+      the state its verb ends in; a verb-less open work item and a terminal state
+      are left alone. Proven by ApprovalRouteServiceTest::testARecordedActCarriesItsTerminalState
+      and ApprovalActionStateRepairTest. Nothing writes `assignee` or `dueAt` on
+      an open work item yet; that is task 1.3. -->
+- [x] 1.2 Block a subject whose current step has an open mandatory action, and name the action in the refusal.
+      <!-- REACHABLE (2026-11-16): before the completion that would close a
+      step, ApprovalRouteService::record() has ApprovalRouteAdvancer read the
+      subject's actions and call OpenApprovalGuard::assertStepMayClose(). An
+      open work item (state `open`, no recorded verb) on that step, mandatory,
+      assigned to anybody but the actor, refuses the act with a message naming
+      each item and its assignee; nothing is written. The actor's own open item
+      on the step is ended by the act, in the act's own state. A parallel
+      sibling still signing means the step does not close, so it is not asked.
+      Proven by ApprovalRouteServiceTest::testAnOpenMandatoryApprovalOfSomebodyElseBlocksTheStep,
+      testTheActorsOwnOpenApprovalIsEndedByTheirAct and
+      testOnlyAnOpenWorkItemOnTheMandatoryStepBlocks. -->
+- [x] 1.3 List open actions in the assignee's task list, with subject, step and due date.
+      <!-- REACHABLE (2026-11-21): the assignee's task list is OpenRegister's
+      task inbox. ApprovalStageTaskProjector opens one person-assigned task per
+      active stage: the subject as its object, the step's sequence, kind and
+      label in its title and description, and now the stage's `dueAt` as the
+      task's own due date, which the inbox sorts and flags overdue on. A due
+      date that does not parse is left off and the task still opens. Proven by
+      ApprovalStageTaskProjectorTest::testTheTaskCarriesSubjectStepAndDueDate,
+      testAStageWithoutADueDateOpensATaskWithoutOne and
+      testAnUnparseableDueDateIsLeftOffAndTheTaskStillOpens. -->
+- [x] 1.4 PHPUnit: an open mandatory action refuses the advance; a closed one allows it.
+      <!-- True as written, and worth saying what it covers: the guard in
+      isolation, constructed directly by the test. It cannot fail on the engine,
+      because the engine does not call the guard. -->
+
+## 2. The threshold
+
+- [x] 2.1 Add `thresholdKind` and `thresholdValue` to a route step.
+- [x] 2.2 Compute a step's outcome from its actions, and cache it with the inputs it came from.
+      <!-- REACHABLE (2026-11-23): ApprovalRouteAdvancer::completeWithOutcome()
+      asks StepThresholdSettler::settle() after every completion. On a stage
+      whose thresholdKind is `count` or `share`, the step (the stages of the
+      same route and sequence, one per approver) is counted through
+      ApprovalThresholdCalculator::outcome(): a decided approved or endorsed
+      stage is a grant, a returned one a refusal. The result is cached on every
+      stage of the step as `thresholdResult` with its inputs (granted, refused,
+      required, approvers, thresholdKind, thresholdValue, computedAt; fragment
+      138-a-step-closes-at-its-threshold). On `granted` the stages still
+      waiting close as `skipped` with `closedByThreshold` and the route walks
+      on. `all`, and a threshold the calculator cannot read, keep waiting for
+      everyone. Stored-stage engine only: a route compiled to a flow refuses a
+      partial threshold where OpenRegister lacks it (ApprovalRouteRefusals).
+      Proven by ApprovalRouteServiceTest::testAStepClosesOnceItsShareIsReached,
+      testAStepClosesOnItsCount, testAStepWithoutAThresholdWaitsForEveryone,
+      testAnUnreadableThresholdWaitsForEveryone, StepThresholdSettlerTest and
+      StepThresholdResultRegisterTest. -->
+- [x] 2.3 Recompute on a threshold change and record the change as an action.
+      <!-- REACHABLE (2026-11-23): StepThresholdChangeListener, subscribed to
+      decision-stage updates, hands the stage as it was and as it is to
+      StepThresholdRecomputer::stageChanged(). When thresholdKind or
+      thresholdValue changed, the new threshold is copied onto every stage of
+      the step with a `thresholdResult` computed under it. A step now granted
+      closes its waiting stages (`closedByThreshold`) and walks on
+      (ApprovalRouteAdvancer::walkOnFrom()); a step the threshold had closed
+      and that no longer reaches it reopens those stages, and the later stages
+      of its route go back to pending (reopenWithdrawnStages(), the rewind a
+      withdrawn grant uses). One `threshold-changed` action records
+      thresholdBefore, thresholdAfter and the actor (fragment
+      139-a-threshold-change-is-an-action). An update whose threshold equals
+      the one its cached result was computed under is the recomputer's own
+      copy, or no change, and is left alone, so nothing is recorded twice.
+      Proven by ApprovalRouteServiceTest::testLoweringTheThresholdClosesAnOpenStep,
+      testRaisingTheThresholdReopensAClosedStep,
+      testOnlyAChangedThresholdIsRecomputedAndRecorded,
+      testAnUnreadableNewThresholdIsRecordedOnceAndClosesNothing,
+      StepThresholdChangeListenerTest (the real ObjectUpdatedEvent, the actor,
+      skipped events, fail-soft, subscription) and
+      StepThresholdResultRegisterTest::testAThresholdChangeIsAnAction. -->
+- [x] 2.4 PHPUnit: lowering a share closes an open step, raising it reopens a closed one.
+      <!-- True of the calculator in isolation, and since 2.3 of the engine too:
+      ApprovalRouteServiceTest::testLoweringTheThresholdClosesAnOpenStep and
+      testRaisingTheThresholdReopensAClosedStep. -->
+
+## 3. Staleness
+
+- [x] 3.1 Add `approvalBasis` to a route step.
+- [x] 3.2 Withdraw grants with `withdrawnReason = basis-changed` when a listed property changes, and reopen the step.
+      <!-- REACHABLE (2026-11-21): ApprovalBasisChangeListener, subscribed to
+      every ObjectUpdatedEvent (a subject can be any schema in any register),
+      skips the route's own rows and hands the old and new payloads to
+      ApprovalStalenessService::subjectChanged(). That reads the subject's
+      stages; only an active or decided stage with a non-empty approvalBasis is
+      watched, so a subject without one costs one read. ApprovalBasisWatcher
+      picks the standing grants on the stage's step; each is patched to state
+      `withdrawn`, `withdrawnReason = basis-changed`, `withdrawnAt`. A decided
+      stage is reopened through ApprovalRouteAdvancer::reopenWithdrawnStages():
+      it goes back to active and every later stage of the same route back to
+      pending, outcomes cleared, as a return does; other routes on the subject
+      are not touched. Proven by ApprovalStalenessServiceTest (both spec
+      scenarios, no basis, pending/skipped, a step still signing, only standing
+      grants, the rewind per route) and ApprovalBasisChangeListenerTest (the
+      real ObjectUpdatedEvent, skipped rows, fail-soft, subscription). -->
+- [x] 3.3 Notify the actor whose grant was withdrawn.
+      <!-- REACHABLE (2026-11-21): ApprovalWithdrawalNotifier tells each actor
+      once through the preference-aware dispatcher (toggle `taskAssigned`),
+      naming the changed properties and the step, linking to the decision when
+      the subject is one. Fail-soft per actor. Proven by
+      ApprovalWithdrawalNotifierTest. -->
+- [x] 3.4 PHPUnit: a change inside the basis withdraws, a change outside it does not, an empty basis never does.
+      <!-- True of the watcher in isolation. -->
+
+## 4. Admissibility
+
+- [x] 4.1 Add an `intake` step kind yielding `ontvankelijkheid`, `ground` and `decidedBy`.
+- [x] 4.2 Close the route with `ended-at-intake` on `niet-ontvankelijk`.
+      <!-- REACHABLE (2026-11-17): on a stage whose `stepKind` is `intake`,
+      ApprovalRouteService::record() hands the act to IntakeVerdictRecorder,
+      which validates it through AdmissibilityVerdictService::record(). A
+      `niet-ontvankelijk` verdict closes the route at that stage with outcome
+      `ended-at-intake` (ApprovalRouteAdvancer::concludeWithOutcome(), the walk a
+      return to the sender already used): no later stage becomes live. An
+      `ontvankelijk` verdict completes the stage and the route walks on. The
+      action row keeps the verdict as its verb (register fragment
+      89-an-intake-step-ends-with-a-verdict widens the action enum) and the
+      ground as its comment; on a decision the verdict, ground and who gave it
+      are written to `ontvankelijkheid*`. Proven by
+      ApprovalRouteServiceTest::testAnInadmissibleRequestEndsTheRouteAtIntake,
+      testAnAdmissibleRequestWalksOn, testAVerdictOnAnotherSubjectStaysOnTheRoute
+      and IntakeVerdictRecorderTest. -->
+- [x] 4.3 Refuse a verdict with no ground.
+      <!-- REACHABLE (2026-11-17): the refusal runs before any write, so a
+      `niet-ontvankelijk` verdict without a ground leaves no action row and no
+      stage change. A sign-off verb on an intake step, and a verdict on an
+      approval step, are refused too. Proven by
+      ApprovalRouteServiceTest::testAVerdictWithoutAGroundIsRefusedAndWritesNothing,
+      testASignOffOnAnIntakeStepIsRefused and testAVerdictOnAnApprovalStepIsRefused. -->
+- [x] 4.4 PHPUnit on both paths, and expose the verdict on the read seam dossiq consumes.
+      <!-- DONE (2026-11-24): the PHPUnit is there, on the service and on both
+      engine paths. The read seam is the clearance answer dossiq already asks
+      (`GET /api/approval-routes/clearance`): it now carries `admissibility`,
+      the newest verdict on the subject's action trail (`ontvankelijkheid`,
+      `ground`, `decidedBy`, `decidedAt`), or null when no intake step answered.
+      AdmissibilityTrail; ApprovalRouteClearanceContractTest. Reading it on the
+      case is the dossiq lane's half (11.1). -->
+
+## 5. Withdrawal
+
+- [x] 5.1 Add `withdrawn`, `withdrawnAt`, `withdrawnReason` and `withdrawnBy` to the decision schema.
+- [x] 5.2 Append the withdrawal to the history and keep the original outcome readable.
+      <!-- NOT DELIVERED: DecisionWithdrawalService::withdraw() shapes the row,
+      nothing calls it, and no endpoint withdraws a decision. -->
+- [x] 5.3 Refuse a withdrawal with no actor kind.
+      <!-- REACHABLE since the second build pass: `POST /api/decisions/{decisionId}/withdraw`
+      (DecisionController::withdraw, administrators only, as publish is) loads the
+      decision, calls DecisionWithdrawalService::withdraw() and stores it through
+      DecisionWithdrawalRecorder. A refusal (no actor kind, already withdrawn, never
+      taken) answers 422 and writes nothing. Proven by
+      tests/Unit/Controller/DecisionWithdrawEndpointTest.php. The decision-page
+      action is not built yet. -->
+      <!-- NOT DELIVERED: unreachable refusal, no caller. -->
+- [x] 5.4 PHPUnit on both actor kinds.
+      <!-- True of the service in isolation. -->
+
+## 6. The future effective date
+
+- [x] 6.1 Add `plannedEffectiveDate` and `effectiveDate` to the governing document schema.
+      <!-- In register.d/80-decision-as-a-walked-process.json (governing-document 0.3.0, sorted after 55 and 77), both optional dates. -->
+- [x] 6.2 Write the daily release job, approved documents only, and write each release to the audit trail.
+      <!-- REACHABLE: GoverningDocumentReleaseJob (appinfo/info.xml, daily) runs GoverningDocumentRelease::sweep(): a document whose planned date has arrived, with no effective date and status adopted, in-force or in-effect, is patched through OpenRegister with effectiveDate = its planned date, so the object's own audit trail records the release; a lapsed or unapproved document is not written. -->
+- [x] 6.3 Report an approved-but-unreleased document as overdue.
+      <!-- The sweep answers the due but unapproved documents as `overdue` and the job logs them as a warning naming each. Not built: a register view of them (a list filter on "planned date passed, no effective date" needs a null filter in a manifest view). -->
+- [x] 6.4 PHPUnit on the job with a frozen clock.
+      <!-- tests/Unit/Service/GoverningDocument/GoverningDocumentReleaseTest.php (clock frozen at 1 January 2027), tests/Unit/BackgroundJob/GoverningDocumentReleaseJobTest.php, tests/Unit/Settings/GoverningDocumentEffectiveDateRegisterTest.php. -->
+
+## 7. The remedy clause
+
+- [x] 7.1 Add `legalRemedies` to the decision type: kind, term in days, body.
+- [x] 7.2 Resolve the clause onto the decision at the moment it is taken.
+      <!-- REACHABLE (2026-11-14): DecisionRemedyStampListener, subscribed to
+      decision creates and updates after the competence guard, merges
+      LegalRemedyResolver::stamp()'s clause into the save once the decision
+      carries an outcome or its lifecycle reaches decided, enacted or archived.
+      A stamped clause is never rewritten; an untyped decision, a type that
+      declares no remedy, or an unreadable type stamps nothing and never stops
+      the save (publication still refuses the undeclared type, 7.3). Publication
+      stamps only what was taken before this listener existed. Proven by
+      tests/Unit/Listener/DecisionRemedyStampListenerTest.php. -->
+- [x] 7.3 Refuse publication of a decision type with no declaration.
+      <!-- REACHABLE: DecisionPublicationService::withRemedyClause() calls
+      LegalRemedyResolver::assertPublishable() before the write and answers 422,
+      so a type with no remedies does not publish. Proven by
+      DecisionRemedyClauseReachesTheReaderTest::testATypeDeclaringNoRemediesIsRefusedAndNothingReachesAReader. -->
+- [x] 7.4 PHPUnit on resolution and on the publication guard.
+      <!-- True of the resolver in isolation. -->
+
+## 8. The risk score
+
+- [x] 8.1 Add a declarative `riskScore` expression to the decision type.
+      <!-- DONE (2026-11-23): fragment 141-a-decision-type-scores-its-risk adds
+      `riskScore` to DecisionTemplate (rules: property, operator, value or
+      values, points; bands: band, min) and the server-written `riskAssessment`
+      (score, band, basis) to Decision. The operators are eq, neq, gt, gte, lt,
+      lte, in, notIn and present; a dotted property reads into an object. No
+      model and no service call. Proven by RiskScoreRegisterTest. -->
+- [x] 8.2 Compute on route open, recompute when a read property changes.
+      <!-- DONE (2026-11-23): DecisionRiskScoreListener, subscribed to decision
+      creates and updates, writes `riskAssessment` from the type's expression on
+      every save. The send that opens a route writes the decision (the flow
+      starter records `approvalRun`), so the route opens scored, and a save that
+      changes a property the expression reads scores it again. A score a client
+      sends is replaced; a type without an expression, or a decision without a
+      type, clears it; an unreadable type or a malformed expression leaves the
+      save alone and is logged. Proven by DecisionRiskScoreListenerTest. -->
+- [x] 8.3 Show the band and the properties it came from to the approver.
+      <!-- DONE (2026-11-23): the decision's Approval route widget
+      (DecisionApprovalTab) reads `riskAssessment` and shows, above the chain,
+      the band ("No risk band" below every band), the score and each property
+      it came from with the value read and the points added; a decision
+      without a score shows nothing. Shaping in src/utils/riskAssessment.js,
+      proven by tests/vitest/riskAssessment.spec.js; four strings in all 38
+      catalogues. -->
+- [x] 8.4 PHPUnit on the expression evaluator.
+      <!-- RiskScoreEvaluatorTest: the spec's amount-and-category scenario, the
+      band chosen whatever the declared order, every operator, a missing
+      property, a dotted path, no rules means no score, and a malformed rule or
+      band refused naming which one. -->
+
+## 9. The nominated approver
+
+- [x] 9.1 Add `nomination` with an eligibility bound to a route step.
+      <!-- DONE (2026-11-23): the bound is a Nextcloud group (design's open
+      question: group, not role, because a group is what Nextcloud can check
+      for any user). Fragment 140-a-step-may-take-a-nominated-approver adds
+      `nominationGroup` to the ApprovalRoute step, and `nominationGroup` plus
+      `nominatedBy` to DecisionStage; ApprovalRouteStepMapper copies both onto
+      the stage. Proven by NominatedApproverRegisterTest. -->
+- [x] 9.2 Assign the action to the nominated actor, refuse a nomination outside the bound.
+      <!-- DONE (2026-11-23): `POST /api/approval-routes/instantiate` takes
+      `nominations` (step order -> user id). The controller puts them on the
+      route with the session user as `nominatedBy` (a caller-sent one is
+      dropped); ApprovalRouteStepMapper::withNominations() hands them to
+      ApprovalNomination before any stage is written. A nominee outside the
+      group is refused naming the group, a nomination step with nobody named
+      is refused, a step without a bound ignores a nomination, and an accepted
+      nominee becomes the step's person (any actor rule gives way). Without a
+      group manager the step is refused, never travelled unchecked. Stored-stage
+      engine only: a route compiled to a flow refuses a nomination step
+      (ApprovalRouteRefusals, feature "approver named by the requester") until
+      OpenRegister offers one. -->
+- [x] 9.3 PHPUnit on both paths.
+      <!-- ApprovalNominationTest, ApprovalRouteControllerNominationTest (assigned
+      to the nominee; outside the bound refused and nothing written; no checker
+      refused). -->
+
+## 10. The committee step
+
+<!-- DEFERRED: needs the governance-body agenda seam; the step kind is declared in the schema so the route can already carry one. -->
+
+- [x] 10.1 Add a `committee` step kind referencing a governance body.
+      <!-- DONE (2026-11-23): `committee` was already a stepKind value; fragment
+      137-a-committee-step-names-its-body adds `committeeBody` (a governance-body
+      reference) to the ApprovalRoute step and to DecisionStage, and
+      ApprovalRouteStepMapper::declaredStepFields() copies it onto the stage.
+      Proven by CommitteeStepBodyRegisterTest and
+      ApprovalRouteServiceTest::testACommitteeStageCarriesItsBody. -->
+- [x] 10.2 Place the subject on the body's agenda and read the decision back with meeting and date.
+      <!-- DONE (2026-11-24): decided in the PR (#2438): an active committee
+      stage goes, last, on its body's next regular meeting that is still open
+      and in the future; without one it waits (`placementPending`) and the
+      body's next created regular meeting takes it. The body's decision on that
+      agenda item (`agendaItem`, outcome adopted or rejected) closes the stage
+      with the outcome, the decision's date and `decidedInMeeting` (fragment
+      143); adopted walks the route on, rejected ends it at the step.
+      CommitteeAgendaPlacement + CommitteeStepAgendaListener. Stored-stage
+      engine only, like 10.3. -->
+- [x] 10.3 Refuse a single-actor grant on a committee step.
+      <!-- DONE (2026-11-23): ApprovalRouteService::record() hands every
+      completing act to CommitteeStepGuard before any write; on a committee
+      stage it is refused with the body's name (its id when the body cannot be
+      read). A return is still allowed. Stored-stage engine only: a route
+      compiled to a flow does not read stepKind. -->
+- [x] 10.4 PHPUnit on the return path and on the refusal.
+      <!-- DONE (2026-11-24): the refusal is proven by CommitteeStepGuardTest and
+      ApprovalRouteServiceTest::testOneActorCannotCloseACommitteeStep; the
+      return path by CommitteeAgendaPlacementTest (placement on the next
+      meeting, waiting for one, adopted and rejected returns) and
+      CommitteeStepAgendaListenerTest. -->
+
+## 11. Handover
+
+- [ ] 11.1 Give the dossiq lane the consumer half: the approval outcome on the case, the admissibility verdict, the remedy clause.
+- [x] 11.2 Confirm `ZgwZrcRulesService`'s refusal in dossiq stays where it is, so C-decisions-22 is not built twice.
+      <!-- Confirmed 2026-11-15 on dossiq development: the zrc-020 refusal of a resultaat whose
+      resultaattype the zaak's zaaktype does not carry now lives in
+      lib/Service/Zgw/ZrcSubResourceRules.php (rulesResultatenCreate), the delegate ZgwZrcRulesService
+      constructs and calls; the proposal's line reference (ZgwZrcRulesService.php:362) predates that
+      split. decidiq's lib/ holds no resultaattype check, so the rule is built once, in dossiq. -->
+- [ ] 11.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.

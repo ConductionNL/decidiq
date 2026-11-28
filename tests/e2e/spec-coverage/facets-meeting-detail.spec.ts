@@ -18,12 +18,8 @@
  * TEARDOWN_ORDER doc comment for the five schemas that already leaked this
  * way).
  *
- * @e2e openspec/specs/meeting-detail-view/spec.md#oral-questions-scoped-to-the-current-meeting
  *   (now served by the generic typed-agenda-item assertion — see the first test)
- * @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
- * @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
  * @e2e openspec/specs/meeting-detail-view/spec.md#audit-statement-facet-hidden-outside-association-mode
- * @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
  */
 import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test'
 
@@ -60,7 +56,6 @@ function objectId(body: any): string | null {
 	return body?.id ?? body?.['@self']?.id ?? null
 }
 
-// @e2e openspec/specs/meeting-detail-view/spec.md#oral-questions-scoped-to-the-current-meeting
 //
 // 🔴 THIS TEST CHANGED SUBJECT, NOT SCOPE. It used to create a
 // `mondelinge-vraag` and look for an "Oral questions" facet. Both are gone:
@@ -176,9 +171,6 @@ test('MeetingDetail: an agenda item renders under its configured type name', asy
 	}
 })
 
-// @e2e openspec/specs/meeting-detail-view/spec.md#interpellations-scheduled-at-the-current-meeting
-// @e2e openspec/specs/meeting-detail-view/spec.md#proxy-authorizations-scoped-to-the-current-meeting
-// @e2e openspec/specs/meeting-detail-view/spec.md#documents-routed-onto-the-meetings-agenda
 // @e2e openspec/specs/meeting-detail-view/spec.md#audit-statement-facet-hidden-outside-association-mode
 test('MeetingDetail: proxy-authorizations and routed-documents facets render their real empty states; interpellations and kascommissie are absent', async ({
 	page,

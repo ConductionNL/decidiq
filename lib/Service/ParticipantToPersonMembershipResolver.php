@@ -46,7 +46,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -55,7 +59,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
-class ParticipantToPersonMembershipResolver {
+class ParticipantToPersonMembershipResolver implements ParticipantToPersonMembershipResolverInterface {
 
 	/**
 	 * The decidesk register slug.
@@ -163,7 +167,10 @@ class ParticipantToPersonMembershipResolver {
 	 */
 	private function loadParticipant(string $participantId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $participantId, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(
+				id: $participantId,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA)
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver could not load the Participant',
@@ -271,7 +278,10 @@ class ParticipantToPersonMembershipResolver {
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::PERSON_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Person',
@@ -304,9 +314,10 @@ class ParticipantToPersonMembershipResolver {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: self::REGISTER,
-				schema: self::PERSON_SCHEMA,
-				uuid: $personId
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA),
+					uuid: $personId
+				)
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
@@ -355,7 +366,10 @@ class ParticipantToPersonMembershipResolver {
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Membership',
@@ -411,28 +425,6 @@ class ParticipantToPersonMembershipResolver {
 	 * @return array<string, mixed>|null
 	 */
 	private function toArray(mixed $entity): ?array {
-		if ($entity === null) {
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-		}
-
-		return null;
+		return (new ObjectResultNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class

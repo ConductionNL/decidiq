@@ -32,15 +32,16 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
+use OCA\Decidiq\Kernel\Contracts\DashboardWidgetServiceInterface;
 use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
+use OCA\Decidiq\Notification\Notifier;
 use OCA\Decidiq\Search\DecidiqSearchProvider;
-use OCA\Decidiq\Service\DashboardWidgetService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -59,7 +60,7 @@ use Psr\Log\LoggerInterface;
  * autowired.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class PlatformIntegrationRegistrar {
 	/**
@@ -75,6 +76,9 @@ class PlatformIntegrationRegistrar {
 		$this->registerSearch(context: $context);
 		$this->registerObjectWriteGuards(context: $context);
 		$this->registerDashboardWidget(context: $context);
+		// Decidiq's only notifier: without it no notice decidiq sends can be
+		// rendered in the bell (agenda-change-notices-reach-members, #1381).
+		$context->registerNotifierService(Notifier::class);
 
 	}//end register()
 
@@ -95,7 +99,7 @@ class PlatformIntegrationRegistrar {
 			DecidiqSearchProvider::class,
 			static function ($c): DecidiqSearchProvider {
 				return new DecidiqSearchProvider(
-					container: $c->get(ContainerInterface::class),
+					objectService: $c->get(ObjectServiceInterface::class),
 					urlGenerator: $c->get(IURLGenerator::class),
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
 					logger: $c->get(LoggerInterface::class),
@@ -173,7 +177,7 @@ class PlatformIntegrationRegistrar {
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
 					urlGenerator: $c->get(IURLGenerator::class),
 					timeFactory: $c->get(ITimeFactory::class),
-					widgetService: $c->get(DashboardWidgetService::class),
+					widgetService: $c->get(DashboardWidgetServiceInterface::class),
 				);
 			}
 		);

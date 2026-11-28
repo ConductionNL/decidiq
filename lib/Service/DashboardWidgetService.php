@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\DashboardWidgetServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -44,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/dashboard/spec.md
  */
-class DashboardWidgetService {
+class DashboardWidgetService implements DashboardWidgetServiceInterface {
 	/**
 	 * Constructor for DashboardWidgetService.
 	 *

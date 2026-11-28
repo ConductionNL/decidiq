@@ -160,6 +160,104 @@ export function flattenTree(tree) {
 }
 
 /**
+ * Find the sibling list that holds an agenda item, top level or sub-items.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} id Agenda item id.
+ *
+ * @return {?{list: Array<object>, index: number}} The list of nodes or items and the index, or null.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+function locateAgendaItem(tree, id) {
+	const key = String(id)
+	const top = tree.findIndex((node) => String(node.item.id) === key)
+	if (top !== -1) return { list: tree, index: top }
+	for (const node of tree) {
+		const child = node.children.findIndex((item) => String(item.id) === key)
+		if (child !== -1) return { list: node.children, index: child }
+	}
+	return null
+}
+
+/**
+ * Copy a tree so a move never mutates the rendered rows.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ *
+ * @return {Array<object>} A copy with fresh sibling arrays.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+function copyTree(tree) {
+	return (tree || []).map((node) => ({
+		item: node.item,
+		children: node.children.slice(),
+	}))
+}
+
+/**
+ * Move one agenda item a step up or down among its siblings. A parent takes
+ * its sub-items along; a sub-item stays under its parent.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} id Agenda item id to move.
+ * @param {number} delta -1 for up, 1 for down.
+ *
+ * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+export function moveAgendaItem(tree, id, delta) {
+	const copy = copyTree(tree)
+	const found = locateAgendaItem(copy, id)
+	if (!found) return null
+	const target = found.index + delta
+	if (target < 0 || target >= found.list.length) return null
+	const [moved] = found.list.splice(found.index, 1)
+	found.list.splice(target, 0, moved)
+	return flattenTree(copy).map((item) => item.id)
+}
+
+/**
+ * Put a dragged agenda item in the place of the item it was dropped on. Only
+ * a drop on a sibling (same level, same parent) moves anything.
+ *
+ * @param {Array<object>} tree Tree from buildAgendaTree().
+ * @param {string} dragId Id of the dragged item.
+ * @param {string} dropId Id of the item it was dropped on.
+ *
+ * @return {?Array<string>} The full id order for the reorder endpoint, or null when nothing moves.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-002-a-chair-or-secretary-reorders-the-agenda-on-the-meeting-page
+ */
+export function dropAgendaItem(tree, dragId, dropId) {
+	if (String(dragId) === String(dropId)) return null
+	const copy = copyTree(tree)
+	const from = locateAgendaItem(copy, dragId)
+	const to = locateAgendaItem(copy, dropId)
+	if (!from || !to || from.list !== to.list) return null
+	const [moved] = from.list.splice(from.index, 1)
+	from.list.splice(to.index, 0, moved)
+	return flattenTree(copy).map((item) => item.id)
+}
+
+/**
+ * Whether the caller may reorder the agenda and open the live screen: chair,
+ * secretary or admin, as answered by GET /api/meetings/{id}/my-roles. This is
+ * the same set AgendaAuthorizationGuard::requireChairOrAdmin() accepts.
+ *
+ * @param {?{chair: boolean, secretary: boolean, admin: boolean}} roles The server's answer.
+ *
+ * @return {boolean} True when the agenda tools should show.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+ */
+export function canManageAgenda(roles) {
+	return Boolean(roles && (roles.chair || roles.secretary || roles.admin))
+}
+
+/**
  * Frontend mirror of MeetingSeriesService::expandPattern() — used for the
  * live preview count in the Series tab. Returns ISO dates (date part only;
  * the server preserves the template time).
@@ -172,75 +270,160 @@ export function flattenTree(tree) {
  * @spec openspec/specs/meeting-management/spec.md
  */
 export function expandRecurrence(startDate, pattern) {
-	const frequency = pattern?.frequency
-	if (!['daily', 'weekly', 'monthly'].includes(frequency)) {
-		return { dates: [], truncated: false, error: 'frequency' }
+	const error = recurrencePatternError(pattern)
+	if (error) {
+		return { dates: [], truncated: false, error }
 	}
-	const interval = Number(pattern?.interval ?? 1)
-	if (!Number.isFinite(interval) || interval < 1) {
-		return { dates: [], truncated: false, error: 'interval' }
-	}
-	if (!pattern?.until) {
-		return { dates: [], truncated: false, error: 'until' }
-	}
-
-	const start = new Date(`${String(startDate).slice(0, 10)}T00:00:00Z`)
-	const until = new Date(`${String(pattern.until).slice(0, 10)}T23:59:59Z`)
-	if (Number.isNaN(start.getTime()) || Number.isNaN(until.getTime())) {
+	const rule = recurrenceRule(startDate, pattern)
+	if (!rule) {
 		return { dates: [], truncated: false, error: 'date' }
 	}
 
-	const exceptions = new Set(
-		(pattern.exceptions || []).map((e) => String(e).slice(0, 10)),
-	)
-	const dates = []
-	let truncated = false
-
-	const isoDay = (d) => d.toISOString().slice(0, 10)
-
-	if (frequency === 'monthly') {
-		const dayOfMonth = start.getUTCDate()
-		for (let offset = 0; ; offset += interval) {
-			const firstOfMonth = new Date(
-				Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + offset, 1),
-			)
-			if (firstOfMonth > until) break
-			const daysInMonth = new Date(
-				Date.UTC(
-					firstOfMonth.getUTCFullYear(),
-					firstOfMonth.getUTCMonth() + 1,
-					0,
-				),
-			).getUTCDate()
-			if (dayOfMonth > daysInMonth) continue
-			const occurrence = new Date(
-				Date.UTC(
-					firstOfMonth.getUTCFullYear(),
-					firstOfMonth.getUTCMonth(),
-					dayOfMonth,
-				),
-			)
-			if (occurrence > until) break
-			if (exceptions.has(isoDay(occurrence))) continue
-			if (dates.length >= MAX_SERIES_INSTANCES) {
-				truncated = true
-				break
-			}
-			dates.push(isoDay(occurrence))
-		}
-	} else {
-		const stepDays = frequency === 'daily' ? interval : interval * 7
-		for (let step = 0; ; step++) {
-			const occurrence = new Date(start.getTime() + step * stepDays * 86400000)
-			if (occurrence > until) break
-			if (exceptions.has(isoDay(occurrence))) continue
-			if (dates.length >= MAX_SERIES_INSTANCES) {
-				truncated = true
-				break
-			}
-			dates.push(isoDay(occurrence))
-		}
+	const series = {
+		until: rule.until,
+		exceptions: new Set(
+			(pattern.exceptions || []).map((e) => String(e).slice(0, 10)),
+		),
+		dates: [],
+		truncated: false,
 	}
+	collectOccurrences(
+		series,
+		rule.frequency === 'monthly'
+			? monthlyOccurrences(rule)
+			: steppedOccurrences(rule),
+	)
+	return { dates: series.dates, truncated: series.truncated, error: null }
+}
 
-	return { dates, truncated, error: null }
+/**
+ * Why a recurrence pattern cannot be expanded, or null when it can.
+ *
+ * @param {object} pattern The recurrence pattern.
+ * @return {string|null} 'frequency', 'interval', 'until' or null.
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function recurrencePatternError(pattern) {
+	if (!['daily', 'weekly', 'monthly'].includes(pattern?.frequency)) {
+		return 'frequency'
+	}
+	if (!hasValidInterval(pattern)) {
+		return 'interval'
+	}
+	return pattern?.until ? null : 'until'
+}
+
+/**
+ * Whether the pattern's interval (1 when absent) is a finite number of at
+ * least 1.
+ *
+ * @param {object} pattern The recurrence pattern.
+ * @return {boolean} True when the interval can be used.
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function hasValidInterval(pattern) {
+	const interval = Number(pattern?.interval ?? 1)
+	return Number.isFinite(interval) && interval >= 1
+}
+
+/**
+ * The series rule: the first day (00:00 UTC), the last moment (23:59:59
+ * UTC of the until day), the frequency and the interval; null when either
+ * date does not parse.
+ *
+ * @param {string} startDate ISO date (or date-time) of the first meeting.
+ * @param {object} pattern A valid recurrence pattern.
+ * @return {{start: Date, until: Date, frequency: string, interval: number}|null} The rule.
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function recurrenceRule(startDate, pattern) {
+	const start = new Date(`${String(startDate).slice(0, 10)}T00:00:00Z`)
+	const until = new Date(`${String(pattern.until).slice(0, 10)}T23:59:59Z`)
+	if (Number.isNaN(start.getTime()) || Number.isNaN(until.getTime())) {
+		return null
+	}
+	return {
+		start,
+		until,
+		frequency: pattern.frequency,
+		interval: Number(pattern.interval ?? 1),
+	}
+}
+
+/**
+ * The occurrences of a monthly series on the start's day of the month;
+ * a month without that day is skipped. Ends after the until month.
+ *
+ * @param {object} rule The series rule.
+ * @yields {Date} Each occurrence.
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function* monthlyOccurrences(rule) {
+	const { start, until, interval } = rule
+	const dayOfMonth = start.getUTCDate()
+	for (let offset = 0; ; offset += interval) {
+		const firstOfMonth = new Date(
+			Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + offset, 1),
+		)
+		if (firstOfMonth > until) return
+		const daysInMonth = new Date(
+			Date.UTC(
+				firstOfMonth.getUTCFullYear(),
+				firstOfMonth.getUTCMonth() + 1,
+				0,
+			),
+		).getUTCDate()
+		if (dayOfMonth > daysInMonth) continue
+		yield new Date(
+			Date.UTC(
+				firstOfMonth.getUTCFullYear(),
+				firstOfMonth.getUTCMonth(),
+				dayOfMonth,
+			),
+		)
+	}
+}
+
+/**
+ * The occurrences of a daily or weekly series, every interval days or
+ * weeks from the start, without end.
+ *
+ * @param {object} rule The series rule.
+ * @yields {Date} Each occurrence.
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function* steppedOccurrences(rule) {
+	const stepDays = rule.frequency === 'daily' ? rule.interval : rule.interval * 7
+	for (let step = 0; ; step++) {
+		yield new Date(rule.start.getTime() + step * stepDays * 86400000)
+	}
+}
+
+/**
+ * Add occurrences to the series until one passes the until moment; an
+ * exception day is skipped, and past MAX_SERIES_INSTANCES the series is
+ * marked truncated.
+ *
+ * @param {object} series The series being built, changed in place.
+ * @param {Iterable<Date>} occurrences The candidate occurrences, in order.
+ * @return {void}
+ *
+ * @spec openspec/specs/meeting-management/spec.md
+ */
+function collectOccurrences(series, occurrences) {
+	for (const occurrence of occurrences) {
+		if (occurrence > series.until) break
+		const day = occurrence.toISOString().slice(0, 10)
+		if (series.exceptions.has(day)) continue
+		if (series.dates.length >= MAX_SERIES_INSTANCES) {
+			series.truncated = true
+			break
+		}
+		series.dates.push(day)
+	}
 }

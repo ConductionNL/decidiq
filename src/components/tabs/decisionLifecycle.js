@@ -21,6 +21,25 @@ export const STATES = [
 ]
 
 /**
+ * English source label of each lifecycle state. The Lifecycle block, the step
+ * bar and the status pill of the simple decision page all name a state with
+ * these words, so one decision never reads two ways on one page.
+ *
+ * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+ */
+export const STATE_LABELS = {
+	draft: 'Draft',
+	proposed: 'Proposed',
+	deliberating: 'Deliberating',
+	voting: 'Voting',
+	// Not 'Decided': that key is a column heading and reads 'Besloten op'.
+	decided: 'Decision taken',
+	enacted: 'Enacted',
+	archived: 'Archived',
+	withdrawn: 'Withdrawn',
+}
+
+/**
  * CnStatusBadge color map for lifecycle states.
  *
  * @spec openspec/specs/decision-management/spec.md
@@ -50,4 +69,28 @@ export function buildTimeline(current) {
 		state,
 		status: idx === -1 || i > idx ? 'upcoming' : i === idx ? 'current' : 'done',
 	}))
+}
+
+/**
+ * Who may withdraw a decision (REQ-DWP-005). Mirrors
+ * DecisionWithdrawalService::ACTOR_KINDS; the server refuses anything else.
+ *
+ * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+ */
+export const WITHDRAWN_BY = ['bestuursorgaan', 'belanghebbende']
+
+/**
+ * Build the body for POST /api/decisions/{id}/withdraw, or null while the
+ * form cannot be sent yet: a withdrawal has to say who withdrew it.
+ *
+ * @param {string} withdrawnBy The actor kind chosen in the form
+ * @param {string} reason Why, written for the person who receives it
+ * @return {{withdrawnBy: string, reason: string}|null}
+ * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+ */
+export function buildWithdrawRequest(withdrawnBy, reason) {
+	if (!WITHDRAWN_BY.includes(withdrawnBy)) {
+		return null
+	}
+	return { withdrawnBy, reason: String(reason ?? '').trim() }
 }

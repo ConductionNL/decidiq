@@ -1,0 +1,807 @@
+{
+  "info": {
+    "_postman_id": "d3c1a9e2-7f40-4b1c-9e65-202611170365",
+    "name": "Decidiq Microsoft 365 calendar and Teams (platform-microsoft-365-calendar-and-teams)",
+    "description": "Contract tests for REQ-M365-001 and REQ-M365-004: a meeting's dates reach OpenRegister's calendar feed and a moved meeting shows only its new date; the Teams create route refuses a non-staff member; OpenRegister refuses a join address that is not a Teams address. Auth model as decidiq-admin-settings: collection-level noauth, per-request basic auth, a temporary non-staff account. Idempotent: seeds and tears down its own meeting, feed token and account. @spec openspec/changes/archive/2026-11-24-platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "Create non-staff member",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "userid",
+                  "value": "{{nonAdminUser}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{nonAdminPass}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 200 = created; OCS statuscode 102 = already exists (idempotent re-run).",
+                  "pm.test('Setup: member available', () => {",
+                  "    if (pm.response.code === 200) { return; }",
+                  "    pm.expect(pm.response.json()?.ocs?.meta?.statuscode).to.eql(102);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create a digital meeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Newman m365 {{runId}}\",\n  \"meetingType\": \"committee\",\n  \"meetingMode\": \"digital\",\n  \"location\": \"Online\",\n  \"scheduledDate\": \"2031-01-15T12:00:00Z\",\n  \"endDate\": \"2031-01-15T14:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const m = pm.response.json();",
+                  "pm.collectionVariables.set('meetingId', m.id || (m['@self'] || {}).id || m.uuid);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('runId')) { pm.collectionVariables.set('runId', Date.now().toString(36)); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Find the meeting schema",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/registers/decidiq?_extend[]=schemas"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('register answers', () => pm.response.to.have.status(200));",
+                  "const schemas = pm.response.json().schemas || [];",
+                  "const meeting = schemas.find((s) => s && String(s.slug || '').toLowerCase() === 'meeting');",
+                  "pm.test('the register has the meeting schema', () => pm.expect(meeting).to.be.an('object'));",
+                  "pm.collectionVariables.set('meetingSchemaId', String(meeting.id));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. The meeting dates reach the calendar feed (REQ-M365-001)",
+      "item": [
+        {
+          "name": "Mint a feed token over meeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/calendar-feeds"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scopeType\": \"schema\",\n  \"scopeId\": \"{{meetingSchemaId}}\",\n  \"label\": \"newman m365\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('token minted', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const t = pm.response.json();",
+                  "pm.test('the token has an address', () => pm.expect(t.url).to.be.a('string').and.not.empty);",
+                  "pm.collectionVariables.set('feedUrl', t.url);",
+                  "pm.collectionVariables.set('feedId', String(t.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "The feed holds the meeting as a VEVENT",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{feedUrl}}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('feed answers without a session', () => pm.response.to.have.status(200));",
+                  "const ics = pm.response.text();",
+                  "const run = pm.collectionVariables.get('runId');",
+                  "const start = ics.indexOf('Newman m365 ' + run);",
+                  "pm.test('the meeting is in the feed', () => pm.expect(start).to.be.above(-1));",
+                  "const begin = ics.lastIndexOf('BEGIN:VEVENT', start);",
+                  "const event = ics.slice(begin, ics.indexOf('END:VEVENT', start));",
+                  "pm.test('it has a start on 15 January 2031', () => pm.expect(event).to.match(/DTSTART[^:]*:20310115/));",
+                  "pm.test('it has an end', () => pm.expect(event).to.match(/DTEND[^:]*:20310115/));",
+                  "pm.test('it has the location', () => pm.expect(event).to.include('LOCATION:Online'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Move the meeting a week",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduledDate\": \"2031-01-22T12:00:00Z\",\n  \"endDate\": \"2031-01-22T14:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('meeting moved', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Only the new date is in the feed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{feedUrl}}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('feed answers', () => pm.response.to.have.status(200));",
+                  "const ics = pm.response.text();",
+                  "const start = ics.indexOf('Newman m365 ' + pm.collectionVariables.get('runId'));",
+                  "const event = ics.slice(ics.lastIndexOf('BEGIN:VEVENT', start), ics.indexOf('END:VEVENT', start));",
+                  "pm.test('the new date is there', () => pm.expect(event).to.match(/DTSTART[^:]*:20310122/));",
+                  "pm.test('the old date is gone', () => pm.expect(ics).to.not.match(/DTSTART[^:]*:20310115/));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Teams meeting (REQ-M365-004)",
+      "item": [
+        {
+          "name": "A non-staff member cannot create a Teams meeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{meetingId}}/teams-meeting"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{nonAdminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{nonAdminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 for a non-staff member', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A non-Teams join address is refused",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamsMeeting\": {\n    \"joinUrl\": \"https://example.com/meet/123\",\n    \"createdBy\": \"Newman\",\n    \"createdAt\": \"2031-01-01T10:00:00Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OpenRegister refuses the address', () => pm.expect(pm.response.code).to.be.within(400, 499));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A Teams join address is accepted",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamsMeeting\": {\n    \"joinUrl\": \"https://teams.microsoft.com/l/meetup-join/newman\",\n    \"createdBy\": \"Newman\",\n    \"createdAt\": \"2031-01-01T10:00:00Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('saved', () => pm.expect(pm.response.code).to.be.below(300));",
+                  "const m = pm.response.json();",
+                  "pm.test('the join address is kept', () => pm.expect((m.teamsMeeting || {}).joinUrl).to.eql('https://teams.microsoft.com/l/meetup-join/newman'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Teardown",
+      "item": [
+        {
+          "name": "Revoke the feed token",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/calendar-feeds/{{feedId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('revoked', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "The revoked address answers 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{feedUrl}}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 after revoking', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete the meeting",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{meetingId}}"
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('deleted', () => pm.expect(pm.response.code).to.be.below(300));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete the member",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{adminUser}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPass}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "OCS-APIRequest",
+                "value": "true"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{nonAdminUser}}?format=json"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('member removed', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminUser",
+      "value": "admin"
+    },
+    {
+      "key": "adminPass",
+      "value": "admin"
+    },
+    {
+      "key": "nonAdminUser",
+      "value": "decidiq-m365-member"
+    },
+    {
+      "key": "nonAdminPass",
+      "value": "Decidiq-M365-Member!42x"
+    }
+  ]
+}

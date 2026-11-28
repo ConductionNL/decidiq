@@ -33,7 +33,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 
@@ -42,21 +44,12 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationStaffGuard {
-	/**
-	 * Outcome: the caller holds the required authority.
-	 */
-	public const ALLOWED = 'allowed';
+class PublicationStaffGuard implements PublicationStaffGuardInterface {
 
 	/**
 	 * Outcome: the caller does not hold the required authority.
 	 */
 	public const FORBIDDEN = 'forbidden';
-
-	/**
-	 * Outcome: the PublicationRecord the check was keyed by does not exist.
-	 */
-	public const RECORD_NOT_FOUND = 'record-not-found';
 
 	/**
 	 * Constructor for PublicationStaffGuard.
@@ -135,7 +128,7 @@ class PublicationStaffGuard {
 			return self::ALLOWED;
 		}
 
-		$record = $this->objectService->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
+		$record = $this->objectService->find(id: $recordId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-record'));
 		if ($record === null) {
 			return self::RECORD_NOT_FOUND;
 		}
@@ -189,8 +182,12 @@ class PublicationStaffGuard {
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function resolveMeetingId(string $sourceType, string $sourceId): ?string {
-		if ($sourceType === 'agenda') {
+		if ($sourceType === 'agenda' || $sourceType === 'activity') {
 			return $sourceId;
+		}
+
+		if ($sourceType === 'incoming-document') {
+			return $this->incomingDocumentMeetingId(sourceId: $sourceId);
 		}
 
 		$schema = 'decision';
@@ -198,7 +195,7 @@ class PublicationStaffGuard {
 			$schema = 'minutes';
 		}
 
-		$entity = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}
@@ -215,4 +212,29 @@ class PublicationStaffGuard {
 
 		return null;
 	}//end resolveMeetingId()
+
+	/**
+	 * The meeting of the "lijst ingekomen stukken" agenda item an incoming document is placed on.
+	 *
+	 * @param string $sourceId UUID of the IngekomenStuk
+	 *
+	 * @return string|null The meeting UUID, or null when the document is not placed
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 */
+	private function incomingDocumentMeetingId(string $sourceId): ?string {
+		$stuk = $this->objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'ingekomen-stuk'));
+		$agendaItemId = (string)($stuk?->jsonSerialize()['listAgendaItem'] ?? '');
+		if ($agendaItemId === '') {
+			return null;
+		}
+
+		$agendaItem = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
+		$meetingId  = (string)($agendaItem?->jsonSerialize()['meeting'] ?? '');
+		if ($meetingId === '') {
+			return null;
+		}
+
+		return $meetingId;
+	}//end incomingDocumentMeetingId()
 }//end class

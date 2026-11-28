@@ -1,0 +1,850 @@
+{
+    "compute:plain": 500.0,
+    "compute:rounding": 27.78,
+    "compute:negative-time": 0.0,
+    "compute:negative-count": 0.0,
+    "compute:negative-rate": 0.0,
+    "compute:zero": 0.0,
+    "meeting:lookup-missing": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "m1",
+                    "decidiq",
+                    "meeting"
+                ]
+            }
+        ]
+    },
+    "meeting:lookup-found": {
+        "returns": 180.0,
+        "calls": [
+            {
+                "find": [
+                    "m1",
+                    "decidiq",
+                    "meeting"
+                ]
+            },
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:passed-no-rate": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            }
+        ]
+    },
+    "meeting:rate-not-numeric": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            }
+        ]
+    },
+    "meeting:rate-zero": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            }
+        ]
+    },
+    "meeting:rate-negative": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            }
+        ]
+    },
+    "meeting:rate-text": {
+        "returns": 56.25,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:body-missing": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            }
+        ]
+    },
+    "meeting:body-throws": {
+        "returns": null,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq MeetingCostService: hourlyRate resolution failed",
+                    {
+                        "error": "find down"
+                    }
+                ]
+            }
+        ]
+    },
+    "meeting:no-body-link": {
+        "returns": null,
+        "calls": []
+    },
+    "meeting:relation-object": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:relation-object-no-id": {
+        "returns": null,
+        "calls": []
+    },
+    "meeting:relation-other-key": {
+        "returns": null,
+        "calls": []
+    },
+    "meeting:relation-numeric-id": {
+        "returns": {
+            "throws": "TypeError"
+        },
+        "calls": []
+    },
+    "meeting:relations-top-level": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:relations-not-array": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:flat-field": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:flat-field-not-string": {
+        "returns": null,
+        "calls": []
+    },
+    "meeting:never-opened": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:opened-empty": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:opened-unparsable": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:closed-unparsable": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:closed-before-opened": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:still-open-future": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:still-open-empty": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:participants-throw": {
+        "returns": 0.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq MeetingCostService: attendee count failed",
+                    {
+                        "meetingId": "m1",
+                        "error": "participants down"
+                    }
+                ]
+            }
+        ]
+    },
+    "meeting:roster-no-attendance": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:entities": {
+        "returns": 180.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:entities-no-uuid": {
+        "returns": 180.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:roster-with-junk": {
+        "returns": 270.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:attendance-records": {
+        "returns": 90.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    },
+    "meeting:attendance-empty": {
+        "returns": 180.0,
+        "calls": [
+            {
+                "find": [
+                    "b1",
+                    "decidiq",
+                    "governance-body"
+                ]
+            },
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "participant"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "governanceBody": "b1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "meeting-attendance",
+                        "meeting": "m1"
+                    },
+                    "limit": 1000
+                }
+            }
+        ]
+    }
+}

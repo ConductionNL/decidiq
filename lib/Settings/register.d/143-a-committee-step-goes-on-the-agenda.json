@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process task 10.2 (REQ-DWP-010). A committee stage that becomes active is placed as an agenda item on its body's next regular meeting (the stage's `agendaItem`, from fragment 46; `placementPending` while the body has no such meeting yet). When the body records a decision on that agenda item, the stage closes with the body's outcome, the date of the decision and the meeting it was taken in: `decidedInMeeting`, added here. Properties only, so no schema version moves, as in 137-a-committee-step-names-its-body.",
+  "_spec": "openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md#requirement-req-dwp-010-a-case-reaches-a-committee-and-the-decision-returns",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "properties": {
+          "decidedInMeeting": {
+            "title": "Decided in meeting",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "description": "The meeting in which the committee body decided this stage. Set when the body's decision on the stage's agenda item closes a `committee` stage; empty on every other stage (REQ-DWP-010)."
+          }
+        }
+      }
+    }
+  }
+}

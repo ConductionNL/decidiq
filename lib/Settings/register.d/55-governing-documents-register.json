@@ -43,7 +43,8 @@
               "group": "public",
               "match": {
                 "isPublic": true
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -229,6 +230,7 @@
           "versionNumber": {
             "title": "Version number",
             "type": "integer",
+            "minimum": 1,
             "facetable": true,
             "description": "Positive integer version number, unique per document (uniqueness enforced save-time, not by a schema constraint). Required.",
             "example": 2

@@ -24,6 +24,9 @@ namespace OCA\Decidiq\Tests\Integration\Service;
 use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Integration tests for ActionItemAnalyticsService.
@@ -96,9 +99,10 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 			foreach ($this->createdIds as $id) {
 				try {
 					$this->objectService->deleteObject(
-						register: 'decidiq',
-						schema: 'action-item',
-						id: $id
+						new ObjectDeletion(
+							uuid: $id,
+							target: new ObjectFindTarget(register: 'decidiq', schema: 'action-item')
+						)
 					);
 				} catch (\Throwable) {
 					// Best-effort cleanup — ignore failures.
@@ -129,14 +133,13 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 		// Seed one overdue open action-item.
 		try {
 			$entity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'action-item',
 				object: [
 					'title' => 'Integration test action item (wave-9 C1)',
 					'taskStatus' => 'open',
 					'dueDate' => date('Y-m-d', strtotime('-3 days')),
 					'createdAt' => date('Y-m-d', strtotime('-10 days')),
-				]
+				],
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'action-item'))
 			);
 		} catch (\Throwable $e) {
 			$this->markTestSkipped(

@@ -32,6 +32,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindTarget;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -99,9 +102,6 @@ class VotingRoundCloser {
 				result: (string)($tally['result'] ?? 'invalid'),
 				votingRoundId: $votingRoundId
 			);
-		}
-
-		if ($round !== null) {
 			$this->resolveDecisionStage(
 				round: $round,
 				result: (string)($tally['result'] ?? 'invalid'),
@@ -151,7 +151,10 @@ class VotingRoundCloser {
 		}
 
 		$round['chairCastingVote'] = $chairCasting;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 	}//end applyChairCastingVote()
 
@@ -170,9 +173,15 @@ class VotingRoundCloser {
 			return null;
 		}
 
-		if (($round['closedAt'] ?? null) === null) {
+		// A closing time preset when the round was opened and still ahead does
+		// not mean closed: closing early stamps the actual moment (#1379).
+		$closedAt = (string)($round['closedAt'] ?? '');
+		if ($closedAt === '' || strtotime($closedAt) > time()) {
 			$round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+			$this->objectService()->saveObject(
+				object: $round,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+			);
 		}
 
 		return $round;
@@ -344,7 +353,10 @@ class VotingRoundCloser {
 			$stage['status'] = 'decided';
 			$stage['outcome'] = $outcome;
 			$stage['decidedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidiq', schema: 'decision-stage', object: $stage);
+			$this->objectService()->saveObject(
+				object: $stage,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'))
+			);
 
 			$this->logger->info(
 				'Decidiq: decision stage resolved by its voting round',
@@ -458,6 +470,7 @@ class VotingRoundCloser {
 	 * @return void
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-005-ranked-choice-rounds-inherit-secret-ballot-rules
 	 */
 	private function anonymiseVotes(string $votingRoundId): void {
 		try {
@@ -475,7 +488,15 @@ class VotingRoundCloser {
 			foreach ($voteEntities as $voteEntity) {
 				$vote = $voteEntity->jsonSerialize();
 				$vote['value'] = null;
-				$objectService->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
+				// A ranked ballot's order says as much as its value (REQ-PRF-005).
+				if (array_key_exists('ranking', $vote) === true) {
+					$vote['ranking'] = null;
+				}
+
+				$objectService->saveObject(
+					object: $vote,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'vote'))
+				);
 			}
 
 			$this->logger->info('Decidiq: votes anonymised', ['votingRoundId' => $votingRoundId]);
@@ -515,7 +536,7 @@ class VotingRoundCloser {
 	 *
 	 * Resolves the amendment's parent motion (flat `amends` property or
 	 * structured relation) and delegates to MotionService::applyAmendment(),
-	 * which appends the amendment as an annotated section of the motion text.
+	 * which works the amendment's change into the motion text (#1394).
 	 * Failures are logged and never undo the recorded vote result.
 	 *
 	 * @param string $amendmentId The adopted amendment UUID
@@ -573,7 +594,7 @@ class VotingRoundCloser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $objectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService()->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}

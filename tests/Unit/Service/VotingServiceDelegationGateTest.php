@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\OriPublicationService;
@@ -61,6 +62,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/user-settings/spec.md
  */
 class VotingServiceDelegationGateTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Build a VotingService whose container serves an open round without proxy notes.
@@ -94,7 +97,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			NotificationPreferenceService::class => $prefService,
+			NotificationPreferenceServiceInterface::class => $prefService,
 		];
 
 		$container = $this->createMock(ContainerInterface::class);
@@ -158,6 +161,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 				relationFilter: $relationFilter,
 				objectService: $objectService,
 				container: $container,
+				recusal: $this->createMock(\OCA\Decidiq\Service\RecusalGuard::class),
 			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
@@ -212,8 +216,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 		$service = $this->buildService(delegationActive: true);
 
 		try {
-			$service->castVote(
-				votingRoundId: 'round-1',
+			$this->castVoteOn($service, votingRoundId: 'round-1',
 				participantId: 'participant-b',
 				value: 'for',
 				isProxy: true,
@@ -248,8 +251,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessage('Geen geldige volmacht gevonden');
 
-		$service->castVote(
-			votingRoundId: 'round-1',
+		$this->castVoteOn($service, votingRoundId: 'round-1',
 			participantId: 'participant-b',
 			value: 'for',
 			isProxy: true,
@@ -308,7 +310,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 
 		$services = [
 			'OCA\OpenRegister\Service\ObjectService' => $objectService,
-			NotificationPreferenceService::class => $prefService,
+			NotificationPreferenceServiceInterface::class => $prefService,
 		];
 
 		$container = $this->createMock(ContainerInterface::class);
@@ -320,8 +322,7 @@ class VotingServiceDelegationGateTest extends TestCase {
 
 		$service = $this->assembleVotingService(container: $container, objectService: $objectService);
 
-		$vote = $service->castVote(
-			votingRoundId: 'round-1',
+		$vote = $this->castVoteOn($service, votingRoundId: 'round-1',
 			participantId: 'participant-b',
 			value: 'for',
 			isProxy: true,

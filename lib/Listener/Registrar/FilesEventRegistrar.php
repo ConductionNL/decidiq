@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * Decidiq Files Event Registrar
+ *
+ * Registers the listeners that react to Nextcloud Files events: an Office
+ * paper added to a meeting or agenda item folder is queued for conversion to
+ * PDF (agenda-office-files-to-pdf, REQ-OPDF-001).
+ *
+ * @category Listener
+ * @package  OCA\Decidiq\Listener\Registrar
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Listener\Registrar;
+
+use OCA\Decidiq\Listener\DocumentScanOnUploadListener;
+use OCA\Decidiq\Listener\FileWriteEvent;
+use OCA\Decidiq\Listener\OfficePaperAddedListener;
+use OCA\Decidiq\Listener\SealedObjectFileWriteListener;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Files\Events\Node\NodeCreatedEvent;
+use OCP\Files\Events\Node\NodeWrittenEvent;
+
+/**
+ * Files event listener registration.
+ *
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
+ */
+final class FilesEventRegistrar {
+
+	/**
+	 * Register the Files event listeners.
+	 *
+	 * The listener returns at once for anything but an Office file in a
+	 * folder named after a decidiq meeting or agenda item, and only queues a
+	 * job: the upload never waits for a conversion. A file change in the
+	 * folder of a sealed record is refused before it is written.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
+	 * @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-003-version-immutability-once-effective
+	 *
+	 * @return void
+	 */
+	public function register(IRegistrationContext $context): void {
+		$context->registerEventListener(event: NodeCreatedEvent::class, listener: OfficePaperAddedListener::class);
+		$context->registerEventListener(event: NodeWrittenEvent::class, listener: OfficePaperAddedListener::class);
+		// @spec openspec/changes/archive/2026-11-20-document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		$context->registerEventListener(event: NodeCreatedEvent::class, listener: DocumentScanOnUploadListener::class);
+		$context->registerEventListener(event: NodeWrittenEvent::class, listener: DocumentScanOnUploadListener::class);
+		// @spec openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-003-version-immutability-once-effective
+		foreach (FileWriteEvent::EVENTS as $before) {
+			$context->registerEventListener(event: $before, listener: SealedObjectFileWriteListener::class);
+		}
+	}//end register()
+}//end class

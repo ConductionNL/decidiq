@@ -751,8 +751,6 @@ The Decision Detail page MUST render three declarative `object-list` widgets, ea
 - WHEN a user opens Decision D's detail page
 - THEN the "Member consultations" widget renders its configured empty-state text instead of an empty table
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "No member consultations reference this decision yet."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 #### Scenario: A decision referenced by a WOR consultation request
 
 - GIVEN a `ConsultationRequest` object whose `relatedDecision` field is set to Decision D
@@ -806,8 +804,6 @@ The Decision Detail page MUST render a declarative `object-list` widget listing 
 - WHEN a user opens Decision D's detail page
 - THEN the "Commitments" widget lists that commitment with its deadline and lifecycle status
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: commitments facet lists a toezegging linked via relatedMotion" — creates a real toezegging referencing the decision and asserts it renders); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
-
 ### Requirement: Decision detail surfaces confidentiality status (REQ-DFC-005)
 
 The Decision Detail page MUST render a read-only declarative `object-list` widget listing `geheimhouding` objects whose `targetDecision` property equals the current decision's id (the case where this decision, or the content it represents, is itself under geheimhouding), showing the resolved ground, the lifecycle state, and the `ratificationDeadline`. This widget MUST NOT offer create/edit actions (`allowCreate: false`) — geheimhouding is imposed through the geheimhoudingenregister's own imposing flow, not from the Decision detail page. Widgets for `Geheimhouding.ratificationDecision` and `Geheimhouding.dissolutionDecision` (this decision acting as another record's confirming or lifting besluit) are explicitly out of scope for this requirement.
@@ -827,7 +823,141 @@ The Decision Detail page MUST render a read-only declarative `object-list` widge
 - WHEN a user opens Decision D's detail page
 - THEN the "Confidentiality" widget renders its configured empty-state text
 
-@e2e exclude exercised by tests/e2e/spec-coverage/facets-decision-detail.spec.ts ("DecisionDetail: consultation, advisory-opinion, zienswijze and confidentiality facets render their real empty states" — asserts "This decision has no confidentiality restriction."); that test's own @e2e anchor still targets the pre-archival openspec/changes/decision-facet-composition/... path so this gate does not match it — recorded here rather than reported as a gap.
+### Requirement: REQ-SDP-001 The next step is the one primary button
+
+In the simple structure, the decision page MUST show one primary button: the transition that leaves the decision's current state. The button MUST post to the guarded transition endpoint with the action and nothing else. The page MUST NOT decide who may take a step. The full structure MUST keep the page as the manifest declares it.
+
+#### Scenario: A decision in deliberation
+@e2e exclude Read from the built page in simpleDecisionPage.spec.js with the library's own visibility evaluator; the suite has no fixture that holds a decision in each state.
+- **GIVEN** the simple structure and a decision whose lifecycle is `deliberating`
+- **WHEN** somebody opens it
+- **THEN** the primary button MUST be Open voting
+- **AND** no other transition MUST be offered as a button
+
+#### Scenario: Every transition the server has is offered in a state the server allows
+@e2e exclude A comparison with DecisionTransitionGuard's transition map, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** the transition map in `DecisionTransitionGuard`
+- **WHEN** the header actions are read
+- **THEN** each of its six actions MUST be offered
+- **AND** none MUST be offered in a state the map does not allow it from
+
+#### Scenario: A member tries a chair-only step
+@e2e exclude The refusal is DecisionLifecycleService's and is covered by DecisionLifecycleServiceTest; simpleDecisionPage.spec.js asserts the page sends the action only and names no role.
+- **GIVEN** a decision in deliberation and a member who is not the chair
+- **WHEN** they choose Open voting
+- **THEN** the server MUST refuse it, as it does today
+- **AND** the page MUST show the server's message
+
+#### Scenario: An enacted decision that is not public
+@e2e exclude Read from the built page in simpleDecisionPage.spec.js.
+- **GIVEN** a decision whose lifecycle is `enacted` and whose publication state is not `public`
+- **WHEN** somebody opens it
+- **THEN** the primary button MUST be Publish, and it MUST ask before it publishes
+
+#### Scenario: The full structure
+@e2e exclude An equality with the manifest, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** `menu_structure` is `full`
+- **WHEN** the decision page and the motion page are built
+- **THEN** each MUST equal the page the manifest declares
+
+### Requirement: REQ-SDP-002 A what-now card lists what the state still needs
+
+Every state with a next step MUST have a card with a checklist. Each item MUST read a field of the decision. A decision without a state MUST show no card and no next-step button.
+
+#### Scenario: A draft with its text written
+@e2e exclude Resolved with the library's resolveNextStep in simpleDecisionPage.spec.js.
+- **GIVEN** a draft decision with a text, a proposer and a legal basis
+- **WHEN** the card is drawn
+- **THEN** all three items MUST be ticked
+
+#### Scenario: A field that does not exist
+@e2e exclude A reading of the schema, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** the checklists, the pill and the side column
+- **WHEN** their fields are compared with the decision schema
+- **THEN** every field MUST exist
+
+### Requirement: REQ-SDP-003 A step bar shows where the decision stands
+
+The page MUST show the seven states of a decision as a bar, with the current one marked. The bar MUST NOT move a decision. A withdrawn decision MUST be said to be withdrawn in words.
+
+#### Scenario: A decision in voting
+@e2e exclude The model is buildTimeline, asserted in simpleDecisionPage.spec.js and decisionLifecycle.spec.js.
+- **GIVEN** a decision whose lifecycle is `voting`
+- **WHEN** the bar is drawn
+- **THEN** Draft, Proposed and Deliberating MUST be done, Voting current, and the rest upcoming
+
+### Requirement: REQ-SDP-004 The blocks of a decision sit behind five tabs and More
+
+In the simple structure the fifteen blocks MUST be behind the tabs Content, Route and voting, Documents, Consultation and Publication, with the rest under More. Every block the manifest declares MUST be in exactly one tab. The Lifecycle block MUST stay on the page.
+
+#### Scenario: No block is lost
+@e2e exclude A comparison of widget ids, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** the fifteen widgets the manifest declares
+- **WHEN** the tabs and their sections are read
+- **THEN** each widget MUST be in one tab, and in one only
+
+#### Scenario: A block a tab cannot resolve
+@e2e exclude A reading of widget types against the registry and the library's catalog, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** the blocks in the tabs
+- **WHEN** their types are read
+- **THEN** none MUST be `custom`
+- **AND** each MUST be a library widget, the sections container or a component in the app registry
+
+### Requirement: REQ-SDP-005 The motion page has the same header
+
+In the simple structure the motion page MUST show the state as a pill, one primary button for the step that leaves the state, and a what-now card. The buttons MUST post to the motion transition endpoint with the words the Stage block sends. Its blocks MUST stay where they are.
+
+#### Scenario: A motion in voting
+@e2e exclude Read from the built page in simpleDecisionPage.spec.js.
+- **GIVEN** a motion whose lifecycle is `voting`
+- **WHEN** somebody opens it
+- **THEN** the primary button MUST be Record as adopted
+- **AND** Record as rejected MUST be offered beside it
+
+#### Scenario: The blocks stay
+@e2e exclude An equality of widgets and layout with the full structure, asserted in simpleDecisionPage.spec.js.
+- **GIVEN** the simple structure
+- **WHEN** the motion page is built
+- **THEN** its widgets and its layout MUST equal the full structure's
+
+### Requirement: Decision urgency fields
+
+The `decision` schema SHALL carry four additive optional urgency properties: `isUrgent` (boolean, default false), `urgencyReason` (string — required when `isUrgent` is true, enforced by the trigger flow), `urgencyDeclaredBy` (the declaring Nextcloud user id), and `urgencyDeclaredAt` (date-time). These fields SHALL be orthogonal to `lifecycle`, `outcome`, and `isPublished` — no lifecycle state or transition SHALL be added or changed (the existing `x-openregister-lifecycle` block is extended with nothing; urgency mirrors how `isPublished` already sits beside the lifecycle). The urgency fields SHALL be writable only through the guarded urgency-trigger flow and MUST be rejected when set directly through ordinary object update requests (same server-side field-guard posture as `isPublished`/`publishedAt`). Because OR `saveObject` is PUT-semantic, every decision write path MUST carry the urgency fields forward; an unrelated update to an urgent decision MUST NOT clear them.
+
+#### Scenario: Urgency fields are additive and lifecycle-orthogonal
+
+- GIVEN the decidesk register definition after this change
+- WHEN the `decision` schema is inspected
+- THEN it contains `isUrgent`, `urgencyReason`, `urgencyDeclaredBy`, `urgencyDeclaredAt` as optional properties
+- AND the `x-openregister-lifecycle` transition map is byte-identical to the pre-change map
+
+#### Scenario: Direct client write to isUrgent rejected
+
+- WHEN a client sends an object update setting `isUrgent: true` on a decision outside the urgency-trigger flow
+- THEN the write to the urgency fields is rejected and the stored values are unchanged
+
+#### Scenario: Unrelated update preserves urgency fields
+
+- GIVEN an urgent decision with `isUrgent=true` and a stored `urgencyReason`
+- WHEN a user updates only the decision's `title`
+- THEN `isUrgent`, `urgencyReason`, `urgencyDeclaredBy`, and `urgencyDeclaredAt` survive unchanged
+
+### Requirement: Declarative awaitingRatification derivation
+
+The `decision` schema SHALL expose an `awaitingRatification` field derived declaratively (`x-openregister-calculations`, ADR-031) from the decision's own fields and its related DecisionStage objects: true if and only if `isUrgent` is true AND at least one related stage has `stageType=ratifying` with a non-terminal `status` (neither `decided` nor `skipped`). No imperative Service SHALL compute this value; list, detail, and dashboard consumers SHALL read the materialised field and SHALL NOT recompute it (mirroring the existing `currentStage`/`routeComplete` pattern).
+
+#### Scenario: Derivation over the route
+
+- GIVEN an urgent decision with a ratifying stage in `status=pending`
+- WHEN the decision is loaded
+- THEN `awaitingRatification` is true
+- AND when the ratifying stage reaches `decided`, `awaitingRatification` derives to false
+
+#### Scenario: Non-urgent decisions never await ratification
+
+- GIVEN a decision with `isUrgent=false` that happens to carry a `ratifying` stage in its regular route (e.g. an MT → RvB → RvC route)
+- WHEN the decision is loaded
+- THEN `awaitingRatification` is false, because the derivation requires `isUrgent`
 
 ## User Stories
 
@@ -849,3 +979,44 @@ The Decision Detail page MUST render a read-only declarative `object-list` widge
 - Decision list supports search, sort, and filter by status/body/date
 - Detail view uses CnDetailPage + CnObjectSidebar with state machine visualization
 - OpenRaadsinformatie `Besluit` mapping is available for each decision
+
+### Requirement: REQ-FUP-001 An adopted decision takes dated progress updates
+
+The app SHALL let the secretariat add an implementation update to a decision that is decided or enacted with outcome adopted: a date, a status (not started, on track, delayed, completed, will not be implemented), an optional percentage and a text, with evidence files attached. It SHALL refuse updates on any other decision. The decision page and the motion page SHALL list the updates newest first.
+
+#### Scenario: The griffier reports progress on a motion
+- GIVEN the council adopted "Motie meer groen in de wijk" in January
+- WHEN the griffier adds an update on 15 June, status delayed, 45 percent, "Aanbesteding uitgesteld tot na de zomer"
+- THEN the motion page lists that update above the one of 1 March
+
+#### Scenario: A rejected motion takes no updates
+- GIVEN a motion the council rejected
+- WHEN the griffier tries to add an update
+- THEN the update is refused with a message that only adopted decisions are followed up
+
+### Requirement: REQ-FUP-002 The decision shows its current implementation status
+
+The decision SHALL carry an implementation status and its date, taken from its newest update by date. A back-dated update SHALL not replace a newer status.
+
+#### Scenario: The status follows the newest update
+- GIVEN a motion whose newest update says on track
+- WHEN an update dated later says delayed
+- THEN the motion's implementation status reads delayed with that date
+
+### Requirement: REQ-FUP-003 The motions and decisions lists filter on implementation status
+
+The Motions and Decisions lists SHALL show the implementation status as a column and offer it as a quick filter.
+
+#### Scenario: The council asks which motions are delayed
+- GIVEN twelve adopted motions, three of them delayed
+- WHEN the griffier filters the Motions list on delayed
+- THEN three motions are listed
+
+### Requirement: REQ-FUP-004 The secretariat is reminded when nobody reported for 90 days
+
+The decision schema SHALL declare a scheduled notification that tells the secretariat about each adopted decision whose status is not completed or will not be implemented and whose last update, or decision date when there is none, is more than 90 days old.
+
+#### Scenario: A silent motion is flagged
+- GIVEN an adopted motion whose last update is 100 days old and says on track
+- WHEN the daily notification run fires
+- THEN each member of the secretariat gets "No progress reported: Motie meer groen in de wijk"

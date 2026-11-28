@@ -1,0 +1,41 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - an adopted amendment changes the motion text (#1394). MotionAmendmentService::applyAmendment() used to paste the amendment's title and text under the motion behind a '---' line, so an adopted motion never had a final wording and the original lived only in the audit trail. An amendment now carries a structured change: targetPassage (the exact words it replaces, optional) and proposedText (the replacement, or the whole new wording when no passage is given). On adoption the change is worked into the motion's text, the motion's first wording is kept once in originalText, and every applied amendment appends a before/after entry to amendmentHistory. All three are optional and nullable, so no stored decision changes meaning. Version 1.3.0 is above the 1.2.0 of 80-decision-as-a-walked-process, which the scalar merge would otherwise keep.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "version": "1.3.0",
+        "description": "Patched by an-adopted-amendment-changes-the-motion-text: an amendment names the passage it replaces, and a motion keeps its original wording and the history of the amendments worked into it.",
+        "properties": {
+          "targetPassage": {
+            "title": "Passage to replace",
+            "type": "string",
+            "nullable": true,
+            "description": "The exact words in the motion that this amendment replaces. Leave empty to replace the whole text.",
+            "x-notes": "Used when decisionType=amendment. On adoption, MotionAmendmentService::applyAmendment() replaces the first occurrence of this passage in the parent motion's text with proposedText. When it is empty, proposedText (or, for a legacy amendment, text) becomes the whole new wording. A passage that no longer occurs in the motion is refused and logged, and the motion text is left untouched."
+          },
+          "originalText": {
+            "title": "Original text",
+            "type": "string",
+            "nullable": true,
+            "description": "The wording of the motion before any amendment was worked into it.",
+            "x-notes": "Written once by MotionAmendmentService::applyAmendment() when the first adopted amendment is applied, never overwritten afterwards."
+          },
+          "amendmentHistory": {
+            "title": "Amendment history",
+            "type": "array",
+            "description": "Every adopted amendment worked into this motion, with the text before and after.",
+            "x-notes": "Appended by MotionAmendmentService::applyAmendment(). One entry per applied amendment: amendment (uuid), mode (passage or full), before, after, appliedAt (ISO 8601). An amendment already in the list is not applied again.",
+            "items": {
+              "type": "object"
+            },
+            "default": []
+          }
+        }
+      }
+    }
+  }
+}

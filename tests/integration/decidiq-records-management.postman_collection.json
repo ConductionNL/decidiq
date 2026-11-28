@@ -1,0 +1,2177 @@
+{
+ "info": {
+  "name": "Decidiq Records Management Contract Suite",
+  "description": "Wire contract of the archival dossier and its disposition (openspec/changes/records-management-archiving):\n\n  POST /api/meetings/{meetingId}/archival-dossier  archivalDossier#form          401 / 403 (not chair, secretary or admin) / 404 / 201 forming, one per meeting\n  POST /api/dossiers/{id}/assemble                 archivalDossier#assemble      200 forming / 409 frozen\n  POST /api/dossiers/{id}/close                    archivalDossier#close         403 / 422 gaps without a reason / 200 closed with the reason / 409 frozen\n  GET  /api/dossiers/{id}/disposition              dossierDisposition#show       401 / 403 before 404 / 404 / 200 route, category, overridden\n  POST /api/dossiers/{id}/disposition              dossierDisposition#propose    409 not-closed\n  POST /api/dossiers/{id}/outcome                  dossierDisposition#outcome    403\n  POST /api/dossiers/{id}/certificate              dossierDisposition#certificate 403\n  PUT  /api/dossiers/{id}/category                 dossierDisposition#category   403 / 422 no-category / 200 own category routes to destruction / the schema's category clears it\n\nAn archivist is a member of OpenRegister's `archivaris` group; the suite creates the group when it is missing and leaves it in place. It never hands a dossier to an OpenRegister list, so it writes no transfer or destruction list. Self-contained and idempotent: it seeds a member and an archivist probe user and a meeting that is not closed, and deletes them and the dossier in teardown. Written, not run: it needs a live instance.\n\n@spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md\n\nSPDX-License-Identifier: EUPL-1.2\nSPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "noauth"
+ },
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Create member probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: member probe user available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{rmaMemberUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Create archivist probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: archivist probe user available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{rmaArchivistUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Ensure the archivist group exists",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: archivaris group available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "archivaris"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Put the archivist probe user in the archivist group",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: archivist is in the archivaris group', () => pm.expect(pm.response.code).to.eql(200));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{rmaArchivistUser}}/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{rmaArchivistUser}}",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "archivaris"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Seed a meeting that is not closed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: meeting created', () => pm.expect(pm.response.code).to.be.below(300));",
+         "const b = pm.response.json();",
+         "pm.collectionVariables.set('rmaMeetingId', b.id || (b['@self'] || {}).id || '');",
+         "pm.test('Setup: meeting has an id', () => pm.expect(pm.collectionVariables.get('rmaMeetingId')).to.have.length.above(0));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"RMA Newman Raadsvergadering 10 december 2026\",\n  \"meetingType\": \"regular\",\n  \"scheduledDate\": \"2026-12-10T19:30:00+00:00\",\n  \"meetingMode\": \"in-person\",\n  \"lifecycle\": \"scheduled\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "1. Form and gather",
+   "item": [
+    {
+     "name": "Form without a session: 401",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An anonymous caller is refused with 401', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/meetings/{{rmaMeetingId}}/archival-dossier",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{rmaMeetingId}}",
+        "archival-dossier"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    },
+    {
+     "name": "Form as a member who does not run the meeting: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only the chair, the secretary or an administrator forms the dossier', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{rmaMeetingId}}/archival-dossier",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{rmaMeetingId}}",
+        "archival-dossier"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Form for an unknown meeting: 404",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An unknown meeting is a 404', () => pm.response.to.have.status(404));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/00000000-0000-4000-8000-000000000000/archival-dossier",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "00000000-0000-4000-8000-000000000000",
+        "archival-dossier"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Form as administrator: 201 forming",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The dossier is formed', () => pm.response.to.have.status(201));",
+         "const d = pm.response.json().dossier || {};",
+         "pm.collectionVariables.set('rmaDossierId', d.id || '');",
+         "pm.test('The dossier is forming and names its meeting', () => { pm.expect(d.lifecycle).to.eql('forming'); pm.expect(d.meeting).to.eql(pm.collectionVariables.get('rmaMeetingId')); });",
+         "pm.test('A meeting that is not closed is a gap', () => pm.expect(d.gaps).to.include('meeting-not-closed'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{rmaMeetingId}}/archival-dossier",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{rmaMeetingId}}",
+        "archival-dossier"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Form again: the same dossier",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A meeting has one dossier: forming again returns it', () => pm.expect((pm.response.json().dossier || {}).id).to.eql(pm.collectionVariables.get('rmaDossierId')));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/meetings/{{rmaMeetingId}}/archival-dossier",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "meetings",
+        "{{rmaMeetingId}}",
+        "archival-dossier"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Gather again as administrator: 200",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A forming dossier gathers its records again', () => pm.response.to.have.status(200));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/assemble",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "assemble"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "2. Disposition",
+   "item": [
+    {
+     "name": "Disposition without a session: 401",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An anonymous caller is refused with 401', () => pm.response.to.have.status(401));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{noAuthBase}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{noAuthBase}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    },
+    {
+     "name": "Disposition as a member: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only an archivist or an administrator reads where the dossier goes', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Disposition of an unknown dossier as a member: 403 before 404",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The authority check comes first, so an outsider learns nothing about which dossiers exist', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/00000000-0000-4000-8000-000000000000/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "00000000-0000-4000-8000-000000000000",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Disposition of an unknown dossier as administrator: 404",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An unknown dossier is a 404', () => pm.response.to.have.status(404));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/00000000-0000-4000-8000-000000000000/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "00000000-0000-4000-8000-000000000000",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Disposition as archivist: the schema's category keeps",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('An archivist reads the disposition', () => pm.response.to.have.status(200));",
+         "const d = pm.response.json().dossier || {};",
+         "pm.test('Category 2.1 from the schema routes to transfer', () => { pm.expect(d.category).to.eql('2.1'); pm.expect(d.action).to.eql('bewaren'); pm.expect(d.route).to.eql('transfer'); pm.expect(d.overridden).to.eql(false); });",
+         "pm.test('The answer says whether OpenRegister can transfer now', () => pm.expect(d.transferAvailable).to.be.a('boolean'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Hand a forming dossier to a list: 409 not-closed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only a closed dossier goes to the archive or to destruction', () => pm.response.to.have.status(409));",
+         "pm.test('The refusal names its reason (not-closed)', () => pm.expect(pm.response.json().reason).to.eql('not-closed'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Outcome as a member: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only an archivist or an administrator reads the outcome', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/outcome",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "outcome"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Certificate as a member: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only an archivist or an administrator renders the destruction certificate', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/certificate",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "certificate"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "3. Own category",
+   "item": [
+    {
+     "name": "Category as a member: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only an archivist or an administrator sets a category', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/category",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "category"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"category\": \"11.1\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Unknown category: 422 no-category",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A category the register ships no row for is refused', () => pm.response.to.have.status(422));",
+         "pm.test('The refusal names its reason (no-category)', () => pm.expect(pm.response.json().reason).to.eql('no-category'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/category",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "category"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"category\": \"99.9\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Set the dossier's own category 11.1",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The category is set', () => pm.response.to.have.status(200));",
+         "pm.test('The dossier carries its own category', () => pm.expect((pm.response.json().dossier || {}).selectielijstCategorie).to.eql('11.1'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/category",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "category"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"category\": \"11.1\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Disposition now routes to destruction",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The disposition is read', () => pm.response.to.have.status(200));",
+         "const d = pm.response.json().dossier || {};",
+         "pm.test(\"The dossier's own category 11.1 destroys, and says it is the dossier's own\", () => { pm.expect(d.category).to.eql('11.1'); pm.expect(d.route).to.eql('destruction'); pm.expect(d.overridden).to.eql(true); });"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Set the schema's own category: the override clears",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The category is set', () => pm.response.to.have.status(200));",
+         "pm.test(\"The schema's category leaves no own category on the dossier\", () => pm.expect((pm.response.json().dossier || {}).selectielijstCategorie || null).to.eql(null));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/category",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "category"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"category\": \"2.1\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "4. Close",
+   "item": [
+    {
+     "name": "Close as a member: 403",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Only the chair, the secretary or an administrator closes the dossier', () => pm.response.to.have.status(403));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "close"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaMemberPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Close with gaps and no reason: 422 gaps",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A dossier with gaps does not close without a reason', () => pm.response.to.have.status(422));",
+         "pm.test('The refusal names its reason (gaps)', () => pm.expect(pm.response.json().reason).to.eql('gaps'));",
+         "pm.test('The gaps are named', () => pm.expect(pm.response.json().gaps).to.include('meeting-not-closed'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "close"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Close with a reason: 200 closed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The dossier closes', () => pm.response.to.have.status(200));",
+         "const d = pm.response.json().dossier || {};",
+         "pm.test('Closed, with who and the reason recorded', () => { pm.expect(d.lifecycle).to.eql('closed'); pm.expect(d.closedBy).to.eql(pm.collectionVariables.get('adminUser')); pm.expect(d.closeOverrideReason).to.eql('Newman: the meeting is a test fixture'); });"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "close"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"overrideReason\": \"Newman: the meeting is a test fixture\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Gather a closed dossier: 409 frozen",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A closed dossier keeps its records', () => pm.response.to.have.status(409));",
+         "pm.test('The refusal names its reason (frozen)', () => pm.expect(pm.response.json().reason).to.eql('frozen'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/assemble",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "assemble"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Close a closed dossier: 409 frozen",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('A closed dossier does not close twice', () => pm.response.to.have.status(409));",
+         "pm.test('The refusal names its reason (frozen)', () => pm.expect(pm.response.json().reason).to.eql('frozen'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/close",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "close"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"overrideReason\": \"again\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Disposition of the closed dossier",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('The disposition is read', () => pm.response.to.have.status(200));",
+         "pm.test('The closed dossier is on no list yet', () => { const d = pm.response.json().dossier || {}; pm.expect(d.lifecycle).to.eql('closed'); pm.expect(d.transferList || null).to.eql(null); pm.expect(d.destructionList || null).to.eql(null); });"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/decidiq/api/dossiers/{{rmaDossierId}}/disposition",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "decidiq",
+        "api",
+        "dossiers",
+        "{{rmaDossierId}}",
+        "disposition"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{rmaArchivistUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{rmaArchivistPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "Delete dossier",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: delete dossier done', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/archival-dossier/{{rmaDossierId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "archival-dossier",
+        "{{rmaDossierId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete meeting",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: delete meeting done', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/meeting/{{rmaMeetingId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "meeting",
+        "{{rmaMeetingId}}"
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete member probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: member probe user removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{rmaMemberUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{rmaMemberUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete archivist probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: archivist probe user removed', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{rmaArchivistUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{rmaArchivistUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8080"
+  },
+  {
+   "key": "noAuthBase",
+   "value": "http://127.0.0.1:8080"
+  },
+  {
+   "key": "adminUser",
+   "value": "admin"
+  },
+  {
+   "key": "adminPass",
+   "value": "admin"
+  },
+  {
+   "key": "register",
+   "value": "decidiq"
+  },
+  {
+   "key": "rmaMemberUser",
+   "value": "decidiq-rma-member"
+  },
+  {
+   "key": "rmaMemberPass",
+   "value": "Decidiq-Rma-Member!42x"
+  },
+  {
+   "key": "rmaArchivistUser",
+   "value": "decidiq-rma-archivist"
+  },
+  {
+   "key": "rmaArchivistPass",
+   "value": "Decidiq-Rma-Archivist!42x"
+  },
+  {
+   "key": "rmaMeetingId",
+   "value": ""
+  },
+  {
+   "key": "rmaDossierId",
+   "value": ""
+  }
+ ]
+}

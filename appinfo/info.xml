@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.5-unstable.20260911080416</version>
+    <version>1.2.36-unstable.20261128173609</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -95,7 +95,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              2026-08-08) moved it back to 32 deliberately and fleet-wide, and names decidiq
              as one of eight consumers that must move their CI matrices to stable32. The
              matrix move is in this same commit, so the two statements stay in agreement. -->
-        <nextcloud min-version="32" max-version="34"/>
+        <nextcloud min-version="32" max-version="35"/>
     </dependencies>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->
@@ -124,10 +124,49 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/archive/2026-11-24-voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
+        <job>OCA\Decidiq\BackgroundJob\WrittenResolutionDeadlineJob</job>
+        <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
+        <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
+        <!-- agenda-paper-watermark: once a day, removes the watermarked copies of
+             papers kept for earlier days.
+             @spec openspec/changes/archive/2026-11-24-agenda-paper-watermark/specs/agenda-paper-watermark/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\WatermarkCacheSweepJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob</job>
         <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\TranscriptRetentionJob</job>
+        <!-- adopt-connection-registry: once a day, tells integriq which eIDAS
+             signing service and translation adapter answer. Sends nothing
+             when integriq is not installed.
+             @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\ConnectionReportJob</job>
+        <!-- approval-routes-resolve-a-manager-and-declare-silence: hourly, applies
+             what a sign-off step declared its own silence to mean once its term
+             has passed, and asks a stand-in part-way through the term. Safe to
+             run twice; a stage carries the stamp that says it already lapsed.
+             @spec openspec/specs/approval-routes/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <!-- the-decision-as-a-walked-process REQ-DWP-006: once a day, an approved
+             governing document takes effect on its planned date; and
+             (governing-documents-register REQ-GDR-003) a version in effect moves
+             to replaced once a later version of its document has taken effect.
+             @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\GoverningDocumentReleaseJob</job>
+        <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
+        <!-- signing-external-service-with-order: every fifteen minutes, asks the
+             signing service about minutes, decision lists and motions that are
+             out for signature and stores the signed copy on the record.
+             @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\SignedCopyCollectorJob</job>
+        <!-- publication-subscriptions-and-daily-digest: every fifteen minutes,
+             sends subscribers the agendas, papers, decisions and minutes that
+             match their subscription, straight away, daily or weekly.
+             @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly -->
+        <job>OCA\Decidiq\BackgroundJob\PublicationDigestJob</job>
+        <!-- publication-theme-pages REQ-THP-004: nightly, republish every active
+             public theme whose timeline changed since its last version. -->
+        <job>OCA\Decidiq\BackgroundJob\ThemeRefreshJob</job>
     </background-jobs>
 
     <repair-steps>
@@ -210,6 +249,21 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
+            <!--
+                insight-decisions-report-by-period-and-body (REQ-DRP-001): after
+                InitializeSettings imports the decidingBody property, existing decisions
+                with a meeting get that meeting's body once. Idempotent: a decision that
+                already names a body is left alone. A fresh install has no decisions.
+            -->
+            <step>OCA\Decidiq\Repair\FillDecisionDecidingBody</step>
+            <!--
+                records-management-archiving (REQ-RMA-007): after InitializeSettings
+                imports the meeting's archivalDossier property, every meeting with a
+                dossier gets that dossier's id once, so the archive dashboard does not
+                count it as a meeting without a dossier. Idempotent: a meeting that
+                already names its dossier is left alone. New dossiers link themselves.
+            -->
+            <step>OCA\Decidiq\Repair\FillMeetingArchivalDossier</step>
             <!--
                 After InitializeSettings imports the register. The schema edit
                 changes the DECLARATION; every row already written still holds
@@ -384,6 +438,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateMemberOnboarding</step>
             <!--
+                configurable-types-domain-model task 3.5: after InitializeSettings imports the register
+                (99-participations-are-compositions.json must already have added `migratedFromObject`
+                to GovernanceBodyComposition, or every copied row fails validation on it). Copies
+                body-participation rows onto governance-body-composition as `representation`
+                compositions: sharedBody becomes composite, participant becomes component, and the
+                date-times become the calendar dates the composition stores. Both bodies are resolved
+                to uuids first. Counted: the step reports how many it copied and how many named no
+                body. Identity is the SOURCE object's uuid. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateParticipationsToCompositions</step>
+            <!--
+                configurable-types-domain-model task 3.5: after InitializeSettings imports the register
+                (99-positions-replace-posts.json points Decision.targetPosts at position-type). Copies
+                each post onto a position-type (label becomes name, role becomes key), gives every
+                membership naming a post a position-hold from the post's start date or else the
+                membership's (none is invented), and rewrites an appointment's targetPosts only when
+                every entry maps. Identity is the post's uuid on migratedFromObject, and a hold is
+                keyed on membership and position. Counted. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigratePostsToPositions</step>
+            <!--
                 plain-words-for-groups-and-the-installation-step: swearing-in is a council's
                 ceremony; a board signs a deed instead. The stepType enum now says installation, so
                 stored steps have to follow or they hold a value the schema no longer offers. NOT in
@@ -428,6 +503,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\RepairDecisionStageLabels</step>
             <!--
+                the-decision-as-a-walked-process task 1.1: the engine now writes a
+                terminal `state` onto every approval action it records. Actions stored
+                before that carry the schema default `open` and would read as approvals
+                still awaited. Backfills the state from the recorded verb; a row with no
+                verb (a real open work item) and a row with a terminal state are left
+                alone. Idempotent. <post-migration> only: a fresh install has no actions.
+            -->
+            <step>OCA\Decidiq\Migration\RepairApprovalActionStates</step>
+            <!--
                 Fifth leg of the rename, on the ADMINISTRATORS GROUP. The
                 register's authorization baseline named `decidesk-administrators`
                 and OpenRegister's GroupProvisioner creates every group an
@@ -450,6 +534,27 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 emptied, so an admin with automation pointing at one keeps a working group.
             -->
             <step>OCA\Decidiq\Repair\MigrateGovernanceGroupNames</step>
+            <!--
+                approval-routes-on-flow-user-tasks (REQ-ARF-008): a decision whose
+                route has an open step on decidiq's old engine finishes there and
+                is marked approvalEngine: legacy. The send path does not depend on
+                the mark (a decision with stage rows is never started as a flow).
+            -->
+            <step>OCA\Decidiq\Migration\MarkLegacyApprovalRoutes</step>
+            <!--
+                agenda-item-confidential-papers task 1 (REQ-ACP-002): after InitializeSettings
+                imported the read rules, a non-public agenda item saved before them gets its
+                meeting's governance body (and its papers the body and readers) by a re-save,
+                so the body's members keep reading it.
+            -->
+            <step>OCA\Decidiq\Migration\StampClosedAgendaItemAudience</step>
+            <!--
+                After InitializeSettings imports the register (129-agenda-item-phase.json must
+                already have declared AgendaItem.phase). Copies a phase still held in the
+                undeclared `status` into `phase` with a phase-only patch; an item that already has
+                a phase is skipped, so a second run changes nothing. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Repair\MoveAgendaItemStatusToPhase</step>
         </post-migration>
         <install>
             <!--
@@ -556,12 +661,16 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </install>
     </repair-steps>
 
+    <commands>
+        <command>OCA\Decidiq\Command\MigrateActionItems</command>
+        <command>OCA\Decidiq\Command\ImportFormResponses</command>
+        <command>OCA\Decidiq\Command\ImportOriCommand</command>
+        <command>OCA\Decidiq\Command\ApprovalRoutesLegacyCommand</command>
+    </commands>
+
     <settings>
         <admin>OCA\Decidiq\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidiq\Sections\SettingsSection</admin-section>
-        <!-- @spec openspec/specs/user-settings/spec.md -->
-        <personal>OCA\Decidiq\Settings\PersonalSettings</personal>
-        <personal-section>OCA\Decidiq\Sections\PersonalSection</personal-section>
     </settings>
 
     <!-- @spec openspec/specs/nextcloud-integration/spec.md -->

@@ -68,27 +68,26 @@ entry carries an `under-notice` marker for regulator review.
 
 ## 4. eIDAS QES integration
 
-The portal supports **Qualified Electronic Signatures** for minutes and
-written resolutions via `openconnector` → an external eIDAS QTSP.
+The portal supports **Qualified Electronic Signatures** for minutes,
+decision lists and motions. decidiq decides who signs and in which order;
+**filinq** performs the signature on the fleet's signing rail (ADR-125).
 
 Configuration:
 
-1. Install + enable `openconnector`.
-2. Configure an eIDAS-QTSP source (e.g. Connective / Itsme / DigiD HSM).
-3. Decidiq's `EIDASSignatureService` will auto-discover the source on
-   startup. To pin a specific source, set the appconfig key
-   `decidesk:eidas_source_id` to the openconnector source UUID.
-4. Validate the integration with **Validate certificate** (a POST to
-   `/api/eidas/validate-cert` with the member's cert PEM). The response
-   includes the EU Trusted List match result.
+1. Install + enable `filinq`, and configure its signature levels and
+   providers there (once, for every app).
+2. Nothing to configure in decidiq: with filinq enabled, signing requests
+   go to filinq; without it, signing is switched off and nothing is
+   marked signed. **Settings → Connections** shows which one answers.
 
-The QES flow:
+The flow:
 
-1. **Initiate** — `POST /api/minutes/{id}/eidas/initiate` queues the
-   signing job.
-2. **Verify** — `POST /api/minutes/{id}/eidas/verify` polls the QTSP.
-3. **Finalize** — `POST /api/minutes/{id}/eidas/finalize` stores the
-   signed PDF + the QTSP attestation.
+1. **Send for signature** — decidiq hands the record's PDF and its
+   signers, in order, to filinq. The record shows *sent*.
+2. **Sign** — the signers sign in filinq.
+3. **Concluded** — filinq reports back: *signed* links the signed copy on
+   the record and resolves its signature stage; *declined*, *expired* or
+   *cancelled* marks the round failed and the stage stays open.
 
 Verify EU Trusted List freshness with
 `occ decidiq:eidas:tl-status` (currently logged at INFO; expose to a
@@ -101,13 +100,21 @@ controller surface as part of the
 sync with their source. The hourly `TranslationQueueJob` pulls entries
 in status `queued` and calls the registered `ITranslationAdapter`.
 
-By default a no-op `LogTranslationAdapter` is registered (entries stay
-`queued`). To enable real translation:
+By default `NextcloudTranslationAdapter` is registered. It translates
+through Nextcloud's TaskProcessing API (task type
+`core:text2text:translate`), so any installed translation provider app
+(for example Local Machine Translation, or an LLM provider) translates
+the minutes. Without such a provider each entry is marked `failed` with a
+message saying no translation provider is installed. To enable
+translation:
 
-1. Register a non-default adapter through DI (e.g. an openconnector-backed
-   adapter) by overriding the `ITranslationAdapter` binding in your
-   custom-app's `Application::register()`.
-2. Or trigger manual processing: `POST /api/multilingual/queue/process`
+1. Install and enable a Nextcloud app that provides the "Translate"
+   TaskProcessing task type (check *Administration settings → Artificial
+   intelligence*).
+2. Or register a different adapter through DI by overriding the
+   `ITranslationAdapter` binding in your custom-app's
+   `Application::register()`.
+3. Trigger manual processing if needed: `POST /api/multilingual/queue/process`
    with `{ "maxEntries": 50 }`.
 
 The queue summary (`GET /api/multilingual/queue`) shows counts per
@@ -128,6 +135,25 @@ appconfig `decidesk:export_format_provider=docudesk`.
 
 Every export is mirrored to the hash-chained audit log
 (`AuditLogService::append(actor:..., action: 'regulator-export', ...)`).
+
+### Formulas in CSV cells
+
+Every CSV export (regulator export, audit log, governance report) writes
+its cells so a spreadsheet never runs them as a formula:
+
+- A cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return
+  gets a leading apostrophe. Spaces before that character do not matter.
+- The same apostrophe goes after a `;` or a line break inside a cell when
+  such a character follows. A reader that splits on `;` (Excel in Dutch)
+  starts a new cell there.
+- A cell with a comma, semicolon, quote or line break is quoted.
+
+Ordinary values can get the apostrophe too. Examples: `-5`, `+31 6 12345678`,
+and a list such as `a` followed by a new line with `- b`. The apostrophe
+is part of the text. Some readers show it, and a script reads it as a
+character. Need the exact values? Use the JSON export where it exists
+(`GET /api/audit-log/export?format=json`), or remove the apostrophe that
+precedes these characters.
 
 ## 7. Audit log verification
 
@@ -202,7 +228,7 @@ docker exec nextcloud occ maintenance:repair --include-expensive
 | `422 Unknown vote enum` | Mistyped vote on cast | Use one of `in-favor`/`against`/`abstain`/`absent`/`recused-due-to-conflict` |
 | `422 Quorum not met` on `open-vote` | Meeting not `in-session` or attendance < quorum | Open the meeting + record attendance first |
 | CalDAV sync silently no-op | No writable calendar for the actor | Create / share a writable calendar for the chairman |
-| Translation queue stuck in `queued` | Default `LogTranslationAdapter` registered | Override `ITranslationAdapter` binding |
+| Translation queue entries `failed` with "No Nextcloud translation provider" | No TaskProcessing translate provider installed | Install a translation provider app, or override the `ITranslationAdapter` binding |
 | `nldesign` theme not applied | App not theming-aware | Verify `nldesign` is enabled and refresh the browser cache |
 
 For any issue not covered here, file an issue in

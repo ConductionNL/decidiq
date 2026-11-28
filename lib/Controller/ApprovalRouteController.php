@@ -20,20 +20,24 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
-use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
+use OCA\Decidiq\Service\ApprovalPrincipal;
+use OCA\Decidiq\Service\ApprovalRouteFlowStarter;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -42,26 +46,35 @@ use Throwable;
 /**
  * Instantiate and advance approval routes.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 class ApprovalRouteController extends Controller {
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param ApprovalRouteService $service The route engine.
-	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
+	 * @param ApprovalRouteServiceInterface $service The route engine.
+	 * @param ApprovalRouteConclusionAnnouncerInterface $announcer The one door a conclusion leaves by.
+	 * @param SubjectClearanceServiceInterface $clearanceService Answers whether a subject is cleared.
 	 * @param IUserSession $userSession The session.
+	 * @param IGroupManager $groupManager Group manager, used only to answer
+	 *        whether the caller may declare that a step's silence approves
+	 *        (REQ-AR-015).
 	 * @param LoggerInterface $logger Logger.
+	 * @param ApprovalRouteFlowStarter|null $flows Starts a template route as an OpenRegister flow run;
+	 *        null keeps every send on the old engine.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ApprovalRouteService $service,
-		private readonly ApprovalRouteConclusionAnnouncer $announcer,
+		private readonly ApprovalRouteServiceInterface $service,
+		private readonly ApprovalRouteConclusionAnnouncerInterface $announcer,
+		private readonly SubjectClearanceServiceInterface $clearanceService,
 		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
+		private readonly ?ApprovalRouteFlowStarter $flows = null,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -69,7 +82,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The created stages, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function instantiate(): JSONResponse {
@@ -94,19 +107,176 @@ class ApprovalRouteController extends Controller {
 			// RBAC answers as the acting user.
 			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
 
-			$stages = $this->service->instantiate(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+			// Held or instantiated, depending on the route's origin. See
+			// stagesFor() for why an adhoc route writes no template row.
+			if ($this->runsAsFlow(route: $route, subject: $subject, subjectSchema: $subjectSchema) === true) {
+				$started = $this->flows->start(route: $route, decision: $subject);
+
+				return new JSONResponse(['stages' => [], 'run' => $started['run']], Http::STATUS_CREATED);
+			}
+
+			$stages = $this->stagesFor(route: $route, subject: $subject, subjectSchema: $subjectSchema);
 		} catch (Throwable $e) {
 			// The engine's refusals are the point of the engine, so the caller
 			// gets the reason rather than a generic failure.
 			$this->logger->warning(
 				'Decidiq: could not instantiate an approval route',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(['stages' => $stages], Http::STATUS_CREATED);
 	}//end instantiate()
+
+	/**
+	 * Whether this send starts an OpenRegister flow run instead of the old engine.
+	 *
+	 * A template route sent for a decision runs as a flow. An ad-hoc route, a
+	 * route on another kind of subject, and a decision whose route is already
+	 * under way on the old engine stay where they are: a half-way route is never
+	 * restarted from step one (REQ-ARF-008).
+	 *
+	 * @param array<string, mixed> $route         The route as the caller sent it.
+	 * @param string               $subject       The subject's UUID.
+	 * @param string               $subjectSchema The subject's schema slug.
+	 *
+	 * @return bool True when the send starts a flow run.
+	 *
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-002-sending-a-proposal-starts-one-flow-run-with-the-decision-as-its-subject
+	 * @spec openspec/changes/approval-routes-on-flow-user-tasks/specs/approval-routes/spec.md#requirement-req-arf-008-routes-that-run-on-the-old-engine-finish-there
+	 */
+	private function runsAsFlow(array $route, string $subject, string $subjectSchema): bool {
+		if ($this->flows === null || $subjectSchema !== 'decision' || (string)($route['origin'] ?? '') === 'adhoc') {
+			return false;
+		}
+
+		return $this->service->stagesFor(subject: $subject) === [];
+	}//end runsAsFlow()
+
+	/**
+	 * The stages this route produces, held or instantiated.
+	 *
+	 * A route the caller marked `adhoc` is held from the people its steps name,
+	 * with no template row written. A review of one document by three colleagues
+	 * is not a template anybody reuses, and storing one per review fills the
+	 * register with routes nobody will read again (REQ-AR-008).
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 * @param string $subject The subject's UUID.
+	 * @param string $subjectSchema The subject's schema slug.
+	 *
+	 * @return array<int, array<string, mixed>> The stages.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
+		if ((string)($route['origin'] ?? '') === 'adhoc') {
+			$held = $this->service->heldRouteFrom(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+
+			return $this->service->holdFor(
+				request: $held->due(
+					deadline: (string)$this->request->getParam('deadline', ''),
+					askSubstituteAfter: $this->askSubstituteAfter()
+				)
+			);
+		}
+
+		// The approvers the requester named travel on the route, and who named
+		// them is the session's user, never what the body says (REQ-DWP-009).
+		unset($route['nominations'], $route['nominatedBy']);
+		$nominations = $this->nominations();
+		if ($nominations !== []) {
+			$route['nominations'] = $nominations;
+			$route['nominatedBy'] = $this->requester();
+		}
+
+		return $this->service->instantiate(
+			route: $route,
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+			principal: $this->callerPrincipal(),
+		);
+	}//end stagesFor()
+
+	/**
+	 * The approvers the requester named, keyed by step order.
+	 *
+	 * @return array<mixed, mixed> The nominations; empty when none were sent.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function nominations(): array {
+		$nominations = $this->request->getParam('nominations', []);
+		if (is_array($nominations) === false) {
+			return [];
+		}
+
+		return $nominations;
+	}//end nominations()
+
+	/**
+	 * Who names the approvers: the signed-in user.
+	 *
+	 * @return string The user id, or empty.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-009)
+	 */
+	private function requester(): string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end requester()
+
+	/**
+	 * When a held route asks each approver's substitute too, as a fraction of
+	 * the step's term, or null when the request asks none (#1397).
+	 *
+	 * @return float|null
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	private function askSubstituteAfter(): ?float {
+		$value = $this->request->getParam('askSubstituteAfter');
+		if (is_numeric($value) === false) {
+			return null;
+		}
+
+		$fraction = (float)$value;
+		if ($fraction <= 0.0 || $fraction > 1.0) {
+			return null;
+		}
+
+		return $fraction;
+	}//end askSubstituteAfter()
+
+	/**
+	 * Who the signed-in caller is, as the route rules see them.
+	 *
+	 * Only used to answer REQ-AR-015: a step whose silence APPROVES is a
+	 * signature nobody gave, so only an administrator may declare one. Anybody
+	 * else, including an ordinary signed-in user, gets false and is refused by
+	 * the engine.
+	 *
+	 * @return ApprovalPrincipal The caller, as the route rules see them.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	private function callerPrincipal(): ApprovalPrincipal {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return ApprovalPrincipal::Ordinary;
+		}
+
+		if ($this->groupManager->isAdmin($user->getUID()) === true) {
+			return ApprovalPrincipal::Administrator;
+		}
+
+		return ApprovalPrincipal::Ordinary;
+	}//end callerPrincipal()
 
 	/**
 	 * Record an action on a subject's active stage.
@@ -117,7 +287,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The recorded action, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function record(): JSONResponse {
@@ -145,7 +315,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: an approval action was refused',
-				['app' => Application::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -157,4 +327,59 @@ class ApprovalRouteController extends Controller {
 
 		return new JSONResponse($recorded, Http::STATUS_CREATED);
 	}//end record()
+
+	/**
+	 * Whether a subject's required sign-offs have all been given.
+	 *
+	 * The one question a sibling app gates closure on. It answers yes or no, and
+	 * when it is no it names the route, the step and the person it waits on,
+	 * because "not cleared" on its own makes somebody open this app and read
+	 * three screens to learn one name.
+	 *
+	 * AUTHORISATION FIRST, as on every other method here: being signed in is
+	 * not permission to read who is holding up somebody else's file. The check
+	 * is the same reachability question OpenRegister's RBAC answers for the
+	 * subject itself, so a user who cannot see the subject cannot see its
+	 * sign-off state either.
+	 *
+	 * @return JSONResponse The clearance answer, or an error.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
+	 */
+	#[NoAdminRequired]
+	public function clearance(): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$subject = (string)$this->request->getParam('subject', '');
+		$subjectSchema = (string)$this->request->getParam('subjectSchema', '');
+		if ($subject === '' || $subjectSchema === '') {
+			return new JSONResponse(
+				['message' => 'subject and subjectSchema are required'],
+				Http::STATUS_BAD_REQUEST
+			);
+		}
+
+		try {
+			$this->service->assertSubjectAccessible(subject: $subject, subjectSchema: $subjectSchema);
+			$clearance = $this->clearanceService->clearanceFor(
+				routes: $this->service->routesWithStagesFor(subject: $subject)
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not answer a clearance question',
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+			);
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		}
+
+		$clearance['reason'] = $this->clearanceService->describe(clearance: $clearance);
+		// The case app reads the intake verdict here too: the verdict, its
+		// ground and who gave it, or null when no intake step answered yet.
+		$clearance['admissibility'] = $this->clearanceService->admissibilityOn(subject: $subject);
+
+		return new JSONResponse($clearance, Http::STATUS_OK);
+	}//end clearance()
 }//end class

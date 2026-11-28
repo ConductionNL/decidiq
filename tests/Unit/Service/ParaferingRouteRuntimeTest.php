@@ -25,6 +25,9 @@ use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectPatch;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Covers the parafering runtime the engine absorbed from dossiq.
@@ -61,7 +64,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			public array $rows = [
 				'decision-stage' => [],
 				'approval-action' => [],
-				'bevoegdheidstoedeling' => [],
+				'authority-delegation' => [],
 			];
 
 			/**
@@ -73,7 +76,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			private const REQUIRED = [
 				'decision-stage' => ['sequence', 'stageType', 'status', 'decisionMakerType', 'label'],
 				'approval-action' => ['subject', 'step', 'actor', 'action'],
-				'bevoegdheidstoedeling' => ['type', 'subject', 'decision', 'validFrom', 'status'],
+				'authority-delegation' => ['type', 'subject', 'decision', 'validFrom', 'status'],
 			];
 
 			/**
@@ -207,13 +210,11 @@ class ParaferingRouteRuntimeTest extends TestCase {
 		$state = $this->objectService;
 		$facade = $this->createMock(ObjectServiceInterface::class);
 		$facade->method('saveObject')->willReturnCallback(
-			function (
-				array $object,
-				?array $extend = [],
-				string|int|null $register = null,
-				string|int|null $schema = null,
-				?string $uuid = null,
-			) use ($state): ObjectEntityInterface {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use ($state): ObjectEntityInterface {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$row = $state->saveObject($object, (string)$register, (string)$schema, $uuid);
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($row);
@@ -222,12 +223,11 @@ class ParaferingRouteRuntimeTest extends TestCase {
 			}
 		);
 		$facade->method('patchObject')->willReturnCallback(
-			function (
-				string $objectId,
-				array $data,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ObjectEntityInterface {
+			function (ObjectPatch $patch) use ($state): ObjectEntityInterface {
+				$objectId = $patch->objectId;
+				$data = $patch->data;
+				$register = $patch->target->register;
+				$schema = $patch->target->schema;
 				$row = $state->patchObject($objectId, $data, (string)$register, (string)$schema);
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($row);
@@ -241,13 +241,11 @@ class ParaferingRouteRuntimeTest extends TestCase {
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
 		$facade->method('find')->willReturnCallback(
-			function (
-				int|string $id,
-				?array $_extend = [],
-				bool $files = false,
-				string|int|null $register = null,
-				string|int|null $schema = null,
-			) use ($state): ?ObjectEntityInterface {
+			function (int|string $id, ?ObjectFindOptions $options = null) use ($state): ?ObjectEntityInterface {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($state->rows[(string)$schema][(string)$id] ?? null);
 				if ($row === null) {
 					return null;
@@ -430,7 +428,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAWithdrawnLocalMandateRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'withdrawn',
 			'delegatePerson' => 'bob',
@@ -456,7 +454,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testALocalMandateForSomeoneElseRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'mallory',
@@ -482,7 +480,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnEffectiveLocalMandatePassesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'bob',
@@ -510,7 +508,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnExpiredLocalMandateRefusesTheDelegate(): void {
-		$this->objectService->rows['bevoegdheidstoedeling']['toedeling-1'] = [
+		$this->objectService->rows['authority-delegation']['toedeling-1'] = [
 			'id' => 'toedeling-1',
 			'status' => 'effective',
 			'delegatePerson' => 'bob',

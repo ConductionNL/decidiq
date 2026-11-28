@@ -4,9 +4,8 @@
  * Decidiq Translation Adapter Interface
  *
  * Pluggable boundary for an external translation source. The default
- * `LogTranslationAdapter` implementation logs and returns the original
- * text; production deployments rebind the binding to an openconnector-
- * backed translation source.
+ * `NextcloudTranslationAdapter` implementation translates through Nextcloud
+ * TaskProcessing and fails when no translation provider is installed.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -17,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -30,7 +29,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Translation adapter contract.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 interface ITranslationAdapter {
 	/**
@@ -40,7 +39,7 @@ interface ITranslationAdapter {
 	 * @param string $sourceLocale ISO 639-1 source locale (e.g. nl)
 	 * @param string $targetLocale ISO 639-1 target locale (e.g. en)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, text: string, provider: string, message: string}
 	 */

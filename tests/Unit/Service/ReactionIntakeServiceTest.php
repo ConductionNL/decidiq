@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\Decidiq\Service\ReactionIntakeService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -27,6 +28,7 @@ use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\Decidiq\Tests\Support\LegacyObjectArgs;
 
 /**
  * Tests the intake matrix (auth/anon x policy), payload cap, anon gate,
@@ -122,6 +124,7 @@ class ReactionIntakeServiceTest extends TestCase {
 		$captured = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$captured) {
+				$args = LegacyObjectArgs::flatten(args: $args);
 				$captured = $args[0] ?? ($args['object'] ?? null);
 				return $this->entity($captured);
 			}
@@ -212,7 +215,7 @@ class ReactionIntakeServiceTest extends TestCase {
 	public function testSubmissionAfterDeadlineRejected(): void {
 		$past = (new \DateTimeImmutable('-1 hour'))->format(\DateTimeInterface::ATOM);
 		$this->objectService->method('find')->willReturn($this->entity($this->openConsultation(['submissionDeadline' => $past])));
-		$this->expectException(\RuntimeException::class);
+		$this->expectException(ParticipationWindowClosedException::class);
 		$this->service->submitReaction(consultationId: 'c1', body: 'Late', ncUid: 'alice');
 
 	}//end testSubmissionAfterDeadlineRejected()
@@ -246,6 +249,7 @@ class ReactionIntakeServiceTest extends TestCase {
 		$savedCounts = [];
 		$this->objectService->method('saveObject')->willReturnCallback(
 			function (...$args) use (&$savedCounts) {
+				$args = LegacyObjectArgs::positional(method: 'saveObject', args: $args);
 				$obj = $args[0] ?? [];
 				if (isset($obj['submissionCount']) === true) {
 					$savedCounts[] = $obj['submissionCount'];

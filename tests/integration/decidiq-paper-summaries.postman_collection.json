@@ -1,0 +1,1313 @@
+{
+ "info": {
+  "name": "Decidiq Paper Summaries Contract Suite",
+  "description": "Newman contract tests for agenda-ai-paper-summaries task 1 (REQ-APS-001): the PaperSummary schema's read rule and lifecycle through OpenRegister's object API. A clerk (admin) and a member of decidesk-members read the same collection and get different counts: the member sees only shown summaries. A draft summary cannot be saved back to requested. Self-contained: seeds a probe member, an agenda item and two summaries, and tears them down.\n\n@spec openspec/changes/archive/2026-11-24-agenda-ai-paper-summaries/tasks.md#task-1",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "noauth"
+ },
+ "item": [
+  {
+   "name": "0. Setup",
+   "item": [
+    {
+     "name": "Create member group",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: decidesk-members group available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidesk-members"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Create member probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: member probe user available', () => {",
+         "    if (pm.response.code === 200) { return; }",
+         "    const sc = pm.response.json()?.ocs?.meta?.statuscode;",
+         "    pm.expect(sc, 'already exists is acceptable').to.eql(102);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "userid",
+         "value": "{{apsMemberUser}}"
+        },
+        {
+         "key": "password",
+         "value": "{{apsMemberPass}}"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Add member probe user to decidesk-members",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: member probe user is in decidesk-members', () => {",
+         "    pm.expect(pm.response.code).to.eql(200);",
+         "    pm.expect(pm.response.json()?.ocs?.meta?.statuscode).to.be.oneOf([100, 200]);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/x-www-form-urlencoded"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{apsMemberUser}}/groups?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{apsMemberUser}}",
+        "groups"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      },
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "groupid",
+         "value": "decidesk-members"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Seed agenda item",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: agenda item created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+         "pm.expect(id, 'agenda item id captured').to.be.a('string');",
+         "pm.collectionVariables.set('apsItemId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "agenda-item"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"Newman APS item\",\n  \"itemType\": \"discussion\",\n  \"orderNumber\": 1\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed summary to be shown (requested)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: shown summary created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+         "pm.expect(id, 'shown summary id captured').to.be.a('string');",
+         "pm.collectionVariables.set('apsShownId', id);",
+         "pm.test('Setup: a new summary starts as requested', () => pm.expect(b.status).to.eql('requested'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Begroting\",\n  \"kind\": \"summary\",\n  \"status\": \"requested\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Seed summary kept in review (requested)",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Setup: draft summary created (201)', () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "const id = (b['@self'] && b['@self'].id) || b.id || b.uuid;",
+         "pm.expect(id, 'draft summary id captured').to.be.a('string');",
+         "pm.collectionVariables.set('apsDraftId', id);"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Bijlage\",\n  \"kind\": \"summary\",\n  \"status\": \"requested\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Move shown summary requested -> draft",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('requested -> draft: accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('requested -> draft: stored as draft', () => pm.expect(b.status).to.eql('draft'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsShownId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsShownId}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Begroting\",\n  \"kind\": \"summary\",\n  \"status\": \"draft\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Move shown summary draft -> shown",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('draft -> shown: accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('draft -> shown: stored as shown', () => pm.expect(b.status).to.eql('shown'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsShownId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsShownId}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Begroting\",\n  \"kind\": \"summary\",\n  \"status\": \"shown\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Move review summary requested -> draft",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('requested -> draft: accepted (200)', () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test('requested -> draft: stored as draft', () => pm.expect(b.status).to.eql('draft'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsDraftId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsDraftId}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Bijlage\",\n  \"kind\": \"summary\",\n  \"status\": \"draft\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "1. The read rule",
+   "item": [
+    {
+     "name": "Clerk lists the item's summaries: both",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('clerk read: 200', () => pm.response.to.have.status(200));",
+         "const body = pm.response.json();",
+         "const rows = body.results || body.items || [];",
+         "pm.collectionVariables.set('apsClerkCount', rows.length);",
+         "pm.test('clerk read: the shown and the draft summary both return', () => pm.expect(rows.length).to.eql(2));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary?agendaItem={{apsItemId}}&_limit=50",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary"
+       ],
+       "query": [
+        {
+         "key": "agendaItem",
+         "value": "{{apsItemId}}"
+        },
+        {
+         "key": "_limit",
+         "value": "50"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Member lists the same collection: only shown",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('member read: 200', () => pm.response.to.have.status(200));",
+         "const body = pm.response.json();",
+         "const rows = body.results || body.items || [];",
+         "pm.test('member read: fewer rows than the clerk', () => pm.expect(rows.length).to.be.below(Number(pm.collectionVariables.get('apsClerkCount'))));",
+         "pm.test('member read: exactly the shown summary', () => pm.expect(rows.length).to.eql(1));",
+         "pm.test('member read: every row is shown', () => rows.forEach((r) => pm.expect(r.status).to.eql('shown')));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{apsMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{apsMemberPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary?agendaItem={{apsItemId}}&_limit=50",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary"
+       ],
+       "query": [
+        {
+         "key": "agendaItem",
+         "value": "{{apsItemId}}"
+        },
+        {
+         "key": "_limit",
+         "value": "50"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "Member cannot read the draft summary by id",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('member read of a draft: refused or not found', () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{apsMemberUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{apsMemberPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsDraftId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsDraftId}}"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "2. The lifecycle",
+   "item": [
+    {
+     "name": "A draft summary cannot be saved back to requested",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('draft -> requested: rejected (4xx)', () => {",
+         "    pm.expect(pm.response.code).to.be.within(400, 499);",
+         "});"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsDraftId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsDraftId}}"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"agendaItem\": \"{{apsItemId}}\",\n  \"paperFileId\": 4242,\n  \"paperTitle\": \"Bijlage\",\n  \"kind\": \"summary\",\n  \"status\": \"requested\",\n  \"text\": \"Newman paper summary\"\n}"
+      }
+     }
+    },
+    {
+     "name": "The refused transition left the summary a draft",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('readback: 200', () => pm.response.to.have.status(200));",
+         "pm.test('readback: still draft', () => pm.expect(pm.response.json().status).to.eql('draft'));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "GET",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsDraftId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsDraftId}}"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "9. Teardown",
+   "item": [
+    {
+     "name": "shown summary removed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: shown summary removed (2xx or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsShownId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsShownId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "draft summary removed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: draft summary removed (2xx or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/paper-summary/{{apsDraftId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "paper-summary",
+        "{{apsDraftId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "agenda item removed",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: agenda item removed (2xx or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/agenda-item/{{apsItemId}}",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "index.php",
+        "apps",
+        "openregister",
+        "api",
+        "objects",
+        "decidiq",
+        "agenda-item",
+        "{{apsItemId}}"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Delete member probe user",
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test('Teardown: member probe user removed (2xx or already gone)', () => pm.expect([200, 204, 404]).to.include(pm.response.code));"
+        ]
+       }
+      }
+     ],
+     "request": {
+      "auth": {
+       "type": "basic",
+       "basic": [
+        {
+         "key": "username",
+         "value": "{{adminUser}}",
+         "type": "string"
+        },
+        {
+         "key": "password",
+         "value": "{{adminPass}}",
+         "type": "string"
+        }
+       ]
+      },
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "OCS-APIRequest",
+        "value": "true"
+       },
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{baseUrl}}/ocs/v2.php/cloud/users/{{apsMemberUser}}?format=json",
+       "host": [
+        "{{baseUrl}}"
+       ],
+       "path": [
+        "ocs",
+        "v2.php",
+        "cloud",
+        "users",
+        "{{apsMemberUser}}"
+       ],
+       "query": [
+        {
+         "key": "format",
+         "value": "json"
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8080"
+  },
+  {
+   "key": "noAuthBase",
+   "value": "http://127.0.0.1:8080"
+  },
+  {
+   "key": "adminUser",
+   "value": "admin"
+  },
+  {
+   "key": "adminPass",
+   "value": "admin"
+  },
+  {
+   "key": "apsMemberUser",
+   "value": "decidesk-aps-member"
+  },
+  {
+   "key": "apsMemberPass",
+   "value": "Decidiq-Aps-Member!42x"
+  },
+  {
+   "key": "apsItemId",
+   "value": ""
+  },
+  {
+   "key": "apsShownId",
+   "value": ""
+  },
+  {
+   "key": "apsDraftId",
+   "value": ""
+  },
+  {
+   "key": "apsClerkCount",
+   "value": ""
+  }
+ ]
+}

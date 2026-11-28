@@ -1,7 +1,7 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Works-council consultation (WOR-trajecten: adviesaanvraag art. 25 / instemmingsverzoek art. 27) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for ConsultationRequest; schema refs BY SLUG (consultation-request), never PascalCase. Confidential domain: no public surface. DEFERRED (out of declarative-core scope): the two Dashboard stat widgets 'Open WOR-trajecten' (non-terminal lifecycle) and 'Reactie over gevraagde datum' (non-terminal before verzonden with requestedResponseDate in the past) (REQ-WCC-008) are intentionally NOT added here — a fragment cannot add a single widget to the base Dashboard page without duplicating it (mergePages replaces a same-id page wholesale), so both KPI widgets are a base src/manifest.json edit landed separately, deep-linking this index pre-filtered. Also DEFERRED: the besluit-recording dialog + 'Generate response document' action + the running-opschortingstermijn surfacing require imperative/component work beyond this declarative core; the detail page here shows the fields + related refs + Files leaf.",
-	"_spec": "openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md",
+	"_spec": "openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md",
 	"menu": [
 		{
 			"id": "WorksCouncilConsultations",
@@ -17,8 +17,9 @@
 			"route": "/works-council-consultations",
 			"type": "index",
 			"title": "Works-council consultations",
-			"_note": "spec: openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md — WOR-trajecten index (REQ-WCC-008). Columns subject/type/worArticle/bestuurder/receivedDate/requestedResponseDate/lifecycle; quick filters on type, lifecycle and governance body. The dashboard KPI deep-links target this page pre-filtered (non-terminal lifecycle / overdue set); the KPI widgets themselves are a deferred base-manifest edit (see top _note).",
+			"_note": "spec: openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md — WOR-trajecten index (REQ-WCC-008). Columns subject/type/worArticle/bestuurder/receivedDate/requestedResponseDate/lifecycle; quick filters on type, lifecycle and governance body. The dashboard KPI deep-links target this page pre-filtered (non-terminal lifecycle / overdue set); the KPI widgets themselves are a deferred base-manifest edit (see top _note).",
 			"config": {
+				"pageTabs": [{"label": "Governance consultations", "route": "GovernanceConsultations", "countFrom": {"register": "decidiq", "schema": "governance-consultation"}}, {"label": "Works-council consultations", "route": "WorksCouncilConsultations", "countFrom": {"register": "decidiq", "schema": "consultation-request"}}, {"label": "Public consultations", "route": "Consultations", "countFrom": {"register": "decidiq", "schema": "public-consultation"}}, {"label": "Participatory budgets", "route": "BudgetRounds", "countFrom": {"register": "decidiq", "schema": "participatory-budget"}}, {"label": "Moderation", "route": "ModerationQueue", "countFrom": {"register": "decidiq", "schema": "consultation-reaction", "filter": {"moderationStatus": "pending"}}}],
 				"register": "decidiq",
 				"schema": "consultation-request",
 				"sortKey": "@self.created",
@@ -45,6 +46,7 @@
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "worArticle", "label": "WOR article" },
 					{ "key": "director", "label": "Bestuurder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Works council", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "receivedDate", "label": "Received" },
 					{ "key": "requestedResponseDate", "label": "Requested response" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -61,8 +63,9 @@
 			"id": "WorksCouncilConsultationDetail",
 			"route": "/works-council-consultations/:id",
 			"type": "detail",
+			"slots": { "widget-wor-traject-next-step": "WorksCouncilResponseTab" },
 			"title": "Works-council consultation",
-			"_note": "spec: openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md — WorksCouncilConsultationDetail (REQ-WCC-008). Shows all fields and the linked overlegvergadering/agendaItem/achterbanraadpleging/relatedDecision/responseDocument as navigable references, plus the Files leaf for submitted documents. The running opschortingstermijn surfacing, the besluit-recording dialog and the 'Generate response document' action are wired when ConsultationResponseDocumentService + the besluit dialog land (imperative, out of declarative core); this core shows the fields + related refs + Files leaf.",
+			"_note": "spec: openspec/changes/archive/2026-11-24-works-council-consultation/specs/works-council-consultation/spec.md — WorksCouncilConsultationDetail (REQ-WCC-008). Shows all fields and the linked overlegvergadering/agendaItem/achterbanraadpleging/relatedDecision/responseDocument as navigable references, plus the Files leaf for submitted documents. The running opschortingstermijn shows in its own card while suspensionTo is set; the besluit-recording dialog and the 'Generate response document' action are wired when ConsultationResponseDocumentService + the besluit dialog land.",
 			"config": {
 				"register": "decidiq",
 				"schema": "consultation-request",
@@ -70,12 +73,16 @@
 				"widgets": [
 					{ "id": "wor-traject-data", "type": "data", "title": "Works-council consultation", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "wor-traject-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "wor-traject-next-step", "type": "custom", "component": "WorksCouncilResponseTab", "title": "Next step", "icon": "HandshakeOutline", "_note": "works-council-consultation task 6 (REQ-WCC-003/005/006): write the response document once it is adopted, record the director's decision once it is sent, and open the constituency consultation and the related decision's advisory stage." },
+					{ "id": "wor-traject-suspension", "type": "data", "title": "Suspension term (art. 25 lid 6 WOR)", "icon": "CalendarClockOutline", "visibleWhen": { "field": "suspensionTo", "op": "notEmpty" }, "content": { "columns": 1, "include": ["decisionOutcome", "decisionDate", "suspensionTo"] }, "_note": "works-council-consultation task 3 (REQ-WCC-006): shown only while a decision contrary to the advice has set the derived suspensionTo; the bestuurder may not carry the decision out before that date." },
 					{ "id": "wor-traject-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "wor-traject-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "wor-traject-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "wor-traject-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "2", "widgetId": "wor-traject-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 3 },
+					{ "id": "4", "widgetId": "wor-traject-suspension", "gridX": 8, "gridY": 3, "gridWidth": 4, "gridHeight": 3 },
+					{ "id": "5", "widgetId": "wor-traject-next-step", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 2 },
+					{ "id": "3", "widgetId": "wor-traject-related", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,

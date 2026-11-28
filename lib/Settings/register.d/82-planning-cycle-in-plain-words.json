@@ -1,6 +1,6 @@
 {
 	"_note": "planning-cycle-in-plain-words — a cyclus is a cycle. The planning and control cycle is not a Dutch invention: every organisation that sets a budget, reports on it and closes a year runs one, and this schema already said so, its `context` enum covering association, corporate and operations alongside legislative. The properties were already in plain words. Only the schemas were not, so this is a rename and the migration is a copy with a different schema on it.",
-	"_spec": "openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md",
+	"_spec": "openspec/specs/planning-cycle-in-plain-words/spec.md",
 	"components": {
 		"schemas": {
 			"PlanningCycle": {
@@ -272,8 +272,15 @@
 							"type": "scheduled",
 							"intervalSec": 604800,
 							"filter": {
-								"status": "planned"
-							}
+								"status": "planned",
+								"deliveryDeadline": {
+									"operator": "before",
+									"value": "now"
+								}
+							},
+							"dedupeFields": [
+								"deliveryDeadline"
+							]
 						},
 						"enabled": true,
 						"channels": [
@@ -295,18 +302,29 @@
 							"nl": "Rappel: aanlevering P&C-stap te laat — {{label}}",
 							"en": "Reminder: P&C step delivery overdue — {{label}}"
 						},
-						"_note": "Late-aanlevering rappel (REQ-PCC-006). intervalSec 604800 (weekly) is PROVISIONAL (design open question — admin-configurable tuning deferred). Filter targets status 'gepland' only, so no rappel fires for terminal (vastgesteld/afgerond) or in-progress steps. LIMITATION: the 'aanleverDeadline is past' predicate is not expressible in this filter shape; the scheduled engine's window semantics carry it — verify OR's scheduled-notification engine interprets this as an after-deadline rappel during live import. Recipients approximate the griffie via object-acl(read) + the decidesk-members group."
+						"_note": "Late-aanlevering rappel (REQ-PCC-006). intervalSec 604800 (weekly) is PROVISIONAL (design open question — admin-configurable tuning deferred). Filter targets status 'gepland' only, so no rappel fires for terminal (vastgesteld/afgerond) or in-progress steps. LIMITATION: the 'aanleverDeadline is past' predicate is not expressible in this filter shape; the scheduled engine's window semantics carry it — verify OR's scheduled-notification engine interprets this as an after-deadline rappel during live import. Recipients approximate the griffie via object-acl(read) + the decidesk-members group. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
 					},
 					"behandelingApproachingUnscheduled": {
 						"trigger": {
 							"type": "scheduled",
 							"intervalSec": 604800,
 							"filter": {
-								"status": [
-									"gepland",
-									"stukken-ontvangen",
-									"in-behandeling"
-								]
+								"status": {
+									"operator": "in",
+									"values": [
+										"planned",
+										"documents-received",
+										"in-progress"
+									]
+								},
+								"handlingDate": {
+									"operator": "withinNext",
+									"value": "P14D"
+								},
+								"agendaItem": {
+									"operator": "equals",
+									"value": null
+								}
 							}
 						},
 						"enabled": true,
@@ -329,7 +347,7 @@
 							"nl": "Rappel: behandeling P&C-stap nog niet geagendeerd — {{label}}",
 							"en": "Reminder: P&C step behandeling not yet scheduled — {{label}}"
 						},
-						"_note": "Behandeling-approaching-unscheduled rappel (REQ-PCC-006). intervalSec 604800 (weekly) is PROVISIONAL. Filter targets non-terminal status only, so no rappel fires for vastgesteld/afgerond. LIMITATION (design D6/open question): the 'behandelingDatum within the rappel window' and 'agendaItem reference empty' predicates are not expressible in this filter shape; the scheduled engine's window semantics carry the date, and the empty-agendaItem condition is a documented apply-time concern — verify against OR's scheduled-notification engine during live import; never a silent gap and never an imperative reminder BackgroundJob."
+						"_note": "Behandeling-approaching-unscheduled rappel (REQ-PCC-006). intervalSec 604800 (weekly) is PROVISIONAL. Filter targets non-terminal status only, so no rappel fires for vastgesteld/afgerond. LIMITATION (design D6/open question): the 'behandelingDatum within the rappel window' and 'agendaItem reference empty' predicates are not expressible in this filter shape; the scheduled engine's window semantics carry the date, and the empty-agendaItem condition is a documented apply-time concern — verify against OR's scheduled-notification engine during live import; never a silent gap and never an imperative reminder BackgroundJob. Date clause added 24 Nov 2026: OpenRegister's filter grammar reads the date window only when it is written as a clause, and a bare list of states is not in the grammar, so until then this rule matched nothing."
 					}
 				},
 				"required": [

@@ -26,7 +26,6 @@
 	<div
 		class="user-settings-section"
 		data-testid="notification-preferences-section">
-		<h3>{{ t('decidiq', 'Notification preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
@@ -150,6 +149,7 @@ export default {
 				taskAssigned: true,
 				commentMention: true,
 				meetingReminder: true,
+				agendaChanged: true,
 				reminderTimes: [...DEFAULT_REMINDER_TIMES],
 			},
 
@@ -184,6 +184,10 @@ export default {
 				{
 					key: 'meetingReminder',
 					label: this.t('decidiq', 'Meeting reminder'),
+				},
+				{
+					key: 'agendaChanged',
+					label: this.t('decidiq', 'Agenda published or changed'),
 				},
 			]
 		},
@@ -234,6 +238,7 @@ export default {
 				'taskAssigned',
 				'commentMention',
 				'meetingReminder',
+				'agendaChanged',
 			]) {
 				if (typeof pref[key] === 'boolean') {
 					this.form[key] = pref[key]
@@ -297,28 +302,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.user-settings-section {
-	margin-bottom: 24px;
-}
-
-.user-settings-section__hint {
-	color: var(--color-text-maxcontrast);
-	margin-bottom: 8px;
-}
-
-.user-settings-section__group {
-	border: 0;
-	margin: 12px 0;
-	padding: 0;
-}
-
-.user-settings-section__group legend {
-	font-weight: bold;
-	margin-bottom: 4px;
-}
-
-.user-settings-section__actions {
-	margin-top: 12px;
-}
-</style>
+<style scoped src="./userSettingsGroups.css"></style>
