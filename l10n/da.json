@@ -3421,7 +3421,8 @@
         "Meetings without dossier": "Møder uden sag",
         "Closed item": "Lukket punkt",
         "Consolidated text": "Konsolideret tekst",
-        "Depth {depth}": "Dybde {depth}"
+        "Depth {depth}": "Dybde {depth}",
+        "In force on": "Gældende pr."
     },
     "plurals": null
 }

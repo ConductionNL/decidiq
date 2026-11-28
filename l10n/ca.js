@@ -3352,7 +3352,8 @@ OC.L10N.register(
         "Meetings without dossier": "Reunions sense expedient",
         "Closed item": "Punt a porta tancada",
         "Consolidated text": "Text consolidat",
-        "Depth {depth}": "Profunditat {depth}"
+        "Depth {depth}": "Profunditat {depth}",
+        "In force on": "Vigent el"
     },
     "nplurals=2; plural=(n != 1);"
 )

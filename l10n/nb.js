@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Møter uten mappe",
         "Closed item": "Lukket sak",
         "Consolidated text": "Konsolidert tekst",
-        "Depth {depth}": "Dybde {depth}"
+        "Depth {depth}": "Dybde {depth}",
+        "In force on": "Gjeldende per"
     },
     "nplurals=2; plural=(n != 1);"
 )

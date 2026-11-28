@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Dosyası olmayan toplantılar",
         "Closed item": "Kapalı gündem maddesi",
         "Consolidated text": "Konsolide metin",
-        "Depth {depth}": "Derinlik {depth}"
+        "Depth {depth}": "Derinlik {depth}",
+        "In force on": "Yürürlükte olduğu tarih"
     },
     "nplurals=2; plural=(n != 1);"
 )

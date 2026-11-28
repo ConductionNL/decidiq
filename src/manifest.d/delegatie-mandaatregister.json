@@ -41,7 +41,7 @@
 					{ "label": "Machtiging", "filter": { "type": "authorisation" } },
 					{
 						"label": "In force today",
-						"_note": "REQ-DMR-004 'geldig op' for today as one OR list query: in force, valid from today or earlier, and valid until today or later or open-ended (validTo[orNull]). Any other date: the sidebar's validFrom / validTo date facets ask the same question for that date.",
+						"_note": "REQ-DMR-004 'geldig op' for today as one OR list query: in force, valid from today or earlier, and valid until today or later or open-ended (validTo[orNull]). Any other date: the In force on date choice above the list (InForceOnDateFilter) writes the same four keys for that day.",
 						"filter": {
 							"status": "effective",
 							"validFrom[lte]": "@today",
@@ -67,6 +67,14 @@
 						"handler": "navigate",
 						"route": "AuthorityDelegationDetail",
 						"primary": true
+					}
+				],
+				"statRow": [
+					{
+						"id": "in-force-on-date",
+						"type": "InForceOnDateFilter",
+						"title": "",
+						"_note": "REQ-DMR-004 'geldig op' for any day: choosing a day writes status effective, validFrom[lte], validTo[gte] and validTo[orNull] for that day into the address, which the index merges into its list fetch (one OpenRegister query). Clearing it takes the four keys off and keeps the other filters."
 					}
 				],
 				"showMassExport": true,

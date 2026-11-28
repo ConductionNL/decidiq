@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Sēdes bez lietas",
         "Closed item": "Slēgts jautājums",
         "Consolidated text": "Konsolidētais teksts",
-        "Depth {depth}": "Dziļums {depth}"
+        "Depth {depth}": "Dziļums {depth}",
+        "In force on": "Spēkā"
     },
     "nplurals=2; plural=(n != 1);"
 )

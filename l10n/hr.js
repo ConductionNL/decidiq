@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Sjednice bez spisa",
         "Closed item": "Zatvorena točka",
         "Consolidated text": "Pročišćeni tekst",
-        "Depth {depth}": "Dubina {depth}"
+        "Depth {depth}": "Dubina {depth}",
+        "In force on": "Na snazi na dan"
     },
     "nplurals=2; plural=(n != 1);"
 )

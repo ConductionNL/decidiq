@@ -3421,7 +3421,8 @@
         "Meetings without dossier": "Cruinnithe gan chomhad",
         "Closed item": "Mír iata",
         "Consolidated text": "Téacs comhdhlúite",
-        "Depth {depth}": "Doimhneacht {depth}"
+        "Depth {depth}": "Doimhneacht {depth}",
+        "In force on": "I bhfeidhm ar"
     },
     "plurals": null
 }

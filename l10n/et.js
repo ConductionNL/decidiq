@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Toimikuta koosolekud",
         "Closed item": "Kinnine päevakorrapunkt",
         "Consolidated text": "Konsolideeritud tekst",
-        "Depth {depth}": "Sügavus {depth}"
+        "Depth {depth}": "Sügavus {depth}",
+        "In force on": "Kehtiv kuupäeval"
     },
     "nplurals=2; plural=(n != 1);"
 )

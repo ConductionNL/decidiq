@@ -3354,7 +3354,8 @@
         "Meetings without dossier": "Radunanzas senza dossier",
         "Closed item": "Punct betg public",
         "Consolidated text": "Text consolidà",
-        "Depth {depth}": "Profunditad {depth}"
+        "Depth {depth}": "Profunditad {depth}",
+        "In force on": "En vigur ils"
     },
     "plurals": null
 }

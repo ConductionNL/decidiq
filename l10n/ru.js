@@ -3419,7 +3419,8 @@ OC.L10N.register(
         "Meetings without dossier": "Заседания без дела",
         "Closed item": "Закрытый пункт",
         "Consolidated text": "Консолидированный текст",
-        "Depth {depth}": "Глубина {depth}"
+        "Depth {depth}": "Глубина {depth}",
+        "In force on": "Действует на"
     },
     "nplurals=2; plural=(n != 1);"
 )

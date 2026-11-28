@@ -3354,7 +3354,8 @@
         "Meetings without dossier": "Седнице без досијеа",
         "Closed item": "Затворена тачка",
         "Consolidated text": "Пречишћени текст",
-        "Depth {depth}": "Дубина {depth}"
+        "Depth {depth}": "Дубина {depth}",
+        "In force on": "Важи на дан"
     },
     "plurals": null
 }

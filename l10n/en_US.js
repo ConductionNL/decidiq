@@ -969,7 +969,8 @@ OC.L10N.register(
         "Meetings without dossier": "Meetings without dossier",
         "Closed item": "Closed item",
         "Consolidated text": "Consolidated text",
-        "Depth {depth}": "Depth {depth}"
+        "Depth {depth}": "Depth {depth}",
+        "In force on": "In force on"
     },
     "nplurals=2; plural=(n != 1);"
 )
