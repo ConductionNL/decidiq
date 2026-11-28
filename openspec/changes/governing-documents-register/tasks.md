@@ -79,7 +79,7 @@
 ## Verification
 
 - [x] All tasks checked off
-- [ ] `openspec validate` passes
+- [x] `openspec validate` passes (28 Nov 2026: `openspec validate <change> --type change` reports valid; `--strict` still lists the long-requirement and extra-section warnings, which are spec-shape notes, not errors)
 - [x] Manual testing against acceptance criteria on Postgres (8080) instance (25 Nov 2026: `tests/e2e/governing-documents-register.spec.ts` 11/11 on a sandbox Nextcloud 34.0.6 + PostgreSQL 16 on :8080, OpenRegister main: required fields, constitutive first version, amendment without enacting decision refused (422 naming determinedBy), unique version numbers (422), sealed version's effective date refused (422) and unchanged, in-force today and none before the first version, cited-by, public view without notes or notary, internal document 404, register index. REQ-GDR-008's notification is not part of the run)
 - [x] Code review against spec requirements (REQ-GDR-001…008)
   - Reviewed 27 Nov 2026, every scenario against fragment 55, `GoverningDocumentConsolidationService`, the guard and date listeners, the controller, the pages and their tests. Covered: REQ-GDR-001, 002 (trace rule, constitutive v1, unique numbers), 003 (frozen fields), 004 (including both boundary dates and activation order), 005, the decidiq public view of 007, and 008 as configuration. Fixed here:
