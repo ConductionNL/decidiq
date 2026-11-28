@@ -73,9 +73,9 @@ describe('InForceOnDateFilter', () => {
 
 	it('shows the day the address asks about', () => {
 		const vm = vmOf({ $route: { query: inForceOnDateQuery('2026-06-01') } })
-		const picked = component.computed.pickedDate.call(vm)
+		const picked = component.computed.pickedDate.get.call(vm)
 		expect(isoDay(picked)).toBe('2026-06-01')
-		expect(component.computed.pickedDate.call(vmOf({ $route: { query: {} } }))).toBeNull()
+		expect(component.computed.pickedDate.get.call(vmOf({ $route: { query: {} } }))).toBeNull()
 	})
 
 	it('writes the picked day into the address', () => {
@@ -83,6 +83,12 @@ describe('InForceOnDateFilter', () => {
 		const vm = vmOf({ $route: { query: { type: 'mandate' } }, $router: { replace } })
 		component.methods.onPick.call(vm, new Date(2026, 5, 1))
 		expect(replace).toHaveBeenCalledWith({ query: { type: 'mandate', ...inForceOnDateQuery('2026-06-01') } })
+	})
+
+	it('routes the picker\'s v-model through the same write', () => {
+		const onPick = vi.fn()
+		component.computed.pickedDate.set.call({ onPick }, new Date(2026, 5, 1))
+		expect(onPick).toHaveBeenCalledOnce()
 	})
 
 	it('does not navigate when nothing changes', () => {

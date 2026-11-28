@@ -13,11 +13,10 @@
 	<div class="in-force-on-date" data-testid="in-force-on-date">
 		<NcDateTimePickerNative
 			id="in-force-on-date"
-			:value="pickedDate"
+			v-model="pickedDate"
 			type="date"
 			data-testid="in-force-on-date-input"
-			:label="t('decidiq', 'In force on')"
-			@input="onPick" />
+			:label="t('decidiq', 'In force on')" />
 	</div>
 </template>
 
@@ -31,19 +30,32 @@ export default {
 	components: { NcDateTimePickerNative },
 
 	computed: {
-		/**
-		 * The day the address asks about, as a Date for the picker.
-		 *
-		 * @return {Date|null} The day, or null when none is chosen.
-		 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export
-		 */
-		pickedDate() {
-			const day = dayFromQuery(this.$route && this.$route.query)
-			if (day === '') {
-				return null
-			}
-			const [year, month, date] = day.split('-').map(Number)
-			return new Date(year, month - 1, date)
+		pickedDate: {
+			/**
+			 * The day the address asks about, as a Date for the picker.
+			 *
+			 * @return {Date|null} The day, or null when none is chosen.
+			 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export
+			 */
+			get() {
+				const day = dayFromQuery(this.$route && this.$route.query)
+				if (day === '') {
+					return null
+				}
+				const [year, month, date] = day.split('-').map(Number)
+				return new Date(year, month - 1, date)
+			},
+
+			/**
+			 * A picked day goes into the address.
+			 *
+			 * @param {Date|null} value The picked date.
+			 * @return {void}
+			 * @spec openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export
+			 */
+			set(value) {
+				this.onPick(value)
+			},
 		},
 	},
 
